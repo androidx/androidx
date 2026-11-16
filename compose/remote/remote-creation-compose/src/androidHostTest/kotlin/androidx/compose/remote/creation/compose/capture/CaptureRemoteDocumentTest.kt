@@ -256,8 +256,7 @@ class CaptureRemoteDocumentTest {
 
                             drawTextOnCircle(
                                 text = "10:09".rs,
-                                centerX = width / 2f,
-                                centerY = height / 2f,
+                                center = RemoteOffset(width / 2f, height / 2f),
                                 radius = width / 2f,
                                 startAngle = 0f.rf,
                                 warpRadiusOffset = 0f.rf,
@@ -292,7 +291,7 @@ class CaptureRemoteDocumentTest {
         var weakRef: WeakReference<RemoteString>? = null
         val creationState =
             RemoteComposeCreationState(
-                creationDisplayInfo = createCreationDisplayInfo(context),
+                creationDisplayInfo = createRemoteCreationDisplayInfo(context),
                 profile = RcPlatformProfiles.ANDROIDX,
                 writerCallback = null,
                 layoutDirection = RemoteLayoutDirection.Ltr,
@@ -949,7 +948,7 @@ class CaptureRemoteDocumentTest {
             val flow =
                 captureRemoteDocument(
                     context = context,
-                    creationDisplayInfo = createCreationDisplayInfo(context),
+                    creationDisplayInfo = createRemoteCreationDisplayInfo(context),
                     coroutineContext = Dispatchers.Default,
                 ) {
                     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -1005,7 +1004,7 @@ class CaptureRemoteDocumentTest {
         val flow =
             captureRemoteDocument(
                 context = context,
-                creationDisplayInfo = createCreationDisplayInfo(context),
+                creationDisplayInfo = createRemoteCreationDisplayInfo(context),
                 coroutineContext = Dispatchers.Default,
             ) {
                 val lifecycleOwner = LocalLifecycleOwner.current
@@ -1054,7 +1053,7 @@ class CaptureRemoteDocumentTest {
         val flow =
             captureRemoteDocument(
                 context = context,
-                creationDisplayInfo = createCreationDisplayInfo(context),
+                creationDisplayInfo = createRemoteCreationDisplayInfo(context),
                 coroutineContext = Dispatchers.Default,
             ) {
                 RemoteBox(modifier = RemoteModifier.fillMaxSize().background(RemoteColor.Red)) {
@@ -1175,7 +1174,7 @@ class CaptureRemoteDocumentTest {
                             val flow =
                                 captureRemoteDocument(
                                     context = context,
-                                    creationDisplayInfo = createCreationDisplayInfo(context),
+                                    creationDisplayInfo = createRemoteCreationDisplayInfo(context),
                                     coroutineContext = Dispatchers.Default,
                                 ) {
                                     val lifecycleState by
@@ -1623,7 +1622,7 @@ class CaptureRemoteDocumentTest {
     fun captureRemoteDocument_withSavedState_persistsStateAcrossFlowCollections() =
         runTest(UnconfinedTestDispatcher()) {
             val savedState = savedState()
-            val displayInfo = createCreationDisplayInfo(context)
+            val displayInfo = createRemoteCreationDisplayInfo(context)
             val advance = CompletableDeferred<Unit>()
             val flow =
                 captureRemoteDocument(
@@ -1732,7 +1731,7 @@ class CaptureRemoteDocumentTest {
     fun captureRemoteDocument_withSavedState_persistsSavedStateRegistryOwnerAcrossFlowCollections() =
         runTest(UnconfinedTestDispatcher()) {
             val savedState = savedState()
-            val displayInfo = createCreationDisplayInfo(context)
+            val displayInfo = createRemoteCreationDisplayInfo(context)
             val flow =
                 captureRemoteDocument(
                     context = context,
@@ -1867,7 +1866,7 @@ class CaptureRemoteDocumentTest {
     fun captureRemoteDocument_withRetainedValuesStore_persistsAcrossFlowCollections() =
         runTest(UnconfinedTestDispatcher()) {
             val store = ManagedRetainedValuesStore()
-            val displayInfo = createCreationDisplayInfo(context)
+            val displayInfo = createRemoteCreationDisplayInfo(context)
             var retiredCount = 0
             val flow =
                 captureRemoteDocument(

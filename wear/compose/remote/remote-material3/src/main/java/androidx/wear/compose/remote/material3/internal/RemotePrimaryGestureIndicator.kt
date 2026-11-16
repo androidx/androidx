@@ -268,7 +268,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
             strokeLineJoin = RemoteStrokeJoin.Round,
         ) {
             moveTo(s.x(-2.00f, -1.60f, -1.91f), s.y(-4.58f, -4.28f, -4.51f))
-            cubicTo(
+            curveTo(
                 s.x(0.96f, 2.27f, 1.26f),
                 s.y(-8.38f, -7.65f, -8.21f),
                 s.x(5.49f, 6.02f, 5.61f),
@@ -276,7 +276,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(7.00f, 8.38f, 7.31f),
                 s.y(-10.45f, -7.17f, -9.70f),
             )
-            cubicTo(
+            curveTo(
                 s.x(8.82f, 10.37f, 9.17f),
                 s.y(-10.87f, -6.76f, -9.93f),
                 s.x(10.72f, 12.38f, 11.10f),
@@ -284,7 +284,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(12.47f, 13.43f, 12.68f),
                 s.y(-10.91f, -3.84f, -9.29f),
             )
-            cubicTo(
+            curveTo(
                 s.x(13.41f, 14.00f, 13.54f),
                 s.y(-10.82f, -3.08f, -9.05f),
                 s.x(14.65f, 14.66f, 14.65f),
@@ -292,7 +292,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(15.15f, 14.47f, 15.00f),
                 s.y(-9.86f, -0.99f, -7.84f),
             )
-            cubicTo(
+            curveTo(
                 s.x(15.66f, 14.32f, 15.36f),
                 s.y(-8.98f, -0.24f, -6.99f),
                 s.x(15.67f, 13.69f, 15.21f),
@@ -300,7 +300,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(14.92f, 12.62f, 14.40f),
                 s.y(-7.60f, 0.20f, -5.82f),
             )
-            cubicTo(
+            curveTo(
                 s.x(14.47f, 11.98f, 13.90f),
                 s.y(-7.29f, 0.13f, -5.59f),
                 s.x(13.54f, 11.13f, 12.99f),
@@ -308,7 +308,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(13.04f, 10.63f, 12.49f),
                 s.y(-7.07f, -0.92f, -5.67f),
             )
-            cubicTo(
+            curveTo(
                 s.x(11.04f, 8.84f, 10.54f),
                 s.y(-7.14f, -2.40f, -6.06f),
                 s.x(7.57f, 7.97f, 7.66f),
@@ -316,7 +316,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(5.04f, 4.87f, 5.00f),
                 s.y(-4.83f, -2.40f, -4.28f),
             )
-            cubicTo(
+            curveTo(
                 s.x(3.65f, 3.22f, 3.55f),
                 s.y(-3.84f, -1.96f, -3.41f),
                 s.x(2.02f, 2.15f, 2.05f),
@@ -324,7 +324,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(1.74f, 1.54f, 1.69f),
                 s.y(-0.40f, 0.00f, -0.31f),
             )
-            cubicTo(
+            curveTo(
                 s.x(1.32f, 0.32f, 1.09f),
                 s.y(2.16f, 1.75f, 2.07f),
                 s.x(2.28f, 0.74f, 1.93f),
@@ -332,7 +332,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(3.66f, 1.91f, 3.26f),
                 s.y(4.57f, 4.27f, 4.50f),
             )
-            cubicTo(
+            curveTo(
                 s.x(5.90f, 5.12f, 5.72f),
                 s.y(5.53f, 6.50f, 5.75f),
                 s.x(10.10f, 8.68f, 9.77f),
@@ -340,7 +340,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(12.29f, 11.11f, 12.02f),
                 s.y(3.93f, 1.40f, 3.35f),
             )
-            cubicTo(
+            curveTo(
                 s.x(12.64f, 11.50f, 12.38f),
                 s.y(4.10f, 1.37f, 3.48f),
                 s.x(13.11f, 12.14f, 12.89f),
@@ -348,7 +348,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(13.23f, 12.45f, 13.05f),
                 s.y(4.99f, 1.85f, 4.27f),
             )
-            cubicTo(
+            curveTo(
                 s.x(13.84f, 14.09f, 13.90f),
                 s.y(7.21f, 3.46f, 6.35f),
                 s.x(11.15f, 11.90f, 11.32f),
@@ -356,7 +356,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(9.93f, 11.04f, 10.18f),
                 s.y(7.89f, 6.01f, 7.46f),
             )
-            cubicTo(
+            curveTo(
                 s.x(8.53f, 10.05f, 8.88f),
                 s.y(8.35f, 7.10f, 8.06f),
                 s.x(6.65f, 6.65f, 6.65f),
@@ -364,7 +364,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(4.17f, 4.17f, 4.17f),
                 s.y(10.85f, 10.85f, 10.85f),
             )
-            cubicTo(
+            curveTo(
                 s.x(2.19f, 2.19f, 2.19f),
                 s.y(11.78f, 11.78f, 11.78f),
                 s.x(-0.20f, 0.22f, -0.11f),
@@ -372,7 +372,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(-2.69f, -2.27f, -2.59f),
                 s.y(12.71f, 12.50f, 12.66f),
             )
-            cubicTo(
+            curveTo(
                 s.x(-4.31f, -3.89f, -4.22f),
                 s.y(12.77f, 12.56f, 12.73f),
                 s.x(-5.97f, -5.82f, -5.94f),
@@ -390,7 +390,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
             strokeLineJoin = RemoteStrokeJoin.Round,
         ) {
             moveTo(s.x(-5.12f, -4.47f, -4.97f), s.y(-7.51f, -7.01f, -7.40f))
-            cubicTo(
+            curveTo(
                 s.x(-2.05f, 0.67f, -1.43f),
                 s.y(-10.56f, -11.75f, -10.83f),
                 s.x(3.77f, 7.62f, 4.65f),
@@ -408,7 +408,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
             strokeLineJoin = RemoteStrokeJoin.Round,
         ) {
             moveTo(s.x(0.99f, 1.89f, 1.19f), s.y(-12.01f, -10.86f, -11.74f))
-            cubicTo(
+            curveTo(
                 s.x(-1.14f, 0.32f, -0.80f),
                 s.y(-12.35f, -12.00f, -12.27f),
                 s.x(-3.70f, -3.00f, -3.54f),
@@ -416,7 +416,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(-7.61f, -6.91f, -7.45f),
                 s.y(-10.01f, -9.31f, -9.85f),
             )
-            cubicTo(
+            curveTo(
                 s.x(-8.75f, -8.05f, -8.59f),
                 s.y(-9.10f, -8.40f, -8.93f),
                 s.x(-10.69f, -10.36f, -10.61f),
@@ -424,7 +424,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
                 s.x(-12.01f, -11.68f, -11.93f),
                 s.y(-3.14f, -2.42f, -2.98f),
             )
-            cubicTo(
+            curveTo(
                 s.x(-13.33f, -13.00f, -13.25f),
                 s.y(0.73f, 1.45f, 0.89f),
                 s.x(-13.74f, -13.41f, -13.67f),

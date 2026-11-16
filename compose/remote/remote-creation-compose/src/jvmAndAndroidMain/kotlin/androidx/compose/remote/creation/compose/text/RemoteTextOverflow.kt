@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.text
 
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 /** How visual text overflow should be handled in Remote Compose. */
@@ -36,19 +37,23 @@ public value class RemoteTextOverflow internal constructor(internal val value: I
 
     public companion object {
         /** Clips the overflowing text to fit its container. */
-        public val Clip: RemoteTextOverflow = RemoteTextOverflow(TextLayout.OVERFLOW_CLIP)
+        @Stable public val Clip: RemoteTextOverflow = RemoteTextOverflow(TextLayout.OVERFLOW_CLIP)
 
         /** Use an ellipsis at the end to indicate that the text has overflowed. */
+        @Stable
         public val Ellipsis: RemoteTextOverflow = RemoteTextOverflow(TextLayout.OVERFLOW_ELLIPSIS)
 
         /** Display all text, even if there is not enough space in the specified bounds. */
+        @Stable
         public val Visible: RemoteTextOverflow = RemoteTextOverflow(TextLayout.OVERFLOW_VISIBLE)
 
         /** Use an ellipsis at the start to indicate that the text has overflowed. */
+        @Stable
         public val StartEllipsis: RemoteTextOverflow =
             RemoteTextOverflow(TextLayout.OVERFLOW_START_ELLIPSIS)
 
         /** Use an ellipsis in the middle to indicate that the text has overflowed. */
+        @Stable
         public val MiddleEllipsis: RemoteTextOverflow =
             RemoteTextOverflow(TextLayout.OVERFLOW_MIDDLE_ELLIPSIS)
     }

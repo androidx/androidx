@@ -19,7 +19,7 @@ package androidx.compose.remote.player.compose.test.utils
 import android.content.Context
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -63,7 +63,7 @@ class RemoteEmbeddedScreenshotTestRule(
         matcher: BitmapMatcher? = null,
     ) : this(
         moduleDirectory = moduleDirectory,
-        remoteCreationDisplayInfo = createCreationDisplayInfo(context),
+        remoteCreationDisplayInfo = createRemoteCreationDisplayInfo(context),
         matcher = matcher,
     )
 

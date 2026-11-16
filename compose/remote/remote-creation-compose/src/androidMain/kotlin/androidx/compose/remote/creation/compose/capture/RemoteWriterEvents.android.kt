@@ -23,13 +23,8 @@ import androidx.collection.MutableIntObjectMap
 import androidx.compose.remote.creation.compose.util.fastForEachIndexed
 
 /**
- * A callback interface used during the capture process to write out the captured composable
- * information. This allows the capture system to pass on types that can't be serialized into the
- * document such as PendingIntent.
- *
- * Implementations of this interface will handle the serialization or transformation of the captured
- * composable tree into a desired output format, such as a binary file, a JSON representation, or a
- * network stream.
+ * Collects side-band objects (such as [PendingIntent]s) during document capture that cannot be
+ * serialized directly into the remote document.
  */
 public class RemoteWriterEvents {
     private val pendingIntentList: MutableList<PendingIntent> = mutableListOf()

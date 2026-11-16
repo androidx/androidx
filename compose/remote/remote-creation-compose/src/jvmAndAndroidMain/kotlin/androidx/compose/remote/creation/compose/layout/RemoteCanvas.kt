@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInf
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.BaseRemoteState
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -44,7 +45,6 @@ import androidx.compose.remote.creation.compose.state.RemoteIntArray
 import androidx.compose.remote.creation.compose.state.RemoteLong
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
@@ -57,7 +57,7 @@ import androidx.compose.remote.creation.compose.state.StandardRemotePaint
 public class RemoteCanvas(
     internal val creationState: RemoteComposeCaptureState,
     enableOptimizations: Boolean = false,
-) : RemoteStateScope by creationState {
+) : InternalRemoteStateScope by creationState {
 
     override val layoutDirection: RemoteLayoutDirection
         get() = creationState.layoutDirection

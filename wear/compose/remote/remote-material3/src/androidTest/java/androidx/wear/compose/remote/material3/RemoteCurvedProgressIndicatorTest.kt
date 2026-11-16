@@ -18,7 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.collection.buildObjectIntMap
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.view.RemoteComposePlayer
@@ -60,7 +60,7 @@ class RemoteCurvedProgressIndicatorTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(400f, 400f))
+    private val creationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(400f, 400f))
 
     @Test
     fun indicator_enabled() {

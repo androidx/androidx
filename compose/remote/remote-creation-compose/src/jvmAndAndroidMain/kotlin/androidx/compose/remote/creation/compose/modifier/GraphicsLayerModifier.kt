@@ -26,10 +26,12 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.shapes.toDimension
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
+import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.GraphicsLayerModifier as CreationGraphicsLayerModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -52,115 +54,127 @@ internal class GraphicsLayerModifier(
     val renderEffect: RemoteRenderEffect?,
 ) : RemoteModifier.Element {
 
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        val layer = CreationGraphicsLayerModifier()
-        if (scaleX.floatId != 1f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_X, scaleX.floatId)
-        }
-        if (scaleY.floatId != 1f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_Y, scaleY.floatId)
-        }
-        if (rotationX.floatId != 0f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_X, rotationX.floatId)
-        }
-        if (rotationY.floatId != 0f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_Y, rotationY.floatId)
-        }
-        if (rotationZ.floatId != 0f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_Z, rotationZ.floatId)
-        }
-        if (shadowElevation.floatId != 0f) {
-            layer.setFloatAttribute(
-                GraphicsLayerModifierOperation.SHADOW_ELEVATION,
-                shadowElevation.floatId,
-            )
-        }
-        if (transformOriginX.floatId != 0f) {
-            layer.setFloatAttribute(
-                GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_X,
-                transformOriginX.floatId,
-            )
-        }
-        if (transformOriginY.floatId != 0f) {
-            layer.setFloatAttribute(
-                GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y,
-                transformOriginY.floatId,
-            )
-        }
-        if (translationX.floatId != 0f) {
-            layer.setFloatAttribute(
-                GraphicsLayerModifierOperation.TRANSLATION_X,
-                translationX.floatId,
-            )
-        }
-        if (translationY.floatId != 0f) {
-            layer.setFloatAttribute(
-                GraphicsLayerModifierOperation.TRANSLATION_Y,
-                translationY.floatId,
-            )
-        }
-        if (alpha.floatId != 1f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.ALPHA, alpha.floatId)
-        }
-        if (cameraDistance.floatId != 8f) {
-            layer.setFloatAttribute(
-                GraphicsLayerModifierOperation.CAMERA_DISTANCE,
-                cameraDistance.floatId,
-            )
-        }
-        if (compositingStrategy.value != 0) {
-            layer.setIntAttribute(
-                GraphicsLayerModifierOperation.COMPOSITING_STRATEGY,
-                compositingStrategy.value,
-            )
-        }
-        if (renderEffect is RemoteBlurEffect) {
-            layer.setFloatAttribute(
-                GraphicsLayerModifierOperation.BLUR_RADIUS_X,
-                renderEffect.radiusX,
-            )
-            layer.setFloatAttribute(
-                GraphicsLayerModifierOperation.BLUR_RADIUS_Y,
-                renderEffect.radiusY,
-            )
-            val tileMode =
-                when (renderEffect.edgeTreatment) {
-                    RemoteTileMode.Clamp -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
-                    RemoteTileMode.Repeated -> GraphicsLayerModifierOperation.TILE_MODE_REPEATED
-                    RemoteTileMode.Mirror -> GraphicsLayerModifierOperation.TILE_MODE_MIRROR
-                    RemoteTileMode.Decal -> GraphicsLayerModifierOperation.TILE_MODE_DECAL
-                    else -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
-                }
-            layer.setIntAttribute(GraphicsLayerModifierOperation.BLUR_TILE_MODE, tileMode)
-        }
-        when (shape) {
-            RemoteCircleShape -> {
-                layer.setIntAttribute(
-                    GraphicsLayerModifierOperation.SHAPE,
-                    GraphicsLayerModifierOperation.SHAPE_CIRCLE,
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            val layer = CreationGraphicsLayerModifier()
+            if (scaleX.floatId != 1f) {
+                layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_X, scaleX.floatId)
+            }
+            if (scaleY.floatId != 1f) {
+                layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_Y, scaleY.floatId)
+            }
+            if (rotationX.floatId != 0f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.ROTATION_X,
+                    rotationX.floatId,
                 )
             }
-            RemoteRectangleShape -> {
-                layer.setIntAttribute(
-                    GraphicsLayerModifierOperation.SHAPE,
-                    GraphicsLayerModifierOperation.SHAPE_RECT,
+            if (rotationY.floatId != 0f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.ROTATION_Y,
+                    rotationY.floatId,
                 )
             }
-            is RemoteRoundedCornerShape -> {
-                val component = remoteComponent()
-                val remoteSize = RemoteSize(component.width, component.height)
+            if (rotationZ.floatId != 0f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.ROTATION_Z,
+                    rotationZ.floatId,
+                )
+            }
+            if (shadowElevation.floatId != 0f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.SHADOW_ELEVATION,
+                    shadowElevation.floatId,
+                )
+            }
+            if (transformOriginX.floatId != 0f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_X,
+                    transformOriginX.floatId,
+                )
+            }
+            if (transformOriginY.floatId != 0f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y,
+                    transformOriginY.floatId,
+                )
+            }
+            if (translationX.floatId != 0f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.TRANSLATION_X,
+                    translationX.floatId,
+                )
+            }
+            if (translationY.floatId != 0f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.TRANSLATION_Y,
+                    translationY.floatId,
+                )
+            }
+            if (alpha.floatId != 1f) {
+                layer.setFloatAttribute(GraphicsLayerModifierOperation.ALPHA, alpha.floatId)
+            }
+            if (cameraDistance.floatId != 8f) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.CAMERA_DISTANCE,
+                    cameraDistance.floatId,
+                )
+            }
+            if (compositingStrategy.value != 0) {
                 layer.setIntAttribute(
-                    GraphicsLayerModifierOperation.SHAPE,
-                    GraphicsLayerModifierOperation.SHAPE_ROUND_RECT,
+                    GraphicsLayerModifierOperation.COMPOSITING_STRATEGY,
+                    compositingStrategy.value,
+                )
+            }
+            if (renderEffect is RemoteBlurEffect) {
+                layer.setFloatAttribute(
+                    GraphicsLayerModifierOperation.BLUR_RADIUS_X,
+                    renderEffect.radiusX,
                 )
                 layer.setFloatAttribute(
-                    GraphicsLayerModifierOperation.SHAPE_RADIUS,
-                    shape.topStart.toDimension(remoteSize, remoteDensity, densityBehavior).floatId,
+                    GraphicsLayerModifierOperation.BLUR_RADIUS_Y,
+                    renderEffect.radiusY,
                 )
+                val tileMode =
+                    when (renderEffect.edgeTreatment) {
+                        RemoteTileMode.Clamp -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
+                        RemoteTileMode.Repeated -> GraphicsLayerModifierOperation.TILE_MODE_REPEATED
+                        RemoteTileMode.Mirror -> GraphicsLayerModifierOperation.TILE_MODE_MIRROR
+                        RemoteTileMode.Decal -> GraphicsLayerModifierOperation.TILE_MODE_DECAL
+                        else -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
+                    }
+                layer.setIntAttribute(GraphicsLayerModifierOperation.BLUR_TILE_MODE, tileMode)
             }
+            when (shape) {
+                RemoteCircleShape -> {
+                    layer.setIntAttribute(
+                        GraphicsLayerModifierOperation.SHAPE,
+                        GraphicsLayerModifierOperation.SHAPE_CIRCLE,
+                    )
+                }
+                RemoteRectangleShape -> {
+                    layer.setIntAttribute(
+                        GraphicsLayerModifierOperation.SHAPE,
+                        GraphicsLayerModifierOperation.SHAPE_RECT,
+                    )
+                }
+                is RemoteRoundedCornerShape -> {
+                    val component = remoteComponent()
+                    val remoteSize = RemoteSize(component.width, component.height)
+                    layer.setIntAttribute(
+                        GraphicsLayerModifierOperation.SHAPE,
+                        GraphicsLayerModifierOperation.SHAPE_ROUND_RECT,
+                    )
+                    layer.setFloatAttribute(
+                        GraphicsLayerModifierOperation.SHAPE_RADIUS,
+                        shape.topStart
+                            .toDimension(remoteSize, remoteDensity, densityBehavior)
+                            .floatId,
+                    )
+                }
+            }
+            return@with layer
         }
-        return layer
-    }
 }
 
 /**

@@ -16,12 +16,15 @@
 
 package androidx.compose.remote.creation.compose.text
 
+import androidx.compose.runtime.Immutable
+
 /**
  * A sealed class that represents the concept of a FontFamily in Remote Compose.
  *
  * @param name The name used by the player to resolve the font (e.g., "serif").
  * @param fontFamilyName A display name used for debugging and logging purposes.
  */
+@Immutable
 public sealed class RemoteFontFamily(public val name: String, private val fontFamilyName: String) {
 
     /** Represents the default system font family. */
@@ -44,6 +47,7 @@ public sealed class RemoteFontFamily(public val name: String, private val fontFa
      *
      * @param name The font family name resolved by the player.
      */
+    @Immutable
     public class Named(name: String) : RemoteFontFamily(name, "RemoteFontFamily.Named($name)") {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

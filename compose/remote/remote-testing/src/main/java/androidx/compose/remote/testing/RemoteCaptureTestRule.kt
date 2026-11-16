@@ -23,7 +23,7 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -49,7 +49,7 @@ public class RemoteCaptureTestRule : TestRule {
      */
     public suspend fun captureDocument(
         context: Context,
-        creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
+        creationDisplayInfo: RemoteCreationDisplayInfo = createRemoteCreationDisplayInfo(context),
         profile: Profile = RcPlatformProfiles.ANDROIDX,
         clock: RemoteClock = RemoteClock.SYSTEM,
         content: @Composable @RemoteComposable () -> Unit,
@@ -71,7 +71,7 @@ public class RemoteCaptureTestRule : TestRule {
      */
     public suspend fun captureRecordedDocument(
         context: Context,
-        creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
+        creationDisplayInfo: RemoteCreationDisplayInfo = createRemoteCreationDisplayInfo(context),
         profile: Profile = RcPlatformProfiles.ANDROIDX,
         clock: RemoteClock = RemoteClock.SYSTEM,
         content: @Composable @RemoteComposable () -> Unit,

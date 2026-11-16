@@ -35,6 +35,7 @@ import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationCompos
 import androidx.compose.remote.creation.compose.capture.headless.HeadlessLifecycleOwner
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.toRemoteLayoutDirection
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -97,7 +98,7 @@ import kotlinx.coroutines.flow.flow
  */
 public suspend fun captureSingleRemoteDocument(
     context: Context,
-    creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
+    creationDisplayInfo: RemoteCreationDisplayInfo = createRemoteCreationDisplayInfo(context),
     remoteDensity: RemoteDensity =
         RemoteDensity(
             creationDisplayInfo.density.rf,
@@ -142,7 +143,7 @@ public suspend fun captureSingleRemoteDocument(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocument(
     context: Context,
-    creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
+    creationDisplayInfo: RemoteCreationDisplayInfo = createRemoteCreationDisplayInfo(context),
     remoteDensity: RemoteDensity =
         RemoteDensity(
             creationDisplayInfo.density.rf,
@@ -358,7 +359,7 @@ private fun withAndroidLocals(
             LocalSavedStateRegistryOwner provides lifecycleOwner,
             LocalSaveableStateRegistry provides saveableStateRegistry,
             LocalFontWeightAdjustment provides platformFontWeightAdjustment(configuration),
-            LocalIs24HourFormat provides DateFormat.is24HourFormat(context),
+            LocalIs24HourFormat provides RemoteBoolean(DateFormat.is24HourFormat(context)),
         ) {
             if (retainedValuesStore != null) {
                 LocalRetainedValuesStoreProvider(retainedValuesStore, content)
@@ -473,7 +474,7 @@ internal fun canBeSavedToBundle(value: Any): Boolean {
 @Deprecated("Use overload with RemoteWriterEvents", level = DeprecationLevel.HIDDEN)
 public suspend fun captureSingleRemoteDocument(
     context: Context,
-    creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
+    creationDisplayInfo: RemoteCreationDisplayInfo = createRemoteCreationDisplayInfo(context),
     remoteDensity: RemoteDensity =
         RemoteDensity(
             creationDisplayInfo.density.rf,

@@ -156,9 +156,9 @@ class RcPlayerPathBuildingTest {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     val rect = remotePath {
                         moveTo(20f.rf, 20f.rf)
-                        relativeHorizontalTo(60f.rf)
-                        relativeVerticalTo(60f.rf)
-                        relativeHorizontalLineTo((-60f).rf)
+                        horizontalLineToRelative(60f.rf)
+                        verticalLineToRelative(60f.rf)
+                        horizontalLineToRelative((-60f).rf)
                         close()
                     }
                     drawPath(
@@ -198,8 +198,8 @@ class RcPlayerPathBuildingTest {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     val curve = remotePath {
                         moveTo(10f.rf, 50f.rf)
-                        quadraticTo(50f.rf, 10f.rf, 90f.rf, 50f.rf)
-                        relativeQuadTo((-40f).rf, 40f.rf, (-80f).rf, 0f.rf)
+                        quadTo(50f.rf, 10f.rf, 90f.rf, 50f.rf)
+                        quadToRelative((-40f).rf, 40f.rf, (-80f).rf, 0f.rf)
                         close()
                     }
                     drawPath(
@@ -237,8 +237,8 @@ class RcPlayerPathBuildingTest {
                 RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                     val curve = remotePath {
                         moveTo(10f.rf, 50f.rf)
-                        cubicTo(10f.rf, 10f.rf, 90f.rf, 10f.rf, 90f.rf, 50f.rf)
-                        relativeCubicTo(0f.rf, 40f.rf, (-80f).rf, 40f.rf, (-80f).rf, 0f.rf)
+                        curveTo(10f.rf, 10f.rf, 90f.rf, 10f.rf, 90f.rf, 50f.rf)
+                        curveToRelative(0f.rf, 40f.rf, (-80f).rf, 40f.rf, (-80f).rf, 0f.rf)
                         close()
                     }
                     drawPath(
@@ -277,7 +277,7 @@ class RcPlayerPathBuildingTest {
                     val curve = remotePath {
                         moveTo(10f.rf, 50f.rf)
                         conicTo(50f.rf, 10f.rf, 90f.rf, 50f.rf, 0.707f.rf)
-                        relativeConicTo((-40f).rf, 40f.rf, (-80f).rf, 0f.rf, 0.707f.rf)
+                        conicToRelative((-40f).rf, 40f.rf, (-80f).rf, 0f.rf, 0.707f.rf)
                         close()
                     }
                     drawPath(

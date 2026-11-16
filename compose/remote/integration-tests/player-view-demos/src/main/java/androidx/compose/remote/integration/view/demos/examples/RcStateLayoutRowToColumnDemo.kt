@@ -170,20 +170,20 @@ fun StateLayoutRowToColumnDemo() {
                 ) {
                     RemoteBox(
                         modifier =
-                            RemoteModifier.animationSpec(100, true)
+                            RemoteModifier.animationSpec(animationId = 100)
                                 .size(60.rdp)
                                 .background(ComposeColor.Red.rc)
                     )
                     RemoteBox(
                         modifier =
-                            RemoteModifier.animationSpec(101, true)
+                            RemoteModifier.animationSpec(animationId = 101)
                                 .size(60.rdp)
                                 .weight(1f.rf)
                                 .background(ComposeColor.Green.rc)
                     )
                     RemoteBox(
                         modifier =
-                            RemoteModifier.animationSpec(102, true)
+                            RemoteModifier.animationSpec(animationId = 102)
                                 .size(60.rdp)
                                 .background(ComposeColor.Blue.rc)
                     )
@@ -200,19 +200,19 @@ fun StateLayoutRowToColumnDemo() {
                 ) {
                     RemoteBox(
                         modifier =
-                            RemoteModifier.animationSpec(100, true)
+                            RemoteModifier.animationSpec(animationId = 100)
                                 .size(60.rdp)
                                 .background(ComposeColor.Red.rc)
                     )
                     RemoteBox(
                         modifier =
-                            RemoteModifier.animationSpec(101, true)
+                            RemoteModifier.animationSpec(animationId = 101)
                                 .size(120.rdp)
                                 .background(ComposeColor.Green.rc)
                     )
                     RemoteBox(
                         modifier =
-                            RemoteModifier.animationSpec(102, true)
+                            RemoteModifier.animationSpec(animationId = 102)
                                 .size(60.rdp)
                                 .background(ComposeColor.Blue.rc)
                     )

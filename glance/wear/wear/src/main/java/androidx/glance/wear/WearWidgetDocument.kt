@@ -18,7 +18,7 @@ package androidx.glance.wear
 
 import android.content.Context
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Composable
@@ -55,7 +55,7 @@ public class WearWidgetDocument(
     ): WearWidgetRawContent {
         return WearWidgetCapture.capture(
             context,
-            createCreationDisplayInfo(
+            createRemoteCreationDisplayInfo(
                 context = context,
                 size =
                     Size(

@@ -22,6 +22,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.layout.RemoteIntrinsicSize
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
@@ -33,9 +34,8 @@ internal class WidthModifier(public val type: Type, public val value: RemoteFloa
     RemoteModifier.Element {
     internal constructor(typeInt: Int, value: RemoteFloat) : this(Type.fromInt(typeInt), value)
 
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return RecordingWidthModifier(type, value.floatId)
-    }
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) { RecordingWidthModifier(type, value.floatId) }
 
     override fun toString(): String = "WidthModifier(type=$type, value=$value)"
 }

@@ -31,54 +31,61 @@ import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.runtime.Composable
 
-/** Scope for accessing remote state IDs. */
-@Suppress("HiddenSuperclass")
-public interface RemoteStateScope : RemoteDocumentScope {
-    /** The parent [RemoteStateScope] associated with the document being drawn into. */
-    @get:Suppress("HiddenAbstractMethodInInterface")
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val parentScope: RemoteStateScope
-
+/**
+ * Scope providing access to remote environment properties ([remoteDensity] and [layoutDirection])
+ * during document capture.
+ */
+public interface RemoteStateScope {
     /** The [RemoteDensity] associated with the document being drawn into. */
     public val remoteDensity: RemoteDensity
 
     /** The [RemoteLayoutDirection] associated with the document being drawn into. */
     public val layoutDirection: RemoteLayoutDirection
+}
 
-    /** The [RemoteComposeWriter] associated with the document being drawn into. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+internal interface InternalRemoteStateScope : RemoteStateScope, RemoteDocumentScope {
+    val parentScope: RemoteStateScope
+
     override val document: RemoteComposeWriter
-        get() = parentScope.document
+        get() = (parentScope as InternalRemoteStateScope).document
 
-    /**
-     * Resolves the active [RemoteComponentToken] for this scope, or `null` if none is bound.
-     *
-     * @return the active [RemoteComponentToken], or `null` if none is bound
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun resolveComponentToken(): RemoteComponentToken? =
-        parentScope.resolveComponentToken()
+        (parentScope as InternalRemoteStateScope).resolveComponentToken()
 
-    /** The density behavior associated with the document being drawn into. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val densityBehavior: RemoteDensityBehavior
-        get() = parentScope.densityBehavior
+    val densityBehavior: RemoteDensityBehavior
+        get() = (parentScope as InternalRemoteStateScope).densityBehavior
 
     /** Returns the ID for this state within the scope. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val RemoteState<*>.id: Int
+    val RemoteState<*>.id: Int
         get() = (this as BaseRemoteState<*>).getIdForCreationState(creationState)
 
     /** Returns the float ID for this state within the scope. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val RemoteState<*>.floatId: Float
+    val RemoteState<*>.floatId: Float
         get() = (this as BaseRemoteState<*>).getFloatIdForCreationState(creationState)
 
     /** Returns the long ID for this state within the scope. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val RemoteState<*>.longId: Long
+    val RemoteState<*>.longId: Long
         get() = (this as BaseRemoteState<*>).getLongIdForCreationState(creationState)
 }
+
+/** The [RemoteComposeWriter] associated with the document being drawn into. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val RemoteStateScope.document: RemoteComposeWriter
+    get() = (this as InternalRemoteStateScope).document
+
+/**
+ * Resolves the active [RemoteComponentToken] for this scope, or `null` if none is bound.
+ *
+ * @return the active [RemoteComponentToken], or `null` if none is bound
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteStateScope.resolveComponentToken(): RemoteComponentToken? =
+    (this as InternalRemoteStateScope).resolveComponentToken()
+
+/** The density behavior associated with the document being drawn into. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val RemoteStateScope.densityBehavior: RemoteDensityBehavior
+    get() = (this as InternalRemoteStateScope).densityBehavior
 
 /**
  * Build the [RemotePath], encoding using this [RemoteStateScope].
@@ -93,7 +100,9 @@ public fun RemoteStateScope.remotePath(fn: RemotePathScope.() -> Unit): RemotePa
 /** The [RemoteComposeCreationState] associated with the document being drawn into. */
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val RemoteStateScope.creationState: RemoteComposeCreationState
-    get() = this as? RemoteComposeCreationState ?: parentScope.creationState
+    get() =
+        this as? RemoteComposeCreationState
+            ?: (this as InternalRemoteStateScope).parentScope.creationState
 
 /**
  * Allocates the RemoteState in global scope allowing assigning to global state IDs and

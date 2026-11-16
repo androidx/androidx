@@ -29,7 +29,7 @@ import androidx.compose.runtime.remember
 /** Receiver scope used by [RemoteColumn] for its content. */
 @RemoteLayoutScopeMarker
 @Immutable
-public class RemoteColumnScope {
+public class RemoteColumnScope internal constructor() {
     /**
      * Sets the vertical weight of this element relative to its siblings in the [RemoteColumn].
      *

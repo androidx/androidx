@@ -18,7 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.action.RemoteAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rs
@@ -64,7 +64,7 @@ class RemoteTextToggleButtonTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+    private val creationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(500f, 500f))
 
     @Test fun text_toggle_button_checked() = screenshotTest { RemoteTextToggleButtonChecked() }
 

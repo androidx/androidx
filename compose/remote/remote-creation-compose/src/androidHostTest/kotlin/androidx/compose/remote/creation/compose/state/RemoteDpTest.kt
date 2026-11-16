@@ -85,6 +85,6 @@ class RemoteDpTest {
             if (node.isStructurallyEqual(namedDp.value)) 20f.rf else null
         }
         assertThat(replaced.hasConstantValue).isTrue()
-        assertThat(replaced.asDp).isEqualTo(25.dp)
+        assertThat(replaced.asConstantDp()).isEqualTo(25.dp)
     }
 }

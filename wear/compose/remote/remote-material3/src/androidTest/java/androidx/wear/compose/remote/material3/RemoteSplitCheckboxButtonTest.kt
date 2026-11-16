@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -50,7 +50,7 @@ class RemoteSplitCheckboxButtonTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+    private val creationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(500f, 500f))
 
     @Test
     fun splitCheckboxButton_checked() {

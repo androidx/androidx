@@ -18,7 +18,7 @@ package androidx.compose.remote.testing
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -69,7 +69,7 @@ class RemoteSharedTestRuleScreenshotTest {
 
     @Test
     fun content() {
-        remoteContentTestRule.setContent(createCreationDisplayInfo(context)) {
+        remoteContentTestRule.setContent(createRemoteCreationDisplayInfo(context)) {
             val text = remember { MutableRemoteString("Initial") }
             RemoteBox(
                 modifier = RemoteModifier.fillMaxSize().background(Color.White.rc),

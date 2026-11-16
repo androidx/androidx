@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperat
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
@@ -138,21 +139,22 @@ internal class HostAction(
     public constructor(name: RemoteString, value: RemoteString) : this(name, Type.STRING, value)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun RemoteStateScope.toRemoteAction(): CreationAction {
-        val valueId = value?.id ?: -1
-        val constantName = name.constantValueOrNull
-        if (constantName != null) {
-            return CreationHostAction(constantName, type.value, valueId)
+    override fun RemoteStateScope.toRemoteAction(): CreationAction =
+        with(this as InternalRemoteStateScope) {
+            val valueId = value?.id ?: -1
+            val constantName = name.constantValueOrNull
+            if (constantName != null) {
+                return CreationHostAction(constantName, type.value, valueId)
+            }
+            // A dynamic name is referenced by its text id, which players resolve to the current
+            // value when the action runs. This keeps the action a named action (with its typed
+            // value) rather than an id action keyed on an unstable, writer-allocated variable id.
+            val nameId = name.id
+            val typeValue = type.value
+            CreationAction { writer ->
+                HostNamedActionOperation.apply(writer.buffer.buffer, nameId, typeValue, valueId)
+            }
         }
-        // A dynamic name is referenced by its text id, which players resolve to the current value
-        // when the action runs. This keeps the action a named action (with its typed value)
-        // rather than an id action keyed on an unstable, writer-allocated variable id.
-        val nameId = name.id
-        val typeValue = type.value
-        return CreationAction { writer ->
-            HostNamedActionOperation.apply(writer.buffer.buffer, nameId, typeValue, valueId)
-        }
-    }
 }
 
 /** Run the host action with a stable integer [id], and optional [metadata], when invoked. */
@@ -160,15 +162,16 @@ internal class HostIdAction(public val id: Int, public val metadata: RemoteStrin
     RemoteAction {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun RemoteStateScope.toRemoteAction(): CreationAction {
-        val metadataId = metadata?.id
-        val actionId = id
-        return CreationAction { writer ->
-            if (metadataId == null) {
-                HostActionOperation.apply(writer.buffer.buffer, actionId)
-            } else {
-                HostActionMetadataOperation.apply(writer.buffer.buffer, actionId, metadataId)
+    override fun RemoteStateScope.toRemoteAction(): CreationAction =
+        with(this as InternalRemoteStateScope) {
+            val metadataId = metadata?.id
+            val actionId = id
+            CreationAction { writer ->
+                if (metadataId == null) {
+                    HostActionOperation.apply(writer.buffer.buffer, actionId)
+                } else {
+                    HostActionMetadataOperation.apply(writer.buffer.buffer, actionId, metadataId)
+                }
             }
         }
-    }
 }

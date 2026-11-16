@@ -1023,9 +1023,9 @@ public object RemoteButtonDefaults {
     /** The default content padding used by [RemoteCompactButton] */
     public val CompactButtonContentPadding: RemotePaddingValues =
         RemotePaddingValues(
-            leftPadding = CompactButtonHorizontalPadding,
+            startPadding = CompactButtonHorizontalPadding,
             topPadding = CompactButtonVerticalPadding,
-            rightPadding = CompactButtonHorizontalPadding,
+            endPadding = CompactButtonHorizontalPadding,
             bottomPadding = CompactButtonVerticalPadding,
         )
 

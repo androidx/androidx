@@ -152,8 +152,7 @@ class RemoteTimeTextTest {
                     // OUTSIDE placement along top half (270°), upright left-to-right
                     drawTextOnCircle(
                         text = "Out Start".rs,
-                        centerX = cx,
-                        centerY = cy,
+                        center = center,
                         radius = outerRadius,
                         startAngle = 270.rf,
                         warpRadiusOffset = 0.rf,
@@ -163,8 +162,7 @@ class RemoteTimeTextTest {
                     )
                     drawTextOnCircle(
                         text = "Out Center".rs,
-                        centerX = cx,
-                        centerY = cy,
+                        center = center,
                         radius = middleRadius,
                         startAngle = 270.rf,
                         warpRadiusOffset = 0.rf,
@@ -174,8 +172,7 @@ class RemoteTimeTextTest {
                     )
                     drawTextOnCircle(
                         text = "Out End".rs,
-                        centerX = cx,
-                        centerY = cy,
+                        center = center,
                         radius = innerRadius,
                         startAngle = 270.rf,
                         warpRadiusOffset = 0.rf,
@@ -187,8 +184,7 @@ class RemoteTimeTextTest {
                     // INSIDE placement along bottom half (90°), upright left-to-right
                     drawTextOnCircle(
                         text = "In Start".rs,
-                        centerX = cx,
-                        centerY = cy,
+                        center = center,
                         radius = outerRadius,
                         startAngle = 90.rf,
                         warpRadiusOffset = 0.rf,
@@ -198,8 +194,7 @@ class RemoteTimeTextTest {
                     )
                     drawTextOnCircle(
                         text = "In Center".rs,
-                        centerX = cx,
-                        centerY = cy,
+                        center = center,
                         radius = middleRadius,
                         startAngle = 90.rf,
                         warpRadiusOffset = 0.rf,
@@ -209,8 +204,7 @@ class RemoteTimeTextTest {
                     )
                     drawTextOnCircle(
                         text = "In End".rs,
-                        centerX = cx,
-                        centerY = cy,
+                        center = center,
                         radius = innerRadius,
                         startAngle = 90.rf,
                         warpRadiusOffset = 0.rf,

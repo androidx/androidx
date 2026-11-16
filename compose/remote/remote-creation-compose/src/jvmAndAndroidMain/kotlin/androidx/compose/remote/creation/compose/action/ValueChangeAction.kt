@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.actions.ValueFloatExpressionChange
 import androidx.compose.remote.creation.actions.ValueIntegerChange
 import androidx.compose.remote.creation.actions.ValueIntegerExpressionChange
 import androidx.compose.remote.creation.actions.ValueStringChange
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteState
@@ -40,30 +41,31 @@ internal class ValueChangeAction<T>(
     public val updatedValue: RemoteState<T>,
 ) : RemoteAction {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun RemoteStateScope.toRemoteAction(): CreationAction {
-        val actualMutable = remoteValue.asEncodedMutable
-        val actualValue = updatedValue.asEncoded
+    override fun RemoteStateScope.toRemoteAction(): CreationAction =
+        with(this as InternalRemoteStateScope) {
+            val actualMutable = remoteValue.asEncodedMutable
+            val actualValue = updatedValue.asEncoded
 
-        return if (actualMutable is MutableRemoteInt) {
-            actualValue as RemoteInt
-            val array = actualValue.arrayForCreationState(creationState)
+            if (actualMutable is MutableRemoteInt) {
+                actualValue as RemoteInt
+                val array = actualValue.arrayForCreationState(creationState)
 
-            if (array.isLiteral()) {
-                ValueIntegerChange(actualMutable.id, array[0].toInt())
+                if (array.isLiteral()) {
+                    ValueIntegerChange(actualMutable.id, array[0].toInt())
+                } else {
+                    // TODO validate why these are direct ids as a Long.
+                    ValueIntegerExpressionChange(actualMutable.longId, actualValue.longId)
+                }
+            } else if (actualMutable is MutableRemoteFloat) {
+                actualValue as RemoteFloat
+                ValueFloatExpressionChange(actualMutable.id, actualValue.id)
+            } else if (actualMutable is RemoteString) {
+                actualValue as RemoteString
+                ValueStringChange(actualMutable.id, actualValue.constantValue)
             } else {
-                // TODO validate why these are direct ids as a Long.
-                ValueIntegerExpressionChange(actualMutable.longId, actualValue.longId)
+                TODO("println unsupported type in ValueChange $actualMutable")
             }
-        } else if (actualMutable is MutableRemoteFloat) {
-            actualValue as RemoteFloat
-            ValueFloatExpressionChange(actualMutable.id, actualValue.id)
-        } else if (actualMutable is RemoteString) {
-            actualValue as RemoteString
-            ValueStringChange(actualMutable.id, actualValue.constantValue)
-        } else {
-            TODO("println unsupported type in ValueChange $actualMutable")
         }
-    }
 }
 
 internal class ValueFloatChangeAction(
@@ -71,10 +73,8 @@ internal class ValueFloatChangeAction(
     public val updatedValue: Float,
 ) : RemoteAction {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun RemoteStateScope.toRemoteAction(): CreationAction {
-        val id = value.id
-        return ValueFloatChange(id, updatedValue)
-    }
+    override fun RemoteStateScope.toRemoteAction(): CreationAction =
+        with(this as InternalRemoteStateScope) { ValueFloatChange(value.id, updatedValue) }
 }
 
 /**

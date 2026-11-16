@@ -17,25 +17,28 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.modifiers.HeightInModifier as CreationHeightInModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 internal class HeightInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
     RemoteModifier.Element {
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        val isPixels = densityBehavior == RemoteDensityBehavior.Pixels
-        var minValue = 0f
-        var maxValue = Float.MAX_VALUE
-        if (min != null) {
-            minValue = if (isPixels) min.toPx().floatId else min.value.floatId
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            val isPixels = densityBehavior == RemoteDensityBehavior.Pixels
+            var minValue = 0f
+            var maxValue = Float.MAX_VALUE
+            if (min != null) {
+                minValue = if (isPixels) min.toPx().floatId else min.value.floatId
+            }
+            if (max != null) {
+                maxValue = if (isPixels) max.toPx().floatId else max.value.floatId
+            }
+            CreationHeightInModifier(minValue, maxValue)
         }
-        if (max != null) {
-            maxValue = if (isPixels) max.toPx().floatId else max.value.floatId
-        }
-        return CreationHeightInModifier(minValue, maxValue)
-    }
 }
 
 /**

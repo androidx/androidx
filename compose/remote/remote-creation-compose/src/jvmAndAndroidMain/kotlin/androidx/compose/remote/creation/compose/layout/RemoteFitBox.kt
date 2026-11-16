@@ -49,6 +49,10 @@ internal class RemoteFitBoxNode : RemoteLayoutNode() {
  * - Matches container dimensions to the measured size of the selected child.
  * - Hides completely (`GONE`) if no child fits within the constraints.
  *
+ * Unlike [RemoteBox], which accepts a single [RemoteAlignment], [RemoteFitBox] exposes separate
+ * [horizontalAlignment] and [verticalArrangement] parameters to match the underlying fit-box layout
+ * semantics.
+ *
  * Interactive example switching container constraints so [RemoteFitBox] selects the fitting child:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteFitBoxSample
@@ -63,7 +67,7 @@ public fun RemoteFitBox(
     modifier: RemoteModifier = RemoteModifier,
     horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.CenterHorizontally,
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Center,
-    content: @RemoteComposable @Composable () -> Unit = {},
+    content: @RemoteComposable @Composable () -> Unit,
 ) {
     RemoteLayoutNode(
         factory = ::RemoteFitBoxNode,

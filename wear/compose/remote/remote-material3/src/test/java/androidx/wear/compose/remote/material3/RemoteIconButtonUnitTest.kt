@@ -20,7 +20,7 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -270,7 +270,7 @@ class RemoteIconButtonUnitTest {
         content: @Composable @RemoteComposable () -> Unit,
     ) {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val displayInfo = createRemoteCreationDisplayInfo(context, Size(500f, 500f))
         playerRule.setRemoteContent(
             profile = TestProfiles.wearWidgets,
             onNamedAction = { name, _, _ -> onNamedAction(name) },

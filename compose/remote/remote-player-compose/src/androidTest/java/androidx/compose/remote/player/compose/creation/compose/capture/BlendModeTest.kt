@@ -18,7 +18,7 @@ package androidx.compose.remote.player.compose.creation.compose.capture
 
 import android.content.Context
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -74,7 +74,8 @@ class BlendModeTest {
     fun all_blend_modes() {
         var document: CoreDocument? = null
         remoteComposeTestRule.setContent(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(2000f, 2500f)),
+            remoteCreationDisplayInfo =
+                createRemoteCreationDisplayInfo(context, Size(2000f, 2500f)),
             onCoreDocumentCreated = { document = it },
         ) {
             AllBlendModes()

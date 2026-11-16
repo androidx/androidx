@@ -580,4 +580,46 @@ class RemoteTextStyleTest {
         assertThat(RemoteTextDecoration.None.plus(RemoteTextDecoration.Underline))
             .isEqualTo(RemoteTextDecoration.Underline)
     }
+
+    @Test
+    fun equals_and_hashCode() {
+        val style1 =
+            RemoteTextStyle(
+                color = RemoteColor.Red,
+                fontSize = 14.rsp,
+                fontWeight = RemoteFontWeight.Bold,
+                fontStyle = RemoteFontStyle.Italic,
+                fontFamily = RemoteFontFamily.SansSerif,
+                letterSpacing = 1.rsp,
+                background = RemoteColor.Black,
+                textAlign = RemoteTextAlign.Center,
+                lineHeight = 20.rsp,
+                textDecoration = RemoteTextDecoration.Underline,
+                lineBreak = RemoteLineBreak.Heading,
+                hyphens = RemoteHyphens.Auto,
+                fontFeatureSettings = "tnum",
+                fontVariationSettings =
+                    RemoteFontVariation.Settings(RemoteFontVariation.weight(600.rf)),
+            )
+        val style2 = style1.copy()
+        val differentStyle = style1.copy(fontSize = 16.rsp)
+
+        assertThat(style1).isEqualTo(style1)
+        assertThat(style1).isEqualTo(style2)
+        assertThat(style1.hashCode()).isEqualTo(style2.hashCode())
+        assertThat(style1).isNotEqualTo(differentStyle)
+        assertThat(style1).isNotEqualTo(null)
+        assertThat(RemoteTextStyle.Default).isEqualTo(RemoteTextStyle())
+    }
+
+    @Test
+    fun toString_containsProperties() {
+        val style = RemoteTextStyle(fontSize = 14.rsp, fontFeatureSettings = "tnum")
+        val str = style.toString()
+
+        assertThat(str).startsWith("RemoteTextStyle(")
+        assertThat(str).contains("fontSize=${style.fontSize}")
+        assertThat(str).contains("fontFeatureSettings=tnum")
+        assertThat(str).endsWith(")")
+    }
 }

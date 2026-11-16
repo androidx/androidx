@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
@@ -45,7 +45,10 @@ class RemotePageIndicatorTest {
         )
 
     private val creationDisplayInfo =
-        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(250f, 250f))
+        createRemoteCreationDisplayInfo(
+            ApplicationProvider.getApplicationContext(),
+            Size(250f, 250f),
+        )
 
     @Test
     fun horizontal_page_indicator_pageCount3() {

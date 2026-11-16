@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.text
 
 import androidx.annotation.IntRange
+import androidx.compose.runtime.Immutable
 
 /**
  * A sealed interface that represent the concept of a Typeface in Remote Compose.
@@ -24,6 +25,7 @@ import androidx.annotation.IntRange
  * Custom or named system fonts are represented by [Named] type and are registered in the document
  * as Strings to be referenced.
  */
+@Immutable
 public sealed interface RemoteTypeface {
     /** The name used to identify the font in the document and player */
     public val name: String
@@ -60,6 +62,7 @@ public sealed interface RemoteTypeface {
      * @param weight The weight of the font (e.g., 400 for normal, 700 for bold).
      * @param isItalic Whether the font is italic.
      */
+    @Immutable
     public class Named(
         private val fontName: String,
         @IntRange(from = 1, to = 1000) public val weight: Int = 400,
@@ -82,6 +85,9 @@ public sealed interface RemoteTypeface {
             result = 31 * result + isItalic.hashCode()
             return result
         }
+
+        override fun toString(): String =
+            "RemoteTypeface.Named(name='$name', weight=$weight, isItalic=$isItalic)"
     }
 
     /** Represents the style of a [RemoteTypeface] (e.g., Normal, Bold, Italic). */
@@ -101,9 +107,17 @@ public sealed interface RemoteTypeface {
          * @return a [RemoteTypeface] matching [fontName] and [style]
          */
         public fun create(fontName: String?, style: Style = Style.Normal): RemoteTypeface {
+            if (fontName == null) {
+                return when (style) {
+                    Style.Normal -> Default
+                    Style.Bold -> DefaultBold
+                    Style.Italic -> Named("default", weight = 400, isItalic = true)
+                    Style.BoldItalic -> Named("default", weight = 700, isItalic = true)
+                }
+            }
             val weight = if (style == Style.Bold || style == Style.BoldItalic) 700 else 400
             val isItalic = style == Style.Italic || style == Style.BoldItalic
-            return Named(fontName ?: "default", weight, isItalic)
+            return Named(fontName, weight, isItalic)
         }
     }
 }

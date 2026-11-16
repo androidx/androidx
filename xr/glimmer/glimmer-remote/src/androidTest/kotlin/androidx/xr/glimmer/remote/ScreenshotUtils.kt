@@ -20,7 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.runtime.Composable
@@ -44,7 +44,7 @@ internal fun RcPlayerTestRule.setRemoteContent(
 ) {
     setRemoteContent(
         remoteCreationDisplayInfo =
-            createCreationDisplayInfo(
+            createRemoteCreationDisplayInfo(
                 context = context,
                 size = with(Density(context)) { size.toSize() },
             ),

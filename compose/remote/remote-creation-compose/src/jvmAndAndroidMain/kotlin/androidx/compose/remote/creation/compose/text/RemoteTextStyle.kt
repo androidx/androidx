@@ -214,6 +214,65 @@ public class RemoteTextStyle(
         )
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteTextStyle) return false
+
+        if (color != other.color) return false
+        if (fontSize != other.fontSize) return false
+        if (fontWeight != other.fontWeight) return false
+        if (fontStyle != other.fontStyle) return false
+        if (fontFamily != other.fontFamily) return false
+        if (letterSpacing != other.letterSpacing) return false
+        if (background != other.background) return false
+        if (textAlign != other.textAlign) return false
+        if (lineHeight != other.lineHeight) return false
+        if (textDecoration != other.textDecoration) return false
+        if (lineBreak != other.lineBreak) return false
+        if (hyphens != other.hyphens) return false
+        if (fontFeatureSettings != other.fontFeatureSettings) return false
+        if (fontVariationSettings != other.fontVariationSettings) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = color?.hashCode() ?: 0
+        result = 31 * result + (fontSize?.hashCode() ?: 0)
+        result = 31 * result + (fontWeight?.hashCode() ?: 0)
+        result = 31 * result + (fontStyle?.hashCode() ?: 0)
+        result = 31 * result + (fontFamily?.hashCode() ?: 0)
+        result = 31 * result + (letterSpacing?.hashCode() ?: 0)
+        result = 31 * result + (background?.hashCode() ?: 0)
+        result = 31 * result + textAlign.hashCode()
+        result = 31 * result + (lineHeight?.hashCode() ?: 0)
+        result = 31 * result + (textDecoration?.hashCode() ?: 0)
+        result = 31 * result + lineBreak.hashCode()
+        result = 31 * result + hyphens.hashCode()
+        result = 31 * result + (fontFeatureSettings?.hashCode() ?: 0)
+        result = 31 * result + (fontVariationSettings?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "RemoteTextStyle(" +
+            "color=$color, " +
+            "fontSize=$fontSize, " +
+            "fontWeight=$fontWeight, " +
+            "fontStyle=$fontStyle, " +
+            "fontFamily=$fontFamily, " +
+            "letterSpacing=$letterSpacing, " +
+            "background=$background, " +
+            "textAlign=$textAlign, " +
+            "lineHeight=$lineHeight, " +
+            "textDecoration=$textDecoration, " +
+            "lineBreak=$lineBreak, " +
+            "hyphens=$hyphens, " +
+            "fontFeatureSettings=$fontFeatureSettings, " +
+            "fontVariationSettings=$fontVariationSettings" +
+            ")"
+    }
+
     public companion object {
         /** Constant for default [RemoteTextStyle] with no overridden properties. */
         public val Default: RemoteTextStyle = RemoteTextStyle()

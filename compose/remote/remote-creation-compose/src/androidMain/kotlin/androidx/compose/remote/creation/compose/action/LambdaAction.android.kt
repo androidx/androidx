@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
 import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.document
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentCompositeKeyHashCode
 

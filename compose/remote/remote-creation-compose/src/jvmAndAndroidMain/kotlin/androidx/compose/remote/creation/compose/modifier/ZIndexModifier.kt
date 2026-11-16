@@ -16,15 +16,17 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 internal class ZIndexModifier(public val value: RemoteFloat) : RemoteModifier.Element {
 
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return androidx.compose.remote.creation.modifiers.ZIndexModifier(value.floatId)
-    }
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            androidx.compose.remote.creation.modifiers.ZIndexModifier(value.floatId)
+        }
 }
 
 /**

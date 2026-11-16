@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3.samples
 
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -44,7 +44,10 @@ class RemotePageIndicatorSampleTest {
         )
 
     private val creationDisplayInfo =
-        createCreationDisplayInfo(ApplicationProvider.getApplicationContext(), Size(250f, 250f))
+        createRemoteCreationDisplayInfo(
+            ApplicationProvider.getApplicationContext(),
+            Size(250f, 250f),
+        )
 
     @Test
     fun RemoteHorizontalPageIndicatorSampleTest() {

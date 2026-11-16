@@ -25,9 +25,11 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.shapes.toDimension
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.modifiers.BorderModifier as CreationBorderModifier
 import androidx.compose.remote.creation.modifiers.DynamicBorderModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -37,37 +39,38 @@ internal class BorderModifier(
     public val color: RemoteColor,
     public val shape: RemoteShape = RemoteRectangleShape,
 ) : RemoteModifier.Element {
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        var shapeType = ShapeType.RECTANGLE
-        var roundedCorner = 0f
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            var shapeType = ShapeType.RECTANGLE
+            var roundedCorner = 0f
 
-        if (shape === RemoteCircleShape) {
-            shapeType = ShapeType.CIRCLE
-        } else if (shape == RemoteRectangleShape) {
-            shapeType = ShapeType.RECTANGLE
-        } else if (shape is RemoteRoundedCornerShape) {
-            val component = remoteComponent()
-            shapeType = ShapeType.ROUNDED_RECTANGLE
+            if (shape === RemoteCircleShape) {
+                shapeType = ShapeType.CIRCLE
+            } else if (shape == RemoteRectangleShape) {
+                shapeType = ShapeType.RECTANGLE
+            } else if (shape is RemoteRoundedCornerShape) {
+                val component = remoteComponent()
+                shapeType = ShapeType.ROUNDED_RECTANGLE
 
-            val remoteSize = RemoteSize(component.width, component.height)
-            roundedCorner =
-                shape.topStart.toDimension(remoteSize, remoteDensity, densityBehavior).floatId
-        }
-
-        val resolvedWidth =
-            if (densityBehavior == RemoteDensityBehavior.Dp) {
-                width.value.floatId
-            } else {
-                width.toPx().floatId
+                val remoteSize = RemoteSize(component.width, component.height)
+                roundedCorner =
+                    shape.topStart.toDimension(remoteSize, remoteDensity, densityBehavior).floatId
             }
 
-        val constantColor = color.constantValueOrNull
-        return if (constantColor != null) {
-            CreationBorderModifier(resolvedWidth, roundedCorner, constantColor, shapeType)
-        } else {
-            DynamicBorderModifier(resolvedWidth, roundedCorner, color.id.toShort(), shapeType)
+            val resolvedWidth =
+                if (densityBehavior == RemoteDensityBehavior.Dp) {
+                    width.value.floatId
+                } else {
+                    width.toPx().floatId
+                }
+
+            val constantColor = color.constantValueOrNull
+            if (constantColor != null) {
+                CreationBorderModifier(resolvedWidth, roundedCorner, constantColor, shapeType)
+            } else {
+                DynamicBorderModifier(resolvedWidth, roundedCorner, color.id.toShort(), shapeType)
+            }
         }
-    }
 }
 
 /**

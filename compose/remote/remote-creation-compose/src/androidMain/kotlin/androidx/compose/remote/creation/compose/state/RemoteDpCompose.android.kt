@@ -30,13 +30,20 @@ import androidx.compose.ui.unit.isSpecified
  */
 public fun RemoteDp(value: Dp): RemoteDp = value.asRdp()
 
-/** Extension property to get the [Dp] value of this [RemoteDp], or null if dynamic. */
-public val RemoteDp.asDpOrNull: Dp?
-    get() = constantValueOrNull?.dp
+/**
+ * Converts this [RemoteDp] to a [Dp] if it has a constant value, or null otherwise.
+ *
+ * @return the constant [Dp] value of this [RemoteDp], or `null` if it is dynamic
+ */
+public fun RemoteDp.asConstantDpOrNull(): Dp? = constantValueOrNull?.dp
 
-/** Extension property to get the [Dp] value of this [RemoteDp]. */
-public val RemoteDp.asDp: Dp
-    get() = constantValue.dp
+/**
+ * Converts this [RemoteDp] to a [Dp] if it has a constant value.
+ *
+ * @return the constant [Dp] value of this [RemoteDp]
+ * @throws IllegalStateException if this state does not have a constant value.
+ */
+public fun RemoteDp.asConstantDp(): Dp = constantValue.dp
 
 /**
  * Extension function to convert a [Dp] to a [RemoteDp].

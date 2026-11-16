@@ -55,9 +55,9 @@ public fun RemoteModifier.fillParentMaxSize(fraction: Float): RemoteModifier =
     fillParentMaxWidth(fraction).fillParentMaxHeight(fraction)
 
 /**
- * Fills the parent's maximum available width and height.
+ * Fills the maximum available width and height.
  *
- * @param fraction The fraction of the parent's maximum size to use.
+ * @param fraction The fraction of the maximum available size to use.
  * @return a [RemoteModifier] that fills [fraction] of the maximum available size
  */
 public fun RemoteModifier.fillMaxSize(fraction: RemoteFloat = 1f.rf): RemoteModifier =

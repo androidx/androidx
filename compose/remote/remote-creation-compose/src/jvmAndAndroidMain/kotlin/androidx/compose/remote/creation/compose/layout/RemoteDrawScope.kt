@@ -20,12 +20,12 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rf
@@ -149,7 +149,7 @@ internal class RemoteCanvasDrawTransform(internal val scope: RemoteDrawScope) :
 public open class RemoteDrawScope
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val remoteCanvas: RemoteCanvas
-) : RemoteStateScope by remoteCanvas.creationState {
+) : InternalRemoteStateScope by remoteCanvas.creationState {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val remoteComposeCreationState: RemoteComposeCreationState
         get() = remoteCanvas.creationState
@@ -316,7 +316,7 @@ internal constructor(
     public fun drawImage(
         image: RemoteImageBitmap,
         topLeft: RemoteOffset = RemoteOffset.Zero,
-        paint: RemotePaint? = RemotePaint(),
+        paint: RemotePaint? = null,
     ) {
         RemoteSize(image.width, image.height)
         remoteCanvas.drawBitmap(image, topLeft.x, topLeft.y, paint)
@@ -508,22 +508,20 @@ internal constructor(
     }
 
     /**
-     * Draws text along a circle.
+     * Draws text along a circle centered at [center] with the given [radius].
      *
      * @param text The text to draw.
-     * @param centerX The x-coordinate of the circle's center.
-     * @param centerY The y-coordinate of the circle's center.
+     * @param center The center coordinates of the circle.
      * @param radius The radius of the circle.
      * @param startAngle The starting angle for the text.
-     * @param warpRadiusOffset The offset of the text from the circle.
+     * @param warpRadiusOffset The radial offset of the text from the circle.
      * @param paint Paint of the text.
      * @param alignment The alignment of the text relative to start.
      * @param placement The placement inside or outside the circle.
      */
     public fun drawTextOnCircle(
         text: RemoteString,
-        centerX: RemoteFloat,
-        centerY: RemoteFloat,
+        center: RemoteOffset,
         radius: RemoteFloat,
         startAngle: RemoteFloat,
         warpRadiusOffset: RemoteFloat,
@@ -533,8 +531,8 @@ internal constructor(
     ) {
         remoteCanvas.drawTextOnCircle(
             text,
-            centerX,
-            centerY,
+            center.x,
+            center.y,
             radius,
             startAngle,
             warpRadiusOffset,

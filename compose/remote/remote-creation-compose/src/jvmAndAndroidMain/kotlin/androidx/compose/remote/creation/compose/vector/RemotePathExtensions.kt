@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.vector
 
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 
@@ -26,8 +27,8 @@ internal class RemotePathExtensions(private val creationState: RemoteStateScope)
         moveTo(x.floatId, y.floatId)
     }
 
-    private inline fun withScope(function: RemoteStateScope.() -> Unit) {
-        with(creationState, function)
+    private inline fun withScope(function: InternalRemoteStateScope.() -> Unit) {
+        with(creationState as InternalRemoteStateScope, function)
     }
 
     fun RemotePath.rMoveTo(dx: RemoteFloat, dy: RemoteFloat) = withScope {

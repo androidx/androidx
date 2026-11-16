@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
@@ -108,10 +108,10 @@ internal class RemoteComposeRenderOutput(val content: @RemoteComposable @Composa
             dimensions: Dimensions,
         ): RemoteCreationDisplayInfo {
             if (dimensions.widthDp <= 0 || dimensions.heightDp <= 0) {
-                return createCreationDisplayInfo(context)
+                return createRemoteCreationDisplayInfo(context)
             }
             val density = context.resources.displayMetrics.density
-            return createCreationDisplayInfo(
+            return createRemoteCreationDisplayInfo(
                 context = context,
                 size = Size(dimensions.widthDp * density, dimensions.heightDp * density),
             )

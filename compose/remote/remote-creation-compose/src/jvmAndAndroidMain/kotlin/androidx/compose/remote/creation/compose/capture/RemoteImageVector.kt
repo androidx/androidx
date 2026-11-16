@@ -34,11 +34,13 @@ import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
+import androidx.compose.runtime.Immutable
 
 /**
  * A base class for defining vector graphics that can be drawn in a remote compose. It could be
  * rendered by passing it as an argument to [painterRemoteVector].
  */
+@Immutable
 public class RemoteImageVector
 /**
  * Create a RemoteImageVector.
@@ -103,8 +105,8 @@ internal constructor(
      * Builder used to construct a Vector graphic tree. This is useful for caching the result of
      * expensive operations used to construct a vector graphic for compose. For example, the vector
      * graphic could be serialized and downloaded from a server and represented internally in a
-     * [RemoteImageVector] before it is composed through The generated [RemoteImageVector] is
-     * recommended to be memoized across composition calls to avoid doing redundant work
+     * [RemoteImageVector] before it is composed. The generated [RemoteImageVector] is recommended
+     * to be memoized across composition calls to avoid doing redundant work.
      *
      * @param defaultWidth The default width of the vector asset in [RemoteDp]
      * @param defaultHeight The default height of the vector asset in [RemoteDp]
@@ -112,7 +114,7 @@ internal constructor(
      *   the virtual canvas where the paths are drawn on.
      * @param viewportHeight Used to define the height of the viewport space. Viewport is basically
      *   the virtual canvas where the paths are drawn on.
-     * @param tintColor Optional color used to tint the entire vector image
+     * @param tintColor Color used to tint the entire vector image
      * @param name Name of the vector asset
      * @param tintBlendMode Blend mode used to apply the tint color
      * @param autoMirror Determines if the vector asset should automatically be mirrored for right
@@ -136,7 +138,7 @@ internal constructor(
          *   basically the virtual canvas where the paths are drawn on.
          * @param viewportHeight Used to define the height of the viewport space. Viewport is
          *   basically the virtual canvas where the paths are drawn on.
-         * @param tintColor Optional color used to tint the entire vector image
+         * @param tintColor Color used to tint the entire vector image
          * @param name Name of the vector asset
          * @param tintBlendMode Blend mode used to apply the tint color
          * @param autoMirror Determines if the vector asset should automatically be mirrored for
@@ -296,8 +298,8 @@ internal constructor(
 
         /**
          * Construct a [RemoteImageVector]. This concludes the creation process of a
-         * [RemoteImageVector] graphic This builder cannot be re-used to create additional
-         * [RemoteImageVector] instances
+         * [RemoteImageVector] graphic. This builder cannot be re-used to create additional
+         * [RemoteImageVector] instances.
          *
          * @return The newly created [RemoteImageVector] instance
          */

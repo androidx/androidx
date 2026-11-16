@@ -19,7 +19,7 @@ package androidx.compose.remote.player.compose.embedded
 import android.content.Context
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.compose.action.valueChangeAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -78,7 +78,8 @@ class RcPlayerInteractionScreenshotTest {
     val remoteComposeTestRule =
         RemoteEmbeddedScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context, Size(sizePx, sizePx)),
+            remoteCreationDisplayInfo =
+                createRemoteCreationDisplayInfo(context, Size(sizePx, sizePx)),
         )
 
     @get:Rule val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()

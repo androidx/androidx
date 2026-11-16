@@ -19,8 +19,10 @@ package androidx.compose.remote.creation.compose.action
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.runtime.Stable
 
 /** A RemoteCompose frontend model of Actions that can be converted to RemoteCompose operations. */
+@Stable
 public interface RemoteAction {
     @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

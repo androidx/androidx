@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.MacroCallModifier
@@ -25,10 +26,11 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 internal class IncludeMacroModifier(val id: Int, val args: Array<out RemoteInt>? = null) :
     RemoteModifier.Element {
 
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        val argIds = args?.map { it.id }?.toIntArray()
-        return MacroCallModifier(id, argIds)
-    }
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            val argIds = args?.map { it.id }?.toIntArray()
+            MacroCallModifier(id, argIds)
+        }
 }
 
 /**

@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
@@ -185,7 +185,7 @@ class RemoteStepperTest {
         assertThat(context.resources.configuration.screenHeightDp).isEqualTo(screenHeightDp)
 
         rule.setRemoteContent(
-            remoteCreationDisplayInfo = createCreationDisplayInfo(context),
+            remoteCreationDisplayInfo = createRemoteCreationDisplayInfo(context),
             creationComposableWrapper = { creation ->
                 CompositionLocalProvider(LocalContext provides context) { creation() }
             },

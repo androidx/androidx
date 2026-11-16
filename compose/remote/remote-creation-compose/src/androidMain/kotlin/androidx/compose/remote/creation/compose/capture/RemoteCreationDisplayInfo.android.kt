@@ -87,14 +87,14 @@ public fun rememberRemoteCreationDisplayInfo(
  *
  * @sample androidx.compose.remote.creation.compose.samples.CaptureSingleRemoteDocumentSample
  * @param context The [Context] used to access display metrics.
- * @param size The size of the display.
+ * @param size The size of the display in pixels. Defaults to the display metrics from [context].
  * @param isInspectionMode Whether the capture is happening in inspection mode (e.g. for a preview).
- *   Defaults to false.
+ *   Defaults to `false`.
  * @param densityBehavior The [RemoteDensityBehavior] to use. Defaults to
  *   [RemoteDensityBehavior.Legacy].
  * @return A [RemoteCreationDisplayInfo] object containing the display metrics from the context.
  */
-public fun createCreationDisplayInfo(
+public fun createRemoteCreationDisplayInfo(
     context: Context,
     size: Size =
         Size(
@@ -114,3 +114,38 @@ public fun createCreationDisplayInfo(
         densityBehavior = densityBehavior,
     )
 }
+
+/**
+ * Deprecated alias for [createRemoteCreationDisplayInfo].
+ *
+ * @param context The [Context] used to access display metrics.
+ * @param size The size of the display in pixels. Defaults to the display metrics from [context].
+ * @param isInspectionMode Whether the capture is happening in inspection mode (e.g. for a preview).
+ *   Defaults to `false`.
+ * @param densityBehavior The [RemoteDensityBehavior] to use. Defaults to
+ *   [RemoteDensityBehavior.Legacy].
+ * @return A [RemoteCreationDisplayInfo] object containing the display metrics from the context.
+ */
+@Deprecated(
+    message = "Use createRemoteCreationDisplayInfo instead",
+    replaceWith =
+        ReplaceWith(
+            "createRemoteCreationDisplayInfo(context, size, isInspectionMode, densityBehavior)"
+        ),
+)
+public fun createCreationDisplayInfo(
+    context: Context,
+    size: Size =
+        Size(
+            width = context.resources.displayMetrics.widthPixels.toFloat(),
+            height = context.resources.displayMetrics.heightPixels.toFloat(),
+        ),
+    isInspectionMode: Boolean = false,
+    densityBehavior: RemoteDensityBehavior = RemoteDensityBehavior.Legacy,
+): RemoteCreationDisplayInfo =
+    createRemoteCreationDisplayInfo(
+        context = context,
+        size = size,
+        isInspectionMode = isInspectionMode,
+        densityBehavior = densityBehavior,
+    )

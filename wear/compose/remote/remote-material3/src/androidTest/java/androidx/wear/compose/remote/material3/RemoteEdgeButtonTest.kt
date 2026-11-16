@@ -20,7 +20,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
@@ -66,7 +66,7 @@ class RemoteEdgeButtonTest {
         )
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 260f))
+    private val creationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(500f, 260f))
 
     @Test
     fun edge_button_extra_small() {

@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.IntRange
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -43,8 +44,8 @@ import androidx.compose.runtime.remember
 public class RemoteScrollState
 @RememberInComposition
 constructor(
-    public val positionState: MutableRemoteFloat,
-    @IntRange(from = 0) public val notches: Int,
+    public val positionState: MutableRemoteFloat = MutableRemoteFloat.createReserved(),
+    @IntRange(from = 0) public val notches: Int = 0,
 ) {
     /**
      * Creates a [RemoteScrollState] with an initial [position] and number of [notches].
@@ -56,19 +57,8 @@ constructor(
     @RememberInComposition
     public constructor(
         position: Float,
-        @IntRange(from = 0) notches: Int,
+        @IntRange(from = 0) notches: Int = 0,
     ) : this(MutableRemoteFloat(position), notches)
-
-    /**
-     * Creates a [RemoteScrollState] with an optional number of [notches].
-     *
-     * @param notches The number of equally spaced snap points along the scroll range, or 0 for
-     *   continuous scrolling.
-     */
-    @RememberInComposition
-    public constructor(
-        @IntRange(from = 0) notches: Int = 0
-    ) : this(MutableRemoteFloat.createReserved(), notches)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -103,16 +93,17 @@ constructor(
 @RemoteComposable
 @Composable
 public fun rememberRemoteScrollState(@IntRange(from = 0) notches: Int = 0): RemoteScrollState {
-    return remember(notches) { RemoteScrollState(notches) }
+    return remember(notches) { RemoteScrollState(notches = notches) }
 }
 
 internal data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
     RemoteModifier.Element {
 
     // Not used
-    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return CoreScrollModifier(direction, state.positionState.floatId, state.notches)
-    }
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
+        with(this as InternalRemoteStateScope) {
+            CoreScrollModifier(direction, state.positionState.floatId, state.notches)
+        }
 }
 
 /**

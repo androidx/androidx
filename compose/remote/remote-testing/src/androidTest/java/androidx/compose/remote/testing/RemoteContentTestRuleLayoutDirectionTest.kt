@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -61,7 +61,7 @@ class RemoteContentTestRuleLayoutDirectionTest {
     @get:Rule val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()
 
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
-    private val creationDisplayInfo = createCreationDisplayInfo(context = context)
+    private val creationDisplayInfo = createRemoteCreationDisplayInfo(context = context)
 
     @Test
     fun creationLtr_playLtr() {

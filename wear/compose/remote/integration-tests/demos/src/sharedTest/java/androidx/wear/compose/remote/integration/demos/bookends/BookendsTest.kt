@@ -25,7 +25,7 @@ import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.valueChangeAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -289,7 +289,7 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
             profile = BookendsProfile,
             onNamedAction = { name, value, _ -> onNamedAction(name, value) },
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     context = context,
                     size = Size(200f * density, 200f * density),
                 ),

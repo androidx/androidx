@@ -1355,11 +1355,15 @@ package androidx.wear.compose.remote.material3 {
   }
 
   public final class RemoteTimeTextDefaults {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteString defaultTimeString(optional androidx.compose.remote.creation.compose.state.RemoteBoolean is24HourFormat);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteString defaultTimeString(androidx.compose.remote.creation.compose.state.RemoteBoolean?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteColor getBackgroundColor(androidx.compose.runtime.Composer?, int);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontFamily getFontFamily();
     method @InaccessibleFromKotlin public String? getFontFeatureSettings();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Settings? getFontVariationSettings();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getTimeTextStyle();
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteBoolean is24HourFormat();
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteBoolean is24HourFormat(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.remote.creation.compose.text.RemoteFontFamily FontFamily;
     property public String? FontFeatureSettings;
     property public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Settings? FontVariationSettings;

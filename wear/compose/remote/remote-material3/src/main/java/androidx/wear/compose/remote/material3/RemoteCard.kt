@@ -333,9 +333,9 @@ public object RemoteCardDefaults {
      */
     public val CardWithContainerPainterContentPadding: RemotePaddingValues =
         RemotePaddingValues(
-            leftPadding = 12.rdp,
+            startPadding = 12.rdp,
             topPadding = 12.rdp,
-            rightPadding = 12.rdp,
+            endPadding = 12.rdp,
             bottomPadding = 12.rdp + ImageBottomPadding,
         )
 

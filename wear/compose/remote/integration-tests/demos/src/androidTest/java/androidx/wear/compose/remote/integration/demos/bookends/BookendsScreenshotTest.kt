@@ -20,7 +20,7 @@ package androidx.wear.compose.remote.integration.demos.bookends
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -85,7 +85,7 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
         RemoteScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
             remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
+                createRemoteCreationDisplayInfo(
                     ApplicationProvider.getApplicationContext(),
                     Size(500f, 500f),
                 ),

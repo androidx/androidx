@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.runtime.Immutable
 
 /**
  * A shape describing the rectangle with rounded corners.
@@ -35,6 +36,7 @@ import androidx.compose.remote.creation.compose.state.rf
  * @param bottomEnd a size of the bottom end corner
  * @param bottomStart a size of the bottom start corner
  */
+@Immutable
 public class RemoteRoundedCornerShape(
     topStart: RemoteCornerSize,
     topEnd: RemoteCornerSize,
@@ -60,7 +62,7 @@ public class RemoteRoundedCornerShape(
             topEnd = topEnd,
             bottomEnd = bottomEnd,
             bottomStart = bottomStart,
-            offset = offset,
+            topLeft = offset,
             size = size,
         )
     }
@@ -70,13 +72,35 @@ public class RemoteRoundedCornerShape(
         topEnd: RemoteCornerSize,
         bottomEnd: RemoteCornerSize,
         bottomStart: RemoteCornerSize,
-    ): RemoteCornerBasedShape {
+    ): RemoteRoundedCornerShape {
         return RemoteRoundedCornerShape(
             topStart = topStart,
             topEnd = topEnd,
             bottomEnd = bottomEnd,
             bottomStart = bottomStart,
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteRoundedCornerShape) return false
+        if (topStart != other.topStart) return false
+        if (topEnd != other.topEnd) return false
+        if (bottomEnd != other.bottomEnd) return false
+        if (bottomStart != other.bottomStart) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = topStart.hashCode()
+        result = 31 * result + topEnd.hashCode()
+        result = 31 * result + bottomEnd.hashCode()
+        result = 31 * result + bottomStart.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "RemoteRoundedCornerShape(topStart=$topStart, topEnd=$topEnd, bottomEnd=$bottomEnd, bottomStart=$bottomStart)"
     }
 }
 
