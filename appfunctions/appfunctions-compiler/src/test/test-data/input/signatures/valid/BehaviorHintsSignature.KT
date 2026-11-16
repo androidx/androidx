@@ -11,6 +11,8 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
 )
 @AppFunctionBehaviorHints(
     isReadOnly = true,
+    isDestructive = true,
+    isIdempotent = false,
     isOpenWorld = true,
 )
 fun interface BehaviorHintsSignature {

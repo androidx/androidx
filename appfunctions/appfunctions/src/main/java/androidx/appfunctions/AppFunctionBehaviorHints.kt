@@ -16,7 +16,6 @@
 
 package androidx.appfunctions
 
-import androidx.annotation.RestrictTo
 import androidx.appfunctions.metadata.AppFunctionBehaviorHintsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
 
@@ -28,7 +27,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  * [AppFunctionBehaviorHintsMetadata]. If an app function is not annotated with
  * [AppFunctionBehaviorHints], [AppFunctionMetadata.behaviorHints] is `null`.
  *
- * The properties and their default values conform to the
+ * The properties conform to the
  * [Model Context Protocol (MCP) ToolAnnotations specification](https://modelcontextprotocol.io/specification/2025-11-25/schema#toolannotations):
  * [isReadOnly], [isDestructive], [isIdempotent], and [isOpenWorld].
  *
@@ -48,8 +47,10 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  * ```kotlin
  * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * @AppFunctionBehaviorHints(
+ *     isReadOnly = false,
  *     isDestructive = true,
  *     isIdempotent = true,
+ *     isOpenWorld = false,
  * )
  * suspend fun deleteNote(noteId: String) { ... }
  * ```
@@ -61,22 +62,22 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  *     appFunctionXmlFileName = "dynamic_signature_definitions",
  *     isDescribedByKDoc = false,
  * )
- * @AppFunctionBehaviorHints(isReadOnly = true)
+ * @AppFunctionBehaviorHints(
+ *     isReadOnly = true,
+ *     isDestructive = false,
+ *     isIdempotent = true,
+ *     isOpenWorld = false,
+ * )
  * fun interface SearchNotesSignature {
  *     suspend fun searchNotes(query: String): List<Note>
  * }
  * ```
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
 public annotation class AppFunctionBehaviorHints(
-    /**
-     * Whether the app function does not modify its environment.
-     *
-     * Defaults to `false`.
-     */
-    public val isReadOnly: Boolean = false,
+    /** Whether the app function does not modify its environment. */
+    public val isReadOnly: Boolean,
     /**
      * Whether the app function may perform destructive updates to its environment, as opposed to
      * purely additive updates.
@@ -84,28 +85,22 @@ public annotation class AppFunctionBehaviorHints(
      * Destructive updates include deleting or overwriting existing data, whereas additive updates
      * only create new records. Meaningful only when the function modifies its environment (that is,
      * when [isReadOnly] is `false`).
-     *
-     * Defaults to `true`.
      */
-    public val isDestructive: Boolean = true,
+    public val isDestructive: Boolean,
     /**
      * Whether calling the app function repeatedly with the same arguments has no additional effect
      * on its environment.
      *
      * Meaningful only when the function modifies its environment (that is, when [isReadOnly] is
      * `false`).
-     *
-     * Defaults to `false`.
      */
-    public val isIdempotent: Boolean = false,
+    public val isIdempotent: Boolean,
     /**
      * Whether the app function may interact with an external "open world" of entities, as opposed
      * to operating strictly within a closed domain.
      *
      * Examples include searching the web, sending messages to external recipients, or calling
      * third-party services, as opposed to operating strictly within local app storage.
-     *
-     * Defaults to `true`.
      */
-    public val isOpenWorld: Boolean = true,
+    public val isOpenWorld: Boolean,
 )

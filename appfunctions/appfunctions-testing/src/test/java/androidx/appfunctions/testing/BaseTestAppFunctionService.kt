@@ -65,6 +65,7 @@ abstract class BaseTestAppFunctionService :
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionBehaviorHints(
+        isReadOnly = false,
         isDestructive = true,
         isIdempotent = true,
         isOpenWorld = false,

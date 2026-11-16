@@ -16,14 +16,13 @@
 
 package androidx.appfunctions.metadata
 
-import androidx.annotation.RestrictTo
 import androidx.appsearch.annotation.Document
 import java.util.Objects
 
 /**
  * Advisory hints about the runtime behavior of an app function.
  *
- * The properties and their default values conform to the
+ * The properties conform to the
  * [Model Context Protocol (MCP) ToolAnnotations specification](https://modelcontextprotocol.io/specification/2025-11-25/schema#toolannotations):
  * [isReadOnly], [isDestructive], [isIdempotent], and [isOpenWorld].
  *
@@ -39,16 +38,9 @@ import java.util.Objects
  *   providing app (server) and caller (client) that the library does not mediate; the values are
  *   passed through as-is for the caller and providing app to interpret.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppFunctionBehaviorHintsMetadata
-@JvmOverloads
-public constructor(
-    /**
-     * Whether the app function does not modify its environment.
-     *
-     * Defaults to `false`.
-     */
-    public val isReadOnly: Boolean = false,
+public class AppFunctionBehaviorHintsMetadata(
+    /** Whether the app function does not modify its environment. */
+    public val isReadOnly: Boolean,
     /**
      * Whether the app function may perform destructive updates to its environment, as opposed to
      * purely additive updates.
@@ -56,30 +48,24 @@ public constructor(
      * Destructive updates include deleting or overwriting existing data, whereas additive updates
      * only create new records. Meaningful only when the function modifies its environment (that is,
      * when [isReadOnly] is `false`).
-     *
-     * Defaults to `true`.
      */
-    public val isDestructive: Boolean = true,
+    public val isDestructive: Boolean,
     /**
      * Whether calling the app function repeatedly with the same arguments has no additional effect
      * on its environment.
      *
      * Meaningful only when the function modifies its environment (that is, when [isReadOnly] is
      * `false`).
-     *
-     * Defaults to `false`.
      */
-    public val isIdempotent: Boolean = false,
+    public val isIdempotent: Boolean,
     /**
      * Whether the app function may interact with an external "open world" of entities, as opposed
      * to operating strictly within a closed domain.
      *
      * Examples include searching the web, sending messages to external recipients, or calling
      * third-party services, as opposed to operating strictly within local app storage.
-     *
-     * Defaults to `true`.
      */
-    public val isOpenWorld: Boolean = true,
+    public val isOpenWorld: Boolean,
 ) {
     internal fun toAppFunctionBehaviorHintsMetadataDocument():
         AppFunctionBehaviorHintsMetadataDocument {

@@ -10,6 +10,6 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
     isDescribedByKDoc = false,
 )
 fun interface BehaviorHintsOnSignatureFunction {
-    @AppFunctionBehaviorHints(isReadOnly = true)
+    @AppFunctionBehaviorHints(isReadOnly = true, isDestructive = false, isIdempotent = true, isOpenWorld = false)
     suspend fun doSomething(a: Int): String
 }

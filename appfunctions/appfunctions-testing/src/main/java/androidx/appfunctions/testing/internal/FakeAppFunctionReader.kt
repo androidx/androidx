@@ -25,6 +25,7 @@ import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.AppFunctionsChangeEvent
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.AppFunctionReader
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
@@ -87,6 +88,7 @@ internal class FakeAppFunctionReader(
         packageToComponentsMetadataMapState.value = packageToComponentsMetadataMap
     }
 
+    @OptIn(ExperimentalAppFunctionsApi::class)
     override suspend fun searchAppFunctionsMetadata(
         searchFunctionSpec: AppFunctionSearchSpec
     ): List<AppFunctionMetadata> {
@@ -272,6 +274,7 @@ internal data class AppFunctionStaticAndRuntimeMetadata(
     val staticMetadata: CompileTimeAppFunctionMetadata,
     val runtimeMetadata: AppFunctionRuntimeMetadata,
 ) {
+    @OptIn(ExperimentalAppFunctionsApi::class)
     fun toAppFunctionMetadata(
         packageName: String,
         componentsMetadata: AppFunctionComponentsMetadata,

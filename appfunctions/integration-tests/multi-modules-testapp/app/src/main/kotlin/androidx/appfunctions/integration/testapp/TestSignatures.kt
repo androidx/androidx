@@ -142,6 +142,7 @@ fun interface DynamicSystemAccessSignature {
     isDescribedByKDoc = false,
 )
 @AppFunctionBehaviorHints(
+    isReadOnly = false,
     isDestructive = true,
     isIdempotent = true,
     isOpenWorld = false,

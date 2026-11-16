@@ -22,13 +22,19 @@ import org.junit.Test
 class AppFunctionBehaviorHintsMetadataTest {
 
     @Test
-    fun appFunctionBehaviorHintsMetadata_defaultValues() {
-        val hints = AppFunctionBehaviorHintsMetadata()
+    fun appFunctionBehaviorHintsMetadata_returnsDeclaredValues() {
+        val hints =
+            AppFunctionBehaviorHintsMetadata(
+                isReadOnly = true,
+                isDestructive = false,
+                isIdempotent = true,
+                isOpenWorld = false,
+            )
 
-        assertThat(hints.isReadOnly).isFalse()
-        assertThat(hints.isDestructive).isTrue()
-        assertThat(hints.isIdempotent).isFalse()
-        assertThat(hints.isOpenWorld).isTrue()
+        assertThat(hints.isReadOnly).isTrue()
+        assertThat(hints.isDestructive).isFalse()
+        assertThat(hints.isIdempotent).isTrue()
+        assertThat(hints.isOpenWorld).isFalse()
     }
 
     @Test

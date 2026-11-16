@@ -8,11 +8,17 @@ import androidx.appfunctions.AppFunctionServiceEntryPoint
 @AppFunctionServiceEntryPoint("MyBehaviorHintsService", "my_behavior_hints_service")
 abstract class BehaviorHintsEntryPoint : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    @AppFunctionBehaviorHints(isReadOnly = true)
+    @AppFunctionBehaviorHints(
+        isReadOnly = true,
+        isDestructive = true,
+        isIdempotent = false,
+        isOpenWorld = true,
+    )
     internal fun readOnlyFunction() {}
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     @AppFunctionBehaviorHints(
+        isReadOnly = false,
         isDestructive = true,
         isIdempotent = true,
         isOpenWorld = false,
