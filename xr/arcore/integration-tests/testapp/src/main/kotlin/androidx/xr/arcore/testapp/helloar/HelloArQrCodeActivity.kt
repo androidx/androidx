@@ -57,7 +57,7 @@ import androidx.xr.runtime.Session
 
 class HelloArQrCodeActivity : ComponentActivity() {
 
-    private lateinit var session: Session
+    private var session: Session? = null
     private lateinit var sessionHelper: SessionLifecycleHelper
     private val qrCodeRenderer = QrCodeRenderer()
 
@@ -100,7 +100,7 @@ class HelloArQrCodeActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (::session.isInitialized) qrCodeRenderer.startRendering(session, lifecycleScope)
+        session?.let { qrCodeRenderer.startRendering(it, lifecycleScope) }
     }
 
     @Composable
