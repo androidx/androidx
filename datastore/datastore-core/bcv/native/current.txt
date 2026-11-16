@@ -11,7 +11,7 @@ abstract interface <#A: kotlin/Any?> androidx.datastore.core/CorruptionHandler {
 }
 
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/CurrentDataProviderStore : androidx.datastore.core/DataStore<#A> { // androidx.datastore.core/CurrentDataProviderStore|null[0]
-    abstract suspend fun currentData(): #A // androidx.datastore.core/CurrentDataProviderStore.currentData|currentData(){}[0]
+    open suspend fun currentData(): #A // androidx.datastore.core/CurrentDataProviderStore.currentData|currentData(){}[0]
 }
 
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/DataMigration { // androidx.datastore.core/DataMigration|null[0]
@@ -25,6 +25,7 @@ abstract interface <#A: kotlin/Any?> androidx.datastore.core/DataStore { // andr
         abstract fun <get-data>(): kotlinx.coroutines.flow/Flow<#A> // androidx.datastore.core/DataStore.data.<get-data>|<get-data>(){}[0]
 
     abstract suspend fun updateData(kotlin.coroutines/SuspendFunction1<#A, #A>): #A // androidx.datastore.core/DataStore.updateData|updateData(kotlin.coroutines.SuspendFunction1<1:0,1:0>){}[0]
+    open suspend fun fetchCurrentData(): #A // androidx.datastore.core/DataStore.fetchCurrentData|fetchCurrentData(){}[0]
 
     final class <#A1: kotlin/Any?> Builder { // androidx.datastore.core/DataStore.Builder|null[0]
         constructor <init>(androidx.datastore.core/Storage<#A1>, kotlin.coroutines/CoroutineContext) // androidx.datastore.core/DataStore.Builder.<init>|<init>(androidx.datastore.core.Storage<1:0>;kotlin.coroutines.CoroutineContext){}[0]

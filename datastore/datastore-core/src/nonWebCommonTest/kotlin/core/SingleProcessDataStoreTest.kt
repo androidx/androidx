@@ -94,6 +94,58 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
     @Test fun testReadNewMessage() = runTest { assertThat(store.data.first()).isEqualTo(0) }
 
     @Test
+    fun testFetchCurrentData() = runTest {
+        assertThat(store.fetchCurrentData()).isEqualTo(0)
+        store.updateData { 1 }
+        assertThat(store.fetchCurrentData()).isEqualTo(1)
+    }
+
+    @Test
+    fun testFetchCurrentData_throwsError() = runTest {
+        initAndCloseDatastore()
+        serializerConfig.failingRead = true
+
+        assertThrows(testIO.ioExceptionClass()) { store.fetchCurrentData() }
+
+        serializerConfig.failingRead = false
+        assertThat(store.fetchCurrentData()).isEqualTo(-1)
+    }
+
+    @Test
+    fun testFetchCurrentData_afterCorruption() = runTest {
+        val corruptionHandler = TestingCorruptionHandler(replaceWith = 3.toByte())
+        val newStore = newDataStore(testFile, corruptionHandler = corruptionHandler)
+
+        // create the file to prevent serializer from returning default value
+        newStore.updateData { 1 }
+        assertThat(newStore.fetchCurrentData()).isEqualTo(1)
+
+        // increment version to force non-cached read which gets automatically reset from a
+        // [CorruptionException], the current state is [Data]
+        serializerConfig.failReadWithCorruptionException = true
+        serializerConfig.defaultValue = 2
+        newStore.incrementSharedCounter()
+        assertThat(newStore.fetchCurrentData()).isEqualTo(3.toByte())
+        assertThat(corruptionHandler.numCalls.get()).isEqualTo(1)
+    }
+
+    @Test
+    fun testFetchCurrentData_afterScopeCancelled() = runTest {
+        dataStoreScope.cancel()
+
+        assertThrows<CancellationException> { store.fetchCurrentData() }
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun testCurrentData_deprecatedApi() = runTest {
+        val currentStore = store as CurrentDataProviderStore<Byte>
+        assertThat(currentStore.currentData()).isEqualTo(0)
+        store.updateData { 1 }
+        assertThat(currentStore.currentData()).isEqualTo(1)
+    }
+
+    @Test
     fun testReadWithNewInstance() {
         runTest {
             val newStore = newDataStore(testFile, scope = backgroundScope)

@@ -26,6 +26,7 @@ package androidx.datastore.core {
   }
 
   public interface DataStore<T> {
+    method public default suspend Object? fetchCurrentData(kotlin.coroutines.Continuation<? super T>);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<T> getData();
     method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> transform, kotlin.coroutines.Continuation<? super T>);
     property public abstract kotlinx.coroutines.flow.Flow<T> data;

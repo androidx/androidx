@@ -19,7 +19,6 @@ package androidx.datastore.guava
 import android.content.Context
 import androidx.concurrent.futures.SuspendToFutureAdapter.launchFuture
 import androidx.core.util.Function
-import androidx.datastore.core.CurrentDataProviderStore
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -48,7 +47,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 public class GuavaDataStore<T : Any>
 internal constructor(
     /** The delegate DataStore. */
-    private val dataStore: CurrentDataProviderStore<T>,
+    private val dataStore: DataStore<T>,
     /** The [CoroutineContext] that holds a dispatcher. */
     private val coroutineContext: CoroutineContext,
 ) {
@@ -60,7 +59,7 @@ internal constructor(
      */
     public fun getDataAsync(): ListenableFuture<T> {
         return launchFuture(context = coroutineContext, launchUndispatched = false) {
-            dataStore.currentData()
+            dataStore.fetchCurrentData()
         }
     }
 
@@ -208,11 +207,7 @@ internal constructor(
                         .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
                         .addMigrations(dataMigrations)
                         .build()
-                }
-                    as? CurrentDataProviderStore
-                    ?: error(
-                        "Unexpected DataStore object that does not implement CurrentDataStore"
-                    ),
+                },
                 coroutineDispatcher,
             )
     }
@@ -248,13 +243,7 @@ internal constructor(
             dataStore: DataStore<T>,
             coroutineContext: CoroutineContext = Dispatchers.IO,
         ): GuavaDataStore<T> {
-            return GuavaDataStore(
-                dataStore as? CurrentDataProviderStore
-                    ?: error(
-                        "Unexpected DataStore object that does not implement CurrentDataProviderStore"
-                    ),
-                coroutineContext,
-            )
+            return GuavaDataStore(dataStore, coroutineContext)
         }
     }
 }

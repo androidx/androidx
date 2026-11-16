@@ -20,9 +20,12 @@ import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.tracing.Tracer
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 public actual interface DataStore<T> {
     public actual val data: Flow<T>
+
+    public actual suspend fun fetchCurrentData(): T = data.first()
 
     public actual suspend fun updateData(transform: suspend (t: T) -> T): T
 

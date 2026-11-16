@@ -44,12 +44,27 @@ public expect interface DataStore<T> {
      * data again.
      *
      * Do not layer a cache on top of this API: it will be be impossible to guarantee consistency.
-     * Instead, use data.first() to access a single snapshot.
+     * Instead, use fetchCurrentData() to access a single snapshot.
      *
      * @return a flow representing the current state of the data
      * @throws IOException when an exception is encountered when reading data
      */
     public val data: Flow<T>
+
+    /**
+     * Provides efficient, cached (when possible) access to the latest durably persisted state. The
+     * function will always either return a value or throw an exception encountered when attempting
+     * to read from disk. If an exception is encountered, calling again will attempt to read the
+     * data again.
+     *
+     * **Important:** This method is intended strictly for one-time reads. **Do not** use this
+     * method if your use case requires observing state changes over time, in such cases always
+     * [data.collect()] instead.
+     *
+     * @return the current state of the data
+     * @throws IOException when an exception is encountered when reading data
+     */
+    public open suspend fun fetchCurrentData(): T
 
     /**
      * Updates the data transactionally in an atomic read-modify-write operation. All operations are
