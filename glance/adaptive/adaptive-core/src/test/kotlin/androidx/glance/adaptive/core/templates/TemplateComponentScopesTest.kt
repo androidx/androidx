@@ -16,6 +16,8 @@
 
 package androidx.glance.adaptive.core.templates
 
+import android.app.Activity
+import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -52,5 +54,43 @@ class TemplateComponentScopesTest {
         assertThrows(IllegalStateException::class.java) { scope.endLabel("Other") }
         assertThrows(IllegalArgumentException::class.java) { BarChartScope().startLabel(" ") }
         assertThrows(IllegalArgumentException::class.java) { BarChartScope().endLabel("") }
+    }
+
+    @Test
+    fun actionScope_recordsClickReplacementAndSubtitle() {
+        val action = GlanceAdaptiveAction.LaunchAction<Activity>()
+        val scope =
+            ActionScope().apply {
+                onClick(action)
+                sensitive("Door")
+                subtitle("Open") { sensitive("--") }
+            }
+
+        assertThat(scope.clickable.action).isEqualTo(action)
+        assertThat(scope.clickable.sensitiveReplacement).isEqualTo("Door")
+        assertThat(scope.subtitle?.value).isEqualTo("Open")
+        assertThat(scope.subtitle?.sensitiveReplacement).isEqualTo("--")
+        assertThat(ActionScope().subtitle).isNull()
+
+        assertThrows(IllegalStateException::class.java) { scope.subtitle("Closed") }
+        assertThrows(IllegalArgumentException::class.java) { ActionScope().subtitle("") }
+    }
+
+    @Test
+    fun clickableScope_recordsActionAndReplacementAndRejectsBlankOrDuplicate() {
+        val action = GlanceAdaptiveAction.LaunchAction<Activity>()
+        val scope =
+            ClickableScope().apply {
+                onClick(action)
+                sensitive("Contact")
+            }
+
+        assertThat(scope.action).isEqualTo(action)
+        assertThat(scope.sensitiveReplacement).isEqualTo("Contact")
+        assertThat(ClickableScope().action).isNull()
+
+        assertThrows(IllegalStateException::class.java) { scope.onClick(action) }
+        assertThrows(IllegalStateException::class.java) { scope.sensitive("Other") }
+        assertThrows(IllegalArgumentException::class.java) { ClickableScope().sensitive(" ") }
     }
 }

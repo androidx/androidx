@@ -29,7 +29,6 @@ import androidx.glance.adaptive.core.slots.MIN_GRAPH_VALUES
 import androidx.glance.adaptive.core.slots.PrimaryComponent
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.SecondaryComponent
-import androidx.glance.adaptive.core.slots.TemplateText
 
 /**
  * Builds a [TrackTemplate] using scoped slot blocks.
@@ -321,11 +320,4 @@ public class TrackTemplateScope internal constructor() {
             components.add(Badge(label = label))
         }
     }
-}
-
-private fun buildTemplateText(value: String, options: TextScope.() -> Unit): TemplateText {
-    // Validate before running options so blank text fails prior to nested calls.
-    require(value.isNotBlank()) { "Text must not be blank." }
-    val scope = TextScope().apply(options)
-    return TemplateText(value = value, sensitiveReplacement = scope.sensitiveReplacement)
 }
