@@ -594,4 +594,65 @@ class SwitchTest {
             rule.onNodeWithTag(thumbTag, useUnmergedTree = true).getBoundsInRoot().width
         assertThat(releasedWidth.value).isWithin(0.5f).of(SwitchTokens.SelectedHandleWidth.value)
     }
+
+    @Test
+    fun switch_clickWhileAnimating_toggles() {
+        rule.mainClock.autoAdvance = false
+        var checked by mutableStateOf(false)
+        rule.setMaterialContent(lightColorScheme()) {
+            Box {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = checked,
+                    onCheckedChange = { checked = it },
+                )
+            }
+        }
+
+        rule.onNodeWithTag(defaultSwitchTag).performClick()
+        rule.waitForIdle()
+        assertThat(checked).isTrue()
+
+        // Advance partway through the FastSpatial animation so the thumb is still animating.
+        rule.mainClock.advanceTimeBy(milliseconds = 150)
+
+        rule.onNodeWithTag(defaultSwitchTag).performClick()
+        rule.waitForIdle()
+        assertThat(checked).isFalse()
+
+        rule.mainClock.advanceTimeBy(milliseconds = 500)
+        rule.onNodeWithTag(defaultSwitchTag).assertIsOff()
+    }
+
+    @Test
+    fun switch_toggleBackBeforeAnimationSettles_animatesBackToUnchecked() {
+        rule.mainClock.autoAdvance = false
+        var checked by mutableStateOf(false)
+        val spacerTag = "spacer"
+        rule.setMaterialContent(lightColorScheme()) {
+            val spacer = @Composable { Spacer(Modifier.size(16.dp).testTag(spacerTag)) }
+            Box {
+                Switch(
+                    modifier = Modifier.testTag(defaultSwitchTag),
+                    checked = checked,
+                    thumbContent = spacer,
+                    onCheckedChange = { checked = it },
+                )
+            }
+        }
+
+        rule
+            .onNodeWithTag(spacerTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp)
+
+        rule.runOnIdle { checked = true }
+        rule.mainClock.advanceTimeBy(milliseconds = 150)
+
+        rule.runOnIdle { checked = false }
+        rule.mainClock.advanceTimeBy(milliseconds = 500)
+
+        rule
+            .onNodeWithTag(spacerTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(8.dp)
+    }
 }

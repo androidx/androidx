@@ -19,14 +19,18 @@ package androidx.compose.material3
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -65,10 +69,13 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -175,7 +182,11 @@ private fun SwitchImpl(
             }
     }
     LaunchedEffect(checked, forceAnimationCheck) {
-        if (checked != anchoredDraggableState.settledValue) {
+        val targetOffset = anchoredDraggableState.anchors.positionOf(checked)
+        if (
+            checked != anchoredDraggableState.settledValue ||
+                (!targetOffset.isNaN() && anchoredDraggableState.offset != targetOffset)
+        ) {
             anchoredDraggableState.animateTo(checked, animationSpec)
         }
     }
@@ -197,16 +208,56 @@ private fun SwitchImpl(
 
     val dragModifier =
         if (onCheckedChange != null) {
-            Modifier.anchoredDraggable(
-                state = anchoredDraggableState,
+            val flingBehavior =
+                AnchoredDraggableDefaults.flingBehavior(
+                    state = anchoredDraggableState,
+                    animationSpec = animationSpec,
+                )
+            val draggableState =
+                remember(anchoredDraggableState) {
+                    object : DraggableState {
+                        override fun dispatchRawDelta(delta: Float) {
+                            anchoredDraggableState.dispatchRawDelta(delta)
+                        }
+
+                        override suspend fun drag(
+                            dragPriority: MutatePriority,
+                            block: suspend DragScope.() -> Unit,
+                        ) {
+                            anchoredDraggableState.anchoredDrag(dragPriority) {
+                                val dragScope =
+                                    object : DragScope {
+                                        override fun dragBy(pixels: Float) {
+                                            anchoredDraggableState.dispatchRawDelta(pixels)
+                                        }
+                                    }
+                                dragScope.block()
+                            }
+                        }
+                    }
+                }
+            val onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit =
+                remember(anchoredDraggableState, flingBehavior) {
+                    { velocity ->
+                        anchoredDraggableState.anchoredDrag {
+                            val scrollScope =
+                                object : ScrollScope {
+                                    override fun scrollBy(pixels: Float): Float {
+                                        return anchoredDraggableState.dispatchRawDelta(pixels)
+                                    }
+                                }
+                            with(flingBehavior) { scrollScope.performFling(velocity) }
+                        }
+                    }
+                }
+            Modifier.draggable(
+                state = draggableState,
                 orientation = Orientation.Horizontal,
                 enabled = enabled,
                 interactionSource = interactionSource,
-                flingBehavior =
-                    AnchoredDraggableDefaults.flingBehavior(
-                        state = anchoredDraggableState,
-                        animationSpec = animationSpec,
-                    ),
+                startDragImmediately = false,
+                reverseDirection = LocalLayoutDirection.current == LayoutDirection.Rtl,
+                onDragStopped = onDragStopped,
             )
         } else {
             Modifier
