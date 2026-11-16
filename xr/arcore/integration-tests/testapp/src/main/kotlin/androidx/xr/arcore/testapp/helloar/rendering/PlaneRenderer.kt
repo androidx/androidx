@@ -26,6 +26,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.Plane
 import androidx.xr.arcore.PlaneLabel
@@ -57,6 +58,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 /**
@@ -247,16 +250,21 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
         val anchor = anchorResult.anchor
         val anchorSpace = AnchorSpace.create(session, anchor)
 
+        // Seed from initialState.centerPose because newly created OpenXR anchors start PAUSED at
+        // Pose.Identity until their first runtime update.
+        val meshPoseTracker = PlaneMeshPoseTracker(initialState.centerPose)
+        val initialMeshPose = meshPoseTracker.update(anchor.state.value, initialState.centerPose)
+
         val label = initialState.label
         val material = getMaterialForLabel(label)
-        var modelEntity =
+        val modelEntity =
             MeshEntity.create(
                 session = session,
                 mesh = initialMesh,
                 materials = listOf(material),
                 parent = anchorSpace,
             )
-        modelEntity.setPose(Pose.Identity)
+        modelEntity.setPose(initialMeshPose)
 
         val isTracking =
             initialState.trackingState == TrackingState.TRACKING && initialState.subsumedBy == null
@@ -265,9 +273,7 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
             modelEntity.setAlpha(1.0f)
         }
 
-        var currentLabel = label
-        var lastVertices = initialState.vertices
-        var planeModel =
+        val planeModel =
             PlaneModel(
                 id = planeId,
                 planeType = plane.type,
@@ -278,63 +284,136 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
                 anchorSpace = anchorSpace,
             )
 
+        val updater =
+            TrackedPlaneUpdater(
+                anchorSpace = anchorSpace,
+                meshPoseTracker = meshPoseTracker,
+                currentLabel = label,
+                lastVertices = initialState.vertices,
+                lastAppliedMeshPose = initialMeshPose,
+                isEnabled = isTracking,
+                planeModel = planeModel,
+            )
         val renderJob = renderScope.launch {
-            plane.state.collect { state ->
-                val tracking =
-                    state.trackingState == TrackingState.TRACKING && state.subsumedBy == null
-                modelEntity.setEnabled(tracking)
-                if (tracking) {
-                    modelEntity.setAlpha(1.0f)
-                    if (state.label != currentLabel) {
-                        currentLabel = state.label
-                        modelEntity.setMaterial(getMaterialForLabel(currentLabel), 0)
-                    }
-
-                    if (state.vertices != lastVertices) {
-                        val newMesh = createPlaneMesh(session, state.vertices)
-                        if (newMesh != null) {
-                            lastVertices = state.vertices
-                            val newModelEntity =
-                                MeshEntity.create(
-                                    session = session,
-                                    mesh = newMesh,
-                                    materials = listOf(getMaterialForLabel(currentLabel)),
-                                    parent = anchorSpace,
-                                )
-                            newModelEntity.setPose(Pose.Identity)
-                            newModelEntity.setEnabled(tracking)
-                            newModelEntity.setAlpha(1.0f)
-                            val oldModelEntity = modelEntity
-                            val existingComponents = oldModelEntity.getComponents()
-                            // Transfer attached components (such as InteractableComponent) to the
-                            // replacement MeshEntity so colliders and input listeners remain
-                            // active.
-                            for (component in existingComponents) {
-                                oldModelEntity.removeComponent(component)
-                                newModelEntity.addComponent(component)
-                            }
-                            oldModelEntity.parent = null
-                            // Explicitly dispose old MeshEntity to synchronously release the
-                            // native Impress borrow on the underlying imp::Mesh before GC.
-                            oldModelEntity.dispose()
-
-                            modelEntity = newModelEntity
-                            // Create a new PlaneModel copy BEFORE mutating so StateFlow sees a
-                            // structural change and notifies collectors (e.g. AnchorRenderer).
-                            val updatedPlaneModel = planeModel.copy(modelEntity = newModelEntity)
-                            planeModel = updatedPlaneModel
-                            _renderedPlanes.value =
-                                _renderedPlanes.value.map {
-                                    if (it.id == planeId) updatedPlaneModel else it
-                                }
-                        }
-                    }
+            combine(plane.state, anchor.state) { state, anchorState ->
+                    updater.update(state, anchorState)
                 }
-            }
+                .collect()
         }
         planeModel.renderJob = renderJob
 
         planesToRender.add(planeModel)
+    }
+
+    /** Coordinates entity swaps and local pose updates for a tracked [PlaneModel]. */
+    private inner class TrackedPlaneUpdater(
+        private val anchorSpace: AnchorSpace,
+        private val meshPoseTracker: PlaneMeshPoseTracker,
+        private var currentLabel: PlaneLabel,
+        private var lastVertices: List<Vector2>,
+        private var lastAppliedMeshPose: Pose,
+        private var isEnabled: Boolean,
+        private var planeModel: PlaneModel,
+    ) {
+        fun update(state: Plane.State, anchorState: Anchor.State) {
+            val tracking = state.trackingState == TrackingState.TRACKING && state.subsumedBy == null
+            if (tracking != isEnabled) {
+                planeModel.modelEntity.setEnabled(tracking)
+                if (tracking) {
+                    planeModel.modelEntity.setAlpha(1.0f)
+                }
+                isEnabled = tracking
+            }
+            if (!tracking) return
+
+            applyTrackedPlaneState(state, anchorState)
+        }
+
+        private fun applyTrackedPlaneState(state: Plane.State, anchorState: Anchor.State) {
+            val meshPose = meshPoseTracker.update(anchorState, state.centerPose)
+            val labelChanged = state.label != currentLabel
+            if (labelChanged) currentLabel = state.label
+            val newMesh =
+                if (state.vertices != lastVertices) {
+                    createPlaneMesh(session, state.vertices)
+                } else {
+                    null
+                }
+            if (newMesh == null) {
+                updateEntityAppearance(labelChanged, meshPose)
+                return
+            }
+            swapPlaneMesh(state.vertices, newMesh, meshPose)
+        }
+
+        private fun swapPlaneMesh(
+            vertices: List<Vector2>,
+            newMesh: CustomMesh,
+            meshPose: Pose,
+        ) {
+            lastVertices = vertices
+            val newModelEntity =
+                replaceMeshEntity(
+                    oldModelEntity = planeModel.modelEntity,
+                    newMesh = newMesh,
+                    material = getMaterialForLabel(currentLabel),
+                    anchorSpace = anchorSpace,
+                    meshPose = meshPose,
+                )
+            lastAppliedMeshPose = meshPose
+            planeModel = updateTrackedPlaneModel(planeModel, newModelEntity)
+        }
+
+        private fun updateEntityAppearance(labelChanged: Boolean, meshPose: Pose) {
+            if (labelChanged) {
+                planeModel.modelEntity.setMaterial(getMaterialForLabel(currentLabel), 0)
+            }
+            if (meshPose != lastAppliedMeshPose) {
+                planeModel.modelEntity.setPose(meshPose)
+                lastAppliedMeshPose = meshPose
+            }
+        }
+    }
+
+    private fun replaceMeshEntity(
+        oldModelEntity: MeshEntity,
+        newMesh: CustomMesh,
+        material: Material,
+        anchorSpace: AnchorSpace,
+        meshPose: Pose,
+    ): MeshEntity {
+        val newModelEntity =
+            MeshEntity.create(
+                session = session,
+                mesh = newMesh,
+                materials = listOf(material),
+                parent = anchorSpace,
+            )
+        newModelEntity.setPose(meshPose)
+        newModelEntity.setEnabled(true)
+        newModelEntity.setAlpha(1.0f)
+        // Transfer attached components (such as InteractableComponent) to the replacement
+        // MeshEntity so colliders and input listeners remain active.
+        for (component in oldModelEntity.getComponents()) {
+            oldModelEntity.removeComponent(component)
+            newModelEntity.addComponent(component)
+        }
+        oldModelEntity.parent = null
+        // Explicitly dispose old MeshEntity to synchronously release the native Impress borrow on
+        // the underlying imp::Mesh before GC.
+        oldModelEntity.dispose()
+        return newModelEntity
+    }
+
+    private fun updateTrackedPlaneModel(
+        planeModel: PlaneModel,
+        newModelEntity: MeshEntity,
+    ): PlaneModel {
+        // Emit a new PlaneModel copy so StateFlow notifies collectors (e.g. AnchorRenderer).
+        val updatedPlaneModel = planeModel.copy(modelEntity = newModelEntity)
+        _renderedPlanes.value =
+            _renderedPlanes.value.map { if (it.id == planeModel.id) updatedPlaneModel else it }
+        return updatedPlaneModel
     }
 
     private fun getMaterialForLabel(label: PlaneLabel): Material {
@@ -384,3 +463,54 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
             )
     }
 }
+
+/**
+ * Tracks the local mesh pose inside a plane's [AnchorSpace] across anchor lifecycle updates.
+ *
+ * OpenXR anchors start [TrackingState.PAUSED] at [Pose.Identity] until first located, so this
+ * tracker uses [initialCenterPose] until the runtime locates the anchor, and holds the last
+ * computed pose if [TrackingState.STOPPED] or a post-locate unlocated [Pose.Identity] reset is
+ * reported. If the first update is [TrackingState.STOPPED], [Pose.Identity] is returned.
+ */
+internal class PlaneMeshPoseTracker(private val initialCenterPose: Pose) {
+    private var meshPose: Pose = Pose.Identity
+    private var hasLocatedAnchorPose = false
+
+    fun update(anchorState: Anchor.State, centerPose: Pose): Pose =
+        update(anchorState.trackingState, anchorState.pose, centerPose)
+
+    fun update(
+        anchorTrackingState: TrackingState,
+        anchorPose: Pose,
+        centerPose: Pose,
+    ): Pose {
+        if (anchorTrackingState == TrackingState.STOPPED) {
+            return meshPose
+        }
+        val isUnlocatedPose =
+            anchorTrackingState != TrackingState.TRACKING && anchorPose == Pose.Identity
+        if (hasLocatedAnchorPose && isUnlocatedPose) {
+            return meshPose
+        }
+        if (!isUnlocatedPose) {
+            hasLocatedAnchorPose = true
+        }
+        val resolvedAnchorPose = if (hasLocatedAnchorPose) anchorPose else initialCenterPose
+        meshPose = planeMeshPoseInAnchorSpace(resolvedAnchorPose, centerPose)
+        return meshPose
+    }
+}
+
+/**
+ * Returns the local pose of a plane mesh in the space of an anchor attached to that plane.
+ *
+ * Plane vertices are centered at the plane's current [centerPose], while an anchor stays near the
+ * creation-time pose. Placing the mesh at `anchorPose.inverse compose centerPose` keeps it aligned
+ * with the live plane as [centerPose] shifts.
+ *
+ * @param anchorPose pose of the anchor in world space
+ * @param centerPose current center pose of the plane in world space
+ * @return plane center pose expressed in the anchor's local space
+ */
+internal fun planeMeshPoseInAnchorSpace(anchorPose: Pose, centerPose: Pose): Pose =
+    anchorPose.inverse compose centerPose
