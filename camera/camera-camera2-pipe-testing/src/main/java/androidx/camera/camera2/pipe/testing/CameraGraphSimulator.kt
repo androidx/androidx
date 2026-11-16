@@ -384,6 +384,9 @@ internal constructor(
             CameraFrameNumber(frameCounter.incrementAndGet())
         public var timestampNanos: Long? = null
 
+        private val mappedRequestResultMetadata: Map<CaptureResult.Key<*>, Any?> =
+            RequestToResultMetadataMapper.mapRequestToResult(requestMetadata)
+
         public fun simulateStarted(timestampNanos: Long) {
             this.timestampNanos = timestampNanos
 
@@ -410,22 +413,17 @@ internal constructor(
         }
 
         public fun simulateTotalCaptureResult(
-            resultMetadata: Map<CaptureResult.Key<*>, Any?>,
+            resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
             physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap(),
         ) {
-            val metadata =
-                createFakeMetadataFor(
+            val frameInfo =
+                createFakeFrameInfo(
                     resultMetadata = resultMetadata,
                     extraResultMetadata = extraResultMetadata,
                     extraMetadata = extraMetadata,
-                )
-            val frameInfo =
-                FakeFrameInfo(
-                    metadata = metadata,
-                    requestMetadata,
-                    createFakePhysicalMetadata(physicalResultMetadata),
+                    physicalResultMetadata = physicalResultMetadata,
                 )
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -434,22 +432,17 @@ internal constructor(
         }
 
         public fun simulateComplete(
-            resultMetadata: Map<CaptureResult.Key<*>, Any?>,
+            resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
             physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap(),
         ) {
-            val metadata =
-                createFakeMetadataFor(
+            val frameInfo =
+                createFakeFrameInfo(
                     resultMetadata = resultMetadata,
                     extraResultMetadata = extraResultMetadata,
                     extraMetadata = extraMetadata,
-                )
-            val frameInfo =
-                FakeFrameInfo(
-                    metadata = metadata,
-                    requestMetadata,
-                    createFakePhysicalMetadata(physicalResultMetadata),
+                    physicalResultMetadata = physicalResultMetadata,
                 )
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -541,6 +534,32 @@ internal constructor(
             this@CameraGraphSimulator.simulateExpectedOutputs(streamId, timestamp, outputIds)
         }
 
+        private fun createFakeFrameInfo(
+            resultMetadata: Map<CaptureResult.Key<*>, Any?>,
+            extraResultMetadata: Map<Metadata.Key<*>, Any?>,
+            extraMetadata: Map<*, Any?>,
+            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>>,
+        ): FakeFrameInfo {
+            val mergedResultMetadata =
+                buildMap<CaptureResult.Key<*>, Any?> {
+                    // Camera2 reports the onCaptureStarted timestamp as SENSOR_TIMESTAMP.
+                    timestampNanos?.let { put(CaptureResult.SENSOR_TIMESTAMP, it) }
+                    putAll(mappedRequestResultMetadata)
+                    putAll(resultMetadata)
+                }
+            val metadata =
+                createFakeMetadataFor(
+                    resultMetadata = mergedResultMetadata,
+                    extraResultMetadata = extraResultMetadata,
+                    extraMetadata = extraMetadata,
+                )
+            return FakeFrameInfo(
+                metadata = metadata,
+                requestMetadata = requestMetadata,
+                physicalMetadata = createFakePhysicalMetadata(physicalResultMetadata),
+            )
+        }
+
         private fun createFakePhysicalMetadata(
             physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>>
         ): Map<CameraId, FrameMetadata> {
@@ -562,6 +581,7 @@ internal constructor(
                 resultMetadata = resultMetadata.toMap(),
                 extraResultMetadata = extraResultMetadata.toMap(),
                 extraMetadata = extraMetadata.toMap(),
+                captureRequest = requestMetadata,
             )
     }
 }
