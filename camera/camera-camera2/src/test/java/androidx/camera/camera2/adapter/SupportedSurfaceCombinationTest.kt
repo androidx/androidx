@@ -2104,6 +2104,48 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
+    /**
+     * PRIV/PREVIEW + JPEG_R/MAXIMUM when Ultra HDR is supported via Extensions only (JPEG_R absent
+     * from normal-mode StreamConfigurationMap).
+     */
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun canSelectCorrectSizes_privPlusJpegr_whenJpegrNotInStreamConfigurationMap() {
+        val privUseCase = createUseCase(CaptureType.PREVIEW) // PRIV
+        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE, imageFormat = JPEG_R) // JPEG_R
+        val useCaseExpectedResultMap =
+            mutableMapOf<UseCase, Size>().apply {
+                put(privUseCase, previewSize)
+                put(jpegUseCase, maximumSize)
+            }
+        getSuggestedSpecsAndVerify(
+            useCasesExpectedResultMap = useCaseExpectedResultMap,
+            supportedOutputFormats = intArrayOf(PRIVATE, ImageFormat.YUV_420_888, JPEG),
+        )
+    }
+
+    /**
+     * PRIV/PREVIEW + JPEG_R/MAXIMUM with VideoStabilization.ON on Galaxy S26 (quirk enabled) when
+     * JPEG_R is absent from normal-mode StreamConfigurationMap.
+     */
+    @Config(sdk = [Config.TARGET_SDK])
+    @Test
+    fun canSelectCorrectSizes_privPlusJpegrVideoStabOnS26_jpegrNotInScm() {
+        setS26Device()
+        val privUseCase = createUseCase(CaptureType.PREVIEW) // PRIV
+        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE, imageFormat = JPEG_R) // JPEG_R
+        val useCaseExpectedResultMap =
+            mutableMapOf<UseCase, Size>().apply {
+                put(privUseCase, previewSize)
+                put(jpegUseCase, maximumSize)
+            }
+        getSuggestedSpecsAndVerify(
+            useCasesExpectedResultMap = useCaseExpectedResultMap,
+            videoStabilization = VideoStabilization.ON,
+            supportedOutputFormats = intArrayOf(PRIVATE, ImageFormat.YUV_420_888, JPEG),
+        )
+    }
+
     /** Unsupported PRIV + PRIV + JPEG when Ultra HDR is ON. */
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
@@ -4924,6 +4966,68 @@ class SupportedSurfaceCombinationTest {
             surfaceConfigList.toUseCaseConfigs(),
             (0 until surfaceConfigList.size).toList(),
         )
+    }
+
+    @Config(sdk = [Config.TARGET_SDK])
+    @Test
+    fun checkSupported_hlg10UhdWithUnmappedRawAndVideoStab_rejectedOnS26() {
+        setupCamera(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+            capabilities = intArrayOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW),
+            supportedFormats = intArrayOf(PRIVATE, ImageFormat.YUV_420_888, JPEG),
+        )
+        val rawMaxConfig = SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM)
+        val privPreviewConfig = SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+        val privVgaConfig = SurfaceConfig.create(ConfigType.PRIV, ConfigSize.VGA)
+        val yuvUhdRecordConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD)
+        val surfaceConfigList =
+            listOf(rawMaxConfig, privPreviewConfig, privVgaConfig, yuvUhdRecordConfig)
+        val dynamicRanges =
+            mapOf(
+                rawMaxConfig to DynamicRange.SDR,
+                privPreviewConfig to DynamicRange.SDR,
+                privVgaConfig to DynamicRange.SDR,
+                yuvUhdRecordConfig to HLG_10_BIT,
+            )
+        val featureSettings =
+            SupportedSurfaceCombination.FeatureSettings(
+                CameraMode.DEFAULT,
+                DynamicRange.BIT_DEPTH_8_BIT,
+                videoStabilization = VideoStabilization.ON,
+            )
+
+        // Galaxy Z Fold8 (unaffected): LEVEL_3 table supports RAW + YUV without quirk rejection.
+        ShadowBuild.setBrand("samsung")
+        ShadowBuild.setManufacturer("samsung")
+        ShadowBuild.setDevice("h8q")
+        val unaffectedCombination =
+            SupportedSurfaceCombination(
+                context,
+                fakeCameraMetadata,
+                mockEncoderProfilesAdapter,
+                NO_OP_FEATURE_COMBINATION_QUERY,
+            )
+        assertThat(
+                unaffectedCombination.checkSupported(
+                    featureSettings,
+                    surfaceConfigList,
+                    dynamicRanges,
+                )
+            )
+            .isTrue()
+
+        // Galaxy S26 (affected): unmapped RAW (SDR, resolution not queried) neither throws NPE nor
+        // masks HLG10 UHD rejection when evaluating subsequent streams.
+        setS26Device()
+        val s26Combination =
+            SupportedSurfaceCombination(
+                context,
+                fakeCameraMetadata,
+                mockEncoderProfilesAdapter,
+                NO_OP_FEATURE_COMBINATION_QUERY,
+            )
+        assertThat(s26Combination.checkSupported(featureSettings, surfaceConfigList, dynamicRanges))
+            .isFalse()
     }
 
     @Test

@@ -199,14 +199,13 @@ public class SupportedSurfaceCombination(
             isSupported &&
                 hlg10UhdVideoStabilizationValidator.isUnsupported(
                     featureSettings.videoStabilization,
-                    surfaceConfigList.mapNotNull { surfaceConfig ->
-                        dynamicRangesBySurfaceConfig[surfaceConfig]?.let { dynamicRange ->
-                            surfaceConfig.getResolution(
-                                getUpdatedSurfaceSizeDefinitionByFormat(surfaceConfig.imageFormat)
-                            ) to dynamicRange
-                        }
-                    },
-                )
+                    surfaceConfigList,
+                    dynamicRangesBySurfaceConfig,
+                ) { surfaceConfig ->
+                    surfaceConfig.getResolution(
+                        getUpdatedSurfaceSizeDefinitionByFormat(surfaceConfig.imageFormat)
+                    )
+                }
         ) {
             // The device reports this combination as supported (including via the feature
             // combination query), but the camera HAL crashes with it.
