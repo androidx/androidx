@@ -42,5 +42,6 @@ dependencies {
     implementation(libs.testCore)
     implementation(libs.testRunner)
     implementation(libs.testUiautomator)
+    implementation(project(":xr:scenecore:scenecore-spatial-core"))
     implementation(project(":xr:testutils"))
 }
