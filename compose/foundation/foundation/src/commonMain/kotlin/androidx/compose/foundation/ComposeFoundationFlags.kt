@@ -429,11 +429,14 @@ public object ComposeFoundationFlags {
     /**
      * Controls whether performance optimizations for [androidx.compose.ui.text.LinkAnnotation] in
      * [androidx.compose.foundation.text.BasicText] are enabled.
+     *
+     * This flag is off by default: the optimizations are opt-in until the google3 screenshot test
+     * breakage they caused (b/583304699) is resolved.
      */
-    // TODO: Remove this flag once it has soaked (b/581556315)
+    // TODO: Enable by default and then remove this flag once it has soaked (b/581556315)
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isLinkPerformanceOptimizationEnabled: Boolean = true
+    public var isLinkPerformanceOptimizationEnabled: Boolean = false
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
