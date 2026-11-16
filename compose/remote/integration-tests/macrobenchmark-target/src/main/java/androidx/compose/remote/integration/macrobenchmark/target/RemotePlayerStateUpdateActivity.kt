@@ -90,6 +90,9 @@ class RemotePlayerStateUpdateActivity : ComponentActivity() {
                 delay(100L)
                 count++
                 player.setUserLocalString("counterText", "Count: $count")
+                // TODO(b/585202905): Remove explicit invalidate() once RemoteComposeView.setLocal*
+                // invalidates the view.
+                player.invalidate()
             }
         }
     }
