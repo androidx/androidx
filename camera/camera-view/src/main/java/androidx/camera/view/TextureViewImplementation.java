@@ -121,6 +121,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
     public void initializePreview() {
         Preconditions.checkNotNull(mParent);
         Preconditions.checkNotNull(mResolution);
+        onPreviewReset();
 
         mTextureView = new TextureView(mParent.getContext());
         mTextureView.setLayoutParams(
