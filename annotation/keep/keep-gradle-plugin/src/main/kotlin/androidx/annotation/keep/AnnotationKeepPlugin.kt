@@ -16,11 +16,7 @@
 
 package androidx.annotation.keep
 
-import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.ScopedArtifact
-import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.instrumentation.FramesComputationMode
-import com.android.build.api.instrumentation.InstrumentationScope
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -31,6 +27,7 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskProvider
 
 internal const val GENERATED_KEEP_RULES = "androidx.annotation.keep.rules.pro"
 
@@ -63,40 +60,17 @@ class AnnotationKeepPlugin : Plugin<Project> {
             // We don't really need to rewrite classes to remove annotations here.
             // This makes things a _lot_ easier and faster, given we don't have compatibility
             // concerns. Annotations are compile time only, so there is no runtime overhead as well.
-            val keepRulesTask =
-                project.tasks.register(
-                    "${variant.name}ExtractKeepRules",
-                    ExtractKeepRulesTask::class.java,
-                ) { task ->
-                    task.group = "Build"
-                    task.description =
-                        "Extracts keep rules from annotations for the ${variant.name} variant."
-                    task.outputKeepRules.set(
-                        project.layout.buildDirectory.file(
-                            "generated/${variant.name}/$GENERATED_KEEP_RULES"
-                        )
-                    )
-                }
-
-            variant.artifacts
-                .forScope(ScopedArtifacts.Scope.PROJECT)
-                .use(keepRulesTask)
-                .toGet(
-                    ScopedArtifact.CLASSES,
-                    ExtractKeepRulesTask::inputJars,
-                    ExtractKeepRulesTask::inputDirectories,
-                )
-
+            val keepRulesTask = registerExtractKeepRulesTask(project, variant)
             variant.proguardFiles.add(keepRulesTask.flatMap { it.outputKeepRules })
         }
     }
 
     private fun configureAndroidLibrary(project: Project) {
-        // 1. Register the task using the new AGP Artifacts API
         val libraryComponents =
             project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
         libraryComponents.onVariants { variant ->
-            registerTransformAarTask(project, variant.name, variant.artifacts)
+            val keepRulesTask = registerExtractKeepRulesTask(project, variant)
+            variant.consumerProguardFiles.add(keepRulesTask.flatMap { it.outputKeepRules })
         }
     }
 
@@ -104,37 +78,39 @@ class AnnotationKeepPlugin : Plugin<Project> {
         val kmpComponents =
             project.extensions.getByType(KotlinMultiplatformAndroidComponentsExtension::class.java)
         kmpComponents.onVariants { variant ->
-            registerTransformAarTask(project, variant.name, variant.artifacts)
+            val keepRulesTask = registerExtractKeepRulesTask(project, variant)
+            variant.consumerProguardFiles.add(keepRulesTask.flatMap { it.outputKeepRules })
         }
     }
 
-    private fun registerTransformAarTask(
+    private fun registerExtractKeepRulesTask(
         project: Project,
-        variantName: String,
-        artifacts: Artifacts,
-    ) {
-        val taskProvider =
+        variant: Variant,
+    ): TaskProvider<ExtractKeepRulesTask> {
+        val keepRulesTask =
             project.tasks.register(
-                "${variantName}KeepRulesTransformAar",
-                AarModificationTask::class.java,
+                "${variant.name}ExtractKeepRules",
+                ExtractKeepRulesTask::class.java,
             ) { task ->
                 task.group = "Build"
-                task.description = "Transforms the $variantName AAR to inject keep rules."
+                task.description =
+                    "Extracts keep rules from annotations for the ${variant.name} variant."
+                task.outputKeepRules.set(
+                    project.layout.buildDirectory.file(
+                        "generated/${variant.name}/$GENERATED_KEEP_RULES"
+                    )
+                )
             }
 
-        artifacts
-            .use(taskProvider)
-            .wiredWithFiles(AarModificationTask::inputAar, AarModificationTask::outputJar)
-            .toTransform(SingleArtifact.AAR)
-    }
+        variant.artifacts
+            .forScope(ScopedArtifacts.Scope.PROJECT)
+            .use(keepRulesTask)
+            .toGet(
+                ScopedArtifact.CLASSES,
+                ExtractKeepRulesTask::inputJars,
+                ExtractKeepRulesTask::inputDirectories,
+            )
 
-    private fun Variant.instrumentClasses() {
-        instrumentation.transformClassesWith(
-            AnnotationPluginVisitorFactory::class.java,
-            InstrumentationScope.PROJECT,
-        ) {}
-        instrumentation.setAsmFramesComputationMode(
-            FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_CLASSES
-        )
+        return keepRulesTask
     }
 }

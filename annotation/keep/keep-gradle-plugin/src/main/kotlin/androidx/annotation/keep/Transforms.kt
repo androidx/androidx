@@ -17,78 +17,11 @@
 package androidx.annotation.keep
 
 import com.android.tools.r8.keepanno.KeepAnno
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import org.objectweb.asm.ClassReader
-
-internal fun modifyAar(input: File, output: File) {
-    val zipFile = ZipFile(input)
-    val rulesAccumulator = StringBuilder()
-    val outputStream = ZipOutputStream(output.outputStream().buffered())
-    // Existing content
-    var proguardTxt: String? = null
-    outputStream.use {
-        zipFile.use {
-            val entries = zipFile.entries()
-            while (entries.hasMoreElements()) {
-                val entry = entries.nextElement()
-                when (entry.name) {
-                    "classes.jar" -> {
-                        val classesJarOutputStream = ByteArrayOutputStream()
-                        val jarInputStream = ZipInputStream(zipFile.getInputStream(entry))
-                        jarTransform(
-                            inputStream = jarInputStream,
-                            outputStream = ZipOutputStream(classesJarOutputStream),
-                            rulesAccumulator = rulesAccumulator,
-                        )
-                        outputStream.putNextEntry(ZipEntry("classes.jar"))
-                        outputStream.write(classesJarOutputStream.toByteArray())
-                        outputStream.closeEntry()
-                    }
-                    "proguard.txt" -> {
-                        // Keep track of the proguard file, but don't write it yet.
-                        proguardTxt = zipFile.getInputStream(entry).bufferedReader().readText()
-                    }
-                    else -> {
-                        outputStream.putNextEntry(ZipEntry(entry.name))
-                        zipFile.getInputStream(entry).copyTo(out = outputStream)
-                        outputStream.closeEntry()
-                    }
-                }
-            }
-            // Add the proguard rules to root proguard.txt
-            val outputProguardTxt = StringBuilder()
-            if (proguardTxt != null) {
-                with(outputProguardTxt) {
-                    append("#################################################################\n")
-                    append("#                     Preexisting AAR Rules                     #\n")
-                    append("#################################################################\n")
-                    append(proguardTxt)
-                    append("\n")
-                }
-            }
-            // Add the accumulated rules
-            if (rulesAccumulator.isNotEmpty()) {
-                with(outputProguardTxt) {
-                    append("#################################################################\n")
-                    append("#   Rules generated from androidx.annotation.keep annotations   #\n")
-                    append("#################################################################\n")
-                    append(rulesAccumulator)
-                    append("\n")
-                }
-            }
-            if (outputProguardTxt.isNotEmpty()) {
-                outputStream.putNextEntry(ZipEntry("proguard.txt"))
-                outputStream.write(outputProguardTxt.toString().toByteArray())
-                outputStream.closeEntry()
-            }
-        }
-    }
-}
 
 internal fun modifyJar(input: File, output: File) {
     val inputStream = ZipInputStream(input.inputStream().buffered())
