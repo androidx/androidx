@@ -69,7 +69,7 @@ class BannerStyleTest {
                 context,
                 TestUtils.getTestDrawableResId(context, "ic_test_1"),
             )
-        val icon = CarIcon.Builder(iconRaw).build()
+        val icon = CarIcon.createOriginalIcon(iconRaw)
         val background = Background.Builder().setImage(icon).build()
         assertThrows(IllegalArgumentException::class.java) {
             BannerStyle.Builder().setBackground(background)

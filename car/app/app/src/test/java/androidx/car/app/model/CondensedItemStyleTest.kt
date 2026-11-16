@@ -55,7 +55,7 @@ class CondensedItemStyleTest {
                 context,
                 TestUtils.getTestDrawableResId(context, "ic_test_1"),
             )
-        val icon = CarIcon.Builder(mIcon).build()
+        val icon = CarIcon.createOriginalIcon(mIcon)
         val background = Background.Builder().setImage(icon).build()
         assertThrows(IllegalArgumentException::class.java) {
             CondensedItemStyle.Builder().setBackground(background)

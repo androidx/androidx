@@ -66,9 +66,13 @@ public final class GridItem implements Item {
      * icons targeting a 128 x 128 dp bounding box. If necessary, the icon will be scaled down while
      * preserving its aspect ratio.
      *
-     * <p>A tint color is expected to be provided via {@link CarIconStyle.Builder#setTint} provided
-     * to the icon with {@link CarIcon.Builder#setStyle}. Otherwise, a default tint color as
-     * determined by the host will be applied.
+     * <p>A tint color is expected to be provided via {@link
+     * CarIcon#createTintedIcon(androidx.core.graphics.drawable.IconCompat, CarColor)
+     * CarIcon.createTintedIcon(IconCompat, CarColor)} or {@link CarIconStyle.Builder#setTint}
+     * passed to {@link
+     * CarIcon.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CarIconStyle)
+     * CarIcon.Builder(IconCompat, CarIconStyle)}. Otherwise, a default tint color as determined by
+     * the host will be applied.
      *
      * @deprecated Use {@link Builder#setImage(CarIcon)} instead. Tint is controlled directly by
      *     {@link CarIcon}, and image size is controlled by the parent template or section (e.g.

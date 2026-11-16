@@ -51,7 +51,7 @@ public class CarIconSpanTest {
 
     @Test
     public void constructor() {
-        CarIcon carIcon = new CarIcon.Builder(mIcon).build();
+        CarIcon carIcon = CarIcon.createOriginalIcon(mIcon);
         CarIconSpan span = CarIconSpan.create(carIcon);
 
         assertThat(span.getIcon()).isEqualTo(carIcon);
@@ -63,13 +63,13 @@ public class CarIconSpanTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
+        CarIcon carIcon = CarIcon.createOriginalIcon(IconCompat.createWithContentUri(iconUri));
         assertThrows(IllegalArgumentException.class, () -> CarIconSpan.create(carIcon));
     }
 
     @Test
     public void equals() {
-        CarIcon carIcon = new CarIcon.Builder(mIcon).build();
+        CarIcon carIcon = CarIcon.createOriginalIcon(mIcon);
         CarIconSpan span1 = CarIconSpan.create(carIcon);
         CarIconSpan span2 = CarIconSpan.create(carIcon);
 
@@ -78,7 +78,7 @@ public class CarIconSpanTest {
 
     @Test
     public void notEquals() {
-        CarIcon carIcon = new CarIcon.Builder(mIcon).build();
+        CarIcon carIcon = CarIcon.createOriginalIcon(mIcon);
         CarIconSpan span1 = CarIconSpan.create(carIcon);
         CarIconSpan span2 = CarIconSpan.create(CarIcon.ALERT);
 

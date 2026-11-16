@@ -55,7 +55,7 @@ public class InCallTemplateTest {
         InCallTemplate template =
                 new InCallTemplate.Builder()
                         .setTitle(mTitle)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .setHeader(
                                 new Header.Builder()
                                         .setTitle(headerTitle)
@@ -64,12 +64,12 @@ public class InCallTemplateTest {
                         .addText(mSubtitle)
                         .addAction(
                                 new Action.Builder()
-                                        .setIcon(new CarIcon.Builder(mIcon).build())
+                                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                                         .setFlags(Action.FLAG_PRIMARY)
                                         .build())
                         .addAction(
                                 new Action.Builder()
-                                        .setIcon(new CarIcon.Builder(mIcon).build())
+                                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                                         .setOnClickListener(() -> {})
                                         .build())
                         .build();
@@ -92,7 +92,7 @@ public class InCallTemplateTest {
                 () -> {
                     new InCallTemplate.Builder()
                             .setTitle(mTitle)
-                            .setIcon(new CarIcon.Builder(mIcon).build())
+                            .setIcon(CarIcon.createOriginalIcon(mIcon))
                             .setHeader(headerWithUnsupportedAction)
                             .build();
                 });
@@ -114,7 +114,7 @@ public class InCallTemplateTest {
         InCallTemplate template =
                 new InCallTemplate.Builder()
                         .setTitle(titleCarText)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .addText(subtitleCarText)
                         .build();
 
@@ -137,7 +137,7 @@ public class InCallTemplateTest {
                 () -> {
                     new InCallTemplate.Builder()
                             .setTitle(titleCarText)
-                            .setIcon(new CarIcon.Builder(mIcon).build())
+                            .setIcon(CarIcon.createOriginalIcon(mIcon))
                             .build();
                 });
     }
@@ -154,7 +154,7 @@ public class InCallTemplateTest {
                 () -> {
                     new InCallTemplate.Builder()
                             .setTitle(mTitle)
-                            .setIcon(new CarIcon.Builder(mIcon).build())
+                            .setIcon(CarIcon.createOriginalIcon(mIcon))
                             .addText(subtitleCarText)
                             .build();
                 });
@@ -169,19 +169,19 @@ public class InCallTemplateTest {
                 () ->
                         new InCallTemplate.Builder()
                                 .setTitle(mTitle)
-                                .setIcon(new CarIcon.Builder(iconWithContentUri).build())
+                                .setIcon(CarIcon.createOriginalIcon(iconWithContentUri))
                                 .build());
     }
 
     @Test
     public void build_tooManyActions_throws() {
-        Action action = new Action.Builder().setIcon(new CarIcon.Builder(mIcon).build()).build();
+        Action action = new Action.Builder().setIcon(CarIcon.createOriginalIcon(mIcon)).build();
         assertThrows(
                 IllegalArgumentException.class,
                 () -> {
                     new InCallTemplate.Builder()
                             .setTitle(mTitle)
-                            .setIcon(new CarIcon.Builder(mIcon).build())
+                            .setIcon(CarIcon.createOriginalIcon(mIcon))
                             .addAction(action)
                             .addAction(action)
                             .addAction(action)
@@ -203,15 +203,15 @@ public class InCallTemplateTest {
                 () ->
                         new InCallTemplate.Builder()
                                 .setTitle(mTitle)
-                                .setIcon(new CarIcon.Builder(mIcon).build())
+                                .setIcon(CarIcon.createOriginalIcon(mIcon))
                                 .addAction(
                                         new Action.Builder()
-                                                .setIcon(new CarIcon.Builder(mIcon).build())
+                                                .setIcon(CarIcon.createOriginalIcon(mIcon))
                                                 .setFlags(Action.FLAG_PRIMARY)
                                                 .build())
                                 .addAction(
                                         new Action.Builder()
-                                                .setIcon(new CarIcon.Builder(mIcon).build())
+                                                .setIcon(CarIcon.createOriginalIcon(mIcon))
                                                 .setFlags(Action.FLAG_PRIMARY)
                                                 .build())
                                 .build());
@@ -224,7 +224,7 @@ public class InCallTemplateTest {
                 () ->
                         new InCallTemplate.Builder()
                                 .setTitle(mTitle)
-                                .setIcon(new CarIcon.Builder(mIcon).build())
+                                .setIcon(CarIcon.createOriginalIcon(mIcon))
                                 .addAction(new Action.Builder().build())
                                 .build());
     }
@@ -236,11 +236,11 @@ public class InCallTemplateTest {
                 () ->
                         new InCallTemplate.Builder()
                                 .setTitle(mTitle)
-                                .setIcon(new CarIcon.Builder(mIcon).build())
+                                .setIcon(CarIcon.createOriginalIcon(mIcon))
                                 .addAction(
                                         new Action.Builder()
                                                 .setTitle("the title")
-                                                .setIcon(new CarIcon.Builder(mIcon).build())
+                                                .setIcon(CarIcon.createOriginalIcon(mIcon))
                                                 .build())
                                 .build());
     }
@@ -252,7 +252,7 @@ public class InCallTemplateTest {
                 () ->
                         new InCallTemplate.Builder()
                                 .setTitle(mTitle)
-                                .setIcon(new CarIcon.Builder(mIcon).build())
+                                .setIcon(CarIcon.createOriginalIcon(mIcon))
                                 .addAction(Action.BACK)
                                 .build());
     }
@@ -273,7 +273,7 @@ public class InCallTemplateTest {
                                 .setLoading(true)
                                 .addAction(
                                         new Action.Builder()
-                                                .setIcon(new CarIcon.Builder(mIcon).build())
+                                                .setIcon(CarIcon.createOriginalIcon(mIcon))
                                                 .build())
                                 .build());
     }
@@ -284,20 +284,20 @@ public class InCallTemplateTest {
                 new InCallTemplate.Builder()
                         .setTitle(mTitle)
                         .addText(mSubtitle)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .addAction(
                                 new Action.Builder()
-                                        .setIcon(new CarIcon.Builder(mIcon).build())
+                                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                                         .build())
                         .build();
         InCallTemplate template2 =
                 new InCallTemplate.Builder()
                         .setTitle(mTitle)
                         .addText(mSubtitle)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .addAction(
                                 new Action.Builder()
-                                        .setIcon(new CarIcon.Builder(mIcon).build())
+                                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                                         .build())
                         .build();
 
@@ -309,12 +309,12 @@ public class InCallTemplateTest {
         InCallTemplate template1 =
                 new InCallTemplate.Builder()
                         .setTitle(mTitle)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .build();
         InCallTemplate template2 =
                 new InCallTemplate.Builder()
                         .setTitle("hi")
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .build();
 
         assertThat(template1).isNotEqualTo(template2);
@@ -325,12 +325,12 @@ public class InCallTemplateTest {
         InCallTemplate template1 =
                 new InCallTemplate.Builder()
                         .setTitle(mTitle)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .build();
         InCallTemplate template2 =
                 new InCallTemplate.Builder()
                         .setTitle(mTitle)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .build();
 
         assertThat(template1.hashCode()).isEqualTo(template2.hashCode());
@@ -341,12 +341,12 @@ public class InCallTemplateTest {
         InCallTemplate template1 =
                 new InCallTemplate.Builder()
                         .setTitle(mTitle)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .build();
         InCallTemplate template2 =
                 new InCallTemplate.Builder()
                         .setTitle("hi")
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .build();
 
         assertThat(template1.hashCode()).isNotEqualTo(template2.hashCode());
@@ -357,7 +357,7 @@ public class InCallTemplateTest {
         InCallTemplate template1 =
                 new InCallTemplate.Builder()
                         .setTitle(mTitle)
-                        .setIcon(new CarIcon.Builder(mIcon).build())
+                        .setIcon(CarIcon.createOriginalIcon(mIcon))
                         .build();
         InCallTemplate template2 = new InCallTemplate.Builder(template1).build();
 

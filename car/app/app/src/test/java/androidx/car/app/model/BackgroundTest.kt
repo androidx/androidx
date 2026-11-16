@@ -48,7 +48,7 @@ class BackgroundTest {
     @Test
     fun setAndGetImage() {
         val image =
-            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test"))).build()
+            CarIcon.createOriginalIcon(IconCompat.createWithContentUri(Uri.parse("content://test")))
         val background = Background.Builder().setImage(image).build()
         assertThat(background.image).isEqualTo(image)
     }
@@ -68,7 +68,7 @@ class BackgroundTest {
     @Test
     fun build_bothFieldsSet_throwsIllegalStateException() {
         val image =
-            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test"))).build()
+            CarIcon.createOriginalIcon(IconCompat.createWithContentUri(Uri.parse("content://test")))
         assertThrows(IllegalStateException::class.java) {
             Background.Builder().setColor(CarColor.BLUE).setImage(image).build()
         }
@@ -85,7 +85,7 @@ class BackgroundTest {
         assertThat(background1).isNotEqualTo(background3)
 
         val image =
-            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test"))).build()
+            CarIcon.createOriginalIcon(IconCompat.createWithContentUri(Uri.parse("content://test")))
         val backgroundWithImage1 = Background.Builder().setImage(image).build()
         val backgroundWithImage2 = Background.Builder().setImage(image).build()
         assertThat(backgroundWithImage1).isEqualTo(backgroundWithImage2)
@@ -99,7 +99,7 @@ class BackgroundTest {
         assertThat(copiedColor).isEqualTo(colorBackground)
 
         val image =
-            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test"))).build()
+            CarIcon.createOriginalIcon(IconCompat.createWithContentUri(Uri.parse("content://test")))
         val imageBackground = Background.Builder().setImage(image).build()
         val copiedImage = Background.Builder(imageBackground).build()
         assertThat(copiedImage).isEqualTo(imageBackground)
@@ -115,13 +115,17 @@ class BackgroundTest {
         assertThat(background1.hashCode()).isNotEqualTo(background3.hashCode())
 
         val image1 =
-            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test1"))).build()
+            CarIcon.createOriginalIcon(
+                IconCompat.createWithContentUri(Uri.parse("content://test1"))
+            )
         val imageBackground1 = Background.Builder().setImage(image1).build()
         val imageBackground2 = Background.Builder().setImage(image1).build()
         assertThat(imageBackground1.hashCode()).isEqualTo(imageBackground2.hashCode())
 
         val image2 =
-            CarIcon.Builder(IconCompat.createWithContentUri(Uri.parse("content://test2"))).build()
+            CarIcon.createOriginalIcon(
+                IconCompat.createWithContentUri(Uri.parse("content://test2"))
+            )
         val imageBackground3 = Background.Builder().setImage(image2).build()
         assertThat(imageBackground1.hashCode()).isNotEqualTo(imageBackground3.hashCode())
     }

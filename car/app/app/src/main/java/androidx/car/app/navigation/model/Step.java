@@ -276,10 +276,10 @@ public final class Step {
          *
          * <pre>{@code
          * SpannableString string = new SpannableString("Turn right on 520 East");
-         * string.setSpan(textWithImage.setSpan(
-         *     CarIconSpan.create(new CarIcon.Builder(
+         * string.setSpan(
+         *     CarIconSpan.create(CarIcon.createOriginalIcon(
          *         IconCompat.createWithResource(getCarContext(), R.drawable.ic_520_highway))),
-         *         14, 17, SPAN_INCLUSIVE_EXCLUSIVE));
+         *         14, 17, SPAN_INCLUSIVE_EXCLUSIVE);
          * }</pre>
          *
          * <p>The host may choose to display the string without the images, so it is important

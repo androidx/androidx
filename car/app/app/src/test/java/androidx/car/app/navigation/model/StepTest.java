@@ -160,7 +160,7 @@ public class StepTest {
         Lane lane = new Lane.Builder().addDirection(
                 LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
         CarIcon uriIcon =
-                new CarIcon.Builder(IconCompat.createWithContentUri("content://fake.uri")).build();
+                CarIcon.createOriginalIcon(IconCompat.createWithContentUri("content://fake.uri"));
 
         assertThrows(IllegalArgumentException.class,
                 ()-> new Step.Builder(cue).addLane(lane).setLanesImage(uriIcon).build());

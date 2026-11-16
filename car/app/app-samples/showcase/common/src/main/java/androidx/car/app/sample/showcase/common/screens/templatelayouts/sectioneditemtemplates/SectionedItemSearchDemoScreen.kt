@@ -55,7 +55,7 @@ class SectionedItemSearchDemoScreen(carContext: CarContext) : Screen(carContext)
     private var selectedCategoryIndex = 0
 
     private val circularCityIcon: CarIcon by lazy {
-        CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.patio)).build()
+        CarIcon.createOriginalIcon(IconCompat.createWithResource(carContext, R.drawable.patio))
     }
 
     override fun onGetTemplate(): Template {
@@ -299,9 +299,9 @@ class SectionedItemSearchDemoScreen(carContext: CarContext) : Screen(carContext)
 
         // 7. RowSection Copy (Recent Searches with Leading Icons)
         val searchIcon1 =
-            CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.ic_520)).build()
+            CarIcon.createOriginalIcon(IconCompat.createWithResource(carContext, R.drawable.ic_520))
         val searchIcon2 =
-            CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.patio)).build()
+            CarIcon.createOriginalIcon(IconCompat.createWithResource(carContext, R.drawable.patio))
 
         val resultsWithIconsSection =
             RowSection.Builder()

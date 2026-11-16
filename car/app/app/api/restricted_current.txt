@@ -1429,7 +1429,7 @@ package androidx.car.app.model {
 
   public static final class CarIcon.Builder {
     ctor public CarIcon.Builder(androidx.car.app.model.CarIcon);
-    ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat);
+    ctor @Deprecated public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat);
     ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat, androidx.car.app.model.CarIconStyle);
     method public androidx.car.app.model.CarIcon build();
     method public androidx.car.app.model.CarIcon.Builder setStyle(androidx.car.app.model.CarIconStyle);
@@ -1446,7 +1446,7 @@ package androidx.car.app.model {
     field public static final int ALIGN_CENTER = 2; // 0x2
   }
 
-  @androidx.car.app.annotations.CarProtocol public class CarIconStyle {
+  @androidx.car.app.annotations.CarProtocol public final class CarIconStyle {
     method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Shape? getShape();
     method public androidx.car.app.model.CarColor? getTint();
     field public static final androidx.car.app.model.CarIconStyle ORIGINAL;

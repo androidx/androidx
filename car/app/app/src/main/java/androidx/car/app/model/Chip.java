@@ -240,8 +240,11 @@ public final class Chip implements Item {
          *
          * <p>The icon will attempt to use the most specific tint supplied; this is, it will try to
          * use the first tint found in the following priority:
-         * 1. {@link CarIconStyle.Builder#setTint} set in
-         * {@link CarIcon.Builder#setStyle(CarIconStyle)} for the {@code startIcon} property
+         * 1. {@link CarIcon#createTintedIcon(androidx.core.graphics.drawable.IconCompat, CarColor)
+         * CarIcon.createTintedIcon(IconCompat, CarColor)} or {@link CarIconStyle.Builder#setTint}
+         * passed to {@link
+         * CarIcon.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CarIconStyle)
+         * CarIcon.Builder(IconCompat, CarIconStyle)} for the {@code startIcon} property
          * 2. {@link Chip.Builder#setStyle(ChipStyle)}
          * {@link ChipStyle.Builder#setContentColor(CarColor)}
          * 3. {@link ChipSection.Builder#setStyle(ChipStyle)} content color
@@ -276,8 +279,11 @@ public final class Chip implements Item {
          *
          * <p>The icon will attempt to use the most specific tint supplied; this is, it will try to
          * use the first tint found in the following priority:
-         * 1. {@link CarIconStyle.Builder#setTint} set in
-         * {@link CarIcon.Builder#setStyle(CarIconStyle)} for the {@code endIcon} property
+         * 1. {@link CarIcon#createTintedIcon(androidx.core.graphics.drawable.IconCompat, CarColor)
+         * CarIcon.createTintedIcon(IconCompat, CarColor)} or {@link CarIconStyle.Builder#setTint}
+         * passed to {@link
+         * CarIcon.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CarIconStyle)
+         * CarIcon.Builder(IconCompat, CarIconStyle)} for the {@code endIcon} property
          * 2. {@link Chip.Builder#setStyle(ChipStyle)}
          * {@link ChipStyle.Builder#setContentColor(CarColor)}
          * 3. {@link ChipSection.Builder#setStyle(ChipStyle)} content color

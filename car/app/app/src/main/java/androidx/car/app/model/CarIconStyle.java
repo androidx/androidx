@@ -39,16 +39,17 @@ import java.util.Objects;
  *       automatically theme-tint the asset with {@link CarColor#DEFAULT} or applies an explicit
  *       solid {@link CarColor} tint configured via {@link Builder#setTint(CarColor)}.
  *   <li><b>Original (Not Tinted):</b> Styled with {@link #ORIGINAL}, which preserves the icon's
- *       original colors without allowing host-side tinting (e.g., user avatars, media album art,
- *       photos, or un-tinted brand graphics).
+ *       original colors without host-side tinting (e.g., user avatars, media album art, photos, or
+ *       un-tinted brand graphics).
  * </ul>
  *
- * <p> If not set, an icon using {@link CarIconStyle#ORIGINAL}
- * (with no tint and default shape) will be rendered.
+ * <p>If no {@link CarIconStyle} is set (for example, via the deprecated {@code IconCompat}-only
+ * {@link CarIcon.Builder} constructor), the host falls back to legacy component-dependent tinting
+ * behavior rather than {@link #ORIGINAL}.
  */
 @CarProtocol
 @KeepFields
-public class CarIconStyle {
+public final class CarIconStyle {
 
     /**
      * Visual styling for icons that should be tinted.
@@ -61,12 +62,16 @@ public class CarIconStyle {
     @NonNull public static final CarIconStyle TINTED = new CarIconStyle(CarColor.DEFAULT, null);
 
     /**
-     * Visual styling for icons that should retain their original colors without allowing host-side
-     * tinting.
+     * Visual styling for icons that should retain their original colors without host-side tinting.
      *
      * <p>Instructs the host vehicle system to preserve the full original colors of the image
      * without host tinting interference. Use this for assets such as user avatars, media album art,
      * photos, or un-tinted logos.
+     *
+     * <p>Preventing host-side tinting is enforced starting in Car API 9, except in components that
+     * require monochrome or stateful icon tinting (such as {@link Tab} icons or {@link
+     * PlaceMarker#TYPE_ICON} markers). Hosts on Car API 8 and lower will ignore the styling and
+     * fall back to legacy component-dependent tinting behavior.
      */
     @NonNull public static final CarIconStyle ORIGINAL = new CarIconStyle(null, null);
 
@@ -160,8 +165,12 @@ public class CarIconStyle {
         /**
          * Sets an explicit custom solid {@link CarColor} tint for single-color assets.
          *
-         * <p>This will apply a solid color tint rather than leaving the image as-is. Use {@code
-         * CarIconStyle.Builder(CarIconStyle.ORIGINAL)}` to create an un-tinted style
+         * <p>This will apply a solid color tint rather than leaving the image as-is. Use {@link
+         * CarIconStyle.Builder#Builder(CarIconStyle)} with {@link CarIconStyle#ORIGINAL} to create
+         * an un-tinted style.
+         *
+         * @throws NullPointerException if {@code tint} is {@code null}
+         * @throws IllegalArgumentException if {@code tint} contains an unsupported color type
          */
         @NonNull
         public Builder setTint(@NonNull CarColor tint) {

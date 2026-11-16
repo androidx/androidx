@@ -44,8 +44,12 @@ import java.util.Objects;
 /**
  * Represents an icon to be used in a car app.
  *
- * <p>Car icons wrap a backing {@link IconCompat}, and add additional attributes optimized for the
- * car such as a {@link CarColor} tint.
+ * <p>Car icons wrap a backing {@link IconCompat}, and define visual styling and tinting attributes
+ * optimized for the car (see {@link CarIconStyle}).
+ *
+ * <p>To construct a car icon, use {@link #createTintedIcon(IconCompat)}, {@link
+ * #createTintedIcon(IconCompat, CarColor)}, {@link #createOriginalIcon(IconCompat)}, or {@link
+ * Builder#Builder(IconCompat, CarIconStyle)}.
  *
  * <h4>Car Screen Pixel Densities</h4>
  *
@@ -252,8 +256,10 @@ public final class CarIcon {
      *
      * @param icon The base icon graphic.
      * @return A styled {@link CarIcon} instance configured with {@link CarIconStyle#TINTED}.
+     * @throws IllegalArgumentException if {@code icon}'s type or URI scheme is not supported
      * @throws NullPointerException if {@code icon} is {@code null}
      * @see #createTintedIcon(IconCompat, CarColor)
+     * @see Builder#Builder(IconCompat, CarIconStyle)
      */
     @NonNull
     public static CarIcon createTintedIcon(@NonNull IconCompat icon) {
@@ -267,8 +273,11 @@ public final class CarIcon {
      * @param tint The custom tint color to apply to the icon.
      * @return A styled {@link CarIcon} instance configured with {@link CarIconStyle#TINTED} and the
      *     specified tint.
+     * @throws IllegalArgumentException if {@code icon}'s type or URI scheme is not supported, or if
+     *     {@code tint} contains an unsupported color type
      * @throws NullPointerException if {@code icon} or {@code tint} is {@code null}
      * @see #createTintedIcon(IconCompat)
+     * @see Builder#Builder(IconCompat, CarIconStyle)
      */
     @NonNull
     public static CarIcon createTintedIcon(@NonNull IconCompat icon, @NonNull CarColor tint) {
@@ -279,11 +288,18 @@ public final class CarIcon {
     }
 
     /**
-     * Creates an icon that retains its original colors without allowing any host-side tinting on
-     * it.
+     * Creates an icon that retains its original colors without host-side tinting.
+     *
+     * <p>Preventing host-side tinting via {@link CarIconStyle#ORIGINAL} is enforced starting in Car
+     * API 9, except in components that require monochrome or stateful icon tinting (such as {@link
+     * Tab} icons or {@link PlaceMarker#TYPE_ICON} markers). Hosts on Car API 8 and lower will
+     * ignore the styling and fall back to legacy component-dependent tinting behavior.
      *
      * @param icon The base icon graphic.
      * @return A styled {@link CarIcon} instance configured with {@link CarIconStyle#ORIGINAL}.
+     * @throws IllegalArgumentException if {@code icon}'s type or URI scheme is not supported
+     * @throws NullPointerException if {@code icon} is {@code null}
+     * @see Builder#Builder(IconCompat, CarIconStyle)
      */
     @NonNull
     public static CarIcon createOriginalIcon(@NonNull IconCompat icon) {
@@ -291,10 +307,12 @@ public final class CarIcon {
     }
 
     /**
-     * Returns the {@link IconCompat} instance backing by this car icon or {@code null} if one isn't
+     * Returns the {@link IconCompat} instance backing this car icon or {@code null} if one isn't
      * set.
      *
-     * @see Builder#Builder(IconCompat)
+     * @see #createTintedIcon(IconCompat)
+     * @see #createOriginalIcon(IconCompat)
+     * @see Builder#Builder(IconCompat, CarIconStyle)
      */
     public @Nullable IconCompat getIcon() {
         return mIcon;
@@ -461,15 +479,22 @@ public final class CarIcon {
          * <p>If the icon image is loaded from URI, it may be cached on the host side. Changing the
          * contents of the URI will result in the host showing a stale image.
          *
-         * <p><b>Note:</b> It is recommended to use {@link CarIcon#createTintedIcon(IconCompat)},
-         * {@link CarIcon#createTintedIcon(IconCompat, CarColor)},
-         * {@link CarIcon#createOriginalIcon(IconCompat)}, or {@link #Builder(IconCompat,
-         * CarIconStyle)} to explicitly specify visual styling behavior. This constructor will be
-         * deprecated in a future release.
-         *
          * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported
          * @throws NullPointerException if {@code icon} is {@code null}
+         * @deprecated Leaving {@link CarIconStyle} unset results in legacy host-dependent tinting
+         *     behavior. Use:
+         *     <ul>
+         *       <li>{@link CarIcon#createTintedIcon(IconCompat)} or {@link
+         *           CarIcon#createTintedIcon(IconCompat, CarColor)} for vector or monochrome icons
+         *           that should be theme-tinted by the host or given a custom tint.
+         *       <li>{@link CarIcon#createOriginalIcon(IconCompat)} for multi-color icons or images
+         *           (like avatars or album art) that should remain untinted by the host (enforced
+         *           on Car API 9+; see {@link CarIconStyle#ORIGINAL}).
+         *       <li>{@link #Builder(IconCompat, CarIconStyle)} when configuring additional style
+         *           options like {@link CarIconStyle.Builder#setShape(Shape)}.
+         *     </ul>
          */
+        @Deprecated
         public Builder(@NonNull IconCompat icon) {
             CarIconConstraints.UNCONSTRAINED.checkSupportedIcon(requireNonNull(icon));
             mType = TYPE_CUSTOM;
@@ -504,15 +529,15 @@ public final class CarIcon {
          *   <li>Use {@link CarIconStyle#TINTED} for icons that should be automatically tinted by
          *       the vehicle theme or assigned a custom tint via {@link
          *       CarIconStyle.Builder#setTint(CarColor)}.
-         *   <li>Use {@link CarIconStyle#ORIGINAL} for icons that must retain their original colors
-         *       without host-side tinting (e.g., user avatars, media album art, photos, or
+         *   <li>Use {@link CarIconStyle#ORIGINAL} for icons that should retain their original
+         *       colors without host-side tinting (e.g., user avatars, media album art, photos, or
          *       un-tinted logos).
          * </ul>
          *
          * @param icon The base icon or image graphic.
          * @param style The explicit style contract dictating tinting behavior and optional
          *     geometric shaping.
-         * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported
+         * @throws IllegalArgumentException if {@code icon}'s type or URI scheme is not supported
          * @throws NullPointerException if {@code icon} or {@code style} is {@code null}
          */
         public Builder(@NonNull IconCompat icon, @NonNull CarIconStyle style) {
@@ -558,9 +583,11 @@ public final class CarIcon {
          * @throws NullPointerException if {@code tint} is {@code null}
          * @see CarColor
          * @see android.graphics.drawable.Drawable#setTintMode(Mode)
-         * @deprecated Use {@link CarIcon.Builder#setStyle(CarIconStyle)} and provide a tint via
-         *     {@link CarIconStyle.Builder#setTint(CarColor)}, or use {@link
-         *     CarIcon#createTintedIcon(IconCompat, CarColor)} instead.
+         * @deprecated Use {@link CarIcon#createTintedIcon(IconCompat, CarColor)}, or {@link
+         *     #Builder(IconCompat, CarIconStyle)} with {@link
+         *     CarIconStyle.Builder#setTint(CarColor)} when configuring additional style options.
+         *     When copying an existing {@link CarIcon} via {@link #Builder(CarIcon)}, use {@link
+         *     #setStyle(CarIconStyle)}.
          */
         @Deprecated
         public @NonNull Builder setTint(@NonNull CarColor tint) {
@@ -585,16 +612,17 @@ public final class CarIcon {
          *   <li>Use {@link CarIconStyle#TINTED} for icons that should be automatically tinted by
          *       the vehicle theme or assigned a custom tint via {@link
          *       CarIconStyle.Builder#setTint(CarColor)}.
-         *   <li>Use {@link CarIconStyle#ORIGINAL} for icons that must retain their original colors
-         *       without host-side tinting (e.g., user avatars, media album art, photos, or
+         *   <li>Use {@link CarIconStyle#ORIGINAL} for icons that should retain their original
+         *       colors without host-side tinting (e.g., user avatars, media album art, photos, or
          *       un-tinted logos).
          * </ul>
          *
-         * <p> If no style is set, an icon using {@link CarIconStyle#ORIGINAL}
-         * (with no tint and default shape) will be rendered.
+         * <p>If no style is set, the host falls back to legacy component-dependent tinting
+         * behavior.
          *
          * @param style The explicit style contract dictating tinting behavior and optional
          *     geometric shaping.
+         * @throws NullPointerException if {@code style} is {@code null}
          */
         @NonNull
         public Builder setStyle(@NonNull CarIconStyle style) {

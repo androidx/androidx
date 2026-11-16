@@ -335,8 +335,8 @@ public class BundlerTest {
         IconCompat image = IconCompat.createWithContentUri("content://foo/bar");
         Bundle bundle = Bundler.toBundle(image);
 
-        assertThat(new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
-                new CarIcon.Builder(image).build());
+        assertThat(CarIcon.createOriginalIcon((IconCompat) Bundler.fromBundle(bundle))).isEqualTo(
+                CarIcon.createOriginalIcon(image));
     }
 
     @Test
@@ -346,8 +346,8 @@ public class BundlerTest {
                 TestUtils.getTestDrawableResId(mContext, "ic_test_1"));
         Bundle bundle = Bundler.toBundle(image);
 
-        assertThat(new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
-                new CarIcon.Builder(image).build());
+        assertThat(CarIcon.createOriginalIcon((IconCompat) Bundler.fromBundle(bundle))).isEqualTo(
+                CarIcon.createOriginalIcon(image));
     }
 
     @Test
@@ -356,8 +356,8 @@ public class BundlerTest {
         IconCompat image = IconCompat.createWithContentUri("car://icons/1");
         Bundle bundle = Bundler.toBundle(image);
 
-        assertThat(new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
-                new CarIcon.Builder(image).build());
+        assertThat(CarIcon.createOriginalIcon((IconCompat) Bundler.fromBundle(bundle))).isEqualTo(
+                CarIcon.createOriginalIcon(image));
     }
 
     @Test
@@ -369,8 +369,8 @@ public class BundlerTest {
             IconCompat readImage = (IconCompat) Bundler.fromBundle(bundle);
 
             assertThat(
-                    new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
-                    new CarIcon.Builder(image).build());
+                    CarIcon.createOriginalIcon((IconCompat) Bundler.fromBundle(bundle))).isEqualTo(
+                    CarIcon.createOriginalIcon(image));
             Drawable drawable = readImage.loadDrawable(mContext);
             assertThat(drawable).isNotNull();
         } finally {

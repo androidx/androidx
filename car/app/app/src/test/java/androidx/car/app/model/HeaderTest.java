@@ -212,8 +212,8 @@ public class HeaderTest {
     @Test
     public void createInstance_background() {
         Background background = new Background.Builder()
-                .setImage(new CarIcon.Builder(
-                        IconCompat.createWithContentUri(Uri.parse("content://test"))).build())
+                .setImage(CarIcon.createOriginalIcon(
+                        IconCompat.createWithContentUri(Uri.parse("content://test"))))
                 .build();
         Header component = new Header.Builder()
                 .setTitle("Title")
@@ -225,12 +225,12 @@ public class HeaderTest {
     @Test
     public void notEquals_differentBackground() {
         Background background1 = new Background.Builder()
-                .setImage(new CarIcon.Builder(
-                        IconCompat.createWithContentUri(Uri.parse("content://test1"))).build())
+                .setImage(CarIcon.createOriginalIcon(
+                        IconCompat.createWithContentUri(Uri.parse("content://test1"))))
                 .build();
         Background background2 = new Background.Builder()
-                .setImage(new CarIcon.Builder(
-                        IconCompat.createWithContentUri(Uri.parse("content://test2"))).build())
+                .setImage(CarIcon.createOriginalIcon(
+                        IconCompat.createWithContentUri(Uri.parse("content://test2"))))
                 .build();
         Header component = new Header.Builder()
                 .setTitle("title")
@@ -245,8 +245,8 @@ public class HeaderTest {
 
     @Test
     public void createInstance_startHeaderImage() {
-        CarIcon startHeaderImage = new CarIcon.Builder(
-                IconCompat.createWithContentUri(Uri.parse("content://test"))).build();
+        CarIcon startHeaderImage = CarIcon.createOriginalIcon(
+                IconCompat.createWithContentUri(Uri.parse("content://test")));
         Header component = new Header.Builder()
                 .setTitle("Title")
                 .setStartHeaderImage(startHeaderImage)
@@ -264,10 +264,10 @@ public class HeaderTest {
 
     @Test
     public void notEquals_differentStartHeaderImage() {
-        CarIcon startHeaderImage1 = new CarIcon.Builder(
-                IconCompat.createWithContentUri(Uri.parse("content://test1"))).build();
-        CarIcon startHeaderImage2 = new CarIcon.Builder(
-                IconCompat.createWithContentUri(Uri.parse("content://test2"))).build();
+        CarIcon startHeaderImage1 = CarIcon.createOriginalIcon(
+                IconCompat.createWithContentUri(Uri.parse("content://test1")));
+        CarIcon startHeaderImage2 = CarIcon.createOriginalIcon(
+                IconCompat.createWithContentUri(Uri.parse("content://test2")));
         Header component = new Header.Builder()
                 .setTitle("title")
                 .setStartHeaderImage(startHeaderImage1)
