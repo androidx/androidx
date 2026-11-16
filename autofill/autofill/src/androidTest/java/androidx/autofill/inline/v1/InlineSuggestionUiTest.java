@@ -22,11 +22,13 @@ import static androidx.autofill.inline.v1.InlineSuggestionUi.Style.LAYOUT_TRUNCA
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import static java.util.Arrays.asList;
 
+import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.app.PendingIntent;
 import android.app.slice.Slice;
@@ -73,6 +75,7 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = 30) // Needed only on 30 and above
+@SuppressLint("MissingPermission") // The outline animation color setters are for system callers.
 public class InlineSuggestionUiTest {
 
     private static final String TITLE = "Hello world!";
@@ -355,6 +358,31 @@ public class InlineSuggestionUiTest {
                 originalContent.getSlice());
         assertContent(transportedContent, "title", null, null, null);
         assertEquals("content blabla", transportedContent.getContentDescription());
+        assertFalse(transportedContent.hasOutlineAnimationColors());
+        assertEquals(0, transportedContent.getOutlineAnimationPrimaryColor());
+        assertEquals(0, transportedContent.getOutlineAnimationSecondaryColor());
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi on the setters applies to clients, not tests
+    public void testContent_outlineAnimationColors() {
+        InlineSuggestionUi.Content originalContent = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
+                .setTitle("title")
+                .setOutlineAnimationPrimaryColor(Color.RED)
+                .setOutlineAnimationSecondaryColor(Color.BLUE)
+                .build();
+        InlineSuggestionUi.Content transportedContent = new InlineSuggestionUi.Content(
+                originalContent.getSlice());
+        assertContent(transportedContent, "title", null, null, null);
+        if (InlineSuggestionUi.supportsOutlineAnimation()) {
+            assertTrue(transportedContent.hasOutlineAnimationColors());
+            assertEquals(Color.RED, transportedContent.getOutlineAnimationPrimaryColor());
+            assertEquals(Color.BLUE, transportedContent.getOutlineAnimationSecondaryColor());
+        } else {
+            // The setters do nothing on releases that don't restrict the colors.
+            assertFalse(transportedContent.hasOutlineAnimationColors());
+        }
     }
 
     @Test

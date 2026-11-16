@@ -18,6 +18,7 @@ package androidx.autofill.inline.v1;
 
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
@@ -41,6 +42,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.RequiresApi;
@@ -249,6 +251,16 @@ public final class InlineSuggestionUi {
             return null;
         }
         return style;
+    }
+
+    /**
+     * Whether the platform supports outline animations on inline suggestions. Inline suggestion
+     * outline colors will be ignored for older platform releases.
+     */
+    static boolean supportsOutlineAnimation() {
+        // Pre-release builds of API level 38 report 37 with a codename.
+        return Build.VERSION.SDK_INT > 37
+                || (Build.VERSION.SDK_INT == 37 && !"REL".equals(Build.VERSION.CODENAME));
     }
 
     /**
@@ -695,6 +707,10 @@ public final class InlineSuggestionUi {
         static final String HINT_INLINE_END_ICON = "inline_end_icon";
         static final String HINT_INLINE_ATTRIBUTION_INTENT = "inline_attribution";
         static final String HINT_INLINE_CONTENT_DESCRIPTION = "inline_content_description";
+        static final String HINT_INLINE_OUTLINE_ANIMATION_PRIMARY_COLOR =
+                "inline_outline_animation_primary_color";
+        static final String HINT_INLINE_OUTLINE_ANIMATION_SECONDARY_COLOR =
+                "inline_outline_animation_secondary_color";
 
         private @Nullable Icon mStartIcon;
         private @Nullable Icon mEndIcon;
@@ -702,6 +718,10 @@ public final class InlineSuggestionUi {
         private @Nullable CharSequence mSubtitle;
         private @Nullable PendingIntent mAttributionIntent;
         private @Nullable CharSequence mContentDescription;
+        private @ColorInt int mOutlineAnimationPrimaryColor;
+        private @ColorInt int mOutlineAnimationSecondaryColor;
+        private boolean mHasOutlineAnimationPrimaryColor;
+        private boolean mHasOutlineAnimationSecondaryColor;
 
         /**
          * Use {@link InlineSuggestionUi#fromSlice(Slice)} or {@link Builder#build()} to
@@ -732,6 +752,14 @@ public final class InlineSuggestionUi {
                         break;
                     case HINT_INLINE_CONTENT_DESCRIPTION:
                         mContentDescription = sliceItem.getText();
+                        break;
+                    case HINT_INLINE_OUTLINE_ANIMATION_PRIMARY_COLOR:
+                        mOutlineAnimationPrimaryColor = sliceItem.getInt();
+                        mHasOutlineAnimationPrimaryColor = true;
+                        break;
+                    case HINT_INLINE_OUTLINE_ANIMATION_SECONDARY_COLOR:
+                        mOutlineAnimationSecondaryColor = sliceItem.getInt();
+                        mHasOutlineAnimationSecondaryColor = true;
                         break;
                     default:
                         break;
@@ -776,6 +804,30 @@ public final class InlineSuggestionUi {
          */
         public @Nullable CharSequence getContentDescription() {
             return mContentDescription;
+        }
+
+        /** Returns whether both outline animation colors were set on this content. */
+        @RestrictTo(LIBRARY)
+        public boolean hasOutlineAnimationColors() {
+            return mHasOutlineAnimationPrimaryColor && mHasOutlineAnimationSecondaryColor;
+        }
+
+        /**
+         * Returns the primary outline animation color, or {@code 0} if not set.
+         *
+         * @see Builder#setOutlineAnimationPrimaryColor(int)
+         */
+        public @ColorInt int getOutlineAnimationPrimaryColor() {
+            return mOutlineAnimationPrimaryColor;
+        }
+
+        /**
+         * Returns the secondary outline animation color, or {@code 0} if not set.
+         *
+         * @see Builder#setOutlineAnimationSecondaryColor(int)
+         */
+        public @ColorInt int getOutlineAnimationSecondaryColor() {
+            return mOutlineAnimationSecondaryColor;
         }
 
         /**
@@ -824,6 +876,15 @@ public final class InlineSuggestionUi {
                         return HINT_INLINE_ATTRIBUTION_INTENT;
                     }
                     break;
+                case FORMAT_INT:
+                    if (sliceItem.getHints().contains(
+                            HINT_INLINE_OUTLINE_ANIMATION_PRIMARY_COLOR)) {
+                        return HINT_INLINE_OUTLINE_ANIMATION_PRIMARY_COLOR;
+                    } else if (sliceItem.getHints().contains(
+                            HINT_INLINE_OUTLINE_ANIMATION_SECONDARY_COLOR)) {
+                        return HINT_INLINE_OUTLINE_ANIMATION_SECONDARY_COLOR;
+                    }
+                    break;
                 default:
                     return null;
             }
@@ -842,6 +903,8 @@ public final class InlineSuggestionUi {
             private @Nullable CharSequence mSubtitle;
             private @Nullable CharSequence mContentDescription;
             private @Nullable List<String> mHints;
+            private @ColorInt @Nullable Integer mOutlineAnimationPrimaryColor;
+            private @ColorInt @Nullable Integer mOutlineAnimationSecondaryColor;
 
             /**
              * Use {@link InlineSuggestionUi#newContentBuilder(PendingIntent)} to instantiate
@@ -925,6 +988,52 @@ public final class InlineSuggestionUi {
                 return this;
             }
 
+            /**
+             * Sets the primary outline animation color for the suggestion UI.
+             *
+             * <p>When both outline animation colors are set, the suggestion is rendered with an
+             * animated outline using these colors.
+             *
+             * <p>Only suggestions provided by the platform may set outline animation colors. The
+             * platform may drop suggestions from any other source, such as an
+             * {@link android.service.autofill.AutofillService}, that set them.
+             *
+             * <p>This method only applies on API level 38 and higher.
+             *
+             * @param color the primary outline animation color in the form 0xAARRGGBB.
+             * @see #setOutlineAnimationSecondaryColor(int)
+             */
+            @RequiresApi(api = 38)
+            public @NonNull Builder setOutlineAnimationPrimaryColor(@ColorInt int color) {
+                if (supportsOutlineAnimation()) {
+                    mOutlineAnimationPrimaryColor = color;
+                }
+                return this;
+            }
+
+            /**
+             * Sets the secondary outline animation color for the suggestion UI.
+             *
+             * <p>When both outline animation colors are set, the suggestion is rendered with an
+             * animated outline using these colors.
+             *
+             * <p>Only suggestions provided by the platform may set outline animation colors. The
+             * platform may drop suggestions from any other source, such as an
+             * {@link android.service.autofill.AutofillService}, that set them.
+             *
+             * <p>This method only applies on API level 38 and higher.
+             *
+             * @param color the secondary outline animation color in the form 0xAARRGGBB.
+             * @see #setOutlineAnimationPrimaryColor(int)
+             */
+            @RequiresApi(api = 38)
+            public @NonNull Builder setOutlineAnimationSecondaryColor(@ColorInt int color) {
+                if (supportsOutlineAnimation()) {
+                    mOutlineAnimationSecondaryColor = color;
+                }
+                return this;
+            }
+
             @Override
             public @NonNull Content build() {
                 if (mTitle == null && mStartIcon == null && mEndIcon == null && mSubtitle == null) {
@@ -967,6 +1076,15 @@ public final class InlineSuggestionUi {
                 }
                 if (mHints != null) {
                     mSliceBuilder.addHints(mHints);
+                }
+                if (mOutlineAnimationPrimaryColor != null
+                        && mOutlineAnimationSecondaryColor != null) {
+                    mSliceBuilder.addInt(mOutlineAnimationPrimaryColor, null,
+                            Collections.singletonList(
+                                    HINT_INLINE_OUTLINE_ANIMATION_PRIMARY_COLOR));
+                    mSliceBuilder.addInt(mOutlineAnimationSecondaryColor, null,
+                            Collections.singletonList(
+                                    HINT_INLINE_OUTLINE_ANIMATION_SECONDARY_COLOR));
                 }
                 return new Content(mSliceBuilder.build());
             }
