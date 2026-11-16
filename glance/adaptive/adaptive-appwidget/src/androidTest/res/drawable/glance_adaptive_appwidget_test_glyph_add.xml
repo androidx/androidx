@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!--
+  Screenshot test glyph: the Material add icon. The renderer tints it, so the fill here is white.
+
+  Declared at 44dp rather than 24dp: RemoteViews cannot size an ImageView before API 31, so the
+  renderer caps it with setMaxWidth / setMaxHeight instead, which only shrinks. The intrinsic size
+  therefore has to cover the largest glyph drawn, 44dp in a large bulb.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="44dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFFFF">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+</vector>
