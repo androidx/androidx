@@ -18,9 +18,11 @@ package androidx.camera.extensions.internal
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA
@@ -185,6 +187,45 @@ class Camera2ExtensionsVendorExtenderTest(
                     .contains(CaptureResult.EXTENSION_CURRENT_TYPE)
             )
     }
+
+    @SdkSuppress(minSdkVersion = 35)
+    @Test
+    fun getExtensionZoomRange_returnCorrectValue() {
+        checkAvailabilityAndInit()
+        val expectedZoomRange =
+            getExtensionCharacteristicSafely(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+        assertThat(camera2ExtensionsVendorExtender.extensionZoomRange).isEqualTo(expectedZoomRange)
+        val sessionProcessor =
+            requireNotNull(camera2ExtensionsVendorExtender.createSessionProcessor(context))
+        assertThat(sessionProcessor.extensionZoomRange).isEqualTo(expectedZoomRange)
+    }
+
+    @SdkSuppress(minSdkVersion = 35)
+    @Test
+    fun getExtensionAvailableStabilizationModes_returnCorrectValue() {
+        checkAvailabilityAndInit()
+        val expectedModes =
+            getExtensionCharacteristicSafely(
+                    CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES
+                )
+                ?.toList()
+        assertThat(camera2ExtensionsVendorExtender.extensionAvailableStabilizationModes?.toList())
+            .isEqualTo(expectedModes)
+        val sessionProcessor =
+            requireNotNull(camera2ExtensionsVendorExtender.createSessionProcessor(context))
+        assertThat(sessionProcessor.extensionAvailableStabilizationModes?.toList())
+            .isEqualTo(expectedModes)
+    }
+
+    @RequiresApi(35)
+    private fun <T> getExtensionCharacteristicSafely(key: CameraCharacteristics.Key<T>): T? =
+        try {
+            cameraExtensionsCharacteristics.get(camera2ExtensionMode, key)
+        } catch (_: IllegalArgumentException) {
+            null
+        } catch (_: AssertionError) {
+            null
+        }
 
     private fun checkAvailabilityAndInit() {
         assumeTrue(camera2ExtensionsVendorExtender.isExtensionAvailable(cameraInfo))

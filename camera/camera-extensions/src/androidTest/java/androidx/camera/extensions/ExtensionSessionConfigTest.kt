@@ -291,6 +291,66 @@ class ExtensionSessionConfigTest(
         assertThat(cameraInfo.isSessionConfigSupported(sessionConfig)).isFalse()
     }
 
+    @Test
+    fun canSetZoom_whenExtensionBound(): Unit = runBlocking {
+        val imageCapture = ImageCapture.Builder().build()
+        val preview = Preview.Builder().build()
+        val sessionConfig =
+            ExtensionSessionConfig(extensionMode, extensionsManager, preview, imageCapture)
+        val previewReady = CountDownLatch(1)
+
+        val camera =
+            withContext(Dispatchers.Main) {
+                preview.surfaceProvider =
+                    SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
+                        previewReady.countDown()
+                    }
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    baseCameraSelector,
+                    sessionConfig,
+                )
+            }
+
+        assertThat(previewReady.await(5000, TimeUnit.MILLISECONDS)).isTrue()
+
+        val initialZoomState =
+            withContext(Dispatchers.Main) { requireNotNull(camera.cameraInfo.zoomState.value) }
+        assumeTrue(
+            "Zoom is not supported for mode=$extensionMode facing=$lensFacing",
+            initialZoomState.maxZoomRatio > initialZoomState.minZoomRatio,
+        )
+
+        val stepCount = 20
+        val minZoom = initialZoomState.minZoomRatio
+        val maxTargetZoom = minOf(initialZoomState.maxZoomRatio, minZoom + 1.0f)
+        val lastSetZoomFuture =
+            withContext(Dispatchers.Main) {
+                var future = camera.cameraControl.setZoomRatio(minZoom)
+                for (i in 1..stepCount) {
+                    val fraction = i.toFloat() / stepCount
+                    val targetRatio = minZoom + (maxTargetZoom - minZoom) * fraction
+                    // Exercise getZoomState() alongside setZoomRatio() like a pinch-zoom UI.
+                    assertThat(camera.cameraInfo.zoomState.value).isNotNull()
+                    future = camera.cameraControl.setZoomRatio(targetRatio)
+                }
+                future
+            }
+
+        lastSetZoomFuture[5000, TimeUnit.MILLISECONDS]
+
+        val linearZoomFuture =
+            withContext(Dispatchers.Main) { camera.cameraControl.setLinearZoom(0.5f) }
+        linearZoomFuture[5000, TimeUnit.MILLISECONDS]
+
+        val updatedZoomState =
+            withContext(Dispatchers.Main) { requireNotNull(camera.cameraInfo.zoomState.value) }
+        assertThat(updatedZoomState.minZoomRatio).isEqualTo(initialZoomState.minZoomRatio)
+        assertThat(updatedZoomState.maxZoomRatio).isEqualTo(initialZoomState.maxZoomRatio)
+        assertThat(updatedZoomState.zoomRatio).isAtLeast(initialZoomState.minZoomRatio)
+        assertThat(updatedZoomState.zoomRatio).isAtMost(initialZoomState.maxZoomRatio)
+    }
+
     private fun recordVideo(recorder: Recorder, file: File) {
         latchForVideoSaved = CountDownLatch(1)
         latchForVideoRecording = CountDownLatch(5)
