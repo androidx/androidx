@@ -22,16 +22,13 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOut
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -49,16 +46,21 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
+@RunWith(Parameterized::class)
+class LazyListItemSlideAnimationTest(orientation: Orientation) :
+    BaseLazyLayoutItemAnimationTest(orientation) {
 
     private lateinit var state: LazyListState
 
@@ -70,12 +72,12 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     }
 
     @Test
-    fun slideInHorizontally_oneItemAdded() {
+    fun slideInCrossAxis_oneItemAdded() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, enter = slideInHorizontally(SlideSpec) { -it })
+                    Item(it, enter = slideInCrossAxis(SlideSpec) { -it })
                 }
             }
         }
@@ -84,19 +86,19 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight,
-                ExpectedItem(Color.Black, x = interpolate(-ItemWidth, 0, fraction)),
+                containerMainAxisSize = ItemMainAxisSize,
+                ExpectedItem(Color.Black, crossAxis = interpolate(-ItemCrossAxisSize, 0, fraction)),
             )
         }
     }
 
     @Test
-    fun slideInVertically_oneItemAdded() {
+    fun slideInMainAxis_oneItemAdded() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, enter = slideInVertically(SlideSpec) { -it })
+                    Item(it, enter = slideInMainAxis(SlideSpec) { -it })
                 }
             }
         }
@@ -105,22 +107,23 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight * 2,
-                ExpectedItem(Color.Black, y = interpolate(-ItemHeight, 0, fraction)),
+                containerMainAxisSize = ItemMainAxisSize * 2,
+                ExpectedItem(Color.Black, mainAxis = interpolate(-ItemMainAxisSize, 0, fraction)),
             )
         }
     }
 
     @Test
-    fun slideInHorizontally_defaultOffsetIsBasedOnEachItemSize() {
+    fun slideInCrossAxis_defaultOffsetIsBasedOnEachItemSize() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(list, key = { it.toArgb() }) {
                     Item(
                         it,
-                        width = if (it == Color.Red) ItemWidth / 2 else ItemWidth,
-                        enter = slideInHorizontally(SlideSpec),
+                        crossAxisSize =
+                            if (it == Color.Red) ItemCrossAxisSize / 2 else ItemCrossAxisSize,
+                        enter = slideInCrossAxis(SlideSpec),
                     )
                 }
             }
@@ -130,13 +133,16 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight * 2,
-                ExpectedItem(Color.Black, x = interpolate(-ItemWidth / 2, 0, fraction)),
+                containerMainAxisSize = ItemMainAxisSize * 2,
+                ExpectedItem(
+                    Color.Black,
+                    crossAxis = interpolate(-ItemCrossAxisSize / 2, 0, fraction),
+                ),
                 ExpectedItem(
                     Color.Red,
-                    x = interpolate(-ItemWidth / 4, 0, fraction),
-                    y = ItemHeight,
-                    width = ItemWidth / 2,
+                    crossAxis = interpolate(-ItemCrossAxisSize / 4, 0, fraction),
+                    mainAxis = ItemMainAxisSize,
+                    crossAxisSize = ItemCrossAxisSize / 2,
                 ),
             )
         }
@@ -145,18 +151,18 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     @Test
     fun noAnimationForInitialItems() {
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(listOf(Color.Black, Color.Red), key = { it.toArgb() }) {
-                    Item(it, enter = slideInHorizontally(SlideSpec) { -it })
+                    Item(it, enter = slideInCrossAxis(SlideSpec) { -it })
                 }
             }
         }
 
         onAnimationFrame {
             assertItems(
-                containerHeight = ItemHeight * 2,
+                containerMainAxisSize = ItemMainAxisSize * 2,
                 ExpectedItem(Color.Black),
-                ExpectedItem(Color.Red, y = ItemHeight),
+                ExpectedItem(Color.Red, mainAxis = ItemMainAxisSize),
             )
         }
     }
@@ -165,9 +171,9 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun oneExistsOneAdded_onlyAddedItemSlides() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, enter = slideInHorizontally(SlideSpec) { -it })
+                    Item(it, enter = slideInCrossAxis(SlideSpec) { -it })
                 }
             }
         }
@@ -176,9 +182,13 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight * 2,
+                containerMainAxisSize = ItemMainAxisSize * 2,
                 ExpectedItem(Color.Black),
-                ExpectedItem(Color.Red, x = interpolate(-ItemWidth, 0, fraction), y = ItemHeight),
+                ExpectedItem(
+                    Color.Red,
+                    crossAxis = interpolate(-ItemCrossAxisSize, 0, fraction),
+                    mainAxis = ItemMainAxisSize,
+                ),
             )
         }
     }
@@ -187,12 +197,11 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun onlyItemWithEnterTransitionSlides() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(list, key = { it.toArgb() }) {
                     Item(
                         it,
-                        enter =
-                            if (it == Color.Red) slideInHorizontally(SlideSpec) { -it } else null,
+                        enter = if (it == Color.Red) slideInCrossAxis(SlideSpec) { -it } else null,
                     )
                 }
             }
@@ -202,20 +211,24 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight * 2,
+                containerMainAxisSize = ItemMainAxisSize * 2,
                 ExpectedItem(Color.Black),
-                ExpectedItem(Color.Red, x = interpolate(-ItemWidth, 0, fraction), y = ItemHeight),
+                ExpectedItem(
+                    Color.Red,
+                    crossAxis = interpolate(-ItemCrossAxisSize, 0, fraction),
+                    mainAxis = ItemMainAxisSize,
+                ),
             )
         }
     }
 
     @Test
-    fun slideOutHorizontally_oneItemRemoved() {
+    fun slideOutCrossAxis_oneItemRemoved() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, exit = slideOutHorizontally(SlideSpec) { it })
+                    Item(it, exit = slideOutCrossAxis(SlideSpec) { it })
                 }
             }
         }
@@ -224,21 +237,21 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight,
-                ExpectedItem(Color.Black, x = interpolate(0, ItemWidth, fraction)),
+                containerMainAxisSize = ItemMainAxisSize,
+                ExpectedItem(Color.Black, crossAxis = interpolate(0, ItemCrossAxisSize, fraction)),
             )
         }
         rule.mainClock.advanceTimeByFrame()
-        assertItems(containerHeight = ItemHeight)
+        assertItems(containerMainAxisSize = ItemMainAxisSize)
     }
 
     @Test
     fun lastItemRemoved_otherItemsAreNotAffected() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, exit = slideOutHorizontally(SlideSpec) { it })
+                    Item(it, exit = slideOutCrossAxis(SlideSpec) { it })
                 }
             }
         }
@@ -247,9 +260,13 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight * 2,
+                containerMainAxisSize = ItemMainAxisSize * 2,
                 ExpectedItem(Color.Black),
-                ExpectedItem(Color.Red, x = interpolate(0, ItemWidth, fraction), y = ItemHeight),
+                ExpectedItem(
+                    Color.Red,
+                    crossAxis = interpolate(0, ItemCrossAxisSize, fraction),
+                    mainAxis = ItemMainAxisSize,
+                ),
             )
         }
     }
@@ -258,21 +275,21 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun exitTransitionNone_itemIsRemovedImmediately() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) { Item(it, exit = ExitTransition.None) }
             }
         }
 
         rule.runOnUiThread { list = emptyList() }
 
-        assertItems(containerHeight = ItemHeight)
+        assertItems(containerMainAxisSize = ItemMainAxisSize)
     }
 
     @Test
     fun slideOutWithZeroOffset_itemIsRemovedAfterOneFrame() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) {
                     Item(it, exit = slideOut(SlideSpec) { IntOffset.Zero })
                 }
@@ -281,18 +298,18 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         rule.runOnUiThread { list = emptyList() }
 
-        assertItems(containerHeight = ItemHeight, ExpectedItem(Color.Black))
+        assertItems(containerMainAxisSize = ItemMainAxisSize, ExpectedItem(Color.Black))
         rule.mainClock.advanceTimeByFrame()
-        assertItems(containerHeight = ItemHeight)
+        assertItems(containerMainAxisSize = ItemMainAxisSize)
     }
 
     @Test
     fun slideInCombinedWithFadeIn() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, enter = fadeIn(FadeSpec) + slideInHorizontally(SlideSpec) { -it })
+                    Item(it, enter = fadeIn(FadeSpec) + slideInCrossAxis(SlideSpec) { -it })
                 }
             }
         }
@@ -301,10 +318,10 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight,
+                containerMainAxisSize = ItemMainAxisSize,
                 ExpectedItem(
                     Color.Black.copy(alpha = fraction),
-                    x = interpolate(-ItemWidth, 0, fraction),
+                    crossAxis = interpolate(-ItemCrossAxisSize, 0, fraction),
                 ),
             )
         }
@@ -314,11 +331,11 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun slideInCombinedWithPlacementAnimationOfOtherItems() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(list, key = { it.toArgb() }) {
                     Item(
                         it,
-                        enter = slideInVertically(SlideSpec) { -it },
+                        enter = slideInMainAxis(SlideSpec) { -it },
                         placementSpec = SlideSpec,
                     )
                 }
@@ -329,9 +346,9 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight * 2,
-                ExpectedItem(Color.Red, y = interpolate(-ItemHeight, 0, fraction)),
-                ExpectedItem(Color.Black, y = interpolate(0, ItemHeight, fraction)),
+                containerMainAxisSize = ItemMainAxisSize * 2,
+                ExpectedItem(Color.Red, mainAxis = interpolate(-ItemMainAxisSize, 0, fraction)),
+                ExpectedItem(Color.Black, mainAxis = interpolate(0, ItemMainAxisSize, fraction)),
             )
         }
     }
@@ -340,12 +357,12 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun reAddItemBeingSlidOut_slidesBackFromCurrentOffsetWithEnterSpec() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) {
                     Item(
                         it,
-                        enter = slideInHorizontally(SlideSpec) { it },
-                        exit = slideOutHorizontally(SlideSpec) { it },
+                        enter = slideInCrossAxis(SlideSpec) { it },
+                        exit = slideOutCrossAxis(SlideSpec) { it },
                     )
                 }
             }
@@ -353,16 +370,19 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         rule.runOnUiThread { list = emptyList() }
 
-        val interruptedOffset = ItemWidth / 2
+        val interruptedOffset = ItemCrossAxisSize / 2
         onAnimationStep(steps = Steps + Steps / 2) { step ->
             if (step == Steps / 2) rule.runOnUiThread { list = listOf(Color.Black) }
             val x =
                 if (step <= Steps / 2) {
-                    interpolate(0, ItemWidth, step / Steps.toFloat())
+                    interpolate(0, ItemCrossAxisSize, step / Steps.toFloat())
                 } else {
                     interpolate(interruptedOffset, 0, (step - Steps / 2) / Steps.toFloat())
                 }
-            assertItems(containerHeight = ItemHeight, ExpectedItem(Color.Black, x = x))
+            assertItems(
+                containerMainAxisSize = ItemMainAxisSize,
+                ExpectedItem(Color.Black, crossAxis = x),
+            )
         }
     }
 
@@ -370,12 +390,12 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun removeItemBeingSlidIn_slidesOutFromCurrentOffsetWithExitSpec() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) {
                     Item(
                         it,
-                        enter = slideInHorizontally(SlideSpec) { -it },
-                        exit = slideOutHorizontally(SlideSpec) { it },
+                        enter = slideInCrossAxis(SlideSpec) { -it },
+                        exit = slideOutCrossAxis(SlideSpec) { it },
                     )
                 }
             }
@@ -383,16 +403,23 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         rule.runOnUiThread { list = listOf(Color.Black) }
 
-        val interruptedOffset = -ItemWidth / 2
+        val interruptedOffset = -ItemCrossAxisSize / 2
         onAnimationStep(steps = Steps + Steps / 2) { step ->
             if (step == Steps / 2) rule.runOnUiThread { list = emptyList() }
             val x =
                 if (step <= Steps / 2) {
-                    interpolate(-ItemWidth, 0, step / Steps.toFloat())
+                    interpolate(-ItemCrossAxisSize, 0, step / Steps.toFloat())
                 } else {
-                    interpolate(interruptedOffset, ItemWidth, (step - Steps / 2) / Steps.toFloat())
+                    interpolate(
+                        interruptedOffset,
+                        ItemCrossAxisSize,
+                        (step - Steps / 2) / Steps.toFloat(),
+                    )
                 }
-            assertItems(containerHeight = ItemHeight, ExpectedItem(Color.Black, x = x))
+            assertItems(
+                containerMainAxisSize = ItemMainAxisSize,
+                ExpectedItem(Color.Black, crossAxis = x),
+            )
         }
     }
 
@@ -400,9 +427,9 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun removeItemBeingSlidIn_withoutExitTransition_itemIsRemovedImmediately() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, enter = slideInHorizontally(SlideSpec) { -it })
+                    Item(it, enter = slideInCrossAxis(SlideSpec) { -it })
                 }
             }
         }
@@ -412,15 +439,15 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
         onAnimationStep { step ->
             if (step < Steps / 2) {
                 assertItems(
-                    containerHeight = ItemHeight,
+                    containerMainAxisSize = ItemMainAxisSize,
                     ExpectedItem(
                         Color.Black,
-                        x = interpolate(-ItemWidth, 0, step / Steps.toFloat()),
+                        crossAxis = interpolate(-ItemCrossAxisSize, 0, step / Steps.toFloat()),
                     ),
                 )
             } else {
                 if (step == Steps / 2) rule.runOnUiThread { list = emptyList() }
-                assertItems(containerHeight = ItemHeight)
+                assertItems(containerMainAxisSize = ItemMainAxisSize)
             }
         }
     }
@@ -429,12 +456,12 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun reAddItemAfterSlideOutFinished_slidesInFromInitialOffset() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize) {
                 items(list, key = { it.toArgb() }) {
                     Item(
                         it,
-                        enter = slideInHorizontally(SlideSpec) { -it },
-                        exit = slideOutHorizontally(SlideSpec) { it },
+                        enter = slideInCrossAxis(SlideSpec) { -it },
+                        exit = slideOutCrossAxis(SlideSpec) { it },
                     )
                 }
             }
@@ -443,8 +470,8 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
         rule.runOnUiThread { list = emptyList() }
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight,
-                ExpectedItem(Color.Black, x = interpolate(0, ItemWidth, fraction)),
+                containerMainAxisSize = ItemMainAxisSize,
+                ExpectedItem(Color.Black, crossAxis = interpolate(0, ItemCrossAxisSize, fraction)),
             )
         }
         rule.mainClock.advanceTimeByFrame()
@@ -453,8 +480,8 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight,
-                ExpectedItem(Color.Black, x = interpolate(-ItemWidth, 0, fraction)),
+                containerMainAxisSize = ItemMainAxisSize,
+                ExpectedItem(Color.Black, crossAxis = interpolate(-ItemCrossAxisSize, 0, fraction)),
             )
         }
     }
@@ -463,23 +490,23 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun itemAddedOutsideOfViewport_isNotAnimated() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red, Color.Green))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, enter = slideInHorizontally(SlideSpec) { -it })
+                    Item(it, enter = slideInCrossAxis(SlideSpec) { -it })
                 }
             }
         }
 
         rule.runOnUiThread { list = listOf(Color.Black, Color.Red, Color.Blue, Color.Green) }
 
-        rule.runOnIdle { runBlocking { state.scrollBy(ItemHeight * 1.5f) } }
+        rule.runOnIdle { runBlocking { state.scrollBy(ItemMainAxisSize * 1.5f) } }
 
         onAnimationFrame {
             assertItems(
-                containerHeight = ItemHeight * 2,
-                ExpectedItem(Color.Red, y = -ItemHeight / 2),
-                ExpectedItem(Color.Blue, y = ItemHeight / 2),
-                ExpectedItem(Color.Green, y = ItemHeight * 3 / 2),
+                containerMainAxisSize = ItemMainAxisSize * 2,
+                ExpectedItem(Color.Red, mainAxis = -ItemMainAxisSize / 2),
+                ExpectedItem(Color.Blue, mainAxis = ItemMainAxisSize / 2),
+                ExpectedItem(Color.Green, mainAxis = ItemMainAxisSize * 3 / 2),
             )
         }
     }
@@ -488,41 +515,41 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     fun scrollingDuringSlideIn_slideContinuesRelativeToItemPosition() {
         var list by mutableStateOf(listOf(Color.Black, Color.Green, Color.Blue))
         rule.setContent {
-            LazyList(containerHeight = ItemHeight * 2) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize * 2) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, enter = slideInHorizontally(SlideSpec) { -it })
+                    Item(it, enter = slideInCrossAxis(SlideSpec) { -it })
                 }
             }
         }
 
         rule.runOnUiThread { list = listOf(Color.Black, Color.Red, Color.Green, Color.Blue) }
 
-        val scrollAmount = ItemHeight / 2
+        val scrollAmount = ItemMainAxisSize / 2
         onAnimationStep { step ->
             if (step == Steps / 2) {
                 rule.runOnIdle { runBlocking { state.scrollBy(scrollAmount.toFloat()) } }
             }
             val scrolled = if (step >= Steps / 2) scrollAmount else 0
             assertItems(
-                containerHeight = ItemHeight * 2,
-                ExpectedItem(Color.Black, y = -scrolled),
+                containerMainAxisSize = ItemMainAxisSize * 2,
+                ExpectedItem(Color.Black, mainAxis = -scrolled),
                 ExpectedItem(
                     Color.Red,
-                    x = interpolate(-ItemWidth, 0, step / Steps.toFloat()),
-                    y = ItemHeight - scrolled,
+                    crossAxis = interpolate(-ItemCrossAxisSize, 0, step / Steps.toFloat()),
+                    mainAxis = ItemMainAxisSize - scrolled,
                 ),
-                ExpectedItem(Color.Green, y = ItemHeight * 2 - scrolled),
+                ExpectedItem(Color.Green, mainAxis = ItemMainAxisSize * 2 - scrolled),
             )
         }
     }
 
     @Test
-    fun reverseLayout_verticalSlideIsNotMirrored() {
+    fun reverseLayout_mainAxisSlideIsNotMirrored() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerHeight = ItemHeight, reverseLayout = true) {
+            LazyList(containerMainAxisSize = ItemMainAxisSize, reverseLayout = true) {
                 items(list, key = { it.toArgb() }) {
-                    Item(it, enter = slideInVertically(SlideSpec) { -it })
+                    Item(it, enter = slideInMainAxis(SlideSpec) { -it })
                 }
             }
         }
@@ -531,18 +558,60 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
 
         onAnimationFrame { fraction ->
             assertItems(
-                containerHeight = ItemHeight,
-                ExpectedItem(Color.Black, y = interpolate(-ItemHeight, 0, fraction)),
+                containerMainAxisSize = ItemMainAxisSize,
+                ExpectedItem(Color.Black, mainAxis = interpolate(-ItemMainAxisSize, 0, fraction)),
+            )
+        }
+    }
+
+    @Test
+    fun contentPadding_slideInIsRelativeToPaddedItemPosition() {
+        val padding = ItemMainAxisSize / 2
+        val containerMainAxisSize = ItemMainAxisSize + padding * 2
+        val containerCrossAxisSize = ItemCrossAxisSize + padding * 2
+        var list by mutableStateOf(emptyList<Color>())
+        rule.setContent {
+            LazyList(
+                containerMainAxisSize = containerMainAxisSize,
+                containerCrossAxisSize = containerCrossAxisSize,
+                contentPadding =
+                    with(rule.density) {
+                        PaddingValues(mainAxis = padding.toDp(), crossAxis = padding.toDp())
+                    },
+            ) {
+                items(list, key = { it.toArgb() }) {
+                    Item(it, enter = slideInMainAxis(SlideSpec) { -it })
+                }
+            }
+        }
+
+        rule.runOnUiThread { list = listOf(Color.Black) }
+
+        onAnimationFrame { fraction ->
+            assertItems(
+                containerMainAxisSize = containerMainAxisSize,
+                ExpectedItem(
+                    Color.Black,
+                    mainAxis = padding + interpolate(-ItemMainAxisSize, 0, fraction),
+                    crossAxis = padding,
+                ),
+                containerCrossAxisSize = containerCrossAxisSize,
             )
         }
     }
 
     @Test
     fun rtl_horizontalSlideIsNotMirrored() {
+        val horizontalItemSize = if (vertical) ItemCrossAxisSize else ItemMainAxisSize
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                LazyList(containerHeight = ItemHeight, containerWidth = ItemWidth * 2) {
+                LazyList(
+                    containerMainAxisSize =
+                        if (vertical) ItemMainAxisSize else ItemMainAxisSize * 2,
+                    containerCrossAxisSize =
+                        if (vertical) ItemCrossAxisSize * 2 else ItemCrossAxisSize,
+                ) {
                     items(list, key = { it.toArgb() }) {
                         Item(it, enter = slideInHorizontally(SlideSpec) { -it })
                     }
@@ -553,10 +622,15 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
         rule.runOnUiThread { list = listOf(Color.Black) }
 
         onAnimationFrame { fraction ->
+            val x = horizontalItemSize + interpolate(-horizontalItemSize, 0, fraction)
             assertItems(
-                containerHeight = ItemHeight,
-                ExpectedItem(Color.Black, x = ItemWidth + interpolate(-ItemWidth, 0, fraction)),
-                containerWidth = ItemWidth * 2,
+                containerMainAxisSize = if (vertical) ItemMainAxisSize else ItemMainAxisSize * 2,
+                ExpectedItem(
+                    Color.Black,
+                    mainAxis = if (vertical) 0 else x,
+                    crossAxis = if (vertical) x else 0,
+                ),
+                containerCrossAxisSize = if (vertical) ItemCrossAxisSize * 2 else ItemCrossAxisSize,
             )
         }
     }
@@ -591,19 +665,23 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         scrollWithoutRemeasure: Boolean = false,
     ) {
-        val startOffset = if (scrollWithoutRemeasure) ItemHeight / 2 else 0
-        val scrollAmount = if (scrollWithoutRemeasure) ItemHeight / 4 else ItemHeight / 2
+        val startOffset = if (scrollWithoutRemeasure) ItemMainAxisSize / 2 else 0
+        val scrollAmount =
+            if (scrollWithoutRemeasure) ItemMainAxisSize / 4 else ItemMainAxisSize / 2
         val isRtl = layoutDirection == LayoutDirection.Rtl
-        // In RTL the items are aligned to the end of the wider container, which is on the right.
-        val containerWidth = if (isRtl) ItemWidth * 2 else ItemWidth
-        val itemX = if (isRtl) ItemWidth else 0
+        val isMainAxisMirrored = reverseLayout xor (!vertical && isRtl)
+        val isCrossAxisMirrored = vertical && isRtl
+        val containerMainAxisSize = ItemMainAxisSize * 2
+        val containerCrossAxisSize =
+            if (isCrossAxisMirrored) ItemCrossAxisSize * 2 else ItemCrossAxisSize
+        val itemCrossAxis = if (isCrossAxisMirrored) ItemCrossAxisSize else 0
         var list by
             mutableStateOf(listOf(Color.Black, Color.Red, Color.Green, Color.Blue, Color.Yellow))
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 LazyList(
-                    containerHeight = ItemHeight * 2,
-                    containerWidth = containerWidth,
+                    containerMainAxisSize = containerMainAxisSize,
+                    containerCrossAxisSize = containerCrossAxisSize,
                     reverseLayout = reverseLayout,
                     firstVisibleItemIndex = 1,
                     firstVisibleItemScrollOffset = startOffset,
@@ -611,7 +689,7 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
                     items(list, key = { it.toArgb() }) {
                         Item(
                             it,
-                            exit = slideOutHorizontally(SlideSpec) { it },
+                            exit = slideOutCrossAxis(SlideSpec) { it },
                             placementSpec = PlacementHoldSpec,
                         )
                     }
@@ -626,45 +704,61 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
                 rule.runOnIdle { runBlocking { state.scrollBy(-scrollAmount.toFloat()) } }
             }
             val scrolled = if (step >= Steps / 2) scrollAmount else 0
-            // Converts an item's start, relative to the start of the list's content before
-            // scrolling, into its y position in the container.
-            fun y(start: Int): Int {
+            fun mainAxis(start: Int): Int {
                 val logicalStart = start - startOffset + scrolled
-                return if (reverseLayout) ItemHeight * 2 - logicalStart - ItemHeight
-                else logicalStart
+                return if (isMainAxisMirrored) {
+                    containerMainAxisSize - logicalStart - ItemMainAxisSize
+                } else {
+                    logicalStart
+                }
             }
             assertItems(
-                containerHeight = ItemHeight * 2,
-                ExpectedItem(Color.Black, x = itemX, y = y(-ItemHeight)),
+                containerMainAxisSize = containerMainAxisSize,
+                ExpectedItem(
+                    Color.Black,
+                    mainAxis = mainAxis(-ItemMainAxisSize),
+                    crossAxis = itemCrossAxis,
+                ),
                 ExpectedItem(
                     Color.Red,
-                    x = itemX + interpolate(0, ItemWidth, step / Steps.toFloat()),
-                    y = y(0),
+                    mainAxis = mainAxis(0),
+                    crossAxis =
+                        itemCrossAxis + interpolate(0, ItemCrossAxisSize, step / Steps.toFloat()),
                 ),
-                ExpectedItem(Color.Green, x = itemX, y = y(ItemHeight)),
-                ExpectedItem(Color.Blue, x = itemX, y = y(ItemHeight * 2)),
-                containerWidth = containerWidth,
+                ExpectedItem(
+                    Color.Green,
+                    mainAxis = mainAxis(ItemMainAxisSize),
+                    crossAxis = itemCrossAxis,
+                ),
+                ExpectedItem(
+                    Color.Blue,
+                    mainAxis = mainAxis(ItemMainAxisSize * 2),
+                    crossAxis = itemCrossAxis,
+                ),
+                containerCrossAxisSize = containerCrossAxisSize,
             )
         }
     }
 
     @Composable
     private fun LazyList(
-        containerHeight: Int,
-        containerWidth: Int = ItemWidth,
+        containerMainAxisSize: Int,
+        containerCrossAxisSize: Int = ItemCrossAxisSize,
         reverseLayout: Boolean = false,
+        contentPadding: PaddingValues = PaddingValues(0.dp),
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
         content: LazyListScope.() -> Unit,
     ) {
         state = rememberLazyListState(firstVisibleItemIndex, firstVisibleItemScrollOffset)
         val density = rule.density
-        LazyColumn(
+        LazyColumnOrRow(
             state = state,
+            contentPadding = contentPadding,
             reverseLayout = reverseLayout,
             modifier =
-                Modifier.requiredHeight(with(density) { containerHeight.toDp() })
-                    .requiredWidth(with(density) { containerWidth.toDp() })
+                Modifier.requiredMainAxisSize(with(density) { containerMainAxisSize.toDp() })
+                    .requiredCrossAxisSize(with(density) { containerCrossAxisSize.toDp() })
                     .background(Color.White)
                     .testTag(ContainerTag),
             content = content,
@@ -675,4 +769,10 @@ class LazyListItemSlideAnimationTest : BaseLazyLayoutItemAnimationTest() {
     private val FadeSpec = tween<Float>(DurationMillis, easing = LinearEasing)
     // Holds items at their previous positions for longer than the exit transition runs.
     private val PlacementHoldSpec = tween<IntOffset>(DurationMillis * 2, easing = { 0f })
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun params() = arrayOf(Orientation.Vertical, Orientation.Horizontal)
+    }
 }
