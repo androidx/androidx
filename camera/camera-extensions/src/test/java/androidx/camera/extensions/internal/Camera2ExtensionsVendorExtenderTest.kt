@@ -17,16 +17,28 @@
 package androidx.camera.extensions.internal
 
 import android.graphics.ImageFormat
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraExtensionCharacteristics
+import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import android.util.Pair
+import android.util.Range
 import android.util.Size
+import androidx.camera.core.impl.AdapterCameraControl
+import androidx.camera.core.impl.AdapterCameraInfo
+import androidx.camera.core.impl.CameraExtensionCapabilities
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.testing.fakes.FakeCameraControl
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.impl.fakes.FakeCameraConfig
 import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities
 import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities.CaptureConfig
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -163,14 +175,237 @@ class Camera2ExtensionsVendorExtenderTest {
             .isTrue()
     }
 
-    private fun createInitializedExtender(
+    @Test
+    fun init_doesNotEagerlyQueryCharacteristics() {
+        val (extender, capabilities, _) =
+            createCountingExtender(
+                characteristicsKeys =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 5.0f),
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                            intArrayOf(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON),
+                    )
+            )
+
+        extender.createSessionProcessor(ApplicationProvider.getApplicationContext())
+
+        assertThat(capabilities.queriedKeys).isEmpty()
+        assertThat(capabilities.getAvailableCharacteristicsKeyValuesCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun getExtensionZoomRange_queriesSingleKeyOnceAndCachesResult() {
+        val expectedRange = Range(1.0f, 5.0f)
+        val (extender, capabilities, _) =
+            createCountingExtender(
+                characteristicsKeys =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE to expectedRange,
+                        CameraCharacteristics.SENSOR_ORIENTATION to 90,
+                    )
+            )
+
+        assertThat(extender.extensionZoomRange).isEqualTo(expectedRange)
+        assertThat(extender.extensionZoomRange).isEqualTo(expectedRange)
+        assertThat(extender.extensionZoomRange).isEqualTo(expectedRange)
+
+        assertThat(capabilities.queriedKeys)
+            .containsExactly(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+        assertThat(capabilities.getAvailableCharacteristicsKeyValuesCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun getExtensionZoomRange_whenKeyAbsent_cachesNullResult() {
+        val (extender, capabilities, _) =
+            createCountingExtender(
+                characteristicsKeys = mapOf(CameraCharacteristics.SENSOR_ORIENTATION to 90)
+            )
+
+        assertThat(extender.extensionZoomRange).isNull()
+        assertThat(extender.extensionZoomRange).isNull()
+
+        assertThat(capabilities.queriedKeys)
+            .containsExactly(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+        assertThat(capabilities.getAvailableCharacteristicsKeyValuesCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun getExtensionZoomRangeAndStabilizationModes_whenCapabilitiesThrows_returnsAndCachesNull() {
+        listOf<Throwable>(IllegalArgumentException("bad key"), AssertionError("missing keys"))
+            .forEach { failure ->
+                val (extender, capabilities, _) = createCountingExtender(onGet = { throw failure })
+
+                assertThat(extender.extensionZoomRange).isNull()
+                assertThat(extender.extensionZoomRange).isNull()
+                assertThat(extender.extensionAvailableStabilizationModes).isNull()
+                assertThat(extender.extensionAvailableStabilizationModes).isNull()
+
+                assertThat(capabilities.queriedKeys)
+                    .containsExactly(
+                        CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE,
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+                    )
+            }
+    }
+
+    @Test
+    fun getExtensionAvailableStabilizationModes_cachesAndReturnsDefensiveCopy() {
+        val modes = intArrayOf(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON)
+        val (extender, capabilities, _) =
+            createCountingExtender(
+                characteristicsKeys =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to modes,
+                        CameraCharacteristics.SENSOR_ORIENTATION to 90,
+                    )
+            )
+
+        val firstCall = requireNotNull(extender.extensionAvailableStabilizationModes)
+        assertThat(firstCall.asList())
+            .containsExactly(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON)
+        firstCall[0] = -1
+
+        val secondCall = requireNotNull(extender.extensionAvailableStabilizationModes)
+        assertThat(secondCall.asList())
+            .containsExactly(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON)
+
+        assertThat(capabilities.queriedKeys)
+            .containsExactly(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)
+        assertThat(capabilities.getAvailableCharacteristicsKeyValuesCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun getExtensionZoomRangeAndStabilizationModes_beforeInit_throwIllegalStateException() {
+        val extender = Camera2ExtensionsVendorExtender(ExtensionMode.NIGHT)
+
+        assertThrows(IllegalStateException::class.java) { extender.extensionZoomRange }
+        assertThrows(IllegalStateException::class.java) {
+            extender.extensionAvailableStabilizationModes
+        }
+    }
+
+    @Test
+    fun sessionProcessor_sharesCachedValuesAcrossAdapterCameraInfoAndControl() {
+        val expectedRange = Range(1.0f, 5.0f)
+        val (extender, capabilities, cameraInfo) =
+            createCountingExtender(
+                availableCaptureRequestKeys = setOf(CaptureRequest.CONTROL_ZOOM_RATIO),
+                characteristicsKeys =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE to expectedRange,
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                            intArrayOf(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON),
+                        CameraCharacteristics.SENSOR_ORIENTATION to 90,
+                    ),
+            )
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val sessionProcessor1 = requireNotNull(extender.createSessionProcessor(context))
+        val sessionProcessor2 = requireNotNull(extender.createSessionProcessor(context))
+        val adapterInfo1 =
+            AdapterCameraInfo(cameraInfo, FakeCameraConfig(sessionProcessor = sessionProcessor1))
+        val adapterInfo2 =
+            AdapterCameraInfo(cameraInfo, FakeCameraConfig(sessionProcessor = sessionProcessor2))
+        val fakeControl1 = FakeCameraControl()
+        val fakeControl2 = FakeCameraControl()
+        val adapterControl1 = AdapterCameraControl(fakeControl1, sessionProcessor1)
+        val adapterControl2 = AdapterCameraControl(fakeControl2, sessionProcessor2)
+
+        repeat(3) {
+            val state1 = requireNotNull(adapterInfo1.zoomState.value)
+            val state2 = requireNotNull(adapterInfo2.zoomState.value)
+            assertThat(state1.minZoomRatio).isEqualTo(expectedRange.lower)
+            assertThat(state1.maxZoomRatio).isEqualTo(expectedRange.upper)
+            assertThat(state2.minZoomRatio).isEqualTo(expectedRange.lower)
+            assertThat(state2.maxZoomRatio).isEqualTo(expectedRange.upper)
+            adapterControl1.setZoomRatio(2.0f).get()
+            adapterControl2.setZoomRatio(3.0f).get()
+            adapterControl1.setLinearZoom(0.5f).get()
+            adapterControl2.setLinearZoom(1.0f).get()
+            assertThat(adapterInfo1.isVideoStabilizationSupported).isTrue()
+            assertThat(adapterInfo2.isPreviewStabilizationSupported).isFalse()
+        }
+
+        assertThat(fakeControl1.zoomRatio)
+            .isEqualTo(AdapterCameraInfo.getZoomRatioByPercentage(0.5f, 1.0f, 5.0f))
+        assertThat(fakeControl2.zoomRatio)
+            .isEqualTo(AdapterCameraInfo.getZoomRatioByPercentage(1.0f, 1.0f, 5.0f))
+        assertThat(capabilities.queriedKeys)
+            .containsExactly(
+                CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE,
+                CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+            )
+        assertThat(capabilities.getAvailableCharacteristicsKeyValuesCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun init_reinitializesAndReplacesCachedCharacteristics() {
+        val firstRange = Range(1.0f, 4.0f)
+        val firstModes = intArrayOf(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON)
+        val (extender, firstCapabilities, _) =
+            createCountingExtender(
+                characteristicsKeys =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE to firstRange,
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                            firstModes,
+                    )
+            )
+
+        assertThat(extender.extensionZoomRange).isEqualTo(firstRange)
+        assertThat(extender.extensionAvailableStabilizationModes?.asList())
+            .containsExactly(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON)
+
+        val secondRange = Range(0.5f, 10.0f)
+        val secondModes =
+            intArrayOf(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)
+        val (_, secondCapabilities, secondCameraInfo) =
+            createCountingExtender(
+                characteristicsKeys =
+                    mapOf(
+                        CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE to secondRange,
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                            secondModes,
+                    )
+            )
+        extender.init(secondCameraInfo)
+
+        assertThat(extender.extensionZoomRange).isEqualTo(secondRange)
+        assertThat(extender.extensionZoomRange).isEqualTo(secondRange)
+        assertThat(extender.extensionAvailableStabilizationModes?.asList())
+            .containsExactly(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)
+        assertThat(firstCapabilities.queriedKeys)
+            .containsExactly(
+                CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE,
+                CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+            )
+        assertThat(secondCapabilities.queriedKeys)
+            .containsExactly(
+                CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE,
+                CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+            )
+    }
+
+    private fun createCountingExtender(
+        availableCaptureRequestKeys: Set<Any> = emptySet(),
+        characteristicsKeys: Map<Any, Any?> = emptyMap(),
         outputSizesFormat: Map<Int, Set<Size>> = emptyMap(),
         postviewSizes: Map<CaptureConfig, Set<Size>> = emptyMap(),
-    ): Camera2ExtensionsVendorExtender {
+        onGet: ((Any) -> Unit)? = null,
+    ): Triple<
+        Camera2ExtensionsVendorExtender,
+        CountingCameraExtensionCapabilities,
+        FakeCameraInfoInternal,
+    > {
         val capabilities =
-            FakeCameraExtensionCapabilities(
-                outputSizesFormat = outputSizesFormat,
-                postviewSizes = postviewSizes,
+            CountingCameraExtensionCapabilities(
+                delegate =
+                    FakeCameraExtensionCapabilities(
+                        outputSizesFormat = outputSizesFormat,
+                        postviewSizes = postviewSizes,
+                        availableCaptureRequestKeys = availableCaptureRequestKeys,
+                        characteristicsKeys = characteristicsKeys,
+                    ),
+                onGet = onGet,
             )
         val cameraInfo =
             FakeCameraInfoInternal("0").apply {
@@ -180,6 +415,38 @@ class Camera2ExtensionsVendorExtenderTest {
                     capabilities,
                 )
             }
-        return Camera2ExtensionsVendorExtender(ExtensionMode.NIGHT).apply { init(cameraInfo) }
+        val extender =
+            Camera2ExtensionsVendorExtender(ExtensionMode.NIGHT).apply { init(cameraInfo) }
+        return Triple(extender, capabilities, cameraInfo)
+    }
+
+    private fun createInitializedExtender(
+        outputSizesFormat: Map<Int, Set<Size>> = emptyMap(),
+        postviewSizes: Map<CaptureConfig, Set<Size>> = emptyMap(),
+    ): Camera2ExtensionsVendorExtender =
+        createCountingExtender(
+                outputSizesFormat = outputSizesFormat,
+                postviewSizes = postviewSizes,
+            )
+            .first
+
+    private class CountingCameraExtensionCapabilities(
+        private val delegate: CameraExtensionCapabilities,
+        private val onGet: ((Any) -> Unit)? = null,
+    ) : CameraExtensionCapabilities by delegate {
+        val queriedKeys = mutableListOf<Any>()
+        var getAvailableCharacteristicsKeyValuesCallCount = 0
+            private set
+
+        override fun <T> get(key: Any): T? {
+            queriedKeys.add(key)
+            onGet?.invoke(key)
+            return delegate.get(key)
+        }
+
+        override fun getAvailableCharacteristicsKeyValues(): List<Pair<Any, Any>> {
+            getAvailableCharacteristicsKeyValuesCallCount++
+            return delegate.getAvailableCharacteristicsKeyValues()
+        }
     }
 }

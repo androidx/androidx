@@ -21,6 +21,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.util.Pair
+import android.util.Range
 import android.util.Size
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -147,8 +148,12 @@ public class Camera2ExtensionsSessionProcessor(
         return vendorExtender.availableCharacteristicsKeyValues
     }
 
+    override fun getExtensionZoomRange(): Range<Float>? {
+        return vendorExtender.extensionZoomRange
+    }
+
     override fun getExtensionAvailableStabilizationModes(): IntArray? {
-        return super.getExtensionAvailableStabilizationModes()
+        return vendorExtender.extensionAvailableStabilizationModes
     }
 
     override fun getImplementationType(): Pair<Int, Int> {

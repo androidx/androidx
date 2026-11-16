@@ -175,4 +175,23 @@ public interface VendorExtender {
         return Collections.emptyList();
     }
 
+    /**
+     * Returns the extension-specific zoom ratio range, or {@code null} if not specified.
+     *
+     * <p>It must be called after init() is called.
+     */
+    default @Nullable Range<Float> getExtensionZoomRange() {
+        return null;
+    }
+
+    /**
+     * Returns the extension-specific available video stabilization modes, or {@code null} if not
+     * specified.
+     *
+     * <p>It must be called after init() is called.
+     */
+    default int @Nullable [] getExtensionAvailableStabilizationModes() {
+        return null;
+    }
+
 }

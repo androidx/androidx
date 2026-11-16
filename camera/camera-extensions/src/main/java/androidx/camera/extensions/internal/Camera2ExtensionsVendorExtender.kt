@@ -50,7 +50,10 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
     private val extensionDisabledQuirk: ExtensionDisabledQuirk? =
         DeviceQuirks.get(ExtensionDisabledQuirk::class.java)
     private val camera2ExtensionMode: Int = convertCameraXModeToCamera2Mode(mode)
-    private lateinit var cameraExtensionCapabilities: CameraExtensionCapabilities
+    @Volatile private var initializedState: InitializedState? = null
+
+    private val cameraExtensionCapabilities: CameraExtensionCapabilities
+        get() = requireInitializedState().capabilities
 
     @Suppress("UNCHECKED_CAST")
     override fun isExtensionAvailable(cameraInfo: CameraInfo): Boolean {
@@ -68,11 +71,13 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
 
     override fun init(cameraInfo: CameraInfo) {
         val cameraInfoInternal = cameraInfo as CameraInfoInternal
-        cameraExtensionCapabilities =
+        val capabilities =
             Preconditions.checkNotNull(
                 cameraInfoInternal.getCameraExtensionCapabilities(camera2ExtensionMode),
                 "VendorExtender#init() failed to initialize capabilities",
             )
+        // Publish capabilities and its lazy holders atomically via a single @Volatile write.
+        initializedState = InitializedState(capabilities)
     }
 
     override fun getEstimatedCaptureLatencyRangeMillis(size: Size?): Range<Long>? {
@@ -233,6 +238,12 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
             as List<Pair<CameraCharacteristics.Key<*>, Any>>
     }
 
+    override fun getExtensionZoomRange(): Range<Float>? =
+        requireInitializedState().extensionZoomRange
+
+    override fun getExtensionAvailableStabilizationModes(): IntArray? =
+        requireInitializedState().availableStabilizationModes?.clone()
+
     private fun getCamera2ExtensionsMaximumSupportedSize(): Size {
         val supportedSizes = cameraExtensionCapabilities.getOutputSizes(ImageFormat.JPEG)
         return if (supportedSizes.isEmpty()) {
@@ -243,9 +254,43 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
     }
 
     private fun checkInitialized() {
-        Preconditions.checkState(
-            ::cameraExtensionCapabilities.isInitialized,
-            "VendorExtender#init() must be called first",
-        )
+        requireInitializedState()
+    }
+
+    private fun requireInitializedState(): InitializedState =
+        checkNotNull(initializedState) { "VendorExtender#init() must be called first" }
+
+    private class InitializedState(val capabilities: CameraExtensionCapabilities) {
+        // CameraExtensionCharacteristics.get() incurs binder IPC overhead on every query, so cache
+        // the result lazily per (cameraId, mode). Also cache null when the key is unsupported or
+        // throws (some devices throw AssertionError for missing characteristics keys) to avoid
+        // repeated IPCs.
+        val extensionZoomRange: Range<Float>? by
+            lazyExtensionCharacteristic(
+                capabilities,
+                CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE,
+            )
+        val availableStabilizationModes: IntArray? by
+            lazyExtensionCharacteristic(
+                capabilities,
+                CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
+            )
     }
 }
+
+@RequiresApi(31)
+private fun <T> lazyExtensionCharacteristic(
+    capabilities: CameraExtensionCapabilities,
+    key: CameraCharacteristics.Key<T>,
+): Lazy<T?> =
+    lazy(LazyThreadSafetyMode.PUBLICATION) {
+        try {
+            capabilities.get(key)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "Failed to retrieve extension characteristic: ${key.name}", e)
+            null
+        } catch (e: AssertionError) {
+            Log.e(TAG, "Failed to retrieve extension characteristic: ${key.name}", e)
+            null
+        }
+    }
