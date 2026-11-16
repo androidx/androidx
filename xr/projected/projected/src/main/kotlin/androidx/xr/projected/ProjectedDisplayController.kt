@@ -156,6 +156,8 @@ private constructor(
 
         override fun hashCode(): Int = presentationModes.hashCode()
 
+        override fun toString(): String = "PresentationModeFlags($presentationModes)"
+
         /**
          * Checks if the provided PresentationMode is present in the PresentationModeFlags.
          *

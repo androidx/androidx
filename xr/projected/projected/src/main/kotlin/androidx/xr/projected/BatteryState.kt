@@ -39,4 +39,7 @@ public class BatteryState(
         result = 31 * result + batteryLevel
         return result
     }
+
+    override fun toString(): String =
+        "BatteryState(isCharging=$isCharging, batteryLevel=$batteryLevel)"
 }
