@@ -19,6 +19,7 @@ package androidx.xr.arcore.integration.tests
 import android.content.Context
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.ArDevice
@@ -79,8 +80,11 @@ internal fun runWithActivity(
     scenario.onActivity { activity -> runBlocking { testBody(activity) } }
 }
 
-internal suspend fun createSessionResultOrSkip(context: Context): SessionCreateResult {
-    val result = Session.create(context = context)
+internal suspend fun createSessionResultOrSkip(
+    context: Context,
+    lifecycleOwner: LifecycleOwner = context as LifecycleOwner,
+): SessionCreateResult {
+    val result = Session.create(context = context, lifecycleOwner = lifecycleOwner)
     when (result) {
         is SessionCreateApkRequired ->
             throw AssumptionViolatedException(
@@ -94,21 +98,26 @@ internal suspend fun createSessionResultOrSkip(context: Context): SessionCreateR
     }
 }
 
+internal suspend fun createSessionOrSkip(
+    context: Context,
+    lifecycleOwner: LifecycleOwner = context as LifecycleOwner,
+): Session {
+    val result = createSessionResultOrSkip(context = context, lifecycleOwner = lifecycleOwner)
+    check(result is SessionCreateSuccess) {
+        when (result) {
+            is SessionCreateUnknownError -> "SessionCreateUnknownError: ${result.errorMessage}"
+            is SessionCreateTimedOut -> "SessionCreateTimedOut"
+            else -> "Session.create failed with result: $result"
+        }
+    }
+    return result.session
+}
+
 internal fun initSessionAndRunTest(
     scenario: ActivityScenario<ComponentActivity>,
     testBody: suspend (Session) -> Unit,
 ) {
-    runWithActivity(scenario) { activity ->
-        val result = createSessionResultOrSkip(activity)
-        check(result is SessionCreateSuccess) {
-            when (result) {
-                is SessionCreateUnknownError -> "SessionCreateUnknownError: ${result.errorMessage}"
-                is SessionCreateTimedOut -> "SessionCreateTimedOut"
-                else -> "Session.create failed with result: $result"
-            }
-        }
-        testBody(result.session)
-    }
+    runWithActivity(scenario) { activity -> testBody(createSessionOrSkip(activity)) }
 }
 
 internal fun initPlaneTrackingSessionAndRunTest(
