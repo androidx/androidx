@@ -746,6 +746,48 @@ class ButtonGroupTest(private val layoutDirection: LayoutDirection) {
         assertThat(state.currentItemIndex).isEqualTo(1)
     }
 
+    @Test
+    fun scroll_clampedToNeighbors_consumesDelta_unlessAtEdgeOfContent() {
+        val state = ButtonGroupState()
+        setContent {
+            ButtonGroup(
+                modifier = Modifier.width(500.dp),
+                state = state,
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                contentPadding = PaddingValues.Zero,
+            ) {
+                repeat(10) { i ->
+                    Button(onClick = {}, modifier = Modifier.width(100.dp).testTag("button-$i")) {
+                        Text("Button $i")
+                    }
+                }
+            }
+        }
+        // x=50 initially, as this is the center of item 0
+        rule.waitForIdle()
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }.assertIsEqualTo(50.dp, "scroll")
+
+        // Scrolling far past item 1 is clamped to the center of item 1 (x=150), but the whole
+        // delta is reported as consumed, so that it isn't dispatched to overscroll
+        state.blockingScrollBy(400.dp).assertIsEqualTo(400.dp, "consumed")
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }.assertIsEqualTo(150.dp, "scroll")
+
+        // Same when scrolling backwards to the center of item 0 (x=50)
+        state.blockingScrollBy((-400).dp).assertIsEqualTo((-400).dp, "consumed")
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }.assertIsEqualTo(50.dp, "scroll")
+
+        // At the first item, scrolling backwards stops at the start of the content (x=0), and the
+        // remaining delta is not consumed, so it can be used for overscroll
+        state.blockingScrollBy((-400).dp).assertIsEqualTo((-50).dp, "consumed")
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }.assertIsEqualTo(0.dp, "scroll")
+
+        // At the last item (x=950), scrolling forwards stops at the end of the content (x=1000),
+        // and the remaining delta is not consumed
+        state.blockingAnimateScrollToItem(9)
+        state.blockingScrollBy(400.dp).assertIsEqualTo(50.dp, "consumed")
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }.assertIsEqualTo(1000.dp, "scroll")
+    }
+
     @Ignore("b/267253920")
     @Test
     fun scrollDirect() {
@@ -1211,6 +1253,17 @@ class ButtonGroupRtlTest {
 
 private fun ButtonGroupState.blockingAnimateScrollToItem(index: Int) {
     runBlocking(Dispatchers.Main + AutoTestFrameClock()) { animateScrollToItem(index) }
+}
+
+/**
+ * Scrolls by [distance] within a single [ButtonGroupState.scroll], returning the consumed delta.
+ */
+private fun ButtonGroupState.blockingScrollBy(distance: Dp): Dp {
+    var consumed = 0f
+    runBlocking(Dispatchers.Main) {
+        scroll { consumed = scrollBy(with(ButtonGroupTestDensity) { distance.toPx() }) }
+    }
+    return with(ButtonGroupTestDensity) { consumed.toDp() }
 }
 
 private val DpRect.centerX: Dp
