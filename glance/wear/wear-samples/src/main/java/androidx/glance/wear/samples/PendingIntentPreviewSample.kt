@@ -31,8 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.glance.wear.WearWidgetBrush
-import androidx.glance.wear.color
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.tooling.preview.RoundAllWidgetPreviewParams
 import androidx.glance.wear.tooling.preview.WearWidgetPreview
@@ -44,7 +42,12 @@ import androidx.wear.compose.remote.material3.RemoteText
 fun PendingIntentPreview(
     @PreviewParameter(RoundAllWidgetPreviewParams::class) params: WearWidgetParams
 ) =
-    WearWidgetPreview(params = params, background = WearWidgetBrush.color(Color.White.rc)) {
+    WearWidgetPreview(
+        params = params,
+        background = {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.White.rc))
+        },
+    ) {
         RemoteBox(
             modifier =
                 RemoteModifier.fillMaxSize()
