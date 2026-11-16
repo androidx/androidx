@@ -19,6 +19,7 @@ package androidx.autofill.inline.v1;
 import static androidx.autofill.inline.v1.InlineSuggestionUi.Style.LAYOUT_TRUNCATION_PREFERENCE_BALANCING_TITLE_SUBTITLE;
 import static androidx.autofill.inline.v1.InlineSuggestionUi.Style.LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -39,7 +40,11 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Animatable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.Icon;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,7 +80,7 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = 30) // Needed only on 30 and above
-@SuppressLint("MissingPermission") // The outline animation color setters are for system callers.
+@SuppressLint("MissingPermission")
 public class InlineSuggestionUiTest {
 
     private static final String TITLE = "Hello world!";
@@ -133,6 +138,66 @@ public class InlineSuggestionUiTest {
         assertEquals(TITLE, titleView.getText());
         assertEquals(Color.parseColor("#FF202124"), titleView.getCurrentTextColor());
         assertEquals("content blabla", view.getContentDescription());
+        assertNull(view.getForeground());
+    }
+
+    @Test
+    @SuppressLint("NewApi") // RequiresApi on the setters applies to clients, not tests
+    public void testRender_brandColors_outlineOnlyOnSupportedPlatforms() {
+        InlineSuggestionUi.Style style = mStyleBuilder.build();
+        InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
+                .setTitle(TITLE)
+                .setOutlineAnimationPrimaryColor(Color.RED)
+                .setOutlineAnimationSecondaryColor(Color.BLUE)
+                .build();
+        View view = InlineSuggestionUi.render(mContext, content, style);
+
+        if (InlineSuggestionUi.supportsOutlineAnimation()) {
+            assertTrue(view.getForeground() instanceof BrandedOutlineDrawable);
+        } else {
+            assertNull(view.getForeground());
+        }
+    }
+
+    @Test
+    public void testAttachBrandedOutline() {
+        InlineSuggestionUi.Style style = mStyleBuilder.build();
+        InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
+                mAttributionIntent)
+                .setTitle(TITLE)
+                .build();
+        View view = InlineSuggestionUi.render(mContext, content, style);
+        InlineSuggestionUi.attachBrandedOutline(
+                mContext, view, new int[] { Color.RED, Color.BLUE });
+
+        assertTrue(view.getForeground() instanceof BrandedOutlineDrawable);
+        BrandedOutlineDrawable outline =
+                (BrandedOutlineDrawable) view.getForeground();
+        assertArrayEquals(new int[] { Color.RED, Color.BLUE }, outline.getBrandColors());
+        assertFalse(outline.isRunning());
+
+        addView(view);
+        mInstrumentation.waitForIdle(() -> assertTrue(outline.isRunning()));
+
+        mInstrumentation.runOnMainSync(() -> mLinearLayout.removeView(view));
+        mInstrumentation.waitForIdle(() -> assertFalse(outline.isRunning()));
+    }
+
+    @Test
+    public void testBrandedOutline_resolveCornerRadius() {
+        GradientDrawable shape = new GradientDrawable();
+        shape.setCornerRadius(12f);
+        LayerDrawable layered = new LayerDrawable(new Drawable[] { shape });
+
+        assertEquals(12f,
+                BrandedOutlineDrawable.resolveCornerRadius(shape, 99f), 0f);
+        assertEquals(12f,
+                BrandedOutlineDrawable.resolveCornerRadius(layered, 99f), 0f);
+        assertEquals(99f, BrandedOutlineDrawable.resolveCornerRadius(
+                new ColorDrawable(Color.RED), 99f), 0f);
+        assertEquals(99f,
+                BrandedOutlineDrawable.resolveCornerRadius(null, 99f), 0f);
     }
 
     @Test

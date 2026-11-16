@@ -47,6 +47,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.autofill.R;
 import androidx.autofill.inline.UiVersions;
 import androidx.autofill.inline.common.BundledStyle;
@@ -313,7 +314,33 @@ public final class InlineSuggestionUi {
                         subtitleView, endIconView);
             }
         }
+        // The outline animation is only supported on API level 38 and higher. A slice can still
+        // carry the colors on an older release, so check again here.
+        if (content.hasOutlineAnimationColors() && supportsOutlineAnimation()) {
+            attachBrandedOutline(context, suggestionView, new int[] {
+                    content.getOutlineAnimationPrimaryColor(),
+                    content.getOutlineAnimationSecondaryColor()});
+        }
         return suggestionView;
+    }
+
+    @VisibleForTesting
+    static void attachBrandedOutline(@NonNull Context context,
+            @NonNull View suggestionView, int @NonNull [] brandColors) {
+        final BrandedOutlineDrawable outline = new BrandedOutlineDrawable(
+                context, suggestionView.getBackground(), brandColors);
+        suggestionView.setForeground(outline);
+        suggestionView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(@NonNull View v) {
+                outline.start();
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(@NonNull View v) {
+                outline.stop();
+            }
+        });
     }
 
     private static void setImageIcon(@NonNull ImageView imageView, @Nullable Icon icon) {

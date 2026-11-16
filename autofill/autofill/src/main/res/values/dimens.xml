@@ -17,4 +17,6 @@
 
 <resources>
     <dimen name="autofill_inline_suggestion_icon_size">20dp</dimen>
+    <dimen name="autofill_inline_suggestion_chip_corner_radius">32dp</dimen>
+    <dimen name="autofill_inline_suggestion_chip_inset">5dp</dimen>
 </resources>

@@ -18,13 +18,13 @@
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="#14000000">
     <item
-        android:bottom="5dp"
-        android:left="5dp"
-        android:right="5dp"
+        android:bottom="@dimen/autofill_inline_suggestion_chip_inset"
+        android:left="@dimen/autofill_inline_suggestion_chip_inset"
+        android:right="@dimen/autofill_inline_suggestion_chip_inset"
         android:shape="rectangle"
-        android:top="5dp">
+        android:top="@dimen/autofill_inline_suggestion_chip_inset">
         <shape>
-            <corners android:radius="32dp"/>
+            <corners android:radius="@dimen/autofill_inline_suggestion_chip_corner_radius"/>
             <stroke android:color="#1F000000" android:width="1dp"/>
             <solid android:color="#FFFFFFFF"/>
         </shape>
