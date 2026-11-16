@@ -66,6 +66,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
@@ -509,6 +510,122 @@ class SwipeDismissableNavHostTest {
             previousLeft = currentLeft
         } while (currentLeft < 0.9 * navHostWidth)
         rule.mainClock.autoAdvance = true
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 36)
+    fun updates_localScreenIsActive_when_predictive_back_starts_and_completes() {
+        lateinit var navController: NavHostController
+        var startScreenActive: Boolean? = null
+        var nextScreenActive: Boolean? = null
+
+        rule.setContentWithBackPressedDispatcher {
+            navController = rememberSwipeDismissableNavController()
+            SwipeDismissableNavHost(navController = navController, startDestination = START) {
+                composable(START) {
+                    startScreenActive = LocalScreenIsActive.current
+                    Text(START)
+                }
+                composable(NEXT) {
+                    nextScreenActive = LocalScreenIsActive.current
+                    Text(NEXT)
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(startScreenActive).isTrue()
+        assertThat(nextScreenActive).isNull()
+
+        rule.runOnIdle { navController.navigate(NEXT) }
+        rule.waitForIdle()
+        assertThat(startScreenActive).isFalse()
+        assertThat(nextScreenActive).isTrue()
+
+        rule.mainClock.autoAdvance = false
+
+        // Start predictive back drag without releasing yet.
+        rule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1f, 0.1f, 0.1f, BackEvent.EDGE_LEFT)
+            )
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1f, 0.1f, 0.5f, BackEvent.EDGE_LEFT)
+            )
+        }
+        repeat(2) { rule.mainClock.advanceTimeByFrame() }
+
+        // Incoming screen should be active as soon as predictive back starts targeting it.
+        assertThat(startScreenActive).isTrue()
+        assertThat(nextScreenActive).isFalse()
+
+        // Commit back navigation and verify active state remains on the target screen
+        // across every frame until back navigation completes.
+        rule.runOnIdle { backPressedDispatcher.onBackPressed() }
+        while (
+            !rule.runOnIdle { navController.currentBackStackEntry?.destination?.route == START }
+        ) {
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(startScreenActive).isTrue()
+            assertThat(nextScreenActive).isFalse()
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertThat(startScreenActive).isTrue()
+        assertThat(nextScreenActive).isFalse()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 36)
+    fun restores_localScreenIsActive_when_predictive_back_is_cancelled() {
+        lateinit var navController: NavHostController
+        var startScreenActive: Boolean? = null
+        var nextScreenActive: Boolean? = null
+
+        rule.setContentWithBackPressedDispatcher {
+            navController = rememberSwipeDismissableNavController()
+            SwipeDismissableNavHost(navController = navController, startDestination = START) {
+                composable(START) {
+                    startScreenActive = LocalScreenIsActive.current
+                    Text(START)
+                }
+                composable(NEXT) {
+                    nextScreenActive = LocalScreenIsActive.current
+                    Text(NEXT)
+                }
+            }
+        }
+
+        rule.runOnIdle { navController.navigate(NEXT) }
+        rule.waitForIdle()
+        assertThat(startScreenActive).isFalse()
+        assertThat(nextScreenActive).isTrue()
+
+        rule.mainClock.autoAdvance = false
+
+        rule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1f, 0.1f, 0.1f, BackEvent.EDGE_LEFT)
+            )
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1f, 0.1f, 0.5f, BackEvent.EDGE_LEFT)
+            )
+        }
+        repeat(2) { rule.mainClock.advanceTimeByFrame() }
+        assertThat(startScreenActive).isTrue()
+        assertThat(nextScreenActive).isFalse()
+
+        // Cancel predictive back; active screen should revert to NEXT immediately.
+        rule.runOnIdle { backPressedDispatcher.dispatchOnBackCancelled() }
+        rule.mainClock.advanceTimeByFrame()
+        assertThat(startScreenActive).isFalse()
+        assertThat(nextScreenActive).isTrue()
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertThat(startScreenActive).isFalse()
+        assertThat(nextScreenActive).isTrue()
     }
 
     @Composable

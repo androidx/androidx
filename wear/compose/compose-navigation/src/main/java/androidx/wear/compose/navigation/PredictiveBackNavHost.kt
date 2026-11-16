@@ -238,8 +238,20 @@ internal fun PredictiveBackNavHost(
 
         if (currentEntry != null) {
             val parentScreenActive = LocalScreenIsActive.current
+            // During predictive back (and for the frame after animateTo completes before
+            // collectAsState() updates `current`), track `transitionState.targetState` so the
+            // incoming screen activates on swipe start without flickering on completion.
+            val isScreenActive =
+                if (
+                    inPredictiveBack ||
+                        (wearNavigator.isPop.value && transitionState.currentState == previous)
+                ) {
+                    currentEntry == transitionState.targetState
+                } else {
+                    currentEntry == current
+                }
             CompositionLocalProvider(
-                LocalScreenIsActive provides (currentEntry == current && parentScreenActive)
+                LocalScreenIsActive provides (isScreenActive && parentScreenActive)
             ) {
                 Box(
                     modifier =
