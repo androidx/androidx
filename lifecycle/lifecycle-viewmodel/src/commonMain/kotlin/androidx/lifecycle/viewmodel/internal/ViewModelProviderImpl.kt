@@ -53,9 +53,15 @@ internal class ViewModelProviderImpl(
             val modelExtras = MutableCreationExtras(defaultExtras)
             modelExtras[ViewModelProvider.VIEW_MODEL_KEY] = key
 
-            return@synchronized createViewModel(factory, modelClass, modelExtras).also { vm ->
-                store.put(key, vm)
-            }
+            return@synchronized ViewModelTracer.trace(
+                    name = "ViewModelProvider#create",
+                    modelClass = modelClass,
+                    key = key,
+                    factory = factory,
+                ) {
+                    createViewModel(factory, modelClass, modelExtras)
+                }
+                .also { vm -> store.put(key, vm) }
         }
     }
 }
