@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.kruth.assertThat
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.math.roundToInt
@@ -73,51 +74,23 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import leakcanary.DetectLeaksAfterTestSuccess
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
-@RunWith(Parameterized::class)
+@RunWith(AndroidJUnit4::class)
 @MediumTest
-class SeekableTransitionStateTest(private val startAfterLayoutEnabled: Boolean) {
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "startAfterLayoutEnabled={0}")
-        fun data(): Array<Any> = arrayOf(false, true)
-    }
-
+class SeekableTransitionStateTest {
     private val rule = createComposeRule()
 
     // Detect leaks BEFORE and AFTER compose rule work
     @get:Rule
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(rule)
-
-    private var savedStartAfterLayoutFlag: Boolean = false
-
-    @OptIn(ExperimentalAnimationCoreApi::class)
-    @Before
-    fun saveFlags() {
-        savedStartAfterLayoutFlag =
-            ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled
-        ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled =
-            startAfterLayoutEnabled
-    }
-
-    @OptIn(ExperimentalAnimationCoreApi::class)
-    @After
-    fun restoreFlags() {
-        ComposeAnimationCoreFlags.isSeekableTransitionStateStartAfterLayoutEnabled =
-            savedStartAfterLayoutFlag
-    }
 
     private enum class AnimStates {
         From,
@@ -2903,7 +2876,6 @@ class SeekableTransitionStateTest(private val startAfterLayoutEnabled: Boolean) 
     // should not be absorbed as skipped animation progress.
     @Test
     fun animateToDoesNotSkipFramesDuringTargetLayout() {
-        assumeTrue(startAfterLayoutEnabled)
         val seekableTransitionState = SeekableTransitionState(AnimStates.From)
         var animatedValue by mutableIntStateOf(-1)
         lateinit var coroutineScope: CoroutineScope
@@ -3001,7 +2973,6 @@ class SeekableTransitionStateTest(private val startAfterLayoutEnabled: Boolean) 
     // target's first frame must also complete without consuming animation progress.
     @Test
     fun animateToDoesNotSkipFramesDuringSubcomposeTargetLayout() {
-        assumeTrue(startAfterLayoutEnabled)
         val seekableTransitionState = SeekableTransitionState(AnimStates.From)
         var animatedValue by mutableIntStateOf(-1)
         lateinit var coroutineScope: CoroutineScope
@@ -3097,7 +3068,6 @@ class SeekableTransitionStateTest(private val startAfterLayoutEnabled: Boolean) 
 
     @Test
     fun ongoingAnimationDoesNotHitchOnRecomposition() {
-        assumeTrue(startAfterLayoutEnabled)
         rule.mainClock.autoAdvance = false
         val seekableTransitionState = SeekableTransitionState(AnimStates.From)
         var animatedValue by mutableIntStateOf(-1)

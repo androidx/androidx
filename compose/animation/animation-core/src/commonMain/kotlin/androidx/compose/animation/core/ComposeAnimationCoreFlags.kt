@@ -54,17 +54,6 @@ import kotlin.jvm.JvmField
 public object ComposeAnimationCoreFlags {
 
     /**
-     * When enabled, [SeekableTransitionState.animateTo] waits for the new target state to compose
-     * and complete layout before capturing the initial animation start frame, preventing expensive
-     * first-frame composition or layout of the target content from skipping initial animation
-     * frames.
-     */
-    // TODO: b/582446225
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isSeekableTransitionStateStartAfterLayoutEnabled: Boolean = true
-
-    /**
      * Enables nanosecond precision for animation value, velocity, and duration calculations in
      * [FloatSpringSpec], [FloatExponentialDecaySpec], [VectorizedKeyframesSpec],
      * `VectorizedMonoSplineKeyframesSpec`, and `SplineBasedFloatDecayAnimationSpec`. When disabled,
