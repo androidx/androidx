@@ -896,19 +896,6 @@ class OpenXrSceneCommitterTest {
     }
 
     @Test
-    fun setSpaceAttachment_withoutAttachmentNatives_reportsRejectedAndKeepsCommitting() {
-        fakeNative.simulateMissingAttachmentNatives = true
-        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
-        commitAll()
-
-        committer.edit { setTransform(otherEntity, poseA, scaleA) }
-        commitAll()
-
-        assertThat(results).containsExactly(CommitResult.REJECTED)
-        assertThat(fakeNative.entityTransforms).containsExactly(otherEntity, poseA to scaleA)
-    }
-
-    @Test
     fun spaceLease_invalidSpace_throwsIllegalArgumentException() {
         assertFailsWith<IllegalArgumentException> { SpaceLease(INVALID_HANDLE) }
     }

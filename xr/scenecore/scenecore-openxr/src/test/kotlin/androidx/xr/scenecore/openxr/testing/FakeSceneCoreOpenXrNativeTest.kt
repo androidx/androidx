@@ -395,6 +395,37 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
+    fun sceneTransaction_withSimulateSetAttachmentFailure_failsToStageButStillRemovesAttachment() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        val tx1 = fake.createSceneTransaction()
+        fake.setTransactionSpaceAttachment(
+            tx1,
+            entity,
+            fake.fakeSpaceHandle,
+            ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+        )
+        fake.submitSceneTransaction(tx1)
+        fake.simulateSetAttachmentFailure = true
+
+        val tx2 = fake.createSceneTransaction()
+        assertThat(
+                fake.setTransactionSpaceAttachment(
+                    tx2,
+                    entity,
+                    fake.fakeSpaceHandle,
+                    ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+                )
+            )
+            .isFalse()
+        assertThat(fake.removeTransactionSpaceAttachment(tx2, entity)).isTrue()
+
+        fake.submitSceneTransaction(tx2)
+        assertThat(fake.entityAttachments).doesNotContainKey(entity)
+    }
+
+    @Test
     fun createSceneTransaction_whenTransactionUnavailable_returnsInvalidHandle() {
         val fake = FakeSceneCoreOpenXrNative()
         fake.init(100L, 200L, 300L)

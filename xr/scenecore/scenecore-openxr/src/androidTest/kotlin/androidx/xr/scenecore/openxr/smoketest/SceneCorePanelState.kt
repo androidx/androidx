@@ -164,11 +164,6 @@ internal data class SceneCoreStatus(
     val usesArCoreFakes: Boolean = false,
     /** Whether the Session is configured, which ARCore needs to update anchors. */
     val isConfigured: Boolean = false,
-    /**
-     * Whether the scenecore-openxr native library can attach entities to an `XrSpace`, or null if
-     * that wasn't checked yet.
-     */
-    val attachmentNatives: String? = null,
     /** The most recent error. */
     val lastError: String? = null,
     val anchors: Map<Int, SceneCoreAnchorStatus> = emptyMap(),

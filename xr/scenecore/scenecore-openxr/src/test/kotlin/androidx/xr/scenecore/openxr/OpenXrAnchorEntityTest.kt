@@ -486,18 +486,6 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
-    fun attach_withoutAttachmentNatives_movesToErrorWithoutParenting() {
-        fakeNative.simulateMissingAttachmentNatives = true
-
-        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isTrue()
-        executor.commitSceneChanges()
-
-        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
-        assertThat(fakeNative.entityParents).doesNotContainKey(anchorEntity.entityHandle)
-        assertThat(fakeNative.openTransactions).isEmpty()
-    }
-
-    @Test
     fun attach_afterError_returnsFalseWithoutNativeChanges() {
         anchorEntity.attach(INVALID_HANDLE, samples)
 
@@ -621,7 +609,7 @@ class OpenXrAnchorEntityTest {
         recordStateChanges()
         val handle = anchorEntity.entityHandle
         // Fails to stage the new attachment, but can still remove the earlier one.
-        fakeNative.simulateMissingAttachmentNatives = true
+        fakeNative.simulateSetAttachmentFailure = true
 
         assertThat(anchorEntity.attach(OTHER_SPACE_HANDLE, samples)).isTrue()
         executor.commitSceneChanges()
@@ -639,7 +627,7 @@ class OpenXrAnchorEntityTest {
         fakeNative.onSubmitSceneTransaction = {
             fakeNative.onSubmitSceneTransaction = null
             // The first attachment is staged by now, but the runtime rejects the second one.
-            fakeNative.simulateMissingAttachmentNatives = true
+            fakeNative.simulateSetAttachmentFailure = true
             anchorEntity.attach(OTHER_SPACE_HANDLE, otherSamples)
         }
 
@@ -910,7 +898,7 @@ class OpenXrAnchorEntityTest {
         emit(TrackingState.STOPPED)
         assertThat(anchorEntity.state).isNotEqualTo(AnchorEntity.State.ERROR)
         // Fails to stage the new attachment, but can still remove the earlier one.
-        fakeNative.simulateMissingAttachmentNatives = true
+        fakeNative.simulateSetAttachmentFailure = true
         fakeNative.simulateTransactionUnavailable = false
 
         executor.commitSceneChanges()
