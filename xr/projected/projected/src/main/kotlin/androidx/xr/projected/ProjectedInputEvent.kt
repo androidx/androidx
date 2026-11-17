@@ -32,7 +32,18 @@ internal constructor(public val inputAction: ProjectedInputAction) {
 
     /** Supported Projected input actions. */
     public class ProjectedInputAction
-    private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val code: Int) {
+    internal constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val code: Int) {
+        override fun toString(): String =
+            when (code) {
+                0 -> "TOGGLE_APP_CAMERA"
+                else -> "UNKNOWN($code)"
+            }
+
+        override fun equals(other: Any?): Boolean =
+            (other is ProjectedInputAction) && this.code == other.code
+
+        override fun hashCode(): Int = code.hashCode()
+
         /**
          * Sent to apps from the Projected device when the user requests to toggle the app camera.
          * Apps should use the signal to start / stop the camera if relevant.
