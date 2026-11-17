@@ -1,0 +1,7 @@
+# androidx.people:people loads PlayServicesPeopleBackendFactory by name when this artifact is part of
+# the application. Keep the class and its no-argument constructor, but only in applications that
+# use the library.
+-if class androidx.people.internal.PeopleBackendResolver
+-keep class androidx.people.playservices.PlayServicesPeopleBackendFactory {
+  public <init>();
+}
