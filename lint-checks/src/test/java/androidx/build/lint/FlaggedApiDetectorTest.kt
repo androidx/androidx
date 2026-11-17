@@ -1041,4 +1041,149 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
         """
             )
     }
+
+    fun testRequiresFlag_compiledBytecodeGuarded_isClean() {
+        lint()
+            .files(
+                compiledFlaggedApiImpl,
+                kotlin(
+                        """
+                    package test.pkg
+
+                    import androidx.core.flagging.Flags
+
+                    class KotlinTest {
+                        fun test() {
+                            if (Flags.getBooleanFlagValue("android.os", "flaggedApi")) {
+                                CompiledFlaggedApiImpl.flaggedApi()
+                            }
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                Stubs.RequiresFlag,
+                Stubs.Flags,
+            )
+            .run()
+            .expectClean()
+    }
+
+    fun testRequiresFlag_compiledBytecodeUnguarded_raisesError() {
+        lint()
+            .files(
+                compiledFlaggedApiImpl,
+                kotlin(
+                        """
+                    package test.pkg
+
+                    class KotlinTest {
+                        fun test() {
+                            CompiledFlaggedApiImpl.flaggedApi()
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                Stubs.RequiresFlag,
+            )
+            .run()
+            .expect(
+                """
+                src/test/pkg/KotlinTest.kt:5: Error: Method flaggedApi() is a flagged API and must be inside a flag check for "android.os.flaggedApi" [AndroidXFlaggedApi]
+                        CompiledFlaggedApiImpl.flaggedApi()
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 error
+                """
+                    .trimIndent()
+            )
+    }
+
+    fun testChecksFlag_compiledBytecode_isClean() {
+        lint()
+            .files(
+                compiledFlagsCompat,
+                compiledFlaggedApiImpl,
+                kotlin(
+                        """
+                    package test.pkg
+
+                    class KotlinTest {
+                        fun test() {
+                            if (CompiledFlagsCompat.isFlaggedApiEnabled()) {
+                                CompiledFlaggedApiImpl.flaggedApi()
+                            }
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                Stubs.ChecksFlag,
+                Stubs.RequiresFlag,
+            )
+            .run()
+            .expectClean()
+    }
+
+    companion object {
+        private val compiledFlaggedApiImpl =
+            bytecode(
+                "libs/compiledFlaggedApiImpl.jar",
+                java(
+                        """
+                    package test.pkg;
+
+                    import androidx.annotation.RequiresFlag;
+
+                    @RequiresFlag("android.os.flaggedApi")
+                    public class CompiledFlaggedApiImpl {
+                        public static void flaggedApi() {}
+                    }
+                    """
+                    )
+                    .indented(),
+                0x8f6c0259,
+                """
+                test/pkg/CompiledFlaggedApiImpl.class:
+                H4sIAAAAAAAC/21QwUrDQBB92zaJttVWwYOIiJ7UQ3LsQRFKoVAoClW8b5o1
+                bN3sxmQT/C1Pggc/wI8SZ6vEgw7svJ03jzfDfHy+vQMYYbeLFtoBOn148BmG
+                K17zSHGdRjfxSiwtg38ptbRXDO3Ts/sAGwxHVpQ2yh/TaGKyXCqRTBVPU5GM
+                cznLcsXQmZhEMAzmUovrKotFccdjRUz3oVFScWuqYimm0nUO/vcK3ULUXVTa
+                ykzMdC1LSVZjrY3lVhpdMpzMuU4KI5PniDd8tBBPlSxE6QwvGLyaq4oG7f1o
+                Q1OGv9vgGAGdwkULzB2D8iZVh4SM0Dt/BXuhD+1N2V+TPkl6jXQf3/FH5pz7
+                a+ctbBP2iB3QG5bY+QLioJUniwEAAA==
+                """,
+            )
+
+        private val compiledFlagsCompat =
+            bytecode(
+                "libs/compiledFlagsCompat.jar",
+                java(
+                        """
+                    package test.pkg;
+
+                    import androidx.annotation.ChecksFlag;
+
+                    public class CompiledFlagsCompat {
+                        @ChecksFlag("android.os.flaggedApi")
+                        public static boolean isFlaggedApiEnabled() {
+                            return true;
+                        }
+                    }
+                    """
+                    )
+                    .indented(),
+                0xfca910b5,
+                """
+                test/pkg/CompiledFlagsCompat.class:
+                H4sIAAAAAAAC/21QTUsDMRB9aXe3ta22WgTxA/SmHnaPHhShFAtCUVDx4C27
+                G9e022RpssUf5cWT4MEf4I8SJ6v0IAYyHy9v3kzm8+v9A8AJ+i3UUG/A68BH
+                wNCb8AWPcq6y6DqeiMQyBGdSSXvOUD88um+gybBrhbFRMc2ioZ4VMhfpKOeZ
+                cQmnAm+oU8HQHUslrspZLOZ3PM4J6UvjiJlIB4W8UA5MK9kHhp2bUlk5E5dq
+                IY2kl4FS2nIrtTIM+2Ou0rmW6XPEl3g0fBLJtJI8ZfAXPC+pyeYvM9QmfFx2
+                Y2jd6nKeiJF0k2z9M3jovo4DNGgj7tTA3E7IrlC2R56R94/fwF4pIEWywQ9I
+                lDY6VOKo2xVGAt7LH14Tq2TbFK/R7Rr0yK1XvTa+AT5rXnmTAQAA
+                """,
+            )
+    }
 }
