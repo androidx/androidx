@@ -27,8 +27,10 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TooltipState
+import androidx.compose.material3.TooltipStateImpl
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -131,6 +133,12 @@ internal fun BasicTooltipBox(
             modifier = modifier,
             content = content,
         )
+    }
+
+    LaunchedEffect(state) {
+        if (state is TooltipStateImpl && state.consumePendingRestore()) {
+            state.show()
+        }
     }
 
     DisposableEffect(state) { onDispose { state.onDispose() } }

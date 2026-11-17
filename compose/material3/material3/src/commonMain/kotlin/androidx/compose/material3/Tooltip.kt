@@ -45,6 +45,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.DrawResult
@@ -859,7 +861,11 @@ public fun rememberTooltipState(
     isPersistent: Boolean = false,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex,
 ): TooltipState =
-    remember(isPersistent, mutatorMutex) {
+    rememberSaveable(
+        isPersistent,
+        mutatorMutex,
+        saver = TooltipStateImpl.Saver(isPersistent = isPersistent, mutatorMutex = mutatorMutex),
+    ) {
         TooltipStateImpl(
             initialIsVisible = initialIsVisible,
             isPersistent = isPersistent,
@@ -1048,7 +1054,7 @@ private class TooltipPositionProviderImpl(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Stable
-private class TooltipStateImpl(
+internal class TooltipStateImpl(
     initialIsVisible: Boolean,
     override val isPersistent: Boolean,
     private val mutatorMutex: MutatorMutex,
@@ -1061,6 +1067,14 @@ private class TooltipStateImpl(
 
     /** continuation used to clean up */
     private var job: (CancellableContinuation<Unit>)? = null
+
+    private var pendingShowOnRestore: Boolean = false
+
+    internal fun consumePendingRestore(): Boolean {
+        val pending = pendingShowOnRestore
+        pendingShowOnRestore = false
+        return pending
+    }
 
     /**
      * Show the tooltip associated with the current [TooltipState]. When this method is called, all
@@ -1105,6 +1119,25 @@ private class TooltipStateImpl(
     /** Cleans up [mutatorMutex] when the tooltip associated with this state leaves Composition. */
     override fun onDispose() {
         job?.cancel()
+    }
+
+    companion object {
+        /** The default [Saver] implementation for [TooltipStateImpl]. */
+        fun Saver(
+            isPersistent: Boolean,
+            mutatorMutex: MutatorMutex,
+        ): Saver<TooltipStateImpl, Boolean> =
+            Saver(
+                save = { it.isPersistent && it.transition.targetState },
+                restore = {
+                    TooltipStateImpl(
+                            initialIsVisible = false,
+                            isPersistent = isPersistent,
+                            mutatorMutex = mutatorMutex,
+                        )
+                        .apply { pendingShowOnRestore = it }
+                },
+            )
     }
 }
 
