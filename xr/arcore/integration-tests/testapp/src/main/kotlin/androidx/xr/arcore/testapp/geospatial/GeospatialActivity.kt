@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,8 +48,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.ArDevice
@@ -91,8 +94,12 @@ import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import java.nio.file.Paths
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -106,26 +113,46 @@ class GeospatialActivity : ComponentActivity() {
         ROOFTOP,
     }
 
+    /** An anchor saved to [SharedPreferences] by a previous run of the activity. */
+    private class SavedAnchor(
+        val type: AnchorType,
+        val latitude: Double,
+        val longitude: Double,
+        val altitude: Double,
+        val eastUpSouthQuaternion: Quaternion,
+    )
+
     private lateinit var session: Session
     private lateinit var sessionHelper: SessionLifecycleHelper
     private lateinit var planeRenderer: PlaneRenderer
     private val anchors = mutableListOf<Anchor>()
     private val anchorEntities = mutableListOf<GltfModelEntity>()
-    private lateinit var anchorModel: GltfModel
-    private lateinit var surfaceAnchorModel: GltfModel
+    // Jobs that create, restore, or render anchors, which are cancelled when anchors are cleared.
+    private val anchorJobs = mutableListOf<Job>()
+    private var anchorModel: GltfModel? = null
+    private var surfaceAnchorModel: GltfModel? = null
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var mainPanelEntity: PanelEntity
     private val mainPanelOffset = Pose(Vector3(0f, 0f, -0.7f))
     private var selectedAnchorType = AnchorType.STANDARD
     private val configBuilder = Config.Builder()
+    private val localizationTracker = GeospatialLocalizationTracker()
+    private val localizationState = MutableStateFlow(LocalizationState.NOT_TRACKING)
+    private var localizationStatusText by mutableStateOf("")
+    // Anchors saved by previous runs, which are restored once the Geospatial accuracy converges.
+    private val pendingSavedAnchors = mutableStateListOf<String>()
 
     companion object {
         private const val SAVED_ANCHORS_KEY = "geospatial_anchors"
+        private val LOCALIZATION_UPDATE_INTERVAL = 500.milliseconds
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = getPreferences(MODE_PRIVATE)
+        pendingSavedAnchors.addAll(
+            sharedPreferences.getStringSet(SAVED_ANCHORS_KEY, null).orEmpty()
+        )
 
         configBuilder
             .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
@@ -158,6 +185,7 @@ class GeospatialActivity : ComponentActivity() {
                         }
                     }
 
+                    monitorLocalization(session)
                     lifecycleScope.launch {
                         anchorModel =
                             GltfModel.create(session, Paths.get("models", "geospatial_marker.glb"))
@@ -167,12 +195,10 @@ class GeospatialActivity : ComponentActivity() {
                                 Paths.get("models", "geospatial_marker_yellow.glb"),
                             )
 
-                        // Wait for Geospatial to be running before loading anchors.
-                        val geospatial = Geospatial.getInstance(session)
-                        geospatial.state.first {
-                            it.geospatialTrackingState == Geospatial.GeospatialTrackingState.RUNNING
-                        }
-                        loadAnchorsFromSharedPreferences()
+                        // Wait for the Geospatial accuracy to converge before restoring anchors, so
+                        // that they are restored close to where they were created.
+                        localizationState.first { it == LocalizationState.LOCALIZED }
+                        restoreSavedAnchors()
                     }
 
                     planeRenderer = PlaneRenderer(session)
@@ -188,8 +214,8 @@ class GeospatialActivity : ComponentActivity() {
     private fun MainPanel(session: Session) {
         val geospatial = Geospatial.getInstance(session)
         val geospatialState by geospatial.state.collectAsStateWithLifecycle()
+        val localization by localizationState.collectAsStateWithLifecycle()
         var vpsAvailability by remember { mutableStateOf<VpsAvailabilityResult?>(null) }
-        var localizationStatusText by remember { mutableStateOf("") }
         val arDevice = ArDevice.getInstance(session)
         val arDeviceState by arDevice.state.collectAsStateWithLifecycle()
         var selectedAnchorTypeState by remember { mutableStateOf(selectedAnchorType) }
@@ -223,12 +249,7 @@ class GeospatialActivity : ComponentActivity() {
                 )
                 Text("VPS Availability: ${vpsAvailabilityToString(vpsAvailability)}")
                 Text(localizationStatusText)
-                if (
-                    geospatialState.geospatialTrackingState ==
-                        Geospatial.GeospatialTrackingState.RUNNING
-                ) {
-                    Text("Tap on a plane to create an anchor.")
-                }
+                Text(localizationStateToString(localization))
                 Text("Anchor type:")
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -253,10 +274,15 @@ class GeospatialActivity : ComponentActivity() {
                 }
                 Button(onClick = { clearAnchors() }) { Text("Clear Anchors") }
                 Text("Anchor count: ${anchors.size}")
+                if (pendingSavedAnchors.isNotEmpty()) {
+                    Text("Saved anchors waiting to be restored: ${pendingSavedAnchors.size}")
+                }
             }
         }
 
-        LaunchedEffect(geospatialState) {
+        // Keyed on the tracking state because the full state changes with every localization
+        // update, which would restart the effect and cancel the VPS availability check.
+        LaunchedEffect(geospatialState.geospatialTrackingState) {
             if (
                 geospatialState.geospatialTrackingState ==
                     Geospatial.GeospatialTrackingState.RUNNING
@@ -280,27 +306,55 @@ class GeospatialActivity : ComponentActivity() {
                 }
             }
         }
+    }
 
-        LaunchedEffect(geospatialState) {
-            while (true) {
-                if (
-                    geospatialState.geospatialTrackingState ==
-                        Geospatial.GeospatialTrackingState.RUNNING
-                ) {
-                    try {
-                        val result =
-                            geospatial.createGeospatialPoseFromPose(arDeviceState.devicePose)
-                        localizationStatusText = localizationTextFromResult(result)
-                    } catch (e: Exception) {
-                        logAndShowToast("createGeospatialPoseFromPose failed: $e", e)
-                        localizationStatusText = "Error creating geospatial pose"
+    /** Periodically updates [localizationState] from the accuracy of the device geospatial pose. */
+    private fun monitorLocalization(session: Session) {
+        val geospatial = Geospatial.getInstance(session)
+        val arDevice = ArDevice.getInstance(session)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                try {
+                    while (true) {
+                        updateLocalization(geospatial, arDevice)
+                        delay(LOCALIZATION_UPDATE_INTERVAL)
                     }
-                } else {
-                    localizationStatusText = "Geospatial not RUNNING"
+                } finally {
+                    // Localization has to converge again after the activity resumes.
+                    localizationState.value = localizationTracker.onNotTracking()
                 }
-                delay(1.seconds)
             }
         }
+    }
+
+    private fun updateLocalization(geospatial: Geospatial, arDevice: ArDevice) {
+        if (
+            geospatial.state.value.geospatialTrackingState !=
+                Geospatial.GeospatialTrackingState.RUNNING
+        ) {
+            localizationStatusText = "Geospatial not RUNNING"
+            localizationState.value = localizationTracker.onNotTracking()
+            return
+        }
+        val result =
+            try {
+                geospatial.createGeospatialPoseFromPose(arDevice.state.value.devicePose)
+            } catch (e: Exception) {
+                w("JetpackXR", "createGeospatialPoseFromPose failed: $e", e)
+                localizationStatusText = "Error creating geospatial pose"
+                localizationState.value = localizationTracker.onNotTracking()
+                return
+            }
+        localizationStatusText = localizationTextFromResult(result)
+        localizationState.value =
+            if (result is CreateGeospatialPoseFromPoseSuccess) {
+                localizationTracker.onAccuracySample(
+                    result.horizontalAccuracy,
+                    result.orientationYawAccuracy,
+                )
+            } else {
+                localizationTracker.onNotTracking()
+            }
     }
 
     private fun attachTapHandlerToPlanes() {
@@ -351,6 +405,10 @@ class GeospatialActivity : ComponentActivity() {
             Toast.makeText(this, "Anchor limit of 10 reached.", Toast.LENGTH_LONG).show()
             return
         }
+        if (anchorModel == null || surfaceAnchorModel == null) {
+            logAndShowToast("Anchor models are still loading, cannot create anchor.")
+            return
+        }
         val geospatial = Geospatial.getInstance(session)
         if (
             geospatial.state.value.geospatialTrackingState !=
@@ -359,49 +417,48 @@ class GeospatialActivity : ComponentActivity() {
             logAndShowToast("Geospatial not running, cannot create anchor.")
             return
         }
+        if (localizationState.value != LocalizationState.LOCALIZED) {
+            logAndShowToast("Geospatial accuracy has not converged yet, cannot create anchor.")
+            return
+        }
 
         // Get the geospatial pose from the tap pose, then create an anchor from
         // that pose.
         val geospatialPoseResult = geospatial.createGeospatialPoseFromPose(pose)
         when (geospatialPoseResult) {
             is CreateGeospatialPoseFromPoseSuccess -> {
-                val geospatialPose = geospatialPoseResult.pose
-                lifecycleScope.launch {
-                    val result =
-                        when (selectedAnchorType) {
-                            AnchorType.STANDARD ->
-                                geospatial.createAnchor(
-                                    geospatialPose.latitude,
-                                    geospatialPose.longitude,
-                                    geospatialPose.altitude,
-                                    geospatialPose.eastUpSouthQuaternion,
-                                )
-                            AnchorType.TERRAIN ->
-                                geospatial.createAnchorOnSurface(
-                                    geospatialPose.latitude,
-                                    geospatialPose.longitude,
-                                    0.0,
-                                    geospatialPose.eastUpSouthQuaternion,
-                                    GeospatialSurface.TERRAIN,
-                                )
-                            AnchorType.ROOFTOP ->
-                                geospatial.createAnchorOnSurface(
-                                    geospatialPose.latitude,
-                                    geospatialPose.longitude,
-                                    0.0,
-                                    geospatialPose.eastUpSouthQuaternion,
-                                    GeospatialSurface.ROOFTOP,
-                                )
-                        }
-
-                    if (result is AnchorCreateSuccess) {
-                        anchors.add(result.anchor)
-                        renderAnchor(result.anchor, selectedAnchorType)
-                        saveAnchorToSharedPreferences(geospatialPose, selectedAnchorType)
-                    } else {
-                        logAndShowToast("Failed to create anchor: $result")
-                    }
+                // The accuracy at the tapped location also accounts for its distance from the
+                // device, so check it before saving the geospatial pose of the anchor.
+                if (
+                    !localizationTracker.isWithinThresholds(
+                        geospatialPoseResult.horizontalAccuracy,
+                        geospatialPoseResult.orientationYawAccuracy,
+                    )
+                ) {
+                    logAndShowToast(
+                        "Accuracy at the tapped location is too low (horizontal: " +
+                            "${"%.1f".format(geospatialPoseResult.horizontalAccuracy)} m, yaw: " +
+                            "${"%.1f".format(geospatialPoseResult.orientationYawAccuracy)} " +
+                            "degrees), cannot create anchor."
+                    )
+                    return
                 }
+                val geospatialPose = geospatialPoseResult.pose
+                val anchorType = selectedAnchorType
+                val job = lifecycleScope.launch {
+                    val anchor =
+                        createGeospatialAnchor(
+                            anchorType,
+                            geospatialPose.latitude,
+                            geospatialPose.longitude,
+                            geospatialPose.altitude,
+                            geospatialPose.eastUpSouthQuaternion,
+                        ) ?: return@launch
+                    anchors.add(anchor)
+                    renderAnchor(anchor, anchorType)
+                    saveAnchorToSharedPreferences(geospatialPose, anchorType)
+                }
+                anchorJobs.add(job)
             }
             is CreateGeospatialPoseFromPoseNotTracking -> {
                 logAndShowToast("Not tracking, cannot create anchor.")
@@ -416,6 +473,57 @@ class GeospatialActivity : ComponentActivity() {
         }
     }
 
+    /** Creates a Geospatial anchor of the given [type], or returns null if creation failed. */
+    private suspend fun createGeospatialAnchor(
+        type: AnchorType,
+        latitude: Double,
+        longitude: Double,
+        altitude: Double,
+        eastUpSouthQuaternion: Quaternion,
+    ): Anchor? {
+        val geospatial = Geospatial.getInstance(session)
+        val result =
+            try {
+                when (type) {
+                    AnchorType.STANDARD ->
+                        geospatial.createAnchor(
+                            latitude,
+                            longitude,
+                            altitude,
+                            eastUpSouthQuaternion,
+                        )
+                    AnchorType.TERRAIN ->
+                        geospatial.createAnchorOnSurface(
+                            latitude,
+                            longitude,
+                            0.0,
+                            eastUpSouthQuaternion,
+                            GeospatialSurface.TERRAIN,
+                        )
+                    AnchorType.ROOFTOP ->
+                        geospatial.createAnchorOnSurface(
+                            latitude,
+                            longitude,
+                            0.0,
+                            eastUpSouthQuaternion,
+                            GeospatialSurface.ROOFTOP,
+                        )
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: RuntimeException) {
+                // The runtime throws when it fails to create the anchor, e.g. for an unsupported
+                // location, which shouldn't crash the app or stop other anchors from being created.
+                logAndShowToast("Failed to create ${type.name} anchor: $e", e)
+                return null
+            }
+        if (result is AnchorCreateSuccess) {
+            return result.anchor
+        }
+        logAndShowToast("Failed to create ${type.name} anchor: $result")
+        return null
+    }
+
     private fun saveAnchorToSharedPreferences(geospatialPose: GeospatialPose, type: AnchorType) {
         val newAnchorInfo =
             "${type.name},${geospatialPose.latitude},${geospatialPose.longitude},${geospatialPose.altitude}," +
@@ -428,51 +536,55 @@ class GeospatialActivity : ComponentActivity() {
         sharedPreferences.edit().putStringSet(SAVED_ANCHORS_KEY, savedAnchors).apply()
     }
 
-    private fun loadAnchorsFromSharedPreferences() {
-        val savedAnchors = sharedPreferences.getStringSet(SAVED_ANCHORS_KEY, null) ?: return
-        lifecycleScope.launch {
-            for (anchorInfo in savedAnchors) {
-                val parts = anchorInfo.split(',')
-                if (parts.size == 8) {
-                    val type = AnchorType.valueOf(parts[0])
-                    val latitude = parts[1].toDouble()
-                    val longitude = parts[2].toDouble()
-                    val altitude = parts[3].toDouble()
-                    val qx = parts[4].toFloat()
-                    val qy = parts[5].toFloat()
-                    val qz = parts[6].toFloat()
-                    val qw = parts[7].toFloat()
-                    val quaternion = Quaternion(qx, qy, qz, qw)
-
-                    val geospatial = Geospatial.getInstance(session)
-                    val result =
-                        when (type) {
-                            AnchorType.STANDARD ->
-                                geospatial.createAnchor(latitude, longitude, altitude, quaternion)
-                            AnchorType.TERRAIN ->
-                                geospatial.createAnchorOnSurface(
-                                    latitude,
-                                    longitude,
-                                    0.0,
-                                    quaternion,
-                                    GeospatialSurface.TERRAIN,
-                                )
-                            AnchorType.ROOFTOP ->
-                                geospatial.createAnchorOnSurface(
-                                    latitude,
-                                    longitude,
-                                    0.0,
-                                    quaternion,
-                                    GeospatialSurface.ROOFTOP,
-                                )
-                        }
-                    if (result is AnchorCreateSuccess) {
-                        anchors.add(result.anchor)
-                        renderAnchor(result.anchor, type)
-                    }
-                }
-            }
+    /**
+     * Restores the anchors saved by previous runs. Only call this once the Geospatial accuracy has
+     * converged, so that the anchors are restored close to where they were created.
+     */
+    private fun restoreSavedAnchors() {
+        val savedAnchors = pendingSavedAnchors.toList()
+        pendingSavedAnchors.clear()
+        if (savedAnchors.isEmpty()) {
+            return
         }
+        val job = lifecycleScope.launch {
+            var restoredCount = 0
+            for (anchorInfo in savedAnchors) {
+                val savedAnchor = parseSavedAnchor(anchorInfo)
+                if (savedAnchor == null) {
+                    w("JetpackXR", "Skipping malformed saved anchor: $anchorInfo")
+                    continue
+                }
+                val anchor =
+                    createGeospatialAnchor(
+                        savedAnchor.type,
+                        savedAnchor.latitude,
+                        savedAnchor.longitude,
+                        savedAnchor.altitude,
+                        savedAnchor.eastUpSouthQuaternion,
+                    ) ?: continue
+                anchors.add(anchor)
+                renderAnchor(anchor, savedAnchor.type)
+                restoredCount++
+            }
+            logAndShowToast("Restored $restoredCount of ${savedAnchors.size} saved anchors.")
+        }
+        anchorJobs.add(job)
+    }
+
+    private fun parseSavedAnchor(anchorInfo: String): SavedAnchor? {
+        val parts = anchorInfo.split(',')
+        if (parts.size != 8) {
+            return null
+        }
+        val type = AnchorType.entries.firstOrNull { it.name == parts[0] } ?: return null
+        val latitude = parts[1].toDoubleOrNull() ?: return null
+        val longitude = parts[2].toDoubleOrNull() ?: return null
+        val altitude = parts[3].toDoubleOrNull() ?: return null
+        val qx = parts[4].toFloatOrNull() ?: return null
+        val qy = parts[5].toFloatOrNull() ?: return null
+        val qz = parts[6].toFloatOrNull() ?: return null
+        val qw = parts[7].toFloatOrNull() ?: return null
+        return SavedAnchor(type, latitude, longitude, altitude, Quaternion(qx, qy, qz, qw))
     }
 
     private fun renderAnchor(anchor: Anchor, type: AnchorType) {
@@ -482,6 +594,10 @@ class GeospatialActivity : ComponentActivity() {
                 AnchorType.TERRAIN,
                 AnchorType.ROOFTOP -> surfaceAnchorModel
             }
+        if (model == null) {
+            w("JetpackXR", "Anchor models are not loaded, cannot render ${type.name} anchor.")
+            return
+        }
         val entity =
             GltfModelEntity.create(session, model, parent = session.scene.activitySpace).also {
                 it.setScale(0.3f)
@@ -489,28 +605,44 @@ class GeospatialActivity : ComponentActivity() {
             }
         anchorEntities.add(entity)
 
-        lifecycleScope.launch {
-            anchor.state.collect { state ->
-                if (state.trackingState == TrackingState.TRACKING) {
-                    if (!entity.isEnabled(false)) {
-                        entity.setEnabled(true)
-                    }
-                    val activityPose =
-                        session.scene.perceptionSpace.transformPoseTo(
-                            state.pose,
-                            session.scene.activitySpace,
-                        )
-                    entity.setPose(activityPose)
-                } else {
-                    if (entity.isEnabled(false)) {
-                        entity.setEnabled(false)
+        // Only show the anchor while the Geospatial accuracy has converged, so that it reappears
+        // close to where it was created rather than where an unconverged localization places it.
+        val renderJob = lifecycleScope.launch {
+            combine(anchor.state, localizationState) { state, localization ->
+                    state to localization
+                }
+                .collect { (state, localization) ->
+                    if (
+                        state.trackingState == TrackingState.TRACKING &&
+                            localization == LocalizationState.LOCALIZED
+                    ) {
+                        if (!entity.isEnabled(false)) {
+                            entity.setEnabled(true)
+                        }
+                        val activityPose =
+                            session.scene.perceptionSpace.transformPoseTo(
+                                state.pose,
+                                session.scene.activitySpace,
+                            )
+                        entity.setPose(activityPose)
+                    } else {
+                        if (entity.isEnabled(false)) {
+                            entity.setEnabled(false)
+                        }
                     }
                 }
-            }
         }
+        anchorJobs.add(renderJob)
     }
 
     private fun clearAnchors() {
+        pendingSavedAnchors.clear()
+        // Also cancels anchors that are still being created or restored, so that they aren't
+        // added, rendered, or saved after the anchors have been cleared.
+        for (job in anchorJobs) {
+            job.cancel()
+        }
+        anchorJobs.clear()
         for (anchor in anchors) {
             anchor.detach()
         }
@@ -556,6 +688,21 @@ class GeospatialActivity : ComponentActivity() {
             is CreateGeospatialPoseFromPoseNotTracking -> "Localization Status: Not tracking"
             is CreateGeospatialPoseFromPoseInternalError -> "Localization Status: ${result.error}"
             else -> "Localization Status: Unknown"
+        }
+    }
+
+    private fun localizationStateToString(state: LocalizationState): String {
+        return when (state) {
+            LocalizationState.NOT_TRACKING -> "Localization: Not tracking"
+            LocalizationState.LOCALIZING ->
+                "Localization: Converging. Anchors can be created, and saved anchors are " +
+                    "restored, once horizontal accuracy <= " +
+                    "${"%.1f".format(localizationTracker.horizontalAccuracyThresholdMeters)} m " +
+                    "and yaw accuracy <= " +
+                    "${"%.1f".format(localizationTracker.yawAccuracyThresholdDegrees)} degrees. " +
+                    "Face nearby buildings to help VPS localize."
+            LocalizationState.LOCALIZED ->
+                "Localization: Converged. Tap on a plane to create an anchor."
         }
     }
 }
