@@ -92,6 +92,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
@@ -1963,6 +1964,38 @@ class CapturePipelineTest {
         advanceUntilIdle()
 
         assertThat(screenFlash.awaitClear(3000)).isTrue()
+    }
+
+    @Test
+    fun capture_closeGraphDuringPreCapture_failsWithCameraClosedError() = runTest {
+        val lock3ADeferred = CompletableDeferred<Result3A>()
+        fakeCameraGraphSession.lock3AForCaptureResult = lock3ADeferred
+
+        val submitDeferred = backgroundScope.async {
+            capturePipeline.submitStillCaptures(
+                configs = listOf(singleConfig),
+                requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+                sessionConfigOptions = MutableOptionsBundle.create(),
+                captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                flashMode = ImageCapture.FLASH_MODE_ON,
+                flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+            )
+        }
+
+        testScheduler.runCurrent()
+        assertThat(fakeCameraGraphSession.lock3AForCaptureSemaphore.tryAcquire()).isTrue()
+        assertThat(submitDeferred.isCompleted).isFalse()
+
+        // Simulate UseCaseCameraImpl.close() running closeGraph() (clearing lazySurfaceToStreamMap)
+        // while preCapture is suspended in lock3AForCapture, followed by Listener3A completing the
+        // in-flight 3A task with SUBMIT_CANCELLED on graph shutdown.
+        fakeUseCaseCameraContext.closeGraph()
+        lock3ADeferred.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED))
+        advanceUntilIdle()
+
+        val deferredList = submitDeferred.await()
+        val exception = assertFailsWith<ImageCaptureException> { deferredList.single().await() }
+        assertThat(exception.imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED)
     }
 
     private fun createRealRequestControl() =

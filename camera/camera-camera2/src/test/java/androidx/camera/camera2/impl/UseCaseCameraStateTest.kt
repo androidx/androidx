@@ -43,10 +43,12 @@ import androidx.camera.camera2.testing.FakeSurface
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.Quirks
+import androidx.camera.testing.impl.GarbageCollectionUtil
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.common.util.concurrent.ListenableFuture
+import java.lang.ref.WeakReference
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
@@ -117,6 +119,44 @@ class UseCaseCameraStateTest {
     fun tearDown() {
         surface.close()
         testExecutor.shutdown()
+    }
+
+    @Test
+    fun closedState_isNotRetainedByRetainedRepeatingRequest(): Unit = runBlocking {
+        val stateRef = startRepeatingAndCloseNewState()
+        // Simulates CameraPipe retaining the last repeating Request of a closed CameraGraph.
+        val retainedRequest = fakeCameraGraphSession.repeatingRequests.last()
+
+        GarbageCollectionUtil.runFinalization()
+
+        assertThat(retainedRequest.listeners).isNotEmpty()
+        assertThat(stateRef.get()).isNull()
+    }
+
+    // Keeps the state out of the caller's coroutine frame so only the Request can retain it.
+    private suspend fun startRepeatingAndCloseNewState(): WeakReference<UseCaseCameraState> {
+        val state = UseCaseCameraState(fakeUseCaseCameraContext, NoOpTemplateParamsOverride)
+        state.updateAsync(streams = setOf(StreamId(0)))
+        state.close()
+        return WeakReference(state)
+    }
+
+    @Test
+    fun close_releasesCurrentListeners(): Unit = runBlocking {
+        fakeCameraGraphSession.startRepeatingSignal = CompletableDeferred(TOTAL_CAPTURE_DONE)
+        var listener: Request.Listener? = object : Request.Listener {}
+        val listenerRef = WeakReference(listener)
+        useCaseCameraState
+            .updateAsync(streams = setOf(StreamId(0)), listeners = setOf(listener!!))
+            .await()
+
+        useCaseCameraState.close()
+        fakeCameraGraphSession.repeatingRequests.clear()
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
+        listener = null
+        GarbageCollectionUtil.runFinalization()
+
+        assertThat(listenerRef.get()).isNull()
     }
 
     @Test

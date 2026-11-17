@@ -903,6 +903,22 @@ constructor(
         debug {
             "CapturePipeline#submitRequestInternal; Submitting ${params.configs} with CameraPipe"
         }
+        if (useCaseCameraContext.isGraphClosed) {
+            return Pair(
+                List(params.configs.size) {
+                    CompletableDeferred<Void?>().apply {
+                        completeExceptionally(
+                            ImageCaptureException(
+                                ERROR_CAMERA_CLOSED,
+                                "Capture request is cancelled because camera is closed",
+                                null,
+                            )
+                        )
+                    }
+                },
+                false,
+            )
+        }
         val deferredList = mutableListOf<CompletableDeferred<Void?>>()
         val requests =
             params.configs.mapNotNull { captureConfig ->
@@ -970,13 +986,23 @@ constructor(
                     Camera2Logger.info(e) {
                         "CapturePipeline#submitRequestInternal: configAdapter.mapToRequest failed!"
                     }
-                    completeSignal.completeExceptionally(
-                        ImageCaptureException(
-                            ERROR_CAPTURE_FAILED,
-                            "Capture request failed with reason " + e.message,
-                            e,
+                    if (useCaseCameraContext.isGraphClosed) {
+                        completeSignal.completeExceptionally(
+                            ImageCaptureException(
+                                ERROR_CAMERA_CLOSED,
+                                "Capture request is cancelled because camera is closed",
+                                null,
+                            )
                         )
-                    )
+                    } else {
+                        completeSignal.completeExceptionally(
+                            ImageCaptureException(
+                                ERROR_CAPTURE_FAILED,
+                                "Capture request failed with reason " + e.message,
+                                e,
+                            )
+                        )
+                    }
                     null
                 }
             }

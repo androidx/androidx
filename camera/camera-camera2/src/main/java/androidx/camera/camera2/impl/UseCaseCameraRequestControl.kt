@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.AnyThread
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.adapter.completeFailing
@@ -52,6 +53,8 @@ import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import dagger.Binds
 import dagger.Module
+import java.util.Collections
+import java.util.WeakHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -426,6 +429,10 @@ constructor(
 
     private val infoBundleMap = mutableMapOf<UseCaseCameraRequestControl.Type, InfoBundle>()
 
+    @GuardedBy("infoBundleMap")
+    private val sessionCallbackMaps: MutableSet<CameraCallbackMap> =
+        Collections.newSetFromMap(WeakHashMap())
+
     override fun setParametersAsync(
         values: Map<CaptureRequest.Key<*>, Any>,
         type: UseCaseCameraRequestControl.Type,
@@ -544,7 +551,9 @@ constructor(
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl: State update processing." }
                 updateCameraStateAsync(streams = streams) {
                     infoBundleMap[UseCaseCameraRequestControl.Type.SESSION_CONFIG] =
-                        sessionConfig.toInfoBundle(threads.sequentialExecutor)
+                        sessionConfig.toInfoBundle(threads.sequentialExecutor).also { bundle ->
+                            bundle.listeners.filterIsInstanceTo(sessionCallbackMaps)
+                        }
                 }
             }
         } ?: canceledResult
@@ -601,6 +610,7 @@ constructor(
                     }
 
                 updateCameraStateAsync {
+                    mergedListeners.filterIsInstanceTo(sessionCallbackMaps)
                     infoBundleMap[UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL] =
                         InfoBundle(
                             options = config.extractCamera2ImplConfigBuilder(),
@@ -745,7 +755,7 @@ constructor(
             threads.confineDeferredListSuspend(captureSequence.size) {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#issueSingleCaptureAsync" }
 
-                if (closed) {
+                if (closed || useCaseCameraContext.isGraphClosed) {
                     return@confineDeferredListSuspend failedResults(
                         captureSequence.size,
                         "Capture request is cancelled on closed CameraGraph",
@@ -803,8 +813,16 @@ constructor(
     override suspend fun awaitSurfaceSetup(): Boolean = useCaseSurfaceManager.awaitSetupCompletion()
 
     override fun close() {
-        closed = true
         Camera2Logger.debug { "UseCaseCameraRequestControl: closed" }
+        // A closed CameraGraph may still be retained by CameraPipe (e.g. via its last repeating
+        // Request), so release all per-session callback maps created for this control to avoid
+        // pinning UseCase- or Camera2Interop-owned capture callbacks.
+        synchronized(infoBundleMap) {
+            closed = true
+            sessionCallbackMaps.forEach { it.clear() }
+            sessionCallbackMaps.clear()
+            infoBundleMap.clear()
+        }
         useCaseCameraState.close()
     }
 
@@ -871,6 +889,9 @@ constructor(
             val stageResult: Pair<Deferred<Unit>, Boolean>
             var templateToSync: Int? = null
             synchronized(infoBundleMap) {
+                if (closed) {
+                    return canceledResult
+                }
                 updateBlock()
                 val mergedBundle = infoBundleMap.merge()
                 parameters = mergedBundle.options.build().toParameters()

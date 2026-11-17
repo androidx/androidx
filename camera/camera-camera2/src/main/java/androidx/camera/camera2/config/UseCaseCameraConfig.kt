@@ -196,13 +196,21 @@ public data class UseCaseCameraConfig(
 }
 
 public class UseCaseCameraContext(
-    private val cameraGraphProvider: Provider<CameraGraph>,
+    cameraGraphProvider: Provider<CameraGraph>,
     private val cameraStateAdapter: CameraStateAdapter,
     private val graphStateToCameraStateAdapter: GraphStateToCameraStateAdapter,
-    private val streamConfigMapProvider: Provider<Map<CameraStream.Config, DeferrableSurface>>,
+    streamConfigMapProvider: Provider<Map<CameraStream.Config, DeferrableSurface>>,
     defaultSurfaceToStreamMap: Map<DeferrableSurface, StreamId>? = null,
 ) {
-    private val _graph = lazy { cameraGraphProvider.get() }
+    // Nulled out once _graph initializes or in closeGraph() so a closed context does not retain
+    // UseCaseCameraConfig (or its DeferrableSurfaces and UseCases) via the provider lambda.
+    @Volatile private var _cameraGraphProvider: Provider<CameraGraph>? = cameraGraphProvider
+
+    private val _graph = lazy {
+        checkNotNull(_cameraGraphProvider) { "UseCaseCameraContext is closed" }
+            .also { _cameraGraphProvider = null }
+            .get()
+    }
 
     @Volatile
     public var isGraphClosed: Boolean = false
@@ -210,9 +218,14 @@ public class UseCaseCameraContext(
 
     public val graph: CameraGraph by _graph
 
-    public val surfaceToStreamMap: Map<DeferrableSurface, StreamId> by lazy {
+    // Nulled out in closeGraph() so a closed context releases both the cached map and
+    // streamConfigMapProvider (which captures UseCaseCameraConfig and its DeferrableSurfaces).
+    @Volatile
+    private var lazySurfaceToStreamMap: Lazy<Map<DeferrableSurface, StreamId>>? = lazy {
         defaultSurfaceToStreamMap
-            ?: run {
+            ?: if (isGraphClosed) {
+                emptyMap()
+            } else {
                 val map = mutableMapOf<DeferrableSurface, StreamId>()
                 streamConfigMapProvider.get().forEach { (streamConfig, deferrableSurface) ->
                     graph.streams[streamConfig]?.let { map[deferrableSurface] = it.id }
@@ -221,12 +234,17 @@ public class UseCaseCameraContext(
             }
     }
 
+    public val surfaceToStreamMap: Map<DeferrableSurface, StreamId>
+        get() = lazySurfaceToStreamMap?.value ?: emptyMap()
+
     public fun onClose() {
         isGraphClosed = true
     }
 
     public fun closeGraph() {
         isGraphClosed = true
+        lazySurfaceToStreamMap = null
+        _cameraGraphProvider = null
         if (_graph.isInitialized()) {
             val initializedGraph = graph
             initializedGraph.close()

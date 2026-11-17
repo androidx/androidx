@@ -72,6 +72,14 @@ public class CameraCallbackMap @Inject constructor() : Request.Listener {
         }
     }
 
+    /** Removes all registered [CameraCaptureCallback]s so this map no longer retains them. */
+    public fun clear() {
+        synchronized(callbackMap) {
+            callbackMap.clear()
+            callbacks = emptyMap()
+        }
+    }
+
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: CameraFrameNumber,
