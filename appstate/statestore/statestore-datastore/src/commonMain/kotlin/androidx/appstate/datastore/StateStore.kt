@@ -77,8 +77,9 @@ private fun <T> StateStore.SyncKey(
     dataStore: DataStore<StateStorePreferences>,
 ) {
     val restored = remember { mutableStateOf(false) }
-    // The last value read from or written to DataStore, so restoring does not write it back.
-    val lastSynced = remember { mutableStateOf<T?>(null) }
+    // The last value read from or written to DataStore, so restoring does not write it back. A key
+    // with nothing persisted holds its default value, so the default is not written either.
+    val lastSynced = remember { mutableStateOf<T?>(key.defaultValue) }
     val value = getState(key).value
 
     // Keyed on Unit because we only want to restore the persisted value once, when this key
