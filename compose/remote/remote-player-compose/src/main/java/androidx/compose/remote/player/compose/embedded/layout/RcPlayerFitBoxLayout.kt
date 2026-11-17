@@ -39,6 +39,7 @@ import androidx.compose.remote.player.compose.embedded.components.RcPlayerCompon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -221,12 +222,15 @@ private enum class FitBoxSlot {
 
 private fun mapFitBoxAlignment(horizontal: Int, vertical: Int): Alignment {
     return when {
-        horizontal == FitBoxLayout.START && vertical == FitBoxLayout.TOP -> Alignment.TopStart
-        horizontal == FitBoxLayout.START && vertical == FitBoxLayout.BOTTOM -> Alignment.BottomStart
-        horizontal == FitBoxLayout.START -> Alignment.CenterStart
-        horizontal == FitBoxLayout.END && vertical == FitBoxLayout.TOP -> Alignment.TopEnd
-        horizontal == FitBoxLayout.END && vertical == FitBoxLayout.BOTTOM -> Alignment.BottomEnd
-        horizontal == FitBoxLayout.END -> Alignment.CenterEnd
+        horizontal == FitBoxLayout.START && vertical == FitBoxLayout.TOP ->
+            AbsoluteAlignment.TopLeft
+        horizontal == FitBoxLayout.START && vertical == FitBoxLayout.BOTTOM ->
+            AbsoluteAlignment.BottomLeft
+        horizontal == FitBoxLayout.START -> AbsoluteAlignment.CenterLeft
+        horizontal == FitBoxLayout.END && vertical == FitBoxLayout.TOP -> AbsoluteAlignment.TopRight
+        horizontal == FitBoxLayout.END && vertical == FitBoxLayout.BOTTOM ->
+            AbsoluteAlignment.BottomRight
+        horizontal == FitBoxLayout.END -> AbsoluteAlignment.CenterRight
         vertical == FitBoxLayout.TOP -> Alignment.TopCenter
         vertical == FitBoxLayout.BOTTOM -> Alignment.BottomCenter
         else -> Alignment.Center

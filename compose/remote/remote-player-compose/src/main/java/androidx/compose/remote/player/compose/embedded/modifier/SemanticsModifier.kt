@@ -25,8 +25,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 
@@ -35,8 +37,19 @@ internal fun Modifier.semantics(op: CoreSemantics): Modifier {
     val contentDescription =
         op.mContentDescriptionId.takeIf { it != 0 }?.let { rememberRemoteStringAsState(it).value }
     val text = op.mTextId.takeIf { it != 0 }?.let { rememberRemoteStringAsState(it).value }
+    val stateDescription =
+        op.mStateDescriptionId.takeIf { it != 0 }?.let { rememberRemoteStringAsState(it).value }
 
-    if (contentDescription == null && text == null && op.mRole == null) return this
+    if (
+        contentDescription == null &&
+            text == null &&
+            stateDescription == null &&
+            op.mRole == null &&
+            op.mEnabled &&
+            op.mMode == AccessibleComponent.Mode.SET
+    ) {
+        return this
+    }
 
     val properties: SemanticsPropertyReceiver.() -> Unit = {
         if (contentDescription != null) {
@@ -45,6 +58,14 @@ internal fun Modifier.semantics(op: CoreSemantics): Modifier {
 
         if (text != null) {
             this.text = AnnotatedString(text)
+        }
+
+        if (stateDescription != null) {
+            this.stateDescription = stateDescription
+        }
+
+        if (!op.mEnabled) {
+            this.disabled()
         }
 
         op.mRole?.let { this.role = it.toComposeRole() }

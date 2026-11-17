@@ -45,6 +45,7 @@ import androidx.compose.remote.player.compose.embedded.inspectable.RcVariableIns
 import androidx.compose.remote.player.compose.embedded.resources.RemoteImageSupport
 import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.MutableState
@@ -86,10 +87,12 @@ public class RcPlayerState(
     public val document: CoreDocument,
     /** The default prefix applied to variable names (e.g. `"USER"`, or `null` for none). */
     public val defaultPrefix: String? = "USER",
+    /** Optional [BitmapLoader] for loading `NamedVariable.IMAGE_TYPE` bitmaps. */
+    bitmapLoader: BitmapLoader? = null,
 ) : InspectableValue {
     internal val preprocessed: DocumentPreprocessResult = preprocessDocument(document)
     internal val remoteContext: AndroidRemoteContext =
-        initializePlayerRemoteContext(document, preprocessed)
+        initializePlayerRemoteContext(document, preprocessed, bitmapLoader)
 
     /**
      * Whether the document reads a continuous time variable: found by preprocessing, or registered
@@ -521,11 +524,13 @@ public class RcPlayerState(
  * @param capturedDocument The [RemoteCapturedDocument] to bind.
  * @param defaultPrefix The default variable name prefix (default is `"USER"`). Pass `null` for no
  *   prefix.
+ * @param bitmapLoader Optional [BitmapLoader] for loading `NamedVariable.IMAGE_TYPE` bitmaps.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RcPlayerState(
     capturedDocument: RemoteCapturedDocument,
     defaultPrefix: String? = "USER",
+    bitmapLoader: BitmapLoader? = null,
 ): RcPlayerState {
     RemoteImageSupport.enableEncodedImageReferences()
     val coreDoc =
@@ -534,25 +539,46 @@ public fun RcPlayerState(
                 initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
             }
         }
-    return RcPlayerState(coreDoc, defaultPrefix)
+    return RcPlayerState(coreDoc, defaultPrefix, bitmapLoader)
 }
 
-/** Creates and remembers an [RcPlayerState] for the given [document]. */
+/**
+ * Creates and remembers an [RcPlayerState] for the given [document].
+ *
+ * @param document The [CoreDocument] to bind.
+ * @param defaultPrefix The default variable name prefix (default is `"USER"`). Pass `null` for no
+ *   prefix.
+ * @param bitmapLoader Optional [BitmapLoader] for loading `NamedVariable.IMAGE_TYPE` bitmaps.
+ */
 @Composable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun rememberRcPlayerState(
     document: CoreDocument,
     defaultPrefix: String? = "USER",
-): RcPlayerState = remember(document, defaultPrefix) { RcPlayerState(document, defaultPrefix) }
+    bitmapLoader: BitmapLoader? = null,
+): RcPlayerState =
+    remember(document, defaultPrefix) { RcPlayerState(document, defaultPrefix, bitmapLoader) }
+        .apply { bitmapLoader?.let(remoteContext::setBitmapLoader) }
 
-/** Creates and remembers an [RcPlayerState] for the given [capturedDocument]. */
+/**
+ * Creates and remembers an [RcPlayerState] for the given [capturedDocument].
+ *
+ * @param capturedDocument The [RemoteCapturedDocument] to bind.
+ * @param defaultPrefix The default variable name prefix (default is `"USER"`). Pass `null` for no
+ *   prefix.
+ * @param bitmapLoader Optional [BitmapLoader] for loading `NamedVariable.IMAGE_TYPE` bitmaps.
+ */
 @Composable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun rememberRcPlayerState(
     capturedDocument: RemoteCapturedDocument,
     defaultPrefix: String? = "USER",
+    bitmapLoader: BitmapLoader? = null,
 ): RcPlayerState =
-    remember(capturedDocument, defaultPrefix) { RcPlayerState(capturedDocument, defaultPrefix) }
+    remember(capturedDocument, defaultPrefix) {
+            RcPlayerState(capturedDocument, defaultPrefix, bitmapLoader)
+        }
+        .apply { bitmapLoader?.let(remoteContext::setBitmapLoader) }
 
 private class DelegatedMutableState<T>(
     private val name: String,

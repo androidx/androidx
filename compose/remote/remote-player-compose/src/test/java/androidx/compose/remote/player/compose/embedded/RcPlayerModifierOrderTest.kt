@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.WireBuffer
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation
+import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
 import androidx.compose.remote.core.semantics.CoreSemantics
@@ -102,8 +104,51 @@ class RcPlayerModifierOrderTest {
         assertThat(elements).containsExactly("Padding", "Clip", "DrawWithContent").inOrder()
     }
 
+    @Test
+    fun testGraphicsLayerHoistedBeforeBackgroundWithoutDrawOps() {
+        val elements =
+            renderAndCollectBoxModifierTypes(
+                { PaddingModifierOperation.apply(it, 10f, 10f, 10f, 10f) },
+                { BackgroundModifierOperation.apply(it, 0, 0, 0, 0, 0f, 0f, 1f, 1f, 0) },
+                {
+                    GraphicsLayerModifierOperation.apply(
+                        it,
+                        hashMapOf(GraphicsLayerModifierOperation.ROTATION_Z to 45f),
+                    )
+                },
+                includeCanvasOps = false,
+                distinguishGraphicsLayer = true,
+            )
+
+        assertThat(elements).containsExactly("Padding", "GraphicsLayer", "Background").inOrder()
+    }
+
+    @Test
+    fun testGraphicsLayerNotHoistedWhenDrawOpsPresent() {
+        val elements =
+            renderAndCollectBoxModifierTypes(
+                { PaddingModifierOperation.apply(it, 10f, 10f, 10f, 10f) },
+                { BackgroundModifierOperation.apply(it, 0, 0, 0, 0, 0f, 0f, 1f, 1f, 0) },
+                {
+                    GraphicsLayerModifierOperation.apply(
+                        it,
+                        hashMapOf(GraphicsLayerModifierOperation.ROTATION_Z to 45f),
+                    )
+                },
+                { DrawContentOperation.apply(it) },
+                includeCanvasOps = true,
+                distinguishGraphicsLayer = true,
+            )
+
+        assertThat(elements)
+            .containsExactly("Padding", "Background", "GraphicsLayer", "DrawWithContent")
+            .inOrder()
+    }
+
     private fun renderAndCollectBoxModifierTypes(
-        vararg modifiers: (WireBuffer) -> Unit
+        vararg modifiers: (WireBuffer) -> Unit,
+        includeCanvasOps: Boolean = true,
+        distinguishGraphicsLayer: Boolean = false,
     ): List<String> {
         val document = buildDocument {
             val descId = addText("target")
@@ -114,9 +159,11 @@ class RcPlayerModifierOrderTest {
                             .apply { mContentDescriptionId = descId }
                             .write(w.buffer.buffer)
                         modifiers.forEach { writeOp -> writeOp(w.buffer.buffer) }
-                        w.startCanvasOperations()
-                        w.drawRect(0f, 0f, 50f, 50f)
-                        w.endCanvasOperations()
+                        if (includeCanvasOps) {
+                            w.startCanvasOperations()
+                            w.drawRect(0f, 0f, 50f, 50f)
+                            w.endCanvasOperations()
+                        }
                     },
                     BoxLayout.START,
                     BoxLayout.TOP,
@@ -134,7 +181,10 @@ class RcPlayerModifierOrderTest {
             when {
                 className.contains("DrawWithContent") -> "DrawWithContent"
                 className.contains("Padding") -> "Padding"
-                className.contains("GraphicsLayer") || className.contains("Clip") -> "Clip"
+                className.contains("GraphicsLayer") ->
+                    if (distinguishGraphicsLayer) "GraphicsLayer" else "Clip"
+                className.contains("Background") -> "Background"
+                className.contains("Clip") -> "Clip"
                 else -> null
             }
         }

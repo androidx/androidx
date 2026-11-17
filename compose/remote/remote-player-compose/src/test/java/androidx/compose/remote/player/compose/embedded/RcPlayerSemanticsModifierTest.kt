@@ -26,9 +26,11 @@ import androidx.compose.remote.creation.compose.modifier.RemoteRole
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clearAndSetSemantics
 import androidx.compose.remote.creation.compose.modifier.contentDescription
+import androidx.compose.remote.creation.compose.modifier.isEnabled
 import androidx.compose.remote.creation.compose.modifier.role
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.stateDescription
 import androidx.compose.remote.creation.compose.modifier.text
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -38,6 +40,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -129,5 +132,73 @@ class RcPlayerSemanticsModifierTest {
         // MERGE folds the descendants' semantics into the parent node: the merged node carries
         // both the container description and the child text.
         rule.onNodeWithContentDescription("outer").assertTextEquals("inner label")
+    }
+
+    @Test
+    fun semanticsStateDescriptionSurfacesToTheAccessibilityTree() {
+        rule.setRemoteContent {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.semantics {
+                            contentDescription = "toggle".rs
+                            stateDescription = "On".rs
+                        }
+                        .size(40.rdp)
+            )
+        }
+
+        rule
+            .onNodeWithContentDescription("toggle")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "On"))
+    }
+
+    @Test
+    fun semanticsDisabledSurfacesToTheAccessibilityTree() {
+        rule.setRemoteContent {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.semantics {
+                            contentDescription = "disabled box".rs
+                            isEnabled = false
+                        }
+                        .size(40.rdp)
+            )
+        }
+
+        rule.onNodeWithContentDescription("disabled box").assertIsNotEnabled()
+    }
+
+    @Test
+    fun emptyClearAndSetSemanticsClearsDescendants() {
+        rule.setRemoteContent {
+            RemoteColumn(modifier = RemoteModifier.clearAndSetSemantics {}.size(100.rdp)) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "inner".rs }.size(40.rdp)
+                )
+            }
+        }
+
+        rule.onNodeWithContentDescription("inner").assertDoesNotExist()
+    }
+
+    @Test
+    fun emptyMergedSemanticsStillMergesDescendants() {
+        rule.setRemoteContent {
+            RemoteColumn(
+                modifier = RemoteModifier.semantics(mergeDescendants = true) {}.size(100.rdp)
+            ) {
+                RemoteText(text = "merged child".rs)
+            }
+        }
+
+        rule
+            .onNode(
+                SemanticsMatcher("isMergingDescendants") {
+                        it.config.isMergingSemanticsOfDescendants
+                    }
+                    .and(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+            )
+            .assertTextEquals("merged child")
     }
 }

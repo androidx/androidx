@@ -51,6 +51,7 @@ import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
@@ -181,6 +182,7 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
                 fontStyle = fontStyle,
                 fontFeatureSettings = fontFeatureSettings,
                 textAlign = textAlign,
+                textDirection = TextDirection.ContentOrLtr,
                 lineBreak = lineBreak,
                 hyphens = hyphens,
                 letterSpacing = letterSpacing.em,
@@ -285,6 +287,7 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
                 fontStyle = fontStyle,
                 fontFeatureSettings = fontFeatureSettings,
                 textAlign = resolveTextAlign(layout.textAlignValue, 0),
+                textDirection = TextDirection.ContentOrLtr,
             ),
         overflow = overflow,
         maxLines = resolveEffectiveMaxLines(layout.maxLines, layout.overflow),
@@ -354,11 +357,12 @@ internal fun resolveTextAlign(textAlignValue: Int, justificationMode: Int = 0): 
             CoreText.TEXT_ALIGN_RIGHT -> TextAlign.Right
             CoreText.TEXT_ALIGN_CENTER -> TextAlign.Center
             // The View player ignores TEXT_ALIGN_JUSTIFY in textAlign unless justificationMode
-            // is explicitly set; map to Start to match View playback.
-            CoreText.TEXT_ALIGN_JUSTIFY -> TextAlign.Start
-            CoreText.TEXT_ALIGN_START -> TextAlign.Start
-            CoreText.TEXT_ALIGN_END -> TextAlign.End
-            else -> TextAlign.Start
+            // is explicitly set, and resolves START/END physically (left/right) since layout
+            // direction is already resolved at document creation time.
+            CoreText.TEXT_ALIGN_JUSTIFY -> TextAlign.Left
+            CoreText.TEXT_ALIGN_START -> TextAlign.Left
+            CoreText.TEXT_ALIGN_END -> TextAlign.Right
+            else -> TextAlign.Left
         }
     }
 
