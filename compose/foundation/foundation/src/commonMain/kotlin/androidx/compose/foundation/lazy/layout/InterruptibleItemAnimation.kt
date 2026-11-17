@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.compose.animation.ChangeSizeConfig
 import androidx.compose.animation.FadeConfig
 import androidx.compose.animation.ScaleConfig
 import androidx.compose.animation.SlideConfig
@@ -24,8 +25,13 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -49,7 +55,7 @@ internal abstract class InterruptibleItemAnimation<T, V : AnimationVector>(
         Finished,
     }
 
-    private var appliedValue: T = animatable.value
+    private var appliedValue: T = Snapshot.withoutReadObservation { animatable.value }
 
     private fun applyValue(value: T) {
         appliedValue = value
@@ -73,6 +79,12 @@ internal abstract class InterruptibleItemAnimation<T, V : AnimationVector>(
             return
         }
         animatable.animateTo(targetValue, animationSpec) { applyValue(value) }
+    }
+
+    protected suspend fun retargetEnter(targetValue: T, animationSpec: AnimationSpec<T>) {
+        if (state != State.Entering || animatable.targetValue == targetValue) return
+        animatable.animateTo(targetValue, animationSpec) { applyValue(value) }
+        state = State.Idle
     }
 
     protected suspend fun animateEnter(
@@ -125,7 +137,7 @@ internal abstract class InterruptibleItemAnimation<T, V : AnimationVector>(
     }
 
     val value: T?
-        get() = if (state == State.New) null else appliedValue
+        get() = if (state == State.New || state == State.Idle) null else appliedValue
 }
 
 internal class EnterExitFadeAnimation(onAlphaChange: () -> Unit) :
@@ -204,3 +216,49 @@ internal class EnterExitScaleAnimation(onScaleChange: () -> Unit) :
         )
     }
 }
+
+internal class EnterExitSizeAnimation(onSizeChange: () -> Unit) :
+    InterruptibleItemAnimation<IntSize, AnimationVector2D>(
+        animatable = Animatable(IntSize.Zero, IntSize.VectorConverter),
+        onValueChange = onSizeChange,
+    ) {
+    var alignment: Alignment? = null
+        private set
+
+    private var clip = false
+
+    val shouldClip: Boolean
+        get() = clip && value != null
+
+    suspend fun animateExpandIn(
+        expandConfig: ChangeSizeConfig?,
+        itemSize: IntSize,
+        isReentering: Boolean,
+    ) {
+        if (isReentering && value == null) return
+        animateEnter(
+            initialValue = expandConfig?.size?.invoke(itemSize),
+            targetValue = itemSize,
+            animationSpec = expandConfig?.animationSpec,
+            onStart = { wasAnimating ->
+                if (expandConfig != null) {
+                    if (wasAnimating) {
+                        clip = clip && expandConfig.clip
+                    } else {
+                        alignment = expandConfig.alignment
+                        clip = expandConfig.clip
+                    }
+                }
+            },
+        )
+    }
+
+    suspend fun retargetExpandIn(expandConfig: ChangeSizeConfig?, itemSize: IntSize) =
+        retargetEnter(
+            targetValue = itemSize,
+            animationSpec = expandConfig?.animationSpec as? SpringSpec<IntSize> ?: SizeRetargetSpec,
+        )
+}
+
+private val SizeRetargetSpec: AnimationSpec<IntSize> =
+    spring(visibilityThreshold = IntSize.VisibilityThreshold)

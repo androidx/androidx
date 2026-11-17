@@ -70,6 +70,9 @@ internal interface LazyLayoutMeasuredItem {
     /** The number of lanes this item's spans. */
     val span: Int
 
+    val hasAnimatedSize: Boolean
+        get() = false
+
     /**
      * The offset applied to the placeable in [placeableIndex].
      *

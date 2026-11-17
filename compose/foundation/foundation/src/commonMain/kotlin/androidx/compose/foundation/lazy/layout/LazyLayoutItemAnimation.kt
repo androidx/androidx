@@ -31,12 +31,15 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -157,7 +160,7 @@ internal sealed interface LazyLayoutItemAnimation {
     /** Animate the placement by the given [delta] offset. */
     fun animatePlacementDelta(delta: IntOffset, isMovingAway: Boolean)
 
-    fun animateEnterTransition()
+    fun animateEnterTransition(expands: Boolean)
 
     fun animateExitTransition()
 
@@ -188,6 +191,34 @@ internal class StateBasedLazyLayoutItemAnimation(
     override var reverseLayout: Boolean = false
     override var isVertical: Boolean = true
     var itemSize: IntSize = IntSize.Zero
+        set(value) {
+            if (field != value) {
+                field = value
+                enterTransitionScope?.launchUndispatched {
+                    sizeAnimation.retargetExpandIn(enterTransition?.config?.changeSize, value)
+                }
+            }
+        }
+
+    private var enterTransitionScope: CoroutineScope? = null
+
+    private val scopeInvalidator = ObservableScopeInvalidator()
+
+    var animatedSize: IntSize = UnspecifiedSize
+        get() {
+            scopeInvalidator.attachToScope()
+            return field
+        }
+        private set(value) {
+            if (field != value) {
+                field = value
+                scopeInvalidator.invalidateScope()
+            }
+        }
+
+    fun observeAnimatedSize() {
+        scopeInvalidator.attachToScope()
+    }
 
     private var transitionState by mutableStateOf(TransitionState.New)
 
@@ -198,6 +229,28 @@ internal class StateBasedLazyLayoutItemAnimation(
     private val slideAnimation = EnterExitSlideAnimation(::updateLayerProperties)
 
     private val scaleAnimation = EnterExitScaleAnimation(::updateLayerProperties)
+
+    private val sizeAnimation = EnterExitSizeAnimation(::updateLayerProperties)
+
+    private var placedSize = UnspecifiedSize
+
+    private var placedContentOffset = IntOffset.Zero
+
+    val isClippedToBounds: Boolean
+        get() = sizeAnimation.shouldClip
+
+    fun onPlaced(size: IntSize, contentOffset: IntOffset) {
+        if (placedSize != size || placedContentOffset != contentOffset) {
+            placedSize = size
+            placedContentOffset = contentOffset
+            updateLayerProperties()
+        }
+    }
+
+    fun contentOffsetIn(size: IntSize): IntOffset {
+        val alignment = sizeAnimation.alignment ?: return IntOffset.Zero
+        return alignment.align(itemSize, size, LayoutDirection.Ltr)
+    }
 
     override var isRunningMovingAwayAnimation = false
         private set
@@ -280,19 +333,34 @@ internal class StateBasedLazyLayoutItemAnimation(
         }
     }
 
-    override fun animateEnterTransition() {
-        if (layer == null || transitionState == TransitionState.Entering) return
+    override fun animateEnterTransition(expands: Boolean) = Snapshot.withoutReadObservation {
+        if (layer == null || transitionState == TransitionState.Entering) {
+            return@withoutReadObservation
+        }
         val config = enterTransition?.config
         val size = containerSize
+        val isReentering =
+            transitionState == TransitionState.Exiting ||
+                transitionState == TransitionState.Finished
         runTransition(TransitionState.Entering, TransitionState.Placed) {
+            enterTransitionScope = this
             launchUndispatched { fadeAnimation.animateFadeIn(config?.fade) }
             launchUndispatched { slideAnimation.animateSlideIn(config?.slide, size) }
             launchUndispatched { scaleAnimation.animateScaleIn(config?.scale) }
+            launchUndispatched {
+                sizeAnimation.animateExpandIn(
+                    config?.changeSize?.takeIf { expands },
+                    itemSize,
+                    isReentering,
+                )
+            }
         }
     }
 
-    override fun animateExitTransition() {
-        if (layer == null || transitionState == TransitionState.Exiting) return
+    override fun animateExitTransition() = Snapshot.withoutReadObservation {
+        if (layer == null || transitionState == TransitionState.Exiting) {
+            return@withoutReadObservation
+        }
         val config = exitTransition?.config
         val size = containerSize
         runTransition(TransitionState.Exiting, TransitionState.Finished) {
@@ -310,10 +378,12 @@ internal class StateBasedLazyLayoutItemAnimation(
         crossinline animations: CoroutineScope.() -> Unit,
     ) {
         transitionJob?.cancel()
+        enterTransitionScope = null
         transitionState = startState
         updateLayerProperties()
         transitionJob = coroutineScope.launchUndispatched {
             coroutineScope { animations() }
+            enterTransitionScope = null
             transitionState = endState
             updateLayerProperties()
         }
@@ -330,10 +400,12 @@ internal class StateBasedLazyLayoutItemAnimation(
         val job = transitionJob
         transitionJob = null
         job?.cancel()
+        enterTransitionScope = null
         transitionState = TransitionState.New
         fadeAnimation.release()
         slideAnimation.release()
         scaleAnimation.release()
+        sizeAnimation.release()
         isRunningMovingAwayAnimation = false
         placementDelta = IntOffset.Zero
         targetOffset = NotInitialized
@@ -343,9 +415,14 @@ internal class StateBasedLazyLayoutItemAnimation(
         exitTransition = null
         placementSpec = null
         itemSize = IntSize.Zero
+        animatedSize = UnspecifiedSize
+        placedSize = UnspecifiedSize
+        placedContentOffset = IntOffset.Zero
     }
 
     private fun updateLayerProperties() {
+        val boundsSize = sizeAnimation.value
+        animatedSize = boundsSize ?: UnspecifiedSize
         val layer = layer ?: return
         val offset = slideAnimation.value ?: IntOffset.Zero
         val scale = scaleAnimation.value ?: 1f
@@ -359,6 +436,25 @@ internal class StateBasedLazyLayoutItemAnimation(
         layer.scaleY = scale
         layer.pivotOffset =
             Offset(origin.pivotFractionX * size.width, origin.pivotFractionY * size.height)
+
+        if (boundsSize != null && sizeAnimation.shouldClip) {
+            val clipSize = if (placedSize == UnspecifiedSize) boundsSize else placedSize
+            val pivot = layer.pivotOffset
+            val inverseScale = if (scale > 0f) 1f / scale else 1f
+            val boundsLeft = -(offset.x + placedContentOffset.x).toFloat()
+            val boundsTop = -(offset.y + placedContentOffset.y).toFloat()
+            val left = pivot.x + (boundsLeft - pivot.x) * inverseScale
+            val top = pivot.y + (boundsTop - pivot.y) * inverseScale
+            val right = pivot.x + (boundsLeft + clipSize.width - pivot.x) * inverseScale
+            val bottom = pivot.y + (boundsTop + clipSize.height - pivot.y) * inverseScale
+            layer.setRectOutline(
+                topLeft = Offset(minOf(left, right), minOf(top, bottom)),
+                size = Size(abs(right - left), abs(bottom - top)),
+            )
+            layer.clip = true
+        } else {
+            layer.clip = false
+        }
 
         onLayerPropertyChanged()
     }
@@ -466,7 +562,7 @@ internal class BooleanBasedLazyLayoutItemAnimation(
         }
     }
 
-    override fun animateEnterTransition() {
+    override fun animateEnterTransition(expands: Boolean) {
         layer?.let { layer -> animateFadeIn(layer) }
     }
 
@@ -556,6 +652,8 @@ private val InterruptionSpec =
         stiffness = Spring.StiffnessMediumLow,
         visibilityThreshold = IntOffset.VisibilityThreshold,
     )
+
+internal val UnspecifiedSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
 
 internal fun IntOffset.mirroredForRtl(layoutWidth: Int, itemWidth: Int): IntOffset =
     IntOffset(layoutWidth - x - itemWidth, y)

@@ -235,14 +235,32 @@ internal fun measureLazyList(
             val measuredItem = measuredItemProvider.getAndMeasure(index)
             currentMainAxisOffset += measuredItem.mainAxisSizeWithSpacings
 
-            if (currentMainAxisOffset <= minOffset && index != itemsCount - 1) {
-                // this item is offscreen and will not be visible. advance firstVisibleItemIndex
-                currentFirstItemIndex = index + 1
-                currentFirstItemScrollOffset -= measuredItem.mainAxisSizeWithSpacings
-                remeasureNeeded = true
-            } else {
-                maxCrossAxis = maxOf(maxCrossAxis, measuredItem.crossAxisSize)
-                visibleItems.add(measuredItem)
+            val endsBeforeViewportStart = currentMainAxisOffset < minOffset
+            val endsAtViewportStart = currentMainAxisOffset == minOffset
+            val isExpandingFromNoSize =
+                measuredItem.hasAnimatedSize && measuredItem.mainAxisSizeWithSpacings == 0
+            val isOffscreen =
+                endsBeforeViewportStart || (endsAtViewportStart && !isExpandingFromNoSize)
+
+            val isLastItem = index == itemsCount - 1
+
+            when {
+                endsAtViewportStart && isExpandingFromNoSize -> {
+                    // An item with an expand in animation from zero must be
+                    // positioned for the expansion to start, If it is at the
+                    // border, we must include the item.
+                    maxCrossAxis = maxOf(maxCrossAxis, measuredItem.crossAxisSize)
+                    visibleItems.add(measuredItem)
+                }
+                isOffscreen && !isLastItem -> {
+                    currentFirstItemIndex = index + 1
+                    currentFirstItemScrollOffset -= measuredItem.mainAxisSizeWithSpacings
+                    remeasureNeeded = true
+                }
+                else -> {
+                    maxCrossAxis = maxOf(maxCrossAxis, measuredItem.crossAxisSize)
+                    visibleItems.add(measuredItem)
+                }
             }
 
             index++

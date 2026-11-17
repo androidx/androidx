@@ -352,6 +352,19 @@ private fun rememberLazyListMeasurePolicy(
                     )
                 }
 
+            val firstVisibleItemIndex: Int
+            val firstVisibleScrollOffset: Int
+            val isScrolledToEnd: Boolean
+            Snapshot.withoutReadObservation {
+                firstVisibleItemIndex =
+                    state.updateScrollPositionIfTheFirstItemWasMoved(
+                        itemProvider,
+                        state.firstVisibleItemIndex,
+                    )
+                firstVisibleScrollOffset = state.firstVisibleItemScrollOffset
+                isScrolledToEnd = state.canScrollBackward && !state.canScrollForward
+            }
+
             val measuredItemProvider =
                 object :
                     LazyListMeasuredItemProvider(
@@ -387,20 +400,14 @@ private fun rememberLazyListMeasurePolicy(
                             contentType = contentType,
                             animator = state.itemAnimator,
                             constraints = constraints,
+                            canExpandWhenAppearing =
+                                !state.skipItemPlacementAnimation &&
+                                    !isScrolledToEnd &&
+                                    (index != firstVisibleItemIndex ||
+                                        firstVisibleScrollOffset == 0),
                         )
                     }
                 }
-
-            val firstVisibleItemIndex: Int
-            val firstVisibleScrollOffset: Int
-            Snapshot.withoutReadObservation {
-                firstVisibleItemIndex =
-                    state.updateScrollPositionIfTheFirstItemWasMoved(
-                        itemProvider,
-                        state.firstVisibleItemIndex,
-                    )
-                firstVisibleScrollOffset = state.firstVisibleItemScrollOffset
-            }
 
             val pinnedItems =
                 itemProvider.calculateLazyLayoutPinnedIndices(
