@@ -583,7 +583,7 @@ internal class SlotTableEditor(val table: SlotTable) {
         val start = slotAddress + slotSize - tailSlots
         val end = start + tailSlots
         slots.forEachSlotInRangeIndexed(start, end) { slotIndex, slotValue ->
-            if (slotValue is RememberObserverHolder) {
+            if (firstTailGroupToVisit >= 0 && slotValue is RememberObserverHolder) {
                 val requiredLastChild = slotValue.asLinkRememberObserverHolder().after.address
                 while (lastVisitedChild != requiredLastChild) {
                     val nextGroup =
