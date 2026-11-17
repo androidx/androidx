@@ -17,11 +17,12 @@
 package androidx.compose.ui.text.googlefonts
 
 import android.annotation.SuppressLint
-import android.content.pm.PackageInfo
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.content.res.Resources
 import androidx.annotation.WorkerThread
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.content.res.FontResourcesParserCompat
 import java.util.Arrays
 
@@ -30,6 +31,7 @@ import java.util.Arrays
 internal fun GoogleFont.Provider.checkAvailable(
     packageManager: PackageManager,
     resources: Resources,
+    getSignatures: (PackageManager, String) -> List<Signature> = PackageInfoCompat::getSignatures,
 ): Boolean {
     // check package is available (false return paths)
     @Suppress("DEPRECATION")
@@ -37,28 +39,62 @@ internal fun GoogleFont.Provider.checkAvailable(
     if (providerInfo.packageName != providerPackage) return false
 
     // now check signatures (true or except after this)
-    val signatures = packageManager.getSignatures(providerInfo.packageName)
+    val signatures =
+        try {
+            getSignatures(packageManager, providerInfo.packageName).map { it.toByteArray() }
+        } catch (_: PackageManager.NameNotFoundException) {
+            return false
+        }
+    if (signatures.isEmpty()) {
+        throwFormattedCertsMissError(signatures)
+    }
     val sortedSignatures = signatures.sortedWith(ByteArrayComparator)
-    val allExpectedCerts = loadCertsIfNeeded(resources)
-    val certsMatched = allExpectedCerts.any { certList ->
-        val expected = certList?.sortedWith(ByteArrayComparator)
-        if (expected?.size != sortedSignatures.size) return@any false
+
+    if (matchesAnyCertSet(sortedSignatures, loadCertsIfNeeded(resources))) {
+        return true
+    }
+
+    if (systemCertificatesRes != 0) {
+        val appInfo = providerInfo.applicationInfo
+        val isSystemApp =
+            appInfo != null &&
+                (appInfo.flags and
+                    (ApplicationInfo.FLAG_SYSTEM or ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0
+        if (isSystemApp) {
+            val systemCerts = FontResourcesParserCompat.readCerts(resources, systemCertificatesRes)
+            if (matchesAnyCertSet(sortedSignatures, systemCerts)) {
+                return true
+            }
+        }
+    }
+
+    throwFormattedCertsMissError(signatures)
+}
+
+@SuppressLint("ListIterator") // not a hot code path, not optimized
+private fun matchesAnyCertSet(
+    sortedSignatures: List<ByteArray>,
+    expectedCertSets: List<List<ByteArray?>?>,
+): Boolean {
+    if (sortedSignatures.isEmpty()) return false
+    return expectedCertSets.any { certList ->
+        if (certList.isNullOrEmpty() || certList.size != sortedSignatures.size) return@any false
+        val expected = certList.sortedWith(ByteArrayComparator)
         for (i in expected.indices) {
             if (!Arrays.equals(expected[i], sortedSignatures[i])) return@any false
         }
         true
-    }
-    return if (certsMatched) {
-        true
-    } else {
-        throwFormattedCertsMissError(signatures)
     }
 }
 
 @SuppressLint("ListIterator") // not a hot code path, not optimized
 private fun throwFormattedCertsMissError(signatures: List<ByteArray>): Nothing {
     val fullDescription =
-        signatures.joinToString(",", prefix = "listOf(listOf(", postfix = "))") { repr(it) }
+        if (signatures.isEmpty()) {
+            "emptyList()"
+        } else {
+            signatures.joinToString(",", prefix = "listOf(listOf(", postfix = "))") { repr(it) }
+        }
     throw IllegalStateException(
         "Provided signatures did not match. Actual signatures of package are:\n\n$fullDescription"
     )
@@ -72,16 +108,11 @@ private fun GoogleFont.Provider.loadCertsIfNeeded(resources: Resources): List<Li
     if (certificates != null) {
         return certificates
     }
+    if (certificatesRes == 0) {
+        return emptyList()
+    }
 
     return FontResourcesParserCompat.readCerts(resources, certificatesRes)
-}
-
-private fun PackageManager.getSignatures(packageName: String): List<ByteArray> {
-    @Suppress("DEPRECATION")
-    @SuppressLint("PackageManagerGetSignatures")
-    val packageInfo: PackageInfo = getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-    @Suppress("DEPRECATION")
-    return convertToByteArrayList(packageInfo.signatures!!)
 }
 
 private val ByteArrayComparator = Comparator { l: ByteArray, r: ByteArray ->
@@ -96,12 +127,4 @@ private val ByteArrayComparator = Comparator { l: ByteArray, r: ByteArray ->
         ++i
     }
     0
-}
-
-private fun convertToByteArrayList(signatures: Array<Signature>): List<ByteArray> {
-    val shaList: MutableList<ByteArray> = ArrayList()
-    for (signature in signatures) {
-        shaList.add(signature.toByteArray())
-    }
-    return shaList
 }
