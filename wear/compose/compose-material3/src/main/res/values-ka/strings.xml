@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"პერიოდი"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"დროის დასაყენებლად გადაადგილდით"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"საათები"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"წუთები"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"წამები"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">%d საათი</item>
+      <item quantity="one">%d საათი</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">%d წუთი</item>
+      <item quantity="one">%d წუთი</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">%d წამი</item>
+      <item quantity="one">%d წამი</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"გადააადგილეთ ხანგრძლივობის დასაყენებლად"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"ხანგრძლივობა უნდა იყოს %1$s-დან %2$s-მდე."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"დღე"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"თვე"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"წელი"</string>

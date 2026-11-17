@@ -40,6 +40,29 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Pika"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Pomaknite se, da nastavite uro"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"Ure"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Minute"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Sekunde"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="one">%d ura</item>
+      <item quantity="two">%d uri</item>
+      <item quantity="few">%d ure</item>
+      <item quantity="other">%d ur</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="one">%d minuta</item>
+      <item quantity="two">%d minuti</item>
+      <item quantity="few">%d minute</item>
+      <item quantity="other">%d minut</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="one">%d sekunda</item>
+      <item quantity="two">%d sekundi</item>
+      <item quantity="few">%d sekunde</item>
+      <item quantity="other">%d sekund</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Pomaknite se, da nastavite trajanje"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"Trajanje mora biti med tema vrednostma: %1$s in %2$s."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Dan"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Mesec"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Leto"</string>

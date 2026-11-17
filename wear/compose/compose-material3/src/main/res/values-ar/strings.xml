@@ -46,6 +46,35 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"فترة"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"يُرجى الانتقال للأسفل لضبط الوقت"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"ساعات"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"دقائق"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"ثوانٍ"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="zero">‏‫%d ساعة</item>
+      <item quantity="two">ساعتان</item>
+      <item quantity="few">‏‫%d ساعات</item>
+      <item quantity="many">‏‫%d ساعة</item>
+      <item quantity="other">‏‫%d ساعة</item>
+      <item quantity="one">ساعة واحدة</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="zero">‏‫%d دقيقة</item>
+      <item quantity="two">دقيقتان</item>
+      <item quantity="few">‏‫%d دقائق</item>
+      <item quantity="many">‏‫%d دقيقة</item>
+      <item quantity="other">‏‫%d دقيقة</item>
+      <item quantity="one">دقيقة واحدة</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="zero">‏‫%d ثانية</item>
+      <item quantity="two">ثانيتان</item>
+      <item quantity="few">‏‫%d ثوانٍ</item>
+      <item quantity="many">‏‫%d ثانية</item>
+      <item quantity="other">‏‫%d ثانية</item>
+      <item quantity="one">ثانية واحدة</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"يُرجى الانتقال للأسفل لضبط المدة"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"‏يجب أن تتراوح المدة بين %1$s و%2$s."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"اليوم"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"الشهر"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"السنة"</string>

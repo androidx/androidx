@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Kipindi"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Sogeza ili uweke saa"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"Saa"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Dakika"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Sekunde"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">Saa %d</item>
+      <item quantity="one">Saa %d</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">Dakika %d</item>
+      <item quantity="one">Dakika %d</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">Sekunde %d</item>
+      <item quantity="one">Sekunde %d</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Sogeza ili uweke muda"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"Ni sharti muda uwe kati ya %1$s na %2$s."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Siku"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Mwezi"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Mwaka"</string>

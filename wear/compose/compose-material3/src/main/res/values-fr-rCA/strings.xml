@@ -37,6 +37,26 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Période"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Faites défiler l\'écran pour définir l\'heure"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"Heures"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Minutes"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Secondes"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="one">%d heure</item>
+      <item quantity="many">%d d\'heures</item>
+      <item quantity="other">%d heures</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="one">%d minute</item>
+      <item quantity="many">%d de minutes</item>
+      <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="one">%d seconde</item>
+      <item quantity="many">%d de secondes</item>
+      <item quantity="other">%d secondes</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Faites défiler l\'écran pour définir la durée"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"La durée doit être comprise entre %1$s et %2$s."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Jour"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Mois"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Année"</string>

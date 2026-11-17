@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Oraliq"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Vaqtni sozlash uchun aylantiring"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"Soat"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Daqiqa"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Soniya"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">%d soat</item>
+      <item quantity="one">%d soat</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">%d daqiqa</item>
+      <item quantity="one">%d daqiqa</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">%d soniya</item>
+      <item quantity="one">%d soniya</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Davomiylikni belgilash uchun varaqlang"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"Davomiylik %1$s va %2$s orasida boʻlishi kerak."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Kun"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Oy"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Yil"</string>

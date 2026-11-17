@@ -34,6 +34,23 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Хугацаа"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Цаг тохируулахын тулд гүйлгэнэ үү"</string>
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"Цаг"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Минут"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Секунд"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="other">%d цаг</item>
+      <item quantity="one">%d цаг</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="other">%d минут</item>
+      <item quantity="one">%d минут</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="other">%d секунд</item>
+      <item quantity="one">%d секунд</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Үргэлжлэх хугацааг тохируулахын тулд гүйлгэх"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"Үргэлжлэх хугацаа %1$s-с %2$s-н хооронд байх ёстой."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Өдөр"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Сар"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Он"</string>
