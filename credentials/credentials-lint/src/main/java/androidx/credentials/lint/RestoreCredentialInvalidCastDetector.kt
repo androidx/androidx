@@ -487,7 +487,7 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         val resolved = ref.resolve()
         val owningLambda = findOwningLambda(ref, resolved)
         if (owningLambda != null) {
-            return findGetCredentialCallInLambdaReceiver(context, owningLambda) == null
+            return findGetCredentialCallsInLambdaReceiver(context, owningLambda).isEmpty()
         }
         return resolved is PsiParameter || resolved.toUElement() is UParameter
     }
@@ -521,37 +521,36 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         return null
     }
 
-    private fun findGetCredentialCallInLambdaReceiver(
+    private fun findGetCredentialCallsInLambdaReceiver(
         context: JavaContext,
         lambda: ULambdaExpression,
-    ): UCallExpression? {
-        val parentCall = lambda.getParentOfType<UCallExpression>(true) ?: return null
+    ): List<UCallExpression> {
+        val parentCall = lambda.getParentOfType<UCallExpression>(true) ?: return emptyList()
         val isLambdaArg =
             parentCall.valueArguments.any { arg ->
                 ((arg as? UNamedExpression)?.expression ?: arg).skipParenthesizedExprDown() ==
                     lambda
             }
-        if (!isLambdaArg) return null
+        if (!isLambdaArg) return emptyList()
         val receiver =
             parentCall.receiver
                 ?: (parentCall.uastParent as? UQualifiedReferenceExpression)
                     ?.takeIf { it.selector == parentCall }
                     ?.receiver
-                ?: return null
-        return findGetCredentialCallInSubtree(context, receiver)
+                ?: return emptyList()
+        return findGetCredentialCallsInSubtree(context, receiver)
     }
 
-    private fun findGetCredentialCallInSubtree(
+    private fun findGetCredentialCallsInSubtree(
         context: JavaContext,
         root: UElement?,
         maxDepth: Int = 2,
-    ): UCallExpression? {
-        if (root == null || maxDepth < 0) return null
-        var found: UCallExpression? = null
+    ): List<UCallExpression> {
+        if (root == null || maxDepth < 0) return emptyList()
+        val found = mutableListOf<UCallExpression>()
         root.accept(
             object : AbstractUastVisitor() {
                 override fun visitElement(node: UElement): Boolean {
-                    if (found != null) return true
                     if (
                         node is UCallExpression &&
                             node.methodName in RestoreCredentialConstants.GET_CREDENTIAL_METHODS
@@ -564,8 +563,7 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
                                     CLASS_CREDENTIAL_MANAGER,
                                 )
                         ) {
-                            found = node
-                            return true
+                            found.add(node)
                         }
                     }
                     if (maxDepth > 0 && node is USimpleNameReferenceExpression) {
@@ -574,15 +572,16 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
                                 ?.toUElementOfType<UVariable>()
                                 ?.uastInitializer
                         if (init != null) {
-                            found = findGetCredentialCallInSubtree(context, init, maxDepth - 1)
-                            if (found != null) return true
+                            found.addAll(
+                                findGetCredentialCallsInSubtree(context, init, maxDepth - 1)
+                            )
                         }
                     }
                     return false
                 }
             }
         )
-        return found
+        return found.distinctBy { it.sourcePsi ?: it }
     }
 
     private fun scopeExplicitlyHandlesRestoreCredential(
@@ -623,14 +622,20 @@ class RestoreCredentialInvalidCastDetector : Detector(), SourceCodeScanner {
         val responseExpr =
             extractResponseFromCredentialExpr(context, credentialExpr) ?: return Provenance.UNKNOWN
         val unwrappedResp = unwrapVariableInitializer(responseExpr)
+        val directCall = unwrappedResp.asCallExpression()
         val getCredCall =
-            unwrappedResp.asCallExpression()
-                ?: (unwrappedResp as? UReferenceExpression)?.let { ref ->
-                    findOwningLambda(ref, ref.resolve())?.let {
-                        findGetCredentialCallInLambdaReceiver(context, it)
-                    }
+            if (directCall != null) {
+                directCall
+            } else {
+                val ref = unwrappedResp as? UReferenceExpression ?: return Provenance.UNKNOWN
+                val owningLambda = findOwningLambda(ref, ref.resolve()) ?: return Provenance.UNKNOWN
+                val lambdaCalls = findGetCredentialCallsInLambdaReceiver(context, owningLambda)
+                when {
+                    lambdaCalls.isEmpty() -> return Provenance.UNKNOWN
+                    lambdaCalls.size > 1 -> return Provenance.OPAQUE_CALL
+                    else -> lambdaCalls.single()
                 }
-                ?: return Provenance.UNKNOWN
+            }
 
         val resolvedMethod = getCredCall.resolve() ?: return Provenance.UNKNOWN
         val containingClass = resolvedMethod.containingClass ?: return Provenance.UNKNOWN
