@@ -39,9 +39,11 @@ import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
@@ -627,6 +629,134 @@ class RemoteButtonGroupAnimationTest {
         advance(400)
 
         assertWidths(120f, 0f)
+    }
+
+    @Test
+    fun pressMiddleButton_expandsSymmetricallyWhenLeftNeighborIsNarrow() {
+        // 138dp - 2 * 4dp spacing = 130dp shared; weights 1 : 6 : 6 -> 10, 60, 60dp at rest.
+        // expansionWidth = 40dp (20dp per side), capped by the 10dp left neighbor -> 0, 80, 50dp.
+        setGroup(width = 138) {
+            RemoteButtonGroup(
+                modifier = RemoteModifier.width(138.rdp),
+                expansionWidth = 40.rdp,
+                contentPadding = zeroPadding,
+            ) {
+                TestButton("b0", RemoteModifier.weight(1f.rf).minWidth(10.rdp).animateWidth())
+                TestButton("b1", RemoteModifier.weight(6f.rf).minWidth(10.rdp).animateWidth())
+                TestButton("b2", RemoteModifier.weight(6f.rf).minWidth(10.rdp).animateWidth())
+            }
+        }
+        assertWidths(10f, 60f, 60f)
+
+        press("b1")
+        advance(400)
+
+        assertWidths(0f, 80f, 50f)
+    }
+
+    @Test
+    fun pressMiddleButton_expandsSymmetricallyWhenRightNeighborIsNarrow() {
+        // 138dp - 2 * 4dp spacing = 130dp shared; weights 6 : 6 : 1 -> 60, 60, 10dp at rest.
+        // expansionWidth = 40dp (20dp per side), capped by the 10dp right neighbor -> 50, 80, 0dp.
+        setGroup(width = 138) {
+            RemoteButtonGroup(
+                modifier = RemoteModifier.width(138.rdp),
+                expansionWidth = 40.rdp,
+                contentPadding = zeroPadding,
+            ) {
+                TestButton("b0", RemoteModifier.weight(6f.rf).minWidth(10.rdp).animateWidth())
+                TestButton("b1", RemoteModifier.weight(6f.rf).minWidth(10.rdp).animateWidth())
+                TestButton("b2", RemoteModifier.weight(1f.rf).minWidth(10.rdp).animateWidth())
+            }
+        }
+        assertWidths(60f, 60f, 10f)
+
+        press("b1")
+        advance(400)
+
+        assertWidths(50f, 80f, 0f)
+    }
+
+    @Test
+    fun releaseUndershoot_boundsPressedMiddleItemWidthAtZero() {
+        // Underdamped springs on both press and release make pressedProgress dip below 0 on
+        // release. Bounding shrink from below keeps every button non-negative and prevents
+        // neighbors from growing past the group's shared width (130dp).
+        val underdampedSpring = remoteSpring(stiffness = 400f, dampingRatio = 0.2f)
+        val underdampedScheme =
+            object : RemoteMotionScheme by RemoteMotionScheme.expressive() {
+                override fun fastSpatialSpec(): RemoteAnimationSpec = underdampedSpring
+
+                override fun slowSpatialSpec(): RemoteAnimationSpec = underdampedSpring
+            }
+        setGroup(width = 138) {
+            RemoteMaterialTheme(motionScheme = underdampedScheme) {
+                RemoteButtonGroup(
+                    modifier = RemoteModifier.width(138.rdp),
+                    expansionWidth = 100.rdp,
+                    contentPadding = zeroPadding,
+                ) {
+                    TestButton("b0", RemoteModifier.weight(6f.rf).minWidth(10.rdp).animateWidth())
+                    TestButton("b1", RemoteModifier.weight(1f.rf).minWidth(10.rdp).animateWidth())
+                    TestButton("b2", RemoteModifier.weight(6f.rf).minWidth(10.rdp).animateWidth())
+                }
+            }
+        }
+        assertWidths(60f, 10f, 60f)
+
+        // Middle item undershoot: b1 floors at 0dp, so b0 and b2 grow by at most 5dp each (65dp).
+        press("b1")
+        advance(1500)
+        release("b1")
+        val middleReleaseFrames = widthsOverTime(1500)
+
+        assertThat(middleReleaseFrames.minOf { it[1] }).isLessThan(1f)
+        for (frame in middleReleaseFrames) {
+            assertThat(frame[0]).isAtMost(65f + WidthTolerance.toFloat())
+            assertThat(frame[1]).isAtLeast(0f)
+            assertThat(frame[2]).isAtMost(65f + WidthTolerance.toFloat())
+            assertThat(frame.sum()).isWithin(WidthTolerance.toFloat() * 3).of(130f)
+        }
+        assertWidths(60f, 10f, 60f)
+    }
+
+    @Test
+    fun releaseUndershoot_boundsPressedEdgeItemWidthAtZero() {
+        val underdampedSpring = remoteSpring(stiffness = 400f, dampingRatio = 0.2f)
+        val underdampedScheme =
+            object : RemoteMotionScheme by RemoteMotionScheme.expressive() {
+                override fun fastSpatialSpec(): RemoteAnimationSpec = underdampedSpring
+
+                override fun slowSpatialSpec(): RemoteAnimationSpec = underdampedSpring
+            }
+        setGroup(width = 200) {
+            RemoteMaterialTheme(motionScheme = underdampedScheme) {
+                RemoteButtonGroup(
+                    modifier = RemoteModifier.width(118.rdp),
+                    expansionWidth = 100.rdp,
+                    contentPadding = zeroPadding,
+                ) {
+                    TestButton("b0", RemoteModifier.weight(1f.rf).minWidth(10.rdp).animateWidth())
+                    TestButton("b1", RemoteModifier.weight(5f.rf).minWidth(10.rdp).animateWidth())
+                    TestButton("b2", RemoteModifier.weight(5f.rf).minWidth(10.rdp).animateWidth())
+                }
+            }
+        }
+        assertWidths(10f, 50f, 50f)
+
+        // Edge item undershoot: b0 floors at 0dp, so b1 grows by at most 10dp (60dp max).
+        press("b0")
+        advance(1500)
+        release("b0")
+        val edgeReleaseFrames = widthsOverTime(1500)
+
+        assertThat(edgeReleaseFrames.minOf { it[0] }).isLessThan(1f)
+        for (frame in edgeReleaseFrames) {
+            assertThat(frame[0]).isAtLeast(0f)
+            assertThat(frame[1]).isAtMost(60f + WidthTolerance.toFloat())
+            assertThat(frame.sum()).isWithin(WidthTolerance.toFloat() * 3).of(110f)
+        }
+        assertWidths(10f, 50f, 50f)
     }
 
     @Test

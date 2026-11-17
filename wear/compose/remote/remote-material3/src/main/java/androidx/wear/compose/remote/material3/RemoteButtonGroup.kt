@@ -41,6 +41,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.asRemoteDp
+import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rdp
@@ -370,16 +371,30 @@ private fun buttonGroupWidths(
     }
     for ((pressedIndex, progress) in pressedProgresses.withIndex()) {
         if (progress == null) continue
-        val neighbors =
-            when (pressedIndex) {
-                0 -> intArrayOf(1)
-                widths.lastIndex -> intArrayOf(pressedIndex - 1)
-                else -> intArrayOf(pressedIndex - 1, pressedIndex + 1)
-            }
-        val growth = expansionWidth * progress * (1f / neighbors.size).rf
-        for (neighbor in neighbors) {
-            // The neighbor gives the growth, or all its width if it's narrower.
-            val shrink = min(growth, max(widths[neighbor], 0f.rf))
+        if (pressedIndex in 1 until widths.lastIndex) {
+            val left = pressedIndex - 1
+            val right = pressedIndex + 1
+            // Cap each side at the narrower neighbor so the middle item expands symmetrically,
+            // and bound release undershoot so the pressed item cannot go negative.
+            val shrink =
+                clamp(
+                    value = expansionWidth * progress * 0.5f.rf,
+                    min = -widths[pressedIndex] * 0.5f.rf,
+                    max = max(min(widths[left], widths[right]), 0f.rf),
+                )
+            widths[left] = widths[left] - shrink
+            widths[right] = widths[right] - shrink
+            widths[pressedIndex] = widths[pressedIndex] + shrink * 2f.rf
+        } else {
+            val neighbor = if (pressedIndex == 0) 1 else pressedIndex - 1
+            // The neighbor gives the growth, or all its width if it's narrower; bound release
+            // undershoot so the pressed item cannot go negative.
+            val shrink =
+                clamp(
+                    value = expansionWidth * progress,
+                    min = -widths[pressedIndex],
+                    max = max(widths[neighbor], 0f.rf),
+                )
             widths[neighbor] = widths[neighbor] - shrink
             widths[pressedIndex] = widths[pressedIndex] + shrink
         }
