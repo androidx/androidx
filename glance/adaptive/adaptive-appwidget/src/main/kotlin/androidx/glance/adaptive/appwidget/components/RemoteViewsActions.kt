@@ -63,7 +63,11 @@ internal class RemoteViewsActions(val context: Context, private val widgetName: 
     fun pendingIntentFor(action: GlanceAdaptiveAction?): PendingIntent? {
         if (action == null) return null
         if (!isTappable(action)) {
-            Log.w(TAG, "Ignoring $action: a callback needs the name of the widget it is drawn for.")
+            Log.w(
+                TAG,
+                "Ignoring $action: a callback needs the name of the widget it is drawn for " +
+                    "(register RemoteViewsMatrixRenderer.forWidget(widgetName) until b/580007927).",
+            )
             return null
         }
         // Only a callback reads the widget name.

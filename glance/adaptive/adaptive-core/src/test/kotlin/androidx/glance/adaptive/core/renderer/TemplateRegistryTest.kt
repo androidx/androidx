@@ -19,8 +19,10 @@ package androidx.glance.adaptive.core.renderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.GlanceSurface
+import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
+import androidx.glance.adaptive.core.templates.DashboardTemplate
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
@@ -46,6 +48,13 @@ class TemplateRegistryTest {
             ): TemplateRenderer<TrackTemplate, TestSurface, String> =
                 TemplateRenderer { template, _ ->
                     "builtIn(${surface.tag}):${(template.primary as TemplateText).value}"
+                }
+
+            override fun dashboardRenderer(
+                surface: TestSurface
+            ): TemplateRenderer<DashboardTemplate, TestSurface, String> =
+                TemplateRenderer { template, _ ->
+                    "builtInDashboard(${surface.tag}):${template.actions.first().label}"
                 }
         }
 
@@ -124,6 +133,18 @@ class TemplateRegistryTest {
     @Test
     fun render_unregisteredTemplate_throwsIllegalStateException() {
         assertThrows(IllegalStateException::class.java) { registry.render(OtherTemplate(), home) }
+    }
+
+    @Test
+    fun builtInDefaults_coverEveryLibraryTemplateOnEverySurface() {
+        val steps = TrackTemplate(leading = Ring(0.5f), primary = TemplateText("Steps"))
+        val dashboard = DashboardTemplate(actions = listOf(IconTile(icon = 1, label = "Run")))
+
+        for (surface in listOf(home, lock)) {
+            assertThat(registry.render(steps, surface)).isEqualTo("builtIn(${surface.tag}):Steps")
+            assertThat(registry.render(dashboard, surface))
+                .isEqualTo("builtInDashboard(${surface.tag}):Run")
+        }
     }
 
     @Test
