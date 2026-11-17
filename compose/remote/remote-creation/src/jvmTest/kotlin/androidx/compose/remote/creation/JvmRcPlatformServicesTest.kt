@@ -17,7 +17,12 @@ package androidx.compose.remote.creation
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.creation.dsl.AndroidX
+import androidx.compose.remote.creation.dsl.AndroidX7
+import androidx.compose.remote.creation.dsl.AndroidX8
+import androidx.compose.remote.creation.dsl.AndroidX9
 import androidx.compose.remote.creation.dsl.RcProfile
+import androidx.compose.remote.creation.dsl.RcProfileFlags
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.remoteBitmap
 import androidx.compose.remote.creation.dsl.remoteNamedBitmap
@@ -101,5 +106,36 @@ class JvmRcPlatformServicesTest {
                 }
             }
         assertTrue(bytes.isNotEmpty())
+    }
+
+    @Test
+    fun testRcProfilePlatformPresetsAndFactory() {
+        assertEquals(CoreDocument.DOCUMENT_API_LEVEL, RcProfile.AndroidX.docApiLevel)
+        assertEquals(RcProfileFlags.AndroidX, RcProfile.AndroidX.profileFlags)
+        assertFalse(RcProfile.AndroidX.isExperimental)
+
+        assertEquals(7, RcProfile.AndroidX7.docApiLevel)
+        assertEquals(8, RcProfile.AndroidX8.docApiLevel)
+        assertEquals(9, RcProfile.AndroidX9.docApiLevel)
+
+        val image = BufferedImage(4, 4, BufferedImage.TYPE_INT_ARGB)
+        val presetBytes =
+            createRcBuffer(RcProfile.AndroidX) {
+                val bmp = remoteBitmap(image)
+                Box { Image(bmp) }
+            }
+        assertTrue(presetBytes.isNotEmpty())
+
+        val customProfile =
+            RcProfile(
+                docApiLevel = 8,
+                profileFlags = RcProfileFlags.AndroidX or RcProfileFlags.Widgets,
+                supportedOperations = intArrayOf(10, 20),
+                isExperimental = true,
+            )
+        assertEquals(8, customProfile.docApiLevel)
+        assertTrue(RcProfileFlags.Widgets in customProfile.profileFlags)
+        assertTrue(customProfile.isExperimental)
+        assertEquals(setOf(10, 20), customProfile.profile.supportedOperations)
     }
 }

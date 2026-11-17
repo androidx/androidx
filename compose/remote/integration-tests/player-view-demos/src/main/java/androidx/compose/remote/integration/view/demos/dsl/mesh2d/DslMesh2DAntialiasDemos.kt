@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationApi::class)
+
 package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 
 import android.annotation.SuppressLint
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcColorValue

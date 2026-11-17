@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationApi::class)
+
 package androidx.compose.remote.creation.dsl
 
 import androidx.compose.remote.core.CoreDocument
@@ -26,6 +28,7 @@ import androidx.compose.remote.core.operations.DrawMesh2D
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.MatrixFromMesh2D
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.profile.Profile
 import org.junit.Assert.assertArrayEquals

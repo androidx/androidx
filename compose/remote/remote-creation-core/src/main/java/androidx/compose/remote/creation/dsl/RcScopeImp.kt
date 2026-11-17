@@ -15,6 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:OptIn(ExperimentalRemoteCreationApi::class)
 
 package androidx.compose.remote.creation.dsl
 
@@ -37,6 +38,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
 import androidx.compose.remote.core.semantics.AccessibleComponent
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeWriter

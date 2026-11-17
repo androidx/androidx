@@ -22,11 +22,13 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.DrawMesh2D
 import androidx.compose.remote.core.operations.MatrixFromMesh2D
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 
 /** A handle to a 2D mesh added with [RcScope.remoteMesh2D] or [RcScope.remoteMesh2DValues]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcMesh internal constructor(internal val id: Int)
 
@@ -40,6 +42,7 @@ public value class RcMesh internal constructor(internal val id: Int)
  * ordinary canvas matrix is what places and sizes them.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcMeshLayout internal constructor(internal val value: Int) {
     public companion object {
@@ -62,6 +65,7 @@ public value class RcMeshLayout internal constructor(internal val value: Int) {
 
 /** How a mesh's vertex colours combine with the texel sampled from its image. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcMeshBlend internal constructor(internal val value: Int) {
     public companion object {
@@ -82,6 +86,7 @@ public value class RcMeshBlend internal constructor(internal val value: Int) {
  * the next level down rather than emitting a matrix that scales content to nothing.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcMeshMatrix internal constructor(internal val value: Int) {
     public companion object {
@@ -111,6 +116,7 @@ public value class RcMeshMatrix internal constructor(internal val value: Int) {
  * so a waving flag costs what a flat one costs.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 public class RcMesh2DScope internal constructor(writer: RemoteComposeWriter) {
     /** The first domain parameter, 0..1. Its meaning comes from the layout. */
     public val u: RcFloat = RcFloat(writer, floatArrayOf(Rc.FloatExpression.VAR1))
@@ -187,6 +193,7 @@ public class RcMesh2DScope internal constructor(writer: RemoteComposeWriter) {
  * error rather than a mesh that is rejected when written.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 public class RcMeshColor
 internal constructor(
     internal val red: RcFloat,
@@ -208,6 +215,7 @@ internal constructor(
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalRemoteCreationApi
 public class RcMesh2DAntialiasScope internal constructor(private val writer: RemoteComposeWriter) {
     /** The first domain parameter, 0..1. Its meaning comes from the layout. */
     public val u: RcFloat = RcFloat(writer, floatArrayOf(Rc.FloatExpression.VAR1))

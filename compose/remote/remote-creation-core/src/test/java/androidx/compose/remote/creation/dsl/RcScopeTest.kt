@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationApi::class)
+
 package androidx.compose.remote.creation.dsl
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.profile.Profile
 import org.junit.Assert.assertArrayEquals
@@ -472,5 +475,36 @@ class RcScopeTest {
             }
 
         assertArrayEquals(scopedBytes, directBytes)
+    }
+
+    @Test
+    fun testRcProfileFlagsAndCorePresets() {
+        val combined = RcProfileFlags.AndroidX or RcProfileFlags.Widgets
+        assertTrue(RcProfileFlags.AndroidX in combined)
+        assertTrue(RcProfileFlags.Widgets in combined)
+        assertFalse(RcProfileFlags.Widgets in RcProfileFlags.AndroidX)
+
+        assertEquals(CoreDocument.DOCUMENT_API_LEVEL, RcProfile.CoreBaseline.docApiLevel)
+        assertEquals(RcProfileFlags.Baseline, RcProfile.CoreBaseline.profileFlags)
+        assertFalse(RcProfile.CoreBaseline.isExperimental)
+
+        assertEquals(CoreDocument.DOCUMENT_API_LEVEL, RcProfile.CoreAndroidX.docApiLevel)
+        assertEquals(RcProfileFlags.AndroidX, RcProfile.CoreAndroidX.profileFlags)
+        assertFalse(RcProfile.CoreAndroidX.isExperimental)
+
+        val baselineBytes = createRcBuffer(RcProfile.CoreBaseline) { Box { Text("Baseline") } }
+        assertTrue(baselineBytes.isNotEmpty())
+
+        val customCore =
+            RcProfile.core(
+                docApiLevel = 7,
+                profileFlags = combined,
+                supportedOperations = intArrayOf(42, 99),
+                isExperimental = true,
+            )
+        assertEquals(7, customCore.docApiLevel)
+        assertEquals(combined, customCore.profileFlags)
+        assertTrue(customCore.isExperimental)
+        assertEquals(setOf(42, 99), customCore.profile.supportedOperations)
     }
 }

@@ -89,7 +89,7 @@ private fun createRcBufferInternal(
     vararg tags: RcHeaderTag,
     contentExecution: (RemoteComposeWriter, RcScope) -> Unit,
 ): ByteArray {
-    val isExperimental = experimental || profile.experimental
+    val isExperimental = experimental || profile.isExperimental
     val finalProfile =
         if (isExperimental) {
             androidx.compose.remote.creation.profile.Profile(
