@@ -90,6 +90,6 @@ abstract class ExtractKeepRulesTask : DefaultTask() {
 
         val outputFile = outputKeepRules.get().asFile
         outputFile.parentFile.mkdirs()
-        outputFile.writeText(rulesAccumulator.toString())
+        outputFile.writeText(sortKeepRules(rulesAccumulator))
     }
 }

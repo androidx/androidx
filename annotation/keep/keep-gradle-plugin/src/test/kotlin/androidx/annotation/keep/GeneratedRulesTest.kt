@@ -29,24 +29,6 @@ class GeneratedRulesTest {
 
     @get:Rule val projectSetup = ProjectSetupRule()
 
-    /*
-     * Normalizes and sorts `# context: ...` keep rule blocks for comparison.
-     *
-     * This test actively changes project/plugin dependencies (AAR, application, `project` dependency, and JAR)
-     * which also changes rule ordering and header banners. For a given set of inputs, `ExtractKeepRulesTask`
-     * produces the same result so this stable sort is only relevant for tests.
-     */
-    private fun String.sortKeepRulesByComment(): String {
-        return split("#")
-            .map { it.trim() }
-            // Filter out empty segments and decorative header banners added by the plugin
-            .filter {
-                it.isNotEmpty() && !it.startsWith("##") && !it.contains("Rules generated from")
-            }
-            .sorted()
-            .joinToString("\n# ")
-    }
-
     private fun assertGeneratedKeepRules(
         vararg taskArgs: String,
         expectedRules: String = EXPECTED_RULES,
@@ -59,12 +41,18 @@ class GeneratedRulesTest {
             )
         srcFile.parentFile.mkdirs()
         srcFile.writeText(TEST_KOTLIN_SOURCE)
+        val extraSrcFile =
+            File(
+                projectSetup.rootDir,
+                "src/main/java/androidx/annotation/keep/examples/AlphaKeepExamples.kt",
+            )
+        extraSrcFile.parentFile.mkdirs()
+        extraSrcFile.writeText(EXTRA_TEST_KOTLIN_SOURCE)
 
         projectSetup.createRunner(*taskArgs).build()
 
         val actualRules = rulesExtractor()
-        assertThat(actualRules.trim().sortKeepRulesByComment())
-            .isEqualTo(expectedRules.trim().sortKeepRulesByComment())
+        assertThat(actualRules.trim()).isEqualTo(expectedRules.trim())
     }
 
     @Test
@@ -142,6 +130,9 @@ class GeneratedRulesTest {
         val libSrc = File(libDir, "src/main/java/androidx/annotation/keep/examples/KeepExamples.kt")
         libSrc.parentFile.mkdirs()
         libSrc.writeText(TEST_KOTLIN_SOURCE)
+        val extraLibSrc =
+            File(libDir, "src/main/java/androidx/annotation/keep/examples/AlphaKeepExamples.kt")
+        extraLibSrc.writeText(EXTRA_TEST_KOTLIN_SOURCE)
 
         // Setup :app module
         val appDir = File(projectRoot, "app")
@@ -194,8 +185,7 @@ class GeneratedRulesTest {
         assertWithMessage("Generated keep rules file missing in library: $libRulesFile")
             .that(libRulesFile.exists())
             .isTrue()
-        assertThat(libRulesFile.readText().trim().sortKeepRulesByComment())
-            .isEqualTo(EXPECTED_RULES.trim().sortKeepRulesByComment())
+        assertThat(libRulesFile.readText().trim()).isEqualTo(EXPECTED_RULES.trim())
 
         // 2. Verify app minification consumed and applied the library's keep rules
         val appConfigFile = File(appDir, "build/outputs/mapping/release/configuration.txt")
@@ -225,7 +215,10 @@ class GeneratedRulesTest {
             """
                 .trimIndent()
         projectSetup.setupJavaLibrary(withKotlin = true, additionalBuildScript = registerTransform)
-        assertGeneratedKeepRules("keepRulesTransformJar") {
+        assertGeneratedKeepRules(
+            "keepRulesTransformJar",
+            expectedRules = EXPECTED_JAR_RULES,
+        ) {
             val intermediateDir = File(projectSetup.rootDir, "build/intermediates/annotation-keep")
             val transformedJar =
                 intermediateDir.walkTopDown().firstOrNull { it.name.endsWith("-keepRules.jar") }
@@ -289,27 +282,49 @@ class GeneratedRulesTest {
             """
                 .trimIndent()
 
+        @Language("kotlin")
+        private val EXTRA_TEST_KOTLIN_SOURCE =
+            """
+            package androidx.annotation.keep.examples
+
+            import androidx.annotation.keep.UnconditionallyKeep
+
+            @UnconditionallyKeep
+            fun alphaKeptMethod() {}
+            """
+                .trimIndent()
+
         private val EXPECTED_RULES =
             """
-            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;unconditionallyKeptMethod()V
-            -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.KeepExamplesKt { void unconditionallyKeptMethod(); }
-            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;constructBase()V
-            -if class androidx.annotation.keep.examples.KeepExamplesKt { void constructBase(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.BaseClass { void <init>(...); }
-            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;constructBase()V
-            -if class androidx.annotation.keep.examples.KeepExamplesKt { void constructBase(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.BaseClass { void <init>(...); }
-            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
-            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.MyInterface { *** interfaceMethod${'$'}default(...); }
-            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
-            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.MyInterface { *** interfaceMethod${'$'}default(...); }
-            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
-            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.MyInterface { *** interfaceMethod(...); }
-            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
-            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.MyInterface { *** interfaceMethod(...); }
+            # context: Landroidx/annotation/keep/examples/AlphaKeepExamplesKt;alphaKeptMethod()V
+            -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.AlphaKeepExamplesKt { void alphaKeptMethod(); }
             # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessBaseField()V
             -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessBaseField(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.BaseClass { *** baseField; }
             # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessBaseField()V
             -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessBaseField(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.BaseClass { *** baseField; }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.MyInterface { *** interfaceMethod${'$'}default(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.MyInterface { *** interfaceMethod(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.MyInterface { *** interfaceMethod${'$'}default(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;accessInterfaceMethod()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void accessInterfaceMethod(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.MyInterface { *** interfaceMethod(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;constructBase()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void constructBase(); } -keepclasseswithmembers,allowaccessmodification class ** extends androidx.annotation.keep.examples.BaseClass { void <init>(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;constructBase()V
+            -if class androidx.annotation.keep.examples.KeepExamplesKt { void constructBase(); } -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.BaseClass { void <init>(...); }
+            # context: Landroidx/annotation/keep/examples/KeepExamplesKt;unconditionallyKeptMethod()V
+            -keepclasseswithmembers,allowaccessmodification class androidx.annotation.keep.examples.KeepExamplesKt { void unconditionallyKeptMethod(); }
             """
                 .trimIndent()
+
+        private val EXPECTED_JAR_RULES =
+            """
+            #################################################################
+            #   Rules generated from androidx.annotation.keep annotations   #
+            #################################################################
+            """
+                .trimIndent() + "\n" + EXPECTED_RULES
     }
 }

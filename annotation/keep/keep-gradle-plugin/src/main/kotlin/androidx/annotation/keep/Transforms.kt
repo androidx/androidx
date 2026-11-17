@@ -66,9 +66,10 @@ internal fun jarTransform(
 
         val targetRuleEntryName =
             targetedR8Entry ?: proguardEntry ?: "META-INF/com.android.tools/r8/proguard.txt"
+        val sortedRules = sortKeepRules(rulesAccumulator)
 
         for ((name, bytes) in entryContent) {
-            if ((name == targetRuleEntryName) && rulesAccumulator.isNotEmpty()) {
+            if ((name == targetRuleEntryName) && sortedRules.isNotEmpty()) {
                 val existingText = String(bytes)
                 val combined = buildString {
                     append("#################################################################\n")
@@ -79,7 +80,7 @@ internal fun jarTransform(
                     append("#################################################################\n")
                     append("#   Rules generated from androidx.annotation.keep annotations   #\n")
                     append("#################################################################\n")
-                    append(rulesAccumulator)
+                    append(sortedRules)
                     append("\n")
                 }
                 out.putNextEntry(ZipEntry(name))
@@ -92,12 +93,12 @@ internal fun jarTransform(
             }
         }
 
-        if (!entryContent.containsKey(targetRuleEntryName) && rulesAccumulator.isNotEmpty()) {
+        if (!entryContent.containsKey(targetRuleEntryName) && sortedRules.isNotEmpty()) {
             val combined = buildString {
                 append("#################################################################\n")
                 append("#   Rules generated from androidx.annotation.keep annotations   #\n")
                 append("#################################################################\n")
-                append(rulesAccumulator)
+                append(sortedRules)
                 append("\n")
             }
             out.putNextEntry(ZipEntry(targetRuleEntryName))
@@ -105,4 +106,35 @@ internal fun jarTransform(
             out.closeEntry()
         }
     }
+}
+
+/**
+ * Splits raw KeepAnno output into atomic rule blocks (each consisting of leading `#` comment lines
+ * followed by one or more ProGuard rule lines) and sorts them lexicographically so generated rule
+ * files are byte-for-byte deterministic regardless of filesystem traversal order or internal
+ * hash-collection iteration order in KeepAnno.
+ */
+internal fun sortKeepRules(rawRules: CharSequence): String {
+    if (rawRules.isEmpty()) return ""
+    val blocks = mutableListOf<String>()
+    val currentBlock = StringBuilder()
+    var hasRule = false
+    for (line in rawRules.lineSequence()) {
+        if (line.isBlank()) continue
+        val isComment = line.trimStart().startsWith("#")
+        if (isComment && hasRule) {
+            blocks.add(currentBlock.toString())
+            currentBlock.setLength(0)
+            hasRule = false
+        }
+        if (!isComment) {
+            hasRule = true
+        }
+        currentBlock.append(line).append('\n')
+    }
+    if (currentBlock.isNotEmpty()) {
+        blocks.add(currentBlock.toString())
+    }
+    blocks.sort()
+    return blocks.joinToString("")
 }
