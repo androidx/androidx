@@ -17,6 +17,7 @@
 package androidx.xr.testutils
 
 import android.content.Intent
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.platform.requestHomeSpace
 import androidx.xr.compose.spatial.Orbiter
@@ -53,11 +55,18 @@ import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.scene
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -871,5 +880,153 @@ class SpatialSceneHelperAndroidTest {
 
         val embeddedPanels = task.windowLeashes.filter { it.isEmbeddedWindowLeash }
         assertTrue(embeddedPanels.contains(orbiterPanel))
+    }
+
+    @Test
+    fun captureSpatialScene_populatesSceneStatsAndEnforcesDiagnosticBudgets() {
+        runBlocking(Dispatchers.Main) { composeTestRule.activity.requestFullSpace() }
+
+        var capturedSession: Session? = null
+        composeTestRule.setContent {
+            capturedSession = LocalSession.current
+            Subspace {
+                SpatialPanel(modifier = SubspaceModifier.width(400.dp).height(300.dp)) {
+                    Box(modifier = Modifier.fillMaxSize()) { Text("Diagnostics Stats Panel") }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val session = assertNotNull(capturedSession, "Expected XR Session from LocalSession")
+
+        waitForSettledSpatialTask(activity = composeTestRule.activity)
+        val baselineNodes = waitForQuiescentLivingNodes()
+        assertTrue(baselineNodes > 0, "Expected positive quiescent livingNodes count")
+
+        val scene = captureSpatialScene()
+        val stats = assertNotNull(scene.stats, "Expected SpatialScene.stats from dumpsys spf_cpm")
+        assertTrue(
+            stats.attachedNodes > 0,
+            "Expected positive attachedNodes, was ${stats.attachedNodes}",
+        )
+        assertTrue(
+            stats.bufferPixels > 0L,
+            "Expected positive bufferPixels, was ${stats.bufferPixels}",
+        )
+        val livingNodes = assertNotNull(stats.livingNodes, "Expected non-null livingNodes")
+        assertTrue(livingNodes > 0, "Expected positive livingNodes, was $livingNodes")
+
+        XrResourceLeakRule(
+                maxAttachedNodesDelta = 0,
+                maxBufferPixelsDelta = 0L,
+                maxLivingNodesDelta = 0,
+                settleTimeoutMs = 3000L,
+            )
+            .assertWithinBudget { createAndDisposeScopedEntities(session) }
+
+        val leakedEntities = mutableListOf<Entity>()
+        val expectedNames = List(3) { idx -> "intentionalLeakedEntity$idx" }
+        var leakFailure: AssertionError? = null
+        try {
+            XrResourceLeakRule(
+                    maxAttachedNodesDelta = 0,
+                    maxBufferPixelsDelta = 0L,
+                    maxLivingNodesDelta = 0,
+                    settleTimeoutMs = 300L,
+                    pollIntervalMs = 50L,
+                )
+                .assertWithinBudget {
+                    composeTestRule.runOnUiThread {
+                        expectedNames.forEachIndexed { idx, name ->
+                            leakedEntities +=
+                                Entity.create(
+                                    session = session,
+                                    name = name,
+                                    pose = Pose(Vector3((idx - 1) * 0.4f, 0f, -1.5f)),
+                                    parent = session.scene.activitySpace,
+                                )
+                        }
+                    }
+                    composeTestRule.waitForIdle()
+                    waitForSpatialScene(
+                        description = "leaked entities reflected in CPM task tree",
+                        timeout = 3.seconds,
+                        pollInterval = 50.milliseconds,
+                        select = { captured ->
+                            val task = captured.findTaskByActivity(composeTestRule.activity)
+                            expectedNames.count { name ->
+                                task?.findNode { it.name == name } != null
+                            }
+                        },
+                        until = { count -> count == expectedNames.size },
+                    )
+                }
+        } catch (expected: AssertionError) {
+            leakFailure = expected
+        } finally {
+            composeTestRule.runOnUiThread {
+                leakedEntities.forEach { entity -> entity.parent = null }
+                leakedEntities.clear()
+            }
+            composeTestRule.waitForIdle()
+        }
+        val failure =
+            assertNotNull(leakFailure, "Expected XrResourceLeakRule to fail on leaked entities")
+        assertTrue(
+            failure.message.orEmpty().contains("CPM resource leak detected"),
+            "Unexpected leak failure message: ${failure.message}",
+        )
+    }
+
+    @Suppress("BanThreadSleep")
+    private fun waitForQuiescentLivingNodes(): Int {
+        val deadline = System.currentTimeMillis() + 2500L
+        var previous: Int? = null
+        while (System.currentTimeMillis() < deadline) {
+            val current = captureSpatialScene().stats?.livingNodes
+            if (current != null && current == previous) {
+                return current
+            }
+            previous = current
+            SystemClock.sleep(150L)
+        }
+        return assertNotNull(
+            previous ?: captureSpatialScene().stats?.livingNodes,
+            "Expected non-null SpatialScene.stats.livingNodes before diagnostic checks",
+        )
+    }
+
+    private fun createAndDisposeScopedEntities(session: Session) {
+        val createdEntities = mutableListOf<Entity>()
+        val expectedNames = List(3) { idx -> "scopedEntity$idx" }
+        try {
+            composeTestRule.runOnUiThread {
+                expectedNames.forEachIndexed { idx, name ->
+                    createdEntities +=
+                        Entity.create(
+                            session = session,
+                            name = name,
+                            pose = Pose(Vector3((idx - 1) * 0.4f, 0f, -1.5f)),
+                            parent = session.scene.activitySpace,
+                        )
+                }
+            }
+            composeTestRule.waitForIdle()
+            waitForSpatialScene(
+                description = "scoped entities reflected in CPM task tree",
+                timeout = 3.seconds,
+                pollInterval = 50.milliseconds,
+                select = { captured ->
+                    val task = captured.findTaskByActivity(composeTestRule.activity)
+                    expectedNames.count { name -> task?.findNode { it.name == name } != null }
+                },
+                until = { count -> count == expectedNames.size },
+            )
+        } finally {
+            composeTestRule.runOnUiThread {
+                createdEntities.forEach { entity -> entity.parent = null }
+                createdEntities.clear()
+            }
+            composeTestRule.waitForIdle()
+        }
     }
 }

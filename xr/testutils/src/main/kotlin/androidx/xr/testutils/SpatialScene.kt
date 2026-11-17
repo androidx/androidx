@@ -23,9 +23,73 @@ import android.app.UiAutomation
 import android.graphics.Bitmap
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.math.Pose
+import java.util.Collections
+import java.util.IdentityHashMap
+import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+
+/**
+ * Holds attached tree counts, summed buffer pixel area, and optional trailer node count for a
+ * [SpatialScene].
+ *
+ * @property attachedNodes total [SpatialNode] count across [SpatialScene.rootNodes]
+ * @property bufferPixels total 2D buffer area in pixels (`width * height` summed across
+ *   [SpatialNode.bufferSize] in [SpatialScene.rootNodes])
+ * @property livingNodes total live C++ `Node` instances from the text `dumpsys spf_cpm` trailer
+ *   (`Number of living nodes:`), including detached nodes not yet finalized, or `null` when
+ *   unavailable (such as binary `--proto` dumps without trailer stats)
+ */
+public data class SpatialSceneStats
+@JvmOverloads
+constructor(
+    public val attachedNodes: Int = 0,
+    public val bufferPixels: Long = 0L,
+    public val livingNodes: Int? = null,
+)
+
+/**
+ * Computes [SpatialSceneStats] directly from [rootNodes] and optional text trailer [livingNodes].
+ *
+ * Returns `null` only when [rootNodes] is empty and [livingNodes] is `null`, preventing empty or
+ * failed shell dumps from passing leak checks vacuously.
+ */
+internal fun computeSceneStats(
+    rootNodes: List<SpatialNode>,
+    livingNodes: Int? = null,
+): SpatialSceneStats? {
+    var attachedNodes = 0
+    var bufferPixels = 0L
+    val visited = Collections.newSetFromMap(IdentityHashMap<SpatialNode, Boolean>())
+    val stack = ArrayDeque<SpatialNode>(rootNodes.size)
+    for (root in rootNodes) {
+        if (visited.add(root)) {
+            stack.addLast(root)
+        }
+    }
+    while (stack.isNotEmpty()) {
+        val node = stack.removeLast()
+        attachedNodes++
+        val size = node.bufferSize
+        if (size != null && size.x.isFinite() && size.y.isFinite() && size.x > 0f && size.y > 0f) {
+            bufferPixels += size.x.roundToLong() * size.y.roundToLong()
+        }
+        for (child in node.children) {
+            if (visited.add(child)) {
+                stack.addLast(child)
+            }
+        }
+    }
+    if (attachedNodes == 0 && livingNodes == null) {
+        return null
+    }
+    return SpatialSceneStats(
+        attachedNodes = attachedNodes,
+        bufferPixels = bufferPixels,
+        livingNodes = livingNodes,
+    )
+}
 
 /**
  * Represents a point-in-time snapshot of the spatial scene graph.
@@ -40,6 +104,8 @@ constructor(
     public val rootNodes: List<SpatialNode>,
     /** Optional mapping from task IDs to Android package names. */
     public val taskPackageMap: Map<Int, String> = emptyMap(),
+    /** Optional compositor node and buffer totals for this scene snapshot. */
+    public val stats: SpatialSceneStats? = computeSceneStats(rootNodes),
 ) {
     init {
         fun attach(n: SpatialNode) {

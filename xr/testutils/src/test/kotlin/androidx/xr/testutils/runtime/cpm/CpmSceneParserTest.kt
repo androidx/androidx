@@ -1732,4 +1732,140 @@ class CpmSceneParserTest {
         assertTrue(activeSurfaceScene.hasActiveTransition)
         assertFalse(assertNotNull(activeSurfaceScene.findTaskById(100)).isSettled())
     }
+
+    @Test
+    fun parseSceneStats_computesTreeCountsAndReturnsNullWhenDumpEmpty() {
+        val complexScene = parseSpatialScene(complexDumpsys)
+        val stats = assertNotNull(complexScene.stats)
+        assertEquals(270, stats.attachedNodes)
+        assertEquals(43_196_752L, stats.bufferPixels)
+        assertEquals(318, stats.livingNodes)
+
+        val simpleScene = parseSpatialScene(simpleDumpsys)
+        val simpleStats = assertNotNull(simpleScene.stats)
+        assertEquals(7, simpleStats.attachedNodes)
+        assertEquals(0L, simpleStats.bufferPixels)
+        assertNull(simpleStats.livingNodes)
+
+        assertNull(parseSpatialScene("").stats)
+    }
+
+    @Test
+    fun captureSceneWithPolling_cachesTaskPackageMapAcrossPollsForKnownTasks() {
+        val transitioningDump =
+            """
+            SPF Nodes:
+            Node Root (stateIndex=0, z=0) id=1:
+              Node Scrim (stateIndex=0, z=0) id=11:
+              visible on both sysUIMetadata=<specialNode=0, scrim=(targetAlpha=0.50)>
+              Node space-root-task-100 (id=100):
+                Node window-task-100 (id=3):
+                root2DSurfaceBoundsInMeters=(1.000 0.800)
+            """
+                .trimIndent()
+        val settledDump =
+            """
+            SPF Nodes:
+            Node Root (stateIndex=0, z=0) id=1:
+              Node space-root-task-100 (id=100):
+                Node window-task-100 (id=3):
+                buffer=800x600 root2DSurfaceBoundsInMeters=(1.000 0.800)
+            Number of living nodes: 42
+            """
+                .trimIndent()
+        var spfCalls = 0
+        var activityDumpCalls = 0
+        val scene =
+            captureSceneWithPolling(
+                maxWaitMs = 5000L,
+                sleeper = {},
+                clockMs = { 0L },
+                shellRunner = { cmd ->
+                    when (cmd) {
+                        "dumpsys spf_cpm" -> {
+                            spfCalls++
+                            if (spfCalls == 1) transitioningDump else settledDump
+                        }
+                        "dumpsys activity activities" -> {
+                            activityDumpCalls++
+                            "ActivityRecord{abc com.example.myapp/.MainActivity t100}"
+                        }
+                        else -> ""
+                    }
+                },
+            )
+
+        assertEquals(2, spfCalls)
+        assertEquals(1, activityDumpCalls)
+        assertEquals("com.example.myapp", scene.findTaskById(100)?.packageName)
+        assertEquals(3, scene.stats?.attachedNodes)
+        assertEquals(480_000L, scene.stats?.bufferPixels)
+        assertEquals(42, scene.stats?.livingNodes)
+    }
+
+    @Test
+    fun captureSceneWithPolling_appliesCooldownForUnresolvedTasksAndMergesMapsOnRefresh() {
+        val transitioningWithUnresolvedAndKnown =
+            """
+            SPF Nodes:
+            Node Root (stateIndex=0, z=0) id=1:
+              Node Scrim (stateIndex=0, z=0) id=11:
+              visible on both sysUIMetadata=<specialNode=0, scrim=(targetAlpha=0.50)>
+              Node space-root-task-100 (id=100):
+                Node window-task-100 (id=3):
+                root2DSurfaceBoundsInMeters=(1.000 0.800)
+              Node space-root-task-200 (id=200):
+                Node window-task-200 (id=4):
+                root2DSurfaceBoundsInMeters=(1.000 0.800)
+            """
+                .trimIndent()
+        val settledDump =
+            """
+            SPF Nodes:
+            Node Root (stateIndex=0, z=0) id=1:
+              Node space-root-task-100 (id=100):
+                Node window-task-100 (id=3):
+                root2DSurfaceBoundsInMeters=(1.000 0.800)
+              Node space-root-task-200 (id=200):
+                Node window-task-200 (id=4):
+                root2DSurfaceBoundsInMeters=(1.000 0.800)
+            """
+                .trimIndent()
+
+        var nowMs = 0L
+        var spfCalls = 0
+        var activityDumpCalls = 0
+        val scene =
+            captureSceneWithPolling(
+                maxWaitMs = 5000L,
+                sleeper = { nowMs += 600L },
+                clockMs = { nowMs },
+                shellRunner = { cmd ->
+                    when (cmd) {
+                        "dumpsys spf_cpm" -> {
+                            spfCalls++
+                            // Poll 1 (t=0): t200 missing from activities dump
+                            // Poll 2 (t=600): within 1000ms cooldown -> skips activity dump
+                            // Poll 3 (t=1200): cooldown elapsed -> re-queries activity dump
+                            if (spfCalls < 3) transitioningWithUnresolvedAndKnown else settledDump
+                        }
+                        "dumpsys activity activities" -> {
+                            activityDumpCalls++
+                            if (activityDumpCalls == 1) {
+                                "ActivityRecord{a com.example.first/.MainActivity t100}"
+                            } else {
+                                // Second dump omits t100 to verify map merge retains resolved IDs.
+                                "ActivityRecord{b com.example.second/.SecondActivity t200}"
+                            }
+                        }
+                        else -> ""
+                    }
+                },
+            )
+
+        assertEquals(3, spfCalls)
+        assertEquals(2, activityDumpCalls)
+        assertEquals("com.example.first", scene.findTaskById(100)?.packageName)
+        assertEquals("com.example.second", scene.findTaskById(200)?.packageName)
+    }
 }
