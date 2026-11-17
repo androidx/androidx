@@ -20,11 +20,12 @@ import androidx.annotation.MainThread
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 
 internal class SavedStateRegistryImpl(
     val container: SavedStateContainer = SavedStateContainer(),
     private val onConsumeRestoredStateForKey: (key: String) -> Unit = {},
-) : SavedStateRegistry.SavedStateProvider, SavedStateRegistry.SavedStateRestorer {
+) : SavedStateProvider, SavedStateRegistry.SavedStateRestorer {
 
     constructor(
         initialState: SavedState?,
@@ -45,9 +46,7 @@ internal class SavedStateRegistryImpl(
 
     fun getOrCreateContainer(key: String): SavedStateContainer = container.getOrCreateContainer(key)
 
-    override fun saveState(): SavedState {
-        return container.saveState()
-    }
+    override fun saveState(): SavedState = container.saveState()
 
     override fun restoreState(savedState: SavedState?) {
         isRestored = true
@@ -57,49 +56,28 @@ internal class SavedStateRegistryImpl(
     @MainThread
     fun consumeRestoredStateForKey(key: String): SavedState? {
         onConsumeRestoredStateForKey(key)
-        val savedStateValue =
-            container.getSavedStateValue<
-                SavedStateRegistry.SavedStateProvider,
-                ProviderSavedStateValue,
-            >(
-                key
-            )
-        if (savedStateValue != null) {
-            return savedStateValue.savedState.also {
-                savedStateValue.savedState = null
-            }
+        val valueHolder = container.get<SavedStateProvider>(key)
+        if (valueHolder != null && valueHolder is ProviderSavedStateValue) {
+            return valueHolder.savedState.also { valueHolder.savedState = null }
         }
         return container.consumeForKey(key)
     }
 
     @MainThread
-    fun registerSavedStateProvider(key: String, provider: SavedStateRegistry.SavedStateProvider) {
+    fun registerSavedStateProvider(key: String, provider: SavedStateProvider) {
         val providerValue = ProviderSavedStateValue(provider)
-        if (container.registerSavedStateValue(key, providerValue)) {
+        if (container.register(key, providerValue)) {
             if (isRestored && !providerValue.isRestored) {
                 providerValue.restoreState(null)
             }
         }
     }
 
-    fun getSavedStateProvider(key: String): SavedStateRegistry.SavedStateProvider? {
-        return container
-            .getSavedStateValue<
-                SavedStateRegistry.SavedStateProvider,
-                ProviderSavedStateValue,
-            >(
-                key
-            )
-            ?.value
-    }
+    fun getSavedStateProvider(key: String): SavedStateProvider? =
+        container.get<SavedStateProvider>(key)?.value
 
     @MainThread
     fun unregisterSavedStateProvider(key: String) {
-        container.removeSavedStateValue<
-            SavedStateRegistry.SavedStateProvider,
-            ProviderSavedStateValue,
-        >(
-            key
-        )
+        container.remove<SavedStateProvider>(key)
     }
 }
