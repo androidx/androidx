@@ -50,10 +50,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalFontLoader
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.tooling.animation.AnimationSearch
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
@@ -68,6 +71,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
@@ -138,6 +142,19 @@ internal data class ViewInfo(
  *   logcat for debugging.
  * - `tools:animationClockStartTime`: When set, a [PreviewAnimationClock] will control the
  *   animations in the [ComposeViewAdapter] context.
+ * - `tools:device`: The device spec of the preview (e.g. `spec:width=411dp,height=891dp`). Besides
+ *   the media query values, it can ask the adapter to expand: with `expand=vertical`, when the
+ *   adapter is measured with an unbounded height, it grows vertically so that vertically scrollable
+ *   containers display all their content, up to `maxHeight` (e.g. `maxHeight=1200dp`, defaults to
+ *   [DEFAULT_EXPAND_MAX_SIZE_PX] pixels). Likewise, with `expand=horizontal`, when measured with an
+ *   unbounded width, it grows horizontally up to `maxWidth`. See [parsePreviewExpandSettings]. With
+ *   `scrollTo=end` (ignored with `expand=vertical`), the preview is rendered at its normal size
+ *   with all its vertically scrollable containers scrolled to their end: after measuring (and
+ *   marking any Wear `ScalingLazyListState` initialized so its scroll semantics are exposed before
+ *   post-layout callbacks), each container with a [SemanticsProperties.VerticalScrollAxisRange] is
+ *   stepped synchronously towards its end via [SemanticsActions.ScrollByOffset] in
+ *   [immediateScrollContext], re-measuring and laying out after each step so lazy lists compose
+ *   newly visible items. See [parsePreviewScrollTarget].
  */
 @Suppress("unused")
 @OptIn(UiToolingDataApi::class)
@@ -200,8 +217,59 @@ internal class ComposeViewAdapter : FrameLayout {
     /** Boolean specifying whether to print animated element keys */
     private var lookaheadAnimationVisualDebuggingKeyLabelEnabled: Boolean = false
 
-    /** Device specification string (e.g. "spec:width=411dp,...") used for media query values. */
+    /**
+     * Device specification string (e.g. "spec:width=411dp,...") used for media query values and
+     * [expandSettings].
+     */
+    // Keep the list of supported `spec:` parameters in sync with
+    // `PreviewDeviceSpec.SUPPORTED_PARAMETERS`.
     private var device: String? = null
+
+    /**
+     * Expansion settings read from [device]. When the adapter is measured with an unbounded size
+     * along [PreviewExpandSettings.axis] (e.g. LayoutLib V_SCROLL rendering mode), it grows along
+     * that axis so scrollable containers display all their content, up to
+     * [PreviewExpandSettings.maxSizePx].
+     */
+    private var expandSettings: PreviewExpandSettings? = null
+
+    /** Whether the device spec asks the adapter to expand vertically. */
+    private val isVerticalExpansionEnabled: Boolean
+        get() = expandSettings?.axis == PreviewExpandAxis.VERTICAL
+
+    /**
+     * Expanded size along [PreviewExpandSettings.axis], in pixels, computed when this adapter is
+     * first measured with an [MeasureSpec.UNSPECIFIED] spec along that axis. Reused on subsequent
+     * measurements with the same [expandedCrossAxisMeasureSpec] so LayoutLib's repeated
+     * `RenderSession.render()` passes keep the same size instead of re-running the binary search or
+     * adding the size delta again (Fast Preview re-inflates [ComposeViewAdapter] or calls [init],
+     * which resets this to `-1`; in-place recompositions within the same `RenderSession` retain
+     * this size). `-1` until the adapter has been expanded.
+     */
+    private var expandedSizePx: Int = -1
+
+    /**
+     * Measure spec along the non-expanded axis for which [expandedSizePx] was computed. If the
+     * adapter is later measured with a different cross-axis spec, [expandedSizePx] is invalidated
+     * so the expanded size is recomputed for the new cross-axis dimension.
+     */
+    private var expandedCrossAxisMeasureSpec: Int = 0
+
+    /**
+     * Whether the vertically scrollable containers of the preview are scrolled to their end before
+     * it is rendered, as asked by `scrollTo=end` in [device]. Always false when expanding
+     * vertically, since the containers then display all their content.
+     */
+    private var isScrollToEndEnabled = false
+
+    /**
+     * Adapter dimensions at which [scrollToEnd] last ran for the current composition, or `-1` if it
+     * has not run yet. Skipping [scrollToEnd] on subsequent measurements at the same size avoids
+     * re-scrolling on every frame in Interactive Preview (which would snap the user's scroll back
+     * to the end) while still scrolling to the end if the preview is resized.
+     */
+    private var lastScrolledToEndWidth: Int = -1
+    private var lastScrolledToEndHeight: Int = -1
 
     private val debugBoundsPaint =
         Paint().apply {
@@ -296,6 +364,131 @@ internal class ComposeViewAdapter : FrameLayout {
             val debugString = viewInfos.toDebugString()
             Log.d(TAG, debugString)
         }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        // Only expand when the device spec asks for it and the parent lets us pick our own size
+        // along the expanded axis (e.g. LayoutLib V_SCROLL or H_SCROLL rendering modes).
+        // EXACTLY/AT_MOST specs are always honored when the adapter has not been expanded.
+        val settings = expandSettings
+        val axisMeasureSpec =
+            when (settings?.axis) {
+                PreviewExpandAxis.VERTICAL -> heightMeasureSpec
+                PreviewExpandAxis.HORIZONTAL -> widthMeasureSpec
+                null -> null
+            }
+        if (settings == null || axisMeasureSpec == null) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+            scrollToEndIfNeeded { super.onMeasure(widthMeasureSpec, heightMeasureSpec) }
+            return
+        }
+        val axis = settings.axis
+        val crossAxisMeasureSpec =
+            when (axis) {
+                PreviewExpandAxis.VERTICAL -> widthMeasureSpec
+                PreviewExpandAxis.HORIZONTAL -> heightMeasureSpec
+            }
+        if (
+            expandedCrossAxisMeasureSpec != 0 &&
+                crossAxisMeasureSpec != expandedCrossAxisMeasureSpec
+        ) {
+            expandedSizePx = -1
+            expandedCrossAxisMeasureSpec = 0
+            recreateComposition()
+        }
+
+        // Measures the adapter with the given spec along the expanded axis, and the spec of the
+        // parent along the other axis.
+        val measureAlongAxis = { spec: Int ->
+            when (axis) {
+                PreviewExpandAxis.VERTICAL -> super.onMeasure(widthMeasureSpec, spec)
+                PreviewExpandAxis.HORIZONTAL -> super.onMeasure(spec, heightMeasureSpec)
+            }
+        }
+        val measureExactly = { size: Int ->
+            measureAlongAxis(MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY))
+        }
+
+        if (expandedSizePx < 0 && MeasureSpec.getMode(axisMeasureSpec) == MeasureSpec.UNSPECIFIED) {
+            // Pass 1: measure with a finite AT_MOST bound. Passing UNSPECIFIED down to Compose
+            // would translate into infinite Constraints which crash scrollable containers (and
+            // overflow the Constraints bitfield in Scaffold-like layouts).
+            measureAlongAxis(MeasureSpec.makeMeasureSpec(settings.maxSizePx, MeasureSpec.AT_MOST))
+            val boundedSize = measuredSize(axis)
+
+            // Pass 2: find the smallest size at which all the scrollable content is visible,
+            // leaving the preview freshly composed, measured at that exact size (so root containers
+            // using fillMaxSize() do not leave trailing space) and laid out.
+            val viewportSize = MeasureSpec.getSize(axisMeasureSpec).coerceIn(0, boundedSize)
+            val targetSize =
+                findExpandedSize(
+                    composeView = composeView,
+                    slotTableRecord = slotTableRecord,
+                    axis = axis,
+                    minSize = viewportSize,
+                    maxSize = boundedSize,
+                    measureExactly = measureExactly,
+                    recreateComposition = ::recreateComposition,
+                )
+            // Only reachable when expanding horizontally: scrollTo is ignored when expanding
+            // vertically.
+            scrollToEndIfNeeded { measureExactly(targetSize) }
+            expandedSizePx = targetSize
+            expandedCrossAxisMeasureSpec = crossAxisMeasureSpec
+        } else if (expandedSizePx >= 0) {
+            // Once expanded, keep measuring at expandedSizePx even when LayoutLib's
+            // RenderSessionImpl.measureLayout probes the root view with EXACTLY before measuring
+            // the content root with UNSPECIFIED: returning the same size on both passes prevents
+            // calcSize from adding (childSize - rootSize) to the measured screen dimension on
+            // every render() call and avoids re-running the binary search.
+            measureExactly(expandedSizePx)
+            layoutComposeView(composeView)
+        } else {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+            scrollToEndIfNeeded { super.onMeasure(widthMeasureSpec, heightMeasureSpec) }
+            return
+        }
+
+        if (expandedSizePx > 0) {
+            updateWindowConfigurationBounds(this, measuredWidth, measuredHeight)
+            if (MeasureSpec.getMode(axisMeasureSpec) == MeasureSpec.UNSPECIFIED) {
+                forceAncestorLayouts(this)
+            }
+        }
+    }
+
+    /** Returns the measured size of the adapter along [axis]. */
+    private fun measuredSize(axis: PreviewExpandAxis): Int =
+        when (axis) {
+            PreviewExpandAxis.VERTICAL -> measuredHeight
+            PreviewExpandAxis.HORIZONTAL -> measuredWidth
+        }
+
+    /** Disposes the current preview composition and composes it again from scratch. */
+    private fun recreateComposition() {
+        composeView.disposeComposition()
+        if (::clock.isInitialized) {
+            clock.dispose()
+        }
+        (slotTableRecord.store as? MutableSet<*>)?.clear()
+        lastScrolledToEndWidth = -1
+        lastScrolledToEndHeight = -1
+        composeView.setContent(previewComposition)
+    }
+
+    /**
+     * Runs [scrollToEnd] when [isScrollToEndEnabled] is true and the adapter's measured dimensions
+     * have changed since the last scroll-to-end pass for the current composition. See
+     * [ComposeViewAdapter].
+     */
+    private inline fun scrollToEndIfNeeded(crossinline measure: () -> Unit) {
+        if (!isScrollToEndEnabled) return
+        if (measuredWidth == lastScrolledToEndWidth && measuredHeight == lastScrolledToEndHeight) {
+            return
+        }
+        scrollToEnd(composeView, slotTableRecord, TAG) { measure() }
+        lastScrolledToEndWidth = measuredWidth
+        lastScrolledToEndHeight = measuredHeight
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -429,7 +622,8 @@ internal class ComposeViewAdapter : FrameLayout {
     internal val clockInitialized: Boolean
         get() = this::clock.isInitialized
 
-    /** Wraps a given [Preview] method an does any necessary setup. */
+    /** Wraps a given [Preview] method and does any necessary setup. */
+    @SuppressLint("ConfigurationScreenWidthHeight")
     @OptIn(
         ExperimentalLookaheadAnimationVisualDebugApi::class,
         ExperimentalMediaQueryApi::class,
@@ -437,8 +631,49 @@ internal class ComposeViewAdapter : FrameLayout {
     @Composable
     private fun WrapPreview(content: @Composable () -> Unit) {
         val windowInfo = LocalWindowInfo.current
+        // When expanding, the window is as large as the content along the expanded axis. Media
+        // queries see the size of the device screen (or the explicit size in the device spec)
+        // instead.
+        val configuration = LocalConfiguration.current
+        val expandAxis = expandSettings?.axis
+        val fallbackWidth =
+            configuration.screenWidthDp.takeIf { it > 0 }?.dp ?: DEFAULT_PREVIEW_WIDTH
+        val fallbackHeight =
+            configuration.screenHeightDp.takeIf { it > 0 }?.dp ?: DEFAULT_PREVIEW_HEIGHT
+        val reportDeviceWidth = expandAxis == PreviewExpandAxis.HORIZONTAL
+        val reportDeviceHeight = expandAxis == PreviewExpandAxis.VERTICAL
         val previewUiMediaScope =
-            remember(windowInfo, device) { createPreviewUiMediaScope(windowInfo, device) }
+            remember(
+                windowInfo,
+                device,
+                fallbackWidth,
+                fallbackHeight,
+                reportDeviceWidth,
+                reportDeviceHeight,
+            ) {
+                createPreviewUiMediaScope(
+                    windowInfo,
+                    device,
+                    fallbackWidth = fallbackWidth,
+                    fallbackHeight = fallbackHeight,
+                    reportDeviceWidth = reportDeviceWidth,
+                    reportDeviceHeight = reportDeviceHeight,
+                )
+            }
+        // When expanding vertically, Wear lists (ScalingLazyColumn, TransformingLazyColumn) would
+        // scale and fade the items close to the edges of the now very tall viewport. Wear's
+        // LocalReduceMotion disables those transformations so all items render at their natural
+        // size. It is not provided with scrollTo=end, which renders the lists at the device size
+        // and must show their items transformed at the edges, as on a device.
+        val wearReduceMotion = if (isVerticalExpansionEnabled) wearLocalReduceMotion else null
+        val previewContent =
+            if (wearReduceMotion == null) content
+            else
+                remember(wearReduceMotion, content) {
+                    @Composable {
+                        CompositionLocalProvider(wearReduceMotion provides true, content = content)
+                    }
+                }
         // We need to replace the FontResourceLoader to avoid using ResourcesCompat.
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
@@ -456,9 +691,9 @@ internal class ComposeViewAdapter : FrameLayout {
                     isEnabled = true,
                     isShowKeyLabelEnabled = lookaheadAnimationVisualDebuggingKeyLabelEnabled,
                 ) {
-                    Inspectable(slotTableRecord, content)
+                    Inspectable(slotTableRecord, previewContent)
                 }
-            } else Inspectable(slotTableRecord, content)
+            } else Inspectable(slotTableRecord, previewContent)
         }
     }
 
@@ -541,7 +776,10 @@ internal class ComposeViewAdapter : FrameLayout {
      * @param lookForDesignInfoProviders if true, it will try to populate [designInfoList].
      * @param designInfoProvidersArgument String to use as an argument when populating
      *   [designInfoList].
-     * @param device preview device specification string (e.g. "spec:width=411dp,...").
+     * @param device preview device specification string (e.g. "spec:width=411dp,..."). Also defines
+     *   whether the adapter expands to display all the scrollable content, see
+     *   [parsePreviewExpandSettings], and whether the scrollable content is scrolled to its end,
+     *   see [parsePreviewScrollTarget].
      * @param onCommit callback invoked after every commit of the preview composable.
      * @param onDraw callback invoked after every draw of the adapter. Only for test use.
      */
@@ -575,6 +813,17 @@ internal class ComposeViewAdapter : FrameLayout {
             lookaheadAnimationVisualDebuggingKeyLabelEnabled
         this.device = device
         this.onDraw = onDraw
+        this.expandSettings = parsePreviewExpandSettings(device, resources.displayMetrics.density)
+        this.expandedSizePx = -1
+        this.expandedCrossAxisMeasureSpec = 0
+        this.lastScrolledToEndWidth = -1
+        this.lastScrolledToEndHeight = -1
+        // Scrolling would be a no-op when expanding vertically: all the content is visible.
+        this.isScrollToEndEnabled =
+            when (parsePreviewScrollTarget(device)) {
+                PreviewScrollTarget.End -> !isVerticalExpansionEnabled
+                null -> false
+            }
         previewComposition =
             @Composable {
                 SideEffect(onCommit)
@@ -609,6 +858,10 @@ internal class ComposeViewAdapter : FrameLayout {
         if (::clock.isInitialized) {
             clock.dispose()
         }
+        expandedSizePx = -1
+        expandedCrossAxisMeasureSpec = 0
+        lastScrolledToEndWidth = -1
+        lastScrolledToEndHeight = -1
         FakeSavedStateRegistryOwner.lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         FakeViewModelStoreOwner.viewModelStore.clear()
     }

@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation
 import androidx.compose.ui.tooling.animation.AnimatedContentComposeAnimation
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
@@ -29,20 +30,31 @@ import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 import androidx.compose.ui.tooling.test.R
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.abs
+import kotlin.math.ceil
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+
+/** Tolerance, in pixels, for heights computed by adding up dimensions rounded to pixels. */
+private const val EXPAND_ROUNDING_TOLERANCE_PX = 2
 
 @MediumTest
 @OptIn(UiToolingDataApi::class)
@@ -63,6 +75,18 @@ class ComposeViewAdapterTest {
     fun tearDown() {
         isAnimationPreviewEnabled = false
         AnimateXAsStateComposeAnimation.testOverrideAvailability(true)
+        observedWearReduceMotion = null
+        observedWrapperWearReduceMotion = null
+        expandAutoCenteringScalingLazyListState = null
+        scrollToEndLazyListState = null
+        scrollToEndScrollState = null
+        scrollToEndScalingLazyListState = null
+        scrollToEndObservedWearReduceMotion = null
+        observedWearScreenSizeDp = null
+        observedWearScaffoldContentPadding = null
+        observedWearPlaceholderState = null
+        observedWearMinimumTopContentPadding = null
+        observedWearMinimumBottomContentPadding = null
     }
 
     /** Asserts that the given Composable method executes correct and outputs some [ViewInfo]s. */
@@ -969,6 +993,815 @@ class ComposeViewAdapterTest {
                 "Method '$expectedMethod' should be present in FakeOnBackPressedDispatcherOwner",
                 actualMethods.contains(expectedMethod),
             )
+        }
+    }
+
+    /**
+     * Initializes [methodName] with the given [device] spec (by default, one that expands
+     * vertically) and returns the height of the adapter when measured with an UNSPECIFIED height
+     * spec of size [viewportHeightPx], as LayoutLib does in V_SCROLL rendering mode.
+     */
+    private fun measureExpanded(
+        methodName: String,
+        viewportHeightPx: Int,
+        device: String = EXPAND_VERTICAL_DEVICE,
+        heightMode: Int = View.MeasureSpec.UNSPECIFIED,
+        className: String = "androidx.compose.ui.tooling.ExpandListsPreviewKt",
+    ): Int {
+        initAndWaitForDraw(
+            className,
+            methodName,
+            device = device,
+        )
+        var measuredHeight = -1
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width,
+                    View.MeasureSpec.EXACTLY,
+                ),
+                View.MeasureSpec.makeMeasureSpec(viewportHeightPx, heightMode),
+            )
+            measuredHeight = composeViewAdapter.measuredHeight
+        }
+        return measuredHeight
+    }
+
+    private fun Dp.toPx(): Int = Density(activityTestRule.activity).run { this@toPx.roundToPx() }
+
+    @Test
+    fun expandVertical_longLazyColumnInScaffold_growsToFitAllItems() {
+        val expectedHeight =
+            EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT +
+                EXPAND_BOTTOM_BAR_HEIGHT.toPx()
+        val height =
+            measureExpanded("ExpandLongLazyColumnInScaffoldPreview", viewportHeightPx = 100)
+        assertEquals(expectedHeight, height)
+    }
+
+    @Test
+    fun expandVertical_shortLazyColumnInScaffold_shrinksToContent() {
+        val expectedHeight =
+            EXPAND_ITEM_HEIGHT.toPx() * EXPAND_SHORT_LIST_ITEM_COUNT +
+                EXPAND_BOTTOM_BAR_HEIGHT.toPx()
+        // With a viewport of 0, a fillMaxSize() Scaffold must not expand to the max height.
+        val height = measureExpanded("ExpandShortLazyColumnInScaffoldPreview", viewportHeightPx = 0)
+        assertEquals(expectedHeight, height)
+    }
+
+    @Test
+    fun expandVertical_shortLazyColumnInScaffold_neverSmallerThanViewport() {
+        val viewportHeight = EXPAND_ITEM_HEIGHT.toPx() * (EXPAND_SHORT_LIST_ITEM_COUNT + 5)
+        val height =
+            measureExpanded(
+                "ExpandShortLazyColumnInScaffoldPreview",
+                viewportHeightPx = viewportHeight,
+            )
+        assertEquals(viewportHeight, height)
+    }
+
+    @Test
+    fun expandVertical_verticalScrollColumn_growsToFitAllItems() {
+        val expectedHeight = EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT
+        val height = measureExpanded("ExpandVerticalScrollColumnPreview", viewportHeightPx = 100)
+        assertEquals(expectedHeight, height)
+    }
+
+    @Test
+    fun expandVertical_heightIsCappedAtMaxHeight() {
+        val height =
+            measureExpanded(
+                "ExpandLongLazyColumnInScaffoldPreview",
+                viewportHeightPx = 100,
+                device = "$EXPAND_VERTICAL_DEVICE,maxHeight=300px",
+            )
+        assertEquals(300, height)
+    }
+
+    @Test
+    fun expandVertical_heightIsCappedAtMaxHeightInDp() {
+        val height =
+            measureExpanded(
+                "ExpandLongLazyColumnInScaffoldPreview",
+                viewportHeightPx = 100,
+                device = "$EXPAND_VERTICAL_DEVICE,maxHeight=150dp",
+            )
+        assertEquals(150.dp.toPx(), height)
+    }
+
+    @Test
+    fun expandVertical_maxWidthIsIgnored() {
+        val expectedHeight = EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT
+        val height =
+            measureExpanded(
+                "ExpandVerticalScrollColumnPreview",
+                viewportHeightPx = 100,
+                device = "$EXPAND_VERTICAL_DEVICE,maxWidth=300px",
+            )
+        assertEquals(expectedHeight, height)
+    }
+
+    @Test
+    fun noExpand_unspecifiedHeight_isNotExpanded() {
+        val viewportHeight = EXPAND_ITEM_HEIGHT.toPx() * 3
+        val expandedHeight =
+            measureExpanded("ExpandFixedHeightPreview", viewportHeightPx = viewportHeight)
+        // When expanded, the adapter is never smaller than the viewport.
+        assertEquals(viewportHeight, expandedHeight)
+        // Otherwise, it wraps its content, as with any other UNSPECIFIED spec.
+        val height =
+            measureExpanded(
+                "ExpandFixedHeightPreview",
+                viewportHeightPx = viewportHeight,
+                device = "spec:width=411dp,height=891dp",
+            )
+        assertEquals(EXPAND_ITEM_HEIGHT.toPx(), height)
+    }
+
+    @Test
+    fun expandVertical_mediaQueriesSeeTheScreenHeight() {
+        val expectedHeight = activityTestRule.activity.resources.configuration.screenHeightDp.dp
+        observedMediaQueryWindowHeight = null
+        // Use a spec without an explicit height (spec:parent=...) so the fallback screen height is
+        // reported.
+        measureExpanded(
+            "MediaQueryHeightPreview",
+            viewportHeightPx = 100,
+            device = "spec:parent=pixel_7,expand=vertical",
+        )
+        activityTestRule.runOnUiThread {
+            assertEquals(expectedHeight, observedMediaQueryWindowHeight)
+        }
+
+        // When the spec specifies an explicit height, that height takes precedence over the
+        // host screen height.
+        observedMediaQueryWindowHeight = null
+        measureExpanded(
+            "MediaQueryHeightPreview",
+            viewportHeightPx = 100,
+            device = "spec:width=411dp,height=900dp,expand=vertical",
+        )
+        activityTestRule.runOnUiThread {
+            assertEquals(900.dp, observedMediaQueryWindowHeight)
+        }
+    }
+
+    /**
+     * Initializes [methodName] with the given [device] spec (by default, one that expands
+     * horizontally) and returns the size of the adapter when measured with a width spec of size
+     * [viewportWidthPx] and mode [widthMode] (UNSPECIFIED by default, as LayoutLib does in H_SCROLL
+     * rendering mode) and an EXACTLY height spec of size [heightPx].
+     */
+    private fun measureExpandedHorizontally(
+        methodName: String,
+        viewportWidthPx: Int,
+        device: String = EXPAND_HORIZONTAL_DEVICE,
+        widthMode: Int = View.MeasureSpec.UNSPECIFIED,
+        heightPx: Int = 400,
+    ): Pair<Int, Int> {
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandListsPreviewKt",
+            methodName,
+            device = device,
+        )
+        var measuredSize = -1 to -1
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(viewportWidthPx, widthMode),
+                View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY),
+            )
+            measuredSize = composeViewAdapter.measuredWidth to composeViewAdapter.measuredHeight
+        }
+        return measuredSize
+    }
+
+    @Test
+    fun expandHorizontal_longLazyRow_growsToFitAllItems() {
+        val (width, height) =
+            measureExpandedHorizontally("ExpandLongLazyRowPreview", viewportWidthPx = 100)
+        assertEquals(EXPAND_ITEM_WIDTH.toPx() * EXPAND_LONG_LIST_ITEM_COUNT, width)
+        // The height is not expanded.
+        assertEquals(400, height)
+    }
+
+    @Test
+    fun expandHorizontal_shortLazyRow_shrinksToContent() {
+        // With a viewport of 0, a fillMaxSize() LazyRow must not expand to the max width.
+        val (width, _) =
+            measureExpandedHorizontally("ExpandShortLazyRowPreview", viewportWidthPx = 0)
+        assertEquals(EXPAND_ITEM_WIDTH.toPx() * EXPAND_SHORT_LIST_ITEM_COUNT, width)
+    }
+
+    @Test
+    fun expandHorizontal_shortLazyRow_neverSmallerThanViewport() {
+        val viewportWidth = EXPAND_ITEM_WIDTH.toPx() * (EXPAND_SHORT_LIST_ITEM_COUNT + 5)
+        val (width, _) =
+            measureExpandedHorizontally(
+                "ExpandShortLazyRowPreview",
+                viewportWidthPx = viewportWidth,
+            )
+        assertEquals(viewportWidth, width)
+    }
+
+    @Test
+    fun expandHorizontal_horizontalScrollRow_growsToFitAllItems() {
+        val (width, _) =
+            measureExpandedHorizontally("ExpandHorizontalScrollRowPreview", viewportWidthPx = 100)
+        assertEquals(EXPAND_ITEM_WIDTH.toPx() * EXPAND_LONG_LIST_ITEM_COUNT, width)
+    }
+
+    @Test
+    fun expandHorizontal_widthIsCappedAtMaxWidth() {
+        val (width, _) =
+            measureExpandedHorizontally(
+                "ExpandLongLazyRowPreview",
+                viewportWidthPx = 100,
+                device = "$EXPAND_HORIZONTAL_DEVICE,maxWidth=300px",
+            )
+        assertEquals(300, width)
+        val (widthDp, _) =
+            measureExpandedHorizontally(
+                "ExpandLongLazyRowPreview",
+                viewportWidthPx = 100,
+                device = "$EXPAND_HORIZONTAL_DEVICE,maxWidth=150dp",
+            )
+        assertEquals(150.dp.toPx(), widthDp)
+    }
+
+    @Test
+    fun expandHorizontal_maxHeightIsIgnored() {
+        val (width, _) =
+            measureExpandedHorizontally(
+                "ExpandLongLazyRowPreview",
+                viewportWidthPx = 100,
+                device = "$EXPAND_HORIZONTAL_DEVICE,maxHeight=300px",
+            )
+        assertEquals(EXPAND_ITEM_WIDTH.toPx() * EXPAND_LONG_LIST_ITEM_COUNT, width)
+    }
+
+    @Test
+    fun expandHorizontal_exactlySpecIsHonored() {
+        val (width, _) =
+            measureExpandedHorizontally(
+                "ExpandLongLazyRowPreview",
+                viewportWidthPx = 250,
+                widthMode = View.MeasureSpec.EXACTLY,
+            )
+        assertEquals(250, width)
+    }
+
+    @Test
+    fun expandHorizontal_doesNotProvideWearReduceMotion() {
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "WearReduceMotionPreview",
+            device = EXPAND_HORIZONTAL_DEVICE,
+        )
+        // The system "remove animations" setting is off on test devices.
+        activityTestRule.runOnUiThread { assertEquals(false, observedWearReduceMotion) }
+    }
+
+    @Test
+    fun expandHorizontal_mediaQueriesSeeTheScreenWidth() {
+        // Without an explicit width in the spec, media queries fall back to the device screen
+        // width instead of the expanded window width.
+        val expectedScreenWidth = activityTestRule.activity.resources.configuration.screenWidthDp.dp
+        observedMediaQueryWindowWidth = null
+        measureExpandedHorizontally(
+            "MediaQueryWidthPreview",
+            viewportWidthPx = 100,
+            device = "spec:parent=pixel_7,expand=horizontal",
+        )
+        activityTestRule.runOnUiThread {
+            assertEquals(expectedScreenWidth, observedMediaQueryWindowWidth)
+        }
+
+        // With an explicit width in the spec, media queries see that width.
+        observedMediaQueryWindowWidth = null
+        measureExpandedHorizontally(
+            "MediaQueryWidthPreview",
+            viewportWidthPx = 100,
+            device = "spec:width=500dp,height=891dp,expand=horizontal",
+        )
+        activityTestRule.runOnUiThread { assertEquals(500.dp, observedMediaQueryWindowWidth) }
+    }
+
+    @Test
+    fun expandVertical_exactlySpecIsHonored() {
+        val height =
+            measureExpanded(
+                "ExpandLongLazyColumnInScaffoldPreview",
+                viewportHeightPx = 250,
+                heightMode = View.MeasureSpec.EXACTLY,
+            )
+        assertEquals(250, height)
+    }
+
+    @Test
+    fun expandVertical_repeatedRenderMeasures_retainsExpandedHeightWithoutRecomputing() {
+        val expectedHeight = EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT
+        val height = measureExpanded("ExpandVerticalScrollColumnPreview", viewportHeightPx = 100)
+        assertEquals(expectedHeight, height)
+
+        // Simulate LayoutLib's subsequent RenderSessionImpl.render() passes, which measure the
+        // root view with EXACTLY (pair11) followed by the content root with UNSPECIFIED (pair12).
+        // Both passes must return the cached expanded height so calcSize does not add
+        // (pair12 - pair11) again or shrink the view back to the viewport height.
+        activityTestRule.runOnUiThread {
+            val widthSpec =
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width,
+                    View.MeasureSpec.EXACTLY,
+                )
+            composeViewAdapter.measure(
+                widthSpec,
+                View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.EXACTLY),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+
+            composeViewAdapter.measure(
+                widthSpec,
+                View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.UNSPECIFIED),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+
+            // Measuring with a different width invalidates the cached expanded height, so an
+            // EXACTLY height spec is honored and an UNSPECIFIED height spec re-expands for the new
+            // width.
+            val narrowerWidthSpec =
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width / 2,
+                    View.MeasureSpec.EXACTLY,
+                )
+            composeViewAdapter.measure(
+                narrowerWidthSpec,
+                View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.EXACTLY),
+            )
+            assertEquals(454, composeViewAdapter.measuredHeight)
+
+            composeViewAdapter.measure(
+                narrowerWidthSpec,
+                View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.UNSPECIFIED),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+        }
+    }
+
+    @Test
+    fun expandVertical_providesWearReduceMotion() {
+        observedWearReduceMotion = null
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "WearReduceMotionPreview",
+            device = EXPAND_VERTICAL_DEVICE,
+        )
+        activityTestRule.runOnUiThread { assertEquals(true, observedWearReduceMotion) }
+    }
+
+    @Test
+    fun expandVertical_providesWearReduceMotion_withPreviewWrapper() {
+        observedWearReduceMotion = null
+        observedWrapperWearReduceMotion = null
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "WearReduceMotionPreview",
+            previewWrapperProvider = WearReduceMotionObservingWrapper::class.java,
+            device = EXPAND_VERTICAL_DEVICE,
+        )
+        // The value is provided around the user's PreviewWrapperProvider, so both the wrapper and
+        // the preview inside it see it.
+        activityTestRule.runOnUiThread {
+            assertEquals(true, observedWrapperWearReduceMotion)
+            assertEquals(true, observedWearReduceMotion)
+        }
+    }
+
+    @Test
+    fun noExpand_doesNotProvideWearReduceMotion() {
+        observedWearReduceMotion = null
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "WearReduceMotionPreview",
+            device = "spec:width=411dp,height=891dp",
+        )
+        // The system "remove animations" setting is off on test devices.
+        activityTestRule.runOnUiThread { assertEquals(false, observedWearReduceMotion) }
+    }
+
+    @Test
+    fun findWearLocalReduceMotion_returnsNullWithoutWear() {
+        // A class loader that can't load anything besides the bootstrap classes.
+        val bootstrapClassLoader = ClassLoader.getSystemClassLoader().parent
+        assertEquals(null, findWearLocalReduceMotion(bootstrapClassLoader))
+    }
+
+    @Test
+    fun findWearScalingLazyListStateClass_returnsNullWithoutWear() {
+        // A class loader that can't load anything besides the bootstrap classes.
+        val bootstrapClassLoader = ClassLoader.getSystemClassLoader().parent
+        assertNull(findWearScalingLazyListStateClass(bootstrapClassLoader))
+    }
+
+    @Test
+    fun expandVertical_scalingLazyColumn_growsToFitAllItems() {
+        val height =
+            measureExpanded(
+                "ExpandScalingLazyColumnPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        // All the items, unscaled, must fit.
+        assertTrue(
+            "height=$height",
+            height >= EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT,
+        )
+        assertTrue("height=$height", height < DEFAULT_EXPAND_MAX_SIZE_PX)
+    }
+
+    @Test
+    fun expandVertical_autoCenteringScalingLazyColumn_collapsesAutoCenteringSpacers() {
+        // With auto centering, a ScalingLazyColumn adds top and bottom spacers that grow with the
+        // viewport (~half the viewport each). Expanding vertically collapses those spacers to 0px
+        // so the list neither grows to the max height nor leaves the top half of the preview empty:
+        // its height matches the same list without auto-centering, plus the two 4.dp item gaps
+        // adjacent to the 0px spacer items.
+        val noAutoCenteringHeight =
+            measureExpanded(
+                "ExpandScalingLazyColumnPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        val autoCenteringHeight =
+            measureExpanded(
+                "ExpandAutoCenteringScalingLazyColumnPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        val expectedHeight = noAutoCenteringHeight + 2 * 4.dp.toPx()
+        assertTrue(
+            "autoCenteringHeight=$autoCenteringHeight expected=$expectedHeight",
+            abs(autoCenteringHeight - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
+        )
+
+        // Even when maxHeight is no larger than the viewport (minHeight >= maxHeight), the
+        // auto-centering spacers are still collapsed so the first item starts at the top.
+        // expandAutoCenteringScalingLazyListState is not reset here: re-initializing the same
+        // preview method reuses the existing composition, which skips the preview's body, so the
+        // remembered state set by the previous measurement is the one being collapsed.
+        val cappedHeight =
+            measureExpanded(
+                "ExpandAutoCenteringScalingLazyColumnPreview",
+                viewportHeightPx = 300,
+                device = "$EXPAND_VERTICAL_DEVICE,maxHeight=300px",
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        assertEquals(300, cappedHeight)
+        activityTestRule.runOnUiThread {
+            val layoutInfo = expandAutoCenteringScalingLazyListState!!.layoutInfo
+            val firstItem = layoutInfo.visibleItemsInfo.first()
+            assertEquals(0, firstItem.index)
+            // ScalingLazyListItemInfo.offset is the item's center relative to the viewport center.
+            val firstItemTop =
+                layoutInfo.viewportSize.height / 2 + firstItem.offset - firstItem.unadjustedSize / 2
+            assertTrue(
+                "firstItemTop=$firstItemTop",
+                abs(firstItemTop - 4.dp.toPx()) <= EXPAND_ROUNDING_TOLERANCE_PX,
+            )
+        }
+
+        // A 2-item auto-centering list does not overflow at maxHeight even with its spacers intact
+        // (topSpacer + items + bottomSpacer == viewportHeight); its spacers must still be collapsed
+        // so the first item is positioned at the top.
+        expandAutoCenteringScalingLazyListState = null
+        val shortHeight =
+            measureExpanded(
+                "ExpandShortAutoCenteringScalingLazyColumnPreview",
+                viewportHeightPx = 300,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        assertEquals(300, shortHeight)
+        activityTestRule.runOnUiThread {
+            val layoutInfo = expandAutoCenteringScalingLazyListState!!.layoutInfo
+            val firstItem = layoutInfo.visibleItemsInfo.first()
+            assertEquals(0, firstItem.index)
+            val firstItemTop =
+                layoutInfo.viewportSize.height / 2 + firstItem.offset - firstItem.unadjustedSize / 2
+            assertTrue(
+                "firstItemTop=$firstItemTop",
+                abs(firstItemTop - 4.dp.toPx()) <= EXPAND_ROUNDING_TOLERANCE_PX,
+            )
+        }
+    }
+
+    /** Height of [ExpandTransformingLazyColumnWithPaddingPreview]'s content, padding included. */
+    private fun transformingLazyColumnWithPaddingHeight(): Int =
+        EXPAND_LIST_TOP_PADDING.toPx() +
+            EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT +
+            EXPAND_LIST_BOTTOM_PADDING.toPx()
+
+    @Test
+    fun expandVertical_transformingLazyColumn_showsAllContentPadding() {
+        // Measuring the list at smaller heights during the search scrolls it to its end. That
+        // state must not make the list look like it fits before its bottom content padding (e.g.
+        // the space reserved for an EdgeButton) is entirely visible.
+        val height =
+            measureExpanded(
+                "ExpandTransformingLazyColumnWithPaddingPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        val expectedHeight = transformingLazyColumnWithPaddingHeight()
+        assertTrue(
+            "height=$height expected=$expectedHeight",
+            abs(height - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
+        )
+    }
+
+    @Test
+    fun expandVertical_autoCenteringListNextToTransformingLazyColumn_fitsBoth() {
+        // Collapsing the auto-centering spacers of the ScalingLazyColumn must not prevent the
+        // taller TransformingLazyColumn next to it from expanding until its bottom content padding
+        // is visible.
+        val height =
+            measureExpanded(
+                "ExpandAutoCenteringAndTransformingLazyColumnsPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        val expectedHeight = transformingLazyColumnWithPaddingHeight()
+        assertTrue(
+            "height=$height expected=$expectedHeight",
+            abs(height - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
+        )
+    }
+
+    @Test
+    fun expandVertical_wearPlaceholderAndScreenDimensions_useDeviceScreenSize() {
+        val configuration = activityTestRule.activity.resources.configuration
+        val expectedScreenSizeDp =
+            IntSize(configuration.screenWidthDp, configuration.screenHeightDp)
+        val expectedHorizontalPadding = ceil(configuration.screenWidthDp * 0.052f).dp
+
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "ExpandWearPlaceholderAndScreenDimensionsPreview",
+            device = "spec:width=411dp,height=891dp",
+        )
+        var unexpandedTopPadding = 0.dp
+        var unexpandedBottomPadding = 0.dp
+        activityTestRule.runOnUiThread {
+            val unexpandedPadding = observedWearScaffoldContentPadding!!
+            unexpandedTopPadding = unexpandedPadding.calculateTopPadding()
+            unexpandedBottomPadding = unexpandedPadding.calculateBottomPadding()
+        }
+
+        val height =
+            measureExpanded(
+                "ExpandWearPlaceholderAndScreenDimensionsPreview",
+                viewportHeightPx = 454,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        assertTrue("height=$height", height > 454)
+        assertTrue("height=$height", height < DEFAULT_EXPAND_MAX_SIZE_PX)
+        activityTestRule.runOnUiThread {
+            assertEquals(expectedScreenSizeDp, observedWearScreenSizeDp)
+            val contentPadding = observedWearScaffoldContentPadding!!
+            assertEquals(
+                expectedHorizontalPadding,
+                contentPadding.calculateLeftPadding(LayoutDirection.Ltr),
+            )
+            assertEquals(
+                expectedHorizontalPadding,
+                contentPadding.calculateRightPadding(LayoutDirection.Ltr),
+            )
+            assertEquals(unexpandedTopPadding, contentPadding.calculateTopPadding())
+            assertEquals(unexpandedBottomPadding, contentPadding.calculateBottomPadding())
+            assertTrue(observedWearPlaceholderState!!.isVisible)
+        }
+    }
+
+    @Test
+    fun expandVertical_wearHeightBasedVerticalPadding_usesDeviceScreenHeight() {
+        val screenHeightDp = activityTestRule.activity.resources.configuration.screenHeightDp
+        val expectedTopPadding = ceil(screenHeightDp * 0.13f).dp
+        val expectedBottomPadding = ceil(screenHeightDp * 0.23f).dp
+        val itemVerticalPadding = (screenHeightDp * 0.10f).dp
+        val itemHeightPx = EXPAND_ITEM_HEIGHT.toPx() + 2 * itemVerticalPadding.toPx()
+        val expectedHeight =
+            expectedTopPadding.toPx() +
+                itemHeightPx * EXPAND_SHORT_LIST_ITEM_COUNT +
+                expectedBottomPadding.toPx()
+
+        val height =
+            measureExpanded(
+                "ExpandWearHeightBasedVerticalPaddingPreview",
+                viewportHeightPx = 454,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        activityTestRule.runOnUiThread {
+            assertEquals(expectedTopPadding, observedWearMinimumTopContentPadding)
+            assertEquals(expectedBottomPadding, observedWearMinimumBottomContentPadding)
+        }
+        assertTrue(
+            "height=$height expected=$expectedHeight",
+            abs(height - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
+        )
+    }
+
+    private val scrollToEndClassName = "androidx.compose.ui.tooling.ScrollToEndPreviewKt"
+
+    /**
+     * Measures the adapter with an EXACTLY height spec of [heightPx] and its current width, lays it
+     * out, runs [onLaidOut] and returns its measured height. Everything runs in the same UI thread
+     * task, so the adapter is not laid out again by its parent in between.
+     */
+    private fun measureAndLayoutAtHeight(heightPx: Int, onLaidOut: () -> Unit): Int {
+        var measuredHeight = -1
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width,
+                    View.MeasureSpec.EXACTLY,
+                ),
+                View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY),
+            )
+            measuredHeight = composeViewAdapter.measuredHeight
+            composeViewAdapter.layout(
+                composeViewAdapter.left,
+                composeViewAdapter.top,
+                composeViewAdapter.left + composeViewAdapter.measuredWidth,
+                composeViewAdapter.top + measuredHeight,
+            )
+            onLaidOut()
+        }
+        return measuredHeight
+    }
+
+    /**
+     * Asserts that the list of [ScrollToEndLazyColumnPreview] displays its last item. Must be
+     * called on the UI thread.
+     */
+    private fun assertLazyColumnScrolledToEnd(expectedViewportHeight: Int? = null) {
+        val state = scrollToEndLazyListState!!
+        assertFalse(state.canScrollForward)
+        val layoutInfo = state.layoutInfo
+        val lastItem = layoutInfo.visibleItemsInfo.last()
+        assertEquals(SCROLL_TO_END_ITEM_COUNT - 1, lastItem.index)
+        assertTrue(lastItem.offset + lastItem.size <= layoutInfo.viewportEndOffset)
+        if (expectedViewportHeight != null) {
+            assertEquals(expectedViewportHeight, layoutInfo.viewportSize.height)
+        }
+    }
+
+    @Test
+    fun scrollToEnd_lazyColumn_showsLastItem() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = SCROLL_TO_END_DEVICE,
+        )
+        activityTestRule.runOnUiThread { assertLazyColumnScrolledToEnd() }
+    }
+
+    @Test
+    fun scrollToEnd_reverseLayoutLazyColumn_showsLastItem() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndReverseLazyColumnPreview",
+            device = SCROLL_TO_END_DEVICE,
+        )
+        activityTestRule.runOnUiThread { assertLazyColumnScrolledToEnd() }
+    }
+
+    @Test
+    fun scrollToEnd_lazyColumn_measuredSizeIsUnchanged() {
+        initAndWaitForDraw(scrollToEndClassName, "ScrollToEndLazyColumnPreview")
+        var normalSize = -1 to -1
+        activityTestRule.runOnUiThread {
+            normalSize = composeViewAdapter.width to composeViewAdapter.height
+        }
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = SCROLL_TO_END_DEVICE,
+        )
+        activityTestRule.runOnUiThread {
+            assertEquals(normalSize, composeViewAdapter.width to composeViewAdapter.height)
+        }
+
+        // Measuring again at a smaller height scrolls the list to its end at that height.
+        val height =
+            measureAndLayoutAtHeight(400) {
+                assertLazyColumnScrolledToEnd(expectedViewportHeight = 400)
+            }
+        assertEquals(400, height)
+
+        // Subsequent measurements at the same size (e.g. Interactive Preview frames) must not
+        // re-scroll to the end after the user scrolls away.
+        activityTestRule.runOnUiThread {
+            scrollToEndLazyListState!!.dispatchRawDelta(-200f)
+            assertTrue(scrollToEndLazyListState!!.canScrollForward)
+            composeViewAdapter.forceLayout()
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.measuredWidth,
+                    View.MeasureSpec.EXACTLY,
+                ),
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            )
+            assertTrue(scrollToEndLazyListState!!.canScrollForward)
+        }
+    }
+
+    @Test
+    fun scrollToEnd_verticalScrollColumn_isScrolledToEnd() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndVerticalScrollColumnPreview",
+            device = SCROLL_TO_END_DEVICE,
+        )
+        activityTestRule.runOnUiThread {
+            val state = scrollToEndScrollState!!
+            assertTrue(state.maxValue > 0)
+            assertEquals(state.maxValue, state.value)
+        }
+    }
+
+    @Test
+    fun scrollToEnd_withoutScrollTo_isNotScrolled() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = "spec:width=411dp,height=891dp",
+        )
+        activityTestRule.runOnUiThread {
+            val state = scrollToEndLazyListState!!
+            assertEquals(0, state.firstVisibleItemIndex)
+            assertEquals(0, state.firstVisibleItemScrollOffset)
+            assertTrue(state.canScrollForward)
+        }
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndVerticalScrollColumnPreview",
+            device = "spec:width=411dp,height=891dp,scrollTo=start",
+        )
+        activityTestRule.runOnUiThread { assertEquals(0, scrollToEndScrollState!!.value) }
+    }
+
+    @Test
+    fun scrollToEnd_withExpandVertical_isIgnored() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = "$EXPAND_VERTICAL_DEVICE,scrollTo=end",
+        )
+        // Not expanded since the height spec is not UNSPECIFIED: the list could scroll, but it is
+        // not scrolled since scrollTo is ignored when expanding vertically.
+        val height =
+            measureAndLayoutAtHeight(400) {
+                val state = scrollToEndLazyListState!!
+                assertTrue(state.canScrollForward)
+                assertEquals(0, state.firstVisibleItemIndex)
+                assertEquals(0, state.firstVisibleItemScrollOffset)
+            }
+        assertEquals(400, height)
+    }
+
+    @Test
+    fun scrollToEnd_withExpandHorizontal_scrollsVertically() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = "$EXPAND_HORIZONTAL_DEVICE,scrollTo=end",
+        )
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            )
+            // Nothing scrolls horizontally: the adapter is as wide as the viewport.
+            assertEquals(100, composeViewAdapter.measuredWidth)
+            assertEquals(400, composeViewAdapter.measuredHeight)
+            assertLazyColumnScrolledToEnd(expectedViewportHeight = 400)
+        }
+    }
+
+    @Test
+    fun scrollToEnd_wearScalingLazyColumn_showsLastItem() {
+        scrollToEndScalingLazyListState = null
+        scrollToEndObservedWearReduceMotion = null
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndWearScalingLazyColumnPreview",
+            device = "spec:parent=wearos_large_round,scrollTo=end",
+        )
+        activityTestRule.runOnUiThread {
+            val state = scrollToEndScalingLazyListState!!
+            assertFalse(state.canScrollForward)
+            val lastItem = state.layoutInfo.visibleItemsInfo.last()
+            assertEquals(SCROLL_TO_END_ITEM_COUNT - 1, lastItem.index)
+            // The Wear list transformations are not disabled: the list renders as on a device.
+            assertEquals(false, scrollToEndObservedWearReduceMotion)
         }
     }
 

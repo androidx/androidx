@@ -84,6 +84,10 @@ androidXMultiplatform {
             implementation(project(":compose:animation:animation-tooling-internal"))
             implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
             implementation(project(":compose:runtime:runtime-livedata"))
+            // Required to test expanded previews of Wear OS lists
+            implementation(project(":wear:compose:compose-foundation"))
+            implementation(project(":wear:compose:compose-material-core"))
+            implementation(project(":wear:compose:compose-material3"))
         }
     }
 }
