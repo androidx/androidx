@@ -18,17 +18,32 @@ import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
-    id("kotlin")
+    id("com.android.library")
 }
 
 dependencies {
-    // Add dependencies here
+    api(project(":appfunctions:appfunctions"))
+    api("androidx.annotation:annotation:1.10.0")
+    implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinSerializationJson)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.testRunner)
+}
+
+android {
+    compileSdk { version = release(37) { minorApiLevel = 2 } }
+    namespace = "androidx.appfunctions.evaluation"
 }
 
 androidx {
     name = "androidx.appfunctions:appfunctions-evaluation"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2026"
     description = "AppFunctions Evaluation Framework."
+    enableRobolectric()
 }
