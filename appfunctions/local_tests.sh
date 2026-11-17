@@ -9,3 +9,4 @@ set -e
 ./gradlew :appfunctions:integration-tests:multi-modules-testapp:app:connectedAndroidTest
 ./gradlew :appfunctions:appfunctions-compiler:test
 ./gradlew :appfunctions:appfunctions-testing:test
+./gradlew :appfunctions:appfunctions-evaluation:test
