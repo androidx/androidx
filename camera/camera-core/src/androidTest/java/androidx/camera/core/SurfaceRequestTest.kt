@@ -33,17 +33,18 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -74,7 +75,7 @@ class SurfaceRequestTest {
     fun canRetrieveResolution() {
         val resolution = Size(640, 480)
         val request = createNewRequest(resolution)
-        Truth.assertThat(request.resolution).isEqualTo(resolution)
+        assertThat(request.resolution).isEqualTo(resolution)
     }
 
     @Test
@@ -82,28 +83,27 @@ class SurfaceRequestTest {
         val resolution = Size(640, 480)
         val expectedFrameRate = Range<Int>(12, 30)
         val request = createNewRequest(resolution, expectedFrameRate = expectedFrameRate)
-        Truth.assertThat(request.expectedFrameRate).isEqualTo(expectedFrameRate)
+        assertThat(request.expectedFrameRate).isEqualTo(expectedFrameRate)
     }
 
     @Test
     fun expectedFrameRateIsUnspecified_whenNotSet() {
         val resolution = Size(640, 480)
         val request = createNewRequest(resolution)
-        Truth.assertThat(request.expectedFrameRate)
-            .isEqualTo(SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED)
+        assertThat(request.expectedFrameRate).isEqualTo(SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED)
     }
 
     @Test
     fun canRetrieveDynamicRange() {
         val dynamicRange = DynamicRange.HLG_10_BIT
         val request = createNewRequest(FAKE_SIZE, dynamicRange)
-        Truth.assertThat(request.dynamicRange).isEqualTo(dynamicRange)
+        assertThat(request.dynamicRange).isEqualTo(dynamicRange)
     }
 
     @Test
     fun dynamicRangeIsSdr_whenNotSet() {
         val request = createNewRequest(FAKE_SIZE)
-        Truth.assertThat(request.dynamicRange).isEqualTo(DynamicRange.SDR)
+        assertThat(request.dynamicRange).isEqualTo(DynamicRange.SDR)
     }
 
     @Test
@@ -114,20 +114,17 @@ class SurfaceRequestTest {
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST")
     fun setWillNotProvideSurface_resultsInWILL_NOT_PROVIDE_SURFACE() {
         val request = createNewRequest(FAKE_SIZE)
-        val listener: Consumer<SurfaceRequest.Result> =
-            Mockito.mock(Consumer::class.java) as Consumer<SurfaceRequest.Result>
+        val results = mutableListOf<SurfaceRequest.Result>()
+        val listener = Consumer<SurfaceRequest.Result> { results.add(it) }
         request.willNotProvideSurface()
         request.provideSurface(surface, CameraXExecutors.directExecutor(), listener)
-        Mockito.verify(listener)
-            .accept(
-                ArgumentMatchers.eq(
-                    SurfaceRequest.Result.of(
-                        SurfaceRequest.Result.RESULT_WILL_NOT_PROVIDE_SURFACE,
-                        surface,
-                    )
+        assertThat(results)
+            .containsExactly(
+                SurfaceRequest.Result.of(
+                    SurfaceRequest.Result.RESULT_WILL_NOT_PROVIDE_SURFACE,
+                    surface,
                 )
             )
     }
@@ -138,7 +135,7 @@ class SurfaceRequestTest {
 
         // Complete the request
         request.provideSurface(surface, CameraXExecutors.directExecutor(), NO_OP_RESULT_LISTENER)
-        Truth.assertThat(request.willNotProvideSurface()).isFalse()
+        assertThat(request.willNotProvideSurface()).isFalse()
     }
 
     @Test
@@ -147,21 +144,25 @@ class SurfaceRequestTest {
 
         // Cause request to be cancelled from producer side
         request.deferrableSurface.close()
-        Truth.assertThat(request.willNotProvideSurface()).isFalse()
+        assertThat(request.willNotProvideSurface()).isFalse()
     }
 
     @Test
     fun willNotProvideSurface_returnsTrue_whenNotYetCompleted() {
         val request = createNewRequest(FAKE_SIZE)
-        Truth.assertThat(request.willNotProvideSurface()).isTrue()
+        assertThat(request.willNotProvideSurface()).isTrue()
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST")
     fun surfaceRequestResult_completesSuccessfully_afterProducerIsDone() {
         val request = createNewRequest(FAKE_SIZE)
-        val listener: Consumer<SurfaceRequest.Result> =
-            Mockito.mock(Consumer::class.java) as Consumer<SurfaceRequest.Result>
+        val results = mutableListOf<SurfaceRequest.Result>()
+        val latch = CountDownLatch(1)
+        val listener =
+            Consumer<SurfaceRequest.Result> {
+                results.add(it)
+                latch.countDown()
+            }
         request.provideSurface(
             surface,
             ContextCompat.getMainExecutor(ApplicationProvider.getApplicationContext()),
@@ -170,32 +171,28 @@ class SurfaceRequestTest {
 
         // Cause request to be completed from producer side
         request.deferrableSurface.close()
-        Mockito.verify(listener, Mockito.timeout(500))
-            .accept(
-                ArgumentMatchers.eq(
-                    SurfaceRequest.Result.of(
-                        SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY,
-                        surface,
-                    )
+        assertThat(latch.await(500, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(results)
+            .containsExactly(
+                SurfaceRequest.Result.of(
+                    SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY,
+                    surface,
                 )
             )
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST")
     fun provideSurface_resultsInSURFACE_ALREADY_PROVIDED_onSecondInvocation() {
         val request = createNewRequest(FAKE_SIZE)
-        val listener: Consumer<SurfaceRequest.Result> =
-            Mockito.mock(Consumer::class.java) as Consumer<SurfaceRequest.Result>
+        val results = mutableListOf<SurfaceRequest.Result>()
+        val listener = Consumer<SurfaceRequest.Result> { results.add(it) }
         request.provideSurface(surface, CameraXExecutors.directExecutor(), NO_OP_RESULT_LISTENER)
         request.provideSurface(surface, CameraXExecutors.directExecutor(), listener)
-        Mockito.verify(listener)
-            .accept(
-                ArgumentMatchers.eq(
-                    SurfaceRequest.Result.of(
-                        SurfaceRequest.Result.RESULT_SURFACE_ALREADY_PROVIDED,
-                        surface,
-                    )
+        assertThat(results)
+            .containsExactly(
+                SurfaceRequest.Result.of(
+                    SurfaceRequest.Result.RESULT_SURFACE_ALREADY_PROVIDED,
+                    surface,
                 )
             )
     }
@@ -205,61 +202,60 @@ class SurfaceRequestTest {
         // Arrange.
         var isCalled = false
         val request = createNewRequest(FAKE_SIZE) { isCalled = true }
-        Truth.assertThat(isCalled).isFalse()
+        assertThat(isCalled).isFalse()
 
         // Act.
         request.willNotProvideSurface()
         request.invalidate()
 
         // Assert.
-        Truth.assertThat(isCalled).isTrue()
+        assertThat(isCalled).isTrue()
     }
 
     @Test
     fun isServiced_trueAfterProvideSurface() {
         val request = createNewRequest(FAKE_SIZE)
         request.provideSurface(surface, CameraXExecutors.directExecutor(), NO_OP_RESULT_LISTENER)
-        Truth.assertThat(request.isServiced).isTrue()
+        assertThat(request.isServiced).isTrue()
     }
 
     @Test
     fun isServiced_trueAfterWillNotProvideSurface() {
         val request = createNewRequest(FAKE_SIZE)
         request.willNotProvideSurface()
-        Truth.assertThat(request.isServiced).isTrue()
+        assertThat(request.isServiced).isTrue()
     }
 
     @Test
     fun isServiced_falseInitially() {
         val request = createNewRequest(FAKE_SIZE)
-        Truth.assertThat(request.isServiced).isFalse()
+        assertThat(request.isServiced).isFalse()
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST")
     fun cancelledRequest_resultsInREQUEST_CANCELLED() {
         val request = createNewRequest(FAKE_SIZE)
 
         // Cause request to be cancelled from producer side
         request.deferrableSurface.close()
-        val listener: Consumer<SurfaceRequest.Result> =
-            Mockito.mock(Consumer::class.java) as Consumer<SurfaceRequest.Result>
+        val results = mutableListOf<SurfaceRequest.Result>()
+        val listener = Consumer<SurfaceRequest.Result> { results.add(it) }
         request.provideSurface(surface, CameraXExecutors.directExecutor(), listener)
-        Mockito.verify(listener)
-            .accept(
-                ArgumentMatchers.eq(
-                    SurfaceRequest.Result.of(
-                        SurfaceRequest.Result.RESULT_REQUEST_CANCELLED,
-                        surface,
-                    )
-                )
+        assertThat(results)
+            .containsExactly(
+                SurfaceRequest.Result.of(SurfaceRequest.Result.RESULT_REQUEST_CANCELLED, surface)
             )
     }
 
     @Test
     fun cancelledRequest_callsCancellationListener_whenCancelledAfterAddingListener() {
         val request = createNewRequest(FAKE_SIZE)
-        val listener = Mockito.mock(Runnable::class.java)
+        val callCount = AtomicInteger(0)
+        val latch = CountDownLatch(1)
+        val listener = Runnable {
+            callCount.incrementAndGet()
+            latch.countDown()
+        }
         request.addRequestCancellationListener(
             ContextCompat.getMainExecutor(ApplicationProvider.getApplicationContext()),
             listener,
@@ -267,7 +263,8 @@ class SurfaceRequestTest {
 
         // Cause request to be cancelled from producer side
         request.deferrableSurface.close()
-        Mockito.verify(listener, Mockito.timeout(500)).run()
+        assertThat(latch.await(500, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(callCount.get()).isEqualTo(1)
     }
 
     @Test
@@ -276,12 +273,18 @@ class SurfaceRequestTest {
 
         // Cause request to be cancelled from producer side
         request.deferrableSurface.close()
-        val listener = Mockito.mock(Runnable::class.java)
+        val callCount = AtomicInteger(0)
+        val latch = CountDownLatch(1)
+        val listener = Runnable {
+            callCount.incrementAndGet()
+            latch.countDown()
+        }
         request.addRequestCancellationListener(
             ContextCompat.getMainExecutor(ApplicationProvider.getApplicationContext()),
             listener,
         )
-        Mockito.verify(listener, Mockito.timeout(500)).run()
+        assertThat(latch.await(500, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(callCount.get()).isEqualTo(1)
     }
 
     @Test
@@ -298,7 +301,7 @@ class SurfaceRequestTest {
         }
 
         // Assert.
-        Truth.assertThat(infoReference.get()).isEqualTo(FAKE_INFO)
+        assertThat(infoReference.get()).isEqualTo(FAKE_INFO)
     }
 
     @Test
@@ -310,13 +313,13 @@ class SurfaceRequestTest {
             newValue: SurfaceRequest.TransformationInfo ->
             infoReference.set(newValue)
         }
-        Truth.assertThat(infoReference.get()).isNull()
+        assertThat(infoReference.get()).isNull()
 
         // Act.
         request.updateTransformationInfo(FAKE_INFO)
 
         // Assert.
-        Truth.assertThat(infoReference.get()).isEqualTo(FAKE_INFO)
+        assertThat(infoReference.get()).isEqualTo(FAKE_INFO)
     }
 
     // request assigned to null to make GC eligible
@@ -341,7 +344,7 @@ class SurfaceRequestTest {
             val requestFinalized = referenceQueue.poll() != null
 
             // Assert.
-            Truth.assertThat(requestFinalized).isFalse()
+            assertThat(requestFinalized).isFalse()
         } finally {
             // Clean up
             phantomReference.clear()
@@ -372,7 +375,7 @@ class SurfaceRequestTest {
             val deferrableSurfaceFinalized = referenceQueue.poll() != null
 
             // Assert.
-            Truth.assertThat(deferrableSurfaceFinalized).isFalse()
+            assertThat(deferrableSurfaceFinalized).isFalse()
         } finally {
             // Clean up
             phantomReference.clear()
