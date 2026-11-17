@@ -542,8 +542,106 @@ public class ExifInterfaceTest {
                 copyFromResourceToFile(
                         R.raw.invalid_webp_with_jpeg_app1_marker,
                         "invalid_webp_with_jpeg_app1_marker.webp");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        assertThat(exifInterface.getAttributeRange(ExifInterface.TAG_ORIENTATION))
+                .isEqualTo(new long[] {12444, 2});
+        assertThat(Arrays.copyOfRange(Files.toByteArray(imageFile), 12444, 12446))
+                .isEqualTo(exifInterface.getAttributeBytes(ExifInterface.TAG_ORIENTATION));
         readFromFilesWithExif(imageFile, ExpectedAttributes.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
         testWritingExif(imageFile, ExpectedAttributes.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
+    }
+
+    @Test
+    @SmallTest
+    public void testWebpWithInvalidRiffSize_saveAttributesThrowsAndPreservesFile()
+            throws Throwable {
+        // Corrupt RIFF header size (-1 / 0xFFFFFFFF): loadAttributes swallows the parse error,
+        // and saveAttributes() must reject the corrupt RIFF size and preserve the file.
+        byte[] corruptRiffBytes =
+                Files.toByteArray(copyFromResourceToFile(R.raw.webp_with_exif, "webp_source.webp"));
+        ByteBuffer.wrap(corruptRiffBytes).order(ByteOrder.LITTLE_ENDIAN).putInt(4, -1);
+        File imageFile = tempFolder.newFile("corrupt_riff_size.webp");
+        Files.write(corruptRiffBytes, imageFile);
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+
+        assertThrows(IOException.class, exifInterface::saveAttributes);
+
+        assertThat(Files.toByteArray(imageFile)).isEqualTo(corruptRiffBytes);
+    }
+
+    @Test
+    @SmallTest
+    public void testWebpWithInvalidTrailingChunkSize_saveAttributesThrowsAndPreservesFile()
+            throws Throwable {
+        // Corrupt trailing chunk size (-1) after Exif: getWebpAttributes succeeds because it stops
+        // after reading Exif, and saveAttributes() must reject the corrupt chunk and preserve the
+        // file.
+        byte[] validWebpBytes =
+                Files.toByteArray(copyFromResourceToFile(R.raw.webp_with_exif, "webp_source.webp"));
+        int validRiffSize =
+                ByteBuffer.wrap(validWebpBytes).order(ByteOrder.LITTLE_ENDIAN).getInt(4);
+        byte[] corruptTrailingBytes =
+                ByteBuffer.allocate(validWebpBytes.length + 8)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .put(validWebpBytes)
+                        .put(new byte[] {'J', 'U', 'N', 'K'})
+                        .putInt(-1)
+                        .putInt(4, validRiffSize + 8)
+                        .array();
+        File imageFile = tempFolder.newFile("corrupt_trailing_chunk.webp");
+        Files.write(corruptTrailingBytes, imageFile);
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_MAKE)).isEqualTo("SAMSUNG");
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+
+        assertThrows(IOException.class, exifInterface::saveAttributes);
+
+        assertThat(Files.toByteArray(imageFile)).isEqualTo(corruptTrailingBytes);
+    }
+
+    @Test
+    @SmallTest
+    public void testWebpWithUnexpectedFirstChunkType_saveAttributesThrowsAndPreservesFile()
+            throws Throwable {
+        byte[] unexpectedFirstChunkBytes =
+                ByteBuffer.allocate(20)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .put(new byte[] {'R', 'I', 'F', 'F'})
+                        .putInt(12)
+                        .put(new byte[] {'W', 'E', 'B', 'P', 'J', 'U', 'N', 'K'})
+                        .putInt(0)
+                        .array();
+        File imageFile = tempFolder.newFile("unexpected_first_chunk.webp");
+        Files.write(unexpectedFirstChunkBytes, imageFile);
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+
+        assertThrows(IOException.class, exifInterface::saveAttributes);
+
+        assertThat(Files.toByteArray(imageFile)).isEqualTo(unexpectedFirstChunkBytes);
+    }
+
+    @Test
+    @SmallTest
+    public void testWebpWithInvalidVp8xChunkSize_saveAttributesThrowsAndPreservesFile()
+            throws Throwable {
+        byte[] invalidVp8xBytes =
+                ByteBuffer.allocate(30)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .put(new byte[] {'R', 'I', 'F', 'F'})
+                        .putInt(0x70000000)
+                        .put(new byte[] {'W', 'E', 'B', 'P', 'V', 'P', '8', 'X'})
+                        .putInt(0x6FFFFFF0)
+                        .array();
+        File imageFile = tempFolder.newFile("invalid_vp8x_size.webp");
+        Files.write(invalidVp8xBytes, imageFile);
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+
+        assertThrows(IOException.class, exifInterface::saveAttributes);
+
+        assertThat(Files.toByteArray(imageFile)).isEqualTo(invalidVp8xBytes);
     }
 
     @Test
@@ -573,6 +671,145 @@ public class ExifInterfaceTest {
                         R.raw.webp_with_anim_without_exif, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
         testWritingExif(imageFile, /* expectedAttributes= */ null);
     }
+
+    @Test
+    @SmallTest
+    public void testWebpWithAnimAndTrailingUnknownChunk_preservesTrailingChunkInLittleEndian()
+            throws Throwable {
+        byte[] animBytes =
+                Files.toByteArray(
+                        copyFromResourceToFile(
+                                R.raw.webp_with_anim_without_exif, "anim_source.webp"));
+        int originalRiffSize = ByteBuffer.wrap(animBytes).order(ByteOrder.LITTLE_ENDIAN).getInt(4);
+        byte[] trailingTestChunk =
+                ByteBuffer.allocate(12)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .put(new byte[] {'T', 'E', 'S', 'T'})
+                        .putInt(4)
+                        .put(new byte[] {1, 2, 3, 4})
+                        .array();
+        byte[] animWithTestChunkBytes =
+                ByteBuffer.allocate(animBytes.length + trailingTestChunk.length)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .put(animBytes)
+                        .put(trailingTestChunk)
+                        .putInt(4, originalRiffSize + trailingTestChunk.length)
+                        .array();
+        File imageFile = tempFolder.newFile("anim_with_test_chunk.webp");
+        Files.write(animWithTestChunkBytes, imageFile);
+
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+        exifInterface.saveAttributes();
+
+        byte[] savedBytes = Files.toByteArray(imageFile);
+        assertThat(
+                        Arrays.copyOfRange(
+                                savedBytes,
+                                savedBytes.length - trailingTestChunk.length,
+                                savedBytes.length))
+                .isEqualTo(trailingTestChunk);
+
+        ExifInterface reloadedExif = new ExifInterface(imageFile);
+        assertThat(reloadedExif.getAttribute(ExifInterface.TAG_MAKE)).isEqualTo("abc");
+        reloadedExif.saveAttributes();
+        byte[] secondSavedBytes = Files.toByteArray(imageFile);
+        assertThat(
+                        Arrays.copyOfRange(
+                                secondSavedBytes,
+                                secondSavedBytes.length - trailingTestChunk.length,
+                                secondSavedBytes.length))
+                .isEqualTo(trailingTestChunk);
+
+        new ExifInterface(imageFile).saveAttributes();
+        assertThat(Files.toByteArray(imageFile)).isEqualTo(secondSavedBytes);
+    }
+
+    @Test
+    @SmallTest
+    public void testWebpWithOddSizedExifBeforeVp8_saveAttributesMovesAndUpdatesExif()
+            throws Throwable {
+        File sourceFile = copyFromResourceToFile(R.raw.webp_with_exif, "webp_source.webp");
+        byte[] sourceBytes = Files.toByteArray(sourceFile);
+        ByteBuffer sourceBuffer = ByteBuffer.wrap(sourceBytes).order(ByteOrder.LITTLE_ENDIAN);
+        int vp8xEnd = 12 + 8 + sourceBuffer.getInt(16);
+        int vp8Size = sourceBuffer.getInt(vp8xEnd + 4);
+        int vp8End = vp8xEnd + 8 + vp8Size + (vp8Size % 2);
+        int exifSize = sourceBuffer.getInt(vp8End + 4);
+        byte[] vp8xChunk = Arrays.copyOfRange(sourceBytes, 12, vp8xEnd);
+        byte[] vp8Chunk = Arrays.copyOfRange(sourceBytes, vp8xEnd, vp8End);
+        byte[] exifPayload = Arrays.copyOfRange(sourceBytes, vp8End + 8, vp8End + 8 + exifSize);
+        // Append 1 zero byte so the Exif chunk payload has an odd length (plus 1 RIFF pad byte).
+        int oddExifSize = exifPayload.length + 1;
+        int riffPayloadSize = 4 + vp8xChunk.length + 8 + oddExifSize + 1 + vp8Chunk.length;
+        byte[] reorderedBytes =
+                ByteBuffer.allocate(8 + riffPayloadSize)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .put(new byte[] {'R', 'I', 'F', 'F'})
+                        .putInt(riffPayloadSize)
+                        .put(new byte[] {'W', 'E', 'B', 'P'})
+                        .put(vp8xChunk)
+                        .put(new byte[] {'E', 'X', 'I', 'F'})
+                        .putInt(oddExifSize)
+                        .put(exifPayload)
+                        .put((byte) 0) // extra byte making Exif payload odd-sized
+                        .put((byte) 0) // RIFF padding byte for odd chunk size
+                        .put(vp8Chunk)
+                        .array();
+        File imageFile = tempFolder.newFile("odd_exif_before_vp8.webp");
+        Files.write(reorderedBytes, imageFile);
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_MAKE)).isEqualTo("SAMSUNG");
+
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+        exifInterface.saveAttributes();
+
+        byte[] savedBytes = Files.toByteArray(imageFile);
+        byte[] exifFourCc = "EXIF".getBytes(Charsets.US_ASCII);
+        byte[] vp8FourCc = "VP8 ".getBytes(Charsets.US_ASCII);
+        assertThat(countOccurrences(savedBytes, exifFourCc)).isEqualTo(1);
+        assertThat(Bytes.indexOf(savedBytes, vp8FourCc))
+                .isLessThan(Bytes.indexOf(savedBytes, exifFourCc));
+        assertThat(new ExifInterface(imageFile).getAttribute(ExifInterface.TAG_MAKE))
+                .isEqualTo("abc");
+        expectBitmapsEquivalent(sourceFile, imageFile);
+    }
+
+    @Test
+    @SmallTest
+    public void testWebpLosslessWithExifAndThumbnail_saveAttributesPreservesThumbnail()
+            throws Throwable {
+        byte[] losslessBytes =
+                Files.toByteArray(
+                        copyFromResourceToFile(
+                                R.raw.webp_lossless_alpha_without_exif, "lossless_source.webp"));
+        byte[] exifSourceBytes =
+                Files.toByteArray(copyFromResourceToFile(R.raw.webp_with_exif, "exif_source.webp"));
+        int exifChunkStart = Bytes.indexOf(exifSourceBytes, "EXIF".getBytes(Charsets.US_ASCII));
+        byte[] exifChunk =
+                Arrays.copyOfRange(exifSourceBytes, exifChunkStart, exifSourceBytes.length);
+        int losslessRiffSize =
+                ByteBuffer.wrap(losslessBytes).order(ByteOrder.LITTLE_ENDIAN).getInt(4);
+        // Simple VP8L file with an appended 'EXIF' chunk (non-compliant, but exercises VP8L -> VP8X
+        // conversion when a thumbnail is already present).
+        byte[] losslessWithExifBytes =
+                ByteBuffer.allocate(losslessBytes.length + exifChunk.length)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .put(losslessBytes)
+                        .put(exifChunk)
+                        .putInt(4, losslessRiffSize + exifChunk.length)
+                        .array();
+        File imageFile = tempFolder.newFile("lossless_with_exif.webp");
+        Files.write(losslessWithExifBytes, imageFile);
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        byte[] originalThumbnail = exifInterface.getThumbnailBytes();
+        checkState(originalThumbnail != null);
+
+        exifInterface.saveAttributes();
+
+        assertThat(exifInterface.getThumbnailBytes()).isEqualTo(originalThumbnail);
+    }
+
     @Test
     @LargeTest
     public void testWebpWithoutExifWithLosslessEncoding() throws Throwable {
@@ -746,6 +983,32 @@ public class ExifInterfaceTest {
         ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(bytes));
         exifInterface.getAttribute(ExifInterface.TAG_ARTIST);
         // Test will fail if the ExifInterface constructor or getter throw an exception.
+    }
+
+    @Test
+    @SmallTest
+    public void testDoNotFailOnCorruptedWebpImage() throws Throwable {
+        int[][] invalidRiffAndChunkSizes = {
+            /* {riffSize, exifChunkSize} */
+            {0, 0}, // fileSize (8) < 12-byte WebP header
+            {-1, 0}, // negative riffSize (fileSize = 7 < 12)
+            {Integer.MAX_VALUE, 0}, // riffSize + 8 overflows negative
+            {12, -1}, // negative chunkSize
+            {12, Integer.MAX_VALUE}, // chunkSize + 1 padding overflows negative
+            {12, 100}, // chunkSize exceeds remaining RIFF fileSize
+        };
+        for (int[] sizes : invalidRiffAndChunkSizes) {
+            byte[] bytes =
+                    ByteBuffer.allocate(32)
+                            .order(ByteOrder.LITTLE_ENDIAN)
+                            .put(new byte[] {'R', 'I', 'F', 'F'})
+                            .putInt(sizes[0])
+                            .put(new byte[] {'W', 'E', 'B', 'P', 'E', 'X', 'I', 'F'})
+                            .putInt(sizes[1])
+                            .array();
+            ExifInterface exifInterface = new ExifInterface(new ByteArrayInputStream(bytes));
+            assertThat(exifInterface.getAttribute(ExifInterface.TAG_ARTIST)).isNull();
+        }
     }
 
     @Test
