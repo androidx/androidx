@@ -35,6 +35,7 @@
             android:id="@+id/plain_text_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="true"
             android:text="@string/plain_text"/>
         <RadioButton
             style="@style/LabelText"
@@ -42,6 +43,43 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/vertical_list"/>
+        <RadioButton
+            style="@style/LabelText"
+            android:id="@+id/more_options_button_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/more_options_button"/>
+    </RadioGroup>
+
+    <TextView
+        style="@style/GroupLabelText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/logo_options_label" />
+    <RadioGroup
+        android:id="@+id/logo_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton
+            style="@style/LabelText"
+            android:id="@+id/logo_none_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/logo_none"/>
+        <RadioButton
+            style="@style/LabelText"
+            android:id="@+id/logo_res_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logo_res"/>
+        <RadioButton
+            style="@style/LabelText"
+            android:id="@+id/logo_bitmap_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/logo_bitmap"/>
     </RadioGroup>
 
     <TextView

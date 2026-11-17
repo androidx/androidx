@@ -31,7 +31,23 @@ class MainActivity : FragmentActivity() {
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set button callbacks.
+        // Set button callback for Compose scenario tabs.
+        binding.composeSamplesButton.setOnClickListener {
+            launch<BiometricComposeSamplesActivity>()
+        }
+
+        // Set button callbacks for focused scenario activities.
+        binding.simpleBiometricAuthButton.setOnClickListener {
+            launch<SimpleBiometricAuthActivity>()
+        }
+        binding.credentialOnlyAuthButton.setOnClickListener { launch<CredentialOnlyAuthActivity>() }
+        binding.fallbackOptionsAuthButton.setOnClickListener {
+            launch<FallbackOptionsAuthActivity>()
+        }
+        binding.contentViewsAuthButton.setOnClickListener { launch<ContentViewsAuthActivity>() }
+        binding.advancedAuthButton.setOnClickListener { launch<AdvancedAuthActivity>() }
+
+        // Set button callbacks for full config / QA test activities.
         binding.biometricPromptButton.setOnClickListener { launch<BiometricPromptTestActivity>() }
         binding.authResultButton.setOnClickListener { launch<AuthenticationResultTestActivity>() }
     }

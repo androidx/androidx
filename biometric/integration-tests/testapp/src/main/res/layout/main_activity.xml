@@ -15,28 +15,99 @@
   limitations under the License.
   -->
 
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/ScreenLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
-    <TextView
-        style="@style/LabelText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/select_activity_label" />
-
-    <Button
-        android:id="@+id/biometric_prompt_button"
+    <LinearLayout
+        style="@style/ScreenLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/biometric_prompt_test_title" />
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/auth_result_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/auth_result_test_title" />
-</LinearLayout>
+        <TextView
+            style="@style/GroupLabelText"
+            android:paddingLeft="4dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_activity_label" />
+
+        <TextView
+            style="@style/LabelText"
+            android:paddingLeft="4dp"
+            android:paddingBottom="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jetpack Compose Samples:" />
+
+        <Button
+            android:id="@+id/compose_samples_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/compose_samples_title" />
+
+        <TextView
+            style="@style/LabelText"
+            android:paddingLeft="4dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Android Views / XML Samples:" />
+
+        <Button
+            android:id="@+id/simple_biometric_auth_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/simple_biometric_auth_title" />
+
+        <Button
+            android:id="@+id/credential_only_auth_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/credential_only_auth_title" />
+
+        <Button
+            android:id="@+id/fallback_options_auth_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fallback_options_auth_title" />
+
+        <Button
+            android:id="@+id/content_views_auth_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/content_views_auth_title" />
+
+        <Button
+            android:id="@+id/advanced_auth_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/advanced_auth_title" />
+
+        <TextView
+            style="@style/LabelText"
+            android:paddingLeft="4dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Full Config / QA Test Screens:" />
+
+        <Button
+            android:id="@+id/biometric_prompt_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/biometric_prompt_test_title" />
+
+        <Button
+            android:id="@+id/auth_result_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_result_test_title" />
+    </LinearLayout>
+</ScrollView>

@@ -17,9 +17,15 @@
 
 <resources>
     <string name="biometric_test_app_name">Biometric Test App</string>
-    <string name="select_activity_label">Select a test activity:</string>
-    <string name="biometric_prompt_test_title">BiometricPrompt API Test</string>
-    <string name="auth_result_test_title">Authentication Result API Test</string>
+    <string name="select_activity_label">Select a test scenario / activity:</string>
+    <string name="compose_samples_title">Compose Samples (Tabs)</string>
+    <string name="simple_biometric_auth_title">1. Simple Biometric Auth (Views)</string>
+    <string name="credential_only_auth_title">2. Credential Only Auth (Views)</string>
+    <string name="fallback_options_auth_title">3. Fallback Options (Views)</string>
+    <string name="content_views_auth_title">4. Content Views (Views)</string>
+    <string name="advanced_auth_title">5. Advanced Auth (Views)</string>
+    <string name="biometric_prompt_test_title">BiometricPrompt API Test (Full Config)</string>
+    <string name="auth_result_test_title">Authentication Result API Test (Full Config)</string>
 
     <string name="biometric_prompt_title">Title</string>
     <string name="biometric_prompt_subtitle">Subtitle</string>
@@ -46,7 +52,12 @@
     <string name="body_content_type_label">Body content type</string>
     <string name="plain_text">Plain text</string>
     <string name="vertical_list">Vertical list</string>
-    <string name="more_options_button">Text with more options button(needs permission)</string>
+    <string name="more_options_button">Content view with more options button</string>
+
+    <string name="logo_options_label">Logo options (requires advanced permission):</string>
+    <string name="logo_none">Default (none)</string>
+    <string name="logo_res">Logo resource</string>
+    <string name="logo_bitmap">Logo bitmap</string>
 
     <string name="other_options_label">Other options:</string>
     <string name="cancel_config_change_label">Cancel on configuration changes</string>

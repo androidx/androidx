@@ -38,6 +38,48 @@
         </activity>
 
         <activity
+            android:name=".BiometricComposeSamplesActivity"
+            android:label="@string/compose_samples_title"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:screenOrientation="fullSensor" />
+
+        <activity
+            android:name=".SimpleBiometricAuthActivity"
+            android:label="@string/simple_biometric_auth_title"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:screenOrientation="fullSensor" />
+
+        <activity
+            android:name=".CredentialOnlyAuthActivity"
+            android:label="@string/credential_only_auth_title"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:screenOrientation="fullSensor" />
+
+        <activity
+            android:name=".FallbackOptionsAuthActivity"
+            android:label="@string/fallback_options_auth_title"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:screenOrientation="fullSensor" />
+
+        <activity
+            android:name=".ContentViewsAuthActivity"
+            android:label="@string/content_views_auth_title"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:screenOrientation="fullSensor" />
+
+        <activity
+            android:name=".AdvancedAuthActivity"
+            android:label="@string/advanced_auth_title"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:screenOrientation="fullSensor" />
+
+        <activity
             android:name=".BiometricPromptTestActivity"
             android:label="@string/biometric_prompt_test_title"
             android:exported="false"

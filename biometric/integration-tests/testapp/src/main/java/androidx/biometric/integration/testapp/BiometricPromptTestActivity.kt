@@ -131,7 +131,10 @@ class BiometricPromptTestActivity : FragmentActivity() {
 
         if (binding.common.plainTextContent.isChecked) {
             infoBuilder.setDescription("Description")
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        } else if (
+            binding.common.verticalListContent.isChecked &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+        ) {
             infoBuilder.setContentView(
                 PromptVerticalListContentView.Builder()
                     .apply {
@@ -141,6 +144,38 @@ class BiometricPromptTestActivity : FragmentActivity() {
                     }
                     .build()
             )
+        } else if (
+            binding.common.moreOptionsButtonContent.isChecked &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+        ) {
+            try {
+                infoBuilder.setContentView(
+                    androidx.biometric.PromptContentViewWithMoreOptionsButton.Builder()
+                        .setDescription("More options description")
+                        .build()
+                )
+            } catch (e: Exception) {
+                log("Error setting PromptContentViewWithMoreOptionsButton: $e")
+            }
+        }
+
+        try {
+            if (binding.common.logoResButton.isChecked) {
+                infoBuilder.setLogoRes(android.R.drawable.ic_dialog_info)
+                infoBuilder.setLogoDescription("Test logo description")
+            } else if (binding.common.logoBitmapButton.isChecked) {
+                val bitmap =
+                    android.graphics.Bitmap.createBitmap(
+                        48,
+                        48,
+                        android.graphics.Bitmap.Config.ARGB_8888,
+                    )
+                bitmap.eraseColor(android.graphics.Color.BLUE)
+                infoBuilder.setLogoBitmap(bitmap)
+                infoBuilder.setLogoDescription("Test bitmap logo description")
+            }
+        } catch (e: Exception) {
+            log("Error setting logo: $e")
         }
 
         val info: BiometricPrompt.PromptInfo?

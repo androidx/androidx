@@ -28,6 +28,7 @@
     </style>
 
     <style name="ScreenLayout">
+        <item name="android:fitsSystemWindows">true</item>
         <item name="android:paddingStart">8dp</item>
         <item name="android:paddingEnd">8dp</item>
         <item name="android:paddingTop">4dp</item>
