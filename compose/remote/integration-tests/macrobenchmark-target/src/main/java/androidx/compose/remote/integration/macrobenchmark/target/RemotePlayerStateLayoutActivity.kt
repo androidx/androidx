@@ -21,11 +21,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.ReportDrawn
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.operations.NamedVariable
-import androidx.compose.remote.core.operations.layout.Container
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -45,7 +40,9 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.remote.player.compose.embedded.RcPlayerState
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.util.trace
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -72,15 +70,17 @@ import kotlinx.coroutines.launch
 class RemotePlayerStateLayoutActivity : ComponentActivity() {
     private var updateJob: Job? = null
 
+    @OptIn(ExperimentalRemotePlayerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mode = intent.getStringExtra(BENCHMARK_MODE_ARG) ?: MODE_EMBEDDED_PLAYER
+        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = playerVariantFromMode(mode).second
 
         setContent {
             StateLayoutScreen(
                 mode = mode,
                 onJavaPlayerReady = { player -> startJavaPlayerUpdates(player) },
-                onEmbeddedDocReady = { coreDoc -> startEmbeddedPlayerUpdates(coreDoc) },
+                onEmbeddedStateReady = { rcState -> startEmbeddedPlayerUpdates(rcState) },
             )
         }
     }
@@ -97,138 +97,123 @@ class RemotePlayerStateLayoutActivity : ComponentActivity() {
             while (isActive) {
                 delay(100L)
                 state = (state + 1) % 4
-                player.setUserLocalInt("stateIndex", state)
-                // TODO(b/585202905): Remove explicit invalidate() once RemoteComposeView.setLocal*
-                // invalidates the view.
-                player.invalidate()
+                trace("RemoteBench:hostUpdate") {
+                    player.setUserLocalInt("stateIndex", state)
+                    // TODO(b/585202905): Remove explicit invalidate() once
+                    // RemoteComposeView.setLocal*
+                    // invalidates the view.
+                    player.invalidate()
+                }
             }
         }
     }
 
-    private fun startEmbeddedPlayerUpdates(coreDoc: CoreDocument) {
+    private fun startEmbeddedPlayerUpdates(rcState: RcPlayerState) {
         updateJob?.cancel()
-        val varId = findVariableId(coreDoc, "stateIndex") ?: return
+        val stateIndex = rcState.intState("stateIndex")
         updateJob = lifecycleScope.launch {
             var state = 0
             while (isActive) {
                 delay(100L)
                 state = (state + 1) % 4
-                coreDoc.remoteComposeState.overrideInteger(varId, state)
-            }
-        }
-    }
-
-    private fun findVariableId(doc: CoreDocument, name: String): Int? {
-        fun findIn(ops: List<Operation>): Int? {
-            for (op in ops) {
-                if (op is NamedVariable && (op.mVarName == name || op.mVarName == "USER:$name")) {
-                    return op.mVarId
-                }
-                if (op is Container) {
-                    val found = findIn(op.list)
-                    if (found != null) return found
+                trace("RemoteBench:hostUpdate") {
+                    stateIndex.value = state
                 }
             }
-            return null
         }
-        return findIn(doc.operations)
     }
 
     @Composable
     private fun StateLayoutScreen(
         mode: String,
         onJavaPlayerReady: (RemoteComposePlayer) -> Unit,
-        onEmbeddedDocReady: (CoreDocument) -> Unit,
+        onEmbeddedStateReady: (RcPlayerState) -> Unit,
     ) {
         var documentBytes by remember { mutableStateOf<ByteArray?>(null) }
         val context = LocalContext.current
 
         LaunchedEffect(Unit) {
             documentBytes =
-                captureSingleRemoteDocument(
-                        profile = RcPlatformProfiles.ANDROIDX,
-                        context = context,
+                BenchDocuments.getOrCapture(context, "state_layout_4state") {
+                    val stateIndex = remember { createNamedRemoteInt("stateIndex", 0) }
+                    RemoteColumn(
+                        horizontalAlignment = RemoteAlignment.CenterHorizontally,
+                        verticalArrangement = RemoteArrangement.Center,
+                        modifier =
+                            RemoteModifier.fillMaxSize().padding(16.rdp).semantics {
+                                contentDescription = STATE_LAYOUT_CONTENT_DESCRIPTION.rs
+                            },
                     ) {
-                        val stateIndex = remember { createNamedRemoteInt("stateIndex", 0) }
-                        RemoteColumn(
-                            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                            verticalArrangement = RemoteArrangement.Center,
-                            modifier =
-                                RemoteModifier.fillMaxSize().padding(16.rdp).semantics {
-                                    contentDescription = STATE_LAYOUT_CONTENT_DESCRIPTION.rs
-                                },
-                        ) {
-                            RemoteText(
-                                text = "State Layout Benchmark".rs,
-                                fontSize = 24.rsp,
-                                modifier = RemoteModifier.padding(bottom = 16.rdp),
-                            )
-                            RemoteStateLayout(
-                                currentState = stateIndex,
-                                0,
-                                1,
-                                2,
-                                3,
-                                modifier = RemoteModifier.fillMaxWidth().height(200.rdp),
-                            ) { index ->
-                                when (index) {
-                                    0 ->
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.fillMaxSize()
-                                                    .background(Color(0xFFFFCDD2).rc)
-                                                    .padding(16.rdp)
-                                        ) {
-                                            RemoteText(
-                                                text = "State 0: Initializing".rs,
-                                                fontSize = 20.rsp,
-                                                color = Color(0xFFB71C1C).rc,
-                                            )
-                                        }
-                                    1 ->
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.fillMaxSize()
-                                                    .background(Color(0xFFC8E6C9).rc)
-                                                    .padding(16.rdp)
-                                        ) {
-                                            RemoteText(
-                                                text = "State 1: Processing".rs,
-                                                fontSize = 20.rsp,
-                                                color = Color(0xFF1B5E20).rc,
-                                            )
-                                        }
-                                    2 ->
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.fillMaxSize()
-                                                    .background(Color(0xFFBBDEFB).rc)
-                                                    .padding(16.rdp)
-                                        ) {
-                                            RemoteText(
-                                                text = "State 2: Transferring".rs,
-                                                fontSize = 20.rsp,
-                                                color = Color(0xFF0D47A1).rc,
-                                            )
-                                        }
-                                    3 ->
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.fillMaxSize()
-                                                    .background(Color(0xFFFFF9C4).rc)
-                                                    .padding(16.rdp)
-                                        ) {
-                                            RemoteText(
-                                                text = "State 3: Completed".rs,
-                                                fontSize = 20.rsp,
-                                                color = Color(0xFFF57F17).rc,
-                                            )
-                                        }
-                                }
+                        RemoteText(
+                            text = "State Layout Benchmark".rs,
+                            fontSize = 24.rsp,
+                            modifier = RemoteModifier.padding(bottom = 16.rdp),
+                        )
+                        RemoteStateLayout(
+                            currentState = stateIndex,
+                            0,
+                            1,
+                            2,
+                            3,
+                            modifier = RemoteModifier.fillMaxWidth().height(200.rdp),
+                        ) { index ->
+                            when (index) {
+                                0 ->
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.fillMaxSize()
+                                                .background(Color(0xFFFFCDD2).rc)
+                                                .padding(16.rdp)
+                                    ) {
+                                        RemoteText(
+                                            text = "State 0: Initializing".rs,
+                                            fontSize = 20.rsp,
+                                            color = Color(0xFFB71C1C).rc,
+                                        )
+                                    }
+                                1 ->
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.fillMaxSize()
+                                                .background(Color(0xFFC8E6C9).rc)
+                                                .padding(16.rdp)
+                                    ) {
+                                        RemoteText(
+                                            text = "State 1: Processing".rs,
+                                            fontSize = 20.rsp,
+                                            color = Color(0xFF1B5E20).rc,
+                                        )
+                                    }
+                                2 ->
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.fillMaxSize()
+                                                .background(Color(0xFFBBDEFB).rc)
+                                                .padding(16.rdp)
+                                    ) {
+                                        RemoteText(
+                                            text = "State 2: Transferring".rs,
+                                            fontSize = 20.rsp,
+                                            color = Color(0xFF0D47A1).rc,
+                                        )
+                                    }
+                                3 ->
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.fillMaxSize()
+                                                .background(Color(0xFFFFF9C4).rc)
+                                                .padding(16.rdp)
+                                    ) {
+                                        RemoteText(
+                                            text = "State 3: Completed".rs,
+                                            fontSize = 20.rsp,
+                                            color = Color(0xFFF57F17).rc,
+                                        )
+                                    }
                             }
                         }
                     }
-                    .bytes
+                }
         }
 
         documentBytes?.let { bytes ->
@@ -237,7 +222,7 @@ class RemotePlayerStateLayoutActivity : ComponentActivity() {
                 remoteDocumentBytes = bytes,
                 modifier = Modifier.fillMaxSize(),
                 onJavaPlayerReady = onJavaPlayerReady,
-                onEmbeddedDocReady = onEmbeddedDocReady,
+                onEmbeddedStateReady = onEmbeddedStateReady,
             )
             ReportDrawn()
         }

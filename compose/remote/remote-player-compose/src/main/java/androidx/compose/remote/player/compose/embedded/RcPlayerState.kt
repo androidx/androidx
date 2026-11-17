@@ -57,6 +57,7 @@ import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.trace
 import java.io.ByteArrayInputStream
 
 /**
@@ -319,7 +320,9 @@ public class RcPlayerState(
     }
 
     private fun setFloat(name: String, value: Float, prefix: String?) {
-        remoteContext.setNamedFloatOverride(resolveName(name, prefix), value)
+        trace("RcPlayer:hostValueChange") {
+            remoteContext.setNamedFloatOverride(resolveName(name, prefix), value)
+        }
     }
 
     private fun getFloat(name: String, prefix: String?): Float =
@@ -341,7 +344,9 @@ public class RcPlayerState(
         )
 
     private fun setInt(name: String, value: Int, prefix: String?) {
-        remoteContext.setNamedIntegerOverride(resolveName(name, prefix), value)
+        trace("RcPlayer:hostValueChange") {
+            remoteContext.setNamedIntegerOverride(resolveName(name, prefix), value)
+        }
     }
 
     private fun getInt(name: String, prefix: String?): Int =
@@ -363,7 +368,9 @@ public class RcPlayerState(
         )
 
     private fun setBoolean(name: String, value: Boolean, prefix: String?) {
-        remoteContext.setNamedBooleanOverride(resolveName(name, prefix), value)
+        trace("RcPlayer:hostValueChange") {
+            remoteContext.setNamedBooleanOverride(resolveName(name, prefix), value)
+        }
     }
 
     private fun getBoolean(name: String, prefix: String?): Boolean = getInt(name, prefix) != 0
@@ -384,7 +391,9 @@ public class RcPlayerState(
         )
 
     private fun setString(name: String, value: String, prefix: String?) {
-        remoteContext.setNamedStringOverride(resolveName(name, prefix), value)
+        trace("RcPlayer:hostValueChange") {
+            remoteContext.setNamedStringOverride(resolveName(name, prefix), value)
+        }
     }
 
     private fun getString(name: String, prefix: String?): String? =
@@ -410,7 +419,9 @@ public class RcPlayerState(
     }
 
     private fun setColor(name: String, color: Int, prefix: String?) {
-        remoteContext.setNamedColorOverride(resolveName(name, prefix), color)
+        trace("RcPlayer:hostValueChange") {
+            remoteContext.setNamedColorOverride(resolveName(name, prefix), color)
+        }
     }
 
     private fun getColor(name: String, prefix: String?): Color = Color(getColorInt(name, prefix))
@@ -433,7 +444,9 @@ public class RcPlayerState(
         )
 
     private fun setBitmap(name: String, bitmap: Bitmap, prefix: String?) {
-        remoteContext.setNamedDataOverride(resolveName(name, prefix), bitmap)
+        trace("RcPlayer:hostValueChange") {
+            remoteContext.setNamedDataOverride(resolveName(name, prefix), bitmap)
+        }
     }
 
     private fun getBitmap(name: String, prefix: String?): Bitmap? =
@@ -455,11 +468,13 @@ public class RcPlayerState(
         )
 
     private fun setFloatArray(name: String, value: FloatArray, prefix: String?) {
-        val resolved = resolveName(name, prefix)
-        val id = remoteContext.findVariableId(resolved)
-        if (id != -1) {
-            remoteContext.mRemoteComposeState.addCollection(id, DataListFloat(id, value))
-            remoteContext.mRemoteComposeState.markVariableDirty(id)
+        trace("RcPlayer:hostValueChange") {
+            val resolved = resolveName(name, prefix)
+            val id = remoteContext.findVariableId(resolved)
+            if (id != -1) {
+                remoteContext.mRemoteComposeState.addCollection(id, DataListFloat(id, value))
+                remoteContext.mRemoteComposeState.markVariableDirty(id)
+            }
         }
     }
 

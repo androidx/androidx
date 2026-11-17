@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -48,7 +47,8 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
@@ -86,14 +86,20 @@ class ScrollableListActivity : ComponentActivity() {
         )
     }
 
+    @OptIn(ExperimentalRemotePlayerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        when (intent.getStringExtra(BENCHMARK_MODE_ARG)) {
+        val mode = intent.getStringExtra(BENCHMARK_MODE_ARG)
+        if (mode != null) {
+            RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = playerVariantFromMode(mode).second
+        }
+        when (mode) {
             MODE_COMPOSE -> setContent { LiveCompose() }
             MODE_WEB_VIEW -> setWebViewContent()
             MODE_REMOTE_VIEW -> setRemoteViewsScrollContent()
             MODE_EMBEDDED_PLAYER -> setContent { RemoteCompose(playerMode = MODE_EMBEDDED_PLAYER) }
             MODE_JAVA_PLAYER -> setContent { RemoteCompose(playerMode = MODE_JAVA_PLAYER) }
+            MODE_VIEW_PLAYER -> setContent { RemoteCompose(playerMode = MODE_VIEW_PLAYER) }
             else -> setContent { RemoteCompose() }
         }
     }
@@ -199,27 +205,22 @@ class ScrollableListActivity : ComponentActivity() {
         val context = LocalContext.current
         LaunchedEffect(Unit) {
             documentBytes =
-                captureSingleRemoteDocument(
-                        profile = RcPlatformProfiles.ANDROIDX,
-                        context = context,
+                BenchDocuments.getOrCapture(context, "scrollable_list_500") {
+                    val scrollState = remember { RemoteScrollState() }
+                    RemoteColumn(
+                        modifier =
+                            RemoteModifier.fillMaxSize()
+                                .semantics { contentDescription = LIST_CONTENT_DESCRIPTION.rs }
+                                .verticalScroll(scrollState)
                     ) {
-                        val scrollState = remember { RemoteScrollState() }
-                        RemoteColumn(
-                            modifier =
-                                RemoteModifier.fillMaxSize()
-                                    .semantics { contentDescription = LIST_CONTENT_DESCRIPTION.rs }
-                                    .verticalScroll(scrollState)
-                        ) {
-                            repeat(500) { index ->
-                                RemoteText(
-                                    ("Item $index").rs,
-                                    modifier =
-                                        RemoteModifier.fillMaxWidth().padding(vertical = 8.rdp),
-                                )
-                            }
+                        repeat(500) { index ->
+                            RemoteText(
+                                ("Item $index").rs,
+                                modifier = RemoteModifier.fillMaxWidth().padding(vertical = 8.rdp),
+                            )
                         }
                     }
-                    .bytes
+                }
         }
 
         documentBytes?.let { RemotePlayerHost(playerMode = playerMode, remoteDocumentBytes = it) }

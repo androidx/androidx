@@ -21,11 +21,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.ReportDrawn
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.operations.NamedVariable
-import androidx.compose.remote.core.operations.layout.Container
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -39,7 +34,9 @@ import androidx.compose.remote.creation.compose.state.RemoteString.Companion.cre
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.remote.player.compose.embedded.RcPlayerState
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.util.trace
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -64,15 +62,17 @@ import kotlinx.coroutines.launch
 class RemotePlayerStateUpdateActivity : ComponentActivity() {
     private var updateJob: Job? = null
 
+    @OptIn(ExperimentalRemotePlayerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mode = intent.getStringExtra(BENCHMARK_MODE_ARG) ?: MODE_EMBEDDED_PLAYER
+        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = playerVariantFromMode(mode).second
 
         setContent {
             StateUpdateScreen(
                 mode = mode,
                 onJavaPlayerReady = { player -> startJavaPlayerUpdates(player) },
-                onEmbeddedDocReady = { coreDoc -> startEmbeddedPlayerUpdates(coreDoc) },
+                onEmbeddedStateReady = { state -> startEmbeddedPlayerUpdates(state) },
             )
         }
     }
@@ -89,85 +89,70 @@ class RemotePlayerStateUpdateActivity : ComponentActivity() {
             while (isActive) {
                 delay(100L)
                 count++
-                player.setUserLocalString("counterText", "Count: $count")
-                // TODO(b/585202905): Remove explicit invalidate() once RemoteComposeView.setLocal*
-                // invalidates the view.
-                player.invalidate()
+                trace("RemoteBench:hostUpdate") {
+                    player.setUserLocalString("counterText", "Count: $count")
+                    // TODO(b/585202905): Remove explicit invalidate() once
+                    // RemoteComposeView.setLocal*
+                    // invalidates the view.
+                    player.invalidate()
+                }
             }
         }
     }
 
-    private fun startEmbeddedPlayerUpdates(coreDoc: CoreDocument) {
+    private fun startEmbeddedPlayerUpdates(state: RcPlayerState) {
         updateJob?.cancel()
-        val varId = findVariableId(coreDoc, "counterText") ?: return
+        val counterState = state.stringState("counterText")
         updateJob = lifecycleScope.launch {
             var count = 0
             while (isActive) {
                 delay(100L)
                 count++
-                coreDoc.remoteComposeState.overrideData(varId, "Count: $count")
-            }
-        }
-    }
-
-    private fun findVariableId(doc: CoreDocument, name: String): Int? {
-        fun findIn(ops: List<Operation>): Int? {
-            for (op in ops) {
-                if (op is NamedVariable && (op.mVarName == name || op.mVarName == "USER:$name")) {
-                    return op.mVarId
-                }
-                if (op is Container) {
-                    val found = findIn(op.list)
-                    if (found != null) return found
+                trace("RemoteBench:hostUpdate") {
+                    counterState.value = "Count: $count"
                 }
             }
-            return null
         }
-        return findIn(doc.operations)
     }
 
     @Composable
     private fun StateUpdateScreen(
         mode: String,
         onJavaPlayerReady: (RemoteComposePlayer) -> Unit,
-        onEmbeddedDocReady: (CoreDocument) -> Unit,
+        onEmbeddedStateReady: (RcPlayerState) -> Unit,
     ) {
         var documentBytes by remember { mutableStateOf<ByteArray?>(null) }
         val context = LocalContext.current
 
         LaunchedEffect(Unit) {
             documentBytes =
-                captureSingleRemoteDocument(
-                        profile = RcPlatformProfiles.ANDROIDX,
-                        context = context,
+                BenchDocuments.getOrCapture(context, "state_update_counter") {
+                    val counterText = remember {
+                        createNamedRemoteString("counterText", "Count: 0")
+                    }
+                    RemoteColumn(
+                        horizontalAlignment = RemoteAlignment.CenterHorizontally,
+                        verticalArrangement = RemoteArrangement.Center,
+                        modifier =
+                            RemoteModifier.fillMaxSize().padding(16.rdp).semantics {
+                                contentDescription = STATE_UPDATE_CONTENT_DESCRIPTION.rs
+                            },
                     ) {
-                        val counterText = remember {
-                            createNamedRemoteString("counterText", "Count: 0")
-                        }
-                        RemoteColumn(
-                            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                            verticalArrangement = RemoteArrangement.Center,
+                        RemoteText(
+                            text = "State Update Benchmark".rs,
+                            fontSize = 24.rsp,
+                            modifier = RemoteModifier.padding(bottom = 16.rdp),
+                        )
+                        RemoteText(
+                            text = counterText,
+                            fontSize = 32.rsp,
                             modifier =
-                                RemoteModifier.fillMaxSize().padding(16.rdp).semantics {
+                                RemoteModifier.padding(16.rdp).semantics {
                                     contentDescription = STATE_UPDATE_CONTENT_DESCRIPTION.rs
                                 },
-                        ) {
-                            RemoteText(
-                                text = "State Update Benchmark".rs,
-                                fontSize = 24.rsp,
-                                modifier = RemoteModifier.padding(bottom = 16.rdp),
-                            )
-                            RemoteText(
-                                text = counterText,
-                                fontSize = 32.rsp,
-                                modifier =
-                                    RemoteModifier.padding(16.rdp).semantics {
-                                        contentDescription = STATE_UPDATE_CONTENT_DESCRIPTION.rs
-                                    },
-                            )
-                        }
+                        )
                     }
-                    .bytes
+                }
         }
 
         documentBytes?.let { bytes ->
@@ -176,7 +161,7 @@ class RemotePlayerStateUpdateActivity : ComponentActivity() {
                 remoteDocumentBytes = bytes,
                 modifier = Modifier.fillMaxSize(),
                 onJavaPlayerReady = onJavaPlayerReady,
-                onEmbeddedDocReady = onEmbeddedDocReady,
+                onEmbeddedStateReady = onEmbeddedStateReady,
             )
             ReportDrawn()
         }
