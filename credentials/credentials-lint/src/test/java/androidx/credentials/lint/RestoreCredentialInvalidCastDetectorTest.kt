@@ -521,4 +521,100 @@ class RestoreCredentialInvalidCastDetectorTest : LintDetectorTest() {
                     .trimIndent()
             )
     }
+
+    @Test
+    fun multipleGetCredentialCallsInLambdaReceiverChain_isClean() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetRestoreCredentialOption
+                import androidx.credentials.PublicKeyCredential
+                import androidx.credentials.RestoreCredential
+
+                interface RequestFactory {
+                    fun interactiveRequest(): GetCredentialRequest
+                }
+
+                suspend fun handleRecoverCatchingChain(
+                    context: Context,
+                    json: String,
+                    factory: RequestFactory,
+                ) {
+                    val cm = CredentialManager.create(context)
+                    val restoreRequest = GetCredentialRequest(listOf(GetRestoreCredentialOption(json)))
+                    runCatching { cm.getCredential(context, restoreRequest) }
+                        .recoverCatching { cm.getCredential(context, factory.interactiveRequest()) }
+                        .onSuccess { response ->
+                            val cred = response.credential
+                            if (cred is RestoreCredential) {
+                                val restoreJson = cred.authenticationResponseJson
+                            } else if (cred is PublicKeyCredential) {
+                                val passkeyJson = cred.authenticationResponseJson
+                            }
+                        }
+
+                    runCatching { cm.getCredential(context, restoreRequest) }
+                        .recoverCatching { cm.getCredential(context, factory.interactiveRequest()) }
+                        .onSuccess { response ->
+                            val cred = response.credential
+                            if (cred is PublicKeyCredential) {
+                                val passkeyJson = cred.authenticationResponseJson
+                            }
+                        }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun duplicateResultVariableReferenceInLambdaReceiverChain_isFlagged() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetRestoreCredentialOption
+                import androidx.credentials.PublicKeyCredential
+
+                suspend fun handleRestoreResultReferencedTwice(context: Context, json: String) {
+                    val cm = CredentialManager.create(context)
+                    val restoreRequest = GetCredentialRequest(listOf(GetRestoreCredentialOption(json)))
+                    val result = runCatching { cm.getCredential(context, restoreRequest) }
+                    result
+                        .onFailure { println(result.exceptionOrNull()) }
+                        .onSuccess { response ->
+                            val cred = response.credential as PublicKeyCredential
+                        }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test.kt:16: Error: GetRestoreCredentialOption returns RestoreCredential, not PublicKeyCredential (causes ClassCastException or failed type check at runtime). Use RestoreCredential instead. [RestoreCredentialInvalidCast]
+                            val cred = response.credential as PublicKeyCredential
+                                                              ~~~~~~~~~~~~~~~~~~~
+                1 error
+                """
+                    .trimIndent()
+            )
+    }
 }
