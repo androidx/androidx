@@ -686,4 +686,46 @@ class RemoteStateVisitorTest {
         val replaced = expr.replaceNamedVariables(mapOf(suffix to "?".rs))
         assertThat(replaced).isNotNull()
     }
+
+    @Test
+    fun testClamp_foldsWithCorrectArgumentOrder() {
+        val value = RemoteFloat.createNamedRemoteFloat("val", 5f)
+        val clamped = clamp(value = value, min = 10f.rf, max = 20f.rf)
+
+        val belowMin = clamped.replaceNamedVariables(mapOf(value to 5f.rf))
+        assertThat(belowMin.hasConstantValue).isTrue()
+        assertThat(belowMin.constantValue).isEqualTo(10f)
+
+        val inRange = clamped.replaceNamedVariables(mapOf(value to 15f.rf))
+        assertThat(inRange.hasConstantValue).isTrue()
+        assertThat(inRange.constantValue).isEqualTo(15f)
+
+        val aboveMax = clamped.replaceNamedVariables(mapOf(value to 25f.rf))
+        assertThat(aboveMax.hasConstantValue).isTrue()
+        assertThat(aboveMax.constantValue).isEqualTo(20f)
+
+        val clampedFloatBounds = clamp(value = value, min = 10f, max = 20f)
+        val floatBoundsInRange = clampedFloatBounds.replaceNamedVariables(mapOf(value to 15f.rf))
+        assertThat(floatBoundsInRange.hasConstantValue).isTrue()
+        assertThat(floatBoundsInRange.constantValue).isEqualTo(15f)
+    }
+
+    @Test
+    fun testClamp_preservesArgumentOrderWhenInputRemainsDynamic() {
+        val value = RemoteFloat.createNamedRemoteFloat("val", 5f)
+        val otherValue = RemoteFloat.createNamedRemoteFloat("other_val", 8f)
+        val clamped = clamp(value = value, min = 10f.rf, max = 20f.rf)
+
+        val replaced = clamped.replaceNamedVariables(mapOf(value to otherValue))
+        assertThat(replaced.hasConstantValue).isFalse()
+        assertThat(
+                replaced.isStructurallyEqual(clamp(value = otherValue, min = 10f.rf, max = 20f.rf))
+            )
+            .isTrue()
+        val key = replaced.cacheKey as RemoteOperationCacheKey
+        assertThat(key.op).isEqualTo(RemoteFloat.OperationKey.Clamp)
+        assertThat(key.args[0]).isEqualTo(RemoteConstantCacheKey(10f))
+        assertThat(key.args[1]).isEqualTo(RemoteConstantCacheKey(20f))
+        assertThat(key.args[2]).isEqualTo(otherValue.cacheKey)
+    }
 }
