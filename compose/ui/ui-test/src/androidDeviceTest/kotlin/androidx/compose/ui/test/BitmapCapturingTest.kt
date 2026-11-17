@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -42,10 +43,14 @@ import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -331,39 +336,15 @@ class BitmapCapturingTest(val config: TestConfig) {
         setContent {
             Box(Modifier.testTag(rootTag).size(200.dp)) {
                 AndroidView(
-                    factory = { ctx ->
-                        SurfaceView(ctx).apply {
-                            holder.addCallback(
-                                object : SurfaceHolder.Callback {
-                                    override fun surfaceCreated(holder: SurfaceHolder) {
-                                        val canvas = holder.lockCanvas()
-                                        if (canvas != null) {
-                                            canvas.drawColor(Color.Blue.toArgb())
-                                            holder.unlockCanvasAndPost(canvas)
-                                            surfaceDrawnLatch.countDown()
-                                        }
-                                    }
-
-                                    override fun surfaceChanged(
-                                        holder: SurfaceHolder,
-                                        format: Int,
-                                        w: Int,
-                                        h: Int,
-                                    ) {}
-
-                                    override fun surfaceDestroyed(holder: SurfaceHolder) {}
-                                }
-                            )
-                        }
-                    },
+                    factory = { ctx -> blueSurfaceView(ctx) { surfaceDrawnLatch.countDown() } },
                     modifier = Modifier.matchParentSize(),
                 )
                 Box(Modifier.size(50.dp).background(Color.Red).align(Alignment.Center))
             }
         }
 
-        surfaceDrawnLatch.await(2, TimeUnit.SECONDS)
         rule.waitForIdle()
+        assertThat(surfaceDrawnLatch.await(2, TimeUnit.SECONDS)).isTrue()
 
         rule.onNodeWithTag(rootTag).captureToImage().let { bitmap ->
             bitmap.assertContainsColor(Color.Blue)
@@ -379,39 +360,15 @@ class BitmapCapturingTest(val config: TestConfig) {
             Column(Modifier.fillMaxSize()) {
                 // SurfaceView rendered completely outside the target node's bounds
                 AndroidView(
-                    factory = { ctx ->
-                        SurfaceView(ctx).apply {
-                            holder.addCallback(
-                                object : SurfaceHolder.Callback {
-                                    override fun surfaceCreated(holder: SurfaceHolder) {
-                                        val canvas = holder.lockCanvas()
-                                        if (canvas != null) {
-                                            canvas.drawColor(Color.Blue.toArgb())
-                                            holder.unlockCanvasAndPost(canvas)
-                                            surfaceDrawnLatch.countDown()
-                                        }
-                                    }
-
-                                    override fun surfaceChanged(
-                                        holder: SurfaceHolder,
-                                        format: Int,
-                                        w: Int,
-                                        h: Int,
-                                    ) {}
-
-                                    override fun surfaceDestroyed(holder: SurfaceHolder) {}
-                                }
-                            )
-                        }
-                    },
+                    factory = { ctx -> blueSurfaceView(ctx) { surfaceDrawnLatch.countDown() } },
                     modifier = Modifier.size(100.dp),
                 )
                 Box(Modifier.testTag(rootTag).size(50.dp).background(Color.Red))
             }
         }
 
-        surfaceDrawnLatch.await(2, TimeUnit.SECONDS)
         rule.waitForIdle()
+        assertThat(surfaceDrawnLatch.await(2, TimeUnit.SECONDS)).isTrue()
 
         // Capture the target tag. This should successfully default to the
         // PixelCopy because there is no coordinate intersection.
@@ -420,6 +377,95 @@ class BitmapCapturingTest(val config: TestConfig) {
             bitmap.assertDoesNotContainColor(Color.Blue)
         }
     }
+
+    @Test
+    fun captureToImage_withSurfaceViewInNodeOffsetFromRoot() {
+        val surfaceDrawnLatch = CountDownLatch(1)
+
+        setContent {
+            Column(Modifier.fillMaxSize()) {
+                Box(Modifier.size(100.dp).background(Color.Red))
+                // The target node is offset from the top of the root by the box above.
+                Box(Modifier.testTag(rootTag).size(100.dp)) {
+                    AndroidView(
+                        factory = { ctx -> blueSurfaceView(ctx) { surfaceDrawnLatch.countDown() } },
+                        modifier = Modifier.matchParentSize(),
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(surfaceDrawnLatch.await(2, TimeUnit.SECONDS)).isTrue()
+
+        rule.onNodeWithTag(rootTag).captureToImage().let { bitmap ->
+            bitmap.assertContainsColor(Color.Blue)
+            bitmap.assertDoesNotContainColor(Color.Red)
+        }
+    }
+
+    @Test
+    fun captureToImage_withSurfaceViewScaledIntoBoundsByGraphicsLayer() =
+        assertCapturesSurfaceViewScaledIntoBounds(Modifier)
+
+    @Test
+    fun captureToImage_withSurfaceViewScaledIntoBoundsByGraphicsLayer_afterMergingSemantics() =
+        // A merging semantics modifier outside the graphics layer makes SemanticsNode.boundsInRoot
+        // report the bounds before the layer's transform.
+        assertCapturesSurfaceViewScaledIntoBounds(Modifier.semantics(mergeDescendants = true) {})
+
+    private fun assertCapturesSurfaceViewScaledIntoBounds(outerModifier: Modifier) {
+        val surfaceDrawnLatch = CountDownLatch(1)
+
+        setContent {
+            Box(Modifier.testTag(rootTag).size(200.dp).clipToBounds()) {
+                // The View itself is laid out to the left of the target node, but the graphics
+                // layer moves and scales its content so that it covers the target node.
+                AndroidView(
+                    factory = { ctx -> blueSurfaceView(ctx) { surfaceDrawnLatch.countDown() } },
+                    modifier =
+                        Modifier.offset(x = (-100).dp)
+                            .size(50.dp)
+                            .then(outerModifier)
+                            .graphicsLayer {
+                                transformOrigin = TransformOrigin(0f, 0f)
+                                translationX = -100.dp.toPx()
+                                scaleX = 6f
+                                scaleY = 6f
+                            },
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(surfaceDrawnLatch.await(2, TimeUnit.SECONDS)).isTrue()
+
+        rule.onNodeWithTag(rootTag).captureToImage().assertContainsColor(Color.Blue)
+    }
+
+    /** Returns a [SurfaceView] that fills its surface with blue and then calls [onDrawn]. */
+    private fun blueSurfaceView(context: Context, onDrawn: () -> Unit): SurfaceView =
+        SurfaceView(context).apply {
+            holder.addCallback(
+                object : SurfaceHolder.Callback {
+                    override fun surfaceCreated(holder: SurfaceHolder) {
+                        val canvas = holder.lockCanvas() ?: return
+                        canvas.drawColor(Color.Blue.toArgb())
+                        holder.unlockCanvasAndPost(canvas)
+                        onDrawn()
+                    }
+
+                    override fun surfaceChanged(
+                        holder: SurfaceHolder,
+                        format: Int,
+                        w: Int,
+                        h: Int,
+                    ) {}
+
+                    override fun surfaceDestroyed(holder: SurfaceHolder) {}
+                }
+            )
+        }
 
     @Test
     fun captureToImage_timesOut_whenRedrawExceedsDefaultTimeout() {
