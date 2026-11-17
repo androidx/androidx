@@ -56,23 +56,23 @@ public value class RcMeshLayout internal constructor(internal val value: Int) {
         public val Ring: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_RING)
         /** u along, v across. Ribbons, trails, variable width strokes. */
         public val Strip: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_STRIP)
-        /** u is an angle about a shared centre vertex. Pie wedges, cones of light. */
+        /** u is an angle about a shared center vertex. Pie wedges, cones of light. */
         public val Fan: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_FAN)
         /** u is arclength along a path, v crosses its width. Strokes that follow a path. */
         public val PathStrip: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_PATH_STRIP)
     }
 }
 
-/** How a mesh's vertex colours combine with the texel sampled from its image. */
+/** How a mesh's vertex colors combine with the texel sampled from its image. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalRemoteCreationApi
 @JvmInline
 public value class RcMeshBlend internal constructor(internal val value: Int) {
     public companion object {
-        /** Ignore the image and use the vertex colours alone. */
+        /** Ignore the image and use the vertex colors alone. */
         public val ColorsOnly: RcMeshBlend = RcMeshBlend(DrawMesh2D.BLEND_COLORS_ONLY)
 
-        /** Multiply texel by vertex colour, so the colours tint the image. */
+        /** Multiply texel by vertex color, so the colors tint the image. */
         public val Modulate: RcMeshBlend = RcMeshBlend(DrawMesh2D.BLEND_MODULATE)
     }
 }
@@ -109,8 +109,8 @@ public value class RcMeshMatrix internal constructor(internal val value: Int) {
  *
  * Every channel is an expression over the mesh's domain parameters, [u] and [v], and every channel
  * is optional. What an absent channel means is deliberately not "zero": an absent position falls
- * back to the layout's default geometry, an absent uv is the identity mapping, and absent colours
- * mean the mesh carries no vertex colours at all rather than black ones.
+ * back to the layout's default geometry, an absent uv is the identity mapping, and absent colors
+ * mean the mesh carries no vertex colors at all rather than black ones.
  *
  * The animation is free. Adding [RcScope.continuousSeconds] to [y] does not change the byte count,
  * so a waving flag costs what a flat one costs.
@@ -136,16 +136,16 @@ public class RcMesh2DScope internal constructor(writer: RemoteComposeWriter) {
     /** Texture v in 0..1, or null for the identity mapping from the domain. */
     public var texV: RcFloat? = null
 
-    /** Vertex alpha in 0..1. Defaults to 1 when any other colour channel is set. */
+    /** Vertex alpha in 0..1. Defaults to 1 when any other color channel is set. */
     public var alpha: RcFloat? = null
 
-    /** Vertex red in 0..1. Defaults to 1 when any other colour channel is set. */
+    /** Vertex red in 0..1. Defaults to 1 when any other color channel is set. */
     public var red: RcFloat? = null
 
-    /** Vertex green in 0..1. Defaults to 1 when any other colour channel is set. */
+    /** Vertex green in 0..1. Defaults to 1 when any other color channel is set. */
     public var green: RcFloat? = null
 
-    /** Vertex blue in 0..1. Defaults to 1 when any other colour channel is set. */
+    /** Vertex blue in 0..1. Defaults to 1 when any other color channel is set. */
     public var blue: RcFloat? = null
 
     /**
@@ -185,11 +185,11 @@ public class RcMesh2DScope internal constructor(writer: RemoteComposeWriter) {
 }
 
 /**
- * The vertex colour of an antialiased mesh, made by [RcMesh2DAntialiasScope.color].
+ * The vertex color of an antialiased mesh, made by [RcMesh2DAntialiasScope.color].
  *
  * It exists so the block of [RcScope.remoteMesh2DAntialias] can be required to return one. The
- * skirt that softens the mesh's edges is its vertex colours faded to transparent, so a mesh without
- * them has nothing to fade; making colour the block's result turns forgetting it into a compile
+ * skirt that softens the mesh's edges is its vertex colors faded to transparent, so a mesh without
+ * them has nothing to fade; making color the block's result turns forgetting it into a compile
  * error rather than a mesh that is rejected when written.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -200,16 +200,37 @@ internal constructor(
     internal val green: RcFloat,
     internal val blue: RcFloat,
     internal val alpha: RcFloat,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcMeshColor) return false
+        return red == other.red &&
+            green == other.green &&
+            blue == other.blue &&
+            alpha == other.alpha
+    }
+
+    override fun hashCode(): Int {
+        var result = red.hashCode()
+        result = 31 * result + green.hashCode()
+        result = 31 * result + blue.hashCode()
+        result = 31 * result + alpha.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "RcMeshColor(red=$red, green=$green, blue=$blue, alpha=$alpha)"
+}
 
 /**
  * Builder for the channels of an antialiased parametric 2D mesh.
  *
- * As [RcMesh2DScope], except that colour is not optional. Position, uv and width are set the same
+ * As [RcMesh2DScope], except that color is not optional. Position, uv and width are set the same
  * way, but the block must end with [color], whose result is the block's value:
  * ```
+ * val twoPi = (2.0 * kotlin.math.PI).toFloat()
  * remoteMesh2DAntialias(RcMeshLayout.Ring, uCount = 96, vCount = 4, antialiasWidth = 1f.rf) {
- *     xy(cx + cos(u * TAU) * r, cy + sin(u * TAU) * r)
+ *     xy(cx + cos(u * twoPi) * r, cy + sin(u * twoPi) * r)
  *     color(red = u, green = 0.4f.rf, blue = 1f.rf - u)
  * }
  * ```
@@ -251,9 +272,9 @@ public class RcMesh2DAntialiasScope internal constructor(private val writer: Rem
     }
 
     /**
-     * The vertex colour, each channel 0..1. Return it from the block.
+     * The vertex color, each channel 0..1. Return it from the block.
      *
-     * With an image, the colour multiplies the texel, so pass white to show the image as it is.
+     * With an image, the color multiplies the texel, so pass white to show the image as it is.
      */
     public fun color(
         red: RcFloat,

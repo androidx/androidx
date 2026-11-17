@@ -61,7 +61,7 @@ fun demoAttributedString(): ByteArray {
         }
     }
 
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Box(modifier = Modifier.fillMaxSize().background(Color.WHITE).padding(4.rdp)) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -116,17 +116,16 @@ private fun RcScope.emitText(text: RcText, keyValues: IntArray) {
         i += 2
     }
 
-    Text(text = text, modifier = modifier, color = color, fontSize = fontSize.rsp)
-    //    Text(
-    //        text = text,
-    //        modifier = modifier,
-    //        color = color,
-    //        fontSize = fontSize.rsp,
-    //        fontStyle = fontStyle,
-    //        fontWeight = fontWeight,
-    //        underline = underline,
-    //        strikethrough = strikethrough,
-    //    )
+    Text(
+        text = text,
+        modifier = modifier,
+        color = color,
+        fontSize = fontSize.rsp,
+        fontStyle = fontStyle,
+        fontWeight = RcFontWeight(fontWeight),
+        underline = underline,
+        strikethrough = strikethrough,
+    )
 }
 
 // Replicate the AttributedString generation

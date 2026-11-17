@@ -45,8 +45,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 @Suppress("RestrictedApiAndroidX")
 public fun dslRcScrollview(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.raw(Header.FEATURE_MEASURE_VERSION, 2),
     ) {
         Column(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt()).padding(60f)) {

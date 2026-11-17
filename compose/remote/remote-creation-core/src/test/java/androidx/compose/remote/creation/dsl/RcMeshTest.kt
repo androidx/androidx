@@ -256,7 +256,7 @@ class RcMeshTest {
 
     /** A simple curve for a ribbon to follow. */
     private fun RcScope.testPath() =
-        remoteXYPath(remoteFunction { s -> s * 200f }, remoteFunction { s -> s * 50f }, 0f, 1f, 16)
+        remoteXyPath(remoteFunction { s -> s * 200f }, remoteFunction { s -> s * 50f }, 0f, 1f, 16)
 
     @Test
     fun pathSplineStripReachesTheWire() {
@@ -517,5 +517,34 @@ class RcMeshTest {
                 antialiasWidth = RcFloat(1f),
             )
         }
+    }
+
+    @Test
+    fun literalMeshAcceptsRcColorValueList() {
+        val colorValues = List(6) { RcColorValue(0xFF336699) }
+
+        val intWriter = RemoteComposeWriter(testProfile)
+        RcCanvasScopeImpl(intWriter).remoteMesh2DValues(verts = gridVerts, colors = gridColors)
+        val valueWriter = RemoteComposeWriter(testProfile)
+        RcCanvasScopeImpl(valueWriter).remoteMesh2DValues(verts = gridVerts, colors = colorValues)
+        assertArrayEquals(
+            wireOf(operationsOf(intWriter).filterIsInstance<AddMesh2D>().single()),
+            wireOf(operationsOf(valueWriter).filterIsInstance<AddMesh2D>().single()),
+        )
+
+        val aaValueWriter = RemoteComposeWriter(testProfile)
+        RcCanvasScopeImpl(aaValueWriter)
+            .remoteMesh2DValuesAntialias(
+                verts = gridVerts,
+                colors = colorValues,
+                layout = RcMeshLayout.Grid,
+                uCount = 3,
+                vCount = 2,
+                antialiasWidth = RcFloat(1f),
+            )
+        assertArrayEquals(
+            wireOf(literalAntialiasedGrid(indices = null)),
+            wireOf(operationsOf(aaValueWriter).filterIsInstance<AddMesh2D>().single()),
+        )
     }
 }

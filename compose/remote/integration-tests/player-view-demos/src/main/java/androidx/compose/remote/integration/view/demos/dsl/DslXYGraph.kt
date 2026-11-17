@@ -123,7 +123,7 @@ class FunctionPlot(
             val xExpr = remoteFunction { x -> (x * params.scaleX + params.offsetX + params.left) }
 
             val path =
-                remoteXYPath(
+                remoteXyPath(
                     xExpr,
                     function * params.scaleY + params.offsetY,
                     params.dataXMin.toFloat(),

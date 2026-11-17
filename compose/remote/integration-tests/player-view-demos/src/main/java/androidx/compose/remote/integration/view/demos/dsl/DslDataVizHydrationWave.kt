@@ -47,8 +47,7 @@ public fun dslDemoHydrationWave(): ByteArray {
     val data = floatArrayOf(5f, 8f) // cupsConsumed, goalCups
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(450),
         RcHeaderTag.contentDescription("Hydration Progress Wave"),

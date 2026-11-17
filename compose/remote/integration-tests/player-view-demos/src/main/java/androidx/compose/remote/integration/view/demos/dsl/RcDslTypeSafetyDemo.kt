@@ -37,7 +37,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
  */
 @Suppress("RestrictedApiAndroidX")
 public fun typeSafetyDemo(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Column(
             modifier = Modifier.fillMaxSize().background(0xFFF7F7F7.toInt()).padding(24.rdp),
             horizontal = RcHorizontalPositioning.Center,
@@ -244,7 +244,7 @@ private fun androidx.compose.remote.creation.dsl.RcScope.sectionLabel(text: Stri
  */
 @Suppress("RestrictedApiAndroidX")
 public fun typeSafetyBeforeAfter(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Column(
             modifier = Modifier.fillMaxSize().background(0xFFFAFAFA.toInt()).padding(24.rdp),
             horizontal = RcHorizontalPositioning.Center,

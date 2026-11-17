@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.dsl.RcConditionOp
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.computePosition
+import androidx.compose.remote.creation.dsl.conditionalOperations
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.height
@@ -39,7 +40,7 @@ fun dslDragCirclesDsl(): ByteArray {
     val objY = floatArrayOf(0.3f, 0.3f, 0.3f, 0.6f, 0.6f, 0.6f)
     val rad = 100f
 
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val selected = (-100).rf.flush()
 
         Box(
@@ -102,7 +103,7 @@ fun dslDragCirclesDsl_old2(): ByteArray {
     val objY = floatArrayOf(0.3f, 0.3f, 0.3f, 0.6f, 0.6f, 0.6f)
     val rad = 100f
 
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val selected = global { (-100).rf.flush() }
 
         Box(
@@ -173,7 +174,7 @@ fun dslDragCirclesDsl_old2(): ByteArray {
 //    fun dslDragCirclesDsl_orig(): ByteArray {
 //    val objX = floatArrayOf(0.2f, 0.5f, 0.8f, 0.2f, 0.5f, 0.8f)
 //    val objY = floatArrayOf(0.3f, 0.3f, 0.3f, 0.6f, 0.6f, 0.6f)
-//    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+//    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
 //
 //        val rad = 70f
 //        val down = 1.rf.flush()

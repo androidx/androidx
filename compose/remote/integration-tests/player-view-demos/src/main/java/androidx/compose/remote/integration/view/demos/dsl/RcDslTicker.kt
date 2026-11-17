@@ -37,15 +37,18 @@ import androidx.compose.remote.creation.dsl.arrayMax
 import androidx.compose.remote.creation.dsl.arrayMin
 import androidx.compose.remote.creation.dsl.arraySpline
 import androidx.compose.remote.creation.dsl.background
+import androidx.compose.remote.creation.dsl.beginGlobal
 import androidx.compose.remote.creation.dsl.clip
 import androidx.compose.remote.creation.dsl.componentId
 import androidx.compose.remote.creation.dsl.createRcBuffer
+import androidx.compose.remote.creation.dsl.endGlobal
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.fillMaxWidth
 import androidx.compose.remote.creation.dsl.height
 import androidx.compose.remote.creation.dsl.max
 import androidx.compose.remote.creation.dsl.min
 import androidx.compose.remote.creation.dsl.padding
+import androidx.compose.remote.creation.dsl.pathEffect
 import androidx.compose.remote.creation.dsl.rdp
 import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.sign
@@ -77,7 +80,7 @@ fun RcDslTickerPreview() {
 /** Reimplementation of RcTicker using the new type-safe DSL. */
 @Suppress("RestrictedApiAndroidX")
 fun dslTicker(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         colors = RcTickerColors(this)
         fontSizes = RcTickerFontSizes(this)
 
@@ -238,7 +241,7 @@ private fun RcScope.StockGraph() {
 
         paint {
             style(RcPaintStyle.Fill)
-            linearGradient(0f, 0f, 0f, lineBottom.toFloat(), listOf(colors.dotColor, RcColor.None))
+            linearGradient(0f.rf, 0f.rf, 0f.rf, lineBottom, listOf(colors.dotColor, RcColor.None))
             pathEffect(null)
             color(Color.BLACK)
         }

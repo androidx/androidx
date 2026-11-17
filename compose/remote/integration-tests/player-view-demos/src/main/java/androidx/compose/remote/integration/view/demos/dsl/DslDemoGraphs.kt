@@ -42,7 +42,7 @@ fun DslDemoGraphs2Preview() {
 fun dslDemoGraphs(): ByteArray {
     val data = FloatArray(32) { x -> sin(x / 3.14f) + 0.5f }
 
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val values = remoteFloatArray(data)
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -59,7 +59,7 @@ fun dslDemoGraphs(): ByteArray {
 
 @Suppress("RestrictedApiAndroidX")
 fun dslDemoGraphs2(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val w = componentWidth()

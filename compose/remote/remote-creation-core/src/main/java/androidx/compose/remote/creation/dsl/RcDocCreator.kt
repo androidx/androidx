@@ -19,6 +19,7 @@
 
 package androidx.compose.remote.creation.dsl
 
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
@@ -49,15 +50,28 @@ public value class RcDensityBehavior internal constructor(internal val value: In
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcHeaderTag internal constructor(internal val tag: Short, internal val value: Any) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcHeaderTag) return false
+        return tag == other.tag && value == other.value
+    }
+
+    override fun hashCode(): Int = 31 * tag.toInt() + value.hashCode()
+
+    override fun toString(): String = "RcHeaderTag(tag=$tag, value=$value)"
+
     public companion object {
         /** Sets the intrinsic document width in pixels or dp (per [densityBehavior]). */
-        public fun docWidth(width: Int): RcHeaderTag = RcHeaderTag(Header.DOC_WIDTH, width)
+        public fun docWidth(@IntRange(from = 0) width: Int): RcHeaderTag =
+            RcHeaderTag(Header.DOC_WIDTH, width)
 
         /** Sets the intrinsic document height in pixels or dp (per [densityBehavior]). */
-        public fun docHeight(height: Int): RcHeaderTag = RcHeaderTag(Header.DOC_HEIGHT, height)
+        public fun docHeight(@IntRange(from = 0) height: Int): RcHeaderTag =
+            RcHeaderTag(Header.DOC_HEIGHT, height)
 
         /** Sets the target playback frame rate in frames per second. */
-        public fun desiredFps(fps: Int): RcHeaderTag = RcHeaderTag(Header.DOC_DESIRED_FPS, fps)
+        public fun desiredFps(@IntRange(from = 1) fps: Int): RcHeaderTag =
+            RcHeaderTag(Header.DOC_DESIRED_FPS, fps)
 
         /** Sets the accessibility content description for the document. */
         public fun contentDescription(description: String): RcHeaderTag =
@@ -75,7 +89,8 @@ public class RcHeaderTag internal constructor(internal val tag: Short, internal 
             )
 
         /** Sets the player debug verbosity level (`0` disables debug output). */
-        public fun debug(level: Int): RcHeaderTag = RcHeaderTag(Header.DEBUG, level)
+        public fun debug(@IntRange(from = 0) level: Int): RcHeaderTag =
+            RcHeaderTag(Header.DEBUG, level)
 
         /** Creates a raw header tag from a wire property ID and value. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -85,11 +100,10 @@ public class RcHeaderTag internal constructor(internal val tag: Short, internal 
 
 private fun createRcBufferInternal(
     profile: RcProfile,
-    experimental: Boolean = false,
     vararg tags: RcHeaderTag,
     contentExecution: (RemoteComposeWriter, RcScope) -> Unit,
 ): ByteArray {
-    val isExperimental = experimental || profile.isExperimental
+    val isExperimental = profile.isExperimental
     val finalProfile =
         if (isExperimental) {
             androidx.compose.remote.creation.profile.Profile(
@@ -149,24 +163,7 @@ public fun createRcBuffer(
     vararg tags: RcHeaderTag,
     content: RcScope.() -> Unit,
 ): ByteArray =
-    createRcBufferInternal(profile, experimental = false, *tags) { writer, scope ->
-        writer.root { scope.content() }
-    }
-
-/**
- * Creates a serialized RemoteCompose document wrapped in a root layout container for the given
- * [profile], with an explicit [experimental] flag.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun createRcBuffer(
-    profile: RcProfile,
-    experimental: Boolean,
-    vararg tags: RcHeaderTag,
-    content: RcScope.() -> Unit,
-): ByteArray =
-    createRcBufferInternal(profile, experimental, *tags) { writer, scope ->
-        writer.root { scope.content() }
-    }
+    createRcBufferInternal(profile, *tags) { writer, scope -> writer.root { scope.content() } }
 
 /**
  * Creates a serialized RemoteCompose document for the given [profile] without wrapping [content] in
@@ -178,24 +175,7 @@ public fun createRawRcBuffer(
     vararg tags: RcHeaderTag,
     content: RcCanvasScope.() -> Unit,
 ): ByteArray =
-    createRcBufferInternal(profile, experimental = false, *tags) { writer, _ ->
-        RcCanvasScopeImpl(writer).content()
-    }
-
-/**
- * Creates a serialized RemoteCompose document for the given [profile] with an explicit
- * [experimental] flag, without wrapping [content] in a root layout container.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun createRawRcBuffer(
-    profile: RcProfile,
-    experimental: Boolean,
-    vararg tags: RcHeaderTag,
-    content: RcCanvasScope.() -> Unit,
-): ByteArray =
-    createRcBufferInternal(profile, experimental, *tags) { writer, _ ->
-        RcCanvasScopeImpl(writer).content()
-    }
+    createRcBufferInternal(profile, *tags) { writer, _ -> RcCanvasScopeImpl(writer).content() }
 
 /**
  * Executes [RcCanvasScope] drawing commands against an existing [writer], bridging Compose frontend

@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.clamp
+import androidx.compose.remote.creation.dsl.conditionalOperations
 import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -46,7 +47,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
  */
 @Suppress("RestrictedApiAndroidX")
 fun dslGameMarbleTilt(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         //        val warningSound =
         //            remoteSoundExpression(
         //                type = RcSoundType.Tone,
@@ -135,10 +136,10 @@ fun RcScope.marble(w: RcFloat, h: RcFloat): Array<RcFloat> {
                 ps,
                 null,
                 listOf(
-                    clamp(rad, w - rad, x + dx * dt),
-                    clamp(rad, h - rad, y + dy * dt),
-                    clamp(-300.rf, 300.rf, dx + ax * dt),
-                    clamp(-300.rf, 300.rf, dy + ay * dt),
+                    clamp(x + dx * dt, rad, w - rad),
+                    clamp(y + dy * dt, rad, h - rad),
+                    clamp(dx + ax * dt, -300.rf, 300.rf),
+                    clamp(dy + ay * dt, -300.rf, 300.rf),
                 ),
             ) {
                 paint {

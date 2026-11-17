@@ -80,8 +80,7 @@ internal fun RcCanvasScope.drawMesh2DLabel(text: String, color: Int = 0xFFE2E8F0
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DWavingFlag(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D waving flag"),
@@ -144,8 +143,7 @@ public fun dslMesh2DWavingFlag(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DRoseField(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D rose field"),
@@ -167,7 +165,7 @@ public fun dslMesh2DRoseField(): ByteArray {
 
                     // Hue as three phase-shifted cosines of the angle: a colour wheel without
                     // needing an hsv() function.
-                    alpha = clamp(0f.rf, 1f.rf, 1f.rf - v * 0.25f)
+                    alpha = clamp(1f.rf - v * 0.25f, 0f.rf, 1f.rf)
                     red = 0.5f + cos(theta * 3f + t) * 0.5f
                     green = 0.5f + cos(theta * 3f + t + 2.094f) * 0.5f
                     blue = 0.5f + cos(theta * 3f + t + 4.188f) * 0.5f
@@ -190,8 +188,7 @@ public fun dslMesh2DRoseField(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DCometTrail(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D comet trail"),
@@ -204,7 +201,7 @@ public fun dslMesh2DCometTrail(): ByteArray {
 
             // A lissajous loop for the comet to run along.
             val orbit =
-                remoteXYPath(
+                remoteXyPath(
                     remoteFunction { s -> cx + sin(s * TAU) * radius },
                     remoteFunction { s -> cy + sin(s * TAU * 2f) * radius * 0.62f },
                     0f,
@@ -250,8 +247,7 @@ public fun dslMesh2DCometTrail(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DRingGauge(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D ring gauge"),
@@ -279,7 +275,7 @@ public fun dslMesh2DRingGauge(): ByteArray {
 
                     // Lit past the current value, dim before it - and darker on the inner edge,
                     // which is the second dimension a sweep gradient does not have.
-                    val on = clamp(0f.rf, 1f.rf, (value - u) * 40f)
+                    val on = clamp((value - u) * 40f, 0f.rf, 1f.rf)
                     val depth = 0.45f + v * 0.55f
                     alpha = 1f.rf
                     red = depth * (0.12f + on * (0.10f + u * 0.85f))
@@ -324,8 +320,7 @@ public fun dslMesh2DRingGauge(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DRippleField(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D ripple field"),
@@ -355,7 +350,7 @@ public fun dslMesh2DRippleField(): ByteArray {
                     y = h * (0.5f + dy * (1.55f + push))
 
                     val lit = 0.5f + wave * 0.5f
-                    alpha = clamp(0f.rf, 1f.rf, 1f.rf - dist * 1.5f)
+                    alpha = clamp(1f.rf - dist * 1.5f, 0f.rf, 1f.rf)
                     red = lit * 0.25f
                     green = lit * (0.35f + dist)
                     blue = 0.35f + lit * 0.65f

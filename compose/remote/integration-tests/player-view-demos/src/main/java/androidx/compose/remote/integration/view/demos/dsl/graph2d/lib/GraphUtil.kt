@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFontType
 import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
+import androidx.compose.remote.creation.dsl.pathEffect
 
 /**
  * Small drawing helpers shared by the chart chrome and the marks, kept backward-compatible (only

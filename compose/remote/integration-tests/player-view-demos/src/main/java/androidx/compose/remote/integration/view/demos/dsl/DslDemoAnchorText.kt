@@ -33,7 +33,7 @@ fun DemoAnchorTextPreview() {
 
 @Suppress("RestrictedApiAndroidX")
 fun demoAnchorText(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Box(modifier = Modifier.fillMaxSize().background(Color.DKGRAY).padding(4.rdp)) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val w = componentWidth()

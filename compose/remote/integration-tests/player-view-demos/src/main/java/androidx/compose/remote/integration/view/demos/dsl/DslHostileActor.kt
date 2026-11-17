@@ -41,7 +41,7 @@ fun HostileActorImageColorPreview() {
 
 @Suppress("RestrictedApiAndroidX")
 fun demoImage(): ByteArray {
-    return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val w = windowWidth()
         val h = windowHeight()
         val cx = w * 0.5f
@@ -82,7 +82,7 @@ fun demoImage(): ByteArray {
 
 @Suppress("RestrictedApiAndroidX")
 fun demoImageColor(): ByteArray {
-    return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val w = windowWidth()
         val h = windowHeight()
         val cx = w * 0.5f

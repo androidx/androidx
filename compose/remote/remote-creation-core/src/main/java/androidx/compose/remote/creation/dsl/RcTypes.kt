@@ -20,6 +20,7 @@
 package androidx.compose.remote.creation.dsl
 
 import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextAnchored
@@ -32,6 +33,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.managers.TextInputLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
+import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.Rc
@@ -57,7 +59,10 @@ public value class RcImage internal constructor(internal val id: Int)
 @JvmInline
 public value class RcComponent internal constructor(internal val id: Int)
 
-/** Type-safe reference for a raw inline PCM sound resource registered via [RcScope.remoteSound]. */
+/**
+ * Type-safe reference for an embedded audio resource registered via [RcScope.remoteSound]. Pass to
+ * [RcScope.playSound] to trigger playback.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalRemoteCreationApi
 @JvmInline
@@ -72,12 +77,7 @@ public value class RcSound internal constructor(internal val id: Int)
 @JvmInline
 public value class RcSoundExpression internal constructor(internal val id: Int)
 
-/**
- * Synthesis type for a [RcScope.remoteSoundExpression].
- *
- * Values mirror the NaN-encoded type constants in `SoundExpression.java` but the wire format is
- * owned by remote-core, so this value class is platform-independent.
- */
+/** Synthesis type for [RcScope.remoteSoundExpression]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalRemoteCreationApi
 @JvmInline
@@ -105,18 +105,32 @@ public value class RcWaveform internal constructor(internal val value: Float) {
     }
 }
 
-/** Type-safe static packed ARGB color literal (`0xAARRGGBB`). */
+/**
+ * Static packed ARGB color literal (`0xAARRGGBB`).
+ *
+ * Construct from an ARGB `Int` or 32-bit `Long` hex literal (e.g., `RcColorValue(0xFFAA0000)`), or
+ * with [rcColor] (`0xFFAA0000.rcColor()`).
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcColorValue(@ColorInt internal val id: Int)
+public value class RcColorValue(@ColorInt internal val color: Int) {
+    /**
+     * Creates an [RcColorValue] from a 32-bit packed ARGB `Long` hex literal
+     * (`0x00000000`..`0xFFFFFFFF`, e.g., `RcColorValue(0xFFAA0000)`).
+     */
+    public constructor(color: Long) : this(color.toInt())
+}
 
-/** Converts this packed ARGB `Long` literal (`0xAARRGGBB`) to an [RcColorValue]. */
+/**
+ * Converts a 32-bit packed ARGB `Long` hex literal (`0x00000000`..`0xFFFFFFFF`, e.g.
+ * `0xFFAA0000.rcColor()`) to an [RcColorValue].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Long.rcColor(): RcColorValue = RcColorValue(this.toInt())
+public fun Long.rcColor(): RcColorValue = RcColorValue(this)
 
-/** Converts this packed ARGB `Int` literal (`0xAARRGGBB`) to an [RcColorValue]. */
+/** Converts a packed ARGB `Int` (`0xAARRGGBB`) to an [RcColorValue]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Int.rcColor(): RcColorValue = RcColorValue(this)
+public fun @receiver:ColorInt Int.rcColor(): RcColorValue = RcColorValue(this)
 
 /** Type-safe reference for remote color variables or expressions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -157,16 +171,11 @@ public fun touchPosX(): RcFloat = RcFloat(null, floatArrayOf(Rc.Touch.POSITION_X
 public fun touchPosY(): RcFloat = RcFloat(null, floatArrayOf(Rc.Touch.POSITION_Y))
 
 /**
- * Type-safe reference for remote integer/long variables or expressions.
+ * Type-safe reference for remote integer or long variables and expressions.
  *
- * Carries an optional [RemoteComposeWriter] reference so that arithmetic operators (`+`, `-`, `*`,
- * `/`, `%`, `min`, `max`, etc.) can build derived integer expressions via the writer's
- * `integerExpression(...)` API. Constructed integers from `remoteInteger(value)` carry the scope's
- * writer; standalone ones (rare) have a null writer and arithmetic fails fast.
- *
- * Not `@JvmInline` because value classes can only carry a single underlying value; the writer
- * reference forces a regular class allocation. The runtime cost is one heap allocation per
- * RcInteger — typically negligible compared to the wire write.
+ * Instances obtained from [RcScope.remoteInteger], [RcScope.remoteNamedInteger], or
+ * [RcScope.remoteLong] support player-evaluated arithmetic (`+`, `-`, `*`, `/`, `%`, `min`, `max`,
+ * bitwise ops, etc.).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcInteger
@@ -248,6 +257,12 @@ internal constructor(internal val id: Long, internal val writer: RemoteComposeWr
 
     /** Logical right shift (zero-fill). */
     public infix fun ushr(bits: Int): RcInteger = expr(bits, Rc.IntegerExpression.L_USHR)
+
+    override fun equals(other: Any?): Boolean = other is RcInteger && id == other.id
+
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun toString(): String = "RcInteger(id=$id)"
 }
 
 /** Convenience: build an integer expression from `Int op RcInteger`. */
@@ -257,7 +272,10 @@ public operator fun Int.plus(other: RcInteger): RcInteger = other + this
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public operator fun Int.times(other: RcInteger): RcInteger = other * this
 
-/** Type-safe reference for remote text styles. */
+/**
+ * Type-safe reference for a reusable text style registered via [RcScope.remoteTextStyle] and
+ * applied via [RcScope.Text].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcTextStyle internal constructor(internal val id: Int)
@@ -273,7 +291,37 @@ public value class RcBitmapFont internal constructor(internal val id: Int)
  * Construct instances using [bitmapFontGlyph].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RcBitmapFontGlyph internal constructor(internal val glyph: BitmapFontData.Glyph)
+public class RcBitmapFontGlyph internal constructor(internal val glyph: BitmapFontData.Glyph) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcBitmapFontGlyph) return false
+        val g = other.glyph
+        return glyph.mChars == g.mChars &&
+            glyph.mBitmapId == g.mBitmapId &&
+            glyph.mMarginLeft == g.mMarginLeft &&
+            glyph.mMarginTop == g.mMarginTop &&
+            glyph.mMarginRight == g.mMarginRight &&
+            glyph.mMarginBottom == g.mMarginBottom &&
+            glyph.mBitmapWidth == g.mBitmapWidth &&
+            glyph.mBitmapHeight == g.mBitmapHeight
+    }
+
+    override fun hashCode(): Int {
+        var result = glyph.mChars?.hashCode() ?: 0
+        result = 31 * result + glyph.mBitmapId
+        result = 31 * result + glyph.mMarginLeft
+        result = 31 * result + glyph.mMarginTop
+        result = 31 * result + glyph.mMarginRight
+        result = 31 * result + glyph.mMarginBottom
+        result = 31 * result + glyph.mBitmapWidth
+        result = 31 * result + glyph.mBitmapHeight
+        return result
+    }
+
+    override fun toString(): String =
+        "RcBitmapFontGlyph(chars=${glyph.mChars}, bitmapId=${glyph.mBitmapId}, " +
+            "width=${glyph.mBitmapWidth}, height=${glyph.mBitmapHeight})"
+}
 
 /**
  * Builds an [RcBitmapFontGlyph] for [RcScope.createBitmapFont] whose image is [image].
@@ -514,19 +562,19 @@ public value class RcBitmapTextMeasure internal constructor(internal val value: 
     }
 }
 
+/** Font posture (upright vs. italic) for [RcScope.Text] and [RcScope.remoteTextStyle]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcFontStyle internal constructor(internal val value: Int) {
     public companion object {
+        /** Upright (roman) glyph posture. */
         public val Normal: RcFontStyle = RcFontStyle(0)
+        /** Italic or oblique glyph posture. */
         public val Italic: RcFontStyle = RcFontStyle(1)
     }
 }
 
-/**
- * Porter-Duff / SkBlendMode selector for [RcPaintScope.blendMode] and [RcPaintScope.colorFilter].
- * Wraps `PaintBundle.BLEND_MODE_*` constants.
- */
+/** Blend mode selector for [RcPaintScope.blendMode] and [RcPaintScope.colorFilter]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcBlendMode internal constructor(internal val value: Int) {
@@ -564,23 +612,23 @@ public value class RcBlendMode internal constructor(internal val value: Int) {
     }
 }
 
-/** Tiling mode for shader/texture sampling. Wraps `Rc.Texture.TILE_*` constants. */
+/** Tiling mode for shader/texture sampling. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcTileMode internal constructor(internal val value: Short) {
+public value class RcTileMode internal constructor(internal val value: Int) {
     public companion object {
         /** Replicate the edge sample. */
-        public val Clamp: RcTileMode = RcTileMode(Rc.Texture.TILE_CLAMP)
+        public val Clamp: RcTileMode = RcTileMode(Rc.Texture.TILE_CLAMP.toInt())
         /** Mirror across each tile boundary. */
-        public val Mirror: RcTileMode = RcTileMode(Rc.Texture.TILE_MIRROR)
+        public val Mirror: RcTileMode = RcTileMode(Rc.Texture.TILE_MIRROR.toInt())
         /** Repeat (wrap) the sample range. */
-        public val Repeat: RcTileMode = RcTileMode(Rc.Texture.TILE_REPEAT)
+        public val Repeat: RcTileMode = RcTileMode(Rc.Texture.TILE_REPEAT.toInt())
         /** Sample as transparent outside the source bounds. */
-        public val Decal: RcTileMode = RcTileMode(Rc.Texture.TILE_DECAL)
+        public val Decal: RcTileMode = RcTileMode(Rc.Texture.TILE_DECAL.toInt())
     }
 }
 
-/** Typeface family for [RcPaintScope.typeface]. Wraps `RcPaint.FONT_TYPE_*` constants. */
+/** Generic typeface family for [RcPaintScope.typeface]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcFontType internal constructor(internal val value: Int) {
@@ -593,11 +641,10 @@ public value class RcFontType internal constructor(internal val value: Int) {
 }
 
 /**
- * Stop-behavior selector for the touch interaction emitted by [RcCanvasScope.addTouch]. Wraps
- * `Rc.Touch.STOP_*` opcodes.
+ * Stop behavior applied when a touch gesture ends in [RcCanvasScope.addTouch].
  *
  * `Notches*` modes consume a corresponding `notches` `FloatArray` describing the notches;
- * `Notches*Even` modes are uniform spacings driven by a count.
+ * `Notches*Even` modes distribute uniform spacings driven by a count.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
@@ -637,23 +684,23 @@ public value class RcTouchStopMode internal constructor(internal val value: Int)
 // narrowing is required at call sites.
 // =====================================================================================
 
-/** Comparison operator for [RcScope.conditionalOperations]. Wraps `Rc.Condition.*` opcodes. */
+/** Comparison operator for [RcScope.ifTrue]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcConditionOp internal constructor(internal val value: Byte) {
+public value class RcConditionOp internal constructor(internal val value: Int) {
     public companion object {
         /** Equality (a == b). */
-        public val Eq: RcConditionOp = RcConditionOp(Rc.Condition.EQ)
+        public val Eq: RcConditionOp = RcConditionOp(Rc.Condition.EQ.toInt())
         /** Inequality (a != b). */
-        public val Neq: RcConditionOp = RcConditionOp(Rc.Condition.NEQ)
+        public val Neq: RcConditionOp = RcConditionOp(Rc.Condition.NEQ.toInt())
         /** Strictly less than (a < b). */
-        public val Lt: RcConditionOp = RcConditionOp(Rc.Condition.LT)
+        public val Lt: RcConditionOp = RcConditionOp(Rc.Condition.LT.toInt())
         /** Less than or equal (a <= b). */
-        public val Lte: RcConditionOp = RcConditionOp(Rc.Condition.LTE)
+        public val Lte: RcConditionOp = RcConditionOp(Rc.Condition.LTE.toInt())
         /** Strictly greater than (a > b). */
-        public val Gt: RcConditionOp = RcConditionOp(Rc.Condition.GT)
+        public val Gt: RcConditionOp = RcConditionOp(Rc.Condition.GT.toInt())
         /** Greater than or equal (a >= b). */
-        public val Gte: RcConditionOp = RcConditionOp(Rc.Condition.GTE)
+        public val Gte: RcConditionOp = RcConditionOp(Rc.Condition.GTE.toInt())
     }
 }
 
@@ -664,7 +711,22 @@ internal constructor(
     internal val op: RcConditionOp,
     internal val a: RcFloat,
     internal val b: RcFloat,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcCondition) return false
+        return op == other.op && a == other.a && b == other.b
+    }
+
+    override fun hashCode(): Int {
+        var result = op.hashCode()
+        result = 31 * result + a.hashCode()
+        result = 31 * result + b.hashCode()
+        return result
+    }
+
+    override fun toString(): String = "RcCondition(op=$op, a=$a, b=$b)"
+}
 
 /** Infix equality comparison. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -721,100 +783,110 @@ public infix fun RcFloat.gt(other: Float): RcCondition = gt(RcFloat(this.writer,
 public infix fun RcFloat.gte(other: Float): RcCondition = gte(RcFloat(this.writer, other))
 
 /**
- * Skip predicate for [RcScope.skip]. Wraps `Rc.Skip.*` opcodes.
+ * Skip predicate for [RcScope.skip].
  *
  * The companion `value` is interpreted in the player against either the runtime API level
  * (`IfApi*`) or the document profile bitmask (`IfProfile*`).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcSkipKind internal constructor(internal val value: Short) {
+public value class RcSkipKind internal constructor(internal val value: Int) {
     public companion object {
         /** Skip the block when the player API level is < value. */
-        public val IfApiLessThan: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_LESS_THAN)
+        public val IfApiLessThan: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_LESS_THAN.toInt())
         /** Skip the block when the player API level is > value. */
-        public val IfApiGreaterThan: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_GREATER_THAN)
+        public val IfApiGreaterThan: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_GREATER_THAN.toInt())
         /** Skip the block when the player API level == value. */
-        public val IfApiEqualTo: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_EQUAL_TO)
+        public val IfApiEqualTo: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_EQUAL_TO.toInt())
         /** Skip the block when the player API level != value. */
-        public val IfApiNotEqualTo: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_NOT_EQUAL_TO)
+        public val IfApiNotEqualTo: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_NOT_EQUAL_TO.toInt())
         /** Skip the block when the document profile bitmask includes value. */
-        public val IfProfileIncludes: RcSkipKind = RcSkipKind(Rc.Skip.IF_PROFILE_INCLUDES)
+        public val IfProfileIncludes: RcSkipKind = RcSkipKind(Rc.Skip.IF_PROFILE_INCLUDES.toInt())
         /** Skip the block when the document profile bitmask excludes value. */
-        public val IfProfileExcludes: RcSkipKind = RcSkipKind(Rc.Skip.IF_PROFILE_EXCLUDES)
+        public val IfProfileExcludes: RcSkipKind = RcSkipKind(Rc.Skip.IF_PROFILE_EXCLUDES.toInt())
     }
 }
 
 /**
- * Time-attribute selector for [RcScope.timeAttribute]. Wraps `Rc.TimeAttributes.*` opcodes.
+ * Time-attribute selector for [RcScope.timeAttribute].
  *
- * The kinds prefixed `TimeFromArg*` consume one extra `Int` from the variadic `args` — a typed
- * wrapper API can encode that constraint in the future replacement.
+ * Attributes prefixed `TimeFromArg*` compare `variable` against the `referenceTime` parameter in
+ * the 3-argument [RcScope.timeAttribute] overload.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcTimeAttr internal constructor(internal val value: Short) {
+public value class RcTimeAttr internal constructor(internal val value: Int) {
     public companion object {
         /** (value − currentTimeMillis) × 1e-3 — seconds till `value`. */
-        public val TimeFromNowSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_SEC)
+        public val TimeFromNowSec: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_SEC.toInt())
         /** (value − currentTimeMillis) × 1e-3 / 60 — minutes till `value`. */
-        public val TimeFromNowMin: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_MIN)
+        public val TimeFromNowMin: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_MIN.toInt())
         /** (value − currentTimeMillis) × 1e-3 / 3600 — hours till `value`. */
-        public val TimeFromNowHr: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_HR)
-        /** (value − arg[0]) × 1e-3 — seconds elapsed since `arg[0]`. */
-        public val TimeFromArgSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_SEC)
-        /** (value − arg[0]) × 1e-3 / 60 — minutes elapsed since `arg[0]`. */
-        public val TimeFromArgMin: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_MIN)
-        /** (value − arg[0]) × 1e-3 / 3600 — hours elapsed since `arg[0]`. */
-        public val TimeFromArgHr: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_HR)
+        public val TimeFromNowHr: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_HR.toInt())
+        /** (value − referenceTime) × 1e-3 — seconds elapsed since `referenceTime`. */
+        public val TimeFromArgSec: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_SEC.toInt())
+        /** (value − referenceTime) × 1e-3 / 60 — minutes elapsed since `referenceTime`. */
+        public val TimeFromArgMin: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_MIN.toInt())
+        /** (value − referenceTime) × 1e-3 / 3600 — hours elapsed since `referenceTime`. */
+        public val TimeFromArgHr: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_HR.toInt())
         /** Second of the minute (0–59). */
-        public val TimeInSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_SEC)
+        public val TimeInSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_SEC.toInt())
         /** Minute of the hour (0–59). */
-        public val TimeInMin: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_MIN)
+        public val TimeInMin: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_MIN.toInt())
         /** Hour of the day (0–23). */
-        public val TimeInHr: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_HR)
+        public val TimeInHr: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_HR.toInt())
         /** Day of the month (1–31). */
-        public val TimeDayOfMonth: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_MONTH)
+        public val TimeDayOfMonth: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_MONTH.toInt())
         /** Month of the year (0–11). */
-        public val TimeMonthValue: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_MONTH_VALUE)
+        public val TimeMonthValue: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_MONTH_VALUE.toInt())
         /** Day of the week (0–6). */
-        public val TimeDayOfWeek: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_WEEK)
+        public val TimeDayOfWeek: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_WEEK.toInt())
         /** Year. */
-        public val TimeYear: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_YEAR)
+        public val TimeYear: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_YEAR.toInt())
         /** (value − doc-load-time) × 1e-3 — seconds elapsed since the document loaded. */
-        public val TimeFromLoadSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_LOAD_SEC)
+        public val TimeFromLoadSec: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_FROM_LOAD_SEC.toInt())
         /** Day of the year (1–366). */
-        public val TimeDayOfYear: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_YEAR)
+        public val TimeDayOfYear: RcTimeAttr =
+            RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_YEAR.toInt())
     }
 }
 
-/** Color attribute selector for [RcScope.getColorAttribute]. Wraps `Rc.ColorAttribute.*`. */
+/** Color attribute selector for [RcScope.colorAttribute]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcColorAttr internal constructor(internal val value: Short) {
+public value class RcColorAttr internal constructor(internal val value: Int) {
     public companion object {
         /** Hue component (HSV). */
-        public val Hue: RcColorAttr = RcColorAttr(Rc.ColorAttribute.HUE)
+        public val Hue: RcColorAttr = RcColorAttr(Rc.ColorAttribute.HUE.toInt())
         /** Saturation component (HSV). */
-        public val Saturation: RcColorAttr = RcColorAttr(Rc.ColorAttribute.SATURATION)
+        public val Saturation: RcColorAttr = RcColorAttr(Rc.ColorAttribute.SATURATION.toInt())
         /** Brightness / value component (HSV). */
-        public val Brightness: RcColorAttr = RcColorAttr(Rc.ColorAttribute.BRIGHTNESS)
+        public val Brightness: RcColorAttr = RcColorAttr(Rc.ColorAttribute.BRIGHTNESS.toInt())
         /** Red channel (sRGB). */
-        public val Red: RcColorAttr = RcColorAttr(Rc.ColorAttribute.RED)
+        public val Red: RcColorAttr = RcColorAttr(Rc.ColorAttribute.RED.toInt())
         /** Green channel (sRGB). */
-        public val Green: RcColorAttr = RcColorAttr(Rc.ColorAttribute.GREEN)
+        public val Green: RcColorAttr = RcColorAttr(Rc.ColorAttribute.GREEN.toInt())
         /** Blue channel (sRGB). */
-        public val Blue: RcColorAttr = RcColorAttr(Rc.ColorAttribute.BLUE)
+        public val Blue: RcColorAttr = RcColorAttr(Rc.ColorAttribute.BLUE.toInt())
         /** Alpha channel. */
-        public val Alpha: RcColorAttr = RcColorAttr(Rc.ColorAttribute.ALPHA)
+        public val Alpha: RcColorAttr = RcColorAttr(Rc.ColorAttribute.ALPHA.toInt())
     }
 }
 
 /**
- * Easing curve for [RcFloat.anim] and [Modifier.animationSpec]. Wraps `Rc.Animate.*`.
+ * Easing curve for [RcFloat.anim] and [Modifier.animationSpec].
  *
- * `CubicCustom` and `SplineCustom` require a control-point spec passed alongside; a typed wrapper
- * API can require those parameters in the future replacement.
+ * [CubicCustom] and [SplineCustom] require a control-point `spec` array passed alongside.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
@@ -843,9 +915,7 @@ public value class RcAnimationCurve internal constructor(internal val value: Int
     }
 }
 
-/**
- * Border shape selector for [Modifier.border]. Wraps `ShapeType.*` constants from the layout core.
- */
+/** Border shape selector for [Modifier.border]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcBorderShape internal constructor(internal val value: Int) {
@@ -860,11 +930,9 @@ public value class RcBorderShape internal constructor(internal val value: Int) {
 }
 
 /**
- * Haptic feedback kind for [RcScope.performHaptic]. Wraps `Rc.Haptic.*` constants.
+ * Haptic feedback kind for [RcScope.performHaptic].
  *
- * Values mirror `android.view.HapticFeedbackConstants` but the wire format is owned by
- * remote-creation-core, so this value class is platform-independent — the player chooses how (or
- * whether) to map each kind to a local haptic engine.
+ * The player maps each platform-independent kind to its local haptic engine when supported.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
@@ -987,18 +1055,20 @@ public value class RcMatrixFromPathFlags internal constructor(internal val bits:
 }
 
 /**
- * Bit-packed format spec for [RcScope.createTextFromFloat] / [RcFloat.format].
+ * Formatting specification for [RcScope.createTextFromFloat] and [RcFloat.format].
  *
- * Unlike the OR-able flag sets above, `TextFromFloat` packs five mutually-exclusive sub-fields into
- * one Int, plus two independent boolean flags. Use the [of] factory to build a value safely; raw
- * `or` of arbitrary constants would silently corrupt the sub-field encoding.
+ * Use the [of] factory to combine padding, grouping, separator, and rounding options safely.
  *
  * ```
- * value.format(whole = 4, decimal = 2,
+ * value.format(
+ *     whole = 4,
+ *     decimal = 2,
  *     spec = RcTextFromFloatSpec.of(
  *         padPre = RcTextFromFloatSpec.PadPre.Zero,
  *         grouping = RcTextFromFloatSpec.Grouping.By3,
- *         options = RcTextFromFloatSpec.Options.NegativeParens))
+ *         options = RcTextFromFloatSpec.Options.NegativeParens,
+ *     ),
+ * )
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1141,11 +1211,6 @@ public value class RcComponentId internal constructor(internal val id: Int) {
     }
 }
 
-/** Type-safe reference for remote animation specs. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-public value class RcAnimationSpec internal constructor(internal val id: Int)
-
 /** Type-safe reference for remote macros defined via [RcScope.defineMacro]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalRemoteCreationApi
@@ -1154,7 +1219,24 @@ internal constructor(
     internal val id: Int,
     internal val parameters: List<String> = emptyList(),
     internal val paramIds: IntArray = IntArray(0),
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcMacro) return false
+        return id == other.id &&
+            parameters == other.parameters &&
+            paramIds.contentEquals(other.paramIds)
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + parameters.hashCode()
+        result = 31 * result + paramIds.contentHashCode()
+        return result
+    }
+
+    override fun toString(): String = "RcMacro(id=$id, parameters=$parameters)"
+}
 
 /**
  * Builder scope for supplying named arguments and content blocks when inflating an [RcMacro] via
@@ -1188,6 +1270,9 @@ public sealed interface RcMacroArgsScope {
     /** Binds parameter [name] to the static [RcColorValue] [value]. */
     public fun color(name: String, value: RcColorValue)
 
+    /** Binds parameter [name] to a 32-bit packed ARGB `Long` hex literal [value]. */
+    public fun color(name: String, value: Long): Unit = color(name, RcColorValue(value))
+
     /** Binds parameter [name] to the [RcImage] [value]. */
     public fun image(name: String, value: RcImage)
 
@@ -1216,10 +1301,34 @@ public value class RcMacroArg internal constructor(internal val paramId: Int) {
     public fun asInteger(): RcInteger = RcInteger(0x100000000L + paramId.toLong())
 }
 
-/** Type-safe reference for remote key-value data maps. */
+/**
+ * Type-safe reference for a remote key-value data map registered via [RcScope.remoteDataMap] and
+ * queried via [RcScope.lookupText], [RcScope.lookupFloat], [RcScope.lookupInt], or
+ * [RcScope.lookupBoolean].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcDataMap internal constructor(internal val id: Int)
+
+/** Builder scope for populating typed key-value entries in [RcScope.remoteDataMap]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RcDslMarker
+public sealed interface RcDataMapScope {
+    /** Inserts a string entry under [key]. */
+    public fun string(key: String, value: String)
+
+    /** Inserts a 32-bit integer entry under [key]. */
+    public fun int(key: String, value: Int)
+
+    /** Inserts a 64-bit integer entry under [key]. */
+    public fun long(key: String, value: Long)
+
+    /** Inserts a floating-point entry under [key]. */
+    public fun float(key: String, value: Float)
+
+    /** Inserts a boolean entry under [key]. */
+    public fun boolean(key: String, value: Boolean)
+}
 
 /** Type-safe reference for remote raw font files. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1235,7 +1344,18 @@ public value class RcFont internal constructor(internal val id: Int)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcPoint internal constructor(public val x: RcFloat, public val y: RcFloat) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcPoint) return false
+        return x == other.x && y == other.y
+    }
+
+    override fun hashCode(): Int = 31 * x.hashCode() + y.hashCode()
+
+    override fun toString(): String = "RcPoint(x=$x, y=$y)"
+
     public companion object {
+        /** Origin point `(0, 0)`. */
         public val Zero: RcPoint = RcPoint(RcFloat(0f), RcFloat(0f))
     }
 }
@@ -1264,11 +1384,32 @@ internal constructor(
     public val right: RcFloat,
     public val bottom: RcFloat,
 ) {
+    /** Horizontal span `right - left` as an [RcFloat] expression. */
     public val width: RcFloat
         get() = right - left
 
+    /** Vertical span `bottom - top` as an [RcFloat] expression. */
     public val height: RcFloat
         get() = bottom - top
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcRect) return false
+        return left == other.left &&
+            top == other.top &&
+            right == other.right &&
+            bottom == other.bottom
+    }
+
+    override fun hashCode(): Int {
+        var result = left.hashCode()
+        result = 31 * result + top.hashCode()
+        result = 31 * result + right.hashCode()
+        result = 31 * result + bottom.hashCode()
+        return result
+    }
+
+    override fun toString(): String = "RcRect(left=$left, top=$top, right=$right, bottom=$bottom)"
 
     public companion object {
         /** Rectangle by static left/top/right/bottom. */
@@ -1374,6 +1515,26 @@ public class RcCustomProperty {
     public val colorValue: RcColor
         get() = RcColor(mIntValue)
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcCustomProperty) return false
+        return mType == other.mType &&
+            mDataType == other.mDataType &&
+            mIntValue == other.mIntValue &&
+            mFloatValue.toRawBits() == other.mFloatValue.toRawBits()
+    }
+
+    override fun hashCode(): Int {
+        var result = mType.toInt()
+        result = 31 * result + mDataType.toInt()
+        result = 31 * result + mIntValue
+        result = 31 * result + mFloatValue.toRawBits()
+        return result
+    }
+
+    override fun toString(): String =
+        "RcCustomProperty(type=$mType, dataType=$mDataType, intValue=$mIntValue, floatValue=$mFloatValue)"
+
     public companion object {
         internal const val INT_PROP: Short = 0
         internal const val FLOAT_PROP: Short = 1
@@ -1404,7 +1565,11 @@ public class RcCustomProperty {
 
         /** Creates a static [RcColorValue] custom property binding for key [type]. */
         public fun color(type: Int, value: RcColorValue): RcCustomProperty =
-            RcCustomProperty(type.toShort(), COLOR_PROP, value.id)
+            RcCustomProperty(type.toShort(), COLOR_PROP, value.color)
+
+        /** Creates a static color custom property binding from a 32-bit packed ARGB `Long`. */
+        public fun color(type: Int, value: Long): RcCustomProperty =
+            color(type, RcColorValue(value))
 
         /** Creates a dynamic [RcColor] custom property binding for key [type]. */
         public fun color(type: Int, value: RcColor): RcCustomProperty =
@@ -1419,6 +1584,48 @@ public class RcCustomProperty {
 /** Outline shape used by [Modifier.clip]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcShape internal constructor(internal val legacyShape: Shape) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcShape) return false
+        val a = legacyShape
+        val b = other.legacyShape
+        return when {
+            a is CircleShape && b is CircleShape -> true
+            a is RectShape && b is RectShape -> true
+            a is RoundedRectShape && b is RoundedRectShape ->
+                a.topStart.toRawBits() == b.topStart.toRawBits() &&
+                    a.topEnd.toRawBits() == b.topEnd.toRawBits() &&
+                    a.bottomStart.toRawBits() == b.bottomStart.toRawBits() &&
+                    a.bottomEnd.toRawBits() == b.bottomEnd.toRawBits()
+            else -> a == b
+        }
+    }
+
+    override fun hashCode(): Int =
+        when (val s = legacyShape) {
+            is CircleShape -> 1
+            is RectShape -> 2
+            is RoundedRectShape -> {
+                var result = 3
+                result = 31 * result + s.topStart.toRawBits()
+                result = 31 * result + s.topEnd.toRawBits()
+                result = 31 * result + s.bottomStart.toRawBits()
+                result = 31 * result + s.bottomEnd.toRawBits()
+                result
+            }
+            else -> s.hashCode()
+        }
+
+    override fun toString(): String =
+        when (val s = legacyShape) {
+            is CircleShape -> "RcShape.Circle"
+            is RectShape -> "RcShape.Rectangle"
+            is RoundedRectShape ->
+                "RcShape.RoundedCorner(topStart=${s.topStart}, topEnd=${s.topEnd}, " +
+                    "bottomEnd=${s.bottomEnd}, bottomStart=${s.bottomStart})"
+            else -> "RcShape($s)"
+        }
+
     public companion object {
         /** Axis-aligned rectangular clip outline. */
         public val Rectangle: RcShape = RcShape(RectShape(0f, 0f, 0f, 0f))
@@ -1440,10 +1647,10 @@ public class RcShape internal constructor(internal val legacyShape: Shape) {
 
         /** Creates a rounded-rectangle clip outline with per-corner radii. */
         public fun roundedCorner(
-            topStart: Float = 0f,
-            topEnd: Float = 0f,
-            bottomEnd: Float = 0f,
-            bottomStart: Float = 0f,
+            topStart: Float,
+            topEnd: Float,
+            bottomEnd: Float,
+            bottomStart: Float,
         ): RcShape = RcShape(RoundedRectShape(topStart, topEnd, bottomStart, bottomEnd))
 
         /** Creates a rounded-rectangle clip outline with per-corner [RcDp] radii. */
@@ -1459,10 +1666,10 @@ public class RcShape internal constructor(internal val legacyShape: Shape) {
 
         /** Creates a rounded-rectangle clip outline with per-corner [RcPx] radii. */
         public fun roundedCorner(
-            topStart: RcPx = 0.rpx,
-            topEnd: RcPx = 0.rpx,
-            bottomEnd: RcPx = 0.rpx,
-            bottomStart: RcPx = 0.rpx,
+            topStart: RcPx,
+            topEnd: RcPx,
+            bottomEnd: RcPx,
+            bottomStart: RcPx,
         ): RcShape =
             RcShape(
                 RoundedRectShape(topStart.value, topEnd.value, bottomStart.value, bottomEnd.value)
@@ -1612,21 +1819,24 @@ public value class RcSemanticsMode internal constructor(internal val value: Int)
 /** Texture sampling filter mode for [RcPaintScope.textureShader]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcTextureFilterMode internal constructor(internal val value: Short) {
+public value class RcTextureFilterMode internal constructor(internal val value: Int) {
     public companion object {
         /** Uses the player's default texture sampling filter. */
-        public val Default: RcTextureFilterMode = RcTextureFilterMode(Rc.Texture.FILTER_DEFAULT)
+        public val Default: RcTextureFilterMode =
+            RcTextureFilterMode(Rc.Texture.FILTER_DEFAULT.toInt())
         /** Nearest-neighbor point sampling without interpolation. */
-        public val Nearest: RcTextureFilterMode = RcTextureFilterMode(Rc.Texture.FILTER_NEAREST)
+        public val Nearest: RcTextureFilterMode =
+            RcTextureFilterMode(Rc.Texture.FILTER_NEAREST.toInt())
         /** Bilinear interpolation across adjacent texels. */
-        public val Linear: RcTextureFilterMode = RcTextureFilterMode(Rc.Texture.FILTER_LINEAR)
+        public val Linear: RcTextureFilterMode =
+            RcTextureFilterMode(Rc.Texture.FILTER_LINEAR.toInt())
     }
 }
 
-/** Behavior flags for [RcCanvasScope.particlesComparison]. */
+/** Behavior flags for [RcScope.particlesComparison]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcParticleComparisonFlags internal constructor(internal val value: Short) {
+public value class RcParticleComparisonFlags internal constructor(internal val value: Int) {
     public companion object {
         /** Default particle comparison behavior with no modifier flags set. */
         public val None: RcParticleComparisonFlags = RcParticleComparisonFlags(0)
@@ -1810,5 +2020,82 @@ public value class RcVisibilityAnimation internal constructor(internal val id: I
     public companion object {
         /** Sentinel indicating no custom visibility animation function is attached. */
         public val None: RcVisibilityAnimation = RcVisibilityAnimation(-1)
+    }
+}
+
+/** Transform mode applied to each stamped shape in [RcPathEffect.pathDash]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcStampedPathStyle internal constructor(internal val value: Int) {
+    public companion object {
+        /** Translates the shape to each stamped position without rotating it. */
+        public val Translate: RcStampedPathStyle = RcStampedPathStyle(0)
+        /** Rotates the shape to align with the path tangent at each stamped position. */
+        public val Rotate: RcStampedPathStyle = RcStampedPathStyle(1)
+        /** Smoothly bends the shape geometry along the curvature of the path. */
+        public val Morph: RcStampedPathStyle = RcStampedPathStyle(2)
+    }
+}
+
+/**
+ * Type-safe stroke/contour path effect installed on a paint via [RcPaintScope.pathEffect].
+ *
+ * Construct instances with [dash], [discrete], [pathDash], [sum], or [chain].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RcPathEffect internal constructor(internal val data: FloatArray) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcPathEffect) return false
+        if (data.size != other.data.size) return false
+        for (i in data.indices) {
+            if (data[i].toRawBits() != other.data[i].toRawBits()) return false
+        }
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = 1
+        for (v in data) {
+            result = 31 * result + v.toRawBits()
+        }
+        return result
+    }
+
+    override fun toString(): String = "RcPathEffect(size=${data.size})"
+
+    public companion object {
+        /** Draws alternating on/off dash segments defined by [intervals] starting at [phase]. */
+        public fun dash(intervals: FloatArray, phase: Float = 0f): RcPathEffect =
+            RcPathEffect(PaintPathEffects.dash(phase, *intervals))
+
+        /**
+         * Breaks contours into segments of [segmentLength] and randomly offsets vertices by up to
+         * [deviation].
+         */
+        public fun discrete(
+            @FloatRange(from = 0.0, fromInclusive = false) segmentLength: Float,
+            @FloatRange(from = 0.0) deviation: Float,
+        ): RcPathEffect = RcPathEffect(PaintPathEffects.discrete(segmentLength, deviation))
+
+        /**
+         * Stamps [shape] along stroked contours every [advance] units starting at [phase] using
+         * [style].
+         */
+        public fun pathDash(
+            shape: RcPath,
+            @FloatRange(from = 0.0, fromInclusive = false) advance: Float,
+            phase: Float = 0f,
+            style: RcStampedPathStyle = RcStampedPathStyle.Translate,
+        ): RcPathEffect =
+            RcPathEffect(PaintPathEffects.pathDash(shape.id, advance, phase, style.value))
+
+        /** Draws both [first] and [second] independently over the same path. */
+        public fun sum(first: RcPathEffect, second: RcPathEffect): RcPathEffect =
+            RcPathEffect(PaintPathEffects.sum(first.data, second.data))
+
+        /** Applies [inner] first, then applies [outer] to the resulting geometry. */
+        public fun chain(outer: RcPathEffect, inner: RcPathEffect): RcPathEffect =
+            RcPathEffect(PaintPathEffects.compose(outer.data, inner.data))
     }
 }

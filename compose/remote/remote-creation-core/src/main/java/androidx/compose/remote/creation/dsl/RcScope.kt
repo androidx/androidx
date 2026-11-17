@@ -19,6 +19,9 @@
 
 package androidx.compose.remote.creation.dsl
 
+import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -66,8 +69,6 @@ public sealed interface RcScope {
         content: RcScope.() -> Unit = {},
     )
 
-    public fun RcRoot(content: RcScope.() -> Unit = {})
-
     /** Adds a vertical Column layout container to the document. */
     public fun Column(
         modifier: Modifier = Modifier,
@@ -114,24 +115,34 @@ public sealed interface RcScope {
     public fun Text(
         text: String,
         modifier: Modifier = Modifier,
-        color: Int = 0xFF000000.toInt(),
+        @ColorInt color: Int = 0xFF000000.toInt(),
         fontSize: RcSp = 16.rsp,
+        fontStyle: RcFontStyle = RcFontStyle.Normal,
         fontWeight: RcFontWeight = RcFontWeight.Normal,
+        fontFamily: String? = null,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        underline: Boolean = false,
+        strikethrough: Boolean = false,
+        style: RcTextStyle? = null,
     )
 
     /** Adds a Text component using a remote string reference. */
     public fun Text(
         text: RcText,
         modifier: Modifier = Modifier,
-        color: Int = 0xFF000000.toInt(),
+        @ColorInt color: Int = 0xFF000000.toInt(),
         fontSize: RcSp = 16.rsp,
+        fontStyle: RcFontStyle = RcFontStyle.Normal,
         fontWeight: RcFontWeight = RcFontWeight.Normal,
+        fontFamily: String? = null,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        underline: Boolean = false,
+        strikethrough: Boolean = false,
+        style: RcTextStyle? = null,
     )
 
     /**
@@ -194,12 +205,12 @@ public sealed interface RcScope {
     public fun EditableText(
         text: RcText,
         modifier: Modifier = Modifier,
-        color: Int = 0xFF000000.toInt(),
+        @ColorInt color: Int = 0xFF000000.toInt(),
         fontSize: RcSp = 16.rsp,
         fontWeight: RcFontWeight = RcFontWeight.Normal,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
         keyboardType: RcKeyboardType = RcKeyboardType.Text,
         imeAction: RcImeAction = RcImeAction.Default,
         singleLine: Boolean = true,
@@ -237,13 +248,97 @@ public sealed interface RcScope {
             )
         }
 
+    /** Adds an editable [Text] component with a static [RcColorValue]. */
+    public fun EditableText(
+        text: RcText,
+        color: RcColorValue,
+        modifier: Modifier = Modifier,
+        fontSize: RcSp = 16.rsp,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        keyboardType: RcKeyboardType = RcKeyboardType.Text,
+        imeAction: RcImeAction = RcImeAction.Default,
+        singleLine: Boolean = true,
+        commitOnEveryKeystroke: Boolean = true,
+        maxLength: Int = 0,
+        filter: RcInputFilter = RcInputFilter.None,
+        hint: RcText? = null,
+        autoCorrect: Boolean = false,
+        capitalization: RcCapitalization = RcCapitalization.None,
+        contentType: RcContentType = RcContentType.None,
+    ): Unit =
+        EditableText(
+            text = text,
+            modifier = modifier,
+            color = color.color,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            singleLine = singleLine,
+            commitOnEveryKeystroke = commitOnEveryKeystroke,
+            maxLength = maxLength,
+            filter = filter,
+            hint = hint,
+            autoCorrect = autoCorrect,
+            capitalization = capitalization,
+            contentType = contentType,
+        )
+
+    /** Adds an editable [Text] component with a 32-bit packed ARGB `Long` hex literal color. */
+    public fun EditableText(
+        text: RcText,
+        color: Long,
+        modifier: Modifier = Modifier,
+        fontSize: RcSp = 16.rsp,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        keyboardType: RcKeyboardType = RcKeyboardType.Text,
+        imeAction: RcImeAction = RcImeAction.Default,
+        singleLine: Boolean = true,
+        commitOnEveryKeystroke: Boolean = true,
+        maxLength: Int = 0,
+        filter: RcInputFilter = RcInputFilter.None,
+        hint: RcText? = null,
+        autoCorrect: Boolean = false,
+        capitalization: RcCapitalization = RcCapitalization.None,
+        contentType: RcContentType = RcContentType.None,
+    ): Unit =
+        EditableText(
+            text = text,
+            modifier = modifier,
+            color = color.toInt(),
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            singleLine = singleLine,
+            commitOnEveryKeystroke = commitOnEveryKeystroke,
+            maxLength = maxLength,
+            filter = filter,
+            hint = hint,
+            autoCorrect = autoCorrect,
+            capitalization = capitalization,
+            contentType = contentType,
+        )
+
     /** Adds an Image component to the document. */
     public fun Image(
         image: RcImage,
         modifier: Modifier = Modifier,
         contentDescription: String? = null,
         contentScale: RcContentScale = RcContentScale.Fit,
-        alpha: Float = 1f,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1f,
     )
 
     /** Adds an Icon component to the document. */
@@ -274,20 +369,6 @@ public sealed interface RcScope {
 
     /** Executes [block] within a global section. */
     public fun <T> global(block: RcScope.() -> T): T
-
-    /**
-     * Starts a global section. Prefer the block-form [global] which guarantees a matched
-     * [endGlobal] call, unless declarations inside the section need to remain accessible in the
-     * enclosing scope.
-     */
-    public fun beginGlobal()
-
-    /**
-     * Ends a global section. Prefer the block-form [global] which guarantees a matched
-     * [beginGlobal] call, unless declarations inside the section need to remain accessible in the
-     * enclosing scope.
-     */
-    public fun endGlobal()
 
     /** In the context of a draw modifier, draw the component content */
     public fun drawComponentContent()
@@ -355,26 +436,41 @@ public sealed interface RcScope {
     public operator fun RcText.plus(v: String): RcText = this + remoteText(v)
 
     /** Registers a color resource and returns its reference. */
-    public fun remoteColor(color: Int): RcColor
+    public fun remoteColor(@ColorInt color: Int): RcColor
 
-    public fun remoteColorValue(color: Int): RcColorValue
+    /** Registers a color resource from a 32-bit packed ARGB `Long` hex literal. */
+    public fun remoteColor(color: Long): RcColor = remoteColor(color.toInt())
 
-    /** Registers a color resource from a Long and returns its reference. */
-    public fun remoteColorValue(color: Long): RcColorValue = remoteColorValue(color.toInt())
+    /** Registers a static [RcColorValue] as a color resource and returns its reference. */
+    public fun remoteColor(color: RcColorValue): RcColor = remoteColor(color.color)
+
+    /** Wraps a packed ARGB int (`0xAARRGGBB`) as a static [RcColorValue]. */
+    public fun remoteColorValue(@ColorInt color: Int): RcColorValue
+
+    /** Wraps a 32-bit packed ARGB `Long` hex literal (`0xAARRGGBB`) as a static [RcColorValue]. */
+    public fun remoteColorValue(color: Long): RcColorValue = RcColorValue(color)
 
     /** Registers a named color resource and returns its reference. */
-    public fun remoteNamedColor(name: String, color: Int): RcColor
+    public fun remoteNamedColor(name: String, @ColorInt color: Int): RcColor
 
-    /** Registers a named color resource from a Long and returns its reference. */
+    /** Registers a named color resource from a 32-bit packed ARGB `Long` hex literal. */
     public fun remoteNamedColor(name: String, color: Long): RcColor =
         remoteNamedColor(name, color.toInt())
 
-    /** Registers a themed color resource and returns its reference. */
-    public fun remoteThemedColor(light: Int, dark: Int): RcColor
+    /** Registers a named color resource from a static [RcColorValue] and returns its reference. */
+    public fun remoteNamedColor(name: String, color: RcColorValue): RcColor =
+        remoteNamedColor(name, color.color)
 
-    /** Registers a themed color resource from Longs and returns its reference. */
+    /** Registers a themed color resource and returns its reference. */
+    public fun remoteThemedColor(@ColorInt light: Int, @ColorInt dark: Int): RcColor
+
+    /** Registers a themed color resource from 32-bit packed ARGB `Long` hex literals. */
     public fun remoteThemedColor(light: Long, dark: Long): RcColor =
         remoteThemedColor(light.toInt(), dark.toInt())
+
+    /** Registers a themed color resource from static [RcColorValue]s and returns its reference. */
+    public fun remoteThemedColor(light: RcColorValue, dark: RcColorValue): RcColor =
+        remoteThemedColor(light.color, dark.color)
 
     /** Registers a themed color resource and returns its reference. */
     public fun remoteThemedColor(light: RcColor, dark: RcColor): RcColor
@@ -384,40 +480,61 @@ public sealed interface RcScope {
      */
     public fun remoteThemedColor(
         light: String,
-        lightDefault: Int,
+        @ColorInt lightDefault: Int,
         dark: String,
-        darkDefault: Int,
+        @ColorInt darkDefault: Int,
     ): RcColor
+
+    /**
+     * Registers a themed color resource with names and 32-bit packed ARGB `Long` default colors.
+     */
+    public fun remoteThemedColor(
+        light: String,
+        lightDefault: Long,
+        dark: String,
+        darkDefault: Long,
+    ): RcColor = remoteThemedColor(light, lightDefault.toInt(), dark, darkDefault.toInt())
+
+    /**
+     * Registers a themed color resource with names and static [RcColorValue] default colors and
+     * returns its reference.
+     */
+    public fun remoteThemedColor(
+        light: String,
+        lightDefault: RcColorValue,
+        dark: String,
+        darkDefault: RcColorValue,
+    ): RcColor = remoteThemedColor(light, lightDefault.color, dark, darkDefault.color)
 
     /** Creates a color resource from an HSV expression. */
     public fun remoteColorExpression(
-        alpha: Int,
+        @IntRange(from = 0, to = 255) alpha: Int,
         hue: RcFloat,
-        saturation: Float,
-        value: Float,
+        @FloatRange(from = 0.0, to = 1.0) saturation: Float,
+        @FloatRange(from = 0.0, to = 1.0) value: Float,
     ): RcColor
 
     /** Creates a color resource from an HSV expression. */
     public fun remoteColorExpression(
-        alpha: Int,
+        @IntRange(from = 0, to = 255) alpha: Int,
         hue: Float,
-        saturation: Float,
-        value: Float,
+        @FloatRange(from = 0.0, to = 1.0) saturation: Float,
+        @FloatRange(from = 0.0, to = 1.0) value: Float,
     ): RcColor
 
     /** Creates a text resource from a float value with formatting. */
     public fun createTextFromFloat(
         value: Float,
-        whole: Int,
-        decimal: Int = 0,
+        @IntRange(from = 0) whole: Int,
+        @IntRange(from = 0) decimal: Int = 0,
         spec: RcTextFromFloatSpec = RcTextFromFloatSpec.Default,
     ): RcText
 
     /** Creates a text resource from a remote float with formatting. */
     public fun createTextFromFloat(
         value: RcFloat,
-        whole: Int,
-        decimal: Int = 0,
+        @IntRange(from = 0) whole: Int,
+        @IntRange(from = 0) decimal: Int = 0,
         spec: RcTextFromFloatSpec = RcTextFromFloatSpec.Default,
     ): RcText
 
@@ -470,12 +587,12 @@ public sealed interface RcScope {
      * @param count the number of sampled points along `t`
      * @param type the path interpolation type
      */
-    public fun remoteXYPath(
+    public fun remoteXyPath(
         expressionX: RcFloat,
         expressionY: RcFloat,
         start: Float,
         end: Float,
-        count: Int,
+        @IntRange(from = 1) count: Int,
         type: RcPathType = RcPathType.Spline,
     ): RcPath
 
@@ -488,13 +605,13 @@ public sealed interface RcScope {
      * @param count the number of points
      * @param centerX the center x coordinate
      * @param centerY the center y coordinate
-     * @param type the path type (see Rc.PathExpression)
+     * @param type the path interpolation type
      */
     public fun remotePolarPath(
         expression: RcFloat,
         start: Float,
         end: Float,
-        count: Int,
+        @IntRange(from = 1) count: Int,
         centerX: RcFloat,
         centerY: RcFloat,
         type: RcPathType = RcPathType.Spline,
@@ -562,20 +679,22 @@ public sealed interface RcScope {
     /** Returns the component's height as a remote float. */
     public fun componentHeight(): RcFloat
 
-    /** Internal bridge for platform-specific bitmap handles (e.g. Android `Bitmap`). */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun remotePlatformBitmap(image: Any): RcImage
-
-    /** Internal bridge for named platform-specific bitmap handles (e.g. Android `Bitmap`). */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun remoteNamedPlatformBitmap(name: String, image: Any): RcImage
-
     /** Registers an encoded bitmap resource (e.g. PNG/WebP bytes) and returns its reference. */
-    public fun remoteBitmap(width: Int, height: Int, data: ByteArray): RcImage
+    public fun remoteBitmap(
+        @IntRange(from = 1) width: Int,
+        @IntRange(from = 1) height: Int,
+        data: ByteArray,
+    ): RcImage
 
     /**
      * Registers a named encoded bitmap resource (e.g. PNG/WebP bytes) and returns its reference.
      */
-    public fun remoteNamedBitmap(name: String, width: Int, height: Int, data: ByteArray): RcImage
+    public fun remoteNamedBitmap(
+        name: String,
+        @IntRange(from = 1) width: Int,
+        @IntRange(from = 1) height: Int,
+        data: ByteArray,
+    ): RcImage
 
     /** Registers a bitmap URL resource and returns its reference. */
     public fun remoteBitmapUrl(url: String): RcImage
@@ -616,38 +735,145 @@ public sealed interface RcScope {
     /** Allocates a custom property return slot for a dynamic [RcColor] output of [type]. */
     @ExperimentalRemoteCreationApi public fun customReturnColor(type: Int): RcCustomProperty
 
-    /** Registers a path data resource and returns its reference. */
-    public fun remotePathData(path: RcPathData): RcPath
+    /** Registers a path data resource with the specified [fillType] and returns its reference. */
+    public fun remotePathData(
+        path: RcPathData,
+        fillType: RcPathFillType = RcPathFillType.Winding,
+    ): RcPath
 
     /**
      * Parses an Android Vector Drawable (AVD) `android:pathData` string, registers the resulting
-     * path data, and returns its reference.
+     * path data with the specified [fillType], and returns its reference.
      */
-    public fun remotePathData(avdPathData: String): RcPath =
-        remotePathData(parseAvdPathData(avdPathData))
+    public fun remotePathData(
+        avdPathData: String,
+        fillType: RcPathFillType = RcPathFillType.Winding,
+    ): RcPath = remotePathData(parseAvdPathData(avdPathData), fillType)
 
-    /** Builds path data via [block], registers it, and returns its reference. */
-    public fun remotePathData(block: RcPathData.() -> Unit): RcPath =
-        remotePathData(RcPathData().apply(block))
+    /** Builds path data via [block], registers it with [fillType], and returns its reference. */
+    public fun remotePathData(
+        fillType: RcPathFillType = RcPathFillType.Winding,
+        block: RcPathData.() -> Unit,
+    ): RcPath = remotePathData(RcPathData().apply(block), fillType)
 
-    /** Registers a text style resource and returns its reference. */
+    /** Registers a reusable [RcTextStyle] resource for [Text] and returns its reference. */
     public fun remoteTextStyle(
+        @ColorInt color: Int? = null,
         fontSize: RcSp? = null,
-        color: Int? = null,
+        fontStyle: RcFontStyle? = null,
         fontWeight: RcFontWeight? = null,
+        fontFamily: String? = null,
         textAlign: RcTextAlign? = null,
+        overflow: RcTextOverflow? = null,
+        @IntRange(from = 1) maxLines: Int? = null,
+        underline: Boolean? = null,
+        strikethrough: Boolean? = null,
+        parent: RcTextStyle? = null,
     ): RcTextStyle
 
-    /** Registers a text style resource from a Long color and returns its reference. */
+    /** Registers a reusable [RcTextStyle] with a static [RcColorValue] color. */
+    public fun remoteTextStyle(
+        color: RcColorValue,
+        fontSize: RcSp? = null,
+        fontStyle: RcFontStyle? = null,
+        fontWeight: RcFontWeight? = null,
+        fontFamily: String? = null,
+        textAlign: RcTextAlign? = null,
+        overflow: RcTextOverflow? = null,
+        @IntRange(from = 1) maxLines: Int? = null,
+        underline: Boolean? = null,
+        strikethrough: Boolean? = null,
+        parent: RcTextStyle? = null,
+    ): RcTextStyle =
+        remoteTextStyle(
+            color = color.color,
+            fontSize = fontSize,
+            fontStyle = fontStyle,
+            fontWeight = fontWeight,
+            fontFamily = fontFamily,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+            underline = underline,
+            strikethrough = strikethrough,
+            parent = parent,
+        )
+
+    /** Registers a reusable [RcTextStyle] with a 32-bit packed ARGB `Long` hex literal color. */
     public fun remoteTextStyle(
         color: Long,
         fontSize: RcSp? = null,
+        fontStyle: RcFontStyle? = null,
         fontWeight: RcFontWeight? = null,
+        fontFamily: String? = null,
         textAlign: RcTextAlign? = null,
-    ): RcTextStyle = remoteTextStyle(fontSize, color.toInt(), fontWeight, textAlign)
+        overflow: RcTextOverflow? = null,
+        @IntRange(from = 1) maxLines: Int? = null,
+        underline: Boolean? = null,
+        strikethrough: Boolean? = null,
+        parent: RcTextStyle? = null,
+    ): RcTextStyle =
+        remoteTextStyle(
+            color = color.toInt(),
+            fontSize = fontSize,
+            fontStyle = fontStyle,
+            fontWeight = fontWeight,
+            fontFamily = fontFamily,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+            underline = underline,
+            strikethrough = strikethrough,
+            parent = parent,
+        )
+
+    /** Registers a reusable [RcTextStyle] with a dynamic [RcColor] color reference. */
+    public fun remoteTextStyle(
+        color: RcColor,
+        fontSize: RcSp? = null,
+        fontStyle: RcFontStyle? = null,
+        fontWeight: RcFontWeight? = null,
+        fontFamily: String? = null,
+        textAlign: RcTextAlign? = null,
+        overflow: RcTextOverflow? = null,
+        @IntRange(from = 1) maxLines: Int? = null,
+        underline: Boolean? = null,
+        strikethrough: Boolean? = null,
+        parent: RcTextStyle? = null,
+    ): RcTextStyle
+
+    /** Registers a typed key-value [RcDataMap] populated by [block] and returns its reference. */
+    public fun remoteDataMap(block: RcDataMapScope.() -> Unit): RcDataMap
+
+    /** Looks up a string entry stored under [key] in this [RcDataMap]. */
+    public fun RcDataMap.lookupText(key: String): RcText
+
+    /** Looks up a string entry stored under dynamic [key] in this [RcDataMap]. */
+    public fun RcDataMap.lookupText(key: RcText): RcText
+
+    /** Looks up a float entry stored under [key] in this [RcDataMap]. */
+    public fun RcDataMap.lookupFloat(key: String): RcFloat
+
+    /** Looks up a float entry stored under dynamic [key] in this [RcDataMap]. */
+    public fun RcDataMap.lookupFloat(key: RcText): RcFloat
+
+    /** Looks up an integer or long entry stored under [key] in this [RcDataMap]. */
+    public fun RcDataMap.lookupInt(key: String): RcInteger
+
+    /** Looks up an integer or long entry stored under dynamic [key] in this [RcDataMap]. */
+    public fun RcDataMap.lookupInt(key: RcText): RcInteger
+
+    /** Looks up a boolean entry stored under [key] in this [RcDataMap]. */
+    public fun RcDataMap.lookupBoolean(key: String): RcBool
+
+    /** Looks up a boolean entry stored under dynamic [key] in this [RcDataMap]. */
+    public fun RcDataMap.lookupBoolean(key: RcText): RcBool
 
     /** Registers a new bitmap resource with the given dimensions. */
-    public fun createBitmap(width: Int, height: Int): RcImage
+    public fun createBitmap(
+        @IntRange(from = 1) width: Int,
+        @IntRange(from = 1) height: Int,
+    ): RcImage
 
     /**
      * Reserves an offscreen bitmap handle whose backing bitmap is lazily acquired from the player's
@@ -670,6 +896,17 @@ public sealed interface RcScope {
     )
 
     /**
+     * Redirects subsequent drawing operations to [image], clearing with a 32-bit packed ARGB `Long`
+     * hex literal [color].
+     */
+    public fun drawOnBitmap(
+        image: RcImage,
+        mode: RcDrawOnBitmapMode = RcDrawOnBitmapMode.Clear,
+        color: Long,
+        block: RcCanvasScope.() -> Unit,
+    ): Unit = drawOnBitmap(image, mode, RcColorValue(color), block)
+
+    /**
      * Registers a custom shader and configures its uniforms via a typed [RcShaderScope]. Uniform
      * setters are picked by value type (no reflection, no `Any`).
      */
@@ -688,10 +925,8 @@ public sealed interface RcScope {
     public fun performHaptic(haptic: RcHaptic)
 
     /**
-     * Register raw inline PCM sound data (SC format) as a reusable resource. Returns an [RcSound]
-     * ID for use in [remoteSoundExpression] or [playSound].
-     *
-     * @param data SC-format audio bytes (tiny header + raw samples).
+     * Registers embedded audio data (WAV or SC PCM format) as a reusable resource and returns an
+     * [RcSound] handle to pass to [playSound].
      */
     @ExperimentalRemoteCreationApi public fun remoteSound(data: ByteArray): RcSound
 
@@ -713,13 +948,16 @@ public sealed interface RcScope {
     @ExperimentalRemoteCreationApi
     public fun remoteSoundExpression(
         type: RcSoundType = RcSoundType.Tone,
-        frequency: Float = 440f,
-        durationSeconds: Float = 0.1f,
+        @FloatRange(from = 0.0, fromInclusive = false) frequency: Float = 440f,
+        @FloatRange(from = 0.0, fromInclusive = false) durationSeconds: Float = 0.1f,
         waveform: RcWaveform = RcWaveform.Sine,
-        leftVolume: Float = 1f,
-        rightVolume: Float = 1f,
-        rate: Float = 1f,
+        @FloatRange(from = 0.0, to = 1.0) leftVolume: Float = 1f,
+        @FloatRange(from = 0.0, to = 1.0) rightVolume: Float = 1f,
+        @FloatRange(from = 0.0, fromInclusive = false) rate: Float = 1f,
     ): RcSoundExpression
+
+    /** Triggers playback of a previously registered [RcSound] audio resource. */
+    @ExperimentalRemoteCreationApi public fun playSound(sound: RcSound)
 
     /**
      * Trigger playback of a previously defined [RcSoundExpression]. Usable anywhere [performHaptic]
@@ -730,10 +968,10 @@ public sealed interface RcScope {
     @ExperimentalRemoteCreationApi public fun playSound(expression: RcSoundExpression)
 
     /** Tells the system to wake up in a given number of seconds. */
-    public fun wakeIn(seconds: Float)
+    public fun wakeIn(@FloatRange(from = 0.0) seconds: Float)
 
     /** Read a single attribute (HSV/RGBA component) of a color resource. */
-    public fun getColorAttribute(baseColor: RcColor, attr: RcColorAttr): RcFloat
+    public fun colorAttribute(baseColor: RcColor, attr: RcColorAttr): RcFloat
 
     /** Returns a substring of the text. */
     public fun RcText.substring(start: RcFloat, length: RcFloat = (-1f).rf): RcText
@@ -780,8 +1018,19 @@ public sealed interface RcScope {
     /** Measure the text and return the requested dimension as an [RcFloat]. */
     public fun textMeasure(text: RcText, mode: RcTextMeasureMode = RcTextMeasureMode.Width): RcFloat
 
-    /** Compute a derived float from a time-valued integer variable. */
-    public fun timeAttribute(variable: RcInteger, attr: RcTimeAttr, vararg args: Int): RcFloat
+    /** Compute a derived float from a time-valued integer [variable]. */
+    public fun timeAttribute(variable: RcInteger, attr: RcTimeAttr): RcFloat
+
+    /**
+     * Compute a derived float comparing a time-valued integer [variable] against [referenceTime]
+     * (used with [RcTimeAttr.TimeFromArgSec], [RcTimeAttr.TimeFromArgMin], and
+     * [RcTimeAttr.TimeFromArgHr]).
+     */
+    public fun timeAttribute(
+        variable: RcInteger,
+        attr: RcTimeAttr,
+        referenceTime: RcInteger,
+    ): RcFloat
 
     /**
      * Adds a parametric 2D mesh whose vertices come from expressions over `(u, v)`, and returns a
@@ -807,8 +1056,8 @@ public sealed interface RcScope {
     @ExperimentalRemoteCreationApi
     public fun remoteMesh2D(
         layout: RcMeshLayout,
-        uCount: Int,
-        vCount: Int,
+        @IntRange(from = 1) uCount: Int,
+        @IntRange(from = 1) vCount: Int,
         path: RcPath? = null,
         block: RcMesh2DScope.() -> Unit,
     ): RcMesh
@@ -832,20 +1081,54 @@ public sealed interface RcScope {
         verts: FloatArray,
         indices: IntArray? = null,
         uv: FloatArray? = null,
-        colors: IntArray? = null,
+        @ColorInt colors: IntArray? = null,
         halfFloat: Boolean = false,
         layout: RcMeshLayout = RcMeshLayout.Grid,
-        uCount: Int = 0,
-        vCount: Int = 0,
+        @IntRange(from = 0) uCount: Int = 0,
+        @IntRange(from = 0) vCount: Int = 0,
     ): RcMesh
+
+    /**
+     * Adds a 2D mesh from explicit vertex geometry and static [RcColorValue] vertex colors.
+     *
+     * @param verts x, y pairs
+     * @param colors static ARGB color per vertex
+     * @param indices the triangle list, or null to draw the vertices in order
+     * @param uv u, v pairs in 0..1, or null
+     * @param halfFloat write positions and uv as IEEE half floats, halving the wire size
+     * @param layout the domain topology, used when sampling the surface for a matrix
+     * @param uCount the resolution along u if the geometry describes a grid, otherwise 0
+     * @param vCount the resolution along v if the geometry describes a grid, otherwise 0
+     */
+    @ExperimentalRemoteCreationApi
+    public fun remoteMesh2DValues(
+        verts: FloatArray,
+        colors: List<RcColorValue>,
+        indices: IntArray? = null,
+        uv: FloatArray? = null,
+        halfFloat: Boolean = false,
+        layout: RcMeshLayout = RcMeshLayout.Grid,
+        @IntRange(from = 0) uCount: Int = 0,
+        @IntRange(from = 0) vCount: Int = 0,
+    ): RcMesh =
+        remoteMesh2DValues(
+            verts = verts,
+            indices = indices,
+            uv = uv,
+            colors = IntArray(colors.size) { colors[it].color },
+            halfFloat = halfFloat,
+            layout = layout,
+            uCount = uCount,
+            vCount = vCount,
+        )
 
     /**
      * Adds a parametric 2D mesh whose edges fade out over [antialiasWidth] instead of stopping at a
      * hard, stepped edge.
      *
      * Meshes are drawn with `drawVertices`, which does not antialias, so a mesh's outline aliases
-     * visibly. This grows a thin skirt around the outline whose vertices repeat their neighbours'
-     * colour at alpha 0, so the edge fades out. The fade is made from the vertex colours, which is
+     * visibly. This grows a thin skirt around the outline whose vertices repeat their neighbors'
+     * color at alpha 0, so the edge fades out. The fade is made from the vertex colors, which is
      * why the block must end with [RcMesh2DAntialiasScope.color]:
      * ```
      * val trail = remoteMesh2DAntialias(
@@ -865,14 +1148,13 @@ public sealed interface RcScope {
      *   About one pixel: `1f.rf` for a mesh authored in pixels, `1f.rf / w` for a unit mesh drawn
      *   under `scale(w, h)`
      * @param path the path a [RcMeshLayout.PathStrip] follows; ignored by every other layout
-     * @param block sets the channel expressions and returns the colour; see
-     *   [RcMesh2DAntialiasScope]
+     * @param block sets the channel expressions and returns the color; see [RcMesh2DAntialiasScope]
      */
     @ExperimentalRemoteCreationApi
     public fun remoteMesh2DAntialias(
         layout: RcMeshLayout,
-        uCount: Int,
-        vCount: Int,
+        @IntRange(from = 1) uCount: Int,
+        @IntRange(from = 1) vCount: Int,
         antialiasWidth: RcFloat,
         path: RcPath? = null,
         block: RcMesh2DAntialiasScope.() -> RcMeshColor,
@@ -882,8 +1164,8 @@ public sealed interface RcScope {
      * Adds a 2D mesh from explicit geometry whose edges fade out over [antialiasWidth].
      *
      * As [remoteMesh2DValues], plus the skirt described at [remoteMesh2DAntialias]. The skirt is
-     * grown from the outline the layout describes and fades the vertex colours, so both are
-     * required: one colour per vertex, and a [layout], [uCount] and [vCount] that account for every
+     * grown from the outline the layout describes and fades the vertex colors, so both are
+     * required: one color per vertex, and a [layout], [uCount] and [vCount] that account for every
      * vertex, in the order the layout numbers them.
      *
      * @param verts x, y pairs
@@ -899,15 +1181,53 @@ public sealed interface RcScope {
     @ExperimentalRemoteCreationApi
     public fun remoteMesh2DValuesAntialias(
         verts: FloatArray,
-        colors: IntArray,
+        @ColorInt colors: IntArray,
         layout: RcMeshLayout,
-        uCount: Int,
-        vCount: Int,
+        @IntRange(from = 1) uCount: Int,
+        @IntRange(from = 1) vCount: Int,
         antialiasWidth: RcFloat,
         indices: IntArray? = null,
         uv: FloatArray? = null,
         halfFloat: Boolean = false,
     ): RcMesh
+
+    /**
+     * Adds a 2D mesh from explicit geometry and static [RcColorValue] vertex colors whose edges
+     * fade out over [antialiasWidth].
+     *
+     * @param verts x, y pairs
+     * @param colors static ARGB color per vertex
+     * @param layout the domain topology the vertices are laid out in
+     * @param uCount the resolution along u
+     * @param vCount the resolution along v
+     * @param antialiasWidth how far the fade reaches beyond the edge, in the mesh's own units
+     * @param indices the triangle list, or null for the layout's own triangulation
+     * @param uv u, v pairs in 0..1, or null
+     * @param halfFloat write positions and uv as IEEE half floats, halving the wire size
+     */
+    @ExperimentalRemoteCreationApi
+    public fun remoteMesh2DValuesAntialias(
+        verts: FloatArray,
+        colors: List<RcColorValue>,
+        layout: RcMeshLayout,
+        @IntRange(from = 1) uCount: Int,
+        @IntRange(from = 1) vCount: Int,
+        antialiasWidth: RcFloat,
+        indices: IntArray? = null,
+        uv: FloatArray? = null,
+        halfFloat: Boolean = false,
+    ): RcMesh =
+        remoteMesh2DValuesAntialias(
+            verts = verts,
+            colors = IntArray(colors.size) { colors[it].color },
+            layout = layout,
+            uCount = uCount,
+            vCount = vCount,
+            antialiasWidth = antialiasWidth,
+            indices = indices,
+            uv = uv,
+            halfFloat = halfFloat,
+        )
 
     /**
      * Adds a ribbon that follows a path, its cross width a monotonic spline through [widths].
@@ -921,8 +1241,8 @@ public sealed interface RcScope {
      * drawMesh2D(brush)
      * ```
      *
-     * Geometry only: uv is the identity mapping and there are no vertex colours, so colour comes
-     * from the paint, or from passing an image to drawMesh2D.
+     * Geometry only: uv is the identity mapping and there are no vertex colors, so color comes from
+     * the paint, or from passing an image to drawMesh2D.
      *
      * @param path the path to follow
      * @param segments roughly how many quads to divide the path into; at least 1
@@ -934,7 +1254,7 @@ public sealed interface RcScope {
     @ExperimentalRemoteCreationApi
     public fun remoteMesh2DPathStrip(
         path: RcPath,
-        segments: Int,
+        @IntRange(from = 1) segments: Int,
         widths: FloatArray,
         positions: FloatArray? = null,
     ): RcMesh
@@ -956,7 +1276,7 @@ public sealed interface RcScope {
     @ExperimentalRemoteCreationApi
     public fun remoteMesh2DPathStrip(
         path: RcPath,
-        segments: Int,
+        @IntRange(from = 1) segments: Int,
         widths: List<RcFloat>,
         positions: List<RcFloat>? = null,
     ): RcMesh
@@ -987,7 +1307,7 @@ public sealed interface RcScope {
     @ExperimentalRemoteCreationApi
     public fun remoteMesh2DRoundStrip(
         path: RcPath,
-        segments: Int,
+        @IntRange(from = 1) segments: Int,
         widths: FloatArray,
         positions: FloatArray? = null,
     ): RcMesh
@@ -1007,23 +1327,13 @@ public sealed interface RcScope {
     @ExperimentalRemoteCreationApi
     public fun remoteMesh2DRoundStrip(
         path: RcPath,
-        segments: Int,
+        @IntRange(from = 1) segments: Int,
         widths: List<RcFloat>,
         positions: List<RcFloat>? = null,
     ): RcMesh
 
-    /** Conditionally execute [content] if `op(a, b)` holds on the player. */
-    public fun <S : RcScope> S.conditionalOperations(
-        op: RcConditionOp,
-        a: RcFloat,
-        b: RcFloat,
-        content: S.() -> Unit,
-    )
-
     /** Conditionally executes [block] on the player when [condition] evaluates to `true`. */
-    public fun <S : RcScope> S.ifTrue(condition: RcCondition, block: S.() -> Unit) {
-        conditionalOperations(condition.op, condition.a, condition.b, block)
-    }
+    public fun <S : RcScope> S.ifTrue(condition: RcCondition, block: S.() -> Unit)
 
     /** Returns the length of this RcText as an RcFloat. */
     public val RcText.length: RcFloat
@@ -1059,7 +1369,7 @@ public sealed interface RcScope {
     public fun createParticles(
         variables: FloatArray,
         initialExpressions: List<RcFloat>,
-        particleCount: Int,
+        @IntRange(from = 1) particleCount: Int,
     ): RcFloat
 
     /** Steps and renders each particle in [id] on every frame. */
@@ -1070,14 +1380,17 @@ public sealed interface RcScope {
         block: RcCanvasScope.() -> Unit,
     )
 
-    /** Add a particle - particle comparison */
+    /**
+     * Compares pairs of particles in `[min, max)` and applies [then1] / [then2] updates when
+     * [condition] evaluates greater than zero.
+     */
     public fun particlesComparison(
         id: RcFloat,
         min: RcFloat,
         max: RcFloat,
-        condition: RcFloat?,
-        then1: List<RcFloat>?,
-        then2: List<RcFloat>?,
+        condition: (RcParticleComparisonScope.() -> RcFloat)?,
+        then1: (RcParticleComparisonScope.() -> List<RcFloat>)?,
+        then2: (RcParticleComparisonScope.() -> List<RcFloat>)?,
         flags: RcParticleComparisonFlags = RcParticleComparisonFlags.None,
         block: RcCanvasScope.() -> Unit,
     )
@@ -1198,124 +1511,170 @@ public sealed interface RcScope {
     /** Sets a value in the array at the given index. */
     public fun setArrayValue(array: RcFloat, index: RcFloat, value: RcFloat)
 
-    /** Text overload taking a Long color literal. */
+    /** Adds a Text component with a dynamic [RcColor]. */
     public fun Text(
         text: String,
+        color: RcColor,
         modifier: Modifier = Modifier,
-        color: Long,
         fontSize: RcSp = 16.rsp,
+        fontStyle: RcFontStyle = RcFontStyle.Normal,
         fontWeight: RcFontWeight = RcFontWeight.Normal,
+        fontFamily: String? = null,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        underline: Boolean = false,
+        strikethrough: Boolean = false,
+        style: RcTextStyle? = null,
+    )
+
+    /** Adds a Text component using a remote string reference and a dynamic [RcColor]. */
+    public fun Text(
+        text: RcText,
+        color: RcColor,
+        modifier: Modifier = Modifier,
+        fontSize: RcSp = 16.rsp,
+        fontStyle: RcFontStyle = RcFontStyle.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        fontFamily: String? = null,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        underline: Boolean = false,
+        strikethrough: Boolean = false,
+        style: RcTextStyle? = null,
+    )
+
+    /** Adds a Text component with a static [RcColorValue]. */
+    public fun Text(
+        text: String,
+        color: RcColorValue,
+        modifier: Modifier = Modifier,
+        fontSize: RcSp = 16.rsp,
+        fontStyle: RcFontStyle = RcFontStyle.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        fontFamily: String? = null,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        underline: Boolean = false,
+        strikethrough: Boolean = false,
+        style: RcTextStyle? = null,
+    ): Unit =
+        Text(
+            text = text,
+            modifier = modifier,
+            color = color.color,
+            fontSize = fontSize,
+            fontStyle = fontStyle,
+            fontWeight = fontWeight,
+            fontFamily = fontFamily,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+            underline = underline,
+            strikethrough = strikethrough,
+            style = style,
+        )
+
+    /** Adds a Text component using a remote string reference and a static [RcColorValue]. */
+    public fun Text(
+        text: RcText,
+        color: RcColorValue,
+        modifier: Modifier = Modifier,
+        fontSize: RcSp = 16.rsp,
+        fontStyle: RcFontStyle = RcFontStyle.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        fontFamily: String? = null,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        underline: Boolean = false,
+        strikethrough: Boolean = false,
+        style: RcTextStyle? = null,
+    ): Unit =
+        Text(
+            text = text,
+            modifier = modifier,
+            color = color.color,
+            fontSize = fontSize,
+            fontStyle = fontStyle,
+            fontWeight = fontWeight,
+            fontFamily = fontFamily,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+            underline = underline,
+            strikethrough = strikethrough,
+            style = style,
+        )
+
+    /** Adds a Text component with a 32-bit packed ARGB `Long` hex literal color. */
+    public fun Text(
+        text: String,
+        color: Long,
+        modifier: Modifier = Modifier,
+        fontSize: RcSp = 16.rsp,
+        fontStyle: RcFontStyle = RcFontStyle.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        fontFamily: String? = null,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        underline: Boolean = false,
+        strikethrough: Boolean = false,
+        style: RcTextStyle? = null,
     ): Unit =
         Text(
             text = text,
             modifier = modifier,
             color = color.toInt(),
             fontSize = fontSize,
+            fontStyle = fontStyle,
             fontWeight = fontWeight,
+            fontFamily = fontFamily,
             textAlign = textAlign,
             overflow = overflow,
             maxLines = maxLines,
+            underline = underline,
+            strikethrough = strikethrough,
+            style = style,
         )
 
-    /** Text overload taking a RcText reference and a Long color literal. */
+    /**
+     * Adds a Text component using a remote string reference and a 32-bit packed ARGB `Long` hex
+     * literal color.
+     */
     public fun Text(
         text: RcText,
-        modifier: Modifier = Modifier,
         color: Long,
+        modifier: Modifier = Modifier,
         fontSize: RcSp = 16.rsp,
+        fontStyle: RcFontStyle = RcFontStyle.Normal,
         fontWeight: RcFontWeight = RcFontWeight.Normal,
+        fontFamily: String? = null,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
+        @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
+        underline: Boolean = false,
+        strikethrough: Boolean = false,
+        style: RcTextStyle? = null,
     ): Unit =
         Text(
             text = text,
             modifier = modifier,
             color = color.toInt(),
             fontSize = fontSize,
+            fontStyle = fontStyle,
             fontWeight = fontWeight,
+            fontFamily = fontFamily,
             textAlign = textAlign,
             overflow = overflow,
             maxLines = maxLines,
+            underline = underline,
+            strikethrough = strikethrough,
+            style = style,
         )
-
-    /** Text overload taking a typed RcColor reference. */
-    public fun Text(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: RcColor,
-        fontSize: RcSp = 16.rsp,
-        fontWeight: RcFontWeight = RcFontWeight.Normal,
-        textAlign: RcTextAlign = RcTextAlign.Start,
-        overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
-    )
-
-    /** Text overload taking a RcText reference and a typed RcColor. */
-    public fun Text(
-        text: RcText,
-        modifier: Modifier = Modifier,
-        color: RcColor,
-        fontSize: RcSp = 16.rsp,
-        fontWeight: RcFontWeight = RcFontWeight.Normal,
-        textAlign: RcTextAlign = RcTextAlign.Start,
-        overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
-    )
-
-    /** Text overload taking a typed RcColorValue reference. */
-    public fun Text(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: RcColorValue,
-        fontSize: RcSp = 16.rsp,
-        fontWeight: RcFontWeight = RcFontWeight.Normal,
-        textAlign: RcTextAlign = RcTextAlign.Start,
-        overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
-    ): Unit =
-        Text(
-            text = text,
-            modifier = modifier,
-            color = color.id,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines,
-        )
-
-    /** Text overload taking a RcText reference and a typed RcColorValue. */
-    public fun Text(
-        text: RcText,
-        modifier: Modifier = Modifier,
-        color: RcColorValue,
-        fontSize: RcSp = 16.rsp,
-        fontWeight: RcFontWeight = RcFontWeight.Normal,
-        textAlign: RcTextAlign = RcTextAlign.Start,
-        overflow: RcTextOverflow = RcTextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE,
-    ): Unit =
-        Text(
-            text = text,
-            modifier = modifier,
-            color = color.id,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines,
-        )
-
-    // =================================================================================
-    // Begin/end-pair safety (item 7).
-    // =================================================================================
-
-    /** Executes a block of raw canvas operations. */
-    public fun canvasOperations(block: RcCanvasScope.() -> Unit)
 
     /** Wraps each allocated particle register in [variables] as an [RcFloat] handle. */
     public fun rcFloats(variables: FloatArray): List<RcFloat> {
@@ -1767,7 +2126,7 @@ public sealed interface RcCanvasScope : RcScope {
      *
      * @param mesh the mesh to draw
      * @param image the bitmap to sample through the mesh's uv, or null for an untextured mesh
-     * @param blend how vertex colour and texel combine; defaults to what [image] implies
+     * @param blend how vertex color and texel combine; defaults to what [image] implies
      */
     @ExperimentalRemoteCreationApi
     public fun drawMesh2D(mesh: RcMesh, image: RcImage? = null, blend: RcMeshBlend? = null)
@@ -1860,8 +2219,8 @@ public sealed interface RcCanvasScope : RcScope {
      *
      * @param defaultValue initial value of the touch variable
      * @param range allowed range of the touch variable
-     * @param stopMode behavior when the user releases the touch
      * @param expression touch input expression evaluated on each event
+     * @param stopMode behavior when the user releases the touch
      * @param velocity initial/reference velocity value
      * @param notchHaptic haptic kind to fire when the touch crosses a notch
      * @param notches notch positions (interpretation depends on [stopMode]); null for non-notch
@@ -1871,8 +2230,8 @@ public sealed interface RcCanvasScope : RcScope {
     public fun addTouch(
         defaultValue: Float,
         range: ClosedFloatingPointRange<Float>,
-        stopMode: RcTouchStopMode,
         expression: RcFloat,
+        stopMode: RcTouchStopMode = RcTouchStopMode.Gently,
         velocity: Float = 0f,
         notchHaptic: RcHaptic = RcHaptic.NoHaptics,
         notches: FloatArray? = null,
@@ -1901,8 +2260,8 @@ public sealed interface RcCanvasScope : RcScope {
         defaultValue: Float,
         min: RcFloat,
         max: RcFloat,
-        stopMode: RcTouchStopMode,
         expression: RcFloat,
+        stopMode: RcTouchStopMode = RcTouchStopMode.Gently,
         velocity: Float = 0f,
         notchHaptic: RcHaptic = RcHaptic.NoHaptics,
         notches: FloatArray? = null,
@@ -1987,4 +2346,51 @@ public sealed interface RcLayoutScope {
 
     /** Read-only height of the parent layout container. */
     public val parentHeight: RcFloat
+}
+
+/** Internal bridge for platform-specific bitmap handles (e.g. Android `Bitmap`). */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RcScope.remotePlatformBitmap(image: Any): RcImage =
+    (this as RcScopeImpl).remotePlatformBitmap(image)
+
+/** Internal bridge for named platform-specific bitmap handles (e.g. Android `Bitmap`). */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RcScope.remoteNamedPlatformBitmap(name: String, image: Any): RcImage =
+    (this as RcScopeImpl).remoteNamedPlatformBitmap(name, image)
+
+/** Emits a root layout container when building raw RemoteCompose documents internally. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RcScope.RcRoot(content: RcScope.() -> Unit = {}) {
+    (this as RcScopeImpl).RcRoot(content)
+}
+
+/**
+ * Starts a global section. Prefer [RcScope.global], which guarantees a matched [endGlobal] call.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RcScope.beginGlobal() {
+    (this as RcScopeImpl).beginGlobal()
+}
+
+/** Ends a global section started with [beginGlobal]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RcScope.endGlobal() {
+    (this as RcScopeImpl).endGlobal()
+}
+
+/** Executes a block of raw canvas operations. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RcScope.canvasOperations(block: RcCanvasScope.() -> Unit) {
+    (this as RcScopeImpl).canvasOperations(block)
+}
+
+/** Conditionally executes [content] if `op(a, b)` holds on the player. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <S : RcScope> S.conditionalOperations(
+    op: RcConditionOp,
+    a: RcFloat,
+    b: RcFloat,
+    content: S.() -> Unit,
+) {
+    (this as RcScopeImpl).runConditionalOperations(this, op, a, b, content)
 }

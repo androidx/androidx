@@ -49,8 +49,7 @@ public fun dslDemoStepProgressArc(): ByteArray {
     val data = floatArrayOf(7250f, 10000f) // currentSteps, goal
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(350),
         RcHeaderTag.contentDescription("Step Progress Arc"),

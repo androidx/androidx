@@ -55,8 +55,7 @@ public fun dslDemoSleepQualityRings(): ByteArray {
     val stageLabels = arrayOf("Deep", "Light", "REM", "Awake")
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Sleep Quality Rings"),

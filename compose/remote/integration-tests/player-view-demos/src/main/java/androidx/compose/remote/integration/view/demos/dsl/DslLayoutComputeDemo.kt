@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
  */
 @Suppress("RestrictedApiAndroidX")
 public fun dslLayoutComputeDemo(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Box(
             modifier = Modifier.fillMaxSize().background(0xFF0F172A.toInt()) // Slate 900 background
         ) {

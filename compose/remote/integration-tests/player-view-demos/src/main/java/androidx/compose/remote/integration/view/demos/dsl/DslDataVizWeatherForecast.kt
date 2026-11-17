@@ -47,8 +47,7 @@ public fun dslDemoWeatherForecast(): ByteArray {
     val hours = arrayOf("6a", "7a", "8a", "9a", "10a", "11a", "12p", "1p", "2p", "3p", "4p", "5p")
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(500),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Weather Forecast Bars"),

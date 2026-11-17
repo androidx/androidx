@@ -728,8 +728,7 @@ private const val SHADER_SNAP_DUST_AGSL =
 @Suppress("RestrictedApiAndroidX")
 public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(360),
         RcHeaderTag.docHeight(680),
         RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),

@@ -62,7 +62,7 @@ import androidx.compose.remote.integration.view.demos.customviews.SupportTextVie
  */
 @Suppress("RestrictedApiAndroidX")
 public fun dslCustomViewsDemo(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Column(
             modifier = Modifier.fillMaxSize().background(0xFF0F17FF.toInt()).padding(32.rdp),
             horizontal = RcHorizontalPositioning.Center,

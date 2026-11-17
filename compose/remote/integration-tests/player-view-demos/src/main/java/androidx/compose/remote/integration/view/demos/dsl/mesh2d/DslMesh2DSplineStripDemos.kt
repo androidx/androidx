@@ -45,7 +45,7 @@ private const val HINT = 0xFFB6C2D4.toInt()
  */
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.waveAt(y: Float) =
-    remoteXYPath(
+    remoteXyPath(
         remoteFunction { s -> s * 320f + 40f },
         remoteFunction { s -> sin(s * SPLINE_TAU) * 22f + y },
         0f,
@@ -75,8 +75,7 @@ private fun RcScope.waveAt(y: Float) =
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DSplineBrush(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D spline width path strip"),
@@ -151,8 +150,7 @@ public fun dslMesh2DSplineBrush(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DSplineBreathingRibbon(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D animated spline widths"),
@@ -236,8 +234,7 @@ private fun RcCanvasScope.rowLabel(text: String, y: Float) {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DRoundStrip(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D round capped path strip"),
@@ -306,8 +303,7 @@ public fun dslMesh2DRoundStrip(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DRoundStripBreathing(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D animated round caps"),

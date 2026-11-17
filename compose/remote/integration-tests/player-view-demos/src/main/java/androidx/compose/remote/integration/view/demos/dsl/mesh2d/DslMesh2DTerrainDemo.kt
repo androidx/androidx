@@ -93,8 +93,7 @@ private const val BALL_STAGGER = 1.1f
 public fun dslMesh2DPerlinTerrain(): ByteArray {
     val terrain = TerrainData(TERRAIN_GRID, TERRAIN_SEED)
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Perlin terrain with rolling balls"),
@@ -193,8 +192,8 @@ private fun RcScope.rollingBalls(terrain: TerrainData, w: RcFloat, h: RcFloat) {
         // Which terrain cell the ball is over. The clamp is not optional: an out-of-range array
         // index throws rather than returning zero, and a ball sitting exactly on the far edge
         // would otherwise index one past the end.
-        val cellX = clamp(0f.rf, lastCell.rf, floor(px * lastCell))
-        val cellY = clamp(0f.rf, lastCell.rf, floor(py * lastCell))
+        val cellX = clamp(floor(px * lastCell), 0f.rf, lastCell.rf)
+        val cellY = clamp(floor(py * lastCell), 0f.rf, lastCell.rf)
         val cell = cellY * grid + cellX
 
         impulseProcess() {
@@ -208,8 +207,8 @@ private fun RcScope.rollingBalls(terrain: TerrainData, w: RcFloat, h: RcFloat) {
                 listOf(
                     // Position is clamped to the canvas so a ball that runs out of terrain
                     // parks at the edge until its lifetime expires.
-                    clamp(0.012f.rf, 0.988f.rf, px + vx * dt),
-                    clamp(0.012f.rf, 0.988f.rf, py + vy * dt),
+                    clamp(px + vx * dt, 0.012f.rf, 0.988f.rf),
+                    clamp(py + vy * dt, 0.012f.rf, 0.988f.rf),
                     // Downhill force plus viscous drag, both integrated against dt so the
                     // motion does not depend on the player's frame rate.
                     vx - (vx * DRAG + gradX[cell] * GRAVITY) * dt,

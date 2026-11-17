@@ -37,8 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Suppress("RestrictedApiAndroidX")
 public fun dslNestedInteractionDemo(unifiedPointerInput: Boolean = true): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
         RcHeaderTag.docWidth(420),
         RcHeaderTag.docHeight(840),
@@ -2050,7 +2049,13 @@ private fun RcScope.DeepHierarchiesTab() {
                         val left = 30f
                         val right = w - 30f
 
-                        val pos = addTouch(150f, 30f..450f, RcTouchStopMode.Gently, touchPosX())
+                        val pos =
+                            addTouch(
+                                150f,
+                                30f..450f,
+                                touchPosX(),
+                                stopMode = RcTouchStopMode.Gently,
+                            )
 
                         paint {
                             color(0xFFCBD5E1.toInt())

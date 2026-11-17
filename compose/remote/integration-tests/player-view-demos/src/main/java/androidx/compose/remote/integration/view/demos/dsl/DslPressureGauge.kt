@@ -35,8 +35,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 @Suppress("RestrictedApiAndroidX")
 public fun dslDemoPressureGauge(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(500),
         RcHeaderTag.docHeight(500),
         RcHeaderTag.contentDescription("Pressure Gauge"),

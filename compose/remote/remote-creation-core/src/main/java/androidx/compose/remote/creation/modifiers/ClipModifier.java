@@ -16,6 +16,9 @@
 package androidx.compose.remote.creation.modifiers;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -37,13 +40,37 @@ public class ClipModifier implements RecordingModifier.Element {
     public void write(@NonNull RemoteComposeWriter writer) {
         if (mShape instanceof RectShape) {
             writer.addClipRectModifier();
+        } else if (mShape instanceof CircleShape) {
+            float width = writer.addComponentWidthValue();
+            float height = writer.addComponentHeightValue();
+            float radius;
+            if (writer.getDensityBehavior() == CoreDocument.DENSITY_BEHAVIOR_DP) {
+                radius =
+                        writer.floatExpression(
+                                width,
+                                height,
+                                AnimatedFloatExpression.MIN,
+                                RemoteContext.FLOAT_DENSITY,
+                                AnimatedFloatExpression.DIV,
+                                2f,
+                                AnimatedFloatExpression.DIV);
+            } else {
+                radius =
+                        writer.floatExpression(
+                                width,
+                                height,
+                                AnimatedFloatExpression.MIN,
+                                2f,
+                                AnimatedFloatExpression.DIV);
+            }
+            writer.addRoundClipRectModifier(radius, radius, radius, radius);
         } else if (mShape instanceof RoundedRectShape) {
             RoundedRectShape rShape = (RoundedRectShape) mShape;
             writer.addRoundClipRectModifier(
-                            rShape.getTopStart(),
-                            rShape.getTopEnd(),
-                            rShape.getBottomStart(),
-                            rShape.getBottomEnd());
+                    rShape.getTopStart(),
+                    rShape.getTopEnd(),
+                    rShape.getBottomStart(),
+                    rShape.getBottomEnd());
         }
     }
 }

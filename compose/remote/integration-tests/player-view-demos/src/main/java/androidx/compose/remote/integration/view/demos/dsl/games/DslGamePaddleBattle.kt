@@ -45,7 +45,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
  */
 @Suppress("RestrictedApiAndroidX")
 fun dslGamePaddleBattle(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         //        val bounceSound =
         //            soundExpression(
         //                type = RcSoundType.Tone,

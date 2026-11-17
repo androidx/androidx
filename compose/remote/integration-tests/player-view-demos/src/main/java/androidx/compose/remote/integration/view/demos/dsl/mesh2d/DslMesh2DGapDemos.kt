@@ -64,8 +64,7 @@ private const val MUTED_SLATE = 0xFF475569.toInt()
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DDefaultGeometry(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D default geometry and apex fallback"),
@@ -247,8 +246,7 @@ public fun dslMesh2DTexturedValues(): ByteArray {
     }
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D textured literal values and null colors"),
@@ -259,7 +257,7 @@ public fun dslMesh2DTexturedValues(): ByteArray {
 
             // Offscreen 128x128 crisp 4x4 checkerboard + bullseye texture
             val checker = createBitmap(128, 128)
-            drawOnBitmap(checker, RcDrawOnBitmapMode.Clear, RcColorValue(0xFFF8FAFC.toInt())) {
+            drawOnBitmap(checker, RcDrawOnBitmapMode.Clear, RcColorValue(0xFFF8FAFC)) {
                 paint {
                     style(RcPaintStyle.Fill)
                     color(0xFF1D4ED8.toInt())
@@ -349,8 +347,7 @@ public fun dslMesh2DTexturedValues(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DInvisibleScaffold(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D invisible matrix scaffold"),

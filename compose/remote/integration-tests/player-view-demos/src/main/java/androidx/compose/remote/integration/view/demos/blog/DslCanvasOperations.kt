@@ -90,8 +90,7 @@ import kotlin.random.Random
 @Suppress("RestrictedApiAndroidX")
 public fun dslCanvasOperations(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(800),
         RcHeaderTag.docHeight(1200),
         RcHeaderTag.contentDescription("Canvas Operations"),
@@ -200,7 +199,7 @@ private class Motion(
 private fun RcCanvasScope.drawCommandsPanel() {
     // Procedural texture for drawScaledBitmap: a 64x64 four-color quadrant tile with a ring.
     val texture = createBitmap(64, 64)
-    drawOnBitmap(texture, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF4285F4.toInt())) {
+    drawOnBitmap(texture, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF4285F4)) {
         paint { color(0xFFEA4335.toInt()) }
         drawRect(32f, 0f, 64f, 32f)
         paint { color(0xFFFBBC04.toInt()) }
@@ -357,7 +356,7 @@ private fun RcCanvasScope.pathsPanel() {
     drawPath(blob)
 
     val knot =
-        remoteXYPath(
+        remoteXyPath(
             remoteFunction { s -> sin(s * 3f + t * 0.6f) * r * 0.85f + cx },
             remoteFunction { s -> sin(s * 2f) * r * 0.85f + cy },
             0f,
@@ -409,7 +408,7 @@ private fun RcCanvasScope.imagesPanel() {
     val imgW = 160f
     val imgH = 90f
     val photo = createBitmap(imgW.toInt(), imgH.toInt())
-    drawOnBitmap(photo, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF4FC3F7.toInt())) {
+    drawOnBitmap(photo, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF4FC3F7)) {
         paint { color(0xFF2E7D32.toInt()) }
         drawRect(0f, 60f, imgW, imgH)
         paint { color(0xFFFFEB3B.toInt()) }
@@ -518,7 +517,7 @@ private fun RcCanvasScope.mesh2DPanel() {
 
     // s runs 0 (tail) → 1 (head).
     val spine =
-        remoteXYPath(
+        remoteXyPath(
             remoteFunction { s -> s * xSpan + x0 + 2f * amp * cos(s * 9.4f - phase) },
             remoteFunction { s -> sin(s * 9.4f - phase) * (s * 0.5f + 0.5f) * amp + y0 },
             0f,

@@ -17,7 +17,7 @@
 package androidx.compose.remote.integration.view.demos.dsl.graph2d.lib
 
 import androidx.compose.remote.creation.dsl.RcFloat
-import androidx.compose.remote.creation.dsl.log
+import androidx.compose.remote.creation.dsl.log10
 import kotlin.math.log10
 
 /**
@@ -58,7 +58,7 @@ public class LinearScale(
 
     /** Map a reactive value (e.g. a series datum) to its reactive pixel. */
     public fun mapR(value: RcFloat): RcFloat =
-        if (logScale) log(value) * scale + offset else value * scale + offset
+        if (logScale) log10(value) * scale + offset else value * scale + offset
 
     public companion object {
         public fun of(

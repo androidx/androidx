@@ -19,6 +19,7 @@
 
 package androidx.compose.remote.creation.dsl
 
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles as CoreRcProfiles
@@ -87,7 +88,7 @@ public val RcProfile.Companion.AndroidX9: RcProfile
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RcProfile(
-    docApiLevel: Int = CoreDocument.DOCUMENT_API_LEVEL,
+    @IntRange(from = 1) docApiLevel: Int = CoreDocument.DOCUMENT_API_LEVEL,
     profileFlags: RcProfileFlags = RcProfileFlags.AndroidX,
     supportedOperations: IntArray? = null,
     isExperimental: Boolean = false,

@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTouchStopMode
 import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.background
+import androidx.compose.remote.creation.dsl.conditionalOperations
 import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -41,7 +42,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
  */
 @Suppress("RestrictedApiAndroidX")
 fun dslGameSideScroller(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = false) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX)) {
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize().background(0xFF003300L.toInt())) {
                 val w = componentWidth()

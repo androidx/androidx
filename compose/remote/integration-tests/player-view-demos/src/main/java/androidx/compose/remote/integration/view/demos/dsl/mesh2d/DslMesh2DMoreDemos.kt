@@ -74,8 +74,7 @@ private const val TAU2 = 6.2831855f
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DRoseWindow(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D rose window"),
@@ -153,8 +152,7 @@ public fun dslMesh2DRoseWindow(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DRadarSweep(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D radar sweep"),
@@ -236,8 +234,7 @@ public fun dslMesh2DRadarSweep(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DTexturedTapestry(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D textured tapestry"),
@@ -250,7 +247,7 @@ public fun dslMesh2DTexturedTapestry(): ByteArray {
             // Build a 128x128 geometric tile texture inside the document itself, so the demo is
             // self-contained and works identically on device and in headless unit tests.
             val medallion = createBitmap(128, 128)
-            drawOnBitmap(medallion, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF162238.toInt())) {
+            drawOnBitmap(medallion, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF162238)) {
                 paint {
                     style(RcPaintStyle.Fill)
                     color(0xFF2B4C7E.toInt())
@@ -408,8 +405,7 @@ public fun dslMesh2DPerspectiveCarpet(): ByteArray {
     val tasselColors = IntArray(12) { if (it % 3 == 1) 0xFFFFE082.toInt() else 0xFFD99B26.toInt() }
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D perspective carpet"),

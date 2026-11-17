@@ -38,7 +38,7 @@ import kotlin.math.PI
  */
 @Suppress("RestrictedApiAndroidX")
 public fun dslServerClock(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val w = componentWidth()

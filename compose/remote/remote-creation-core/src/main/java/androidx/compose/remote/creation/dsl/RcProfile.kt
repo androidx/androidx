@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.creation.dsl
 
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
@@ -62,8 +63,10 @@ internal constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val 
  * @param isExperimental whether experimental document operations are enabled
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RcProfile(
-    public val profile: Profile,
+public class RcProfile
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val profile: Profile,
     public val isExperimental: Boolean = false,
 ) {
     /** Document API level supported by this profile. */
@@ -77,6 +80,26 @@ public class RcProfile(
     /** Platform services implementation associated with this profile. */
     internal val platform: RcPlatformServices
         get() = profile.platform
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RcProfile) return false
+        return docApiLevel == other.docApiLevel &&
+            profileFlags == other.profileFlags &&
+            isExperimental == other.isExperimental &&
+            platform == other.platform
+    }
+
+    override fun hashCode(): Int {
+        var result = docApiLevel
+        result = 31 * result + profileFlags.hashCode()
+        result = 31 * result + isExperimental.hashCode()
+        result = 31 * result + platform.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "RcProfile(docApiLevel=$docApiLevel, profileFlags=$profileFlags, isExperimental=$isExperimental)"
 
     public companion object {
         /** Platform-independent baseline [RcProfile] at the current document API level. */
@@ -96,7 +119,7 @@ public class RcProfile(
          * @return configured platform-independent [RcProfile]
          */
         public fun core(
-            docApiLevel: Int = CoreDocument.DOCUMENT_API_LEVEL,
+            @IntRange(from = 1) docApiLevel: Int = CoreDocument.DOCUMENT_API_LEVEL,
             profileFlags: RcProfileFlags = RcProfileFlags.AndroidX,
             supportedOperations: IntArray? = null,
             isExperimental: Boolean = false,

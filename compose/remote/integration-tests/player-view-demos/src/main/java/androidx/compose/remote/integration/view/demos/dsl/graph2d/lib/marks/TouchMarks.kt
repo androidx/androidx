@@ -63,12 +63,12 @@ internal fun RcCanvasScope.touchCrosshair(
                 cart.plotLeft + 1f,
                 cart.plotLeft.rf,
                 cart.plotRight,
-                RcTouchStopMode.Instantly,
                 touchExpr,
+                RcTouchStopMode.Instantly,
             )
             .flush()
     val t = (touchX - cart.plotLeft) / cart.plotWidth
-    val idx = clamp(0f.rf, (n - 1).rf, round(t * (n - 1f))).flush()
+    val idx = clamp(round(t * (n - 1f)), 0f.rf, (n - 1).rf).flush()
     val snapX = (cart.plotWidth * (idx * (1f / (n - 1))) + cart.plotLeft).flush()
 
     // Crosshair.

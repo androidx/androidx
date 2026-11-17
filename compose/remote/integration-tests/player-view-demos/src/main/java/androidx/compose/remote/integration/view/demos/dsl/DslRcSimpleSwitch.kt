@@ -48,7 +48,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
  */
 @Suppress("RestrictedApiAndroidX")
 public fun dslRcSimpleSwitchDemo(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val checked = remoteNamedInteger("checked", 0)
 
         Column(

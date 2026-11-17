@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
  */
 @Suppress("RestrictedApiAndroidX")
 public fun dslDrawWithContentDemo(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Column(
             modifier = Modifier.fillMaxSize().background(0xFF0B0E14.toInt()).padding(32.rdp),
             horizontal = RcHorizontalPositioning.Center,

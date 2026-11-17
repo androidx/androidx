@@ -58,7 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
  */
 @Suppress("RestrictedApiAndroidX")
 public fun dslCustomComposeDemo(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Column(
             modifier = Modifier.fillMaxSize().background(0xFF1E293B.toInt()).padding(32.rdp),
             horizontal = RcHorizontalPositioning.Center,
