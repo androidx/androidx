@@ -533,6 +533,7 @@ public value class TimePickerSelection internal constructor(internal val value: 
 public object TimePickerDefaults {
 
     /** The default [TimePickerType] for [TimePicker] aligns with the current system time format. */
+    @Suppress("DefaultsMissingReadOnlyComposable") // b/572758710
     public val timePickerType: TimePickerType
         @Composable
         get() =

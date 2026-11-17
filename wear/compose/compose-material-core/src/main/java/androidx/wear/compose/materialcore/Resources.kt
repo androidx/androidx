@@ -20,6 +20,7 @@ import android.provider.Settings
 import android.text.format.DateFormat
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
+@ReadOnlyComposable
 public fun isLayoutDirectionRtl(): Boolean {
     val layoutDirection: LayoutDirection = LocalLayoutDirection.current
     return layoutDirection == LayoutDirection.Rtl
@@ -37,6 +39,7 @@ public fun isLayoutDirectionRtl(): Boolean {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
+@ReadOnlyComposable
 public fun isRoundDevice(): Boolean {
     val configuration = LocalConfiguration.current
     return configuration.isScreenRound
@@ -57,6 +60,7 @@ public fun isLeftyModeEnabled(): Boolean {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
+@ReadOnlyComposable
 public fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -64,24 +68,29 @@ public fun currentTimeMillis(): Long = System.currentTimeMillis()
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
+@ReadOnlyComposable
 public fun screenHeightDp(): Int = LocalConfiguration.current.screenHeightDp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
+@ReadOnlyComposable
 public fun screenHeightPx(): Int =
     with(LocalDensity.current) { LocalConfiguration.current.screenHeightDp.dp.roundToPx() }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
+@ReadOnlyComposable
 public fun screenWidthDp(): Int = LocalConfiguration.current.screenWidthDp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
+@ReadOnlyComposable
 public fun isSmallScreen(): Boolean =
     LocalConfiguration.current.screenWidthDp < LARGE_SCREEN_WIDTH_DP
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
+@ReadOnlyComposable
 public fun isLargeScreen(): Boolean =
     LocalConfiguration.current.screenWidthDp >= LARGE_SCREEN_WIDTH_DP
 
