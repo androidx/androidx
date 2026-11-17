@@ -1,0 +1,3 @@
+# Custom JNI registration in libbenchmarkNative.so, so entire classes must be kept
+-keepclasseswithmembers class androidx.benchmark.BlackHole { *; }
+-keepclasseswithmembers class androidx.benchmark.CpuCounterJni { *; }
