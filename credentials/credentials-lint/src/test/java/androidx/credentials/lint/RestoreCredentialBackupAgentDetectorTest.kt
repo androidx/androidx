@@ -496,4 +496,196 @@ class RestoreCredentialBackupAgentDetectorTest : LintDetectorTest() {
                     .trimIndent()
             )
     }
+
+    @Test
+    fun conditionVariableBlockAndUnjoinedThreadRunBlocking_handledCorrectly() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                COROUTINES_STUB,
+                kotlin(
+                        """
+                package android.os
+
+                class ConditionVariable {
+                    fun open() {}
+                    fun block() {}
+                    fun block(timeoutMs: Long): Boolean = true
+                }
+                """
+                    )
+                    .indented(),
+                kotlin(
+                        """
+                package com.example
+
+                import android.app.backup.BackupAgent
+                import android.app.backup.BackupDataInput
+                import android.app.backup.BackupDataOutput
+                import android.os.CancellationSignal
+                import android.os.ConditionVariable
+                import android.os.ParcelFileDescriptor
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.CredentialManagerCallback
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetCredentialResponse
+                import androidx.credentials.GetRestoreCredentialOption
+                import androidx.credentials.exceptions.GetCredentialException
+                import java.util.concurrent.Callable
+                import java.util.concurrent.Executors
+                import java.util.concurrent.TimeUnit
+                import kotlinx.coroutines.runBlocking
+
+                class ConditionVarBackupAgent : BackupAgent() {
+                    override fun onBackup(
+                        oldState: ParcelFileDescriptor?,
+                        data: BackupDataOutput?,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestore(
+                        data: BackupDataInput?,
+                        appVersionCode: Int,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestoreFinished() {
+                        val cv = ConditionVariable()
+                        val manager = CredentialManager.create(this)
+                        val request = GetCredentialRequest(listOf(GetRestoreCredentialOption("{}")))
+                        manager.getCredentialAsync(
+                            this,
+                            request,
+                            CancellationSignal(),
+                            Executors.newSingleThreadExecutor(),
+                            object : CredentialManagerCallback<GetCredentialResponse, GetCredentialException> {
+                                override fun onResult(result: GetCredentialResponse) {
+                                    cv.open()
+                                }
+
+                                override fun onError(e: GetCredentialException) {
+                                    cv.open()
+                                }
+                            },
+                        )
+                        cv.block()
+                    }
+                }
+
+                class JoinedThreadAndExecutorBackupAgent : BackupAgent() {
+                    override fun onBackup(
+                        oldState: ParcelFileDescriptor?,
+                        data: BackupDataOutput?,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestore(
+                        data: BackupDataInput?,
+                        appVersionCode: Int,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestoreFinished() {
+                        val manager = CredentialManager.create(this)
+                        val request = GetCredentialRequest(listOf(GetRestoreCredentialOption("{}")))
+                        val t = Thread {
+                            runBlocking {
+                                manager.getCredential(this@JoinedThreadAndExecutorBackupAgent, request)
+                            }
+                        }
+                        t.start()
+                        t.join()
+
+                        val executor = Executors.newSingleThreadExecutor()
+                        executor.execute {
+                            runBlocking {
+                                manager.getCredential(this@JoinedThreadAndExecutorBackupAgent, request)
+                            }
+                        }
+                        executor.shutdown()
+                        executor.awaitTermination(30, TimeUnit.SECONDS)
+
+                        val pool = Executors.newSingleThreadExecutor()
+                        pool.invokeAll(
+                            listOf(
+                                Callable {
+                                    runBlocking {
+                                        manager.getCredential(
+                                            this@JoinedThreadAndExecutorBackupAgent,
+                                            request,
+                                        )
+                                    }
+                                }
+                            )
+                        )
+                    }
+                }
+
+                class UnjoinedThreadBackupAgent : BackupAgent() {
+                    override fun onBackup(
+                        oldState: ParcelFileDescriptor?,
+                        data: BackupDataOutput?,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestore(
+                        data: BackupDataInput?,
+                        appVersionCode: Int,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestoreFinished() {
+                        val manager = CredentialManager.create(this)
+                        val request = GetCredentialRequest(listOf(GetRestoreCredentialOption("{}")))
+                        Thread {
+                            runBlocking {
+                                manager.getCredential(this@UnjoinedThreadBackupAgent, request)
+                            }
+                        }.start()
+                    }
+                }
+
+                class UnawaitedExecutorBackupAgent : BackupAgent() {
+                    override fun onBackup(
+                        oldState: ParcelFileDescriptor?,
+                        data: BackupDataOutput?,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestore(
+                        data: BackupDataInput?,
+                        appVersionCode: Int,
+                        newState: ParcelFileDescriptor?,
+                    ) {}
+
+                    override fun onRestoreFinished() {
+                        val manager = CredentialManager.create(this)
+                        val request = GetCredentialRequest(listOf(GetRestoreCredentialOption("{}")))
+                        val executor = Executors.newSingleThreadExecutor()
+                        executor.execute {
+                            runBlocking {
+                                manager.getCredential(this@UnawaitedExecutorBackupAgent, request)
+                            }
+                        }
+                        executor.shutdown()
+                    }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/ConditionVarBackupAgent.kt:123: Error: CredentialManager.getCredential inside Thread returns from BackupAgent.onRestoreFinished() before the asynchronous restore IPC completes, causing Android to kill the process; use runBlocking so onRestoreFinished() blocks until restoration finishes [RestoreCredentialBackupAgentAsync]
+                                manager.getCredential(this@UnjoinedThreadBackupAgent, request)
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/ConditionVarBackupAgent.kt:148: Error: CredentialManager.getCredential inside execute returns from BackupAgent.onRestoreFinished() before the asynchronous restore IPC completes, causing Android to kill the process; use runBlocking so onRestoreFinished() blocks until restoration finishes [RestoreCredentialBackupAgentAsync]
+                                manager.getCredential(this@UnawaitedExecutorBackupAgent, request)
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                2 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+    }
 }

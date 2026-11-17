@@ -23,6 +23,7 @@ import androidx.credentials.lint.RestoreCredentialConstants.CLASS_GET_RESTORE_CR
 import androidx.credentials.lint.RestoreCredentialConstants.GET_CREDENTIAL_METHODS
 import androidx.credentials.lint.RestoreCredentialConstants.RESTORE_CREDENTIALS_GUIDE_URL
 import androidx.credentials.lint.RestoreCredentialConstants.anyInSubtreeOrSameFileHelpers
+import androidx.credentials.lint.RestoreCredentialConstants.isDescendantOf
 import androidx.credentials.lint.RestoreCredentialConstants.unwrapNamedAndParens
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -47,6 +48,7 @@ import org.jetbrains.uast.UElement
 import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UNamedExpression
+import org.jetbrains.uast.UObjectLiteralExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.UReturnExpression
@@ -79,11 +81,23 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         if (!context.evaluator.inheritsFrom(containingClass, CLASS_CREDENTIAL_MANAGER, false))
             return
 
-        val enclosingClass = node.getParentOfType<UClass>(true) ?: return
-        if (!context.evaluator.inheritsFrom(enclosingClass.javaPsi, CLASS_BACKUP_AGENT, false))
-            return
+        var enclosingClass = node.getParentOfType<UClass>(true)
+        while (
+            enclosingClass != null &&
+                !context.evaluator.inheritsFrom(enclosingClass.javaPsi, CLASS_BACKUP_AGENT, false)
+        ) {
+            enclosingClass = enclosingClass.getParentOfType<UClass>(true)
+        }
+        if (enclosingClass == null) return
 
-        val enclosingMethod = node.getParentOfType<UMethod>(true) ?: return
+        var enclosingMethod = node.getParentOfType<UMethod>(true)
+        while (
+            enclosingMethod != null &&
+                enclosingMethod.getParentOfType<UClass>(true) != enclosingClass
+        ) {
+            enclosingMethod = enclosingMethod.getParentOfType<UMethod>(true)
+        }
+        if (enclosingMethod == null) return
 
         // Rule 3: Calling getCredential / getCredentialAsync inside legacy
         // BackupAgent.onRestore(...)
@@ -118,10 +132,23 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         node: UCallExpression,
         constructor: PsiMethod,
     ) {
-        val enclosingClass = node.getParentOfType<UClass>(true) ?: return
-        if (!context.evaluator.inheritsFrom(enclosingClass.javaPsi, CLASS_BACKUP_AGENT, false))
-            return
-        val enclosingMethod = node.getParentOfType<UMethod>(true) ?: return
+        var enclosingClass = node.getParentOfType<UClass>(true)
+        while (
+            enclosingClass != null &&
+                !context.evaluator.inheritsFrom(enclosingClass.javaPsi, CLASS_BACKUP_AGENT, false)
+        ) {
+            enclosingClass = enclosingClass.getParentOfType<UClass>(true)
+        }
+        if (enclosingClass == null) return
+
+        var enclosingMethod = node.getParentOfType<UMethod>(true)
+        while (
+            enclosingMethod != null &&
+                enclosingMethod.getParentOfType<UClass>(true) != enclosingClass
+        ) {
+            enclosingMethod = enclosingMethod.getParentOfType<UMethod>(true)
+        }
+        if (enclosingMethod == null) return
 
         val onRestoreMethod =
             resolveEnclosingOnRestoreMethod(context, enclosingClass, enclosingMethod) ?: return
@@ -181,7 +208,11 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             findUnjoinedAsyncBuilder(context, call, enclosingMethod, isHelperInsideRunBlocking)
         val offendingAsyncBuilder = asyncCallInMethod ?: asyncCallAtHelperSite ?: return
 
-        val builderName = offendingAsyncBuilder.methodName ?: "launch"
+        val builderName =
+            offendingAsyncBuilder.methodName?.takeIf { it != "<init>" }
+                ?: offendingAsyncBuilder.classReference?.resolvedName
+                ?: offendingAsyncBuilder.resolve()?.name
+                ?: "launch"
         val fix = buildRunBlockingQuickFix(context, offendingAsyncBuilder)
         context.report(
             ASYNC_ISSUE,
@@ -217,9 +248,9 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
     }
 
     /**
-     * Walks up from [leaf] to [stopAtMethod] and returns an enclosing `launch` or `async` builder
-     * call if that builder escapes `onRestoreFinished()` without being joined by an enclosing
-     * `runBlocking` scope or explicit `.join()` / `.await()`.
+     * Walks up from [leaf] to [stopAtMethod] and returns an enclosing `launch`, `async`, `Thread`,
+     * or `Executor` builder call if that builder escapes `onRestoreFinished()` without being joined
+     * by an enclosing `runBlocking` scope or explicit `.join()` / `.await()`.
      */
     private fun findUnjoinedAsyncBuilder(
         context: JavaContext,
@@ -230,16 +261,24 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
         val enclosingBuilders = mutableListOf<UCallExpression>()
         var current: UElement? = leaf
         while (current != null && current != stopAtMethod) {
-            val lambda = current as? ULambdaExpression
-            if (lambda != null) {
-                val parentCall = lambda.getParentOfType<UCallExpression>(true)
-                if (
-                    parentCall != null &&
-                        parentCall.valueArguments.any {
-                            ((it as? UNamedExpression)?.expression ?: it) == lambda
-                        }
+            if (current is UObjectLiteralExpression && isAsyncLauncherCall(context, current)) {
+                enclosingBuilders.add(current)
+            }
+            if (current is ULambdaExpression || current is UObjectLiteralExpression) {
+                var parent: UElement? = current.uastParent
+                while (
+                    parent != null &&
+                        parent != stopAtMethod &&
+                        parent !is ULambdaExpression &&
+                        parent !is UObjectLiteralExpression
                 ) {
-                    enclosingBuilders.add(parentCall)
+                    if (
+                        parent is UCallExpression &&
+                            parent.valueArguments.any { current.isDescendantOf(it) }
+                    ) {
+                        enclosingBuilders.add(parent)
+                    }
+                    parent = parent.uastParent
                 }
             }
             current = current.uastParent
@@ -254,9 +293,14 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             }
 
         for ((index, builderCall) in enclosingBuilders.withIndex()) {
-            val name = builderCall.methodName ?: continue
-            if (name !in ASYNC_COROUTINE_BUILDERS) continue
+            if (!isAsyncLauncherCall(context, builderCall)) continue
             if (isBuilderExplicitlyAwaitedOrJoined(context, builderCall, stopAtMethod)) continue
+
+            val isCoroutineBuilder = builderCall.methodName in ASYNC_COROUTINE_BUILDERS
+            if (!isCoroutineBuilder) {
+                if (containsBlockingSyncWait(context, stopAtMethod)) continue
+                return builderCall
+            }
 
             if (outermostBlockingIndex == -1 || index > outermostBlockingIndex) {
                 // Not enclosed by runBlocking at all.
@@ -275,6 +319,28 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
             }
         }
         return null
+    }
+
+    private fun isAsyncLauncherCall(context: JavaContext, call: UCallExpression): Boolean {
+        val name = call.methodName
+        if (name in ASYNC_COROUTINE_BUILDERS || name == "thread") return true
+        if (call is UObjectLiteralExpression) {
+            return context.evaluator.inheritsFrom(
+                call.declaration.javaPsi,
+                "java.lang.Thread",
+                false,
+            )
+        }
+        if (call.classReference?.resolvedName == "Thread" || name == "Thread") return true
+        val owner = call.resolve()?.containingClass ?: return false
+        if (context.evaluator.inheritsFrom(owner, "java.lang.Thread", false)) return true
+        if (
+            name in EXECUTOR_LAUNCH_METHODS &&
+                context.evaluator.inheritsFrom(owner, "java.util.concurrent.Executor", false)
+        ) {
+            return true
+        }
+        return false
     }
 
     private fun isBuilderExplicitlyAwaitedOrJoined(
@@ -711,8 +777,18 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
                         "java.util.concurrent.CountDownLatch",
                         false,
                     ) || context.evaluator.inheritsFrom(owner, "java.util.concurrent.Future", false)
+                "awaitTermination",
+                "invokeAll",
+                "invokeAny" ->
+                    context.evaluator.inheritsFrom(
+                        owner,
+                        "java.util.concurrent.ExecutorService",
+                        false,
+                    )
                 "acquire" ->
                     context.evaluator.inheritsFrom(owner, "java.util.concurrent.Semaphore", false)
+                "block" ->
+                    context.evaluator.inheritsFrom(owner, "android.os.ConditionVariable", false)
                 "join" -> context.evaluator.inheritsFrom(owner, "java.lang.Thread", false)
                 else -> false
             }
@@ -720,7 +796,9 @@ class RestoreCredentialBackupAgentDetector : Detector(), SourceCodeScanner {
 
     companion object {
         private val ASYNC_COROUTINE_BUILDERS = setOf("launch", "async")
-        private val JOIN_OR_AWAIT_METHODS = setOf("join", "await")
+        private val EXECUTOR_LAUNCH_METHODS = setOf("execute", "submit")
+        private val JOIN_OR_AWAIT_METHODS =
+            setOf("join", "await", "get", "awaitTermination", "invokeAll", "invokeAny")
         private val KOTLIN_ON_RESTORE_HEADER_REGEX = Regex("""\bfun\s+onRestore\b""")
         private val JAVA_ON_RESTORE_HEADER_REGEX = Regex("""\bvoid\s+onRestore\b""")
 

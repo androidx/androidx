@@ -19,10 +19,12 @@ package androidx.credentials.lint
 import com.android.tools.lint.detector.api.JavaContext
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiVariable
 import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UIfExpression
@@ -30,12 +32,14 @@ import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.ULoopExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UNamedExpression
+import org.jetbrains.uast.UObjectLiteralExpression
 import org.jetbrains.uast.UParenthesizedExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.USwitchExpression
+import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.UTryExpression
 import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.UastBinaryOperator
@@ -102,6 +106,12 @@ internal object RestoreCredentialConstants {
     private val LIST_CONVERSION_METHODS = setOf("toList", "toMutableList", "toSet", "toHashSet")
 
     private val LIST_WRAPPER_METHODS = setOf("unmodifiableList", "synchronizedList", "checkedList")
+
+    private val RECEIVER_SCOPE_METHODS =
+        setOf("apply", "run", "with", "buildList", "buildSet", "buildMap", "buildString")
+
+    private val IT_PARAM_SCOPE_METHODS =
+        setOf("also", "let", "takeIf", "takeUnless", "forEach", "map", "filter")
 
     /**
      * Resolves the argument passed to [paramName] (falling back to [paramIndex] when compiled
@@ -206,14 +216,43 @@ internal object RestoreCredentialConstants {
             val returned: UExpression =
                 when (body) {
                     is UReturnExpression -> body.returnExpression
-                    is UBlockExpression ->
-                        (body.expressions.singleOrNull() as? UReturnExpression)?.returnExpression
+                    is UBlockExpression -> {
+                        val singleStmtReturn =
+                            (body.expressions.singleOrNull() as? UReturnExpression)
+                                ?.returnExpression
+                        singleStmtReturn
+                            ?: extractSingleReturnExpression(body)?.takeIf { expr ->
+                                val unwrappedRet = expr.unwrapNamedAndParens()
+                                unwrappedRet !is UReferenceExpression ||
+                                    !isCollectionExpression(context, unwrappedRet)
+                            }
+                    }
                     else -> body
                 } ?: break
             current = unwrapVariableInitializer(returned, maxDepth - depth - 1)
             depth++
         }
         return current
+    }
+
+    private fun extractSingleReturnExpression(body: UBlockExpression): UExpression? {
+        val lastReturn = body.expressions.lastOrNull() as? UReturnExpression ?: return null
+        var returnCount = 0
+        body.accept(
+            object : AbstractUastVisitor() {
+                override fun visitMethod(node: UMethod): Boolean = true
+
+                override fun visitClass(node: UClass): Boolean = true
+
+                override fun visitReturnExpression(node: UReturnExpression): Boolean {
+                    if (node.label == null) {
+                        returnCount++
+                    }
+                    return false
+                }
+            }
+        )
+        return if (returnCount == 1) lastReturn.returnExpression else null
     }
 
     /**
@@ -432,7 +471,6 @@ internal object RestoreCredentialConstants {
         buildExpr: UExpression,
         maxDepth: Int,
     ): List<UExpression> {
-        val options = mutableListOf<UExpression>()
         val directChainCalls = mutableListOf<UCallExpression>()
         val initializerChainCalls = mutableListOf<UCallExpression>()
         val visitedChainCallPsis = mutableSetOf<Any>()
@@ -478,12 +516,17 @@ internal object RestoreCredentialConstants {
             }
         }
 
+        val tracked = mutableListOf<TrackedOption>()
         for (call in initializerChainCalls.asReversed()) {
-            collectFromBuilderCall(context, call, options, maxDepth)
+            collectFromBuilderCall(context, call, tracked, maxDepth, isBranched = false)
         }
 
-        val localCalls = directChainCalls.asReversed().toMutableList()
-        var hasBranchedMutation = false
+        data class LocalBuilderCall(val call: UCallExpression, val isBranched: Boolean)
+        val localCalls =
+            directChainCalls
+                .asReversed()
+                .map { LocalBuilderCall(it, isBranched = false) }
+                .toMutableList()
         if (rootReceiverVar != null) {
             val buildEndOffset = buildExpr.sourcePsi?.textRange?.endOffset
             val enclosingBody: UElement? =
@@ -501,24 +544,44 @@ internal object RestoreCredentialConstants {
                                     nodeEndOffset <= buildEndOffset) &&
                                 unwrapRootReceiverRef(node.receiver)?.resolve() == rootReceiverVar
                         ) {
-                            if (isInsideControlFlowBranch(node, enclosingBody)) {
-                                hasBranchedMutation = true
-                                return true
-                            }
                             visitedChainCallPsis.add(key)
-                            localCalls.add(node)
+                            localCalls.add(
+                                LocalBuilderCall(
+                                    node,
+                                    isBranched = isInsideControlFlowBranch(node, enclosingBody),
+                                )
+                            )
                         }
                         return false
                     }
                 }
             )
-            if (hasBranchedMutation) return emptyList()
-            localCalls.sortBy { it.sourcePsi?.textRange?.endOffset ?: Int.MAX_VALUE }
+            localCalls.sortBy { it.call.sourcePsi?.textRange?.endOffset ?: Int.MAX_VALUE }
         }
-        for (call in localCalls) {
-            collectFromBuilderCall(context, call, options, maxDepth)
+        for ((call, isBranched) in localCalls) {
+            collectFromBuilderCall(context, call, tracked, maxDepth, isBranched)
         }
-        return options
+        if (shouldDropBranchedOptions(context, tracked)) return emptyList()
+        return tracked.map { it.expr }
+    }
+
+    private data class TrackedOption(val expr: UExpression, val isBranched: Boolean)
+
+    private fun shouldDropBranchedOptions(
+        context: JavaContext,
+        tracked: List<TrackedOption>,
+    ): Boolean {
+        val restoreOpts = tracked.filter { isRestoreOptionExpr(context, it.expr) }
+        val otherOpts = tracked.filter { !isRestoreOptionExpr(context, it.expr) }
+        return restoreOpts.isNotEmpty() &&
+            otherOpts.isNotEmpty() &&
+            restoreOpts.all { it.isBranched } &&
+            otherOpts.all { it.isBranched }
+    }
+
+    private fun isRestoreOptionExpr(context: JavaContext, expr: UExpression): Boolean {
+        val cls = resolveExpressionClass(context, expr) ?: return false
+        return context.evaluator.inheritsFrom(cls, CLASS_GET_RESTORE_CREDENTIAL_OPTION, false)
     }
 
     private fun unwrapRootReceiverRef(expr: UExpression?): UReferenceExpression? {
@@ -538,16 +601,53 @@ internal object RestoreCredentialConstants {
     private fun collectFromBuilderCall(
         context: JavaContext,
         call: UCallExpression,
-        out: MutableList<UExpression>,
+        out: MutableList<TrackedOption>,
         maxDepth: Int,
+        isBranched: Boolean,
     ) {
         when (call.methodName) {
-            "addCredentialOption" -> call.valueArguments.firstOrNull()?.let { out.add(it) }
+            "addCredentialOption" ->
+                call.valueArguments.firstOrNull()?.let { out.add(TrackedOption(it, isBranched)) }
             "setCredentialOptions" -> {
                 out.clear()
                 call.valueArguments.firstOrNull()?.let { listExpr ->
-                    out.addAll(extractElementsFromListExpression(context, listExpr, maxDepth))
+                    for (elem in extractElementsFromListExpression(context, listExpr, maxDepth)) {
+                        out.add(TrackedOption(elem, isBranched))
+                    }
                 }
+            }
+            "apply",
+            "also" -> {
+                val lambdaArg =
+                    call.valueArguments.lastOrNull()?.unwrapNamedAndParens() as? ULambdaExpression
+                        ?: return
+                val body = lambdaArg.body ?: return
+                body.accept(
+                    object : AbstractUastVisitor() {
+                        override fun visitCallExpression(node: UCallExpression): Boolean {
+                            if (
+                                (node.methodName == "addCredentialOption" ||
+                                    node.methodName == "setCredentialOptions") &&
+                                    isScopeLambdaReceiver(
+                                        node,
+                                        node.receiver?.skipParenthesizedExprDown(),
+                                        lambdaArg,
+                                        call.methodName,
+                                    )
+                            ) {
+                                collectFromBuilderCall(
+                                    context,
+                                    node,
+                                    out,
+                                    maxDepth,
+                                    isBranched =
+                                        isBranched || isInsideControlFlowBranch(node, body),
+                                )
+                            }
+                            return false
+                        }
+                    }
+                )
             }
         }
     }
@@ -560,8 +660,23 @@ internal object RestoreCredentialConstants {
         if (maxDepth < 0) return emptyList()
         val initialRef = listExpr.unwrapNamedAndParens()
         val rootVar = (initialRef as? UReferenceExpression)?.resolve() as? PsiVariable
-        val unwrapped = unwrapVariableInitializer(initialRef, maxDepth.coerceAtLeast(1))
+        val unwrapped = unwrapVariableOrHelperReturn(context, initialRef, maxDepth.coerceAtLeast(1))
         val elements = mutableListOf<UExpression>()
+
+        if (
+            unwrapped is UBinaryExpression &&
+                (unwrapped.operator == UastBinaryOperator.PLUS || unwrapped.operator.text == "+")
+        ) {
+            elements.addAll(
+                extractElementsFromListExpression(context, unwrapped.leftOperand, maxDepth - 1)
+            )
+            val rhs = unwrapped.rightOperand.unwrapNamedAndParens()
+            if (isCollectionExpression(context, rhs)) {
+                elements.addAll(extractElementsFromListExpression(context, rhs, maxDepth - 1))
+            } else {
+                elements.add(rhs)
+            }
+        }
 
         val call = unwrapped.asCallExpression()
         if (call != null) {
@@ -599,6 +714,46 @@ internal object RestoreCredentialConstants {
                         )
                     )
                 }
+                call.methodName == "plus" && call.valueArguments.size == 1 -> {
+                    val receiver =
+                        call.receiver ?: (unwrapped as? UQualifiedReferenceExpression)?.receiver
+                    if (receiver != null) {
+                        elements.addAll(
+                            extractElementsFromListExpression(context, receiver, maxDepth - 1)
+                        )
+                    }
+                    val rhs = call.valueArguments[0].unwrapNamedAndParens()
+                    if (isCollectionExpression(context, rhs)) {
+                        elements.addAll(
+                            extractElementsFromListExpression(context, rhs, maxDepth - 1)
+                        )
+                    } else {
+                        elements.add(rhs)
+                    }
+                }
+                (call.methodName == "apply" || call.methodName == "also") &&
+                    call.valueArguments.size == 1 -> {
+                    val receiver =
+                        call.receiver ?: (unwrapped as? UQualifiedReferenceExpression)?.receiver
+                    if (receiver != null) {
+                        elements.addAll(
+                            extractElementsFromListExpression(context, receiver, maxDepth - 1)
+                        )
+                    }
+                    val lambdaArg =
+                        call.valueArguments.lastOrNull()?.unwrapNamedAndParens()
+                            as? ULambdaExpression
+                    applyListMutationsInBlock(
+                        context,
+                        lambdaArg?.body,
+                        targetVar = null,
+                        scopeLambda = lambdaArg,
+                        scopeMethodName = call.methodName,
+                        maxEndOffset = null,
+                        elements = elements,
+                        maxDepth = maxDepth,
+                    )
+                }
                 call.methodName == "buildList" -> {
                     val lambdaArg =
                         call.valueArguments.lastOrNull()?.unwrapNamedAndParens()
@@ -607,6 +762,8 @@ internal object RestoreCredentialConstants {
                         context,
                         lambdaArg?.body,
                         targetVar = null,
+                        scopeLambda = lambdaArg,
+                        scopeMethodName = "buildList",
                         maxEndOffset = null,
                         elements = elements,
                         maxDepth = maxDepth,
@@ -623,6 +780,8 @@ internal object RestoreCredentialConstants {
                 context,
                 enclosingBody,
                 targetVar = rootVar,
+                scopeLambda = null,
+                scopeMethodName = null,
                 maxEndOffset = initialRef.sourcePsi?.textRange?.endOffset,
                 elements = elements,
                 maxDepth = maxDepth,
@@ -635,17 +794,20 @@ internal object RestoreCredentialConstants {
         context: JavaContext,
         block: UElement?,
         targetVar: PsiVariable?,
+        scopeLambda: ULambdaExpression?,
+        scopeMethodName: String?,
         maxEndOffset: Int?,
         elements: MutableList<UExpression>,
         maxDepth: Int,
     ) {
         if (block == null) return
+        val tracked = elements.map { TrackedOption(it, isBranched = false) }.toMutableList()
         val mutations = mutableListOf<Pair<Int, () -> Unit>>()
-        var hasBranchedMutation = false
+        var hasBranchedClear = false
         block.accept(
             object : AbstractUastVisitor() {
                 override fun visitCallExpression(node: UCallExpression): Boolean {
-                    if (hasBranchedMutation) return true
+                    if (hasBranchedClear) return true
                     val nodeEndOffset = node.sourcePsi?.textRange?.endOffset
                     if (
                         maxEndOffset != null &&
@@ -654,12 +816,21 @@ internal object RestoreCredentialConstants {
                     ) {
                         return false
                     }
-                    if (targetVar != null) {
-                        val receiverRef =
-                            node.receiver?.skipParenthesizedExprDown() as? UReferenceExpression
-                        if (receiverRef?.resolve() != targetVar) return false
-                    }
+                    val matchesTarget =
+                        when {
+                            targetVar != null -> isTargetListReceiver(node, targetVar)
+                            scopeLambda != null && scopeMethodName != null ->
+                                isScopeLambdaReceiver(
+                                    node,
+                                    node.receiver?.skipParenthesizedExprDown(),
+                                    scopeLambda,
+                                    scopeMethodName,
+                                )
+                            else -> false
+                        }
+                    if (!matchesTarget) return false
                     val orderKey = nodeEndOffset ?: Int.MAX_VALUE
+                    val isBranched = isInsideControlFlowBranch(node, block)
                     when (node.methodName) {
                         "add" -> {
                             val elemArg =
@@ -669,43 +840,44 @@ internal object RestoreCredentialConstants {
                                     else -> null
                                 }
                             if (elemArg != null) {
-                                if (isInsideControlFlowBranch(node, block)) {
-                                    hasBranchedMutation = true
-                                    return true
-                                }
-                                mutations.add(
-                                    orderKey to { elements.add(elemArg.unwrapNamedAndParens()) }
-                                )
-                            }
-                        }
-                        "addAll" -> {
-                            val collArg = node.valueArguments.lastOrNull()
-                            if (collArg != null) {
-                                if (isInsideControlFlowBranch(node, block)) {
-                                    hasBranchedMutation = true
-                                    return true
-                                }
                                 mutations.add(
                                     orderKey to
                                         {
-                                            elements.addAll(
-                                                extractElementsFromListExpression(
-                                                    context,
-                                                    collArg,
-                                                    maxDepth - 1,
+                                            tracked.add(
+                                                TrackedOption(
+                                                    elemArg.unwrapNamedAndParens(),
+                                                    isBranched,
                                                 )
                                             )
                                         }
                                 )
                             }
                         }
+                        "addAll" -> {
+                            val collArg = node.valueArguments.lastOrNull()
+                            if (collArg != null) {
+                                mutations.add(
+                                    orderKey to
+                                        {
+                                            for (elem in
+                                                extractElementsFromListExpression(
+                                                    context,
+                                                    collArg,
+                                                    maxDepth - 1,
+                                                )) {
+                                                tracked.add(TrackedOption(elem, isBranched))
+                                            }
+                                        }
+                                )
+                            }
+                        }
                         "clear" -> {
                             if (node.valueArguments.isEmpty()) {
-                                if (isInsideControlFlowBranch(node, block)) {
-                                    hasBranchedMutation = true
+                                if (isBranched) {
+                                    hasBranchedClear = true
                                     return true
                                 }
-                                mutations.add(orderKey to { elements.clear() })
+                                mutations.add(orderKey to { tracked.clear() })
                             }
                         }
                     }
@@ -713,11 +885,10 @@ internal object RestoreCredentialConstants {
                 }
 
                 override fun visitBinaryExpression(node: UBinaryExpression): Boolean {
-                    if (hasBranchedMutation) return true
+                    if (hasBranchedClear) return true
                     if (
-                        targetVar == null ||
-                            (node.operator != UastBinaryOperator.PLUS_ASSIGN &&
-                                node.operator.text != "+=")
+                        node.operator != UastBinaryOperator.PLUS_ASSIGN &&
+                            node.operator.text != "+="
                     ) {
                         return false
                     }
@@ -729,28 +900,38 @@ internal object RestoreCredentialConstants {
                     ) {
                         return false
                     }
-                    val leftRef =
-                        node.leftOperand.skipParenthesizedExprDown() as? UReferenceExpression
-                    if (leftRef?.resolve() != targetVar) return false
-                    if (isInsideControlFlowBranch(node, block)) {
-                        hasBranchedMutation = true
-                        return true
-                    }
+                    val leftOperand = node.leftOperand.skipParenthesizedExprDown()
+                    val matchesTarget =
+                        when {
+                            targetVar != null ->
+                                (leftOperand as? UReferenceExpression)?.resolve() == targetVar
+                            scopeLambda != null && scopeMethodName != null ->
+                                isScopeLambdaReceiver(
+                                    node,
+                                    leftOperand,
+                                    scopeLambda,
+                                    scopeMethodName,
+                                )
+                            else -> false
+                        }
+                    if (!matchesTarget) return false
+                    val isBranched = isInsideControlFlowBranch(node, block)
                     val orderKey = nodeEndOffset ?: Int.MAX_VALUE
                     val rhs = node.rightOperand
                     mutations.add(
                         orderKey to
                             {
                                 if (isCollectionExpression(context, rhs)) {
-                                    elements.addAll(
+                                    for (elem in
                                         extractElementsFromListExpression(
                                             context,
                                             rhs,
                                             maxDepth - 1,
-                                        )
-                                    )
+                                        )) {
+                                        tracked.add(TrackedOption(elem, isBranched))
+                                    }
                                 } else {
-                                    elements.add(rhs)
+                                    tracked.add(TrackedOption(rhs, isBranched))
                                 }
                             }
                     )
@@ -758,7 +939,7 @@ internal object RestoreCredentialConstants {
                 }
             }
         )
-        if (hasBranchedMutation) {
+        if (hasBranchedClear) {
             elements.clear()
             return
         }
@@ -766,6 +947,168 @@ internal object RestoreCredentialConstants {
         for ((_, applyMutation) in mutations) {
             applyMutation()
         }
+        if (shouldDropBranchedOptions(context, tracked)) {
+            elements.clear()
+            return
+        }
+        elements.clear()
+        for (item in tracked) {
+            elements.add(item.expr)
+        }
+    }
+
+    private fun isScopeLambdaReceiver(
+        node: UElement,
+        receiver: UExpression?,
+        scopeLambda: ULambdaExpression,
+        scopeMethodName: String?,
+    ): Boolean {
+        if (scopeMethodName == "apply" || scopeMethodName == "buildList") {
+            if (receiver != null && receiver !is UThisExpression) return false
+            val explicitLabel =
+                (receiver as? UThisExpression)?.takeIf { it.sourcePsi != null }?.label
+            if (explicitLabel != null && explicitLabel != scopeMethodName) return false
+            return !isReceiverShadowed(node, scopeLambda, explicitLabel)
+        }
+        if (scopeMethodName == "also" && receiver is USimpleNameReferenceExpression) {
+            val id = receiver.identifier
+            val resolvedParam = receiver.resolve()
+            if (resolvedParam != null) {
+                val matchesResolved =
+                    scopeLambda.valueParameters.any { it.javaPsi == resolvedParam } ||
+                        scopeLambda.parameters.any { it.javaPsi == resolvedParam }
+                if (matchesResolved) return true
+                if (resolvedParam is PsiParameter && scopeLambda.parameters.isNotEmpty()) {
+                    return false
+                }
+            }
+            val matchesName =
+                (id == "it" && scopeLambda.valueParameters.isEmpty()) ||
+                    scopeLambda.valueParameters.any { it.name == id } ||
+                    scopeLambda.parameters.any { it.name == id }
+            if (!matchesName) return false
+            return !isLambdaParamShadowed(node, id, scopeLambda)
+        }
+        return false
+    }
+
+    private fun isReceiverShadowed(
+        node: UElement,
+        scopeLambda: ULambdaExpression,
+        explicitLabel: String?,
+    ): Boolean {
+        var current: UElement? = node.uastParent
+        while (current != null && current != scopeLambda) {
+            if (
+                explicitLabel == null && (current is UClass || current is UObjectLiteralExpression)
+            ) {
+                return true
+            }
+            if (current is ULambdaExpression) {
+                val parentCall = current.getParentOfType<UCallExpression>(true)
+                if (explicitLabel != null) {
+                    if (
+                        parentCall != null &&
+                            parentCall.valueArguments.any {
+                                it.unwrapNamedAndParens() == current
+                            } &&
+                            parentCall.methodName == explicitLabel &&
+                            introducesLambdaReceiver(current, parentCall)
+                    ) {
+                        return true
+                    }
+                } else if (introducesLambdaReceiver(current, parentCall)) {
+                    return true
+                }
+            }
+            current = current.uastParent
+        }
+        return false
+    }
+
+    private fun introducesLambdaReceiver(
+        lambda: ULambdaExpression,
+        parentCall: UCallExpression? = lambda.getParentOfType<UCallExpression>(true),
+    ): Boolean {
+        if (
+            parentCall != null &&
+                parentCall.valueArguments.any { it.unwrapNamedAndParens() == lambda } &&
+                parentCall.methodName in RECEIVER_SCOPE_METHODS
+        ) {
+            return true
+        }
+        val functionalType = lambda.functionalInterfaceType
+        if (
+            functionalType != null &&
+                functionalType.annotations.any {
+                    it.qualifiedName == "kotlin.ExtensionFunctionType"
+                }
+        ) {
+            return true
+        }
+        return false
+    }
+
+    private fun isLambdaParamShadowed(
+        node: UElement,
+        paramName: String,
+        scopeLambda: ULambdaExpression,
+    ): Boolean {
+        var current: UElement? = node.uastParent
+        while (current != null && current != scopeLambda) {
+            if (current is ULambdaExpression) {
+                if (
+                    current.valueParameters.any { it.name == paramName } ||
+                        current.parameters.any { it.name == paramName }
+                ) {
+                    return true
+                }
+                if (paramName == "it" && current.valueParameters.isEmpty()) {
+                    val parentCall = current.getParentOfType<UCallExpression>(true)
+                    if (
+                        parentCall != null &&
+                            parentCall.valueArguments.any {
+                                it.unwrapNamedAndParens() == current
+                            } &&
+                            parentCall.methodName in IT_PARAM_SCOPE_METHODS
+                    ) {
+                        return true
+                    }
+                }
+            }
+            current = current.uastParent
+        }
+        return false
+    }
+
+    private fun isTargetListReceiver(node: UCallExpression, targetVar: PsiVariable): Boolean {
+        val receiver = node.receiver?.skipParenthesizedExprDown()
+        if (receiver is UReferenceExpression && receiver.resolve() == targetVar) {
+            return true
+        }
+        var current: UElement? = node.uastParent
+        while (current != null && current !is UMethod) {
+            if (current is ULambdaExpression) {
+                val parentCall = current.getParentOfType<UCallExpression>(true)
+                if (
+                    parentCall != null &&
+                        (parentCall.methodName == "apply" || parentCall.methodName == "also") &&
+                        parentCall.valueArguments.any { it.unwrapNamedAndParens() == current }
+                ) {
+                    val scopeReceiver =
+                        (parentCall.receiver
+                                ?: (parentCall.uastParent as? UQualifiedReferenceExpression)
+                                    ?.takeIf { it.selector == parentCall }
+                                    ?.receiver)
+                            ?.skipParenthesizedExprDown() as? UReferenceExpression
+                    if (scopeReceiver?.resolve() == targetVar) {
+                        return isScopeLambdaReceiver(node, receiver, current, parentCall.methodName)
+                    }
+                }
+            }
+            current = current.uastParent
+        }
+        return false
     }
 
     private fun isInsideControlFlowBranch(node: UElement, stopAt: UElement): Boolean {

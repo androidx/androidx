@@ -139,8 +139,16 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
                 }
 
                 // Layer 1 & Layer 2: Explicit Credential Manager or 1P/3P Auth SDK calls (Rank 1)
+                val sdkKey = matchSdkKeyForClass(qualifiedClass)
                 val authSdkLabel = matchAuthApiOrSdkClass(qualifiedClass, resolvedMethod)
                 if (authSdkLabel != null) {
+                    if (sdkKey != null) {
+                        appendStringToken(
+                            context.getPartialResults(ISSUE).map(),
+                            KEY_ACCOUNT_SDK_CALLS,
+                            sdkKey,
+                        )
+                    }
                     if (context.driver.isSuppressed(context, ISSUE, node as UElement)) {
                         return
                     }
@@ -156,6 +164,12 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
                         signalDescription = authSdkLabel,
                     )
                     return
+                } else if (sdkKey != null) {
+                    appendStringToken(
+                        context.getPartialResults(ISSUE).map(),
+                        KEY_NON_ACCOUNT_SDK_CALLS,
+                        sdkKey,
+                    )
                 }
 
                 // Layer 5: Browser OAuth, AccountManager, and SMS Retriever OTP APIs (Rank 2)
@@ -228,11 +242,11 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
 
                 val enclosingClassName = node.getParentOfType<UClass>(true)?.name ?: ""
                 val combinedContextName = "${enclosingClassName}_${node.name}"
-                val isAuthNamedScreen =
-                    containsAuthScreenKeyword(combinedContextName) &&
-                        !containsNonAccountPasswordKeyword(combinedContextName)
+                val hasAuthKeyword = containsAuthScreenKeyword(combinedContextName)
+                val isExcludedNonAccountScreen =
+                    containsNonAccountPasswordKeyword(combinedContextName) && !hasAuthKeyword
 
-                if (hasAccountContentType || isAuthNamedScreen) {
+                if (!isExcludedNonAccountScreen && (hasAccountContentType || hasAuthKeyword)) {
                     if (
                         context.driver.isSuppressed(context, ISSUE, node as UElement) ||
                             context.driver.isSuppressed(context, ISSUE, anchorNode)
@@ -498,16 +512,20 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
             context.getPartialResults(ISSUE).map().put(KEY_SAW_LEGACY_BLOCKSTORE, true)
             return
         }
-        val matchedArtifact = matchAuthGradleDependency(rawCoordinate) ?: return
+        val (matchedArtifact, sdkKey) = matchAuthGradleDependency(rawCoordinate) ?: return
         if (context.isSuppressedWithComment(cookie, ISSUE)) {
             return
         }
-        recordCandidate(
-            context = context,
-            rank = RANK_GRADLE_DEP,
-            location = context.getLocation(cookie),
-            signalDescription = "authentication dependency `$matchedArtifact`",
-        )
+        val map = context.getPartialResults(ISSUE).map()
+        val locationKey = "$KEY_GRADLE_LOCATION_PREFIX$sdkKey"
+        if (map.getLocation(locationKey) == null) {
+            map.put(locationKey, context.getLocation(cookie))
+            map.put(
+                "$KEY_GRADLE_SIGNAL_PREFIX$sdkKey",
+                "authentication dependency `$matchedArtifact`",
+            )
+            appendStringToken(map, KEY_GRADLE_SDK_KEYS, sdkKey)
+        }
     }
 
     // ===========================================================================
@@ -537,6 +555,47 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
                 bestRank = rank
                 bestLocation = loc
                 bestSignal = moduleMap.getString(KEY_BEST_SIGNAL, "sign-in flow")
+            }
+        }
+
+        if (bestLocation == null) {
+            val accountSdkCalls =
+                allMaps
+                    .flatMap {
+                        it.getString(KEY_ACCOUNT_SDK_CALLS, "")
+                            .orEmpty()
+                            .split(',')
+                            .filter(String::isNotEmpty)
+                    }
+                    .toSet()
+            val nonAccountSdkCalls =
+                allMaps
+                    .flatMap {
+                        it.getString(KEY_NON_ACCOUNT_SDK_CALLS, "")
+                            .orEmpty()
+                            .split(',')
+                            .filter(String::isNotEmpty)
+                    }
+                    .toSet()
+
+            outer@ for (moduleMap in allMaps) {
+                val sdkKeys =
+                    moduleMap
+                        .getString(KEY_GRADLE_SDK_KEYS, "")
+                        .orEmpty()
+                        .split(',')
+                        .filter(String::isNotEmpty)
+                for (sdkKey in sdkKeys) {
+                    if (sdkKey in nonAccountSdkCalls && sdkKey !in accountSdkCalls) {
+                        continue
+                    }
+                    val loc =
+                        moduleMap.getLocation("$KEY_GRADLE_LOCATION_PREFIX$sdkKey") ?: continue
+                    bestLocation = loc
+                    bestSignal =
+                        moduleMap.getString("$KEY_GRADLE_SIGNAL_PREFIX$sdkKey", "sign-in flow")
+                    break@outer
+                }
             }
         }
 
@@ -610,7 +669,7 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
         ) {
             return "`${qualifiedClass.substringAfterLast('.')}`"
         }
-        for ((prefix, sdkLabel) in THIRD_PARTY_AUTH_SDK_PACKAGES) {
+        for ((prefix, sdkLabel, _) in THIRD_PARTY_AUTH_SDK_PACKAGES) {
             if (
                 qualifiedClass.startsWith(prefix) &&
                     isThirdPartyAuthSignInOrSignUpMethod(qualifiedClass, method)
@@ -763,19 +822,42 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
             lower.endsWith("api")
     }
 
-    private fun matchAuthGradleDependency(raw: String): String? {
+    private fun matchAuthGradleDependency(raw: String): Pair<String, String>? {
         val normalized = raw.trim().lowercase()
-        for (coordinatePrefix in AUTH_GRADLE_COORDINATE_PREFIXES) {
+        for ((coordinatePrefix, sdkKey) in AUTH_GRADLE_COORDINATE_PREFIXES) {
             if (normalized.startsWith(coordinatePrefix)) {
-                return raw.trim()
+                return raw.trim() to sdkKey
             }
         }
-        for (catalogToken in AUTH_VERSION_CATALOG_TOKENS) {
+        for ((catalogToken, sdkKey) in AUTH_VERSION_CATALOG_TOKENS) {
             if (normalized == catalogToken || normalized.endsWith(".$catalogToken")) {
-                return raw.trim()
+                return raw.trim() to sdkKey
             }
         }
         return null
+    }
+
+    private fun matchSdkKeyForClass(qualifiedClass: String): String? {
+        if (qualifiedClass in PLAY_SERVICES_GOOGLE_AUTH_CLASSES) return "play_services_auth"
+        if (qualifiedClass.startsWith("com.google.android.libraries.identity.googleid.")) {
+            return "googleid"
+        }
+        for ((prefix, _, sdkKey) in THIRD_PARTY_AUTH_SDK_PACKAGES) {
+            if (qualifiedClass.startsWith(prefix)) {
+                return sdkKey
+            }
+        }
+        return null
+    }
+
+    private fun appendStringToken(
+        map: com.android.tools.lint.detector.api.LintMap,
+        key: String,
+        value: String,
+    ) {
+        val existing = map.getString(key, "").orEmpty()
+        val updated = if (existing.isEmpty()) value else "$existing,$value"
+        map.put(key, updated)
     }
 
     private fun containsAuthScreenKeyword(identifier: String): Boolean {
@@ -800,7 +882,6 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
         private const val RANK_AUTH_API = 1
         private const val RANK_OAUTH_OR_OS_AUTH = 2
         private const val RANK_LOGIN_UI = 3
-        private const val RANK_GRADLE_DEP = 4
 
         private const val KEY_SAW_CREATE_RESTORE = "SAW_CREATE_RESTORE"
         private const val KEY_SAW_GET_RESTORE = "SAW_GET_RESTORE"
@@ -809,6 +890,11 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
         private const val KEY_BEST_RANK = "BEST_RANK"
         private const val KEY_BEST_LOCATION = "BEST_LOCATION"
         private const val KEY_BEST_SIGNAL = "BEST_SIGNAL"
+        private const val KEY_GRADLE_SDK_KEYS = "GRADLE_SDK_KEYS"
+        private const val KEY_GRADLE_LOCATION_PREFIX = "GRADLE_LOC_"
+        private const val KEY_GRADLE_SIGNAL_PREFIX = "GRADLE_SIG_"
+        private const val KEY_ACCOUNT_SDK_CALLS = "ACCOUNT_SDK_CALLS"
+        private const val KEY_NON_ACCOUNT_SDK_CALLS = "NON_ACCOUNT_SDK_CALLS"
 
         private const val PACKAGE_LEGACY_BLOCKSTORE = "com.google.android.gms.auth.blockstore"
         private const val CLASS_ABSTRACT_ACCOUNT_AUTHENTICATOR =
@@ -850,21 +936,25 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
 
         private val THIRD_PARTY_AUTH_SDK_PACKAGES =
             listOf(
-                "com.google.firebase.auth." to "Firebase Auth",
-                "com.auth0.android." to "Auth0 SDK",
-                "com.okta." to "Okta Auth SDK",
-                "net.openid.appauth.AuthorizationService" to "AppAuth OAuth SDK",
-                "net.openid.appauth.AuthorizationRequest" to "AppAuth OAuth SDK",
-                "com.microsoft.identity.client." to "Microsoft MSAL",
-                "com.facebook.login." to "Facebook Login SDK",
-                "com.amplifyframework.auth." to "AWS Amplify Auth",
-                "com.amazonaws.mobileconnectors.cognitoidentityprovider." to "AWS Cognito",
-                "io.github.jan.supabase.gotrue." to "Supabase GoTrue Auth",
-                "io.github.jan.supabase.auth." to "Supabase Auth",
-                "com.clerk." to "Clerk Auth SDK",
-                "com.linecorp.linesdk." to "LINE Login SDK",
-                "com.kakao.sdk.user." to "Kakao Login SDK",
-                "com.kakao.sdk.auth." to "Kakao Auth SDK",
+                Triple("com.google.firebase.auth.", "Firebase Auth", "firebase"),
+                Triple("com.auth0.android.", "Auth0 SDK", "auth0"),
+                Triple("com.okta.", "Okta Auth SDK", "okta"),
+                Triple("net.openid.appauth.AuthorizationService", "AppAuth OAuth SDK", "appauth"),
+                Triple("net.openid.appauth.AuthorizationRequest", "AppAuth OAuth SDK", "appauth"),
+                Triple("com.microsoft.identity.client.", "Microsoft MSAL", "msal"),
+                Triple("com.facebook.login.", "Facebook Login SDK", "facebook"),
+                Triple("com.amplifyframework.auth.", "AWS Amplify Auth", "amplify"),
+                Triple(
+                    "com.amazonaws.mobileconnectors.cognitoidentityprovider.",
+                    "AWS Cognito",
+                    "cognito",
+                ),
+                Triple("io.github.jan.supabase.gotrue.", "Supabase GoTrue Auth", "supabase"),
+                Triple("io.github.jan.supabase.auth.", "Supabase Auth", "supabase"),
+                Triple("com.clerk.", "Clerk Auth SDK", "clerk"),
+                Triple("com.linecorp.linesdk.", "LINE Login SDK", "line"),
+                Triple("com.kakao.sdk.user.", "Kakao Login SDK", "kakao"),
+                Triple("com.kakao.sdk.auth.", "Kakao Auth SDK", "kakao"),
             )
 
         private val NON_ACCOUNT_AUTH_SDK_METHODS =
@@ -916,32 +1006,32 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
 
         private val AUTH_GRADLE_COORDINATE_PREFIXES =
             listOf(
-                "com.google.android.libraries.identity.googleid:googleid",
-                "com.google.android.gms:play-services-auth",
-                "com.google.firebase:firebase-auth",
-                "com.auth0.android:",
-                "com.okta.",
-                "net.openid:appauth",
-                "com.microsoft.identity.client:msal",
-                "com.facebook.android:facebook-login",
-                "com.amplifyframework:aws-auth-cognito",
-                "com.amazonaws:aws-android-sdk-cognitoidentityprovider",
-                "io.github.jan-tennert.supabase:gotrue-kt",
-                "io.github.jan-tennert.supabase:auth-kt",
-                "com.clerk:",
-                "com.linecorp.linesdk:",
-                "com.kakao.sdk:v2-user",
-                "com.kakao.sdk:v2-auth",
+                "com.google.android.libraries.identity.googleid:googleid" to "googleid",
+                "com.google.android.gms:play-services-auth" to "play_services_auth",
+                "com.google.firebase:firebase-auth" to "firebase",
+                "com.auth0.android:" to "auth0",
+                "com.okta." to "okta",
+                "net.openid:appauth" to "appauth",
+                "com.microsoft.identity.client:msal" to "msal",
+                "com.facebook.android:facebook-login" to "facebook",
+                "com.amplifyframework:aws-auth-cognito" to "amplify",
+                "com.amazonaws:aws-android-sdk-cognitoidentityprovider" to "cognito",
+                "io.github.jan-tennert.supabase:gotrue-kt" to "supabase",
+                "io.github.jan-tennert.supabase:auth-kt" to "supabase",
+                "com.clerk:" to "clerk",
+                "com.linecorp.linesdk:" to "line",
+                "com.kakao.sdk:v2-user" to "kakao",
+                "com.kakao.sdk:v2-auth" to "kakao",
             )
 
         private val AUTH_VERSION_CATALOG_TOKENS =
             listOf(
-                "firebase.auth",
-                "play.services.auth",
-                "googleid",
-                "auth0",
-                "appauth",
-                "facebook.login",
+                "firebase.auth" to "firebase",
+                "play.services.auth" to "play_services_auth",
+                "googleid" to "googleid",
+                "auth0" to "auth0",
+                "appauth" to "appauth",
+                "facebook.login" to "facebook",
             )
 
         private val COMPOSE_SECURE_TEXT_FIELD_FUNCTIONS =
@@ -977,6 +1067,7 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
             listOf(
                 "wifi",
                 "wi_fi",
+                "vpn",
                 "hotspot",
                 "pdf",
                 "zip",
@@ -1033,10 +1124,12 @@ class MissingRestoreCredentialsDetector : Detector(), SourceCodeScanner, XmlScan
                 `BackupAgent.onRestoreFinished()` wrapped in `runBlocking`), retrieve the restored \
                 credential via `GetRestoreCredentialOption` and silently re-establish the user's session.
 
-                If silent session restoration is intentionally omitted (for example, in regulated \
-                financial, healthcare, or government apps), annotate the sign-in entry point or \
-                `<application>` tag with `@SuppressLint("MissingRestoreCredentials")` / \
-                `tools:ignore="MissingRestoreCredentials"`.
+                Annotating an individual call or Composable with \
+                `@SuppressLint("MissingRestoreCredentials")` suppresses only that site. If silent \
+                session restoration is intentionally omitted for the entire app (for example, in \
+                regulated financial, healthcare, or government apps), add \
+                `tools:ignore="MissingRestoreCredentials"` on the `<application>` tag in \
+                `AndroidManifest.xml` to opt the whole app out.
             """,
                 category = Category.COMPLIANCE,
                 priority = 7,

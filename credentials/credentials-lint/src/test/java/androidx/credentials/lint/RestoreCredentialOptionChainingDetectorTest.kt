@@ -327,11 +327,250 @@ class RestoreCredentialOptionChainingDetectorTest : LintDetectorTest() {
                     }
                     return builder.build()
                 }
+
+                private fun buildSingleRestoreList(json: String): List<CredentialOption> =
+                    listOf(GetRestoreCredentialOption(json))
+
+                fun buildCleanApplyAlsoPlusAndHelper(
+                    json: String,
+                    requestLog: MutableList<String>,
+                ): List<GetCredentialRequest> {
+                    val applyOptions =
+                        mutableListOf<CredentialOption>().apply {
+                            add(GetRestoreCredentialOption(json))
+                            requestLog.add("restore")
+                        }
+                    val alsoOptions =
+                        mutableListOf<CredentialOption>().also {
+                            it.add(GetRestoreCredentialOption(json))
+                            requestLog.add("restore-also")
+                        }
+                    return listOf(
+                        GetCredentialRequest(applyOptions),
+                        GetCredentialRequest(alsoOptions),
+                        GetCredentialRequest(buildSingleRestoreList(json)),
+                        GetCredentialRequest(
+                            listOf<CredentialOption>(GetRestoreCredentialOption(json)) + emptyList()
+                        ),
+                    )
+                }
                 """
                     )
                     .indented(),
             )
             .run()
             .expectClean()
+    }
+
+    @Test
+    fun applyBlockListPlusAndHelperBuiltOptionList_reportChainingErrors() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.credentials.CredentialOption
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetPasswordOption
+                import androidx.credentials.GetPublicKeyCredentialOption
+                import androidx.credentials.GetRestoreCredentialOption
+
+                private fun buildMixedOptions(json: String): List<CredentialOption> =
+                    listOf(GetRestoreCredentialOption(json), GetPasswordOption())
+
+                fun requestWithHelperList(json: String): GetCredentialRequest =
+                    GetCredentialRequest(buildMixedOptions(json))
+
+                fun requestWithChainedApply(json: String): GetCredentialRequest =
+                    GetCredentialRequest(
+                        mutableListOf<CredentialOption>().apply {
+                            add(GetRestoreCredentialOption(json))
+                            add(GetPasswordOption())
+                        }
+                    )
+
+                fun requestWithChainedAlso(json: String): GetCredentialRequest =
+                    GetCredentialRequest(
+                        mutableListOf<CredentialOption>().also {
+                            it.add(GetRestoreCredentialOption(json))
+                            it.add(GetPasswordOption())
+                        }
+                    )
+
+                fun requestWithLocalApplyAndPlus(json: String): Pair<GetCredentialRequest, GetCredentialRequest> {
+                    val options = mutableListOf<CredentialOption>()
+                    options.apply {
+                        add(GetRestoreCredentialOption(json))
+                        add(GetPasswordOption())
+                    }
+                    val req1 = GetCredentialRequest(options)
+                    val req2 =
+                        GetCredentialRequest(
+                            listOf<CredentialOption>(GetRestoreCredentialOption(json)) +
+                                GetPasswordOption()
+                        )
+                    return req1 to req2
+                }
+
+                fun requestWithUnconditionalPlusBranchedAdd(
+                    json: String,
+                    passkeys: Boolean,
+                ): GetCredentialRequest {
+                    val options = mutableListOf<CredentialOption>()
+                    options.add(GetRestoreCredentialOption(json))
+                    options.add(GetPasswordOption())
+                    if (passkeys) {
+                        options.add(GetPublicKeyCredentialOption(json))
+                    }
+                    return GetCredentialRequest(options)
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test.kt:10: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                    listOf(GetRestoreCredentialOption(json), GetPasswordOption())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:18: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                            add(GetRestoreCredentialOption(json))
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:26: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                            it.add(GetRestoreCredentialOption(json))
+                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:34: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                        add(GetRestoreCredentialOption(json))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:40: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                            listOf<CredentialOption>(GetRestoreCredentialOption(json)) +
+                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:51: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                    options.add(GetRestoreCredentialOption(json))
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                6 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun nestedScopeBlocksOnOtherLists_doNotFlagOuterRestoreList() {
+        // 1. Clean: nested .apply / .also / buildList on unrelated lists do not pollute the outer
+        // restore-only option list.
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.credentials.CredentialOption
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetRestoreCredentialOption
+
+                fun cleanNestedScopes(json: String): List<GetCredentialRequest> {
+                    val fromBuildList = buildList {
+                        add(GetRestoreCredentialOption(json))
+                        mutableListOf<String>().apply { add("tag") }
+                        mutableListOf<String>().also { it.add("tag2") }
+                        buildList { add("tag3") }
+                    }
+                    val fromApply =
+                        mutableListOf<CredentialOption>().apply {
+                            add(GetRestoreCredentialOption(json))
+                            mutableListOf<String>().apply { add("tag") }
+                        }
+                    val fromAlso =
+                        mutableListOf<CredentialOption>().also {
+                            it.add(GetRestoreCredentialOption(json))
+                            mutableListOf<String>().also { it.add("tag") }
+                        }
+                    val localApply = mutableListOf<CredentialOption>()
+                    localApply.apply {
+                        add(GetRestoreCredentialOption(json))
+                        mutableListOf<String>().apply { add("tag") }
+                    }
+                    val localAlso = mutableListOf<CredentialOption>()
+                    localAlso.also {
+                        it.add(GetRestoreCredentialOption(json))
+                        mutableListOf<String>().also { it.add("tag") }
+                    }
+                    return listOf(
+                        GetCredentialRequest(fromBuildList),
+                        GetCredentialRequest(fromApply),
+                        GetCredentialRequest(fromAlso),
+                        GetCredentialRequest(localApply),
+                        GetCredentialRequest(localAlso),
+                    )
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+
+        // 2. Flagged: real outer-list mutations alongside nested scope blocks still report errors.
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.credentials.CredentialOption
+                import androidx.credentials.GetCredentialRequest
+                import androidx.credentials.GetPasswordOption
+                import androidx.credentials.GetRestoreCredentialOption
+
+                fun flaggedWithNestedScopes(json: String): List<GetCredentialRequest> {
+                    val fromBuildList = buildList {
+                        add(GetRestoreCredentialOption(json))
+                        mutableListOf<String>().apply { add("tag") }
+                        add(GetPasswordOption())
+                    }
+                    val fromLabeledApply =
+                        mutableListOf<CredentialOption>().apply {
+                            add(GetRestoreCredentialOption(json))
+                            mutableListOf<String>().run {
+                                add("tag")
+                                this@apply.add(GetPasswordOption())
+                            }
+                        }
+                    val fromForEachInApply =
+                        mutableListOf<CredentialOption>().apply {
+                            add(GetRestoreCredentialOption(json))
+                            listOf(1).forEach { add(GetPasswordOption()) }
+                        }
+                    return listOf(
+                        GetCredentialRequest(fromBuildList),
+                        GetCredentialRequest(fromLabeledApply),
+                        GetCredentialRequest(fromForEachInApply),
+                    )
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test.kt:10: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                        add(GetRestoreCredentialOption(json))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:16: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                            add(GetRestoreCredentialOption(json))
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:24: Error: GetRestoreCredentialOption cannot be combined with other CredentialOption entries in a single GetCredentialRequest (throws IllegalArgumentException at runtime). Request GetRestoreCredentialOption alone first, then fall back to interactive sign-in options. [RestoreCredentialOptionChaining]
+                            add(GetRestoreCredentialOption(json))
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                3 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
     }
 }
