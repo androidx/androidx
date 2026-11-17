@@ -189,10 +189,6 @@ class SceneCoreOpenXrLauncherActivity : Activity() {
             }
         )
         refreshList()
-        if (status.value.attachmentNatives == null) {
-            val attachmentNatives = SceneCoreDiagnostics.describeAttachmentNatives()
-            status.update { it.copy(attachmentNatives = attachmentNatives) }
-        }
         scope.launch {
             combine(scene, status) { scene, status -> scene to status }
                 .collect { (scene, status) ->
@@ -418,7 +414,6 @@ class SceneCoreOpenXrLauncherActivity : Activity() {
             )
         }
         appendLine("Session configured: ${if (status.isConfigured) "yes" else "no"}")
-        appendLine("Attachment natives: ${status.attachmentNatives ?: "not checked"}")
         append("Last error: ${status.lastError ?: "none"}")
     }
 

@@ -440,22 +440,17 @@ internal class OpenXrSceneCommitter(
         change: AttachmentChange,
     ): CommitResult {
         val isStaged =
-            try {
-                if (change.lease == null) {
-                    nativeWrapper.removeTransactionSpaceAttachment(transactionHandle, entityHandle)
-                } else {
-                    change.lease.stageUnlessRevoked { spaceHandle ->
-                        nativeWrapper.setTransactionSpaceAttachment(
-                            transactionHandle,
-                            entityHandle,
-                            spaceHandle,
-                            ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
-                        )
-                    } ?: return CommitResult.DROPPED
-                }
-            } catch (_: UnsatisfiedLinkError) {
-                // TODO: b/575789269 - Remove once the prebuilt has these natives.
-                false
+            if (change.lease == null) {
+                nativeWrapper.removeTransactionSpaceAttachment(transactionHandle, entityHandle)
+            } else {
+                change.lease.stageUnlessRevoked { spaceHandle ->
+                    nativeWrapper.setTransactionSpaceAttachment(
+                        transactionHandle,
+                        entityHandle,
+                        spaceHandle,
+                        ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+                    )
+                } ?: return CommitResult.DROPPED
             }
         return if (isStaged) CommitResult.COMMITTED else CommitResult.REJECTED
     }

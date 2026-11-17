@@ -71,8 +71,8 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     var allowInvalidSessionHandle: Boolean = false
     // When set, staging or removing an attachment fails, as if the runtime rejected it.
     var simulateAttachmentFailure: Boolean = false
-    // When set, staging an attachment throws, as with a prebuilt that predates the natives.
-    var simulateMissingAttachmentNatives: Boolean = false
+    // When set, only staging an attachment fails, as if the runtime rejected it.
+    var simulateSetAttachmentFailure: Boolean = false
     // When set, submitting a transaction fails, and it keeps its slot.
     var simulateSubmitFailure: Boolean = false
     // When set, destroying an entity fails, even with a free transaction.
@@ -285,18 +285,13 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     ): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         onSetTransactionSpaceAttachment?.invoke(spaceHandle)
-        if (simulateMissingAttachmentNatives) {
-            throw UnsatisfiedLinkError(
-                "No implementation found for nativeSetTransactionSpaceAttachment"
-            )
-        }
         if (spaceHandle in destroyedSpaces) {
             stagedDestroyedSpaces += spaceHandle
             throw AssertionError(
                 "Staged an attachment to XrSpace $spaceHandle after it was destroyed."
             )
         }
-        if (simulateAttachmentFailure) return false
+        if (simulateAttachmentFailure || simulateSetAttachmentFailure) return false
         val tx = openTransactions[transactionHandle] ?: return false
         if (!isLiveEntity(entityHandle)) return false
         // Like the native side, reject values that aren't LAST_KNOWN or DETACH.
