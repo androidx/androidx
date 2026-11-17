@@ -298,6 +298,12 @@ CameraX involves complex hardware interactions, making robust testing essential.
   4. *Study Existing Unit & Instrumentation Tests Before Coding*: Read existing
      `src/test/` and `src/androidTest/` tests and `camera-testing` fakes for the
      target class before designing or placing code changes.
+  5. *Check Recent Upstream Commits, Open Changes & Existing Seams*: Check
+     recent `git --no-lazy-fetch log` history, open Gerrit changes, and
+     existing CameraX/AndroidX primitives or builder factories (e.g.,
+     `UseCaseThreads`, `Recorder.Builder` muxer/encoder seams, platform
+     `MediaExtractor`) so fixes and tests reuse proven seams rather than adding
+     state flags or hand-rolled binary container (MP4) parsers.
 - **API Surface & Pre-Call Contract Check (`api/current.txt` &
   `restricted_current.txt`)**: Verify whether your change modifies or calls
   public or restricted APIs by inspecting `camera/<module>/api/current.txt` and
@@ -374,10 +380,41 @@ CameraX involves complex hardware interactions, making robust testing essential.
     `STARTED` or `CREATED` typically indicates a violated rule/window
     precondition or an environment overlay rather than a camera bug. Fix the
     test setup instead of adding retries or sleeps.
-- **Main Thread Requirements**:
+- **Main Thread Requirements & Off-Main Blocking Teardown**:
   - Ensure lifecycle binding (`bindToLifecycle`, `unbindAll`) and surface
     provider interactions are executed on the Main thread (using
     `runBlocking(Dispatchers.Main) { ... }`).
+  - Never call blocking `Future.get()`, `CountDownLatch.await()`, or nested
+    `runBlocking` inside `runBlocking(Dispatchers.Main)` teardown when the
+    awaited future or job posts completion callbacks onto the main thread;
+    await completion outside `Dispatchers.Main` to avoid deadlocks.
+- **Non-Tautological Red-to-Green Tests, Zero `isEmulator()` Spec Masking,
+  Interruption (`useMaxDepVersions`) & Static `DeviceQuirks` Isolation**:
+  - Every bug-fix regression test must exercise the real production path and
+    deterministically **fail when the production fix is reverted** (never
+    duplicating production predicates in test helpers or asserting only setup
+    non-nullness). Never guard host unit-test assertions behind
+    `assumeTrue(...)` skips; assert deterministic post-conditions on fakes.
+  - Never add `assumeFalse(..., isEmulator())` (or blanket SDK/device skips) in
+    `androidTest` to silence a newly failing test when Android's reference
+    `EmulatedCamera` / Cuttlefish HAL rejects a stream, format, or
+    dynamic-range configuration—treat reference-emulator rejection as a primary
+    signal of a Camera2 / VINTF `Stream.aidl` spec violation unless an
+    emulator-only hardware limitation is proven.
+  - When modifying coroutine/Guava cancellation or executor-rejection paths,
+    test pre-interrupted caller threads and cancelled scopes and verify under
+    `-Pandroidx.useMaxDepVersions=true` (widening `PROJECT_PREFIX` to include
+    upstream Maven groups such as `:concurrent,:lifecycle,:core` or omitting
+    `PROJECT_PREFIX`, since max-dep substitution skips unloaded modules, plus
+    `-Pandroid.experimental.disableCompileSdkChecks=true` when needed).
+  - In Robolectric tests that mutate `Build.*` reflection fields or system
+    properties affecting static `DeviceQuirks`, save/restore mutated fields and
+    reload `DeviceQuirks` in `@Before` and `@After` by toggling
+    `QuirkSettingsHolder.instance().set(QuirkSettings.withAllQuirksDisabled())`
+    then `set(QuirkSettings.withDefaultBehavior())` (do not call
+    `QuirkSettingsHolder.reset()` to reload `DeviceQuirks`, as
+    `removeObservers()` detaches static `DeviceQuirks` listeners across the
+    JVM).
 - **Anti-Flakiness & Synchronization**:
   - **NEVER use `Thread.sleep()`**. Use `CountDownLatch` or event listeners
     (`VideoRecordEvent` for video) to await state changes (e.g., wait for
@@ -453,10 +490,20 @@ CameraX involves complex hardware interactions, making robust testing essential.
     > **full test class** (e.g.,
     > `--tests "androidx.camera.core.streamsharing.StreamSharingTest"`)
     > before committing to catch inter-test leaks or side effects.
-  - **Device Tests**: Run instrumented tests on a connected device using:
+  - **Device Tests, Path-Stratified A/B Proof & Illuminated FPS Benchmarks**:
+    Run instrumented tests on a connected device using:
     ```bash
     ./gradlew <project>:connectedCheck
     ```
+    When modifying Camera2 stream/format/dynamic-range/session queries, quirks,
+    or splitting CL logic, stratify physical device runs across distinct
+    execution branches (e.g., framework `*CompositeStream` fallback vs.
+    HAL-native output, `HLG10` vs. `HDR10`) confirming `>= 1` `Fail -> Pass` on
+    the reproduced path and `0` `Pass -> Fail` regressions; ensure non-zero
+    scene illumination (enclosure lighting or torch) when benchmarking camera
+    FPS so 0-lux auto-exposure frame-duration drops do not skew encoder FPS; and
+    re-run the **exact original failing test** after any post-review or rebase
+    semantic edit.
 - **FTL Run (if no device connected)**:
   - Discover FTL tasks for your project:
     `./gradlew <project>:tasks --all | grep ftl` (e.g.,

@@ -189,6 +189,51 @@ When directed to an index page, directory list, or guide linking to sub-guides
        `CameraQuirks` + encapsulated workaround consumers), and `interop/`.
     4. **Layer 4 (`camera-camera2-pipe`)**: Low-level `CameraGraph`,
        `GraphLoop` / `CaptureSequenceProcessor`, and `Camera2DeviceManager`.
+- **Mandatory Pre-Coding Study & Solution-Cooking Gate (Before Writing Code)**:
+  1. **Upstream `HEAD`, Open-CL Overlap & Deleted-Fallback `git log -S`
+     Provenance**: Inspect recent `aosp/androidx-main` commits
+     (`git --no-lazy-fetch log`) and open Gerrit changes touching the target
+     package or test so work never duplicates or conflicts with in-flight fixes
+     (verifying `HEAD` source coverage and passing test runs before abandoning
+     any superseded change or closing an issue). Before deleting or bypassing
+     any existing fallback (`?: DEFAULT`), override helper, or standalone
+     `.md`/`SKILL.md` clause, run path-scoped
+     `git --no-lazy-fetch log -S "<token>" -p -- <path>` to verify why it was
+     added and confirm standalone single-skill (`0-hop`) entrypoints remain
+     self-sufficient (keeping AOSP doc/skill edits scoped inside `camera/**`
+     unless explicitly requested).
+  2. **Per-Root-Cause Decomposition (`1` Root Cause = `1` Atomic CL)**: Split
+     multi-symptom or multi-device issues by independent causal mechanism (`1`
+     root cause per atomic commit; split remaining device/symptom clusters into
+     tracked sub-issues before closing any umbrella issue).
+  3. **Dual-Path Platform Spec Grounding (`Path A != Path B`), Shared Pure
+     Builders & Submodule Idioms**:
+     - *Platform / CTS / HAL Ground Truth*: When two internal paths disagree
+       (e.g., `FeatureCombinationQuery` / `FastSwitchConfigQuery` vs.
+       `ImagePipeline` bind, or `camera-camera2` vs. `camera-camera2-pipe`),
+       never align toward the smaller local diff without verifying **Android HAL
+       VINTF (`Stream.aidl`), Camera2 Javadoc (`OutputConfiguration`,
+       `CameraCharacteristics`), CTS, and CameraITS** to prove which side is
+       spec-compliant, and sweep all sibling query callers.
+     - *Shared Builders, `camera-camera2-pipe` Idioms & Capability Caps*: Audit
+       existing CameraX, CameraPipe, and AndroidX primitives (`UseCaseThreads`,
+       `PreviewView` surface-mode hooks, `isSessionConfigSupported`,
+       `CaptureLimiter`, `Recorder.Builder` factories) before adding flags,
+       locks, or helpers; refactor parallel query vs. live session loops to
+       share **one pure, side-effect-free builder** rather than patching shadow
+       copies; when touching `camera/camera-camera2-pipe/`, read
+       `camera/camera-camera2-pipe/AGENTS.md` and honor CameraPipe Dagger
+       scopes in `config/` (`@Singleton` vs. `@Camera2ControllerScope` /
+       `@CameraGraphScope` / `@FrameGraphScope`), local exception helpers
+       (`compat/Exceptions.kt`), and simulators/fakes (`CameraGraphSimulator`,
+       `camera-camera2-pipe-testing`, in-module `FakeCamera2DeviceManager`);
+       check Android CDD and dynamic APIs (`getAchievableFrameRatesFor`,
+       `MEDIA_PERFORMANCE_CLASS`, `isLowRamDevice`) before capping
+       `Quality`/FPS/`DynamicRange`; and compare `>= 2` candidate placements
+       across non-target `UseCase` combinations, quality buckets,
+       `StreamSharing`, and `QuirkSettings.withQuirksForceEnabled(...)`
+       (lightweight `0`-edit conceptual Q&A and prose/comment-only reviews are
+       exempt).
 - **Mandatory Pre-Coding Guideline Reading & Recursive Traversal**: Before
   modifying or creating code, agents MUST use `view_file` to read the relevant
   local guideline files into active context. When encountering index pages,
@@ -222,8 +267,14 @@ When directed to an index page, directory list, or guide linking to sub-guides
 - **Public API Contract Fidelity (Honoring User Configs & Documented
   Invariants)**:
   - Before modifying internal plumbing, adapters, or simulators, always inspect
-    the public Javadoc of all entry-point APIs (`CameraInfo`, `CameraXConfig`,
-    `SessionConfig`, `UseCase` builders) that feed into that code path.
+    the full public Javadoc of all entry-point APIs (`CameraInfo`,
+    `CameraControl`, `CameraXConfig`, `SessionConfig`, `UseCase` builders) that
+    feed into that code path (including thread/executor roles such as
+    `CameraXConfig.setCameraExecutor` vs. `setSchedulerHandler`, sticky state
+    preservation across partial updates such as `startFocusAndMetering` AF lock
+    during AE/AWB-only calls or low-light boost (`enableLowLightBoostAsync`)
+    across transient FPS/partial rebinds, plus `Camera2Interop`
+    `OptionPriority`).
   - **Never Violate Public Contracts as a Shortcut**: When fixing edge-case
     configurations, never silently override, ignore, or repurpose user-provided
     configurations (such as custom `Executor`s, `Handler`s, selectors, dynamic
@@ -272,7 +323,41 @@ When directed to an index page, directory list, or guide linking to sub-guides
       optional or rarely accessed code paths, or when initialization is
       lightweight and safe on any calling thread.
   - Extract complex logic into well-named private helper functions for maximum
-    readability.
+    readability, and extract `>= 3`-site repeated async/completion boilerplate
+    into a single cohesive helper.
+  - **Unidirectional Lock-Order DAG, Narrow Catches & Session/Control State
+    Matrix**:
+    - *Lock-Order DAG & Narrow Catches*: Enforce a strict one-way lock-order
+      DAG (`owner -> leaf`; never acquire a collaborator or parent lock under a
+      leaf/peer lock, and never hold `synchronized` across coroutine
+      suspension—snapshot state under the owner lock, release, update
+      collaborators, and dispatch callbacks or flushes outside locks). Never
+      use blanket `catch (Exception)` where `CancellationException` or internal
+      `check()`/`IllegalStateException` invariants are swallowed.
+    - *Teardown & 3A Completion Status*: Never wrap intentional
+      `close()`/`release()` teardown in
+      `onCameraError(..., willAttemptRetry = true)`, never complete caller
+      `Deferred`/`ListenableFuture` with `Unit` inside raw
+      `Job.invokeOnCompletion` without checking `Result3A.Status`
+      (`SUBMIT_FAILED`/`SUBMIT_CANCELLED` -> `OperationCanceledException`),
+      close partially created sessions on mid-startup exceptions, and drain
+      `cameraGraph.close()` terminal callbacks before severing `Camera2Interop`
+      listeners.
+    - *Sibling States & `StateObservable` Conflation*: Refresh active
+      `SessionConfig`/`CameraGraph` whenever a `DeferrableSurface` is
+      closed/recreated, audit all sibling lifecycle states (`CONFIGURING`,
+      `STOPPING`, `RESETTING`, `CLOSED`, `ON_DESTROY` without `unbind()`,
+      bind-throw rollback), and verify rapid `old -> next -> reset` updates on
+      `MutableStateObservable`/`LiveData` (e.g., `camera-video` `Recorder`
+      stream state or `Camera2ExtensionsSessionProcessor` extension-mode
+      `MutableLiveData`) cannot conflate away intermediate states needed by
+      async `@MainThread` observers.
+  - **Must-Have Legacy Hunk Discipline & Post-Fix Holistic Simplification**:
+    Every hunk modifying working existing code must be causally required for
+    the fix (revert speculative "nice-to-have" churn). After multi-round review
+    fixes (`R2+`) and before upload, audit the full `base..HEAD` diff (`git log
+    -p` per commit across stacks) once to collapse patch-on-patch scaffolding
+    and intermediate self-churn.
 - **Dependency & Constructor Simplification**: For lightweight compatibility
   layers, wrappers, or utility classes, prefer instantiating internal helper
   dependencies internally (rather than passing them as constructor parameters)
@@ -287,10 +372,13 @@ When directed to an index page, directory list, or guide linking to sub-guides
   across modules), you **MUST** actively scan the codebase to identify and
   update all callers and corresponding usages. Verify that all affected modules
   compile successfully. Be thorough and ensure you update:
-  a. Production code callers.
+  a. Production code callers (`src/main/`).
   b. Host-side unit tests (typically under `src/test/`).
   c. Device-side integration/instrumented tests (typically under
      `src/androidTest/`).
+  d. Integration test apps and shared test utilities
+     (`camera/integration-tests/*`, including duplicate `*Util` SKU/capability
+     tables).
 - **Documentation & KDoc Updates**: When modifying a class, interface, method,
   or property (especially when changing constructor signatures, parameters, or
   public/internal behaviors), always review and update its KDoc/JavaDoc. Ensure
@@ -354,9 +442,16 @@ When stacking CLs, drafting commit messages, or amending existing commits, read
 [`references/COMMIT_AND_AMEND.md`][commit-ref] in
 `camera/.agents/skills/camerax-guidelines-governance/` in full (alongside
 repo-wide `manage_commits` when present):
-- **Multi-Commit Stack Hygiene**: Keep each commit self-contained and atomic
-  with zero intermediate test churn (never add temporary `assumeFalse` skips in
-  an earlier commit only to delete them later in the stack).
+- **Multi-Commit Stack Hygiene & Tip-Only Presubmit Voting**: Keep each commit
+  self-contained with zero intermediate churn, and apply `Presubmit-Ready+1`
+  only to standalone CLs or the stack tip—never pass
+  `-o label=Presubmit-Ready+1` on multi-commit `repo upload` (see
+  [`references/COMMIT_AND_AMEND.md`][commit-ref]).
+- **Unreviewed-CL Holistic Re-Evaluation vs. Assigned/Active Review Lock**:
+  Re-architect `< 9/10` author-owned CLs with `0` human reviewers/comments from
+  root cause (preserving `Change-Id:`), and never rewrite wholesale once a
+  human reviewer is assigned/commented or when reviewing another author's CL
+  (canonical rule in [`references/COMMIT_AND_AMEND.md`][commit-ref]).
 - **Commit Message & Trailers**: Imperative title strictly `<= 50` chars; plain
   body lines `<= 72` chars; `RelNote:` ONLY for public API (`camera/**/api/`) or
   user-impacting bugs (omit `RelNote` entirely for internal, test, doc, or

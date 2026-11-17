@@ -102,8 +102,11 @@ stages:
      ./gradlew :camera:camera-core:runErrorProneRelease \
        :camera:camera-camera2:runErrorProneRelease
      ```
-  4. **Compilation & Relevant Tests**: Run host/device tests to confirm zero
-     regressions.
+  4. **Compilation, Non-Tautological Tests & Post-Amend Re-Runs**: Run
+     host/device tests to confirm zero regressions, verify added bug-fix
+     regression tests fail when the production fix is reverted, and always
+     re-run the **exact original failing test** after any post-review or rebase
+     semantic edit.
   5. **Non-Interactive Pre-Upload Repohook & Gerrit Upload Verification**:
      Always pass `--verify -y --cbr . </dev/null` with a `timeout` wrapper so
      `repo upload` never hangs waiting on interactive hook/branch prompts or
@@ -126,7 +129,18 @@ When developing a multi-CL series (e.g. core fix → device quirk → cleanup):
   pass its unit tests, and be fully self-contained with its own scoped test
   coverage.
 - Rebase and squash intermediate workarounds before uploading to ensure clean
-  git review histories.
+  git review histories, and apply `Presubmit-Ready+1` only to standalone CLs or
+  the top/tip CL of a multi-CL stack—never pass `-o label=Presubmit-Ready+1` to
+  `repo upload` on a multi-commit branch, as Gerrit applies push options to
+  every uploaded commit in the stack (upload first, then vote or run repo-wide
+  `manage_commits` `watch_gerrit.py <tip_cl> --trigger` on the tip CL only).
+- **Unreviewed-CL Holistic Re-Evaluation vs. Assigned/Active Review Lock**: On
+  author-owned pre-upload branches or uploaded CLs with `0` assigned human
+  reviewers and `0` human review comments where concrete structural or safety
+  deficits keep `Elegance` or `Safe-to-Go` `< 9/10`, re-architect holistically
+  from root cause while preserving `Change-Id:` verbatim; once any human
+  reviewer is assigned or has commented (or when reviewing another author's
+  CL), scope edits strictly to reviewer feedback unless explicitly requested.
 
 ## Git Commit Messages
 
@@ -152,10 +166,12 @@ Test: <test instructions>
 - Strictly <= 50 characters (or < 60 characters) to prevent Gerrit upload
   warnings.
 
-**Additional Details (Optional):**
+**Additional Details (Optional) & Self-Contained Provenance:**
 - Keep commit messages simple, direct, and easy to scan.
-- Explain the problem the change solves and the approach taken.
-- Provide context for the change.
+- Explain the concrete failing API/UseCase scenario, the root-cause mechanism,
+  and the approach taken, pairing non-obvious cross-layer or platform *"why"*
+  invariants with concise inline code comments so future reviewers never depend
+  on ephemeral local scratch notes.
 - Prefer concise, clear, and readable messages without losing any required
   info. Using bullet points to summarize specific changes can help with
   readability.

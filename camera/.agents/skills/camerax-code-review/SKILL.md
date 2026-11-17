@@ -81,9 +81,11 @@ applicable. Prioritize clarity and conciseness.
 
 # Step by Step Instructions
 
-1.  **Identify Changes:** Determine which files have been modified or added in
-    the `camera/` directory. Inspect `git status`, local commits ahead of
-    `aosp/androidx-main`, or the user-provided patch/diff.
+1.  **Identify Changes & Verify Patchset Freshness:** Determine which files
+    have been modified or added in the `camera/` directory. Inspect `git
+    status`, local commits ahead of `aosp/androidx-main`, or the user-provided
+    patch/diff (re-checking the latest remote Gerrit patchset before delivering
+    a review so stale patchsets are never audited).
 2.  **Gather Wide Architectural Context:** Do **NOT** limit inspection to the
     changed lines. For each modified file (especially in CameraX modules), read
     the full file, surrounding package classes, class hierarchy, callers, and
@@ -132,10 +134,15 @@ applicable. Prioritize clarity and conciseness.
           threads properly marked `@Volatile` or protected by atomic types?
         - When evaluating state transitions inside a `synchronized` block, are
           all mutable session/resource references read inside the same critical
-          section rather than captured before acquiring the lock, and are
-          external callbacks, `Executor.execute`, or blocking `shutdown()` /
-          `close()` calls invoked *outside* the lock to prevent lock-order
-          inversion deadlocks?
+          section rather than captured before acquiring the lock, does
+          multi-lock code obey a strict one-way lock-order DAG (`owner -> leaf`,
+          never acquiring a collaborator/parent lock under a leaf/peer lock),
+          and are external callbacks, `Executor.execute`, or blocking
+          `shutdown()` / `close()` calls invoked *outside* the lock to prevent
+          deadlocks?
+        - Does intentional `close()` / `release()` teardown avoid active-session
+          error-reporting wrappers (`onCameraError(..., willAttemptRetry =
+          true)`) that trigger spurious reopen loops during shutdown?
         - Do `CountDownLatch` or synchronization primitives guarantee release
           in `finally` blocks so test runners never hang on timeouts?
         - Are blocking calls (`get()`, `await()`, thread sleep) strictly
@@ -192,12 +199,58 @@ applicable. Prioritize clarity and conciseness.
         - **Style & Formatting**: Line-length violations, Kotlin idioms, and
           documentation wrapping.
         - **Testing & Coverage**: Missing test cases or assertion improvements.
-        - **Clean-Context Elegance & Anti-Quirk-Shortcut Gate**: Challenge any
-          diff that violates the Clean-Context Minimal-Diff Bar above or
-          disables a user-facing capability via a `Quirk` without ruling out
-          Section 6.B `Steps 1–2` and feature-preserving `workaround/`
-          adaptations (`camerax-triage-and-quirks` Section 5 *Quirk as Last
-          Resort* and Section 6.C item 2).
+        - **Clean-Context Elegance (`1–10`), Safe-to-Go (`1–10`) &
+          Anti-Quirk-Shortcut Gate (`>= 9/10` Target)**: Every full-depth Mode 1
+          review (prose/typo-only reviews exempt) must score both **`Elegance
+          (1–10)`** and **`Safe-to-Go (1–10)`** (`>= 9/10` target). Report any
+          structural or safety deficit keeping either score `< 9/10` as a
+          concrete `file:line` **`P1` (`High`) or `P2` (`Medium`)** issue (`<=
+          8/10` until fixed):
+          - *(a) Concurrency & Lifecycle*: cross-object lock-order cycles
+            (`owner -> leaf`), `synchronized` held across suspension, callbacks
+            under lock, blanket `catch (Exception)` swallowing
+            `CancellationException` or internal `check()` invariants, teardown
+            in `onCameraError(..., willAttemptRetry = true)`, raw
+            `Job.invokeOnCompletion` completing `Unit` without checking
+            `Result3A.Status`, mid-startup session leaks, severing
+            `Camera2Interop` listeners before `cameraGraph.close()` drains,
+            unrefreshed `SessionConfig`/`CameraGraph` on `DeferrableSurface`
+            close/recreate, or `MutableStateObservable` rapid-transition
+            conflation.
+          - *(b) Spec Grounding & Quirks*: unverified `Path A != Path B`
+            direction violating VINTF `Stream.aidl` / Camera2 Javadoc / CTS /
+            CameraITS, blanket `Quality`/FPS caps skipping CDD / dynamic APIs,
+            platform invariants inside toggleable `Quirk`s
+            (`QuirkSettings.withQuirksForceEnabled(...)` hazard), raw `Quirk`
+            checks outside `{compat/,}workaround/`, or capability-disabling
+            `Quirk`s added without ruling out Section 6.B `Steps 1–2` and
+            feature-preserving `workaround/` `Rungs W1-W4`
+            (`camerax-triage-and-quirks` Section 5 & Section 6.C item 2).
+          - *(c) Test Determinism*: `Dispatchers.Main` blocking `.get()`,
+            `CountDownLatch.await()`, or nested `runBlocking`, assertion-masking
+            `assumeTrue` in unit tests, unexplained `assumeFalse(...,
+            isEmulator())` masking `EmulatedCamera` rejections in `androidTest`,
+            tautological tests passing with the fix reverted, or unisolated
+            static `DeviceQuirks` / `Build.*` mutations in Robolectric tests.
+          - *(d) Deep Modules & Callers*: existing primitives/builder seams
+            ignored in favor of shadow-loop patches (vs. 1 shared pure builder),
+            custom flags/locks/test-only hooks/binary container parsers,
+            CameraPipe DI/fake drift (`camera-camera2-pipe/AGENTS.md`), `>=
+            3`-site boilerplate, or missed 4-tree (`integration-tests/*`)
+            caller/SKU updates.
+          - *(e) Provenance & Public Contracts*: unnecessary legacy hunk churn,
+            deleting fallbacks or standalone `.md`/`SKILL.md` clauses without
+            path-scoped `git --no-lazy-fetch log -S ... -- <path>` provenance,
+            or violating entry-point Javadoc (`setSchedulerHandler`, sticky
+            `startFocusAndMetering` / `enableLowLightBoostAsync`,
+            `OptionPriority`).
+          - *(f) Stack Atomicity*: multi-root-cause bundling or intra-stack
+            self-churn.
+          *Anti-Ping-Pong Numeric Floor Guard:* A bare numeric `7.5–8.9/10`
+          score for documented unavoidable OEM/HAL quirk surface or inter-model
+          spread with **`0` concrete `P0–P2` rubric defects** never blocks
+          convergence after at most `1` bounded post-fix holistic simplification
+          pass; keep stylistic notes `[Optional / Out-of-Scope]` (`Low / P3`).
         - Provide **concrete, copy-pasteable replacement code snippets** for
           each issue, verifying wide codebase context, single responsibility
           ("object job"), preservation of intentional workarounds, AndroidX /
@@ -233,11 +286,20 @@ applicable. Prioritize clarity and conciseness.
           the right layer/class and honors all documented public API contracts
           (Section 6.F) and the Standards Hierarchy (AndroidX -> Android
           Platform -> Google-Wide).
-        - **Completeness & Edge Cases**: Check `@CameraScope` vs.
+        - **Completeness, Solution-Cooking Alternatives & `Elegance` /
+          `Safe-to-Go` (`>= 9/10` Target)**: Check `@CameraScope` vs.
           `@UseCaseCameraScope`, partial UseCase re-binding vs. full
           unbind/teardown, multi-stream combinations (`StreamSharing`,
           RAW+JPEG), thread/dispatcher confinement, public API/ABI
-          compatibility, and missing test coverage.
+          compatibility, and missing test coverage. Verify full-depth Mode 3
+          plans check upstream `HEAD`/open-CL overlap, ground `Path A != Path B`
+          divergences in VINTF `Stream.aidl` / Camera2 Javadoc / CTS, share pure
+          query/live builders and CameraX/AndroidX primitives, compare `>= 2`
+          candidate placements across blast radius (non-target UseCases, quality
+          buckets, `StreamSharing`, `withQuirksForceEnabled(...)`), and score
+          **`Elegance (1–10)`** and **`Safe-to-Go (1–10)`** (`>= 9/10` target
+          under the Mode 1 rubric and Anti-Ping-Pong Numeric Floor Guard;
+          lightweight `0`-edit Q&A exempt).
     *   **Mode 4 — Test / Verification Result Reports & Data Summaries (Report
         Fact-Checking & Accuracy Audit):**
         - **Strict Numeric & Math Reconciliation**: Re-count total targets,
@@ -258,11 +320,12 @@ applicable. Prioritize clarity and conciseness.
         (Multi-Perspective Quality Audit):**
         - **Competing Design Trade-Offs & Batch Quality Scoring**: When multiple
           valid solutions or candidate CLs exist, compare independent model
-          perspectives (optionally rating **Elegance** and **Safe-to-Go**
-          readiness `1–10`—where `>= 9` denotes minimal diff, zero test-only
-          seams, `0 OPEN P0-P2`, and green verification, vs. `<= 6` when open
-          `P0-P2` defects or avoidable seams remain) to select the most
-          idiomatic, minimal-complexity design.
+          perspectives using **Elegance** and **Safe-to-Go** readiness (`1–10`—
+          where `>= 9` denotes minimal diff, zero test-only seams, `0 OPEN
+          P0-P2`, and green verification; `7.5–8.9` with `0 OPEN P0-P2` denotes
+          unavoidable HAL/quirk surface after 1 holistic simplification pass;
+          and `<= 8` with open `P1–P2` rubric items or `<= 6` with open `P0`
+          defects) to select the most idiomatic design.
         - **Quirk Precision, Workaround-First & 5-Gate Anti-Broad-Quirk Audit**:
           Verify that proposed `Quirk` mappings avoid magic heuristics, satisfy
           the Mode 1 anti-quirk-shortcut check (Section 5 *Quirk as Last Resort*
@@ -403,6 +466,9 @@ applicable. Prioritize clarity and conciseness.
                abstractions, test skips/timeouts (`assume*`, `@Ignore`),
                `DeviceQuirk`, Section 6.A test-skip / public-contract audits, or
                public API behavior (`Section 6.A/6.E/6.F`) are in scope.
+             - `camera/camera-camera2-pipe/AGENTS.md`: Load whenever
+               `camera/camera-camera2-pipe/` is in scope (Dagger `config/`
+               wiring, coroutine/`AtomicFu` concurrency, simulators and fakes).
           3. *Execution- & Coordinator-Only Skills (Explicitly SKIP in Read-Only
              Leaf Verifiers):* Read-only leaf verifiers skip
              `MULTI_MODEL_HARNESS.md` and execution/coordinator-only workflow
@@ -431,96 +497,48 @@ applicable. Prioritize clarity and conciseness.
            Verifier`) in a continuous loop until the convergence exit gate is
            satisfied.
         2. *Ephemeral Convergence Defect Ledger
-           (`<scratch_or_tmp>/convergence_ledger.md`):* To prevent context
-           compaction or memory drift across rounds, maintain a state-machine
-           ledger in a scratch/temp file (never committed to the repository and
-           never shown to verifiers during their initial cold audit) tracking
-           every finding across rounds:
-           - `OPEN (R{n})` -> `PATCHED_PENDING_REAUDIT (v{n+1})` ->
-             `VERIFIED_RESOLVED (R{n+1})` or `REGRESSED (R{n+1})`
-           - `REVERTED_VERIFICATION_FAILURE` (when a candidate fix breaks
-             compilation or tests: revert immediately, log the failed approach
-             so later rounds do not re-attempt it, and return the finding to
-             `OPEN` so it still blocks the exit gate until an alternative fix
-             lands, it is `DISMISSED_WITH_PROOF` and `UPHELD`, or it is marked
-             `ESCALATED` to the user)
-           - `DISMISSED_WITH_PROOF` (requires exact `file:line` or specification
-             proof; must be adjudicated in Round `n+1`'s Post-Blind Adjudication
-             Turn as `UPHELD` or `REJECTED` -> `OPEN`)
-           - `ESCALATED` (unresolved trade-off or stalled defect surfaced to the
-             user after reaching the cap or failing progress)
+           (`<scratch_or_tmp>/convergence_ledger.md`):* Orchestrators track
+           every finding across rounds in a scratch ledger (never committed or
+           shown in cold Turn 1; full state-machine spec in
+           `MULTI_MODEL_HARNESS.md`): `OPEN (R{n})` -> `PATCHED_PENDING_REAUDIT
+           (v{n+1})` -> `VERIFIED_RESOLVED` / `REGRESSED`,
+           `REVERTED_VERIFICATION_FAILURE` (revert broken fixes to `OPEN`),
+           `DISMISSED_WITH_PROOF` (`file:line` proof adjudicated `UPHELD` or
+           `REJECTED` -> `OPEN`), and `ESCALATED`.
         3. *Priority-Ordered Repair (`P0 -> P1 -> P2 -> P3`) & Cross-Diff
-           Pattern Sweep:* Within each fix pass, apply fixes in priority order:
-           `P0 Architectural/Lifecycle` -> `P1 Functional/Concurrency` -> `P2
-           Local Logic` -> `P3 Style/Polish` so rounds are never wasted
-           polishing code that is about to be restructured. Whenever a bug
-           pattern is fixed at one site, sweep the entire diff/stack and
-           surrounding class for all instances of the same anti-pattern and fix
-           them in the same pass before re-running deterministic checks and
-           spawning the next verifier round.
+           Pattern Sweep:* Apply fixes in order (`P0 Architectural/Lifecycle` ->
+           `P1 Functional/Concurrency` -> `P2 Local Logic` -> `P3 Style`),
+           sweep the entire diff/stack and surrounding class for every instance
+           of any fixed anti-pattern, and run 1 bounded post-fix holistic
+           simplification pass on `base..HEAD` before final upload.
         4. *Dynamic Multi-Round Scaling & Hard Convergence Exit Gate:*
-           - **Rounds 1 -> 2 (-> 3) (Cross-Family Chain for Code Edits):**
-             Spawn fresh clean-context verifiers across distinct model
-             families/tiers (`verifier-r1` -> fix -> `verifier-r2`, adding
-             `verifier-r3` when R2 finds `P0-P2` issues or applies a semantic
-             edit; early exit per item 7).
-           - **Hard Convergence Exit Gate:** Convergence is achieved **only**
-             when the latest clean-context verifier round reports **`0` `OPEN`
+           - **Rounds 1 -> 2 (-> 3) & Auto-Extension (Rounds 4–5):** Spawn
+             fresh cross-family verifiers (`verifier-r1` -> fix ->
+             `verifier-r2`, adding `verifier-r3` when R2 finds `P0-P2` issues or
+             semantic edits; auto-extending through `verifier-r4`/`verifier-r5`
+             while `progress_made == true`, or marking stalled items
+             `ESCALATED` per `MULTI_MODEL_HARNESS.md`).
+           - **Hard Convergence Exit Gate:** Convergence requires the latest
+             clean-context round to report **`0` `OPEN`
              (`Critical` / `High` / `Medium` or factual/architectural) issues,
              `0` `REGRESSED` issues, `0` `PATCHED_PENDING_REAUDIT` items, AND
-             `0` unadjudicated `DISMISSED_WITH_PROOF` items** in the ledger
-             (every semantic edit applied in Round `n` must be confirmed
-             `VERIFIED_RESOLVED` in Round `n+1`, and any dismissal in the final
-             round receives the `+1` focused check or is marked `ESCALATED`).
-           - **Auto-Extension (Rounds 4–5 While Fixes Are Converging):** If
-             Round 3 (or Round 4) applies a valid semantic fix
-             (`PATCHED_PENDING_REAUDIT`) that actively reduces open defects
-             without oscillating (`progress_made == true`, meaning the count of
-             open `Critical`/`High`/`Medium` items decreased from the prior
-             round or all prior `PATCHED_PENDING_REAUDIT` items resolved without
-             new regressions), **automatically extend the loop up to 5 rounds**
-             (`verifier-r4`, `verifier-r5`, cycling across model families) so
-             post-fix changes are audited to true convergence. Otherwise (if a
-             semantic fix was applied with `progress_made == false`), or if
-             Round 5 still requires a semantic edit, run at most **1 focused
-             post-fix clean-context check**; if any `Critical`/`High`/`Medium`,
-             `PATCHED_PENDING_REAUDIT`, or unadjudicated item remains, stop and
-             mark the remaining items `ESCALATED` to the user (never deliver as
-             converged while `PATCHED_PENDING_REAUDIT` > 0).
+             `0` unadjudicated `DISMISSED_WITH_PROOF` items** (never deliver
+             while `PATCHED_PENDING_REAUDIT` > 0).
         5. *Recursive Post-Edit Re-Verification Invariant (Parallel !=
-           Sequential; Zero Unverified Semantic Edits):*
-           - Running multiple verifiers in parallel on the **same** code or
-             draft snapshot counts as **1 round** (cross-perspective
-             discovery), **not** as sequential verification rounds.
-           - **Every** semantic code or design modification made after a
-             verification round (or during Stage 2 compilation, ErrorProne,
-             lint, test fixing, or rebase conflict resolution) transitions its
-             ledger entry to `PATCHED_PENDING_REAUDIT` and invalidates prior
-             `LGTM` sign-offs. Purely mechanical formatting (`ktfmt` / import
-             ordering) or non-semantic `LOW` comment/typo fixes do not
-             re-trigger a new round, but any semantic edit **must** be followed
-             by a fresh clean-context verification round.
-        6. *Anti-Sunk-Cost Dismissal Rule, Material Change Criteria &
-           Anti-Oscillation Lock:*
-           - The orchestrating agent may **never** silently ignore or discard a
-             verifier's `Critical`, `High`, or `Medium` finding; every such
-             finding must be fixed (`PATCHED_PENDING_REAUDIT`) or explicitly
-             rebutted (`DISMISSED_WITH_PROOF`) with `file:line` evidence in the
-             final user report and adjudicated in the next round.
-           - Reject any Round `n+1` suggestion that contradicts or reverts a
-             prior round's verified fix unless it proves a concrete failure
-             mode (reproducible race, crash, test failure, or API violation) or
-             a new specification constraint. Document non-obvious ordering,
-             lock, or lifecycle invariants in concise inline comments alongside
-             a deterministic regression test so subsequent verifiers see the
-             constraint; if a design choice returns to a previously rejected
-             state (`v1 -> v2 -> v1`), lock the state and surface the trade-off
-             (`ESCALATED`) to the user.
-           - Before modifying an existing CL or applying verifier refactors,
-             inspect patchset/commit history (`git --no-lazy-fetch log -p`,
-             `git reflog`, or fetched Gerrit patchsets) and seed prior resolved
-             findings into `convergence_ledger.md` so solved bugs never
-             ping-pong back across revisions.
+           Sequential; Zero Unverified Semantic Edits):* Parallel verifiers on
+           the same snapshot count as **1 round**. Every semantic edit after a
+           round (or during Stage 2 compile/ErrorProne/lint/test/rebase fixes)
+           transitions to `PATCHED_PENDING_REAUDIT` and requires a fresh
+           clean-context round (mechanical `ktfmt`/import/typo edits exempt).
+        6. *Anti-Sunk-Cost Dismissal, CL-History Seeding & Anti-Oscillation
+           Lock:* Never silently discard `Critical`/`High`/`Medium` findings
+           (fix or `DISMISSED_WITH_PROOF`); seed `convergence_ledger.md` from
+           `git --no-lazy-fetch log -p` / Gerrit patchsets so solved bugs never
+           ping-pong back, reject reverts lacking a concrete failure mode, and
+           lock/surface (`ESCALATED`) any `v1 -> v2 -> v1` oscillation (while
+           holistically re-evaluating author-owned unreviewed CLs with `0`
+           assigned human reviewers and `0` human comments scoring `< 9/10` per
+           `MULTI_MODEL_HARNESS.md`).
         7. *Flexible Early Exit (Adaptive Depth by Deliverable Type &
            Anti-Ping-Pong Guards):*
            - **Read-Only Deliverables (`0` Repository Files Modified — Mode 1
