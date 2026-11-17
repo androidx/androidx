@@ -74,21 +74,26 @@ for file in "${WRAPPER_FILES[@]}"; do
 done
 
 # Regenerate gradle/wrapper/gradlew and gradle-wrapper.jar with the new Gradle, then download
-# Gradle's signature for that jar, which busytown/impl/verify-gradle-signature.sh checks. Use an
-# empty project so the wrapper task doesn't rewrite AndroidX's gradle-wrapper.properties. The
-# subshell keeps build-environment.sh from changing the environment of ./gradlew below.
+# Gradle's signature for that jar, which busytown/impl/verify-gradle-signature.sh checks. Also
+# regenerate playground-common's gradlew, gradlew.bat and gradle-wrapper.jar, which use Gradle's
+# default layout. Use an empty project so the wrapper task doesn't rewrite AndroidX's
+# gradle-wrapper.properties. The subshell keeps build-environment.sh from changing the
+# environment of ./gradlew below.
 (
   . development/build-environment/build-environment.sh
   project="$(mktemp -d)"
   trap 'rm -rf "$project"' EXIT
   touch "$project/settings.gradle"
+  gradle/wrapper/gradlew --project-dir "$project" --no-daemon --quiet --offline wrapper
+  cp "$project/gradlew" "$project/gradlew.bat" playground-common/
+  cp "$project/gradle/wrapper/gradle-wrapper.jar" playground-common/gradle/wrapper/
   echo 'wrapper { scriptFile = "gradle/wrapper/gradlew" }' > "$project/build.gradle"
   gradle/wrapper/gradlew --project-dir "$project" --no-daemon --quiet --offline wrapper
   cp "$project/gradle/wrapper/gradlew" "$project/gradle/wrapper/gradle-wrapper.jar" gradle/wrapper/
 )
 curl -Lo gradle/wrapper/gradle-wrapper.jar.asc "$BASE_URL/$WRAPPER_SIGNATURE_FILE"
 
-echo "Gradle binary downloaded, and the wrapper properties, script and jar updated successfully!"
+echo "Gradle binary downloaded, and the wrapper properties, scripts and jars updated successfully!"
 
 echo "Testing the setup with './gradlew bOS --dry-run'..."
 if ./gradlew bOS --dry-run; then
