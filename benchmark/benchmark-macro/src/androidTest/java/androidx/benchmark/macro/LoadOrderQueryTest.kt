@@ -23,6 +23,7 @@ import androidx.benchmark.runSingleSessionServer
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.Assume.assumeTrue
@@ -68,5 +69,52 @@ class LoadOrderQueryTest {
                 index += 1
             }
         }
+    }
+
+    @Test
+    fun buildEventArgs_whenReadAheadDisabled_skipsItlbMissesButKeepsIntraPageEvents() {
+        val supportedEvents = setOf("iTLB-load-misses", "L1-icache-load-misses", "instructions")
+        assertEquals(
+            expected = "-c 1 -e page-faults:u -f 1000 -e L1-icache-load-misses:u,instructions:u",
+            actual =
+                NativeFileLoadOrder.buildEventArgs(
+                    period = 1,
+                    disabledReadAhead = true,
+                    supportedEvents = supportedEvents,
+                ),
+        )
+        assertEquals(
+            expected = "-c 1 -e page-faults:u",
+            actual =
+                NativeFileLoadOrder.buildEventArgs(
+                    period = 1,
+                    disabledReadAhead = true,
+                    supportedEvents = emptySet(),
+                ),
+        )
+    }
+
+    @Test
+    fun buildEventArgs_whenReadAheadNotDisabled_includesAllSupportedHwEvents() {
+        assertEquals(
+            expected =
+                "-c 1 -e page-faults:u -f 1000 -e iTLB-load-misses:u,L1-icache-load-misses:u,instructions:u",
+            actual =
+                NativeFileLoadOrder.buildEventArgs(
+                    period = 1,
+                    disabledReadAhead = false,
+                    supportedEvents =
+                        setOf("iTLB-load-misses", "L1-icache-load-misses", "instructions"),
+                ),
+        )
+        assertEquals(
+            expected = "-c 1 -e page-faults:u",
+            actual =
+                NativeFileLoadOrder.buildEventArgs(
+                    period = 1,
+                    disabledReadAhead = false,
+                    supportedEvents = emptySet(),
+                ),
+        )
     }
 }

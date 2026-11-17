@@ -23,7 +23,6 @@ internal class LoadOrderEntry(
     val file: String,
     val buildId: String,
     val relPc: Long,
-    val name: String,
     val ts: Long,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -35,7 +34,6 @@ internal class LoadOrderEntry(
         if (file != other.file) return false
         if (buildId != other.buildId) return false
         if (relPc != other.relPc) return false
-        if (name != other.name) return false
 
         return true
     }
@@ -44,12 +42,11 @@ internal class LoadOrderEntry(
         var result = file.hashCode()
         result = 31 * result + buildId.hashCode()
         result = 31 * result + relPc.hashCode()
-        result = 31 * result + name.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "LoadOrderEntry(file='$file', buildId='$buildId', relPc=$relPc, name='$name', ts=$ts)"
+        return "LoadOrderEntry(file='$file', buildId='$buildId', relPc=$relPc, ts=$ts)"
     }
 }
 
@@ -60,56 +57,114 @@ internal object NativeLoadOrderQuery {
         restrictToDataDirectory: Boolean = true,
     ): String {
         val filePattern = if (restrictToDataDirectory) "/data%.so" else "%.so"
+        // Materializing callsite and frame metadata into indexed SQLite TEMP tables avoids
+        // millions of per-step Perfetto virtual-table cursor lookups during recursive stack
+        // traversal, and pre-filtering target `.so` frames + threads upfront prunes irrelevant
+        // work before grouping by integer `frame_id`.
         return """
+            DROP TABLE IF EXISTS _lo_mappings;
+            CREATE TEMP TABLE _lo_mappings (
+              id INTEGER PRIMARY KEY,
+              file_name TEXT NOT NULL,
+              build_id TEXT NOT NULL
+            );
+            INSERT INTO _lo_mappings
+            SELECT
+              id,
+              name,
+              COALESCE(build_id, '')
+            FROM stack_profile_mapping
+            WHERE name LIKE '$filePattern';
+
+            DROP TABLE IF EXISTS _lo_frames;
+            CREATE TEMP TABLE _lo_frames (
+              frame_id INTEGER PRIMARY KEY,
+              mapping INTEGER NOT NULL,
+              rel_pc INTEGER NOT NULL
+            );
+            INSERT INTO _lo_frames
+            SELECT
+              f.id,
+              f.mapping,
+              f.rel_pc
+            FROM stack_profile_frame f
+            JOIN _lo_mappings m ON f.mapping = m.id;
+
+            DROP TABLE IF EXISTS _lo_threads;
+            CREATE TEMP TABLE _lo_threads (
+              utid INTEGER PRIMARY KEY
+            );
+            INSERT INTO _lo_threads
+            SELECT t.utid
+            FROM process
+            JOIN thread t USING (upid)
+            WHERE ${processNameLikePkg(targetPackageName)};
+
+            DROP TABLE IF EXISTS _lo_initial_callsites;
+            CREATE TEMP TABLE _lo_initial_callsites (
+              callsite_id INTEGER PRIMARY KEY,
+              ts INTEGER NOT NULL
+            );
+            INSERT INTO _lo_initial_callsites
+            SELECT
+              ps.callsite_id,
+              MIN(ps.ts)
+            FROM perf_sample ps
+            JOIN _lo_threads USING (utid)
+            WHERE ps.callsite_id IS NOT NULL
+              AND EXISTS (SELECT 1 FROM _lo_frames)
+            GROUP BY ps.callsite_id;
+
+            DROP TABLE IF EXISTS _lo_callsites;
+            CREATE TEMP TABLE _lo_callsites (
+              id INTEGER PRIMARY KEY,
+              parent_id INTEGER,
+              target_frame_id INTEGER
+            );
+            INSERT INTO _lo_callsites
+            SELECT
+              c.id,
+              c.parent_id,
+              f.frame_id
+            FROM stack_profile_callsite c
+            LEFT JOIN _lo_frames f ON c.frame_id = f.frame_id
+            WHERE EXISTS (SELECT 1 FROM _lo_initial_callsites);
+
             WITH RECURSIVE
-              initial_callsites AS (
+              callstack(parent_id, target_frame_id, ts) AS (
                 SELECT
-                  ps.callsite_id,
-                  MIN(ps.ts) AS ts
-                FROM perf_sample ps
-                JOIN thread t USING (utid)
-                JOIN process USING (upid)
-                WHERE ${processNameLikePkg(targetPackageName)}
-                AND ps.callsite_id IS NOT NULL
-                GROUP BY ps.callsite_id
-              ),
-              callstack AS (
-                SELECT
-                  c.id AS callsite_id,
                   c.parent_id,
-                  c.frame_id,
+                  c.target_frame_id,
                   ic.ts
-                FROM initial_callsites ic
-                JOIN stack_profile_callsite c ON ic.callsite_id = c.id
+                FROM _lo_initial_callsites ic
+                JOIN _lo_callsites c ON ic.callsite_id = c.id
 
                 UNION ALL
 
                 SELECT
-                  p.id AS callsite_id,
                   p.parent_id,
-                  p.frame_id,
+                  p.target_frame_id,
                   cs.ts
                 FROM callstack cs
-                JOIN stack_profile_callsite p ON cs.parent_id = p.id
+                JOIN _lo_callsites p ON cs.parent_id = p.id
               ),
-              frames AS (
+              frame_ts AS (
                 SELECT
-                  frame_id,
+                  target_frame_id AS frame_id,
                   MIN(ts) AS ts
                 FROM callstack
-                GROUP BY frame_id
+                WHERE target_frame_id IS NOT NULL
+                GROUP BY target_frame_id
               )
             SELECT
-              MIN(frames.ts) AS timestamp_ns,
-              m.name AS file_name,
-              COALESCE(m.build_id, '') AS build_id,
-              f.rel_pc AS rel_pc,
-              COALESCE(f.name, '') AS function_name
-            FROM frames
-            JOIN stack_profile_frame f ON frames.frame_id = f.id
-            JOIN stack_profile_mapping m ON f.mapping = m.id
-            WHERE m.name LIKE '$filePattern'
-            GROUP BY file_name, build_id, rel_pc, function_name
+              MIN(ft.ts) AS timestamp_ns,
+              m.file_name AS file_name,
+              m.build_id AS build_id,
+              f.rel_pc AS rel_pc
+            FROM frame_ts ft
+            JOIN _lo_frames f USING (frame_id)
+            JOIN _lo_mappings m ON f.mapping = m.id
+            GROUP BY m.file_name, m.build_id, f.rel_pc
             ORDER BY timestamp_ns ASC;
         """
             .trimIndent()
@@ -134,7 +189,6 @@ internal object NativeLoadOrderQuery {
                 file = row.string("file_name"),
                 buildId = row.string("build_id"),
                 relPc = row.long("rel_pc"),
-                name = row.string("function_name"),
                 ts = row.long("timestamp_ns"),
             )
         }

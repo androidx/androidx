@@ -22,6 +22,7 @@ import android.system.Os
 import android.system.OsConstants._SC_NPROCESSORS_CONF
 import android.system.OsConstants._SC_PAGESIZE
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Arguments
 import androidx.benchmark.Outputs
 import androidx.benchmark.PropOverride
@@ -85,16 +86,19 @@ internal fun extractNativeLoadOrder(
     results: List<File>,
     restrictToDataDirectory: Boolean = true,
 ): File {
-    val entryMap = mutableMapOf<String, Sequence<LoadOrderEntry>>()
+    val entryMap = mutableMapOf<String, List<LoadOrderEntry>>()
     TraceProcessor.runServer {
         results.forEach { result ->
             loadTrace(PerfettoTrace(result.absolutePath)) {
                 entryMap[result.name] =
+                    // Materialize the list here, so we can GC the decoded protos that are
+                    // otherwise kept around by `trace_processor_shell`.
                     NativeLoadOrderQuery.nativeLoadOrderEntries(
-                        session = this,
-                        targetPackageName = packageName,
-                        restrictToDataDirectory = restrictToDataDirectory,
-                    )
+                            session = this,
+                            targetPackageName = packageName,
+                            restrictToDataDirectory = restrictToDataDirectory,
+                        )
+                        .toList()
             }
         }
     }
@@ -108,7 +112,7 @@ internal fun extractNativeLoadOrder(
                 entryMap.forEach { (_, entries) ->
                     entries.forEach { entry ->
                         val file = entry.file.substringAfterLast("/").substringAfterLast("!")
-                        // Format is: iteration | so_name | build_id | rel_pc | so_symbol_name
+                        // Format is: iteration | so_name | build_id | rel_pc
                         // The name tells you the iteration
                         writer
                             .append(iteration.toString())
@@ -118,8 +122,6 @@ internal fun extractNativeLoadOrder(
                             .append(entry.buildId)
                             .append(separator)
                             .append(entry.relPc.toString())
-                            .append(separator)
-                            .append(entry.name)
                             .append(separator)
                             .append("\n")
                     }
@@ -150,15 +152,16 @@ internal class NativeFileLoadOrder(
         perfEventMLockKb.forceValue()
         securityPerfHarden.forceValue()
 
-        // Watch all supported events (`iTLB-load-misses`,`L1-icache-load-misses`, `instructions`)
-        // and pick call-graph unwinding (`fp` vs `dwarf`).
+        // Query supported hardware/cache PMU events and unwinding mode before disabling read-ahead.
         val supportedEvents = supportedHwCacheEvents()
+        val callGraphArg = callGraph(packageName)
+        val disabledReadAhead = readAheadOverride.forceValue(pageSize = pageSize)
         val eventArgs =
             buildEventArgs(
                 period = Arguments.loadOrderSampleFreq,
+                disabledReadAhead = disabledReadAhead,
                 supportedEvents = supportedEvents,
             )
-        val callGraphArg = callGraph(packageName)
 
         // `-m` sets the per-CPU kernel ring-buffer size (in pages) so startup bursts aren't lost.
         // NOTE: We don't need to explicitly set `--user-buffer-size` given it already defaults to
@@ -189,10 +192,9 @@ internal class NativeFileLoadOrder(
                 .toInt()
         pid = processId
         waitForSimpleperfStart(processId)
-        readAheadOverride.forceValue(pageSize = pageSize)
         Log.d(
             TAG,
-            "Started a native load order profiler at pid: $processId (events: $eventArgs, callGraph: $callGraphArg)",
+            "Started a native load order profiler at pid: $processId (events: $eventArgs, callGraph: $callGraphArg, disabledReadAhead: $disabledReadAhead)",
         )
     }
 
@@ -257,7 +259,7 @@ internal class NativeFileLoadOrder(
         private const val MAX_SAMPLE_RATE = 100_000
         private const val CPU_TIME_MAX_PERCENT = 75
         private const val MIN_PERF_EVENT_MLOCK_KB = 131_200L
-        private const val INTRA_SAMPLE_FREQ_HZ = 5_000
+        private const val INTRA_SAMPLE_FREQ_HZ = 1_000
         private const val DWARF_STACK_BYTES = 1024
 
         private val cpuCount = Os.sysconf(_SC_NPROCESSORS_CONF).coerceAtLeast(1L)
@@ -318,40 +320,49 @@ internal class NativeFileLoadOrder(
                 .toSet()
 
         /**
-         * Combines software page-fault events with hardware PMU events (when supported) to maximize
-         * both cross-page and intra-page `rel_pc` coverage: a single page fault maps an entire 4 KB
-         * / 16 KB code page, hiding subsequent functions on that same page, and some kernels or
-         * unrooted fault-around settings skip user-space faults on cold code pages.
+         * Combines software `page-faults:u` with frequency-sampled hardware PMU events (when
+         * supported) to maximize both cross-page and intra-page `rel_pc` coverage: a single page
+         * fault maps an entire 4 KB / 16 KB code page, hiding subsequent co-resident functions on
+         * that same page unless intra-page events (`L1-icache-load-misses:u`, `instructions:u`) are
+         * also sampled.
+         *
+         * `iTLB-load-misses` operate at page granularity (each TLB entry maps a virtual page), so
+         * they are only included when kernel read-ahead / fault-around could not be disabled (e.g.,
+         * on unrooted `user` builds).
          *
          * Note: In `simpleperf record`, each `-c` (period) or `-f` (frequency) flag applies to the
          * `-e` events that follow it until the next `-c` / `-f`.
          */
-        private fun buildEventArgs(
+        @VisibleForTesting
+        internal fun buildEventArgs(
             period: Int,
+            disabledReadAhead: Boolean,
             supportedEvents: Set<String>,
             intraSampleFreq: Int = INTRA_SAMPLE_FREQ_HZ,
         ): String {
-            // We need page-faults, and if possible `iTLB-load-misses`.
-            // `iTLB-load-misses` bridges the gap when we cannot reset the values for read-ahead.
-            val events = StringBuilder("page-faults:u")
-            if ("iTLB-load-misses" in supportedEvents) events.append(",iTLB-load-misses:u")
-            // For intra-page events, we need to make sure we sample for `L1-icache-load-misses`,
-            // and `instructions`.
-            val intraPageEvents = mutableListOf<String>()
+            val arguments = "-c $period -e page-faults:u"
+            val hwEvents = mutableListOf<String>()
+            // `iTLB-load-misses` are at page granularity (1 TLB entry per page), so they are
+            // redundant with `page-faults:u` once kernel read-ahead and fault-around are disabled,
+            // and are only needed as a page-level fallback when read-ahead cannot be disabled.
+            if (!disabledReadAhead && "iTLB-load-misses" in supportedEvents) {
+                hwEvents += "iTLB-load-misses:u"
+            }
+            // `L1-icache-load-misses` (cache-line granularity) and `instructions` capture
+            // intra-page `rel_pc`s for co-resident functions on already-faulted pages.
             if ("L1-icache-load-misses" in supportedEvents) {
-                intraPageEvents += "L1-icache-load-misses:u"
+                hwEvents += "L1-icache-load-misses:u"
             }
             if ("instructions" in supportedEvents) {
-                intraPageEvents += "instructions:u"
+                hwEvents += "instructions:u"
             }
-            val arguments = "-c $period -e $events"
-            val intraArgs =
-                if (intraPageEvents.isNotEmpty()) {
-                    " -f $intraSampleFreq -e ${intraPageEvents.joinToString(",")}"
+            val hwArgs =
+                if (hwEvents.isNotEmpty()) {
+                    " -f $intraSampleFreq -e ${hwEvents.joinToString(",")}"
                 } else {
                     ""
                 }
-            return "$arguments$intraArgs"
+            return "$arguments$hwArgs"
         }
 
         private fun callGraph(packageName: String): String {
@@ -397,10 +408,14 @@ internal class NativeFileLoadOrder(
 internal class ReadAheadOverride {
     private var values: List<Pair<String, String>> = emptyList()
 
-    fun forceValue(pageSize: Long = Os.sysconf(_SC_PAGESIZE).coerceAtLeast(4096L)) {
+    /**
+     * Attempts to disable block read-ahead and shrink fault-around, returning `true` if any sysfs /
+     * debugfs setting was overridden and `false` otherwise (e.g. on unrooted `user` builds).
+     */
+    fun forceValue(pageSize: Long = Os.sysconf(_SC_PAGESIZE).coerceAtLeast(4096L)): Boolean {
         if (values.isNotEmpty()) {
             // Already overridden; skip so we don't overwrite the saved original values.
-            return
+            return true
         }
         if (!Shell.isSessionRooted()) {
             // Overriding sysfs `read_ahead_kb` and debugfs `fault_around_bytes` requires `root`.
@@ -408,7 +423,7 @@ internal class ReadAheadOverride {
             // `iTLB-load-misses:u`, `L1-icache-load-misses:u` and `instructions:u` to capture cold
             // code pages and intra-page `rel_pc`s.
             Log.w(TAG, "Session is not rooted; skipping disabling kernel read-ahead.")
-            return
+            return false
         }
         // Disable block read-ahead (`0`) and shrink VMA fault-around to 1 page so each cold page
         // faults individually. Echo `<path> <old_value>` for each updated path so we can restore.
@@ -436,7 +451,13 @@ internal class ReadAheadOverride {
 
         val output = Shell.executeScriptCaptureStdout(script)
         values = parseReadAheadValues(output)
-        Log.d(TAG, "Disabled read-ahead.")
+        val overridden = values.isNotEmpty()
+        if (overridden) {
+            Log.d(TAG, "Disabled read-ahead.")
+        } else {
+            Log.w(TAG, "Unable to disable kernel read-ahead.")
+        }
+        return overridden
     }
 
     fun resetIfOverridden() {
