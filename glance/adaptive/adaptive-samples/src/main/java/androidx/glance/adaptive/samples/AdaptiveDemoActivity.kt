@@ -17,6 +17,7 @@
 package androidx.glance.adaptive.samples
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -50,12 +51,26 @@ import kotlinx.coroutines.launch
  *
  * Lists the widgets in [DemoWidgets], publishes their picker previews through
  * [GlanceAdaptiveWidgetManager.setPreview], and pins the one that is tapped through
- * [GlanceAdaptiveWidgetManager.requestPin].
+ * [GlanceAdaptiveWidgetManager.requestPin]. Opened from a Dashboard demo widget, it shows which
+ * tile or button was tapped.
  */
 class AdaptiveDemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        showDashboardAction(intent)
         setContent { MaterialTheme { DemoScreen() } }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        showDashboardAction(intent)
+    }
+
+    /** Shows the Dashboard tile or button that [intent] was started from, if any. */
+    private fun showDashboardAction(intent: Intent) {
+        val label = intent.getStringExtra(DashboardSample.EXTRA_DASHBOARD_ACTION) ?: return
+        Toast.makeText(this, getString(R.string.dashboard_action_tapped, label), Toast.LENGTH_SHORT)
+            .show()
     }
 }
 
@@ -85,7 +100,17 @@ private val DemoWidgets =
             label = R.string.track_remoteviews_widget_name,
             widgetName = TrackRemoteViewsWidgetReceiver.WIDGET_NAME,
             previewData = TrackRemoteViewsWidgetReceiver.SampleData,
-        )
+        ),
+        DemoWidget(
+            label = R.string.dashboard_workouts_widget_name,
+            widgetName = WorkoutsDashboardWidgetReceiver.WIDGET_NAME,
+            previewData = WorkoutsDashboardWidgetReceiver.SampleData,
+        ),
+        DemoWidget(
+            label = R.string.dashboard_contacts_widget_name,
+            widgetName = ContactsDashboardWidgetReceiver.WIDGET_NAME,
+            previewData = ContactsDashboardWidgetReceiver.SampleData,
+        ),
     )
 
 /**
