@@ -114,7 +114,7 @@ dependencies {
     kmpDocs("androidx.compose.runtime:runtime-saveable:1.14.0-alpha01")
     docs("androidx.compose.runtime:runtime-tracing:1.14.0-alpha01")
     kmpDocs("androidx.compose.ui:ui:1.14.0-alpha01")
-    docs("androidx.compose.ui:ui-android-stubs:1.14.0-alpha01")
+    stubs("androidx.compose.ui:ui-android-stubs:1.14.0-alpha01")
     kmpDocs("androidx.compose.ui:ui-geometry:1.14.0-alpha01")
     kmpDocs("androidx.compose.ui:ui-graphics:1.14.0-alpha01")
     kmpDocs("androidx.compose.ui:ui-test:1.14.0-alpha01")
