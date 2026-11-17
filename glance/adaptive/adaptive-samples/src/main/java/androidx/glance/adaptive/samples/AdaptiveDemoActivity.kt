@@ -18,6 +18,7 @@ package androidx.glance.adaptive.samples
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -81,25 +82,44 @@ class AdaptiveDemoActivity : ComponentActivity() {
  * @property widgetName Developer widget definition String identifier passed to
  *   [GlanceAdaptiveWidgetManager.requestPin] and [GlanceAdaptiveWidgetManager.setPreview].
  * @property previewData Template payload rendered as the widget's pin and picker preview.
+ * @property unsupportedMessageRes Optional string resource toasted when tapped on a device that
+ *   does not support this widget; when non-null, the row is greyed out and skipped during preview
+ *   publishing.
  */
 private data class DemoWidget(
     @StringRes val label: Int,
     val widgetName: String,
     val previewData: GlanceAdaptiveTemplate,
-)
+    @StringRes val unsupportedMessageRes: Int? = null,
+) {
+    val isSupported: Boolean
+        get() = unsupportedMessageRes == null
+}
 
 /**
  * Widgets listed by the demo.
  *
  * An app knows the widgetName of each of its receivers, so it passes it to
- * [GlanceAdaptiveWidgetManager.requestPin] directly.
+ * [GlanceAdaptiveWidgetManager.requestPin] directly. The RemoteCompose Track widget requires API 37
+ * (`CINNAMON_BUN`) and is shown greyed out on earlier releases.
  */
 private val DemoWidgets =
     listOf(
         DemoWidget(
             label = R.string.track_remoteviews_widget_name,
             widgetName = TrackRemoteViewsWidgetReceiver.WIDGET_NAME,
-            previewData = TrackRemoteViewsWidgetReceiver.SampleData,
+            previewData = TrackSample.SampleData,
+        ),
+        DemoWidget(
+            label = R.string.track_remotecompose_widget_name,
+            widgetName = TrackRemoteComposeWidgetReceiver.WIDGET_NAME,
+            previewData = TrackSample.SampleData,
+            unsupportedMessageRes =
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) {
+                    R.string.remotecompose_unsupported_sdk
+                } else {
+                    null
+                },
         ),
         DemoWidget(
             label = R.string.dashboard_workouts_widget_name,
@@ -128,7 +148,9 @@ private fun DemoScreen() {
         if (previewsPublished) return@LaunchedEffect
         val manager = GlanceAdaptiveWidgetManager(context.applicationContext)
         for (widget in DemoWidgets) {
-            manager.setPreview(widgetName = widget.widgetName, previewData = widget.previewData)
+            if (widget.isSupported) {
+                manager.setPreview(widgetName = widget.widgetName, previewData = widget.previewData)
+            }
         }
         previewsPublished = true
     }
@@ -150,15 +172,32 @@ private fun DemoScreen() {
 
         items(DemoWidgets, key = { it.widgetName }) { widget ->
             HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
-            WidgetRow(stringResource(widget.label)) { scope.launch { pin(context, widget) } }
+            WidgetRow(
+                label = stringResource(widget.label),
+                enabled = widget.isSupported,
+                onClick = {
+                    val unsupportedRes = widget.unsupportedMessageRes
+                    if (unsupportedRes != null) {
+                        Toast.makeText(context, unsupportedRes, Toast.LENGTH_SHORT).show()
+                    } else {
+                        scope.launch { pin(context, widget) }
+                    }
+                },
+            )
         }
     }
 }
 
 @Composable
-private fun WidgetRow(label: String, onClick: () -> Unit) {
+private fun WidgetRow(label: String, enabled: Boolean, onClick: () -> Unit) {
     Text(
         text = label,
+        color =
+            if (enabled) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            },
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 16.dp),
     )
