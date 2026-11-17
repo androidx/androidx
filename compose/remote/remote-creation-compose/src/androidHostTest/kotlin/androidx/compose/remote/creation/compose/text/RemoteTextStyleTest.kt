@@ -521,13 +521,9 @@ class RemoteTextStyleTest {
                         .toRemoteFontVariationSettings()
             )
 
-        assertThat(style.fontVariationSettings)
-            .isEqualTo(
-                RemoteFontVariation.Settings(
-                    RemoteFontVariation.weight(700.rf),
-                    RemoteFontVariation.width(80f.rf),
-                )
-            )
+        // FontVariation.Settings may reorder its settings, so don't check the order.
+        assertThat(style.fontVariationSettings!!.settings)
+            .containsExactly(RemoteFontVariation.weight(700.rf), RemoteFontVariation.width(80f.rf))
         assertThat(RemoteTextStyle().fontVariationSettings).isNull()
     }
 

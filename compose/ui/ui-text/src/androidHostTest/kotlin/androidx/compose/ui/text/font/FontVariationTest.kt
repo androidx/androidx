@@ -241,4 +241,37 @@ class FontVariationTest {
         val base = FontVariation.Settings(FontVariation.weight(400))
         base.merge(FontVariation.width(100f), FontVariation.width(200f))
     }
+
+    @Test
+    fun settings_sortedByAxisName() {
+        val settings1 = FontVariation.Settings(FontVariation.weight(400), FontVariation.width(80f))
+        val settings2 = FontVariation.Settings(FontVariation.width(80f), FontVariation.weight(400))
+
+        assertThat(settings1).isEqualTo(settings2)
+        assertThat(settings1.hashCode()).isEqualTo(settings2.hashCode())
+        assertThat(settings1.settings)
+            .containsExactly(FontVariation.width(80f), FontVariation.weight(400))
+            .inOrder()
+        assertThat(settings2.settings).isEqualTo(settings1.settings)
+        assertThat(
+                FontVariation.Settings(FontWeight.Bold, FontStyle.Italic).settings.map {
+                    it.axisName
+                }
+            )
+            .containsExactly("ital", "wght")
+            .inOrder()
+    }
+
+    @Test
+    fun settings_mergedInDifferentOrder_sortedByAxisName() {
+        val weight = FontVariation.Settings(FontVariation.weight(400))
+        val width = FontVariation.Settings(FontVariation.width(80f))
+
+        val merged = weight.merge(width)
+
+        assertThat(merged).isEqualTo(width.merge(weight))
+        assertThat(merged.settings)
+            .containsExactly(FontVariation.width(80f), FontVariation.weight(400))
+            .inOrder()
+    }
 }
