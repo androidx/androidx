@@ -17,6 +17,8 @@ package androidx.appsearch.localstorage.visibilitystore;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlag;
 
 import org.jspecify.annotations.NonNull;
 
@@ -54,4 +56,15 @@ public interface VisibilityChecker {
      * @param uid The UID to check.
      */
     boolean isPrivateComputeCoreUid(int uid);
+
+    /**
+     * Removes any cached visibility data for the given package when the app is uninstalled or its
+     * data is cleared.
+     *
+     * @param packageName Package name whose cached data should be removed.
+     */
+    @RequiresFlag(Flags.FLAG_ENABLE_PACKAGE_SIGNING_CERTIFICATE_CACHE)
+    default void removeCacheForPackage(@NonNull String packageName) {
+        // no-op
+    }
 }
