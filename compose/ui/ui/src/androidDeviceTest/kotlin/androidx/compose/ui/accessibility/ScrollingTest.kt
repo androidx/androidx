@@ -23,6 +23,7 @@ import android.os.Build.VERSION_CODES.R
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE
+import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 import android.view.accessibility.AccessibilityNodeInfo
@@ -36,6 +37,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,9 +51,15 @@ import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompa
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.RoleFakeNodeIdOffset
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getScrollViewportLength
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.semanticsId
@@ -290,6 +299,192 @@ class ScrollingTest {
                 items(2) { Box(Modifier.size(50.toDp(), 300.toDp())) }
             }
         }
+    }
+
+    @Test
+    fun accessibilityFocus_clearedWhenFocusedLazyRowItemDisposed() {
+        // Arrange.
+        val state = LazyListState()
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            LazyRow(Modifier.size(100.toDp(), 50.toDp()).testTag(tag), state) {
+                items(20) { Box(Modifier.size(50.toDp()).testTag("item$it")) }
+            }
+        }
+        val rowId = rule.onNodeWithTag(tag).semanticsId()
+        focusNodeAndClearEvents("item0")
+
+        // Act: scroll item 0 out of the viewport so the lazy layout deactivates it.
+        try {
+            androidComposeView.snapshotObserver.startObserving()
+            performScrollActionAndAdvanceClock(rowId, ACTION_SCROLL_FORWARD)
+        } finally {
+            androidComposeView.snapshotObserver.stopObserving()
+        }
+
+        // Assert.
+        assertAccessibilityFocusCleared()
+    }
+
+    @Test
+    fun accessibilityFocus_retainedWhenFocusedLazyRowItemStaysVisible() {
+        // Arrange.
+        val state = LazyListState()
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            LazyRow(Modifier.size(100.toDp(), 50.toDp()).testTag(tag), state) {
+                items(2) { Box(Modifier.size(300.toDp(), 50.toDp()).testTag("item$it")) }
+            }
+        }
+        val rowId = rule.onNodeWithTag(tag).semanticsId()
+        focusNodeAndClearEvents("item0")
+
+        // Act: scroll inside the wide item 0 so it stays visible.
+        try {
+            androidComposeView.snapshotObserver.startObserving()
+            performScrollActionAndAdvanceClock(rowId, ACTION_SCROLL_FORWARD)
+        } finally {
+            androidComposeView.snapshotObserver.stopObserving()
+        }
+
+        // Assert.
+        rule.runOnIdle { assertThat(state.firstVisibleItemIndex).isEqualTo(0) }
+        assertAccessibilityFocusRetained()
+    }
+
+    @Test
+    fun accessibilityFocus_clearedWhenFocusedNodeDetached() {
+        // Arrange.
+        var showBox by mutableStateOf(true)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            if (showBox) {
+                Box(Modifier.size(50.toDp()).testTag(tag))
+            }
+        }
+        focusNodeAndClearEvents(tag)
+
+        // Act: remove the focused node from the composition.
+        rule.runOnIdle { showBox = false }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        assertAccessibilityFocusCleared()
+    }
+
+    @Test
+    fun accessibilityFocus_clearedWhenFocusedNodeDeactivatedInPlace() {
+        // Arrange.
+        var active by mutableStateOf(true)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(Modifier.size(50.toDp())) {
+                ReusableContentHost(active = active) {
+                    Box(Modifier.size(50.toDp()).testTag(tag))
+                }
+            }
+        }
+        focusNodeAndClearEvents(tag)
+
+        // Act: deactivate the focused node in place without moving sibling bounds.
+        rule.runOnIdle { active = false }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        assertAccessibilityFocusCleared()
+    }
+
+    @Test
+    fun accessibilityFocus_clearedWhenFocusedNodeReused() {
+        // Arrange.
+        var key by mutableStateOf(0)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            ReusableContent(key) {
+                Box(Modifier.size(50.toDp()).testTag("item$key"))
+            }
+        }
+        focusNodeAndClearEvents("item0")
+
+        // Act: reuse the LayoutNode under a new key and semanticsId.
+        rule.runOnIdle { key = 1 }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        assertAccessibilityFocusCleared()
+    }
+
+    @Test
+    fun accessibilityFocus_clearedWhenFocusedFakeRoleNodeRemoved() {
+        // Arrange.
+        var hasRole by mutableStateOf(true)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(50.toDp()).testTag(tag).semantics(mergeDescendants = true) {
+                    if (hasRole) role = Role.Button
+                }
+            ) {
+                Text("Click")
+            }
+        }
+        val fakeRoleNodeId = rule.onNodeWithTag(tag).semanticsId() + RoleFakeNodeIdOffset
+        focusVirtualViewAndClearEvents(fakeRoleNodeId)
+
+        // Act: drop the fake Role node while keeping its parent LayoutNode attached.
+        rule.runOnIdle { hasRole = false }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        assertAccessibilityFocusCleared()
+    }
+
+    @Test
+    fun accessibilityFocus_clearedWhenAncestorClearsSemantics() {
+        // Arrange.
+        var clearDescendants by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                if (clearDescendants) {
+                    Modifier.size(50.toDp()).clearAndSetSemantics { contentDescription = "cleared" }
+                } else {
+                    Modifier.size(50.toDp())
+                }
+            ) {
+                Box(Modifier.size(50.toDp()).testTag(tag))
+            }
+        }
+        focusNodeAndClearEvents(tag)
+
+        // Act: prune the focused child via clearAndSetSemantics without detaching it.
+        rule.runOnIdle { clearDescendants = true }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        assertAccessibilityFocusCleared()
+    }
+
+    @Test
+    fun accessibilityFocus_clearedWhenFocusedNodeHiddenFromAccessibility() {
+        // Arrange.
+        var hidden by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(50.toDp()).testTag(tag).semantics {
+                    if (hidden) hideFromAccessibility()
+                }
+            )
+        }
+        focusNodeAndClearEvents(tag)
+
+        // Act: hide the focused node from accessibility while keeping it attached.
+        rule.runOnIdle { hidden = true }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        assertAccessibilityFocusCleared()
     }
 
     @Test
@@ -697,6 +892,53 @@ class ScrollingTest {
     @RequiresApi(P)
     private fun AccessibilityEvent.scrollDelta(vertical: Boolean): Int =
         if (vertical) scrollDeltaY else scrollDeltaX
+
+    private fun focusNodeAndClearEvents(nodeTag: String) {
+        focusVirtualViewAndClearEvents(rule.onNodeWithTag(nodeTag).semanticsId())
+    }
+
+    private fun focusVirtualViewAndClearEvents(virtualViewId: Int) {
+        rule.runOnIdle {
+            val focused =
+                androidComposeView.accessibilityNodeProvider.performAction(
+                    virtualViewId,
+                    ACTION_ACCESSIBILITY_FOCUS,
+                    null,
+                )
+            assertThat(focused).isTrue()
+            dispatchedAccessibilityEvents.clear()
+        }
+    }
+
+    private fun assertAccessibilityFocusCleared() {
+        rule.runOnIdle {
+            val focusedANI =
+                androidComposeView.accessibilityNodeProvider.findFocus(
+                    AccessibilityNodeInfo.FOCUS_ACCESSIBILITY
+                )
+            assertThat(focusedANI).isNull()
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .contains(
+                    AccessibilityEvent().apply { eventType = TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED }
+                )
+        }
+    }
+
+    private fun assertAccessibilityFocusRetained() {
+        rule.runOnIdle {
+            val focusedANI =
+                androidComposeView.accessibilityNodeProvider.findFocus(
+                    AccessibilityNodeInfo.FOCUS_ACCESSIBILITY
+                )
+            assertThat(focusedANI?.isAccessibilityFocused).isTrue()
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .doesNotContain(
+                    AccessibilityEvent().apply { eventType = TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED }
+                )
+        }
+    }
 
     /**
      * Runs an accessibility scroll action and advances the clock through its animation. Callers
