@@ -22,6 +22,4 @@ internal class DocumentParseBlock(id: Long = -1L) : BaseContainerParseBlock(id) 
     override val supportsLazyContinuation: Boolean = true
 
     override fun matchLineStart(context: ParseContext): Boolean = true
-
-    override fun canAcceptChild(child: ParseBlock): Boolean = true
 }
