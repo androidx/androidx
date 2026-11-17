@@ -50,6 +50,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -98,17 +100,20 @@ class SurfaceViewImplementationTest(name: String) {
 
     @After
     fun tearDown() {
+        if (::mActivityScenario.isInitialized) {
+            mActivityScenario.close()
+        }
         if (::mSurfaceRequest.isInitialized) {
             mSurfaceRequest.willNotProvideSurface()
             mSurfaceRequest.deferrableSurface.close()
         }
-        for (surfaceRequest in mSurfaceRequests) {
+        val requestsToClose =
+            synchronized(mSurfaceRequests) {
+                mSurfaceRequests.toList().also { mSurfaceRequests.clear() }
+            }
+        for (surfaceRequest in requestsToClose) {
             surfaceRequest.willNotProvideSurface()
             surfaceRequest.deferrableSurface.close()
-        }
-        mSurfaceRequests.clear()
-        if (::mActivityScenario.isInitialized) {
-            mActivityScenario.close()
         }
     }
 
@@ -150,6 +155,63 @@ class SurfaceViewImplementationTest(name: String) {
 
         // Assert.
         assertThat(newSurfaceView).isNotEqualTo(previousSurfaceView)
+    }
+
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 31)
+    @Test
+    fun notReuseSurfaceView_afterSurfaceDestroyedOnApi29To31() {
+        assertSurfaceViewReuseAfterDestroy(expectRecreated = true)
+    }
+
+    @SdkSuppress(minSdkVersion = 32)
+    @Test
+    fun reuseSurfaceView_afterSurfaceDestroyedOnApi32Plus() {
+        assertSurfaceViewReuseAfterDestroy(expectRecreated = false)
+    }
+
+    private fun assertSurfaceViewReuseAfterDestroy(expectRecreated: Boolean) {
+        CoreAppTestUtil.checkKeyguard(mContext)
+        val invalidationCount = AtomicInteger(0)
+        val replacementRequestRef = AtomicReference<SurfaceRequest?>(null)
+        val replacementReadyLatch = CountDownLatch(1)
+        val request1 =
+            createSurfaceRequest(hasCameraTransform = true) {
+                if (invalidationCount.incrementAndGet() == 1) {
+                    val request2 = createSurfaceRequest(hasCameraTransform = true)
+                    mImplementation.onSurfaceRequested(request2, null)
+                    replacementRequestRef.set(request2)
+                    replacementReadyLatch.countDown()
+                }
+            }
+        try {
+            val surface1 = mImplementation.provideSurface(request1)
+            assertThat(surface1.isValid).isTrue()
+            val previousSurfaceView = mImplementation.mSurfaceView
+
+            // Detach mParent so surfaceDestroyed() runs, then reattach across two frames to
+            // trigger surfaceCreated(). (Same-frame detach/reattach is covered below.)
+            setContentView(View(mContext))
+            mInstrumentation.waitForIdleSync()
+            setContentView(mParent)
+
+            assertThat(replacementReadyLatch.await(5, TimeUnit.SECONDS)).isTrue()
+            val request2 = checkNotNull(replacementRequestRef.get())
+            val surface2 = request2.deferrableSurface.surface.get(5, TimeUnit.SECONDS)
+            assertThat(surface2.isValid).isTrue()
+            assertThat(invalidationCount.get()).isEqualTo(1)
+            if (expectRecreated) {
+                assertThat(mImplementation.mSurfaceView).isNotSameInstanceAs(previousSurfaceView)
+            } else {
+                assertThat(mImplementation.mSurfaceView).isSameInstanceAs(previousSurfaceView)
+            }
+        } finally {
+            request1.willNotProvideSurface()
+            request1.deferrableSurface.close()
+            replacementRequestRef.get()?.let { request2 ->
+                request2.willNotProvideSurface()
+                request2.deferrableSurface.close()
+            }
+        }
     }
 
     @Test
@@ -326,6 +388,160 @@ class SurfaceViewImplementationTest(name: String) {
         surfaceRequest.deferrableSurface.close()
     }
 
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
+    fun withCameraTransform_sameFrameMoveAtSameBounds_preservesScaledRendering() {
+        assertSameFrameMoveAtSameBoundsPreservesRendering(
+            hasCameraTransform = true,
+            rotationDegrees = 0,
+            fittedRect = Rect(0, 70, 240, 250),
+            expectedQuadrants = listOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW),
+            verifyLetterboxBlack = true,
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
+    fun withoutCameraTransform_sameFrameMoveAtSameBounds_preservesScaledAndRotatedRendering() {
+        assertSameFrameMoveAtSameBoundsPreservesRendering(
+            hasCameraTransform = false,
+            rotationDegrees = 90,
+            fittedRect = Rect(0, 0, 240, 320),
+            expectedQuadrants = listOf(Color.YELLOW, Color.RED, Color.GREEN, Color.BLUE),
+            verifyLetterboxBlack = false,
+        )
+    }
+
+    @RequiresApi(29)
+    private fun assertSameFrameMoveAtSameBoundsPreservesRendering(
+        hasCameraTransform: Boolean,
+        rotationDegrees: Int,
+        fittedRect: Rect,
+        expectedQuadrants: List<Int>,
+        verifyLetterboxBlack: Boolean,
+    ) {
+        CoreAppTestUtil.checkKeyguard(mContext)
+        val containerWidth = 240
+        val containerHeight = 320
+        lateinit var slotA: FrameLayout
+        lateinit var slotB: FrameLayout
+        lateinit var previewContainer: FrameLayout
+        lateinit var activityWindow: Window
+        val previewTransform =
+            PreviewTransformation().apply { scaleType = PreviewView.ScaleType.FIT_CENTER }
+        val layoutReadyLatch = CountDownLatch(1)
+        mActivityScenario.onActivity { activity ->
+            activityWindow = activity.window
+            val root = FrameLayout(mContext).apply { setBackgroundColor(Color.BLACK) }
+            slotA = FrameLayout(mContext)
+            slotB = FrameLayout(mContext)
+            previewContainer = FrameLayout(mContext).apply { setBackgroundColor(Color.BLACK) }
+            root.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                if (
+                    previewContainer.width == containerWidth &&
+                        previewContainer.height == containerHeight &&
+                        slotA.width == containerWidth &&
+                        slotB.width == containerWidth
+                ) {
+                    layoutReadyLatch.countDown()
+                }
+            }
+            slotA.addView(
+                previewContainer,
+                FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                ),
+            )
+            root.addView(
+                slotA,
+                FrameLayout.LayoutParams(containerWidth, containerHeight, Gravity.CENTER),
+            )
+            root.addView(
+                slotB,
+                FrameLayout.LayoutParams(containerWidth, containerHeight, Gravity.CENTER),
+            )
+            activity.setContentView(root)
+        }
+        assertThat(layoutReadyLatch.await(5, TimeUnit.SECONDS)).isTrue()
+
+        val implementation = SurfaceViewImplementation(previewContainer, previewTransform)
+        val invalidationCount = AtomicInteger(0)
+        val replacementRequestRef = AtomicReference<SurfaceRequest?>(null)
+        val replacementReadyLatch = CountDownLatch(1)
+
+        fun attachTransformationListener(request: SurfaceRequest) {
+            request.setTransformationInfoListener(ContextCompat.getMainExecutor(mContext)) { info ->
+                previewTransform.setTransformationInfo(
+                    info,
+                    request.resolution,
+                    /* useFrontCameraRotation= */ false,
+                )
+                implementation.redrawPreview()
+            }
+        }
+
+        val request1 =
+            createSurfaceRequest(
+                hasCameraTransform = hasCameraTransform,
+                rotationDegrees = rotationDegrees,
+            ) {
+                if (invalidationCount.incrementAndGet() == 1) {
+                    val request2 =
+                        createSurfaceRequest(
+                            hasCameraTransform = hasCameraTransform,
+                            rotationDegrees = rotationDegrees,
+                        )
+                    attachTransformationListener(request2)
+                    implementation.onSurfaceRequested(request2, null)
+                    replacementRequestRef.set(request2)
+                    replacementReadyLatch.countDown()
+                }
+            }
+        try {
+            attachTransformationListener(request1)
+            val surface1 = implementation.provideSurface(request1)
+            drawQuadrants(surface1)
+            mInstrumentation.waitForIdleSync()
+            assertRenderedQuadrantsEventually(
+                previewContainer,
+                activityWindow,
+                rotationDegrees,
+                fittedRect,
+                expectedQuadrants,
+                verifyLetterboxBlack,
+            )
+
+            // Detach and reattach within a single frame at the exact same window bounds.
+            mInstrumentation.runOnMainSync {
+                slotA.removeView(previewContainer)
+                slotB.addView(previewContainer)
+            }
+            assertThat(replacementReadyLatch.await(5, TimeUnit.SECONDS)).isTrue()
+            val request2 = checkNotNull(replacementRequestRef.get())
+            val surface2 = request2.deferrableSurface.surface.get(5, TimeUnit.SECONDS)
+            drawQuadrants(surface2)
+            mInstrumentation.waitForIdleSync()
+
+            assertThat(invalidationCount.get()).isEqualTo(1)
+            assertRenderedQuadrantsEventually(
+                previewContainer,
+                activityWindow,
+                rotationDegrees,
+                fittedRect,
+                expectedQuadrants,
+                verifyLetterboxBlack,
+            )
+        } finally {
+            request1.willNotProvideSurface()
+            request1.deferrableSurface.close()
+            replacementRequestRef.get()?.let { request2 ->
+                request2.willNotProvideSurface()
+                request2.deferrableSurface.close()
+            }
+        }
+    }
+
     @Test
     fun waitForNextFrame_futureCompletesImmediately() {
         val future = mImplementation.waitForNextFrame()
@@ -340,21 +556,21 @@ class SurfaceViewImplementationTest(name: String) {
     private fun createSurfaceRequest(
         hasCameraTransform: Boolean,
         rotationDegrees: Int = 90,
+        onInvalidated: () -> Unit = {},
     ): SurfaceRequest =
-        SurfaceRequest(ANY_SIZE, FakeCamera()) {}
-            .apply {
-                mSurfaceRequests.add(this)
-                updateTransformationInfo(
-                    SurfaceRequest.TransformationInfo.of(
-                        Rect(0, 0, ANY_WIDTH, ANY_HEIGHT),
-                        rotationDegrees,
-                        Surface.ROTATION_0,
-                        hasCameraTransform,
-                        Matrix(),
-                        /* mirroring= */ false,
-                    )
+        SurfaceRequest(ANY_SIZE, FakeCamera(), onInvalidated).apply {
+            synchronized(mSurfaceRequests) { mSurfaceRequests.add(this) }
+            updateTransformationInfo(
+                SurfaceRequest.TransformationInfo.of(
+                    Rect(0, 0, ANY_WIDTH, ANY_HEIGHT),
+                    rotationDegrees,
+                    Surface.ROTATION_0,
+                    hasCameraTransform,
+                    Matrix(),
+                    /* mirroring= */ false,
                 )
-            }
+            )
+        }
 
     private fun drawQuadrants(surface: Surface) {
         val canvas = surface.lockCanvas(null)
@@ -384,6 +600,7 @@ class SurfaceViewImplementationTest(name: String) {
         rotationDegrees: Int,
         fittedRect: Rect,
         expectedQuadrants: List<Int>,
+        verifyLetterboxBlack: Boolean = false,
     ) {
         val insetX = fittedRect.width() / 6
         val insetY = fittedRect.height() / 6
@@ -394,21 +611,33 @@ class SurfaceViewImplementationTest(name: String) {
                 fittedRect.right - insetX to fittedRect.bottom - insetY,
                 fittedRect.left + insetX to fittedRect.bottom - insetY,
             )
+        val letterboxPoints =
+            if (verifyLetterboxBlack && fittedRect.top > 10) {
+                listOf(
+                    fittedRect.centerX() to fittedRect.top / 2,
+                    fittedRect.centerX() to (view.height + fittedRect.bottom) / 2,
+                )
+            } else {
+                emptyList()
+            }
         var lastSampledColors: List<Int> = emptyList()
+        var lastLetterboxColors: List<Int> = emptyList()
         val deadlineMillis = SystemClock.uptimeMillis() + 5_000L
         while (SystemClock.uptimeMillis() < deadlineMillis) {
             awaitNextFrame()
             val screenshot = captureViewOnScreen(view, window) ?: continue
             try {
                 val sampledColors = samplePoints.map { (x, y) -> screenshot.getPixel(x, y) }
+                val letterboxColors = letterboxPoints.map { (x, y) -> screenshot.getPixel(x, y) }
                 if (
                     sampledColors.zip(expectedQuadrants).all { (actual, expected) ->
                         matchesColor(actual, expected)
-                    }
+                    } && letterboxColors.all { actual -> matchesColor(actual, Color.BLACK) }
                 ) {
                     return
                 }
                 lastSampledColors = sampledColors
+                lastLetterboxColors = letterboxColors
             } finally {
                 screenshot.recycle()
             }
@@ -416,7 +645,8 @@ class SurfaceViewImplementationTest(name: String) {
         throw AssertionError(
             "Rendered quadrants at rotation=$rotationDegrees did not match expected " +
                 "${expectedQuadrants.map(::formatColor)}, last sampled " +
-                "${lastSampledColors.map(::formatColor)} at $samplePoints"
+                "${lastSampledColors.map(::formatColor)} at $samplePoints, " +
+                "letterbox=${lastLetterboxColors.map(::formatColor)} at $letterboxPoints"
         )
     }
 
@@ -493,6 +723,7 @@ class SurfaceViewImplementationTest(name: String) {
         val g = Color.green(actual)
         val b = Color.blue(actual)
         return when (expected) {
+            Color.BLACK -> r <= 40 && g <= 40 && b <= 40
             Color.RED -> r >= 180 && g <= 80 && b <= 80
             Color.GREEN -> r <= 80 && g >= 180 && b <= 80
             Color.BLUE -> r <= 80 && g <= 80 && b >= 180

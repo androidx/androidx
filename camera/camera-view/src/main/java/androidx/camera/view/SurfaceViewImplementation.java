@@ -73,6 +73,13 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @SuppressWarnings("WeakerAccess")
     boolean mRotatesContent;
 
+    // Whether mSurfaceView must be recreated on the next SurfaceRequest because its surface was
+    // destroyed on API 29-31, where a same-frame detach/reattach at unchanged window bounds leaves
+    // the recreated SurfaceControl un-scaled (b/585469626).
+    // Synthetic Accessor
+    @SuppressWarnings("WeakerAccess")
+    boolean mRecreateSurfaceView = false;
+
     SurfaceViewImplementation(@NonNull FrameLayout parent,
             @NonNull PreviewTransformation previewTransform) {
         super(parent, previewTransform);
@@ -82,8 +89,8 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
             @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {
         boolean rotatesContent = shouldRotateContent(surfaceRequest);
-        if (!shouldReusePreview(mSurfaceView, mResolution, mRotatesContent, surfaceRequest,
-                rotatesContent)) {
+        if (!shouldReusePreview(mSurfaceView, mResolution, mRotatesContent, mRecreateSurfaceView,
+                surfaceRequest, rotatesContent)) {
             mResolution = surfaceRequest.getResolution();
             mRotatesContent = rotatesContent;
             initializePreview();
@@ -107,6 +114,15 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     void initializePreview() {
         Preconditions.checkNotNull(mParent);
         Preconditions.checkNotNull(mResolution);
+
+        if (mSurfaceView != null) {
+            // Detach callback first so removeAllViews() does not synchronously invoke
+            // surfaceDestroyed() on the outgoing SurfaceView.
+            mSurfaceView.getHolder().removeCallback(mSurfaceRequestCallback);
+            mSurfaceRequestCallback.resetForNewSurfaceView();
+        }
+        onPreviewReset();
+        mRecreateSurfaceView = false;
 
         mSurfaceView = new SurfaceView(mParent.getContext());
         mSurfaceView.setLayoutParams(
@@ -409,8 +425,17 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             }
         }
 
+        @UiThread
+        private boolean isCurrentSurfaceHolder(@NonNull SurfaceHolder surfaceHolder) {
+            return mSurfaceView != null && mSurfaceView.getHolder() == surfaceHolder;
+        }
+
         @Override
         public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
+            if (!isCurrentSurfaceHolder(surfaceHolder)) {
+                Logger.d(TAG, "Ignoring surfaceCreated from previous SurfaceView.");
+                return;
+            }
             Logger.d(TAG, "Surface created.");
 
             // Invalidate the surface request so that the requester is notified that the previously
@@ -425,6 +450,10 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @Override
         public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int format, int width,
                 int height) {
+            if (!isCurrentSurfaceHolder(surfaceHolder)) {
+                Logger.d(TAG, "Ignoring surfaceChanged from previous SurfaceView.");
+                return;
+            }
             Logger.d(TAG, "Surface changed. Size: " + width + "x" + height);
             Size previousSize = mCurrentSurfaceSize;
             mCurrentSurfaceSize = new Size(width, height);
@@ -450,14 +479,16 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
         @Override
         public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
+            if (!isCurrentSurfaceHolder(surfaceHolder)) {
+                Logger.d(TAG, "Ignoring surfaceDestroyed from previous SurfaceView.");
+                return;
+            }
             Logger.d(TAG, "Surface destroyed.");
-
-            // If a surface was already provided to the camera, close the surface. Otherwise,
-            // cancel the surface request.
-            if (mWasSurfaceProvided) {
-                closeSurface();
-            } else {
-                cancelPreviousRequest();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) {
+                // Defer creating the replacement SurfaceView until the next SurfaceRequest arrives
+                // in onSurfaceRequested(), since a fresh SurfaceRequest is required either way.
+                mRecreateSurfaceView = true;
             }
 
             // The surface is no longer valid. The surface request will be invalidated when the new
@@ -467,9 +498,33 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 mSurfaceRequestToBeInvalidated = mSurfaceRequest;
             }
 
+            resetState();
+        }
+
+        @UiThread
+        void resetForNewSurfaceView() {
+            resetState();
+            // removeCallback() already prevents removeAllViews() from invoking surfaceDestroyed().
+            // Keep mNeedToInvalidate so a SurfaceRequest arriving after a genuine
+            // surfaceDestroyed() and before surfaceCreated() is still invalidated once
+            // (b/242023282).
+            mSurfaceRequestToBeInvalidated = null;
+        }
+
+        @UiThread
+        private void resetState() {
+            // If a surface was already provided to the camera, close the surface. Otherwise,
+            // cancel the surface request.
+            if (mWasSurfaceProvided) {
+                closeSurface();
+            } else {
+                cancelPreviousRequest();
+            }
+
             releaseContentRotationLayer();
 
             // Reset state
+            mContentRotationDegrees = 0;
             mWasSurfaceProvided = false;
             mSurfaceRequest = null;
             mOnSurfaceNotInUseListener = null;
@@ -510,9 +565,10 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     }
 
     private static boolean shouldReusePreview(@Nullable SurfaceView surfaceView,
-            @Nullable Size resolution, boolean rotatesContent,
+            @Nullable Size resolution, boolean rotatesContent, boolean recreateSurfaceView,
             @NonNull SurfaceRequest surfaceRequest, boolean newRotatesContent) {
         boolean isSameResolution = Objects.equals(resolution, surfaceRequest.getResolution());
-        return surfaceView != null && isSameResolution && rotatesContent == newRotatesContent;
+        return surfaceView != null && !recreateSurfaceView && isSameResolution
+                && rotatesContent == newRotatesContent;
     }
 }

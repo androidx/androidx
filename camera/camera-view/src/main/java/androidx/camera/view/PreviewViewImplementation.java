@@ -97,6 +97,11 @@ abstract class PreviewViewImplementation {
         redrawPreview();
     }
 
+    /** Invoked when a new preview {@link View} is initialized before its surface is provided. */
+    void onPreviewReset() {
+        mWasSurfaceProvided = false;
+    }
+
     /** Invoked when onAttachedToWindow happens in the PreviewView. */
     abstract void onAttachedToWindow();
 
