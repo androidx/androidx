@@ -1,2 +1,29 @@
 // Signature format: 5.0
 // - surface=public
+package androidx.appfunctions.evaluation.model {
+
+  public abstract class LlmPart {
+  }
+
+  public static final class LlmPart.AppFunctionRequestPart extends androidx.appfunctions.evaluation.model.LlmPart {
+    ctor public LlmPart.AppFunctionRequestPart(androidx.appfunctions.ExecuteAppFunctionRequest request);
+    method @InaccessibleFromKotlin public androidx.appfunctions.ExecuteAppFunctionRequest getRequest();
+    property public androidx.appfunctions.ExecuteAppFunctionRequest request;
+  }
+
+  public static final class LlmPart.AppFunctionResponsePart extends androidx.appfunctions.evaluation.model.LlmPart {
+    ctor public LlmPart.AppFunctionResponsePart(androidx.appfunctions.AppFunctionName functionName, androidx.appfunctions.ExecuteAppFunctionResponse response);
+    method @InaccessibleFromKotlin public androidx.appfunctions.AppFunctionName getFunctionName();
+    method @InaccessibleFromKotlin public androidx.appfunctions.ExecuteAppFunctionResponse getResponse();
+    property public androidx.appfunctions.AppFunctionName functionName;
+    property public androidx.appfunctions.ExecuteAppFunctionResponse response;
+  }
+
+  public static final class LlmPart.TextPart extends androidx.appfunctions.evaluation.model.LlmPart {
+    ctor public LlmPart.TextPart(String text);
+    method @InaccessibleFromKotlin public String getText();
+    property public String text;
+  }
+
+}
+
