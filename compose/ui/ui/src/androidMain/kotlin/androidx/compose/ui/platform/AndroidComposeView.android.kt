@@ -3920,12 +3920,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 if (systemPropertiesChangedRunnable == null) {
                     val runnable = Runnable {
                         synchronized(composeViews) {
+                            // System property callbacks may run on a binder thread. Access each
+                            // view's layout bounds state on the view thread.
                             if (SDK_INT < 30) {
                                 composeViews.forEach {
-                                    val oldValue = it.showLayoutBounds
-                                    it.showLayoutBounds = getIsShowingLayoutBounds()
-                                    if (oldValue != it.showLayoutBounds) {
-                                        it.post { it.invalidateDescendants() }
+                                    it.post {
+                                        val oldValue = it.showLayoutBounds
+                                        it.showLayoutBounds = getIsShowingLayoutBounds()
+                                        if (oldValue != it.showLayoutBounds) {
+                                            it.invalidateDescendants()
+                                        }
                                     }
                                 }
                             } else {
