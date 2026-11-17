@@ -25,15 +25,15 @@ import java.util.Locale
  * Quirk that excludes physical camera ID usage on problematic devices.
  *
  * <p>QuirkSummary
- * - Bug Id: b/545953123, b/483193836
+ * - Bug Id: b/545953123, b/483193836, b/582994049
  * - Description: On certain multi-camera devices, configuring an
  *   [android.hardware.camera2.params.OutputConfiguration] targeting a physical camera ID causes the
- *   vendor HAL to fail to return physical camera capture metadata in `processCaptureResult`
- *   callbacks ("Expected physical Camera metadata count 1 not equal to actual count 0"). This
- *   mismatch triggers a fatal [android.hardware.camera2.CameraDevice.StateCallback.onError]
- *   (ERROR_CAMERA_DEVICE) in the Android framework (Camera3Device). This quirk excludes physical
- *   camera IDs from being used as physical stream targets or exposed via
- *   [androidx.camera.core.CameraInfo.getPhysicalCameraInfos] on affected device models.
+ *   vendor HAL to either fail to return physical camera capture metadata in `processCaptureResult`
+ *   callbacks ("Expected physical Camera metadata count 1 not equal to actual count 0") or hang
+ *   during physical stream capture or session flush (`P2StreamingNode` / `BasicSession::flush`
+ *   timeout), triggering a fatal camera device or camera service error (`ERROR_CAMERA_DEVICE` /
+ *   `CAMERA_DISCONNECTED`). This quirk excludes affected physical camera IDs from being exposed via
+ *   [androidx.camera.core.CameraInfo.getPhysicalCameraInfos] on problematic device models.
  * - Device(s): Samsung Galaxy S and Z series (S25, S24, S23, S22, Z Fold, Z Flip), OPPO Find
  *   series, Xiaomi 14/15 series, Sony Xperia devices.
  *
@@ -63,7 +63,8 @@ public class ExcludePhysicalCameraIdQuirk : Quirk {
 
         private val OPPO_PROBLEM_MODELS =
             mapOf(
-                "CPH2437" to setOf("2") // OPPO Find N2 Flip
+                "CPH2437" to setOf("2"), // OPPO Find N2 Flip
+                "PHT110" to setOf("2", "3"), // OPPO Find N3 Flip
             )
 
         private val XIAOMI_PROBLEM_MODELS =
