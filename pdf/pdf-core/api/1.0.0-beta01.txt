@@ -2,6 +2,14 @@
 // - surface=public
 package androidx.pdf {
 
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class BackgroundBitmapRelease {
+    property public static int ALL;
+    property public static int NONE;
+    field public static final int ALL = 1; // 0x1
+    field public static final androidx.pdf.BackgroundBitmapRelease INSTANCE;
+    field public static final int NONE = 0; // 0x0
+  }
+
   public interface EditablePdfDocument extends androidx.pdf.PdfDocument {
     method public suspend Object? applyEdit(androidx.pdf.models.FormEditInfo record, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public suspend Object? applyEdits(androidx.pdf.EditsDraft editsDraft, kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);

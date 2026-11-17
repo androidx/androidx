@@ -192,8 +192,6 @@ package androidx.pdf.view {
     property public final int verticalPageSpacing;
     property public final int visiblePagesCount;
     property public final float zoom;
-    field @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final int BACKGROUND_BITMAP_RELEASE_ALL = 1; // 0x1
-    field @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final int BACKGROUND_BITMAP_RELEASE_NONE = 0; // 0x0
     field public static final androidx.pdf.view.PdfView.Companion Companion;
     field public static final int GESTURE_STATE_IDLE = 0; // 0x0
     field public static final int GESTURE_STATE_INTERACTING = 1; // 0x1
@@ -203,8 +201,6 @@ package androidx.pdf.view {
   }
 
   public static final class PdfView.Companion {
-    property @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static int BACKGROUND_BITMAP_RELEASE_ALL;
-    property @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static int BACKGROUND_BITMAP_RELEASE_NONE;
     property public static int GESTURE_STATE_IDLE;
     property public static int GESTURE_STATE_INTERACTING;
     property public static int GESTURE_STATE_SETTLING;

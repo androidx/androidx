@@ -23,6 +23,9 @@ import android.graphics.PointF
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -35,6 +38,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.pdf.BackgroundBitmapRelease
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
@@ -727,6 +731,46 @@ class PdfViewerTest {
                 assertThat(it.paddingBottom).isEqualTo(0)
                 assertThat(it.clipToPadding).isTrue()
             }
+        }
+    }
+
+    @Test
+    fun pdfViewer_backgroundBitmapRelease_defaultApplied() {
+        lateinit var pdfViewerState: PdfViewerState
+        rule.setContent {
+            pdfViewerState = rememberPdfViewerState()
+            PdfViewer(state = pdfViewerState, pdfDocument = null)
+        }
+
+        rule.runOnIdle {
+            val pdfView = checkNotNull(pdfViewerState.pdfView)
+            assertThat(pdfView.backgroundBitmapRelease).isEqualTo(BackgroundBitmapRelease.NONE)
+        }
+    }
+
+    @Test
+    fun pdfViewer_backgroundBitmapRelease_appliedAndUpdatedOnPdfView() {
+        lateinit var pdfViewerState: PdfViewerState
+        var releasePolicy by mutableStateOf(BackgroundBitmapRelease.ALL)
+        rule.setContent {
+            pdfViewerState = rememberPdfViewerState()
+            PdfViewer(
+                state = pdfViewerState,
+                pdfDocument = null,
+                bitmapReleasePolicy = releasePolicy,
+            )
+        }
+
+        rule.runOnIdle {
+            val pdfView = checkNotNull(pdfViewerState.pdfView)
+            assertThat(pdfView.backgroundBitmapRelease).isEqualTo(BackgroundBitmapRelease.ALL)
+        }
+
+        releasePolicy = BackgroundBitmapRelease.NONE
+
+        rule.runOnIdle {
+            val pdfView = checkNotNull(pdfViewerState.pdfView)
+            assertThat(pdfView.backgroundBitmapRelease).isEqualTo(BackgroundBitmapRelease.NONE)
         }
     }
 }
