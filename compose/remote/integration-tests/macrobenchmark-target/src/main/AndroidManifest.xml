@@ -129,6 +129,28 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".RemoteFeedActivity"
+            android:exported="true"
+            android:label="Remote Feed Benchmark"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.FEED_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RemoteStateBenchActivity"
+            android:exported="true"
+            android:label="Remote State Benchmark"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="androidx.compose.remote.integration.macrobenchmark.target.STATE_BENCH_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <profileable android:shell="true" />
 

@@ -16,12 +16,10 @@
 
 package androidx.compose.remote.integration.macrobenchmark.target
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteTime
@@ -36,9 +34,9 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -52,19 +50,45 @@ import kotlinx.coroutines.runBlocking
  */
 class RemotePlayerAnimationActivity : ComponentActivity() {
 
+    @OptIn(ExperimentalRemotePlayerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mode = intent.getStringExtra(BENCHMARK_MODE_ARG) ?: MODE_EMBEDDED_PLAYER
+        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = playerVariantFromMode(mode).second
 
         setContent {
             val context = LocalContext.current
-            var documentBytes by remember {
-                mutableStateOf(
-                    cachedAnimationDocument
-                        ?: runBlocking {
-                            createAnimationDocument(context).also { cachedAnimationDocument = it }
+            val documentBytes = remember {
+                runBlocking {
+                    BenchDocuments.getOrCapture(context, "animation_spinner") {
+                        val time = RemoteTime().ContinuousSec()
+                        val rotation = (time * 360f.rf) % 360f.rf
+
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.fillMaxSize().semantics {
+                                    contentDescription = SPINNER_CONTENT_DESCRIPTION.rs
+                                },
+                            contentAlignment = RemoteAlignment.Center,
+                        ) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.size(100.rdp).rotate(rotation).semantics {
+                                        contentDescription = SPINNER_CONTENT_DESCRIPTION.rs
+                                    }
+                            ) {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(28.rdp).background(Color(0xFF2196F3).rc)
+                                )
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(16.rdp).background(Color(0xFFFF5722).rc)
+                                )
+                            }
                         }
-                )
+                    }
+                }
             }
 
             RemotePlayerHost(
@@ -72,45 +96,6 @@ class RemotePlayerAnimationActivity : ComponentActivity() {
                 remoteDocumentBytes = documentBytes,
                 modifier = Modifier.fillMaxSize(),
             )
-        }
-    }
-
-    companion object {
-        private var cachedAnimationDocument: ByteArray? = null
-
-        private suspend fun createAnimationDocument(context: Context): ByteArray {
-            return captureSingleRemoteDocument(
-                    profile = RcPlatformProfiles.ANDROIDX,
-                    context = context,
-                ) {
-                    val time = RemoteTime().ContinuousSec()
-                    val rotation = (time * 360f.rf) % 360f.rf
-
-                    RemoteBox(
-                        modifier =
-                            RemoteModifier.fillMaxSize().semantics {
-                                contentDescription = SPINNER_CONTENT_DESCRIPTION.rs
-                            },
-                        contentAlignment = RemoteAlignment.Center,
-                    ) {
-                        RemoteBox(
-                            modifier =
-                                RemoteModifier.size(100.rdp).rotate(rotation).semantics {
-                                    contentDescription = SPINNER_CONTENT_DESCRIPTION.rs
-                                }
-                        ) {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(28.rdp).background(Color(0xFF2196F3).rc)
-                            )
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(16.rdp).background(Color(0xFFFF5722).rc)
-                            )
-                        }
-                    }
-                }
-                .bytes
         }
     }
 }

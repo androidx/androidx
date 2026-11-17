@@ -28,7 +28,6 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
 import org.junit.Assert.fail
@@ -39,15 +38,14 @@ import org.junit.runners.Parameterized
 
 /**
  * Macrobenchmark suite comparing the Compose-embedded remote player ([RcPlayer]) against the
- * View-based Java player ([RemoteComposePlayer] wrapped in Compose as [RemoteDocumentPlayer])
- * across 6 critical performance scenarios:
+ * View-based Java player ([RemoteComposePlayer]) across 4 scenarios:
  *
  * 1) Load time (startup & initial display)
  * 2) Constant animation (continuous indefinite rotating spinner)
- * 3) Publishing state every 100ms (updating text)
- * 4) State Layout changes every 100ms (state machine conditional layouts)
- * 5) Image loading with simulated network latency
- * 6) Scrolling components (500-item scrollable list)
+ * 3) Image loading with simulated network latency
+ * 4) Scrolling components (500-item scrollable list)
+ *
+ * State update and state-layout benchmarks are in [RemoteStateBenchmark].
  */
 @OptIn(ExperimentalMetricApi::class)
 @LargeTest
@@ -71,7 +69,10 @@ class RemotePlayerMacrobenchmark(
             metrics = metrics,
             compilationMode = compilationMode,
             iterations = 10,
-            setupBlock = { pressHome() },
+            setupBlock = {
+                killProcess()
+                pressHome()
+            },
             measureBlock = {
                 val intent =
                     Intent().apply {
@@ -79,6 +80,7 @@ class RemotePlayerMacrobenchmark(
                         putExtra(BENCHMARK_MODE_ARG, playerMode)
                     }
                 startActivityAndWait(intent)
+                assertLaneDrew(device, LOAD_TIME_CONTENT_DESCRIPTION)
             },
         )
     }
@@ -97,13 +99,14 @@ class RemotePlayerMacrobenchmark(
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
+                killProcess()
                 val intent =
                     Intent().apply {
                         action = ANIMATION_ACTIVITY
                         putExtra(BENCHMARK_MODE_ARG, playerMode)
                     }
                 startActivityIntent(intent)
-                device.wait(Until.hasObject(By.desc(SPINNER_CONTENT_DESCRIPTION)), 10_000)
+                assertLaneDrew(device, SPINNER_CONTENT_DESCRIPTION)
             },
         ) {
             Thread.sleep(2000L)
@@ -111,61 +114,7 @@ class RemotePlayerMacrobenchmark(
     }
 
     // -------------------------------------------------------------------------
-    // 3) Publishing State Every 100ms (Updating Text)
-    // -------------------------------------------------------------------------
-
-    @Test
-    fun stateUpdate() {
-        val metrics = listOf<Metric>(FrameTimingMetric())
-
-        benchmarkRule.measureRepeated(
-            packageName = PACKAGE_NAME,
-            metrics = metrics,
-            compilationMode = compilationMode,
-            iterations = 5,
-            setupBlock = {
-                val intent =
-                    Intent().apply {
-                        action = STATE_UPDATE_ACTIVITY
-                        putExtra(BENCHMARK_MODE_ARG, playerMode)
-                    }
-                startActivityIntent(intent)
-                device.wait(Until.hasObject(By.desc(STATE_UPDATE_CONTENT_DESCRIPTION)), 10_000)
-            },
-        ) {
-            Thread.sleep(2000L)
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // 4) State Layout Changes Every 100ms
-    // -------------------------------------------------------------------------
-
-    @Test
-    fun stateLayout() {
-        val metrics = listOf<Metric>(FrameTimingMetric())
-
-        benchmarkRule.measureRepeated(
-            packageName = PACKAGE_NAME,
-            metrics = metrics,
-            compilationMode = compilationMode,
-            iterations = 5,
-            setupBlock = {
-                val intent =
-                    Intent().apply {
-                        action = STATE_LAYOUT_ACTIVITY
-                        putExtra(BENCHMARK_MODE_ARG, playerMode)
-                    }
-                startActivityIntent(intent)
-                device.wait(Until.hasObject(By.desc(STATE_LAYOUT_CONTENT_DESCRIPTION)), 10_000)
-            },
-        ) {
-            Thread.sleep(2000L)
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // 5) Image Loading With Simulated Network Latency
+    // 3) Image Loading With Simulated Network Latency
     // -------------------------------------------------------------------------
 
     @Test
@@ -177,7 +126,10 @@ class RemotePlayerMacrobenchmark(
             metrics = metrics,
             compilationMode = compilationMode,
             iterations = 5,
-            setupBlock = { pressHome() },
+            setupBlock = {
+                killProcess()
+                pressHome()
+            },
             measureBlock = {
                 val intent =
                     Intent().apply {
@@ -185,6 +137,7 @@ class RemotePlayerMacrobenchmark(
                         putExtra(BENCHMARK_MODE_ARG, playerMode)
                     }
                 startActivityAndWait(intent)
+                assertLaneDrew(device, IMAGE_GRID_CONTENT_DESCRIPTION)
             },
         )
     }
@@ -204,13 +157,14 @@ class RemotePlayerMacrobenchmark(
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
+                killProcess()
                 val intent =
                     Intent().apply {
                         action = SCROLL_ACTIVITY
                         putExtra(BENCHMARK_MODE_ARG, playerMode)
                     }
                 startActivityIntent(intent)
-                device.wait(Until.hasObject(By.desc(LIST_CONTENT_DESCRIPTION)), 10_000)
+                assertLaneDrew(device, LIST_CONTENT_DESCRIPTION)
             },
         ) {
             val list = device.findObject(By.desc(LIST_CONTENT_DESCRIPTION))

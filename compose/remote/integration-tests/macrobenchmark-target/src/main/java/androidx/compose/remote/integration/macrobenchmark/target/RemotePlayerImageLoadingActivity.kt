@@ -28,7 +28,6 @@ import androidx.activity.compose.setContent
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.Limits
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -45,7 +44,8 @@ import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companio
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.embedded.RcImageLoader
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.runtime.Composable
@@ -78,10 +78,12 @@ import kotlinx.coroutines.withContext
  */
 class RemotePlayerImageLoadingActivity : ComponentActivity() {
 
+    @OptIn(ExperimentalRemotePlayerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Limits.ENABLE_IMAGE_URLS = true
         val mode = intent.getStringExtra(BENCHMARK_MODE_ARG) ?: MODE_EMBEDDED_PLAYER
+        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = playerVariantFromMode(mode).second
 
         setContent {
             ImageLoadingScreen(mode = mode)
@@ -112,77 +114,71 @@ class RemotePlayerImageLoadingActivity : ComponentActivity() {
 
         LaunchedEffect(Unit) {
             documentBytes =
-                captureSingleRemoteDocument(
-                        profile = RcPlatformProfiles.ANDROIDX,
-                        context = context,
+                BenchDocuments.getOrCapture(context, "image_loading_grid") {
+                    val colors =
+                        listOf(
+                            "E53935",
+                            "D81B60",
+                            "8E24AA",
+                            "1E88E5",
+                            "43A047",
+                            "FB8C00",
+                        )
+
+                    RemoteColumn(
+                        horizontalAlignment = RemoteAlignment.CenterHorizontally,
+                        verticalArrangement = RemoteArrangement.Center,
+                        modifier =
+                            RemoteModifier.fillMaxSize().padding(16.rdp).semantics {
+                                contentDescription = IMAGE_GRID_CONTENT_DESCRIPTION.rs
+                            },
                     ) {
-                        val colors =
-                            listOf(
-                                "E53935",
-                                "D81B60",
-                                "8E24AA",
-                                "1E88E5",
-                                "43A047",
-                                "FB8C00",
-                            )
+                        RemoteText(
+                            text = "Image Loading Benchmark".rs,
+                            fontSize = 24.rsp,
+                            modifier = RemoteModifier.padding(bottom = 16.rdp),
+                        )
 
-                        RemoteColumn(
-                            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                            verticalArrangement = RemoteArrangement.Center,
-                            modifier =
-                                RemoteModifier.fillMaxSize().padding(16.rdp).semantics {
-                                    contentDescription = IMAGE_GRID_CONTENT_DESCRIPTION.rs
-                                },
+                        // Row 1
+                        RemoteRow(
+                            horizontalArrangement = RemoteArrangement.Center,
+                            modifier = RemoteModifier.padding(bottom = 12.rdp),
                         ) {
-                            RemoteText(
-                                text = "Image Loading Benchmark".rs,
-                                fontSize = 24.rsp,
-                                modifier = RemoteModifier.padding(bottom = 16.rdp),
-                            )
-
-                            // Row 1
-                            RemoteRow(
-                                horizontalArrangement = RemoteArrangement.Center,
-                                modifier = RemoteModifier.padding(bottom = 12.rdp),
-                            ) {
-                                for (i in 0 until 3) {
-                                    val hex = colors[i]
-                                    val bitmap = remember {
-                                        createNamedRemoteImageBitmap(
-                                            name = "img_$i",
-                                            url = "color://$hex",
-                                        )
-                                    }
-                                    RemoteImage(
-                                        bitmap = bitmap,
-                                        contentDescription = "Image $i".rs,
-                                        modifier =
-                                            RemoteModifier.size(100.rdp, 100.rdp).padding(4.rdp),
+                            for (i in 0 until 3) {
+                                val hex = colors[i]
+                                val bitmap = remember {
+                                    createNamedRemoteImageBitmap(
+                                        name = "img_$i",
+                                        url = "color://$hex",
                                     )
                                 }
+                                RemoteImage(
+                                    bitmap = bitmap,
+                                    contentDescription = "Image $i".rs,
+                                    modifier = RemoteModifier.size(100.rdp, 100.rdp).padding(4.rdp),
+                                )
                             }
+                        }
 
-                            // Row 2
-                            RemoteRow(horizontalArrangement = RemoteArrangement.Center) {
-                                for (i in 3 until 6) {
-                                    val hex = colors[i]
-                                    val bitmap = remember {
-                                        createNamedRemoteImageBitmap(
-                                            name = "img_$i",
-                                            url = "color://$hex",
-                                        )
-                                    }
-                                    RemoteImage(
-                                        bitmap = bitmap,
-                                        contentDescription = "Image $i".rs,
-                                        modifier =
-                                            RemoteModifier.size(100.rdp, 100.rdp).padding(4.rdp),
+                        // Row 2
+                        RemoteRow(horizontalArrangement = RemoteArrangement.Center) {
+                            for (i in 3 until 6) {
+                                val hex = colors[i]
+                                val bitmap = remember {
+                                    createNamedRemoteImageBitmap(
+                                        name = "img_$i",
+                                        url = "color://$hex",
                                     )
                                 }
+                                RemoteImage(
+                                    bitmap = bitmap,
+                                    contentDescription = "Image $i".rs,
+                                    modifier = RemoteModifier.size(100.rdp, 100.rdp).padding(4.rdp),
+                                )
                             }
                         }
                     }
-                    .bytes
+                }
         }
 
         documentBytes?.let { bytes ->
