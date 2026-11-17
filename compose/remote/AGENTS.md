@@ -14,6 +14,9 @@ When investigating this codebase or performing tasks, you MUST recursively searc
 - `EXPRESSION_ENGINE.md`: RPN logic, variable scoping, and math operations.
 - `COMPRESSION.md`: Compressed documents (`COMPRESS` header flag), creation, playback, and compatibility.
 
+### Players (`remote-player-compose/doc/`)
+- `EMBEDDED_PLAYER.md`: Design of the pure-Compose embedded player (`RcPlayer`), comparison with the View player, and per-operation support matrix.
+
 ### Creation API (`remote-creation/doc/`)
 - `MODIFIER_REGISTRY.md`: Mapping of DSL methods to underlying operations.
 - `KOTLIN_DSL_PATTERNS.md`: Common snippets and best practices for Kotlin.
@@ -29,5 +32,10 @@ When investigating this codebase or performing tasks, you MUST recursively searc
 - `COMPOSE_COMPONENTS_GUIDE.md`: Layout with Compose-like components and Modifiers.
 - `DRAW_TEXT_ANCHORED_GUIDE.md`: Precise text alignment and justification.
 - `CREATION_DEMO_GUIDE.md`: How to write and register new procedural demos.
+- `CUSTOM_VISIBILITY_ANIMATION_GUIDE.md`: Custom enter/exit animations for component visibility changes.
+
+### Wire Format Reference (`Documentation/`)
+- `RemoteComposeWireFormat.md.html`: Rendered wire format specification.
+- `parts/*.md`: Per-operation and per-topic wire format sections (layouts, modifiers, draw ops, paths, matrices, particles, structure).
 
 Always prioritize the patterns and mandates described in these documents over general assumptions.
