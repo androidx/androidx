@@ -46,8 +46,8 @@ dependencies {
 
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation("androidx.annotation:annotation:1.7.0")
-    androidTestImplementation("androidx.fragment:fragment-testing:1.6.2")
-    androidTestImplementation("androidx.fragment:fragment-testing-manifest:1.6.2")
+    androidTestImplementation("androidx.fragment:fragment-testing:1.9.1")
+    androidTestImplementation("androidx.fragment:fragment-testing-manifest:1.9.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2")
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)

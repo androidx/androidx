@@ -1145,13 +1145,32 @@ class FragmentNavigatorTest {
             val fragment2 = fm1.findFragmentByTag(entry2.id) as AnimatorFragment
 
             assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
-            if (fragment2.endLatch.count == 1L) {
-                // Entry 2 should move back to STARTED if animating
-                assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
-            } else {
-                // And to RESUMED if it finishes
-                assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+            onActivity {
+                // While animating, entry 2 must be held at STARTED, not resumed early. After the
+                // animator ends, either STARTED or RESUMED is valid, so only check while animating.
+                if (fragment2.endLatch.count == 1L) {
+                    assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+                }
             }
+            // The animator ending doesn't mean the transition is complete, so wait for RESUMED
+            val entry2Resumed = CountDownLatch(1)
+            onActivity {
+                entry2.lifecycle.addObserver(
+                    object : LifecycleEventObserver {
+                        override fun onStateChanged(
+                            source: LifecycleOwner,
+                            event: Lifecycle.Event,
+                        ) {
+                            if (event == Lifecycle.Event.ON_RESUME) {
+                                entry2Resumed.countDown()
+                            }
+                        }
+                    }
+                )
+            }
+            assertWithMessage("Entry 2 should be RESUMED after the transition completes")
+                .that(entry2Resumed.await(1000, TimeUnit.MILLISECONDS))
+                .isTrue()
 
             // recreate activity - imitate configuration change
             recreate()
@@ -1714,19 +1733,19 @@ class FragmentNavigatorTest {
         assertWithMessage("Fragment should be added").that(fragment1).isNotNull()
 
         // middle of transition
-
-        if (fragment1.endLatch.count == 1L) {
-            // Entry 1 should move back to STARTED while animating
-            assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
-        } else {
-            assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
-            assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
-            assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        activityRule.runOnUiThread {
+            // While animating, entry 1 must be held at STARTED, not resumed early. After the
+            // animator ends, either STARTED or RESUMED is valid, so only check while animating.
+            if (fragment1.endLatch.count == 1L) {
+                assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+            }
         }
 
         // Add an observer to ensure that we don't attempt to verify the state until animations
         // are complete and the viewLifecycle has been RESUMED.
         val countDownLatch4 = CountDownLatch(1)
+        // The animator ending doesn't mean the transition is complete, so also wait for RESUMED
+        val entry1Resumed = CountDownLatch(1)
         activityRule.runOnUiThread {
             fragment1.viewLifecycleOwner.lifecycle.addObserver(
                 object : LifecycleEventObserver {
@@ -1737,8 +1756,18 @@ class FragmentNavigatorTest {
                     }
                 }
             )
+            entry1.lifecycle.addObserver(
+                object : LifecycleEventObserver {
+                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                        if (event == Lifecycle.Event.ON_RESUME) {
+                            entry1Resumed.countDown()
+                        }
+                    }
+                }
+            )
         }
         assertThat(countDownLatch4.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(entry1Resumed.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         // Entry 1 should move back to RESUMED
         assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
