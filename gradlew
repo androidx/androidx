@@ -4,11 +4,15 @@ set -e
 
 ##############################################################################
 ##
-##  Gradle start up script for UN*X
+##  AndroidX Gradle start up script
+##
+##  Sets up the AndroidX build environment, handles AndroidX-only arguments
+##  such as --ci and --strict, and then runs gradle/wrapper/gradlew.
+##
+##  Gradle generates gradle/wrapper/gradlew and development/update_gradle.sh
+##  overwrites it on every Gradle update, so put AndroidX changes here.
 ##
 ##############################################################################
-
-# --------- androidx specific code needed for build server. ------------------
 
 SCRIPT_PATH="$(cd $(dirname $0) && pwd -P)"
 
@@ -27,102 +31,6 @@ if [ -n "$DIST_DIR" ]; then
     # We don't set a default DIST_DIR in an else clause here because Studio doesn't use gradlew
     # and doesn't set DIST_DIR and we want gradlew and Studio to match
 fi
-# ----------------------------------------------------------------------------
-
-# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-
-APP_NAME="Gradle"
-APP_BASE_NAME=`basename "$0"`
-
-# Use the maximum available, or set MAX_FD != -1 to use that value.
-MAX_FD="maximum"
-
-warn ( ) {
-    echo "$*"
-}
-
-die ( ) {
-    echo
-    echo "$*"
-    echo
-    exit 1
-}
-
-# OS specific support (must be 'true' or 'false').
-cygwin=false
-msys=false
-darwin=false
-case "`uname`" in
-  CYGWIN* )
-    cygwin=true
-    ;;
-  Darwin* )
-    darwin=true
-    ;;
-  MINGW* )
-    msys=true
-    ;;
-esac
-# Attempt to set APP_HOME
-# Resolve links: $0 may be a link
-PRG="$0"
-# Need this for relative symlinks.
-while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
-    if expr "$link" : '/.*' > /dev/null; then
-        PRG="$link"
-    else
-        PRG=`dirname "$PRG"`"/$link"
-    fi
-done
-SAVED="`pwd`"
-cd "`dirname \"$PRG\"`/" >/dev/null
-APP_HOME="`pwd -P`"
-cd "$SAVED" >/dev/null
-
-# Determine the Java command to use to start the JVM.
-if [ -n "$JAVA_HOME" ] ; then
-    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
-        # IBM's JDK on AIX uses strange locations for the executables
-        JAVACMD="$JAVA_HOME/jre/sh/java"
-    else
-        JAVACMD="$JAVA_HOME/bin/java"
-    fi
-    if [ ! -x "$JAVACMD" ] ; then
-        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
-
-Please set the JAVA_HOME variable in your environment to match the
-location of your Java installation."
-    fi
-else
-    JAVACMD="java"
-    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
-
-Please set the JAVA_HOME variable in your environment to match the
-location of your Java installation."
-fi
-
-# Increase the maximum file descriptors if we can.
-if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
-    MAX_FD_LIMIT=`ulimit -H -n`
-    if [ $? -eq 0 ] ; then
-        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
-            MAX_FD="$MAX_FD_LIMIT"
-        fi
-        ulimit -n $MAX_FD
-        if [ $? -ne 0 ] ; then
-            warn "Could not set maximum file descriptor limit: $MAX_FD"
-        fi
-    else
-        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
-    fi
-fi
-
-# For Darwin, add options to specify how the application appears in the dock
-if $darwin; then
-    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
-fi
 
 # Some build machines (b/576281048) can only reach the internet over IPv6, but Java tries IPv4
 # first, so connecting to the remote build cache times out. These machines may still have an IPv4
@@ -133,7 +41,7 @@ fi
 # org.gradle.jvmargs there, so pass it via a file instead. The Kotlin daemon needs it too.
 # TODO(fsladkey): remove once gcp-gradle-build-cache falls back between address families.
 preferIpv6=false
-if $darwin; then
+if [[ "$(uname)" == Darwin* ]]; then
     probeHost=storage.googleapis.com
     if ! /usr/bin/nc -4 -z -G 2 "$probeHost" 443 >/dev/null 2>&1 &&
             /usr/bin/nc -6 -z -G 2 "$probeHost" 443 >/dev/null 2>&1; then
@@ -143,57 +51,6 @@ fi
 if [ "$preferIpv6" = "true" ]; then
     ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| @$SCRIPT_PATH/development/build-environment/prefer-ipv6.jvmargs|; s|-Dkotlin.daemon.jvm.options=|&-Djava.net.preferIPv6Addresses=true,|")"
 fi
-
-# For Cygwin, switch paths to Windows format before running java
-if $cygwin ; then
-    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
-    JAVACMD=`cygpath --unix "$JAVACMD"`
-
-    # We build the pattern for arguments to be converted via cygpath
-    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
-    SEP=""
-    for dir in $ROOTDIRSRAW ; do
-        ROOTDIRS="$ROOTDIRS$SEP$dir"
-        SEP="|"
-    done
-    OURCYGPATTERN="(^($ROOTDIRS))"
-    # Add a user-defined pattern to the cygpath arguments
-    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
-        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
-    fi
-    # Now convert the arguments - kludge to limit ourselves to /bin/sh
-    i=0
-    for arg in "$@" ; do
-        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
-        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
-
-        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
-            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
-        else
-            eval `echo args$i`="\"$arg\""
-        fi
-        i=$((i+1))
-    done
-    case $i in
-        (0) set -- ;;
-        (1) set -- "$args0" ;;
-        (2) set -- "$args0" "$args1" ;;
-        (3) set -- "$args0" "$args1" "$args2" ;;
-        (4) set -- "$args0" "$args1" "$args2" "$args3" ;;
-        (5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
-        (6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
-        (7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
-        (8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
-        (9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
-    esac
-fi
-
-# Split up the JVM_OPTS And GRADLE_OPTS values into an array, following the shell quoting and substitution rules
-function splitJvmOpts() {
-    JVM_OPTS=("$@")
-}
-eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
-JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
 
 #TODO: Remove HOME_SYSTEM_PROPERTY_ARGUMENT if https://github.com/gradle/gradle/issues/11433 gets fixed
 HOME_SYSTEM_PROPERTY_ARGUMENT=""
@@ -378,21 +235,6 @@ if [[ " ${@} " =~ " --scan " ]]; then
   fi
 fi
 
-function removeCaches() {
-  rm -rf $SCRIPT_PATH/.gradle
-  rm -rf $SCRIPT_PATH/buildSrc/.gradle
-  rm -f  $SCRIPT_PATH/local.properties
-  if [ "$GRADLE_USER_HOME" != "" ]; then
-    rm -rf "$GRADLE_USER_HOME"
-  else
-    rm -rf ~/.gradle
-  fi
-  # https://github.com/gradle/gradle/issues/18386
-  rm -rf $SCRIPT_PATH/reports
-  rm -rf $SCRIPT_PATH/build
-  rm -rf $OUT_DIR
-}
-
 # Move any preexisting build scan to make room for a new one
 # After moving a build scan several times it eventually gets deleted
 function rotateBuildScans() {
@@ -440,7 +282,9 @@ function runGradle() {
   else
     VERIFICATION_ARGUMENT=--dependency-verification=strict
   fi
-  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $VERIFICATION_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
+  # The daemon gets its temp dir from $TMPDIR_ARG. Don't pass it in GRADLE_OPTS too: GRADLE_OPTS is
+  # exported to the daemon and every process it starts, including IDEs launched by studiow.
+  if $wrapper "$SCRIPT_PATH/gradle/wrapper/gradlew" $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $VERIFICATION_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
     RETURN_VALUE=0
   else
     # Print AndroidX-specific help message if build fails
