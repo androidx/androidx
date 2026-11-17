@@ -20,6 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
@@ -33,6 +34,7 @@ import androidx.collection.ArraySet;
 import com.google.android.appsearch.proto.AndroidVOverlayProto;
 import com.google.android.appsearch.proto.PackageIdentifierProto;
 import com.google.android.appsearch.proto.VisibilityConfigProto;
+import com.google.android.appsearch.proto.VisibleToPackageWithTagsProto;
 import com.google.android.appsearch.proto.VisibleToPermissionProto;
 import com.google.android.icing.protobuf.ByteString;
 import com.google.android.icing.protobuf.InvalidProtocolBufferException;
@@ -41,7 +43,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -70,6 +74,32 @@ public class VisibilityToDocumentConverter {
     /** Property that holds the serialized {@link AndroidVOverlayProto}. */
     public static final String VISIBILITY_PROTO_SERIALIZE_PROPERTY =
             "visibilityProtoSerializeProperty";
+
+    /**
+     * The name of a placeholder package which is stored, in a visible to config, as a package
+     * that has access whenever the config has packages that are restricted by attribution tag.
+     *
+     * <p>A version of AppSearch that predates packages restricted by attribution tag ignores them
+     * when it reads a visible to config. Without the placeholder, such a version would be left
+     * with only the other requirements of the config, e.g. its permissions, and would grant
+     * access to every caller that meets them. No package can have this name, so with the
+     * placeholder such a version grants access to no one through the config instead.
+     *
+     * <p>The placeholder only exists in storage: it is removed when a visible to config is read,
+     * so a config that is returned to a caller never has it.
+     *
+     * <p>A version of AppSearch that predates packages restricted by attribution tag does return
+     * the placeholder to callers, as a package. A caller can set it back, which stores a config
+     * with the placeholder but without the packages it was stored for. Such a config is skipped
+     * when it is read if the placeholder is its only package: no caller can match the config as
+     * it is stored, and without the placeholder its other requirements would be on their own.
+     *
+     * <p>Only this placeholder is removed. A placeholder that a later version of AppSearch
+     * stores for another setting is not known to this version, which reads it as a package that
+     * no caller can match.
+     */
+    @VisibleForTesting
+    static final String PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME = "VS#PackagesWithTags";
 
     /**
      * Property that holds the list of platform-hidden schemas, as part of the visibility settings.
@@ -206,9 +236,28 @@ public class VisibilityToDocumentConverter {
             List<VisibilityConfigProto> visibleToConfigProtoList =
                     androidVOverlayProto.getVisibleToConfigsList();
             for (int i = 0; i < visibleToConfigProtoList.size(); i++) {
-                SchemaVisibilityConfig visibleToConfig =
-                        convertVisibilityConfigFromProto(visibleToConfigProtoList.get(i));
-                builder.addVisibleToConfig(visibleToConfig);
+                VisibilityConfigProto visibleToConfigProto = visibleToConfigProtoList.get(i);
+                if (Flags.enableSchemaVisibleToPackageWithTags()) {
+                    VisibilityConfigProto storedVisibleToConfigProto = visibleToConfigProto;
+                    visibleToConfigProto =
+                            removePackagesWithTagsPlaceholder(storedVisibleToConfigProto);
+                    if (hasPackagesWithAndWithoutAttributionTags(visibleToConfigProto)
+                            || hasNoPackageAttributionTags(visibleToConfigProto)
+                            || hasOnlyPackagesWithTagsPlaceholder(storedVisibleToConfigProto)) {
+                        // None of these configs can be created through the API. A config cannot
+                        // have both packages and packages that are restricted by attribution tag.
+                        // No caller can match a package that has no attribution tags, so such a
+                        // package is ignored when the config is converted; if that would leave
+                        // the config without any package that is restricted by attribution tag,
+                        // its other requirements (e.g. permissions) would be on their own and
+                        // grant access to more callers. The same goes for a config whose only
+                        // package is the placeholder, see
+                        // PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME. Skipping the whole config
+                        // can only narrow access.
+                        continue;
+                    }
+                }
+                builder.addVisibleToConfig(convertVisibilityConfigFromProto(visibleToConfigProto));
             }
         }
 
@@ -276,9 +325,34 @@ public class VisibilityToDocumentConverter {
         return builder.build();
     }
 
-    /**  Convert {@link VisibilityConfigProto} into {@link SchemaVisibilityConfig}.     */
+    /**
+     * Convert {@link VisibilityConfigProto} into {@link SchemaVisibilityConfig}.
+     *
+     * <p>The returned config never grants access to more callers than the proto does. When the
+     * packages of the proto that are restricted by attribution tag cannot be converted, the
+     * returned config is not left with only the other requirements of the proto: it either
+     * keeps the placeholder package, which no caller can match, or has no requirement at all.
+     */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     public static @NonNull SchemaVisibilityConfig convertVisibilityConfigFromProto(
             @NonNull VisibilityConfigProto proto) {
+        if (Flags.enableSchemaVisibleToPackageWithTags()) {
+            if (hasPackageAttributionTags(proto)) {
+                // The placeholder stands for the packages that are restricted by attribution tag,
+                // see PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME. It is only removed here when
+                // one of them can be converted. Otherwise it stays as a package that no caller
+                // can match, so that the other requirements of the proto are not left on their
+                // own.
+                proto = removePackagesWithTagsPlaceholder(proto);
+            } else if (hasNoPackageAttributionTags(proto)
+                    && proto.getVisibleToPackagesCount() == 0) {
+                // No caller can match a package that has no attribution tags, and nothing else in
+                // the proto says which package has access. A config without any requirement
+                // grants access to no one, whereas the other requirements of the proto on their
+                // own would grant access to more callers.
+                return new SchemaVisibilityConfig.Builder().build();
+            }
+        }
         SchemaVisibilityConfig.Builder builder = new SchemaVisibilityConfig.Builder();
 
         List<PackageIdentifierProto> visibleToPackageProtoList = proto.getVisibleToPackagesList();
@@ -303,10 +377,33 @@ public class VisibilityToDocumentConverter {
                     convertPackageIdentifierFromProto(publiclyVisibleTargetPackage));
         }
 
+        if (Flags.enableSchemaVisibleToPackageWithTags()) {
+            // A config cannot have both packages and packages that are restricted by attribution
+            // tag, so the latter are ignored when there are any of the former. Ignoring them can
+            // only narrow access.
+            List<VisibleToPackageWithTagsProto> visibleToPackageWithTagsProtoList =
+                    proto.getVisibleToPackagesCount() == 0
+                            ? proto.getVisibleToPackagesWithTagsList() : Collections.emptyList();
+            for (int i = 0; i < visibleToPackageWithTagsProtoList.size(); i++) {
+                VisibleToPackageWithTagsProto visibleToPackageWithTags =
+                        visibleToPackageWithTagsProtoList.get(i);
+                if (visibleToPackageWithTags.getAttributionTagsCount() == 0) {
+                    // No caller can match a package that has no attribution tags, so this entry
+                    // grants access to no one.
+                    continue;
+                }
+                builder.setAllowedPackageWithTags(
+                        convertPackageIdentifierFromProto(
+                                visibleToPackageWithTags.getPackageIdentifier()),
+                        new ArraySet<>(visibleToPackageWithTags.getAttributionTagsList()));
+            }
+        }
+
         return builder.build();
     }
 
     /**  Convert {@link SchemaVisibilityConfig} into {@link VisibilityConfigProto}.     */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     public static @NonNull VisibilityConfigProto convertSchemaVisibilityConfigToProto(
             @NonNull SchemaVisibilityConfig schemaVisibilityConfig) {
         VisibilityConfigProto.Builder builder = VisibilityConfigProto.newBuilder();
@@ -315,6 +412,17 @@ public class VisibilityToDocumentConverter {
         for (int i = 0; i < visibleToPackages.size(); i++) {
             PackageIdentifier visibleToPackage = visibleToPackages.get(i);
             builder.addVisibleToPackages(convertPackageIdentifierToProto(visibleToPackage));
+        }
+        // Intentionally not gated by Flags.enableSchemaVisibleToPackageWithTags(): dropping
+        // packages restricted by attribution tag while keeping other requirements (e.g.
+        // permissions) would grant access to more callers. When the flag is off, the read path
+        // keeps the placeholder and ignores the tags, so no caller gets access.
+        if (!schemaVisibilityConfig.getAllowedPackagesWithTags().isEmpty()) {
+            // See PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME.
+            builder.addVisibleToPackages(
+                    PackageIdentifierProto.newBuilder()
+                            .setPackageName(PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME)
+                            .setPackageSha256Cert(ByteString.copyFrom(new byte[32])));
         }
 
         Set<Set<Integer>> visibleToPermissions = schemaVisibilityConfig.getRequiredPermissions();
@@ -332,6 +440,8 @@ public class VisibilityToDocumentConverter {
             builder.setPubliclyVisibleTargetPackage(
                     convertPackageIdentifierToProto(publicAclPackage));
         }
+
+        addPackagesWithTagsToProto(builder, schemaVisibilityConfig);
 
         return builder.build();
     }
@@ -488,6 +598,114 @@ public class VisibilityToDocumentConverter {
         return new PackageIdentifier(
                 packageIdentifierProto.getPackageName(),
                 packageIdentifierProto.getPackageSha256Cert().toByteArray());
+    }
+
+    /**
+     * Adds the packages of the given config that are restricted by attribution tag, and their
+     * tags, to the given proto.
+     */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
+    private static void addPackagesWithTagsToProto(
+            VisibilityConfigProto.@NonNull Builder builder,
+            @NonNull SchemaVisibilityConfig schemaVisibilityConfig) {
+        for (Map.Entry<PackageIdentifier, Set<String>> entry :
+                schemaVisibilityConfig.getAllowedPackagesWithTags().entrySet()) {
+            builder.addVisibleToPackagesWithTags(
+                    VisibleToPackageWithTagsProto.newBuilder()
+                            .setPackageIdentifier(convertPackageIdentifierToProto(entry.getKey()))
+                            .addAllAttributionTags(entry.getValue()));
+        }
+    }
+
+    /**
+     * Returns the given proto without the placeholder package that is stored with packages that
+     * are restricted by attribution tag, see
+     * {@link #PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME}.
+     *
+     * <p>The placeholder is removed whether or not the proto has packages that are restricted by
+     * attribution tag. The caller is responsible for not using a proto that grants access to
+     * more callers without the placeholder, see {@link #hasOnlyPackagesWithTagsPlaceholder}.
+     */
+    private static @NonNull VisibilityConfigProto removePackagesWithTagsPlaceholder(
+            @NonNull VisibilityConfigProto proto) {
+        boolean hasPlaceholder = false;
+        for (int i = 0; i < proto.getVisibleToPackagesCount(); i++) {
+            if (isPackagesWithTagsPlaceholder(proto.getVisibleToPackages(i))) {
+                hasPlaceholder = true;
+                break;
+            }
+        }
+        if (!hasPlaceholder) {
+            return proto;
+        }
+        VisibilityConfigProto.Builder builder = proto.toBuilder().clearVisibleToPackages();
+        for (int i = 0; i < proto.getVisibleToPackagesCount(); i++) {
+            PackageIdentifierProto visibleToPackage = proto.getVisibleToPackages(i);
+            if (!isPackagesWithTagsPlaceholder(visibleToPackage)) {
+                builder.addVisibleToPackages(visibleToPackage);
+            }
+        }
+        return builder.build();
+    }
+
+    /** Returns whether the given package is the placeholder package. */
+    private static boolean isPackagesWithTagsPlaceholder(
+            @NonNull PackageIdentifierProto packageIdentifierProto) {
+        return PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME.equals(
+                packageIdentifierProto.getPackageName());
+    }
+
+    /**
+     * Returns whether the placeholder package is the only package of the given proto, and the
+     * proto has no packages that are restricted by attribution tag, see
+     * {@link #PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME}.
+     *
+     * <p>Such a proto grants access to no one as it is stored, and would grant access to every
+     * caller that meets its other requirements without the placeholder.
+     */
+    private static boolean hasOnlyPackagesWithTagsPlaceholder(
+            @NonNull VisibilityConfigProto proto) {
+        if (proto.getVisibleToPackagesCount() == 0
+                || proto.getVisibleToPackagesWithTagsCount() > 0) {
+            return false;
+        }
+        for (int i = 0; i < proto.getVisibleToPackagesCount(); i++) {
+            if (!isPackagesWithTagsPlaceholder(proto.getVisibleToPackages(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns whether the given proto has both packages and packages that are restricted by
+     * attribution tag.
+     */
+    private static boolean hasPackagesWithAndWithoutAttributionTags(
+            @NonNull VisibilityConfigProto proto) {
+        return proto.getVisibleToPackagesCount() > 0
+                && proto.getVisibleToPackagesWithTagsCount() > 0;
+    }
+
+    /**
+     * Returns whether the given proto has a package that is restricted by attribution tag, and
+     * has at least one attribution tag.
+     */
+    private static boolean hasPackageAttributionTags(@NonNull VisibilityConfigProto proto) {
+        for (int i = 0; i < proto.getVisibleToPackagesWithTagsCount(); i++) {
+            if (proto.getVisibleToPackagesWithTags(i).getAttributionTagsCount() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns whether the given proto has packages that are restricted by attribution tag, but
+     * none of them has an attribution tag.
+     */
+    private static boolean hasNoPackageAttributionTags(@NonNull VisibilityConfigProto proto) {
+        return proto.getVisibleToPackagesWithTagsCount() > 0 && !hasPackageAttributionTags(proto);
     }
 
     private VisibilityToDocumentConverter() {}
