@@ -939,8 +939,8 @@ class RuntimeUtilsTest {
 
         val result = RuntimeUtils.getHitTestResult(extensionsResult, compensation)
 
-        // Distance should be scaled by scale: 2.5 * 2.0 = 5.0
-        Truth.assertThat(result.distance).isEqualTo(5.0f)
+        // Distance is already reported in unscaled meters by extensions and should not be scaled.
+        Truth.assertThat(result.distance).isEqualTo(rawDistance)
 
         // Position transformed into activity space:
         // Inverse rotation (-90 deg yaw) on (2, 0, 0) -> (0, 0, 2), then scaled by 2 -> (0, 0, 4)

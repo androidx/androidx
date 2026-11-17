@@ -732,7 +732,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         fakeExecutor.runAll()
         val hitTestResult = deferredHitTestResult.await()
 
-        assertThat(hitTestResult.distance).isWithin(1e-5f).of(5.0f)
+        assertThat(hitTestResult.distance).isWithin(1e-5f).of(rawDistance)
         assertThat(hitTestResult.hitPosition).isNotNull()
         assertVector3(hitTestResult.hitPosition!!, Vector3(4f, 0f, 0f))
         assertThat(hitTestResult.surfaceNormal).isNotNull()
@@ -773,7 +773,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         fakeExecutor.runAll()
         val hitTestResult = deferredResult.await()
 
-        assertThat(hitTestResult.distance).isWithin(1e-5f).of(4.0f)
+        assertThat(hitTestResult.distance).isWithin(1e-5f).of(rawDistance)
         assertThat(hitTestResult.hitPosition).isNotNull()
         val expectedY = 2f * kotlin.math.sqrt(2.0).toFloat()
         val expectedZ = 2f * kotlin.math.sqrt(2.0).toFloat()

@@ -110,9 +110,7 @@ class ScenePoseHitTestIntegrationTest {
             }!!
 
         assertThat(hit.surfaceType).isEqualTo(HitTestResult.SurfaceType.PLANE)
-        // TODO(b/584953104): Restore exact metric distance assertion (2.0f) once fixed.
-        assertThat(hit.distance.isFinite()).isTrue()
-        assertThat(hit.distance).isGreaterThan(0f)
+        assertThat(hit.distance).isWithin(POSITION_TOLERANCE).of(2.0f)
         assertVector3(hit.hitPosition, Vector3(0f, 0f, -2.0f), POSITION_TOLERANCE)
         assertThat(hit.surfaceNormal).isNotNull()
         assertVector3(hit.surfaceNormal!!, Vector3(0f, 0f, 1f), NORMAL_TOLERANCE)
@@ -544,9 +542,7 @@ class ScenePoseHitTestIntegrationTest {
             .that(parentToChildHit.isIntersection())
             .isTrue()
         assertThat(parentToChildHit!!.surfaceType).isEqualTo(HitTestResult.SurfaceType.PLANE)
-        // TODO(b/584953104): Restore exact metric distance check (1.0f) once fixed.
-        assertThat(parentToChildHit.distance.isFinite()).isTrue()
-        assertThat(parentToChildHit.distance).isGreaterThan(0f)
+        assertThat(parentToChildHit.distance).isWithin(POSITION_TOLERANCE).of(1.0f)
         assertVector3(
             parentToChildHit.hitPosition,
             Vector3(1.5f, 0f, -1.0f),
@@ -762,11 +758,6 @@ class ScenePoseHitTestIntegrationTest {
         assertThat(normal.dot(-rayDir)).isAtLeast(0f)
     }
 
-    // TODO(b/584953104): Re-enable once RuntimeUtils.getHitTestResult stops multiplying unscaled
-    // world-meter HitTestResult.distance by sceneParentScale.
-    @Ignore(
-        "b/584953104: RuntimeUtils.getHitTestResult multiplies unscaled world-meter HitTestResult.distance by sceneParentScale"
-    )
     @Test
     fun activitySpace_hitTest_panelEntity_returnsUnscaledMetricDistance() {
         val session = sessionRule.session
