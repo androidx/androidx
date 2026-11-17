@@ -25,5 +25,23 @@ package androidx.appfunctions.evaluation.model {
     property public String text;
   }
 
+  public abstract class LlmTurn {
+    method @InaccessibleFromKotlin public final java.util.List<androidx.appfunctions.evaluation.model.LlmPart> getParts();
+    property public final java.util.List<androidx.appfunctions.evaluation.model.LlmPart> parts;
+  }
+
+  public static final class LlmTurn.ModelTurn extends androidx.appfunctions.evaluation.model.LlmTurn {
+    ctor @BytecodeOnly public LlmTurn.ModelTurn(java.util.List!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public LlmTurn.ModelTurn(java.util.List<? extends androidx.appfunctions.evaluation.model.LlmPart> parts, optional @IntRange(from=-1L) int inputTokens, optional @IntRange(from=-1L) int outputTokens);
+    method @InaccessibleFromKotlin @IntRange(from=-1L) public int getInputTokens();
+    method @InaccessibleFromKotlin @IntRange(from=-1L) public int getOutputTokens();
+    property @IntRange(from=-1L) public int inputTokens;
+    property @IntRange(from=-1L) public int outputTokens;
+  }
+
+  public static final class LlmTurn.UserTurn extends androidx.appfunctions.evaluation.model.LlmTurn {
+    ctor public LlmTurn.UserTurn(java.util.List<? extends androidx.appfunctions.evaluation.model.LlmPart> parts);
+  }
+
 }
 
