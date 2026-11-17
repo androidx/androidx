@@ -1,2 +1,21 @@
 // Signature format: 5.0
 // - surface=public
+package androidx.compose.remote.generator {
+
+  public final class RemoteSerializationCodeGenerator {
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static void generate(int language, java.nio.file.Path outputDirectory) throws java.io.IOException;
+    property public static int LANGUAGE_CPP;
+    property public static int LANGUAGE_PYTHON;
+    property public static int LANGUAGE_RUST;
+    property public static int LANGUAGE_SWIFT;
+    property public static int LANGUAGE_TYPESCRIPT;
+    field public static final androidx.compose.remote.generator.RemoteSerializationCodeGenerator INSTANCE;
+    field public static final int LANGUAGE_CPP = 1; // 0x1
+    field public static final int LANGUAGE_PYTHON = 3; // 0x3
+    field public static final int LANGUAGE_RUST = 2; // 0x2
+    field public static final int LANGUAGE_SWIFT = 4; // 0x4
+    field public static final int LANGUAGE_TYPESCRIPT = 5; // 0x5
+  }
+
+}
+

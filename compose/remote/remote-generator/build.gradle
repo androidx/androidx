@@ -25,6 +25,12 @@ plugins {
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.9.1")
+    implementation("org.json:json:20231013")
+
+    testImplementation(project(":compose:remote:remote-core"))
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(project(":kruth:kruth"))
 }
 
 androidx {
@@ -32,4 +38,15 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
     description = "Code generator for multi-language RemoteCompose operation bindings"
+}
+
+def remoteRootDirPath = project.projectDir.parentFile.absolutePath
+
+tasks.register("updateGeneratedCode", JavaExec) { task ->
+    task.group = "codegen"
+    task.description = "Regenerates checked-in RemoteCompose Kotlin and Java sources from operations.json"
+    task.classpath = sourceSets.main.runtimeClasspath
+    task.mainClass.set("androidx.compose.remote.generator.AndroidXCodegenUpdater")
+    task.args(remoteRootDirPath)
+    task.outputs.upToDateWhen { false }
 }
