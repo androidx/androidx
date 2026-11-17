@@ -217,6 +217,7 @@ final class androidx.navigation3.runtime.result/ResultEventBus { // androidx.nav
 
     final fun <#A1: kotlin/Any?> conflateAsState(kotlin/String, #A1, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime/State<#A1> // androidx.navigation3.runtime.result/ResultEventBus.conflateAsState|conflateAsState(kotlin.String;0:0;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> sendResult(kotlin/String, #A1) // androidx.navigation3.runtime.result/ResultEventBus.sendResult|sendResult(kotlin.String;0:0){0§<kotlin.Any?>}[0]
+    final fun removeAllResults() // androidx.navigation3.runtime.result/ResultEventBus.removeAllResults|removeAllResults(){}[0]
     final fun removeResult(kotlin/String) // androidx.navigation3.runtime.result/ResultEventBus.removeResult|removeResult(kotlin.String){}[0]
     final inline fun <#A1: reified kotlin/Any?> conflateAsState(#A1, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime/State<#A1> // androidx.navigation3.runtime.result/ResultEventBus.conflateAsState|conflateAsState(0:0;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
     final inline fun <#A1: reified kotlin/Any?> removeResult() // androidx.navigation3.runtime.result/ResultEventBus.removeResult|removeResult(){0§<kotlin.Any?>}[0]

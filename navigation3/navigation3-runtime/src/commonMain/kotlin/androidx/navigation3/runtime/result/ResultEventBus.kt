@@ -158,4 +158,17 @@ public class ResultEventBus {
     public fun removeResult(resultKey: String) {
         channelMap.remove(resultKey)?.close()
     }
+
+    /**
+     * Removes all results from the store and closes all active result channels.
+     *
+     * Call this when hoisting [ResultEventBus] outside of composition (instead of using
+     * [rememberResultEventBus]) to clear pending results when the composition is disposed or state
+     * resets.
+     */
+    public fun removeAllResults() {
+        val channels = channelMap.toMap().values
+        channelMap.clear()
+        channels.forEach { it.close() }
+    }
 }

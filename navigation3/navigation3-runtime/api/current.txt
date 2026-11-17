@@ -316,6 +316,7 @@ package androidx.navigation3.runtime.result {
     method @KotlinOnly @androidx.compose.runtime.Composable public <T> androidx.compose.runtime.State<T> conflateAsState(String resultKey, T defaultValue);
     method @BytecodeOnly @androidx.compose.runtime.Composable public <T> androidx.compose.runtime.State<T> conflateAsState(String, T, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public inline <reified T> androidx.compose.runtime.State<T> conflateAsState(T defaultValue);
+    method public void removeAllResults();
     method @KotlinOnly public inline <reified T> void removeResult();
     method public void removeResult(String resultKey);
     method public <T> void sendResult(String resultKey, T result);
