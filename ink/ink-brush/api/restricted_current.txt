@@ -874,6 +874,8 @@ package androidx.ink.brush.behavior {
     field public static final androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED;
     field public static final androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED;
     field public static final androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED;
+    field @SuppressCompatibility public static final androidx.ink.brush.behavior.SourceNode.Source BARREL_TWIST_ABOUT_ZERO_IN_RADIANS;
+    field @SuppressCompatibility public static final androidx.ink.brush.behavior.SourceNode.Source BARREL_TWIST_IN_RADIANS;
     field public static final androidx.ink.brush.behavior.SourceNode.Source.Companion Companion;
     field public static final androidx.ink.brush.behavior.SourceNode.Source DIRECTION_ABOUT_ZERO_IN_RADIANS;
     field public static final androidx.ink.brush.behavior.SourceNode.Source DIRECTION_IN_RADIANS;
@@ -915,6 +917,8 @@ package androidx.ink.brush.behavior {
     property public androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED;
     property public androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED;
     property public androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED;
+    property @SuppressCompatibility public androidx.ink.brush.behavior.SourceNode.Source BARREL_TWIST_ABOUT_ZERO_IN_RADIANS;
+    property @SuppressCompatibility public androidx.ink.brush.behavior.SourceNode.Source BARREL_TWIST_IN_RADIANS;
     property public androidx.ink.brush.behavior.SourceNode.Source DIRECTION_ABOUT_ZERO_IN_RADIANS;
     property public androidx.ink.brush.behavior.SourceNode.Source DIRECTION_IN_RADIANS;
     property public androidx.ink.brush.behavior.SourceNode.Source DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH;
