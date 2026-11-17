@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
+import android.content.pm.PackageManager
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
@@ -102,6 +103,8 @@ internal class OriginCompensation(val sceneParentScale: Float, val rotation: Qua
 
 private const val MIN_SCENE_PARENT_SCALE = 1e-4f
 private const val MAX_SCENE_PARENT_SCALE_RELATIVE_ERROR = 1e-3f
+private const val ACCESS_XR_OVERLAY_SPACE_PERMISSION =
+    "com.android.extensions.xr.ACCESS_XR_OVERLAY_SPACE"
 
 /**
  * Checks whether [matrix] can drive activity space compensation.
@@ -438,30 +441,62 @@ public class ActivitySpaceImpl(
         origin: Vector3,
         direction: Vector3,
         @ScenePose.HitTestFilterValue hitTestFilter: Int,
-    ): HitTestResult = suspendCancellableCoroutine { continuation ->
-        val compensation = originCompensation.get()
-        val originInSceneParent = compensation.toSceneParentSpace(origin)
-        val directionInSceneParent = compensation.toSceneParentSpaceDirection(direction)
-
-        val consumer =
-            Consumer<com.android.extensions.xr.space.HitTestResult> { result ->
-                if (continuation.isActive) {
-                    continuation.resume(RuntimeUtils.getHitTestResult(result, compensation))
-                }
-            }
-
-        try {
-            extensions.hitTest(
-                activity,
-                Vec3(originInSceneParent.x, originInSceneParent.y, originInSceneParent.z),
-                Vec3(directionInSceneParent.x, directionInSceneParent.y, directionInSceneParent.z),
-                RuntimeUtils.getHitTestFilter(hitTestFilter),
-                scheduledExecutor,
-                consumer,
+    ): HitTestResult {
+        val currentActivity =
+            activity
+                ?: throw IllegalStateException(
+                    "Cannot perform hitTest on a disposed ActivitySpace."
+                )
+        val activeFilter =
+            hitTestFilter and
+                (ScenePose.HitTestFilter.SELF_SCENE or ScenePose.HitTestFilter.OTHER_SCENES)
+        if (activeFilter == 0) {
+            return HitTestResult(
+                null,
+                null,
+                HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN,
+                Float.POSITIVE_INFINITY,
             )
-        } catch (e: Throwable) {
-            if (continuation.isActive) {
-                continuation.resumeWithException(e)
+        }
+        if (
+            (activeFilter and ScenePose.HitTestFilter.OTHER_SCENES) != 0 &&
+                currentActivity.checkSelfPermission(ACCESS_XR_OVERLAY_SPACE_PERMISSION) !=
+                    PackageManager.PERMISSION_GRANTED
+        ) {
+            throw SecurityException(
+                "HitTestFilter.OTHER_SCENES requires $ACCESS_XR_OVERLAY_SPACE_PERMISSION"
+            )
+        }
+
+        return suspendCancellableCoroutine { continuation ->
+            val compensation = originCompensation.get()
+            val originInSceneParent = compensation.toSceneParentSpace(origin)
+            val directionInSceneParent = compensation.toSceneParentSpaceDirection(direction)
+
+            val consumer =
+                Consumer<com.android.extensions.xr.space.HitTestResult> { result ->
+                    if (continuation.isActive) {
+                        continuation.resume(RuntimeUtils.getHitTestResult(result, compensation))
+                    }
+                }
+
+            try {
+                extensions.hitTest(
+                    currentActivity,
+                    Vec3(originInSceneParent.x, originInSceneParent.y, originInSceneParent.z),
+                    Vec3(
+                        directionInSceneParent.x,
+                        directionInSceneParent.y,
+                        directionInSceneParent.z,
+                    ),
+                    RuntimeUtils.getHitTestFilter(activeFilter),
+                    scheduledExecutor,
+                    consumer,
+                )
+            } catch (e: Throwable) {
+                if (continuation.isActive) {
+                    continuation.resumeWithException(e)
+                }
             }
         }
     }

@@ -121,6 +121,8 @@ public interface ScenePose {
      * @return The [HitTestResult], or null if the hit test did not find an intersection. The
      *   HitTestResult describes the location and normal of the object closest to the hit, relative
      *   to this ScenePose.
+     * @throws SecurityException if [hitTestFilter] includes [HitTestFilter.OTHER_SCENES] and the
+     *   caller does not hold `com.android.extensions.xr.ACCESS_XR_OVERLAY_SPACE`.
      */
     public suspend fun hitTest(
         origin: Vector3,

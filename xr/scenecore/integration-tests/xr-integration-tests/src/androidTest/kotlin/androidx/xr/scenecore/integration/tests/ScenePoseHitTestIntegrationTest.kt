@@ -372,11 +372,6 @@ class ScenePoseHitTestIntegrationTest {
         assertThat(mainPanelHit.surfaceType).isEqualTo(HitTestResult.SurfaceType.PLANE)
     }
 
-    // TODO(b/584958031): Remove @Ignore once ScenePose.hitTest with HitTestFilter.OTHER_SCENES
-    // completes or throws cleanly instead of hanging when ACCESS_XR_OVERLAY_SPACE is not held.
-    @Ignore(
-        "b/584958031: ScenePose.hitTest hangs indefinitely when OTHER_SCENES is passed without ACCESS_XR_OVERLAY_SPACE"
-    )
     @Test
     fun activitySpace_hitTest_otherScenesWithoutOverlayPermission_completesWithoutHanging() {
         val session = sessionRule.session

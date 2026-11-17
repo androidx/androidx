@@ -123,6 +123,8 @@ public interface ScenePose {
      * @return a {@code HitResult}. The HitResult describes if it hit something and where relative
      *   to this [ScenePose]. Listeners will be called on the main thread if Runnable::run is
      *   supplied.
+     * @throws SecurityException if [hitTestFilter] includes [HitTestFilter.OTHER_SCENES] and the
+     *   caller does not hold `com.android.extensions.xr.ACCESS_XR_OVERLAY_SPACE`.
      */
     public suspend fun hitTest(
         origin: Vector3,

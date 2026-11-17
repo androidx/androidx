@@ -67,6 +67,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
@@ -860,5 +861,74 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
             assertThat(currentForward.dot(previousForward)).isGreaterThan(0.99f)
             previousForward = currentForward
         }
+    }
+
+    @Test
+    fun hitTest_withZeroFilter_returnsMissWithoutCallingExtensions() = runBlocking {
+        val extensionsHitTestResult =
+            com.android.extensions.xr.space.HitTestResult.Builder(
+                    2.0f,
+                    Vec3(1f, 2f, 3f),
+                    true,
+                    com.android.extensions.xr.space.HitTestResult.SURFACE_PANEL,
+                )
+                .build()
+        ShadowXrExtensions.extract(xrExtensions).setHitTestResult(activity, extensionsHitTestResult)
+
+        val result = activitySpace.hitTest(Vector3.Zero, Vector3(0f, 0f, -1f), 0)
+
+        assertThat(result.distance).isEqualTo(Float.POSITIVE_INFINITY)
+        assertThat(result.hitPosition).isNull()
+        assertThat(result.surfaceNormal).isNull()
+        assertThat(result.surfaceType)
+            .isEqualTo(HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN)
+    }
+
+    @Test
+    fun hitTest_otherScenesWithoutOverlayPermission_throwsSecurityException() = runBlocking {
+        var thrown: SecurityException? = null
+        try {
+            activitySpace.hitTest(
+                Vector3.Zero,
+                Vector3(0f, 0f, -1f),
+                ScenePose.HitTestFilter.SELF_SCENE or ScenePose.HitTestFilter.OTHER_SCENES,
+            )
+        } catch (e: SecurityException) {
+            thrown = e
+        }
+
+        assertThat(thrown).isNotNull()
+        assertThat(thrown!!.message).contains("ACCESS_XR_OVERLAY_SPACE")
+    }
+
+    @Test
+    fun hitTest_otherScenesWithOverlayPermission_returnsHitTest() = runBlocking {
+        shadowOf(activity.application)
+            .grantPermissions("com.android.extensions.xr.ACCESS_XR_OVERLAY_SPACE")
+        val distance = 2.0f
+        val extensionsHitTestResult =
+            com.android.extensions.xr.space.HitTestResult.Builder(
+                    distance,
+                    Vec3(0f, 0f, -2f),
+                    true,
+                    com.android.extensions.xr.space.HitTestResult.SURFACE_PANEL,
+                )
+                .setSurfaceNormal(Vec3(0f, 0f, 1f))
+                .build()
+        ShadowXrExtensions.extract(xrExtensions).setHitTestResult(activity, extensionsHitTestResult)
+
+        val deferredResult =
+            async(start = CoroutineStart.UNDISPATCHED) {
+                activitySpace.hitTest(
+                    Vector3.Zero,
+                    Vector3(0f, 0f, -1f),
+                    ScenePose.HitTestFilter.OTHER_SCENES,
+                )
+            }
+        fakeExecutor.runAll()
+        val result = deferredResult.await()
+
+        assertThat(result.distance).isEqualTo(distance)
+        assertVector3(result.hitPosition!!, Vector3(0f, 0f, -2f))
     }
 }
