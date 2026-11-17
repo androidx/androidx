@@ -33,7 +33,6 @@ import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
-import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.PartialResult
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
@@ -175,25 +174,16 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
             }
 
         val appNameLocation = appMap.getLocation(KEY_APP_NAME_LOCATION) ?: return
-        val appElementLocation = appMap.getLocation(KEY_APP_ELEMENT_LOCATION) ?: appNameLocation
         val allowBackupLocation = appMap.getLocation(KEY_ALLOW_BACKUP_LOCATION) ?: appNameLocation
 
         // Sub-case B: android:backupAgent declared alongside android:allowBackup="false"
         if (hasBackupAgent && allowBackup.equals("false", ignoreCase = true)) {
-            val fix =
-                LintFix.create()
-                    .name("Set android:allowBackup=\"true\"")
-                    .set(ANDROID_URI, ATTR_ALLOW_BACKUP, "true")
-                    .range(appElementLocation)
-                    .build()
             context.report(
                 Incident(
                     ISSUE,
                     allowBackupLocation,
                     "Declaring `android:backupAgent` while `android:allowBackup=\"false\"` prevents " +
-                        "Android from invoking `$backupAgent` to restore credentials; set " +
-                        "`android:allowBackup=\"true\"`",
-                    fix,
+                        "Android from invoking `$backupAgent` to restore credentials",
                 )
             )
             return
@@ -207,20 +197,12 @@ class RestoreCredentialManifestBackupDetector : Detector(), SourceCodeScanner, X
                 !isDynamicFullBackupOnly &&
                 !fullBackupOnly.equals("true", ignoreCase = true)
         ) {
-            val fix =
-                LintFix.create()
-                    .name("Set android:fullBackupOnly=\"true\"")
-                    .set(ANDROID_URI, ATTR_FULL_BACKUP_ONLY, "true")
-                    .range(appElementLocation)
-                    .build()
             context.report(
                 Incident(
                     ISSUE,
                     appNameLocation,
                     "Declaring `android:backupAgent` without `android:fullBackupOnly=\"true\"` disables " +
-                        "Android Auto Backup and falls back to legacy Key-Value backup, skipping " +
-                        "`onRestoreFinished()`; add `android:fullBackupOnly=\"true\"`",
-                    fix,
+                        "Android Auto Backup and falls back to Key-Value backup",
                 )
             )
             return

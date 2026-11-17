@@ -97,7 +97,7 @@ class RestoreCredentialOptionChainingDetector : Detector(), SourceCodeScanner {
 
         context.report(
             ISSUE,
-            requestCall,
+            anchor,
             context.getLocation(anchor),
             "`GetRestoreCredentialOption` cannot be combined with other `CredentialOption` entries in a " +
                 "single `GetCredentialRequest` (throws `IllegalArgumentException` at runtime). Request " +

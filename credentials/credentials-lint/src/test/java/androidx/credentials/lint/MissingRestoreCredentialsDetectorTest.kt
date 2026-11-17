@@ -631,10 +631,19 @@ class MissingRestoreCredentialsDetectorTest : LintDetectorTest() {
 
     @Test
     fun anonymousAuthIsClean_vaultLoginWithContentTypeAndScopedSuppressionAreReported() {
-        // 1. Anonymous Firebase sign-in and getCurrentUser() do not trigger
-        // MissingRestoreCredentials
+        // 1. Anonymous Firebase sign-in and getCurrentUser() (even with firebase-auth in
+        // build.gradle) do not trigger MissingRestoreCredentials
         lint()
             .files(
+                gradle(
+                        "build.gradle",
+                        """
+                dependencies {
+                    implementation("com.google.firebase:firebase-auth:23.0.0")
+                }
+                """,
+                    )
+                    .indented(),
                 firebaseAuthStub,
                 kotlin(
                         """
@@ -654,7 +663,8 @@ class MissingRestoreCredentialsDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
 
-        // 2. VaultLoginScreen with explicit ContentType.EmailAddress is reported, and
+        // 2. VaultLoginScreen with explicit ContentType.EmailAddress is reported, while
+        // WifiSetupScreen with ContentType.Username (and no sign-in keyword) is ignored, and
         // @Suppress("MissingRestoreCredentials") on DebugLoginScreen drops only that site.
         lint()
             .files(
@@ -666,6 +676,11 @@ class MissingRestoreCredentialsDetectorTest : LintDetectorTest() {
 
                 import androidx.compose.material3.OutlinedSecureTextField
                 import androidx.compose.ui.autofill.ContentType
+
+                fun WifiSetupScreen(ssidUser: String, passphrase: String) {
+                    val userType = ContentType.Username
+                    OutlinedSecureTextField(passphrase)
+                }
 
                 @Suppress("MissingRestoreCredentials")
                 fun DebugLoginScreen(email: String, password: String) {
@@ -684,12 +699,99 @@ class MissingRestoreCredentialsDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                src/com/example/VaultScreens.kt:14: Hint: Sign-in surface detected (Jetpack Compose sign-in UI) without Restore Credentials (CreateRestoreCredentialRequest and GetRestoreCredentialOption); integrate Restore Credentials to silently restore user sessions across device transfers [MissingRestoreCredentials]
+                src/com/example/VaultScreens.kt:19: Hint: Sign-in surface detected (Jetpack Compose sign-in UI) without Restore Credentials (CreateRestoreCredentialRequest and GetRestoreCredentialOption); integrate Restore Credentials to silently restore user sessions across device transfers [MissingRestoreCredentials]
                     OutlinedSecureTextField(password)
                     ~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 0 warnings, 1 hint
                 """
                     .trimIndent()
             )
+    }
+
+    @Test
+    fun multipleAuthGradleDependencies_anonymousFirstDepDoesNotHideSecond() {
+        val auth0Stub =
+            kotlin(
+                    """
+                package com.auth0.android
+
+                abstract class Auth0Client {
+                    abstract fun logout()
+                }
+                """
+                )
+                .indented()
+
+        // 1. Anonymous-only firebase-auth above auth0 still reports MissingRestoreCredentials on
+        // the auth0 Gradle dependency rather than dropping the second SDK.
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
+                dependencies {
+                    implementation("com.google.firebase:firebase-auth:23.0.0")
+                    implementation("com.auth0.android:auth0:2.10.0")
+                }
+                """,
+                    )
+                    .indented(),
+                firebaseAuthStub,
+                kotlin(
+                        """
+                package com.example
+
+                import com.google.firebase.auth.FirebaseAuth
+
+                fun ensureAnonymousSession(auth: FirebaseAuth) {
+                    auth.signInAnonymously()
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                build.gradle:3: Hint: Sign-in surface detected (authentication dependency com.auth0.android:auth0:2.10.0) without Restore Credentials (CreateRestoreCredentialRequest and GetRestoreCredentialOption); integrate Restore Credentials to silently restore user sessions across device transfers [MissingRestoreCredentials]
+                    implementation("com.auth0.android:auth0:2.10.0")
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 0 warnings, 1 hint
+                """
+                    .trimIndent()
+            )
+
+        // 2. When every declared auth Gradle dependency only has non-account calls, stay clean.
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
+                dependencies {
+                    implementation("com.google.firebase:firebase-auth:23.0.0")
+                    implementation("com.auth0.android:auth0:2.10.0")
+                }
+                """,
+                    )
+                    .indented(),
+                firebaseAuthStub,
+                auth0Stub,
+                kotlin(
+                        """
+                package com.example
+
+                import com.auth0.android.Auth0Client
+                import com.google.firebase.auth.FirebaseAuth
+
+                fun cleanupOnly(auth: FirebaseAuth, auth0: Auth0Client) {
+                    auth.signInAnonymously()
+                    auth0.logout()
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
     }
 }

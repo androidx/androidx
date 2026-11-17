@@ -90,23 +90,14 @@ class RestoreCredentialManifestBackupDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                AndroidManifest.xml:3: Warning: Declaring android:backupAgent without android:fullBackupOnly="true" disables Android Auto Backup and falls back to legacy Key-Value backup, skipping onRestoreFinished(); add android:fullBackupOnly="true" [RestoreCredentialManifestBackupConfig]
+                AndroidManifest.xml:3: Warning: Declaring android:backupAgent without android:fullBackupOnly="true" disables Android Auto Backup and falls back to Key-Value backup [RestoreCredentialManifestBackupConfig]
                     <application
                      ~~~~~~~~~~~
                 0 errors, 1 warnings
                 """
                     .trimIndent()
             )
-            .expectFixDiffs(
-                """
-                Fix for AndroidManifest.xml line 3: Set android:fullBackupOnly="true":
-                @@ -7 +7,2 @@
-                -        android:backupAgent=".AppBackupAgent" />
-                +        android:backupAgent=".AppBackupAgent"
-                +        android:fullBackupOnly="true" />
-                """
-                    .trimIndent()
-            )
+            .expectFixDiffs("")
     }
 
     @Test
@@ -132,22 +123,14 @@ class RestoreCredentialManifestBackupDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                AndroidManifest.xml:4: Warning: Declaring android:backupAgent while android:allowBackup="false" prevents Android from invoking .AppBackupAgent to restore credentials; set android:allowBackup="true" [RestoreCredentialManifestBackupConfig]
+                AndroidManifest.xml:4: Warning: Declaring android:backupAgent while android:allowBackup="false" prevents Android from invoking .AppBackupAgent to restore credentials [RestoreCredentialManifestBackupConfig]
                         android:allowBackup="false"
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 1 warnings
                 """
                     .trimIndent()
             )
-            .expectFixDiffs(
-                """
-                Fix for AndroidManifest.xml line 4: Set android:allowBackup="true":
-                @@ -6 +6 @@
-                -        android:allowBackup="false"
-                +        android:allowBackup="true"
-                """
-                    .trimIndent()
-            )
+            .expectFixDiffs("")
     }
 
     @Test

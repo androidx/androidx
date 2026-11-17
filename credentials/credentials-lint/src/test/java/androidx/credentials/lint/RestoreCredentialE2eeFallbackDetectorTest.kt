@@ -330,4 +330,431 @@ class RestoreCredentialE2eeFallbackDetectorTest : LintDetectorTest() {
                     .trimIndent()
             )
     }
+
+    @Test
+    fun runCatchingGenericExceptionNamedCallbackAndDefaultCloudParam_areClean() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import android.os.CancellationSignal
+                import androidx.credentials.CreateCredentialResponse
+                import androidx.credentials.CreateRestoreCredentialRequest
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.CredentialManagerCallback
+                import androidx.credentials.exceptions.CreateCredentialException
+                import androidx.credentials.exceptions.restorecredential.E2eeUnavailableException
+                import java.util.concurrent.Executor
+
+                suspend fun fallbackWithRunCatching(context: Context, json: String) {
+                    val manager = CredentialManager.create(context)
+                    runCatching {
+                        manager.createCredential(context, CreateRestoreCredentialRequest(json))
+                    }.onFailure {
+                        manager.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    }
+                }
+
+                suspend fun fallbackWithGenericExceptionCatch(context: Context, json: String) {
+                    val manager = CredentialManager.create(context)
+                    try {
+                        manager.createCredential(context, CreateRestoreCredentialRequest(json))
+                    } catch (e: Exception) {
+                        manager.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    }
+                }
+
+                class NamedRestoreCallback(
+                    private val manager: CredentialManager,
+                    private val context: Context,
+                    private val json: String,
+                    private val executor: Executor,
+                ) : CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException> {
+                    override fun onResult(result: CreateCredentialResponse) {}
+
+                    override fun onError(e: CreateCredentialException) {
+                        manager.createCredentialAsync(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                            CancellationSignal(),
+                            executor,
+                            this,
+                        )
+                    }
+                }
+
+                fun fallbackWithNamedCallback(context: Context, json: String, executor: Executor) {
+                    val manager = CredentialManager.create(context)
+                    val callback = NamedRestoreCallback(manager, context, json, executor)
+                    manager.createCredentialAsync(
+                        context,
+                        CreateRestoreCredentialRequest(json),
+                        CancellationSignal(),
+                        executor,
+                        callback,
+                    )
+                }
+
+                private fun makeRestoreRequest(
+                    json: String,
+                    cloud: Boolean = true,
+                ): CreateRestoreCredentialRequest =
+                    CreateRestoreCredentialRequest(json, isCloudBackupEnabled = cloud)
+
+                suspend fun fallbackWithDefaultCloudParamHelper(context: Context, json: String) {
+                    val manager = CredentialManager.create(context)
+                    try {
+                        manager.createCredential(context, makeRestoreRequest(json))
+                    } catch (e: E2eeUnavailableException) {
+                        manager.createCredential(context, makeRestoreRequest(json, cloud = false))
+                    }
+                }
+
+                suspend fun saveRestoreCredentialWithDefaultParam(
+                    manager: CredentialManager,
+                    context: Context,
+                    json: String,
+                    cloud: Boolean = true,
+                ) {
+                    try {
+                        manager.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = cloud),
+                        )
+                    } catch (e: E2eeUnavailableException) {
+                        saveRestoreCredentialWithDefaultParam(manager, context, json, cloud = false)
+                    }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun runCatchingGenericExceptionNamedCallbackAndDefaultCloudParamWithoutFallback_reportWarnings() {
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import android.os.CancellationSignal
+                import androidx.credentials.CreateCredentialResponse
+                import androidx.credentials.CreateRestoreCredentialRequest
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.CredentialManagerCallback
+                import androidx.credentials.exceptions.CreateCredentialException
+                import java.util.concurrent.Executor
+
+                suspend fun runCatchingWithoutRetryDespiteLocalElsewhere(
+                    context: Context,
+                    json: String,
+                    localOnly: Boolean,
+                ) {
+                    val cm = CredentialManager.create(context)
+                    if (localOnly) {
+                        cm.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    } else {
+                        runCatching {
+                            cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                        }.onFailure { println(it) }
+                    }
+                }
+
+                suspend fun genericCatchWithoutRetry(context: Context, json: String) {
+                    val cm = CredentialManager.create(context)
+                    try {
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                    } catch (e: Exception) {
+                        println(e)
+                    }
+                }
+
+                class NoRetryNamedCallback :
+                    CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException> {
+                    override fun onResult(result: CreateCredentialResponse) {}
+
+                    override fun onError(e: CreateCredentialException) {
+                        println(e)
+                    }
+                }
+
+                fun namedCallbackWithoutRetry(context: Context, json: String, executor: Executor) {
+                    val cm = CredentialManager.create(context)
+                    cm.createCredentialAsync(
+                        context,
+                        CreateRestoreCredentialRequest(json),
+                        CancellationSignal(),
+                        executor,
+                        NoRetryNamedCallback(),
+                    )
+                }
+
+                private fun makeRestoreRequest(
+                    json: String,
+                    cloud: Boolean = true,
+                ): CreateRestoreCredentialRequest =
+                    CreateRestoreCredentialRequest(json, isCloudBackupEnabled = cloud)
+
+                suspend fun defaultCloudParamHelperWithoutFallback(context: Context, json: String) {
+                    val cm = CredentialManager.create(context)
+                    cm.createCredential(context, makeRestoreRequest(json))
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/NoRetryNamedCallback.kt:25: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                            cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/NoRetryNamedCallback.kt:33: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/NoRetryNamedCallback.kt:50: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                    cm.createCredentialAsync(
+                    ^
+                src/com/example/NoRetryNamedCallback.kt:67: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                    cm.createCredential(context, makeRestoreRequest(json))
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 4 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun helperUnrelatedFalseParamAndResultBranchPolarity_areCheckedAccurately() {
+        // 1. Clean: cloud = false disables cloud backup even with another boolean param, and
+        // runCatching failure retries in the actual failure branch (else of isSuccess, then of
+        // !isSuccess / isFailure / exceptionOrNull() is E2eeUnavailableException) are recognized.
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import androidx.credentials.CreateRestoreCredentialRequest
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.exceptions.restorecredential.E2eeUnavailableException
+
+                private fun makeRestoreRequest(
+                    json: String,
+                    logMetrics: Boolean = true,
+                    cloud: Boolean = true,
+                ): CreateRestoreCredentialRequest {
+                    if (logMetrics) println("metrics")
+                    return CreateRestoreCredentialRequest(json, isCloudBackupEnabled = cloud)
+                }
+
+                suspend fun cleanHelperAndResultBranches(context: Context, json: String) {
+                    val cm = CredentialManager.create(context)
+                    cm.createCredential(
+                        context,
+                        makeRestoreRequest(json, logMetrics = true, cloud = false),
+                    )
+                    try {
+                        cm.createCredential(context, makeRestoreRequest(json, logMetrics = false))
+                    } catch (e: E2eeUnavailableException) {
+                        cm.createCredential(context, makeRestoreRequest(json, cloud = false))
+                    }
+
+                    val res1 = runCatching {
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                    }
+                    if (res1.isSuccess) {
+                        println("ok")
+                    } else {
+                        cm.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    }
+
+                    val res2 = runCatching {
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                    }
+                    if (!res2.isSuccess) {
+                        cm.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    }
+
+                    val res3 = runCatching {
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                    }
+                    if (res3.isFailure) {
+                        cm.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    }
+
+                    val res4 = runCatching {
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                    }
+                    if (res4.exceptionOrNull() is E2eeUnavailableException) {
+                        cm.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+
+        // 2. Flagged: passing false to an unrelated parameter (not isCloudBackupEnabled) does not
+        // suppress the warning or satisfy a catch retry, and placing the local retry in the
+        // success branch of `if (res.isSuccess)` or `else` of `if (res.isFailure)` is flagged.
+        lint()
+            .files(
+                *CREDENTIALS_STUBS,
+                kotlin(
+                        """
+                package com.example
+
+                import android.content.Context
+                import androidx.credentials.CreateRestoreCredentialRequest
+                import androidx.credentials.CredentialManager
+                import androidx.credentials.exceptions.restorecredential.E2eeUnavailableException
+
+                private fun makeRestoreRequest(
+                    json: String,
+                    logMetrics: Boolean = true,
+                    cloud: Boolean = true,
+                ): CreateRestoreCredentialRequest {
+                    if (logMetrics) println("metrics")
+                    return CreateRestoreCredentialRequest(json, isCloudBackupEnabled = cloud)
+                }
+
+                suspend fun helperWithUnrelatedFalseArgWithoutFallback(
+                    context: Context,
+                    json: String,
+                ) {
+                    val cm = CredentialManager.create(context)
+                    cm.createCredential(context, makeRestoreRequest(json, logMetrics = false))
+                }
+
+                suspend fun helperCatchWithUnrelatedFalseArg(context: Context, json: String) {
+                    val cm = CredentialManager.create(context)
+                    try {
+                        cm.createCredential(context, makeRestoreRequest(json))
+                    } catch (e: E2eeUnavailableException) {
+                        cm.createCredential(context, makeRestoreRequest(json, logMetrics = false))
+                    }
+                }
+
+                suspend fun saveWithExtraFlagWrongCatchRetry(
+                    cm: CredentialManager,
+                    context: Context,
+                    json: String,
+                    logMetrics: Boolean = true,
+                    cloud: Boolean = true,
+                ) {
+                    if (logMetrics) println("metrics")
+                    try {
+                        cm.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = cloud),
+                        )
+                    } catch (e: E2eeUnavailableException) {
+                        saveWithExtraFlagWrongCatchRetry(
+                            cm,
+                            context,
+                            json,
+                            logMetrics = false,
+                        )
+                    }
+                }
+
+                suspend fun runCatchingRetryInIsSuccessThenBranch(
+                    context: Context,
+                    json: String,
+                ) {
+                    val cm = CredentialManager.create(context)
+                    val res = runCatching {
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                    }
+                    if (res.isSuccess) {
+                        cm.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    }
+                }
+
+                suspend fun runCatchingRetryInIsFailureElseBranch(
+                    context: Context,
+                    json: String,
+                ) {
+                    val cm = CredentialManager.create(context)
+                    val res = runCatching {
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                    }
+                    if (res.isFailure) {
+                        println("error")
+                    } else {
+                        cm.createCredential(
+                            context,
+                            CreateRestoreCredentialRequest(json, isCloudBackupEnabled = false),
+                        )
+                    }
+                }
+                """
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/test.kt:22: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                    cm.createCredential(context, makeRestoreRequest(json, logMetrics = false))
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:28: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                        cm.createCredential(context, makeRestoreRequest(json))
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:30: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                        cm.createCredential(context, makeRestoreRequest(json, logMetrics = false))
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:43: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                        cm.createCredential(
+                        ^
+                src/com/example/test.kt:63: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/test.kt:79: Warning: CreateRestoreCredentialRequest with cloud backup enabled throws E2eeUnavailableException when the device lacks a screen lock or cloud E2EE; catch E2eeUnavailableException and retry with isCloudBackupEnabled = false so local Device-to-Device restore still works [RestoreCredentialMissingE2eeFallback]
+                        cm.createCredential(context, CreateRestoreCredentialRequest(json))
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 6 warnings
+                """
+                    .trimIndent()
+            )
+    }
 }
