@@ -99,15 +99,20 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         targetValue: V,
         initialVelocity: V,
     ): V {
-        val clampedPlayTimeNanos =
-            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                clampPlayTimeNanos(playTimeNanos)
-            } else {
-                clampPlayTimeMillis(playTimeNanos / MillisToNanos) * MillisToNanos
-            }
+        val clampedPlayTimeNanos: Long
+        val clampedPlayTimeMillis: Int
+        if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos, delayMillis, durationMillis)
+            clampedPlayTimeMillis = (clampedPlayTimeNanos / MillisToNanos).toInt()
+        } else {
+            val clampedMillis =
+                clampPlayTimeMillis(playTimeNanos / MillisToNanos, delayMillis, durationMillis)
+            clampedPlayTimeMillis = clampedMillis.toInt()
+            clampedPlayTimeNanos = clampedMillis * MillisToNanos
+        }
         // If there is a key frame defined with the given time stamp, return that value
-        if (clampedPlayTimeNanos % MillisToNanos == 0L) {
-            val keyframe = keyframes[(clampedPlayTimeNanos / MillisToNanos).toInt()]
+        if (clampedPlayTimeNanos == clampedPlayTimeMillis * MillisToNanos) {
+            val keyframe = keyframes[clampedPlayTimeMillis]
             if (keyframe != null) {
                 return keyframe.first
             }
@@ -123,7 +128,7 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
 
         // There's no promise on the nature of the given time, so we need to search for the correct
         // time range at every call
-        val index = findEntryForTimeMillis((clampedPlayTimeNanos / MillisToNanos).toInt())
+        val index = findEntryForTimeMillis(clampedPlayTimeMillis)
 
         val valueVector = valueVector!!
         monoSpline!!.getPos(
@@ -141,18 +146,23 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         targetValue: V,
         initialVelocity: V,
     ): V {
-        val clampedPlayTimeNanos =
-            if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
-                clampPlayTimeNanos(playTimeNanos)
-            } else {
-                clampPlayTimeMillis(playTimeNanos / MillisToNanos) * MillisToNanos
-            }
+        val clampedPlayTimeNanos: Long
+        val clampedPlayTimeMillis: Int
+        if (ComposeAnimationCoreFlags.isNanosecondAnimationSpecEnabled) {
+            clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos, delayMillis, durationMillis)
+            clampedPlayTimeMillis = (clampedPlayTimeNanos / MillisToNanos).toInt()
+        } else {
+            val clampedMillis =
+                clampPlayTimeMillis(playTimeNanos / MillisToNanos, delayMillis, durationMillis)
+            clampedPlayTimeMillis = clampedMillis.toInt()
+            clampedPlayTimeNanos = clampedMillis * MillisToNanos
+        }
 
         init(initialValue, targetValue, initialVelocity)
 
         // There's no promise on the nature of the given time, so we need to search for the correct
         // time range at every call
-        val index = findEntryForTimeMillis((clampedPlayTimeNanos / MillisToNanos).toInt())
+        val index = findEntryForTimeMillis(clampedPlayTimeMillis)
 
         val velocityVector = velocityVector!!
         monoSpline!!.getSlope(
