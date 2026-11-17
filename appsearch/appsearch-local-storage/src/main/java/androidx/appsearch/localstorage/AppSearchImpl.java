@@ -63,8 +63,10 @@ import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
+import androidx.appsearch.app.WrappedBlobEncryptionKey;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlag;
 import androidx.appsearch.localstorage.converter.BlobHandleToProtoConverter;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localstorage.converter.ResultCodeToProtoConverter;
@@ -2599,9 +2601,207 @@ public final class AppSearchImpl implements Closeable {
             logWriteOperationLatencyLocked(totalLatencyStartMillis,
                     javaLockAcquisitionEndTimeMillis,
                     /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
-                    BaseStats.CALL_TYPE_COMMIT_BLOB,
+                    Flags.enableCommitEncryptedBlob() && symmetricKey != null
+                            ? BaseStats.CALL_TYPE_COMMIT_ENCRYPTED_BLOB
+                            : BaseStats.CALL_TYPE_COMMIT_BLOB,
                     callStatsBuilder);
             mReadWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Re-wraps the Data Encryption Key (DEK) for the committed encrypted blob represented by the
+     * given {@link AppSearchBlobHandle} using the provided server public key and attestation.
+     *
+     * @param packageName       The package name that owns this blob.
+     * @param databaseName      The databaseName this blob resides in.
+     * @param handle            The {@link AppSearchBlobHandle} representing the blob.
+     * @param callerAccess      Visibility access info of the calling app.
+     * @param serverPublicKey   The server's ephemeral public key for HPKE encapsulation.
+     * @param serverAttestation The server's attestation payload.
+     * @return The {@link WrappedBlobEncryptionKey} containing the wrapped DEK and AEAD
+     * parameters.
+     * @throws AppSearchException with {@link AppSearchResult#RESULT_NOT_FOUND} if the blob or its
+     *                            encryption key does not exist, or the caller is not allowed to
+     *                            read the blob
+     */
+    @RequiresFlag(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public @NonNull WrappedBlobEncryptionKey rewrapBlobKey(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull AppSearchBlobHandle handle,
+            @NonNull CallerAccess callerAccess,
+            byte @NonNull [] serverPublicKey,
+            byte @NonNull [] serverAttestation,
+            CallStats.@Nullable Builder callStatsBuilder)
+            throws AppSearchException {
+        if (mRevocableFileDescriptorStore == null) {
+            throw new UnsupportedOperationException(
+                    "BLOB_STORAGE is not available on this AppSearch implementation.");
+        }
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        long javaLockAcquisitionEndTimeMillis = 0;
+        mReadWriteLock.readLock().lock();
+        try {
+            javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
+            throwIfClosedLocked();
+            if (callStatsBuilder != null) {
+                callStatsBuilder.setLastBlockingOperation(mLastWriteOperationLocked)
+                        .setLastBlockingOperationLatencyMillis(
+                                mLastWriteOperationLatencyMillisLocked);
+            }
+            verifyCallingBlobHandle(packageName, databaseName, handle);
+            // Only the isolated storage pVM verifies the server attestation and re-wraps the DEK.
+            // No other Icing instance supports re-wrapping blob keys.
+            // TODO(b/564581503): Let the Icing implementations that do not support this throw
+            //   instead of checking the VM state here.
+            if (!Flags.enableCommitEncryptedBlob() || !mLaunchVmFeatures.isVmEnabled()) {
+                throw new AppSearchException(
+                        AppSearchResult.RESULT_UNAVAILABLE,
+                        "Blob keys can only be rewrapped when AppSearch data is stored in"
+                                + " isolated storage.");
+            }
+            PropertyProto.BlobHandleProto blobHandleProto =
+                    BlobHandleToProtoConverter.toBlobHandleProto(handle);
+            // Same as openReadBlob: with PCC data encapsulation, self-access is verified by the
+            // VisibilityChecker, which takes the namespace's writer UID into account.
+            if (Flags.enablePccDataEncapsulation()
+                    && !VisibilityUtil.isSchemaSearchableByCaller(
+                            callerAccess,
+                            packageName,
+                            createPrefix(packageName, databaseName) + handle.getNamespace(),
+                            mBlobVisibilityStoreLocked,
+                            mVisibilityCheckerLocked)) {
+                // Caller doesn't have access to this namespace.
+                throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
+                        "Cannot find the blob for handle: "
+                                + blobHandleProto.getDigest().toStringUtf8());
+            }
+            BlobProto result = mIcingSearchEngineLocked.rewrapBlobKey(
+                    blobHandleProto, serverPublicKey, serverAttestation);
+            if (callStatsBuilder != null) {
+                callStatsBuilder
+                        .addGetVmLatencyMillis(result.getGetVmLatencyMs())
+                        .addIcingSearchEngineRequestBytes(
+                                blobHandleProto.getSerializedSize()
+                                        + serverPublicKey.length
+                                        + serverAttestation.length)
+                        .addIcingSearchEngineResponseBytes(result.getSerializedSize());
+            }
+            checkSuccess(result.getStatus());
+            if (!result.hasBlobKey()) {
+                throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
+                        "Cannot find encryption key for blob: " + handle);
+            }
+            BlobKeyProto blobKey = result.getBlobKey();
+            return new WrappedBlobEncryptionKey(
+                    blobKey.getKey().toByteArray(),
+                    blobKey.hasAeadParams() ? blobKey.getAeadParams().toByteArray() : null);
+        } finally {
+            logReadOperationLatencyLocked(totalLatencyStartMillis,
+                    javaLockAcquisitionEndTimeMillis,
+                    /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
+                    BaseStats.CALL_TYPE_GET_WRAPPED_BLOB_ENCRYPTION_KEYS,
+                    callStatsBuilder);
+            mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Re-wraps the Data Encryption Key (DEK) for the committed encrypted blob represented by the
+     * given {@link AppSearchBlobHandle} using the provided server public key and attestation, if
+     * the blob is visible to the caller.
+     *
+     * <p>The target must be committed via {@link #commitBlob}.
+     *
+     * @param handle            The {@link AppSearchBlobHandle} representing the blob.
+     * @param serverPublicKey   The server's ephemeral public key for HPKE encapsulation.
+     * @param serverAttestation The server's attestation payload.
+     * @param access            The {@link CallerAccess} info of the calling app.
+     * @return The {@link WrappedBlobEncryptionKey} containing the wrapped DEK and AEAD
+     * parameters.
+     */
+    @RequiresFlag(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public @NonNull WrappedBlobEncryptionKey globalRewrapBlobKey(
+            @NonNull AppSearchBlobHandle handle,
+            byte @NonNull [] serverPublicKey,
+            byte @NonNull [] serverAttestation,
+            @NonNull CallerAccess access,
+            CallStats.@Nullable Builder callStatsBuilder)
+            throws AppSearchException {
+        if (mRevocableFileDescriptorStore == null) {
+            throw new UnsupportedOperationException(
+                    "BLOB_STORAGE is not available on this AppSearch implementation.");
+        }
+
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        long javaLockAcquisitionEndTimeMillis = 0;
+        mReadWriteLock.readLock().lock();
+        try {
+            javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
+            throwIfClosedLocked();
+            if (callStatsBuilder != null) {
+                callStatsBuilder.setLastBlockingOperation(mLastWriteOperationLocked)
+                        .setLastBlockingOperationLatencyMillis(
+                                mLastWriteOperationLatencyMillisLocked);
+            }
+            // Only the isolated storage pVM verifies the server attestation and re-wraps the DEK.
+            // No other Icing instance supports re-wrapping blob keys.
+            // TODO(b/564581503): Let the Icing implementations that do not support this throw
+            //   instead of checking the VM state here.
+            if (!Flags.enableCommitEncryptedBlob() || !mLaunchVmFeatures.isVmEnabled()) {
+                throw new AppSearchException(
+                        AppSearchResult.RESULT_UNAVAILABLE,
+                        "Blob keys can only be rewrapped when AppSearch data is stored in"
+                                + " isolated storage.");
+            }
+            String prefixedNamespace =
+                    createPrefix(handle.getPackageName(), handle.getDatabaseName())
+                            + handle.getNamespace();
+            PropertyProto.BlobHandleProto blobHandleProto =
+                    BlobHandleToProtoConverter.toBlobHandleProto(handle);
+            // We are using namespace to check blob's visibility.
+            if (!VisibilityUtil.isSchemaSearchableByCaller(
+                    access,
+                    handle.getPackageName(),
+                    prefixedNamespace,
+                    mBlobVisibilityStoreLocked,
+                    mVisibilityCheckerLocked)) {
+                // Caller doesn't have access to this namespace.
+                throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
+                        "Cannot find the blob for handle: "
+                                + blobHandleProto.getDigest().toStringUtf8());
+            }
+
+            BlobProto result = mIcingSearchEngineLocked.rewrapBlobKey(
+                    blobHandleProto, serverPublicKey, serverAttestation);
+            if (callStatsBuilder != null) {
+                callStatsBuilder
+                        .addGetVmLatencyMillis(result.getGetVmLatencyMs())
+                        .addIcingSearchEngineRequestBytes(
+                                blobHandleProto.getSerializedSize()
+                                        + serverPublicKey.length
+                                        + serverAttestation.length)
+                        .addIcingSearchEngineResponseBytes(result.getSerializedSize());
+            }
+            checkSuccess(result.getStatus());
+            if (!result.hasBlobKey()) {
+                throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
+                        "Cannot find encryption key for blob: " + handle);
+            }
+            BlobKeyProto blobKey = result.getBlobKey();
+            return new WrappedBlobEncryptionKey(
+                    blobKey.getKey().toByteArray(),
+                    blobKey.hasAeadParams() ? blobKey.getAeadParams().toByteArray() : null);
+        } finally {
+            logReadOperationLatencyLocked(totalLatencyStartMillis,
+                    javaLockAcquisitionEndTimeMillis,
+                    /*totalLatencyEndMillis=*/ SystemClock.elapsedRealtime(),
+                    BaseStats.CALL_TYPE_GLOBAL_GET_WRAPPED_BLOB_ENCRYPTION_KEYS,
+                    callStatsBuilder);
+            mReadWriteLock.readLock().unlock();
         }
     }
 

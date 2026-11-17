@@ -17,6 +17,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -60,6 +61,21 @@ public interface GlobalSearchSession extends ReadOnlyGlobalSearchSession, Closea
     default @NonNull ListenableFuture<OpenBlobForReadResponse> openBlobForReadAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
         throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
+                + " is not available on this AppSearch implementation.");
+    }
+
+    /**
+     * Gets the Data Encryption Keys (DEKs) of a batch of encrypted blobs, wrapped with the public
+     * key of a trusted component.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ENCRYPTED_BLOB)
+    default @NonNull ListenableFuture<GetWrappedBlobEncryptionKeysResponse>
+            getWrappedBlobEncryptionKeysAsync(
+                    @NonNull GetWrappedBlobEncryptionKeysRequest request) {
+        throw new UnsupportedOperationException(Features.ENCRYPTED_BLOB
                 + " is not available on this AppSearch implementation.");
     }
 

@@ -33,6 +33,8 @@ import androidx.appsearch.app.OpenBlobForWriteResponse;
 import androidx.appsearch.app.RemoveBlobResponse;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
+import androidx.appsearch.app.GetWrappedBlobEncryptionKeysRequest;
+import androidx.appsearch.app.GetWrappedBlobEncryptionKeysResponse;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResult.EmbeddingMatchInfo;
@@ -47,6 +49,7 @@ import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.SetSchemaResponse.MigrationFailure;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityPermissionConfig;
+import androidx.appsearch.app.WrappedBlobEncryptionKey;
 import androidx.appsearch.observer.DocumentChangeResponse;
 import androidx.appsearch.observer.DocumentChangeSet;
 import androidx.appsearch.observer.ObserverSpec;
@@ -239,6 +242,21 @@ public class StubCreators {
     /** Stub creator for {@link CommitEncryptedBlobRequest}. */
     public static class CommitEncryptedBlobRequestCreator extends
             AbstractCreator<CommitEncryptedBlobRequest> {
+    }
+
+    /** Stub creator for {@link WrappedBlobEncryptionKey}. */
+    public static class WrappedBlobEncryptionKeyCreator extends
+            AbstractCreator<WrappedBlobEncryptionKey> {
+    }
+
+    /** Stub creator for {@link GetWrappedBlobEncryptionKeysRequest}. */
+    public static class GetWrappedBlobEncryptionKeysRequestCreator extends
+            AbstractCreator<GetWrappedBlobEncryptionKeysRequest> {
+    }
+
+    /** Stub creator for {@link GetWrappedBlobEncryptionKeysResponse}. */
+    public static class GetWrappedBlobEncryptionKeysResponseCreator extends
+            AbstractCreator<GetWrappedBlobEncryptionKeysResponse> {
     }
 
     /** Stub creator for {@link CommitBlobResponse}. */

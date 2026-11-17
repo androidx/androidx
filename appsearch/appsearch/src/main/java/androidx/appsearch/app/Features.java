@@ -430,7 +430,9 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
-     * {@link AppSearchSession#commitEncryptedBlobAsync}.
+     * {@link AppSearchSession#commitEncryptedBlobAsync},
+     * {@link AppSearchSession#getWrappedBlobEncryptionKeysAsync} and
+     * {@link GlobalSearchSession#getWrappedBlobEncryptionKeysAsync}.
      *
      * <p>This feature can only be supported if {@link #SCHEMA_BLOB_HANDLE} is supported.
      */
