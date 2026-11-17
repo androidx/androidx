@@ -2705,6 +2705,17 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // Prune drawing orders for nodes no longer present in currentSemanticsNodes.
         drawingOrder.removeIf { id, _ -> !currentSemanticsNodes.containsKey(id) }
 
+        if (accessibilityFocusedVirtualViewId != InvalidId) {
+            val focusedNode = currentSemanticsNodes[accessibilityFocusedVirtualViewId]
+            if (
+                focusedNode == null ||
+                    focusedNode.semanticsNode.isHidden ||
+                    focusedNode.isInMergingHiddenSubtree
+            ) {
+                clearAccessibilityFocus(accessibilityFocusedVirtualViewId)
+            }
+        }
+
         // TODO(b/172606324): removed this compose specific fix when talkback has a proper solution.
         val toRemove = MutableIntSet()
         paneDisplayed.forEach { id ->
@@ -3617,7 +3628,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return when (focus) {
                 // TODO(b/364744967): add test for  FOCUS_ACCESSIBILITY
                 FOCUS_ACCESSIBILITY ->
-                    createAccessibilityNodeInfo(accessibilityFocusedVirtualViewId)
+                    if (accessibilityFocusedVirtualViewId == InvalidId) null
+                    else createAccessibilityNodeInfo(accessibilityFocusedVirtualViewId)
                 FOCUS_INPUT ->
                     if (focusedVirtualViewId == InvalidId) null
                     else createAccessibilityNodeInfo(focusedVirtualViewId)
