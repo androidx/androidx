@@ -20,6 +20,7 @@ import android.util.Size
 import androidx.camera.camera2.compat.quirk.CameraCrashWhenHlg10UhdWithVideoStabilizationQuirk
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.Quirks
+import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.stabilization.VideoStabilization
 
 /**
@@ -37,16 +38,22 @@ public class Hlg10UhdVideoStabilizationValidator(quirks: Quirks) {
      * Returns `true` if the combination should be treated as unsupported.
      *
      * @param videoStabilization the video stabilization setting of the session.
-     * @param streams the resolution and dynamic range of each output stream of the session.
+     * @param surfaceConfigs the surface configurations of the session.
+     * @param dynamicRangesBySurfaceConfig the resolved dynamic range for each [SurfaceConfig].
+     * @param resolutionProvider resolves the output [Size] for a [SurfaceConfig]; invoked only for
+     *   [DynamicRange.HLG_10_BIT] streams when validation is active.
      */
     public fun isUnsupported(
         videoStabilization: VideoStabilization,
-        streams: List<Pair<Size, DynamicRange>>,
+        surfaceConfigs: List<SurfaceConfig>,
+        dynamicRangesBySurfaceConfig: Map<SurfaceConfig, DynamicRange>,
+        resolutionProvider: (SurfaceConfig) -> Size,
     ): Boolean =
         isQuirkEnabled &&
             videoStabilization == VideoStabilization.ON &&
-            streams.any { (size, dynamicRange) ->
-                dynamicRange == DynamicRange.HLG_10_BIT && size.area() >= UHD_AREA
+            surfaceConfigs.any { surfaceConfig ->
+                dynamicRangesBySurfaceConfig[surfaceConfig] == DynamicRange.HLG_10_BIT &&
+                    resolutionProvider(surfaceConfig).area() >= UHD_AREA
             }
 
     private fun Size.area(): Long = width.toLong() * height
