@@ -477,6 +477,9 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Non-started callbacks shouldn't appear as an enabled dispatcher")
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
+        assertWithMessage("Adding a callback should add an observer to the Lifecycle")
+            .that(lifecycleOwner.observerCount)
+            .isEqualTo(1)
 
         // Now destroy the Lifecycle
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -484,14 +487,11 @@ class OnBackPressedHandlerTest {
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
 
-        // Now start the Lifecycle - this wouldn't happen in a real Lifecycle since DESTROYED
-        // is terminal but serves as a good test to make sure the Observer is cleaned up
-        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        assertWithMessage(
-                "Previously destroyed callbacks shouldn't appear as an enabled " + "dispatcher"
-            )
-            .that(dispatcher.hasEnabledCallbacks())
-            .isFalse()
+        // DESTROYED is terminal, so instead of moving the Lifecycle back to STARTED, verify
+        // directly that the Observer was cleaned up
+        assertWithMessage("Destroying the Lifecycle should remove the observer")
+            .that(lifecycleOwner.observerCount)
+            .isEqualTo(0)
     }
 
     @UiThreadTest
@@ -510,14 +510,11 @@ class OnBackPressedHandlerTest {
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
 
-        // Now start the Lifecycle - this wouldn't happen in a real Lifecycle since DESTROYED
-        // is terminal but serves as a good test to make sure no lingering Observer exists
-        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        assertWithMessage(
-                "Previously destroyed callbacks shouldn't appear as an enabled " + "dispatcher"
-            )
-            .that(dispatcher.hasEnabledCallbacks())
-            .isFalse()
+        // DESTROYED is terminal, so instead of moving the Lifecycle back to STARTED, verify
+        // directly that no lingering Observer exists
+        assertWithMessage("No observer should be added to an already destroyed Lifecycle")
+            .that(lifecycleOwner.observerCount)
+            .isEqualTo(0)
     }
 
     /**
