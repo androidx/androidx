@@ -41,6 +41,7 @@ import androidx.camera.testing.impl.FrameRateUtil.FPS_240_240
 import androidx.camera.testing.impl.FrameRateUtil.FPS_480_480
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.getCaptureFps
 import androidx.camera.testing.impl.getRotatedResolution
@@ -136,18 +137,19 @@ class HighSpeedVideoVerificationTest(
         }
     }
 
-    @get:Rule
-    val temporaryFolder =
-        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
-
-    @get:Rule
+    @get:Rule(order = 0)
     val skipAndPreTestRule: TestRule =
         RuleChain.outerRule(IgnoreVideoRecordingProblematicDeviceRule())
+            .around(WakelockEmptyActivityRule())
             .around(
                 CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
                     CameraUtil.PreTestCameraIdList(cameraConfig)
                 )
             )
+
+    @get:Rule(order = 1)
+    val temporaryFolder =
+        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()

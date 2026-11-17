@@ -30,6 +30,7 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
@@ -83,11 +84,13 @@ class CameraStateTest(
             }
     }
 
-    @get:Rule
+    @get:Rule(order = 0) val labTestRule = LabTestRule()
+
+    @get:Rule(order = 1) val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+
+    @get:Rule(order = 2)
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
-
-    @get:Rule val labTestRule = LabTestRule()
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private val lifecycleOwner = FakeLifecycleOwner()
