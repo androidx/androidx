@@ -40,9 +40,11 @@ import com.android.tools.lint.detector.api.getMethodName
 import com.android.tools.lint.detector.api.isUnconditionalReturn
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiCompiledElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiLiteralValue
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.PsiStatement
@@ -473,14 +475,22 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
             ConstantEvaluator.evaluate(context, value)
         } as? String
 
-    private fun UAnnotation.findAttributeAsInlineString(name: String): String? =
+    private fun UAnnotation.findAttributeAsInlineString(name: String): String? {
+        // Compiled bytecode folds annotation values into literals, which UAST wraps in
+        // UnknownJavaExpression (where isInjectionHost() is false).
+        val psi = javaPsi
+        if (psi is PsiCompiledElement) {
+            val compiledValue = (psi.findAttributeValue(name) as? PsiLiteralValue)?.value as? String
+            if (compiledValue != null) return compiledValue
+        }
         // Work around a bug where sometimes the attribute name is missing.
-        (findAttributeValue(name) ?: findAttributeValue(null))?.let {
+        return (findAttributeValue(name) ?: findAttributeValue(null))?.let {
             // Work around a bug in UAST where `evaluate()` will resolve a constant even though it's
             // only supposed to resolve inline strings. Interestingly, this only happens in Kotlin
             // sources and only when the constant is not fully-qualified.
             if (it.isInjectionHost()) it.evaluateString() else null
         }
+    }
 
     /**
      * Is the given [element] within a code block already annotated with the same flagged api as
