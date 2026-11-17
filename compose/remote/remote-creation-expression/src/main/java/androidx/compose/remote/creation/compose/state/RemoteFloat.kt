@@ -203,7 +203,11 @@ internal constructor(
                 Max -> max(args[0] as RemoteFloat, args[1] as RemoteFloat)
                 Abs -> abs(args[0] as RemoteFloat)
                 Clamp ->
-                    clamp(args[0] as RemoteFloat, args[1] as RemoteFloat, args[2] as RemoteFloat)
+                    clamp(
+                        value = args[2] as RemoteFloat,
+                        min = args[0] as RemoteFloat,
+                        max = args[1] as RemoteFloat,
+                    )
                 SelectIfLT ->
                     selectIfLt(
                         args[0] as RemoteFloat,
