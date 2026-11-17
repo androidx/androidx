@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.Insets
+import androidx.core.view.SoftwareKeyboardControllerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat
@@ -90,9 +91,18 @@ class DialogWithInsetsTest {
         durationSetter.invoke(null, 1f)
     }
 
+    /** View inside the Dialog that requested the IME, used to hide it after the test. */
+    private var imeView: View? = null
+
     @After
-    fun resetDurationScale() {
-        durationSetter.invoke(null, 0f)
+    fun tearDown() {
+        try {
+            val view = imeView
+            imeView = null
+            view?.let { hideImeAndWait(it) }
+        } finally {
+            durationSetter.invoke(null, 0f)
+        }
     }
 
     /** Make sure that insets are available in the Dialog. */
@@ -108,6 +118,7 @@ class DialogWithInsetsTest {
                 properties = DialogProperties(decorFitsSystemWindows = false),
             ) {
                 val view = LocalView.current
+                imeView = view
                 SideEffect {
                     val dialogWindowProvider = findDialogWindowProviderInParent(view)
                     if (dialogWindowProvider != null) {
@@ -195,6 +206,7 @@ class DialogWithInsetsTest {
                             usePlatformDefaultWidth = false,
                         ),
                 ) {
+                    imeView = LocalView.current
                     val insets = WindowInsets.safeDrawing
 
                     Box(
@@ -283,6 +295,7 @@ class DialogWithInsetsTest {
                         ),
                 ) {
                     dialogView = LocalView.current
+                    imeView = dialogView
                     var view = dialogView
                     while (view !is AbstractComposeView) {
                         view = view.parent as View
@@ -381,6 +394,16 @@ class DialogWithInsetsTest {
                 val inside = insideImeInsets[i]
                 val outside = outsideImeInsets[i + outsideImeInsets.size - insideImeInsets.size]
                 assertThat(inside.bottom).isEqualTo(maxOf(0, outside.bottom - 17))
+            }
+        }
+    }
+
+    private fun hideImeAndWait(view: View) {
+        rule.runOnIdle { SoftwareKeyboardControllerCompat(view).hide() }
+        rule.waitUntil(timeoutMillis = 5_000) {
+            rule.runOnUiThread {
+                ViewCompat.getRootWindowInsets(view)?.isVisible(WindowInsetsCompat.Type.ime()) !=
+                    true
             }
         }
     }
