@@ -26,6 +26,7 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.MatrixFromMesh2D;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.paint.PaintPathEffects;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
@@ -52,6 +53,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -735,8 +737,19 @@ public class RemoteComposeJsonParser {
         }
     }
 
+    void parseText(@NonNull JSONObject component, RecordingModifier modifier) throws JSONException {
+        parseText(component, modifier, false);
+    }
+
+    /**
+     * Parses a text component; when {@code editable} is true, an editable text component is emitted
+     * instead, with the text input attributes read from the same object: {@code keyboardType},
+     * {@code imeAction} (names or ints), {@code singleLine}, {@code commitOnDone}, {@code
+     * autoCorrect}, {@code capitalization}, {@code maxLength}, {@code filter}, {@code hint} and
+     * {@code contentType}.
+     */
     void parseText(@NonNull JSONObject component,
-            RecordingModifier modifier) throws JSONException {
+            RecordingModifier modifier, boolean editable) throws JSONException {
         Object value = component.has("value") ? component.opt("value") : component.opt("text");
         float textFromFloat = Float.NaN;
         short textFromFloatWhole = 0;
@@ -834,6 +847,16 @@ public class RemoteComposeJsonParser {
             }
         }
 
+        int textAlign = parseTextAlign(component.optString("textAlign", "start"));
+        if (editable) {
+            int[] options = parseTextInputOptions(component);
+            if ((options[2] & TextInputLayout.FLAG_SINGLE_LINE) != 0) {
+                maxLines = 1;
+            }
+            mWriter.startTextInputLayout(modifier, textId, options[0], options[1], options[2],
+                    options[3], options[4], options[5], options[6]);
+            modifier = new RecordingModifier().fillMaxWidth();
+        }
         mWriter.textComponent(
                 modifier,
                 textId,
@@ -846,7 +869,7 @@ public class RemoteComposeJsonParser {
                 fontStyle,
                 fontWeight,
                 fontFamily,
-                parseTextAlign(component.optString("textAlign", "start")),
+                textAlign,
                 overflow,
                 maxLines,
                 letterSpacing,
@@ -860,9 +883,106 @@ public class RemoteComposeJsonParser {
                 fontAxis,
                 fontAxisValues,
                 autoSize,
-                0, () -> {
-                });
+                0,
+                () -> {});
+        if (editable) {
+            mWriter.endTextInputLayout();
+        }
     }
+
+    /**
+     * Reads the text input options of a component: {@code keyboardType}, {@code imeAction} (names
+     * or ints), {@code singleLine}, {@code commitOnDone}, {@code autoCorrect}, {@code
+     * capitalization}, {@code maxLength}, {@code filter}, {@code hint} and {@code contentType}.
+     *
+     * @return {@code [keyboardType, imeAction, inputFlags, maxLength, filter, hintId,
+     *     contentType]}
+     */
+    int[] parseTextInputOptions(@NonNull JSONObject component) throws JSONException {
+        int inputFlags = 0;
+        if (component.optBoolean("singleLine", true)) {
+            inputFlags |= TextInputLayout.FLAG_SINGLE_LINE;
+        }
+        if (component.optBoolean("commitOnDone", false)) {
+            inputFlags |= TextInputLayout.FLAG_COMMIT_ON_DONE;
+        }
+        if (component.optBoolean("autoCorrect", false)) {
+            inputFlags |= TextInputLayout.FLAG_AUTO_CORRECT;
+        }
+        inputFlags |= parseEnum(component.opt("capitalization"), CAPITALIZATIONS,
+                CAPITALIZATION_FLAGS, 0);
+        int hintId = component.has("hint") ? resolveTextId(component.get("hint")) : 0;
+        return new int[] {
+            parseEnum(component.opt("keyboardType"), KEYBOARD_TYPES, null,
+                    TextInputLayout.KEYBOARD_TEXT),
+            parseEnum(component.opt("imeAction"), IME_ACTIONS, null,
+                    TextInputLayout.IME_ACTION_DEFAULT),
+            inputFlags,
+            component.optInt("maxLength", 0),
+            parseEnum(component.opt("filter"), FILTERS, null, TextInputLayout.FILTER_NONE),
+            hintId,
+            parseEnum(component.opt("contentType"), CONTENT_TYPES, null,
+                    TextInputLayout.CONTENT_TYPE_NONE)
+        };
+    }
+
+    private static final String[] KEYBOARD_TYPES = {
+        "unspecified",
+        "text",
+        "ascii",
+        "number",
+        "phone",
+        "uri",
+        "email",
+        "password",
+        "numberpassword",
+        "decimal"
+    };
+    private static final String[] IME_ACTIONS = {
+        "none", "default", "go", "search", "send", "previous", "next", "done"
+    };
+    private static final String[] FILTERS = {
+        "none", "digits", "decimal", "alphanumeric", "hexadecimal"
+    };
+    private static final String[] CONTENT_TYPES = {
+        "none", "personname", "personfirstname", "personlastname", "emailaddress", "phonenumber",
+        "username", "password", "newpassword", "onetimecode", "postaladdress", "postalcode",
+        "creditcardnumber", "creditcardexpirationdate", "creditcardsecuritycode"
+    };
+    private static final String[] CAPITALIZATIONS = {"none", "characters", "words", "sentences"};
+    private static final int[] CAPITALIZATION_FLAGS = {
+        0,
+        TextInputLayout.FLAG_CAPITALIZE_CHARACTERS,
+        TextInputLayout.FLAG_CAPITALIZE_WORDS,
+        TextInputLayout.FLAG_CAPITALIZE_SENTENCES
+    };
+
+    /**
+     * Resolves an enum-like JSON value: an integer is returned as is, a string is matched
+     * (case-insensitively, ignoring underscores and spaces) against {@code names} and its index (or
+     * {@code values[index]} when given) returned, anything else gives {@code defaultValue}.
+     */
+    private static int parseEnum(
+            Object value, String[] names, int @Nullable [] values, int defaultValue) {
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        if (value instanceof String) {
+            String name =
+                    ((String) value)
+                            .trim()
+                            .toLowerCase(Locale.ROOT)
+                            .replace("_", "")
+                            .replace(" ", "");
+            for (int i = 0; i < names.length; i++) {
+                if (names[i].equals(name)) {
+                    return values != null ? values[i] : i;
+                }
+            }
+        }
+        return defaultValue;
+    }
+
 
     private int parseTextAlign(String align) {
         switch (align.toLowerCase()) {

@@ -1157,6 +1157,78 @@ public class RemoteComposeJsonParserTest {
     }
 
     @Test
+    public void testEditableTextComponent() throws Exception {
+        String json = "{\n"
+                + "  \"header\": { \"apiLevel\": 8, \"width\": 360, \"height\": 520,"
+                + " \"profiles\": 513 },\n"
+                + "  \"root\": [\n"
+                + "    { \"variable\": { \"name\": \"name\", \"vtype\": \"string\","
+                + " \"value\": \"hello\" } },\n"
+                + "    {\n"
+                + "      \"type\": \"editableText\", \"text\": \"@name\", \"fontSize\": 20,\n"
+                + "      \"keyboardType\": \"email\", \"imeAction\": \"done\","
+                + " \"singleLine\": true, \"commitOnDone\": true,"
+                + " \"capitalization\": \"words\", \"maxLength\": 12, \"filter\": 3,"
+                + " \"hint\": \"Type here\", \"contentType\": \"emailAddress\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"textInput\", \"text\": \"@name\","
+                + " \"keyboardType\": \"number\", \"singleLine\": false,\n"
+                + "      \"children\": [ { \"type\": \"text\", \"text\": \"@name\" } ]\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        RemoteComposeWriter.HTag[] tags = RemoteComposeJsonParser.parseHeaderOnly(json);
+        int apiLevel = RemoteComposeJsonParser.parseApiLevel(json);
+        RemoteComposeWriter writer = new RemoteComposeWriter(new MockPlatform(), apiLevel, tags);
+        new RemoteComposeJsonParser(writer).parse(json);
+
+        java.util.ArrayList<Operation> ops = new java.util.ArrayList<>();
+        writer.getBuffer().inflateFromBuffer(ops);
+        java.util.List<androidx.compose.remote.core.operations.layout.managers.TextInputLayout>
+                layouts = new java.util.ArrayList<>();
+        int textComponents = 0;
+        for (Operation o : ops) {
+            if (o instanceof androidx.compose.remote.core.operations.layout.managers
+                    .TextInputLayout) {
+                layouts.add((androidx.compose.remote.core.operations.layout.managers
+                        .TextInputLayout) o);
+            }
+            if (o instanceof androidx.compose.remote.core.operations.layout.managers.CoreText) {
+                textComponents++;
+            }
+        }
+        assertEquals("one layout per component", 2, layouts.size());
+        assertEquals("each layout wraps a text component", 2, textComponents);
+
+        androidx.compose.remote.core.operations.layout.managers.TextInputLayout op = layouts.get(0);
+        assertEquals(androidx.compose.remote.core.operations.layout.managers.TextInputLayout
+                .KEYBOARD_EMAIL, op.getKeyboardType());
+        assertEquals(androidx.compose.remote.core.operations.layout.managers.TextInputLayout
+                .IME_ACTION_DONE, op.getImeAction());
+        assertEquals(androidx.compose.remote.core.operations.layout.managers.TextInputLayout
+                .FLAG_SINGLE_LINE
+                | androidx.compose.remote.core.operations.layout.managers.TextInputLayout
+                .FLAG_COMMIT_ON_DONE
+                | androidx.compose.remote.core.operations.layout.managers.TextInputLayout
+                .FLAG_CAPITALIZE_WORDS, op.getInputFlags());
+        assertEquals(12, op.getMaxLength());
+        assertEquals(androidx.compose.remote.core.operations.layout.managers.TextInputLayout
+                .FILTER_ALPHANUMERIC, op.getFilter());
+        assertTrue(op.getTextId() > 0);
+        assertTrue(op.getHintId() > 0);
+        assertEquals(androidx.compose.remote.core.operations.layout.managers.TextInputLayout
+                .CONTENT_TYPE_EMAIL_ADDRESS, op.getContentType());
+
+        androidx.compose.remote.core.operations.layout.managers.TextInputLayout container =
+                layouts.get(1);
+        assertEquals(op.getTextId(), container.getTextId());
+        assertEquals(androidx.compose.remote.core.operations.layout.managers.TextInputLayout
+                .KEYBOARD_NUMBER, container.getKeyboardType());
+        assertEquals(0, container.getInputFlags());
+    }
+
+    @Test
     public void testParseDefineVisibilityAnimationWithShaderAndOffscreenBitmap() throws Exception {
         String json = "{\n"
                 + "  \"header\": { \"apiLevel\": 8, \"width\": 360, \"height\": 520,"

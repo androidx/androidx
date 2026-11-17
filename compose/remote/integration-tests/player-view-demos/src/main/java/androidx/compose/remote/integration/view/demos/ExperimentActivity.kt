@@ -90,6 +90,7 @@ import androidx.compose.remote.integration.view.demos.dsl.dslRcCustomVisibilityA
 import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayout3StatesDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayoutRowToColumnDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayoutToggleDemo
+import androidx.compose.remote.integration.view.demos.dsl.dslTextInputDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslTicker
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths.pathTest
 import androidx.compose.remote.integration.view.demos.examples.LayoutModifierDemo1
@@ -558,6 +559,7 @@ class ExperimentActivity : ComponentActivity() {
                         demoLinearRegression(xData, yData)
                     },
                     getpc("JSON Card") { rcJsonTextDemo8() },
+                    getb("Rc DSL Text Input Demo") { dslTextInputDemo() },
                     getb("Rc DSL Clock Demo") { dslClock() },
                     getb("Rc DSL Ticker Demo") { dslTicker() },
                     getb("Rc DSL Demo") { dslDemo() },

@@ -134,6 +134,109 @@ public sealed interface RcScope {
         maxLines: Int = Int.MAX_VALUE,
     )
 
+    /**
+     * Adds a text input layout: a box whose content displays [text], which the user can edit. When
+     * the layout is clicked on a player with text input support, a platform editor opens over it
+     * and writes edits back into [text]; every binding on that string updates. The content
+     * typically includes a [Text] bound to [text] (the editor is aligned with it and styled from
+     * it), and may add decorations such as a label, an icon or a border. [text] must be a plain
+     * string (e.g. from [remoteText]), not a derived one. See [EditableText] for the common case.
+     *
+     * @param text the edited string
+     * @param keyboardType the keyboard to show
+     * @param imeAction the action key of the keyboard
+     * @param singleLine whether the editor is a single line (the action key replaces newline)
+     * @param commitOnEveryKeystroke write the string on every keystroke (true) or only on the IME
+     *   action / focus loss (false)
+     * @param maxLength maximum number of characters, 0 for unlimited
+     * @param filter characters the editor accepts
+     * @param hint placeholder shown when the text is empty
+     * @param autoCorrect whether the keyboard auto-correction is enabled
+     * @param capitalization automatic capitalization
+     * @param contentType what the string holds, for autofill and keyboard suggestions
+     * @param content the content of the layout
+     */
+    public fun TextInputLayout(
+        text: RcText,
+        modifier: Modifier = Modifier,
+        keyboardType: RcKeyboardType = RcKeyboardType.Text,
+        imeAction: RcImeAction = RcImeAction.Default,
+        singleLine: Boolean = true,
+        commitOnEveryKeystroke: Boolean = true,
+        maxLength: Int = 0,
+        filter: RcInputFilter = RcInputFilter.None,
+        hint: RcText? = null,
+        autoCorrect: Boolean = false,
+        capitalization: RcCapitalization = RcCapitalization.None,
+        contentType: RcContentType = RcContentType.None,
+        content: RcBoxScope.() -> Unit,
+    )
+
+    /**
+     * Adds an editable Text: a [TextInputLayout] whose content is a [Text] displaying [text], so
+     * that tapping the text opens the platform editor over it on players with text input support.
+     * The [modifier] applies to the layout (background, border, padding...); the text fills it.
+     *
+     * @param text the displayed and edited string
+     * @param maxLines maximum number of lines; a single-line field always uses one line
+     * @param keyboardType the keyboard to show
+     * @param imeAction the action key of the keyboard
+     * @param singleLine whether the editor is a single line (the action key replaces newline)
+     * @param commitOnEveryKeystroke write the string on every keystroke (true) or only on the IME
+     *   action / focus loss (false)
+     * @param maxLength maximum number of characters, 0 for unlimited
+     * @param filter characters the editor accepts
+     * @param hint placeholder shown when the text is empty
+     * @param autoCorrect whether the keyboard auto-correction is enabled
+     * @param capitalization automatic capitalization
+     * @param contentType what the string holds, for autofill and keyboard suggestions
+     */
+    public fun EditableText(
+        text: RcText,
+        modifier: Modifier = Modifier,
+        color: Int = 0xFF000000.toInt(),
+        fontSize: RcSp = 16.rsp,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        maxLines: Int = Int.MAX_VALUE,
+        keyboardType: RcKeyboardType = RcKeyboardType.Text,
+        imeAction: RcImeAction = RcImeAction.Default,
+        singleLine: Boolean = true,
+        commitOnEveryKeystroke: Boolean = true,
+        maxLength: Int = 0,
+        filter: RcInputFilter = RcInputFilter.None,
+        hint: RcText? = null,
+        autoCorrect: Boolean = false,
+        capitalization: RcCapitalization = RcCapitalization.None,
+        contentType: RcContentType = RcContentType.None,
+    ): Unit =
+        TextInputLayout(
+            text = text,
+            modifier = modifier,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            singleLine = singleLine,
+            commitOnEveryKeystroke = commitOnEveryKeystroke,
+            maxLength = maxLength,
+            filter = filter,
+            hint = hint,
+            autoCorrect = autoCorrect,
+            capitalization = capitalization,
+            contentType = contentType,
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier.fillMaxWidth(),
+                color = color,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                textAlign = textAlign,
+                overflow = overflow,
+                maxLines = if (singleLine) 1 else maxLines,
+            )
+        }
+
     /** Adds an Image component to the document. */
     public fun Image(
         image: RcImage,

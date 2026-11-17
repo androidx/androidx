@@ -75,6 +75,7 @@ import androidx.compose.remote.integration.view.demos.dsl.DslSpreadSheetKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslStopwatchKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSysVarKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslTextDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslTextInputDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslTouchDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslClockKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
@@ -450,7 +451,8 @@ public abstract class DemosCreation {
         if (customCompose) {
             demos.addAll(Arrays.asList(
                     get("0/001/DslCustomComposeDemo",
-                            DslCustomComposeDemoKt::dslCustomComposeDemo)
+                            DslCustomComposeDemoKt::dslCustomComposeDemo),
+                    get("0/002/TextInput", DslTextInputDemoKt::dslTextInputDemo)
             ));
         }
 
@@ -596,7 +598,8 @@ public abstract class DemosCreation {
 
                     get("1/61/dslTheme1", RcDslDemoKt::dslTheme1),
                     get("1/62/dslTheme2", RcDslDemoKt::dslTheme2),
-                    get("1/63/Buttons", DslButtonsDemoKt::dslButtonsDemo)
+                    get("1/63/Buttons", DslButtonsDemoKt::dslButtonsDemo),
+                    get("1/64/TextInput", DslTextInputDemoKt::dslTextInputDemo)
             ));
         }
         if (dsl2) {

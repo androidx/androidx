@@ -30,6 +30,7 @@ import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
@@ -1680,6 +1681,110 @@ public value class RcSpringBoundaryMode internal constructor(internal val value:
         public val BounceEnd: RcSpringBoundaryMode = RcSpringBoundaryMode(2)
         /** Reflects velocity at both the lower (`0`) and upper (`1`) bounds. */
         public val BounceBoth: RcSpringBoundaryMode = RcSpringBoundaryMode(3)
+    }
+}
+
+/**
+ * Keyboard shown by a text input editor; see [RcScope.TextInputLayout]. Mirrors Compose's
+ * KeyboardType.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcKeyboardType internal constructor(internal val value: Int) {
+    public companion object {
+        public val Text: RcKeyboardType = RcKeyboardType(TextInputLayout.KEYBOARD_TEXT)
+        public val Ascii: RcKeyboardType = RcKeyboardType(TextInputLayout.KEYBOARD_ASCII)
+        public val Number: RcKeyboardType = RcKeyboardType(TextInputLayout.KEYBOARD_NUMBER)
+        public val Phone: RcKeyboardType = RcKeyboardType(TextInputLayout.KEYBOARD_PHONE)
+        public val Uri: RcKeyboardType = RcKeyboardType(TextInputLayout.KEYBOARD_URI)
+        public val Email: RcKeyboardType = RcKeyboardType(TextInputLayout.KEYBOARD_EMAIL)
+        public val Password: RcKeyboardType = RcKeyboardType(TextInputLayout.KEYBOARD_PASSWORD)
+        public val NumberPassword: RcKeyboardType =
+            RcKeyboardType(TextInputLayout.KEYBOARD_NUMBER_PASSWORD)
+        public val Decimal: RcKeyboardType = RcKeyboardType(TextInputLayout.KEYBOARD_DECIMAL)
+    }
+}
+
+/**
+ * Action key of a text input editor; see [RcScope.TextInputLayout]. Mirrors Compose's ImeAction.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcImeAction internal constructor(internal val value: Int) {
+    public companion object {
+        public val Default: RcImeAction = RcImeAction(TextInputLayout.IME_ACTION_DEFAULT)
+        public val None: RcImeAction = RcImeAction(TextInputLayout.IME_ACTION_NONE)
+        public val Go: RcImeAction = RcImeAction(TextInputLayout.IME_ACTION_GO)
+        public val Search: RcImeAction = RcImeAction(TextInputLayout.IME_ACTION_SEARCH)
+        public val Send: RcImeAction = RcImeAction(TextInputLayout.IME_ACTION_SEND)
+        public val Previous: RcImeAction = RcImeAction(TextInputLayout.IME_ACTION_PREVIOUS)
+        public val Next: RcImeAction = RcImeAction(TextInputLayout.IME_ACTION_NEXT)
+        public val Done: RcImeAction = RcImeAction(TextInputLayout.IME_ACTION_DONE)
+    }
+}
+
+/** Characters a text input editor accepts; see [RcScope.TextInputLayout]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcInputFilter internal constructor(internal val value: Int) {
+    public companion object {
+        public val None: RcInputFilter = RcInputFilter(TextInputLayout.FILTER_NONE)
+        public val Digits: RcInputFilter = RcInputFilter(TextInputLayout.FILTER_DIGITS)
+        public val Decimal: RcInputFilter = RcInputFilter(TextInputLayout.FILTER_DECIMAL)
+        public val Alphanumeric: RcInputFilter = RcInputFilter(TextInputLayout.FILTER_ALPHANUMERIC)
+        public val Hexadecimal: RcInputFilter = RcInputFilter(TextInputLayout.FILTER_HEXADECIMAL)
+    }
+}
+
+/** Automatic capitalization of a text input editor; see [RcScope.TextInputLayout]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcCapitalization internal constructor(internal val flag: Int) {
+    public companion object {
+        public val None: RcCapitalization = RcCapitalization(0)
+        public val Characters: RcCapitalization =
+            RcCapitalization(TextInputLayout.FLAG_CAPITALIZE_CHARACTERS)
+        public val Words: RcCapitalization = RcCapitalization(TextInputLayout.FLAG_CAPITALIZE_WORDS)
+        public val Sentences: RcCapitalization =
+            RcCapitalization(TextInputLayout.FLAG_CAPITALIZE_SENTENCES)
+    }
+}
+
+/**
+ * What the string of a text input holds, driving autofill and keyboard suggestions (Android
+ * autofill hints, iOS text content types, web autocomplete); see [RcScope.TextInputLayout].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcContentType internal constructor(internal val value: Int) {
+    public companion object {
+        public val None: RcContentType = RcContentType(TextInputLayout.CONTENT_TYPE_NONE)
+        public val PersonName: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_PERSON_NAME)
+        public val PersonFirstName: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_PERSON_FIRST_NAME)
+        public val PersonLastName: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_PERSON_LAST_NAME)
+        public val EmailAddress: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_EMAIL_ADDRESS)
+        public val PhoneNumber: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_PHONE_NUMBER)
+        public val Username: RcContentType = RcContentType(TextInputLayout.CONTENT_TYPE_USERNAME)
+        public val Password: RcContentType = RcContentType(TextInputLayout.CONTENT_TYPE_PASSWORD)
+        public val NewPassword: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_NEW_PASSWORD)
+        public val OneTimeCode: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_ONE_TIME_CODE)
+        public val PostalAddress: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_POSTAL_ADDRESS)
+        public val PostalCode: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_POSTAL_CODE)
+        public val CreditCardNumber: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_CREDIT_CARD_NUMBER)
+        public val CreditCardExpirationDate: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_CREDIT_CARD_EXPIRATION_DATE)
+        public val CreditCardSecurityCode: RcContentType =
+            RcContentType(TextInputLayout.CONTENT_TYPE_CREDIT_CARD_SECURITY_CODE)
     }
 }
 

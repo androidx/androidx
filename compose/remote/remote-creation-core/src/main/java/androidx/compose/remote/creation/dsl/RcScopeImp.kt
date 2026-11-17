@@ -36,6 +36,7 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
 import androidx.compose.remote.core.operations.DrawMesh2D
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.Custom
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
@@ -412,6 +413,41 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             overflow = overflow,
             maxLines = maxLines,
         )
+    }
+
+    override fun TextInputLayout(
+        text: RcText,
+        modifier: Modifier,
+        keyboardType: RcKeyboardType,
+        imeAction: RcImeAction,
+        singleLine: Boolean,
+        commitOnEveryKeystroke: Boolean,
+        maxLength: Int,
+        filter: RcInputFilter,
+        hint: RcText?,
+        autoCorrect: Boolean,
+        capitalization: RcCapitalization,
+        contentType: RcContentType,
+        content: RcBoxScope.() -> Unit,
+    ) {
+        var inputFlags = 0
+        if (singleLine) inputFlags = inputFlags or TextInputLayout.FLAG_SINGLE_LINE
+        if (!commitOnEveryKeystroke) inputFlags = inputFlags or TextInputLayout.FLAG_COMMIT_ON_DONE
+        if (autoCorrect) inputFlags = inputFlags or TextInputLayout.FLAG_AUTO_CORRECT
+        inputFlags = inputFlags or capitalization.flag
+        writer.startTextInputLayout(
+            modifier.toRecordingModifier(),
+            text.id,
+            keyboardType.value,
+            imeAction.value,
+            inputFlags,
+            maxLength,
+            filter.value,
+            hint?.id ?: 0,
+            contentType.value,
+        )
+        RcBoxScopeImpl(writer).content()
+        writer.endTextInputLayout()
     }
 
     private fun textComponentInternal(
