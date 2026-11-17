@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -56,6 +57,35 @@ public class AndroidPaintContextTest {
         Bitmap bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(bitmap);
         mPaintContext = new AndroidPaintContext(mRemoteContext, mCanvas);
+    }
+
+    @Test
+    public void getTightBoundingBox_textEndingWithNewline_doesNotThrow() {
+        // A trailing newline yields an empty last line whose predecessor ends at the end of the
+        // text; this used to read one character past the end when editing multi-line text.
+        TextPaint paint = new TextPaint();
+        String text = "first\nsecond\n";
+        StaticLayout staticLayout =
+                StaticLayout.Builder.obtain(text, 0, text.length(), paint, 500)
+                        .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                        .build();
+        Rect bounds = new Rect();
+
+        boolean hyphenated = mPaintContext.getTightBoundingBox(staticLayout, bounds);
+
+        assertFalse(hyphenated);
+        assertTrue(bounds.height() > 0);
+    }
+
+    @Test
+    public void isLineHyphenated_emptyText_isFalse() {
+        TextPaint paint = new TextPaint();
+        StaticLayout staticLayout =
+                StaticLayout.Builder.obtain("", 0, 0, paint, 500)
+                        .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                        .build();
+
+        assertFalse(mPaintContext.isLineHyphenated(staticLayout, "", 0));
     }
 
     @Test
