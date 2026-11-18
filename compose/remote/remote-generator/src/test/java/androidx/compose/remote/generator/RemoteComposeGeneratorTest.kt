@@ -2736,6 +2736,25 @@ class RemoteComposeGeneratorTest {
                 .range,
         )
 
+        // TouchExpression 16-bit expressionLen (A12)
+        val touchOp = schema.operationsByName["TouchExpression"]!!
+        assertEquals(
+            "expLen",
+            touchOp.fields.first { it.name == "expression" }.countFrom,
+        )
+        assertEquals(
+            "Limits.MAX_EXPRESSION_SIZE",
+            touchOp.fields.first { it.name == "expression" }.javaLimit,
+        )
+        assertEquals(
+            "Limits.MAX_TOUCH_STOPS",
+            touchOp.fields.first { it.name == "stopSpec" }.javaLimit,
+        )
+        assertEquals(
+            "Limits.MAX_EASING_LEN",
+            touchOp.fields.first { it.name == "easingSpec" }.javaLimit,
+        )
+
         // GraphicsLayerModifierOperation & GraphicsLayerAttribute (A13-A16, C7)
         val glOp = schema.operationsByName["GraphicsLayerModifierOperation"]!!
         assertEquals(22, glOp.fields.first { it.name == "attributes" }.maxLength)

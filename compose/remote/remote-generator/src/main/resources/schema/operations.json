@@ -3475,10 +3475,23 @@
           "description": "Haptic and touch behavior flags"
         },
         {
+          "name": "expressionLen",
+          "type": "int",
+          "description": "Expression element count in bits 0..15 (bits 16..31 ignored by reader)",
+          "bits": [
+            {
+              "name": "expLen",
+              "range": "0..15",
+              "derivedFrom": "len(expression)"
+            }
+          ]
+        },
+        {
           "name": "expression",
           "type": "float_or_id[]",
-          "lengthType": "int",
+          "countFrom": "expLen",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "encoding": "rpn_float_expression",
           "description": "Touch mapping RPN expression"
         },
@@ -3505,6 +3518,7 @@
           "type": "float_or_id[]",
           "countFrom": "stopLen",
           "maxLength": 200,
+          "javaLimit": "Limits.MAX_TOUCH_STOPS",
           "description": "Stop positions/notches specification"
         },
         {
@@ -3512,6 +3526,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 200,
+          "javaLimit": "Limits.MAX_EASING_LEN",
           "description": "Spring or easing specification parameters"
         }
       ],
