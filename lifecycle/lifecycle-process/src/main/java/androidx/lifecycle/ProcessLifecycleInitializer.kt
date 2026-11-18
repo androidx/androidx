@@ -36,5 +36,8 @@ public class ProcessLifecycleInitializer : Initializer<LifecycleOwner> {
         return ProcessLifecycleOwner.get()
     }
 
-    override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
+    override fun dependencies(): List<Class<out Initializer<*>>> {
+        // b/282949137: Avoid loading 'kotlin.collections.EmptyList' during cold start.
+        return java.util.Collections.emptyList()
+    }
 }
