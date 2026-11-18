@@ -1143,6 +1143,65 @@ public class ScalingLazyColumnTest {
             assertThat(state.lastScrolledBackward).isTrue()
         }
     }
+
+    @Test
+    fun inlineItem_withNoAutoCentering_composesOnceAcrossInitializationAndParameterChange() {
+        lateinit var state: ScalingLazyListState
+        var userScrollEnabled by mutableStateOf(true)
+        var itemCompositions = 0
+        val content: ScalingLazyListScope.() -> Unit = {
+            item {
+                itemCompositions++
+                Spacer(Modifier.requiredSize(itemSizeDp))
+            }
+        }
+
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f),
+                autoCentering = null,
+                userScrollEnabled = userScrollEnabled,
+                content = content,
+            )
+        }
+        rule.waitUntil { state.initialized.value }
+        rule.runOnIdle { assertThat(itemCompositions).isEqualTo(1) }
+
+        userScrollEnabled = false
+
+        rule.runOnIdle { assertThat(itemCompositions).isEqualTo(1) }
+    }
+
+    @Test
+    fun inlineItem_withDefaultAutoCentering_composesOnceAcrossInitializationAndParameterChange() {
+        lateinit var state: ScalingLazyListState
+        var userScrollEnabled by mutableStateOf(true)
+        var itemCompositions = 0
+        val content: ScalingLazyListScope.() -> Unit = {
+            item {
+                itemCompositions++
+                Spacer(Modifier.requiredSize(itemSizeDp))
+            }
+        }
+
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f),
+                userScrollEnabled = userScrollEnabled,
+                content = content,
+            )
+        }
+        rule.waitUntil { state.initialized.value }
+        rule.runOnIdle { assertThat(itemCompositions).isEqualTo(1) }
+
+        userScrollEnabled = false
+
+        rule.runOnIdle { assertThat(itemCompositions).isEqualTo(1) }
+    }
 }
 
 internal const val TestTouchSlop = 18f

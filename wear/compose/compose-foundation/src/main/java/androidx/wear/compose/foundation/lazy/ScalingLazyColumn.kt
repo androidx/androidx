@@ -641,22 +641,25 @@ public fun ScalingLazyColumn(
                 if (reverseLayout) contentPadding.calculateTopPadding().roundToPx()
                 else contentPadding.calculateBottomPadding().roundToPx()
 
-            val itemScope =
-                ScalingLazyListItemScopeImpl(
-                    density = density,
-                    constraints =
-                        constraints.offset(
-                            horizontal =
-                                -(contentPadding.calculateStartPadding(layoutDirection) +
-                                        contentPadding.calculateEndPadding(layoutDirection))
-                                    .toPx()
-                                    .toInt(),
-                            vertical =
-                                -(contentPadding.calculateTopPadding() +
-                                        contentPadding.calculateBottomPadding())
-                                    .roundToPx(),
-                        ),
+            val itemConstraints =
+                constraints.offset(
+                    horizontal =
+                        -(contentPadding.calculateStartPadding(layoutDirection) +
+                                contentPadding.calculateEndPadding(layoutDirection))
+                            .toPx()
+                            .toInt(),
+                    vertical =
+                        -(contentPadding.calculateTopPadding() +
+                                contentPadding.calculateBottomPadding())
+                            .roundToPx(),
                 )
+            val itemScope: ScalingLazyListItemScope =
+                remember(density, itemConstraints) {
+                    ScalingLazyListItemScopeImpl(
+                        density = density,
+                        constraints = itemConstraints,
+                    )
+                }
 
             // Set up transient state
             state.config.value =
@@ -737,9 +740,7 @@ public fun ScalingLazyColumn(
                     }
                 }
             }
-            if (initialized) {
-                LaunchedEffect(state) { state.scrollToInitialItem() }
-            }
+            InitialScrollEffect(state = state, isInitialized = { initialized })
         }
     }
 }
@@ -1024,4 +1025,18 @@ private fun Modifier.autoCenteringHeight(getHeight: () -> Int) = layout { measur
     val placeable = measurable.measure(constraints.copy(minHeight = height, maxHeight = height))
 
     layout(placeable.width, placeable.height) { placeable.place(IntOffset.Zero) }
+}
+
+/**
+ * Isolates the [isInitialized] state read in its own recompose scope so flipping `initialized` on
+ * the first layout pass does not recompose the parent [BoxWithConstraints] body.
+ */
+@Composable
+private fun InitialScrollEffect(
+    state: ScalingLazyListState,
+    isInitialized: () -> Boolean,
+) {
+    if (isInitialized()) {
+        LaunchedEffect(state) { state.scrollToInitialItem() }
+    }
 }
