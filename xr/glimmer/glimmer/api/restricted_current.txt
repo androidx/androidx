@@ -397,6 +397,42 @@ package androidx.xr.glimmer {
     field public static final androidx.xr.glimmer.LeadingImageCardDefaults INSTANCE;
   }
 
+  public final class LinearProgressIndicatorDefaults {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long getColor(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly public float getGapSize-D9Ej5fM();
+    property public androidx.compose.ui.unit.Dp GapSize;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color color;
+    field public static final androidx.xr.glimmer.LinearProgressIndicatorDefaults INSTANCE;
+  }
+
+  public final class LinearProgressIndicatorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void LinearProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color trackColor, optional androidx.compose.ui.unit.Dp gapSize);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void LinearProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color trackColor, optional androidx.compose.ui.unit.Dp gapSize);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void LinearProgressIndicator-h1eT-Ww(androidx.compose.ui.Modifier?, long, long, float, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void LinearProgressIndicator-pc5RIQQ(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, long, float, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public final class LinearWavyProgressIndicatorDefaults {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long getColor(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly public float getDeterminateWavelength-D9Ej5fM();
+    method @BytecodeOnly public float getGapSize-D9Ej5fM();
+    method @BytecodeOnly public float getIndeterminateWavelength-D9Ej5fM();
+    method @BytecodeOnly public float getStrokeWidth-D9Ej5fM();
+    property public androidx.compose.ui.unit.Dp DeterminateWavelength;
+    property public androidx.compose.ui.unit.Dp GapSize;
+    property public androidx.compose.ui.unit.Dp IndeterminateWavelength;
+    property public androidx.compose.ui.unit.Dp StrokeWidth;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color color;
+    field public static final androidx.xr.glimmer.LinearWavyProgressIndicatorDefaults INSTANCE;
+  }
+
+  public final class LinearWavyProgressIndicatorKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void LinearWavyProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color trackColor, optional androidx.compose.ui.unit.Dp strokeWidth, optional androidx.compose.ui.unit.Dp gapSize, optional androidx.compose.ui.unit.Dp wavelength);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void LinearWavyProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color trackColor, optional androidx.compose.ui.unit.Dp strokeWidth, optional androidx.compose.ui.unit.Dp gapSize, optional androidx.compose.ui.unit.Dp wavelength);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void LinearWavyProgressIndicator-6AFwczQ(androidx.compose.ui.Modifier?, long, long, float, float, float, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void LinearWavyProgressIndicator-IBspXRg(kotlin.jvm.functions.Function0<java.lang.Float!>, androidx.compose.ui.Modifier?, long, long, float, float, float, androidx.compose.runtime.Composer?, int, int);
+  }
+
   public final class ListItemDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
     property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding;
