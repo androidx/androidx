@@ -502,9 +502,6 @@ class ModeChangeTest {
         const val SETTINGS_PACKAGE = "com.android.settings"
         const val SETTINGS_ACTIVITY = "com.android.settings.Settings"
 
-        /** Name of the task-scoped node that backs the main panel in the system scene graph. */
-        const val MAIN_PANEL_NODE_NAME = "MainPanelAndTaskWindowLeashNode"
-
         val ENVIRONMENT_TIMEOUT = 5.seconds
         val ACTIVITY_TIMEOUT = 5.seconds
         val WINDOW_RESIZE_TIMEOUT = 5.seconds

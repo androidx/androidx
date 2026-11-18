@@ -25,8 +25,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -174,7 +172,7 @@ class KeyEntityTest {
             assertThat(captured.isDestroyed).isFalse()
         } finally {
             instrumentation.removeMonitor(monitor)
-            finishActivitiesOtherThan(sessionRule.activity)
+            sessionRule.finishActivitiesOtherThan()
         }
     }
 
@@ -594,33 +592,6 @@ class KeyEntityTest {
     private fun resolveTaskWindowNode(task: SnapshotXrSpace): SnapshotXrSpace? =
         task.taskWindowLeash?.takeIf { it.isVisible && it.worldExtents != null }
             ?: task.topLevelWindowLeashes.firstOrNull { it.isVisible && it.worldExtents != null }
-
-    private fun finishActivitiesOtherThan(hostActivity: Activity) {
-        val monitor = ActivityLifecycleMonitorRegistry.getInstance()
-        val stages =
-            listOf(
-                Stage.PRE_ON_CREATE,
-                Stage.CREATED,
-                Stage.STARTED,
-                Stage.RESUMED,
-                Stage.PAUSED,
-                Stage.STOPPED,
-                Stage.RESTARTED,
-            )
-        sessionRule.onMainThread {
-            for (stage in stages) {
-                for (candidate in monitor.getActivitiesInStage(stage)) {
-                    if (
-                        candidate !== hostActivity &&
-                            !candidate.isFinishing &&
-                            !candidate.isDestroyed
-                    ) {
-                        candidate.finish()
-                    }
-                }
-            }
-        }
-    }
 
     private companion object {
         const val ACTIVITY_LAUNCH_TIMEOUT_MS = 5_000L

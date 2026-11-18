@@ -841,7 +841,6 @@ class ScenePoseHitTestIntegrationTest {
         const val NORMAL_TOLERANCE = 1e-2f
         const val TRACKED_TOLERANCE = 5e-2f
         const val MAIN_PANEL_HIT_TOLERANCE = 5e-2f
-        const val MAIN_PANEL_NODE_NAME = "MainPanelAndTaskWindowLeashNode"
         const val GLTF_SUBSPACE_PREFIX = "gltf_entity_subspace_"
     }
 }

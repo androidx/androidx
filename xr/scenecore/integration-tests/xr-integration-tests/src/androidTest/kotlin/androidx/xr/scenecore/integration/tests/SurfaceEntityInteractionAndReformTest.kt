@@ -22,14 +22,12 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
-import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.EntityMoveListener
-import androidx.xr.scenecore.ExperimentalSurfaceEntityPixelDimensionsApi
 import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MovableComponent
@@ -738,23 +736,6 @@ class SurfaceEntityInteractionAndReformTest {
         assertThat(created.dimensions.height).isWithin(FLOAT_TOLERANCE).of(endEvent.newSize.height)
 
         created.removeComponent(resizableComponent)
-    }
-
-    @OptIn(ExperimentalSurfaceEntityPixelDimensionsApi::class)
-    private fun SurfaceEntity.renderSolidColorFrame(color: Int) {
-        val surface = sessionRule.onMainThread {
-            setSurfacePixelDimensions(IntSize2d(256, 256))
-            getSurface()
-        }
-        assertWithMessage("Expected active Surface from SurfaceEntity.getSurface()")
-            .that(surface.isValid)
-            .isTrue()
-        val canvas = surface.lockHardwareCanvas()
-        try {
-            canvas.drawColor(color)
-        } finally {
-            surface.unlockCanvasAndPost(canvas)
-        }
     }
 
     private fun readSubspaceAlpha(subspace: SnapshotXrSpace): Float? =

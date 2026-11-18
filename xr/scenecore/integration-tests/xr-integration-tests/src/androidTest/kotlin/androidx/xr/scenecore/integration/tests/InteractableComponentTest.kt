@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore.integration.tests
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Color as AndroidColor
 import android.view.Gravity
@@ -35,8 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
@@ -109,7 +106,7 @@ class InteractableComponentTest {
     val embeddedActivityCleanupRule =
         object : ExternalResource() {
             override fun after() {
-                finishActivitiesOtherThan(sessionRule.activity)
+                sessionRule.finishActivitiesOtherThan()
             }
         }
 
@@ -1004,36 +1001,6 @@ class InteractableComponentTest {
     }
 
     /**
-     * Finishes every activity of this process except [host], and blocks until they are destroyed.
-     *
-     * An [ActivityPanelEntity] only destroys its embedded activity when the entity itself is
-     * destroyed, which happens after [host] has finished. If the embedded activity is still alive
-     * when [host] finishes, it becomes the top activity of the task and crashes SystemUI.
-     *
-     * Must be called from the instrumentation thread before XrSessionRule finishes [host].
-     */
-    private fun finishActivitiesOtherThan(host: Activity) {
-        val monitor = ActivityLifecycleMonitorRegistry.getInstance()
-        fun aliveActivities(): List<Activity> =
-            Stage.values()
-                .filter { it != Stage.DESTROYED }
-                .flatMap { monitor.getActivitiesInStage(it) }
-                .filter { it !== host }
-
-        val hadOtherActivities = sessionRule.onMainThread {
-            aliveActivities().also { activities -> activities.forEach { it.finish() } }.isNotEmpty()
-        }
-        if (!hadOtherActivities) return
-        waitUntil(
-            description = "embedded activities to be destroyed",
-            timeout = EMBEDDED_ACTIVITY_FINISH_TIMEOUT,
-            pollInterval = POLL_INTERVAL,
-        ) {
-            sessionRule.onMainThread { aliveActivities().isEmpty() }
-        }
-    }
-
-    /**
      * Waits for an unexpected event over [NEGATIVE_SETTLE_WINDOW_MS], returning early if delivered.
      */
     private fun waitNegativeSettleWindow(unexpectedEventLatch: CountDownLatch) {
@@ -1207,9 +1174,6 @@ class InteractableComponentTest {
         /** Timeout applied when waiting for injected input sequences to complete. */
         val INPUT_TIMEOUT = 5.seconds
 
-        /** Timeout applied when waiting for embedded activities to be destroyed. */
-        val EMBEDDED_ACTIVITY_FINISH_TIMEOUT = 5.seconds
-
         /** Timeout applied when polling the spatial scene. */
         val POLL_TIMEOUT = 10.seconds
 
@@ -1217,9 +1181,6 @@ class InteractableComponentTest {
         val POLL_INTERVAL = 100.milliseconds
 
         const val NEGATIVE_SETTLE_WINDOW_MS = 300L
-
-        /** Name of the task scoped node that backs the main panel. */
-        const val MAIN_PANEL_NODE_NAME = "MainPanelAndTaskWindowLeashNode"
 
         const val FOREGROUND_PANEL_NAME = "InteractableForegroundPanel"
         const val ANCHOR_PANEL_NAME = "InteractableAnchorPanel"

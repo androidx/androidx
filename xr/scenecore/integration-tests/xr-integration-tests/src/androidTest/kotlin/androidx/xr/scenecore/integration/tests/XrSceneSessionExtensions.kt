@@ -17,30 +17,51 @@
 package androidx.xr.scenecore.integration.tests
 
 /**
- * Adds SceneCore space-mode and [SpatialEnvironment] helpers to [XrSessionRule].
+ * Shared SceneCore integration test helpers built on [XrSessionRule], [Scene], and SceneCore
+ * entities.
  *
  * * [requestFullSpace] and [requestHomeSpace]: Switch space modes via [Scene.requestFullSpace] and
  *   [Scene.requestHomeSpace], waiting for [SpatialCapability.SPATIAL_UI] and [Scene.activitySpace]
  *   origin updates to settle.
  * * [waitForSpatialEnvironmentSettled]: Waits for pending [SpatialEnvironment] skybox and
  *   passthrough opacity changes to take effect.
+ * * [finishActivitiesOtherThan], [MAIN_PANEL_NODE_NAME], [loadNodesBeforeTeardown], and
+ *   [renderSolidColorFrame]: Consolidate embedded activity cleanup, compositor node lookup, glTF
+ *   teardown stabilization, and surface canvas rendering across SceneCore test suites.
  *
- * **Layering boundary**: These SceneCore-specific methods must live here instead of in
+ * **Layering boundary**: These SceneCore-specific helpers must live here instead of in
  * [XrSessionRule] so `:xr:testutils` depends only on `:xr:runtime:runtime` (for
  * [androidx.xr.runtime.Session]).
  */
+import android.app.Activity
 import android.os.Looper
+import androidx.annotation.ColorInt
+import androidx.annotation.MainThread
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.scenecore.ExperimentalSurfaceEntityPixelDimensionsApi
+import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SpatialEnvironment
+import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.XrSessionRule
 import androidx.xr.testutils.waitUntil
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+
+/** Task-scoped compositor node name backing [Scene.mainPanelEntity]. */
+internal const val MAIN_PANEL_NODE_NAME = "MainPanelAndTaskWindowLeashNode"
 
 /** Timeout applied when waiting for a space mode transition to be observed. */
 internal val SPACE_MODE_TIMEOUT = 5.seconds
@@ -162,4 +183,109 @@ private fun XrSessionRule<*, *>.isEnvironmentAndPassthroughSettled(): Boolean {
     return !capabilities.contains(SpatialCapability.PASSTHROUGH_CONTROL) ||
         targetOpacity == SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE ||
         abs(env.currentPassthroughOpacity - targetOpacity) <= PASSTHROUGH_OPACITY_TOLERANCE
+}
+
+/**
+ * Finishes all non-destroyed process activities other than [host] and blocks until they reach
+ * [Stage.DESTROYED].
+ *
+ * * Prevents [androidx.xr.scenecore.ActivityPanelEntity] child activities from outliving [host]
+ *   during [XrSessionRule] teardown and crashing SystemUI (b/584286729, b/584288042).
+ * * Must be called from the instrumentation thread.
+ *
+ * @param host host [Activity] kept alive while finishing embedded child activities
+ * @param timeout maximum duration to wait for child activities to reach [Stage.DESTROYED]
+ */
+internal fun XrSessionRule<*, *>.finishActivitiesOtherThan(
+    host: Activity = activity,
+    timeout: Duration = SPACE_MODE_TIMEOUT,
+) {
+    check(Looper.myLooper() != Looper.getMainLooper()) {
+        "finishActivitiesOtherThan must be called from the instrumentation thread, " +
+            "not the main thread."
+    }
+    val monitor = ActivityLifecycleMonitorRegistry.getInstance()
+    val nonDestroyedStages = Stage.entries.filter { it != Stage.DESTROYED }
+    fun aliveNonHostActivities(): List<Activity> =
+        nonDestroyedStages
+            .flatMap { stage -> monitor.getActivitiesInStage(stage) }
+            .filter { candidate -> candidate !== host && !candidate.isDestroyed }
+
+    val hadActivitiesToWaitFor = onMainThread {
+        val candidates = aliveNonHostActivities()
+        for (candidate in candidates) {
+            if (!candidate.isFinishing) {
+                candidate.finish()
+            }
+        }
+        candidates.isNotEmpty()
+    }
+    if (hadActivitiesToWaitFor) {
+        waitUntil(
+            description =
+                "embedded activities other than ${host::class.java.simpleName} to be destroyed",
+            timeout = timeout,
+        ) {
+            onMainThread { aliveNonHostActivities().isEmpty() }
+        }
+    }
+}
+
+/**
+ * Populates [GltfModelEntity.nodes] on the main thread while the renderer is still active.
+ *
+ * * Works around b/584771482, where `Session` destroys its rendering runtime before disposing
+ *   entities and `GltfFeatureImpl.dispose()` otherwise initializes the lazy `nodes` list against a
+ *   torn-down renderer (`IllegalArgumentException: Illegal Capacity: -1`).
+ * * Must be called on the main thread, such as inside [XrSessionRule.onMainThread].
+ */
+@MainThread
+internal fun GltfModelEntity.loadNodesBeforeTeardown() {
+    check(Looper.myLooper() == Looper.getMainLooper()) {
+        "loadNodesBeforeTeardown must be called on the main thread."
+    }
+    // TODO(b/584771482): Remove once entities are disposed before the rendering runtime is
+    // destroyed.
+    assertThat(nodes).isNotEmpty()
+}
+
+/**
+ * Draws a single solid [color] frame into this [SurfaceEntity]'s backing [android.view.Surface].
+ *
+ * * Applies [dimensions] via [SurfaceEntity.setSurfacePixelDimensions] when non-null and acquires
+ *   [SurfaceEntity.getSurface] on the main thread, then fills the hardware canvas with [color].
+ * * Safe to call from either the instrumentation thread or the main thread.
+ *
+ * @param color ARGB color value drawn across the surface canvas
+ * @param dimensions buffer dimensions in pixels applied before drawing, or `null` to keep current
+ *   dimensions
+ */
+@OptIn(ExperimentalSurfaceEntityPixelDimensionsApi::class)
+internal fun SurfaceEntity.renderSolidColorFrame(
+    @ColorInt color: Int,
+    dimensions: IntSize2d? = IntSize2d(256, 256),
+) {
+    val surface =
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            if (dimensions != null) {
+                setSurfacePixelDimensions(dimensions)
+            }
+            getSurface()
+        } else {
+            runBlocking(Dispatchers.Main.immediate) {
+                if (dimensions != null) {
+                    setSurfacePixelDimensions(dimensions)
+                }
+                getSurface()
+            }
+        }
+    assertWithMessage("Expected active Surface from SurfaceEntity.getSurface()")
+        .that(surface.isValid)
+        .isTrue()
+    val canvas = surface.lockHardwareCanvas()
+    try {
+        canvas.drawColor(color)
+    } finally {
+        surface.unlockCanvasAndPost(canvas)
+    }
 }

@@ -1073,9 +1073,6 @@ class MovableComponentTest {
         /** Settle window after arrival-anchor UP before verifying no delayed move occurred. */
         const val NO_EFFECT_SETTLE_MS = 300L
 
-        /** Name of the task scoped node that backs the main panel. */
-        const val MAIN_PANEL_NODE_NAME = "MainPanelAndTaskWindowLeashNode"
-
         const val BOUNDING_BOX_MODEL_ASSET = "BoundingBoxBlue.glb"
         const val GLTF_ENTITY_SUBSPACE_PREFIX = "gltf_entity_subspace_"
 

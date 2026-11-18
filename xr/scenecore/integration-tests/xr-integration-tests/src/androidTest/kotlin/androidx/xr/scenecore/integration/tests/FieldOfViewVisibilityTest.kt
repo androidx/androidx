@@ -306,12 +306,7 @@ class FieldOfViewVisibilityTest {
                     stereoMode = SurfaceEntity.StereoMode.MONO,
                     parent = session.scene.activitySpace,
                 )
-                .also { entity ->
-                    val surface = entity.getSurface()
-                    val canvas = surface.lockHardwareCanvas()
-                    canvas.drawColor(Color.MAGENTA)
-                    surface.unlockCanvasAndPost(canvas)
-                }
+                .also { entity -> entity.renderSolidColorFrame(Color.MAGENTA, dimensions = null) }
         }
 
         // Creating the Quad SurfaceEntity behind the user expands the scene bounds outside the
