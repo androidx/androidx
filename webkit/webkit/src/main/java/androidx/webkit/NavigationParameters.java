@@ -19,6 +19,7 @@ package androidx.webkit;
 import androidx.annotation.RequiresFeature;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,10 +35,12 @@ public final class NavigationParameters {
 
     private final boolean mShouldReplaceCurrentEntry;
     private final @NonNull Map<String, String> mAdditionalHeaders;
+    private final @Nullable String mReferrer;
 
     private NavigationParameters(@NonNull Builder builder) {
         mShouldReplaceCurrentEntry = builder.mShouldReplaceCurrentEntry;
         mAdditionalHeaders = builder.mAdditionalHeaders;
+        mReferrer = builder.mReferrer;
     }
 
     /**
@@ -56,12 +59,22 @@ public final class NavigationParameters {
     }
 
     /**
+     * @return The referrer set using {@link NavigationParameters.Builder#setReferrer(String)}, or
+     * {@code null} if it wasn't set.
+     */
+    public @Nullable String getReferrer() {
+        return mReferrer;
+    }
+
+    /**
      * A Builder for {@link NavigationParameters}.
      */
     public static final class Builder {
         private boolean mShouldReplaceCurrentEntry;
 
         private final @NonNull Map<String, String> mAdditionalHeaders;
+
+        private @Nullable String mReferrer;
 
         /**
          * Constructor for NavigationParameters builder which sets parameter defaults.
@@ -114,6 +127,34 @@ public final class NavigationParameters {
         public @NonNull Builder addAdditionalHeaders(
                 @NonNull Map<String, String> additionalHeaders) {
             mAdditionalHeaders.putAll(additionalHeaders);
+            return this;
+        }
+
+        /**
+         * Sets the referrer of the navigation.
+         *
+         * <p>
+         * The referrer is sent to the server in the {@code Referer} header and exposed to the
+         * page as {@code document.referrer}, subject to the default referrer policy,
+         * {@code strict-origin-when-cross-origin}: only its origin is sent for a cross-origin
+         * navigation, and nothing is sent if it's an {@code https} URL and the navigation is to
+         * an {@code http} URL.
+         *
+         * <p>
+         * Defaults to {@code null}, meaning the navigation has no referrer. A non-null referrer
+         * must be a valid {@code http} or {@code https} URL, otherwise
+         * {@link WebViewCompat#navigate} throws an {@link IllegalArgumentException}.
+         *
+         * <p>
+         * Use this rather than adding a {@code Referer} header with
+         * {@link #addAdditionalHeader(String, String)}, which is ignored.
+         *
+         * <p>
+         * This method is a no-op if {@link WebViewFeature#isFeatureSupported(String)} returns
+         * {@code false} for {@link WebViewFeature#WEBVIEW_NAVIGATE_REFERRER}.
+         */
+        public @NonNull Builder setReferrer(@Nullable String referrer) {
+            mReferrer = referrer;
             return this;
         }
 

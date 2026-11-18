@@ -31,7 +31,8 @@ import java.util.Map;
  */
 @WebViewCompat.ExperimentalNavigate
 public class NavigationParametersAdapter implements NavigationParametersBoundaryInterface {
-    private static final String[] SUPPORTED_FEATURES = {Features.WEBVIEW_NAVIGATE_V1};
+    private static final String[] SUPPORTED_FEATURES = {
+            Features.WEBVIEW_NAVIGATE_V1, Features.WEBVIEW_NAVIGATE_REFERRER};
     private final NavigationParameters mParams;
 
     public NavigationParametersAdapter(@NonNull NavigationParameters params) {
@@ -46,6 +47,11 @@ public class NavigationParametersAdapter implements NavigationParametersBoundary
     @Override
     public @Nullable Map<String, String> getAdditionalHeaders() {
         return mParams.getAdditionalHeaders();
+    }
+
+    @Override
+    public @Nullable String getReferrer() {
+        return mParams.getReferrer();
     }
 
     @Override

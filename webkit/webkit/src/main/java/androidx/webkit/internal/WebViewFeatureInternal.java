@@ -1086,6 +1086,15 @@ public class WebViewFeatureInternal {
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationParameters.Builder#setReferrer(String)}.
+     */
+    public static final ApiFeature.NoFramework WEBVIEW_NAVIGATE_REFERRER =
+            new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_NAVIGATE_REFERRER,
+                    Features.WEBVIEW_NAVIGATE_REFERRER);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers:
      * {@link WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)}
      * {@link WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}
