@@ -46,7 +46,6 @@ import java.util.function.Consumer
 import kotlin.time.Duration.Companion.milliseconds
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
@@ -139,17 +138,11 @@ class SpatialPointerAndCaptureComponentTest {
 
         assertThat(panelB.addComponent(capture1)).isTrue()
 
-        // A fresh PointerCaptureComponent attaches cleanly once capture1 is removed (reusing
-        // rejected capture2 directly is tracked in b/584961273).
+        // A fresh PointerCaptureComponent attaches cleanly once capture1 is removed.
         val capture3 = PointerCaptureComponent.create(session, executor, {}, {})
         assertThat(panelA.addComponent(capture3)).isTrue()
     }
 
-    // TODO(b/584961273): Remove @Ignore once rejected attach no longer latches attachedEntity.
-    @Ignore(
-        "b/584961273: PointerCaptureComponent.onAttach sets attachedEntity before " +
-            "addComponent succeeds, permanently blocking reuse after a rejected attach"
-    )
     @Test
     fun pointerCaptureComponent_rejectedDuplicateAttach_canStillAttachAfterPreviousRemoved() {
         val session = sessionRule.session

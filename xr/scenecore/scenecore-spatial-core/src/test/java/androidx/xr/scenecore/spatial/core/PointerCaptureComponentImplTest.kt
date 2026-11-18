@@ -212,6 +212,9 @@ class PointerCaptureComponentImplTest {
                 inputListener,
             )
         Truth.assertThat(component2.onAttach(entity)).isFalse()
+
+        component.onDetach(entity)
+        Truth.assertThat(component2.onAttach(entity)).isTrue()
     }
 
     @Test
