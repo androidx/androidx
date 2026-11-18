@@ -71,9 +71,10 @@ class AnimateOverlaySceneTest {
     @Test
     fun testAnimateOut() {
         lateinit var backStack: MutableList<Any>
+        lateinit var sheetState: SheetState
         val testTag = "testTag"
         composeTestRule.setContent {
-            val sheetState = rememberModalBottomSheetState()
+            sheetState = rememberModalBottomSheetState()
             backStack = remember { mutableStateListOf(First) }
             NavDisplay(
                 backStack = backStack,
@@ -107,13 +108,13 @@ class AnimateOverlaySceneTest {
                     },
             )
         }
-
         composeTestRule.onNodeWithText("First").assertIsDisplayed()
 
         backStack.add(Second)
         composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithText("Second").assertIsDisplayed()
+        val initialOffset = sheetState.requireOffset()
 
         composeTestRule.mainClock.autoAdvance = false
         composeTestRule.onNodeWithTag(testTag).performClick()
@@ -121,8 +122,9 @@ class AnimateOverlaySceneTest {
         // make sure overlay is popped
         assertThat(backStack).containsExactly(First)
 
-        repeat(8) { composeTestRule.mainClock.advanceTimeByFrame() }
+        repeat(3) { composeTestRule.mainClock.advanceTimeByFrame() }
         // assert that hide animation is running after pop
+        assertThat(sheetState.requireOffset()).isGreaterThan(initialOffset)
         composeTestRule.onNodeWithTag(testTag).assertIsDisplayed()
 
         composeTestRule.mainClock.autoAdvance = true
