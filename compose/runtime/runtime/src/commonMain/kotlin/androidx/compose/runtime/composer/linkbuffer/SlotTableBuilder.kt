@@ -260,8 +260,8 @@ internal class SlotTableBuilder(
 
         if (recordSourceInformation && parent >= 0) {
             addressSpace
-                .recordSourceInformation(parent, null, group)
-                .reportGroup(addressSpace.anchorOfAddress(group))
+                .sourceInformationOf(parent)
+                ?.reportGroup(addressSpace.anchorOfAddress(group))
         }
     }
 
@@ -390,7 +390,7 @@ internal class SlotTableBuilder(
     @Suppress("unused")
     fun recordGroupSourceInformation(sourceInformation: String) {
         if (recordSourceInformation) {
-            addressSpace.recordSourceInformation(parent, sourceInformation, NULL_ADDRESS)
+            addressSpace.recordSourceInformation(parent, sourceInformation)
         }
     }
 
@@ -401,16 +401,14 @@ internal class SlotTableBuilder(
         }
         if (recordSourceInformation) {
             addressSpace
-                .recordSourceInformation(parent, null, NULL_ADDRESS)
+                .recordSourceInformation(parent, null)
                 .startGrouplessCall(key, sourceInformation, slotCurrent - slotStart)
         }
     }
 
     fun recordGrouplessCallSourceInformationEnd() {
         if (recordSourceInformation) {
-            addressSpace
-                .recordSourceInformation(parent, null, NULL_ADDRESS)
-                .endGrouplessCall(slotCurrent - slotStart)
+            addressSpace.sourceInformationOf(parent)?.endGrouplessCall(slotCurrent - slotStart)
         }
     }
 

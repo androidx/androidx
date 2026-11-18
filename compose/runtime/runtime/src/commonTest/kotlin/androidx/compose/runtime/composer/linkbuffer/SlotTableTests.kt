@@ -25,6 +25,8 @@ import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SlotTableTests {
@@ -3691,6 +3693,75 @@ class SlotTableTests {
         val received = SourceGroup.group(slots)
 
         assertEquals(expected, received)
+    }
+
+    @Test
+    fun collectSourceInformationWithoutMarkersDoesNotAllocateSourceInformationMap() {
+        val slots = SlotTable.build {
+            collectSourceInformation()
+            group(100) {
+                group(200) { append("a") }
+                group(201) { append("b") }
+            }
+        }
+        val inserted = SlotTable.build {
+            collectSourceInformation()
+            group(202) { append("c") }
+        }
+        assertNull(slots.addressSpace.sourceInformationMap)
+        assertNull(inserted.addressSpace.sourceInformationMap)
+        slots.edit {
+            group(100) {
+                moveFrom(inserted, inserted.rootHandle())
+                removeGroup()
+                skipToGroupEnd()
+            }
+        }
+        slots.verifyWellFormed()
+        assertNull(slots.addressSpace.sourceInformationMap)
+    }
+
+    @Test
+    fun collectSourceInformationOnlyAllocatesAnchorsForGroupsWithSourceInformation() {
+        var group100 = NULL_ADDRESS
+        var group200 = NULL_ADDRESS
+        var group300 = NULL_ADDRESS
+        var group201 = NULL_ADDRESS
+        var group301 = NULL_ADDRESS
+        var group400 = NULL_ADDRESS
+
+        val slots = SlotTable.build {
+            collectSourceInformation()
+            group(100) {
+                group100 = parentGroup
+                group(200) {
+                    group200 = parentGroup
+                    group(300) { group300 = parentGroup }
+                }
+                sgroup(201, "C(201)") {
+                    group201 = parentGroup
+                    group(301) {
+                        group301 = parentGroup
+                        group(400) { group400 = parentGroup }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+
+        assertNull(slots.addressSpace.sourceInformationOf(group100))
+        assertNull(slots.addressSpace.sourceInformationOf(group200))
+        assertNull(slots.addressSpace.sourceInformationOf(group300))
+        assertNotNull(slots.addressSpace.sourceInformationOf(group201))
+        assertNull(slots.addressSpace.sourceInformationOf(group301))
+        assertNull(slots.addressSpace.sourceInformationOf(group400))
+
+        assertFalse(slots.addressSpace.hasAnchorFor(group100))
+        assertFalse(slots.addressSpace.hasAnchorFor(group200))
+        assertFalse(slots.addressSpace.hasAnchorFor(group300))
+        assertTrue(slots.addressSpace.hasAnchorFor(group201))
+        assertTrue(slots.addressSpace.hasAnchorFor(group301))
+        assertFalse(slots.addressSpace.hasAnchorFor(group400))
     }
 }
 
