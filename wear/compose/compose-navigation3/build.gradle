@@ -36,11 +36,9 @@ dependencies {
     implementation(project(":wear:compose:compose-material3"))
     implementation("androidx.compose.animation:animation:1.9.3")
 
-    androidTestImplementation(project(":navigationevent:navigationevent-testing"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":navigation3:navigation3-ui"))
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.7.0")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
 

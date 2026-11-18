@@ -19,9 +19,8 @@ package androidx.wear.compose.navigation3
 import android.os.Build
 import android.window.BackEvent
 import androidx.activity.BackEventCompat
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
-import androidx.activity.OnBackPressedDispatcherOwner
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -49,7 +48,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -58,17 +57,13 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategyScope
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigationevent.DirectNavigationEventInput
-import androidx.navigationevent.NavigationEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -87,9 +82,12 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SwipeDismissableSceneStrategyTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
-    private lateinit var backPressedDispatcher: OnBackPressedDispatcher
+    // ComponentActivity's NavigationEventDispatcher (used by NavigationBackHandler) is backed by
+    // this OnBackPressedDispatcher.
+    private val backPressedDispatcher: OnBackPressedDispatcher
+        get() = rule.activity.onBackPressedDispatcher
 
     @Test
     fun calculateScene_currentEntry() {
@@ -145,7 +143,7 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun navigates_back_to_previous_level_after_swipe() {
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(modifier = Modifier.testTag(SCENE_TAG))
         }
 
@@ -162,7 +160,7 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun does_not_navigate_back_to_previous_level_when_swipe_disabled() {
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 modifier = Modifier.testTag(SCENE_TAG),
                 sceneStrategy = rememberSwipeDismissableSceneStrategy(isUserSwipeEnabled = false),
@@ -182,7 +180,7 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun navigates_back_to_previous_level_with_back_button() {
-        rule.setContentWithBackPressedDispatcher { TestNavDisplay() }
+        rule.setContent { TestNavDisplay() }
         // navigate to second entry
         rule.onNodeWithText(FIRST_SCREEN).performClick()
 
@@ -199,7 +197,7 @@ class SwipeDismissableSceneStrategyTest {
     fun navigates_back_to_previous_level_with_back_button_previous_state_destroyed() {
         val backStack = mutableStateListOf<Any>(FIRST_KEY)
         var lifecycleState: Lifecycle? = null
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 backStack = backStack,
                 entryProvider =
@@ -228,15 +226,15 @@ class SwipeDismissableSceneStrategyTest {
     @Test
     @SdkSuppress(minSdkVersion = 36)
     fun does_not_intercept_back_pressed_with_single_item_backstack() {
-        rule.setContentWithBackPressedDispatcher { TestNavDisplay() }
+        rule.setContent { TestNavDisplay() }
         // If NavDisplay is handling back, 'hasEnabledCallbacks' would be true.
         // For a single item, it should be false so the system (Activity) can handle it.
-        assertFalse(backPressedDispatcher.hasEnabledCallbacks())
+        rule.runOnIdle { assertFalse(backPressedDispatcher.hasEnabledCallbacks()) }
     }
 
     @Test
     fun does_not_crash_when_swiping_back_with_single_item_backstack() {
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(modifier = Modifier.testTag(SCENE_TAG))
         }
 
@@ -250,7 +248,7 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun displays_previous_screen_during_swipe_gesture() {
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             WithTouchSlop(0f) { TestNavDisplay(modifier = Modifier.testTag(SCENE_TAG)) }
         }
 
@@ -266,7 +264,7 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun focus_updates_after_swipe_gesture() {
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             WithTouchSlop(0f) { TestNavDisplay(modifier = Modifier.testTag(SCENE_TAG)) }
         }
 
@@ -290,7 +288,7 @@ class SwipeDismissableSceneStrategyTest {
         lateinit var intState: MutableIntState
         val updateState = "updateState"
         val navigate = "navigate"
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 backStack = backStack,
                 entryProvider =
@@ -333,7 +331,7 @@ class SwipeDismissableSceneStrategyTest {
     @Test
     fun remembers_saved_state_on_two_screens() {
         val backStack = mutableStateListOf<Any>(1)
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 backStack = backStack,
                 entryProvider =
@@ -429,7 +427,7 @@ class SwipeDismissableSceneStrategyTest {
     fun updates_lifecycle_after_navigation() {
         var lifecycleState: Lifecycle? = null
         val backStack = mutableStateListOf<Any>(FIRST_KEY)
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 backStack = backStack,
                 entryProvider =
@@ -452,7 +450,7 @@ class SwipeDismissableSceneStrategyTest {
     fun updates_lifecycle_after_navigation_and_swipe_back() {
         var lifecycleState: Lifecycle? = null
         val backStack = mutableStateListOf<Any>(FIRST_KEY)
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 backStack = backStack,
                 entryProvider =
@@ -488,7 +486,7 @@ class SwipeDismissableSceneStrategyTest {
     fun updates_lifecycle_after_popping_back_stack() {
         var lifecycleState: Lifecycle? = null
         val backStack = mutableStateListOf<Any>(FIRST_KEY)
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 backStack = backStack,
                 entryProvider =
@@ -515,7 +513,7 @@ class SwipeDismissableSceneStrategyTest {
     @SdkSuppress(minSdkVersion = 36)
     fun press_back_during_animation_does_not_reset_animation() {
         val backStack = mutableStateListOf<Any>(FIRST_KEY, SECOND_KEY, THIRD_KEY)
-        rule.setContentWithBackPressedDispatcher { TestNavDisplay(backStack = backStack) }
+        rule.setContent { TestNavDisplay(backStack = backStack) }
 
         rule.waitForIdle()
 
@@ -556,7 +554,7 @@ class SwipeDismissableSceneStrategyTest {
     fun navigate_interrupted_with_pop() {
         val backStack = mutableStateListOf<Any>(FIRST_KEY)
         val testDuration = 300
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             NavDisplay(
                 backStack = backStack,
                 transitionSpec = {
@@ -618,7 +616,7 @@ class SwipeDismissableSceneStrategyTest {
         var firstScreenActive: Boolean? = null
         var secondScreenActive: Boolean? = null
 
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 backStack = backStack,
                 entryProvider =
@@ -664,7 +662,7 @@ class SwipeDismissableSceneStrategyTest {
         var firstScreenActive: Boolean? = null
         var secondScreenActive: Boolean? = null
 
-        rule.setContentWithBackPressedDispatcher {
+        rule.setContent {
             TestNavDisplay(
                 backStack = backStack,
                 entryProvider =
@@ -721,27 +719,6 @@ class SwipeDismissableSceneStrategyTest {
             sceneStrategies = listOf(sceneStrategy),
             entryProvider = entryProvider,
         )
-    }
-
-    private fun ComposeContentTestRule.setContentWithBackPressedDispatcher(
-        composable: @Composable () -> Unit
-    ) {
-        setContent {
-            backPressedDispatcher =
-                LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            val dispatcherOwner =
-                object : OnBackPressedDispatcherOwner, LifecycleOwner by TestLifecycleOwner() {
-                    override val onBackPressedDispatcher = backPressedDispatcher
-                }
-            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
-                composable()
-            }
-        }
-    }
-
-    private fun DirectNavigationEventInput.onBackPressed() {
-        backProgressed(NavigationEvent(progress = 0.0F))
-        backCompleted()
     }
 
     /**
