@@ -980,10 +980,10 @@ private class Entries<K, V>(private val parent: ScatterMap<K, V>) : Set<Map.Entr
     }
 
     override fun containsAll(elements: Collection<Map.Entry<K, V>>): Boolean = elements.all {
-        parent[it.key] == it.value
+        parent.containsEntry(it)
     }
 
-    override fun contains(element: Map.Entry<K, V>): Boolean = parent[element.key] == element.value
+    override fun contains(element: Map.Entry<K, V>): Boolean = parent.containsEntry(element)
 
     override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 }
@@ -1136,11 +1136,11 @@ private class MutableEntries<K, V>(private val parent: MutableScatterMap<K, V>) 
     override fun clear() = parent.clear()
 
     override fun containsAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
-        return elements.all { parent[it.key] == it.value }
+        return elements.all { parent.containsEntry(it) }
     }
 
     override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean =
-        parent[element.key] == element.value
+        parent.containsEntry(element)
 
     override fun addAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
         throw UnsupportedOperationException()
@@ -1372,4 +1372,9 @@ private class MutableMapWrapper<K, V>(private val parent: MutableScatterMap<K, V
     }
 
     override fun put(key: K, value: V): V? = parent.put(key, value)
+}
+
+private fun <K, V> ScatterMap<K, V>.containsEntry(entry: Map.Entry<K, V>): Boolean {
+    val index = findKeyIndex(entry.key)
+    return index >= 0 && values[index] == entry.value
 }
