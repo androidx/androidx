@@ -187,8 +187,12 @@ public interface ComposeUiHost {
     ): Boolean
 
     /**
-     * Called when Compose focus was cleared. Clear Android framework focus from [view] if [view]
-     * itself is focused. Don't clear focus held by an embedded Android [View].
+     * Clears Android framework focus from [view] and any focused descendant [View].
+     *
+     * Called when Compose focus is cleared, for example via
+     * [androidx.compose.ui.focus.FocusManager.clearFocus]. Clear focus when [view] itself is
+     * focused (`View.isFocused`) or holds focus through an embedded Android [View]
+     * (`View.hasFocus`), clearing any focused descendant before clearing [view] itself.
      */
     public fun clearHostFocus()
 

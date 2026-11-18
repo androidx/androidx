@@ -99,6 +99,7 @@ import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalMediaQueryApi
+import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
@@ -147,6 +148,7 @@ import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.graphics.toComposeRect
@@ -177,6 +179,7 @@ import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -200,6 +203,7 @@ import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.ObservationTarget
 import androidx.compose.ui.node.OutOfFrameExecutor
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
@@ -216,6 +220,7 @@ import androidx.compose.ui.relocation.BringIntoViewModifierNode
 import androidx.compose.ui.scrollcapture.ScrollCapture
 import androidx.compose.ui.semantics.EmptySemanticsModifier
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.semantics.SemanticsPropertyProvider
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.spatial.ExecuteDelayed
@@ -268,6 +273,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -295,7 +301,84 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     ViewTreeObserver.OnScrollChangedListener,
     ViewTreeObserver.OnTouchModeChangeListener,
     FocusListener,
-    ExecuteDelayed {
+    ExecuteDelayed,
+    ComposeUiHost {
+
+    override fun <T : ObservationTarget> observeReads(
+        target: T,
+        onChanged: (T) -> Unit,
+        block: () -> Unit,
+    ) {
+        snapshotObserver.observeReads(target, onChanged, block)
+    }
+
+    override fun invalidateDraw() {
+        invalidate()
+    }
+
+    override fun invalidateMeasurement() {
+        requestLayout()
+    }
+
+    override fun transformToScreen(matrix: Matrix) {
+        localToScreen(matrix)
+    }
+
+    override fun voteFrameRateCategory(category: FrameRateCategory) {
+        if (SDK_INT >= VANILLA_ICE_CREAM) {
+            voteFrameRate(category.value)
+        }
+    }
+
+    override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing =
+        awaitCancellation()
+
+    override fun requestHostFocus(
+        focusDirection: FocusDirection,
+        previouslyFocusedRect: androidx.compose.ui.geometry.Rect?,
+    ): Boolean = requestOwnerFocus(focusDirection, previouslyFocusedRect)
+
+    override fun clearHostFocus() {
+        clearOwnerFocus()
+    }
+
+    override fun addAndroidView(view: View, semanticsId: Int, invalidateMeasurement: () -> Unit) {
+        if (view is AndroidViewHolder) {
+            addAndroidView(view, view.layoutNode)
+        }
+    }
+
+    override fun removeAndroidView(view: View, semanticsId: Int) {
+        if (view is AndroidViewHolder) {
+            removeAndroidView(view)
+        }
+    }
+
+    override fun drawAndroidView(view: View, canvas: Canvas) {
+        if (view is AndroidViewHolder) {
+            drawAndroidView(view, canvas.nativeCanvas)
+        }
+    }
+
+    // AndroidComposeView observes its own LayoutNodes directly, so the ComposeUiHost
+    // notifications below are not used for it.
+    override fun onLayoutChanged(node: LayoutInfo) {}
+
+    override fun onSemanticsChanged(node: LayoutInfo, previousConfig: SemanticsPropertyProvider?) {}
+
+    override fun onFocusChanged(previous: LayoutInfo?, current: LayoutInfo?) {}
+
+    override fun onNodeAttached(node: LayoutInfo) {}
+
+    override fun onNodeDetached(node: LayoutInfo) {}
+
+    override fun onNodeDeactivated(node: LayoutInfo) {}
+
+    override fun onNodeReused(node: LayoutInfo, previousSemanticsId: Int) {}
+
+    override fun onAutofillRequested(node: LayoutInfo) {}
+
+    override fun onChangesApplied() {}
 
     var composeViewContext: ComposeViewContext = composeViewContext
         set(newContext) {
@@ -506,7 +589,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override val taskDispatchers: TaskDispatchers = AndroidTaskDispatchers
 
     /** The [Window] hosting this view, if available. */
-    internal val window: Window?
+    override val window: Window?
         get() = findDialogWindow(this) ?: findActivityWindow(this)
 
     private var isAttached by mutableStateOf(false)
@@ -3367,6 +3450,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         return (x in 0f..width.toFloat() && y in 0f..height.toFloat())
     }
 
+    // PositionCalculator and ComposeUiHost name this parameter differently.
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun localToScreen(localPosition: Offset): Offset {
         recalculateWindowPosition()
         val local = viewToWindowMatrix.map(localPosition)
@@ -3379,6 +3464,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         localTransform.preTranslate(windowPosition.x, windowPosition.y, tmpMatrix)
     }
 
+    // PositionCalculator and ComposeUiHost name this parameter differently.
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun screenToLocal(positionOnScreen: Offset): Offset {
         recalculateWindowPosition()
         val x = positionOnScreen.x - windowPosition.x
