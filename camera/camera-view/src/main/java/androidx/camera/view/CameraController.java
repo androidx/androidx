@@ -166,6 +166,21 @@ import java.util.concurrent.TimeUnit;
  *     this approach, a {@link Preview} use case is mandatory.
  *     </li>
  * </ol>
+ *
+ * <p><b>Note on default camera selection:</b> By default, {@link CameraController} uses
+ * {@link CameraSelector#DEFAULT_BACK_CAMERA}. If the device does not have a back camera (for
+ * example, on certain tablets or kiosks), binding the controller to the lifecycle will fail
+ * with an {@link IllegalStateException} once camera initialization, lifecycle binding, and
+ * {@link PreviewView} attachment and layout are complete. Depending on which step completes
+ * last, the exception is thrown by the call that triggers binding (e.g. binding to the
+ * lifecycle or {@link PreviewView#setController(CameraController)}), causes
+ * {@link #getInitializationFuture()} to fail if already bound to the lifecycle and attached to
+ * a laid-out {@link PreviewView} before initialization completes, or is caught and logged by
+ * {@link PreviewView} when binding is deferred until view attachment or layout. To ensure
+ * predictable behavior across devices, it is strongly recommended to proactively check for
+ * camera availability using {@link #hasCamera(CameraSelector)} (after
+ * {@link #getInitializationFuture()} completes) before binding. Refer to the sample code in
+ * {@code hasCamera(CameraSelector)} for implementing fallback logic.
  */
 public abstract class CameraController {
 
@@ -2428,7 +2443,12 @@ public abstract class CameraController {
      * the controller will immediately rebind use cases with the new {@link CameraSelector};
      * otherwise, the new {@link CameraSelector} will be used when the camera becomes ready.
      *
-     * <p>The default value is {@link CameraSelector#DEFAULT_BACK_CAMERA}.
+     * <p>If this method is not called, the default value is
+     * {@link CameraSelector#DEFAULT_BACK_CAMERA}. Because a given camera is not guaranteed to
+     * be present on all devices, developers should use {@link #hasCamera(CameraSelector)}
+     * (after {@link #getInitializationFuture()} completes) to verify that the requested camera
+     * is available on the device before calling this method or binding to the lifecycle to
+     * avoid exceptions.
      *
      * <p>If a {@link SessionConfig} with advanced settings is set, it might only be supported on
      * specific camera devices, it is recommended to check whether it can be supported via
@@ -2441,6 +2461,7 @@ public abstract class CameraController {
      * @throws IllegalStateException If the provided camera selector is unable to resolve a camera
      * to be used for the enabled use cases.
      * @see CameraSelector
+     * @see #hasCamera(CameraSelector)
      */
     @MainThread
     public void setCameraSelector(@NonNull CameraSelector cameraSelector) {
