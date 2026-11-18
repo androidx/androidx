@@ -2776,6 +2776,10 @@ class RemoteComposeGeneratorTest {
         assertEquals(31, anchoredTextBit.whenBitSet?.bit)
         assertEquals("0..15", anchoredTextBit.whenBitSet?.range)
 
+        // FloatConstant float_or_id (A18)
+        val floatConstOp = schema.operationsByName["FloatConstant"]!!
+        assertEquals("float_or_id", floatConstOp.fields.first { it.name == "value" }.type)
+
         // Nested operation payload metadata
         val skip = schema.operationsByName["Skip"]!!
         assertEquals("operations", skip.fields.first { it.name == "skippedBytes" }.payloadKind)

@@ -1637,12 +1637,14 @@
         {
           "name": "id",
           "type": "int",
-          "description": "Unique variable ID"
+          "description": "Unique variable ID",
+          "role": "idDef",
+          "idKind": "float"
         },
         {
           "name": "value",
-          "type": "float",
-          "description": "Literal float value"
+          "type": "float_or_id",
+          "description": "Float value or NaN-encoded variable ID"
         }
       ],
       "profiles": [
