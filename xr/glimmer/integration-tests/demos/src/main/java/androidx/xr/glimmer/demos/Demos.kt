@@ -48,6 +48,7 @@ val Demos =
             DemoCategory("Stack", StackDemos),
             DemoCategory("Pagers", PagerDemos),
             DemoCategory("VoiceInputIndicator", VoiceInputIndicatorDemos),
+            DemoCategory("ProgressIndicators", ProgressIndicatorDemos),
             DemoCategory("IconMarkers", IconMarkerDemos),
             ComposableDemo("Gesture") { OnIndirectPointerGestureSampleUsage() },
             ComposableDemo("Settings") { DemoSettings() },
