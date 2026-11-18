@@ -5553,7 +5553,8 @@
           "name": "attributes",
           "type": "GraphicsLayerAttribute[]",
           "lengthType": "int",
-          "description": "Tagged graphics layer attributes"
+          "description": "Tagged graphics layer attributes",
+          "maxLength": 22
         }
       ],
       "profiles": [
@@ -6680,17 +6681,43 @@
         {
           "name": "tag",
           "type": "int",
-          "description": "Packed attribute type in bits 0..9 and data type tag in bits 10..15 (0=int, 1=float)",
+          "description": "Packed attribute index in bits 0..5 (0..21) and signed data type in bits 10..31 (0=int, 1=float_or_id)",
           "bits": [
             {
               "name": "attributeType",
-              "range": "0..9",
-              "description": "Layer attribute key"
+              "range": "0..5",
+              "description": "Layer attribute key (0..21)",
+              "enum": {
+                "SCALE_X": 0,
+                "SCALE_Y": 1,
+                "ROTATION_X": 2,
+                "ROTATION_Y": 3,
+                "ROTATION_Z": 4,
+                "TRANSFORM_ORIGIN_X": 5,
+                "TRANSFORM_ORIGIN_Y": 6,
+                "TRANSLATION_X": 7,
+                "TRANSLATION_Y": 8,
+                "TRANSLATION_Z": 9,
+                "SHADOW_ELEVATION": 10,
+                "ALPHA": 11,
+                "CAMERA_DISTANCE": 12,
+                "COMPOSITING_STRATEGY": 13,
+                "SPOT_SHADOW_COLOR": 14,
+                "AMBIENT_SHADOW_COLOR": 15,
+                "HAS_BLUR": 16,
+                "BLUR_RADIUS_X": 17,
+                "BLUR_RADIUS_Y": 18,
+                "BLUR_TILE_MODE": 19,
+                "SHAPE": 20,
+                "SHAPE_RADIUS": 21
+              },
+              "strictEnum": true
             },
             {
               "name": "dataType",
-              "range": "10..15",
-              "description": "0=int, 1=float"
+              "range": "10..31",
+              "signed": true,
+              "description": "0=int, 1=float_or_id; any other value omits the value word"
             }
           ],
           "unpackBits": false
@@ -6698,7 +6725,26 @@
         {
           "name": "value",
           "type": "int",
-          "description": "Integer value or raw float bits depending on dataType"
+          "defaultValue": "0",
+          "presentIf": "(tag >> 10) == 0 || (tag >> 10) == 1",
+          "conditionalTypes": [
+            {
+              "when": "(tag >> 10) == 0",
+              "type": "int"
+            },
+            {
+              "when": "(tag >> 10) == 1",
+              "type": "float_or_id"
+            }
+          ],
+          "conditionalRoles": [
+            {
+              "when": "(tag >> 10) == 0 && ((tag & 63) == 14 || (tag & 63) == 15)",
+              "role": "idRef",
+              "idKind": "color"
+            }
+          ],
+          "description": "Integer value (dataType == 0) or raw float/NaN-ID bits (dataType == 1)"
         }
       ]
     },

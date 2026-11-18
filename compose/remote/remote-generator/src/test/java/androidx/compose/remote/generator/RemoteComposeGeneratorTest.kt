@@ -2576,6 +2576,7 @@ class RemoteComposeGeneratorTest {
         assertTrue(tsCode.contains("_glyphsCount * 20 > buffer.remaining()"))
         assertTrue(tsCode.contains("sparseCount * 2 > buffer.remaining()"))
         assertTrue(tsCode.contains("Invalid enum value for type:"))
+        assertTrue(tsCode.contains("Invalid enum value for attributeType:"))
         assertTrue(tsCode.contains("buffer.readUTF8(4000)"))
         assertTrue(tsCode.contains("buffer.readBuffer(800000)"))
         assertTrue(tsCode.contains("(raw_versionAndNumGlyphs >> 16)"))
@@ -2604,6 +2605,7 @@ class RemoteComposeGeneratorTest {
         assertTrue(swiftCode.contains("guard _glyphsCount <= buffer.remaining / 20 else"))
         assertTrue(swiftCode.contains("guard sparseCount <= buffer.remaining / 2 else"))
         assertTrue(swiftCode.contains("Invalid enum value for type"))
+        assertTrue(swiftCode.contains("Invalid enum value for attributeType"))
         assertTrue(swiftCode.contains("buffer.readUTF8(maxLength: 4000)"))
         assertTrue(swiftCode.contains("buffer.readBuffer(maxLength: 800000)"))
         assertTrue(swiftCode.contains("(raw_versionAndNumGlyphs >> 16)"))
@@ -2615,6 +2617,7 @@ class RemoteComposeGeneratorTest {
         assertTrue(ktCode.contains("require(count <= buffer.remaining() / 20)"))
         assertTrue(ktCode.contains("require(sparseCount <= buffer.remaining() / 2)"))
         assertTrue(ktCode.contains("Invalid AddMesh2DNode.type:"))
+        assertTrue(ktCode.contains("Invalid GraphicsLayerAttribute.attributeType:"))
         assertTrue(ktCode.contains("buffer.readUTF8(4000)"))
         assertTrue(ktCode.contains("buffer.readBuffer(800000)"))
         assertTrue(ktCode.contains("val version = (raw_versionAndNumGlyphs shr 16)"))
@@ -2669,6 +2672,20 @@ class RemoteComposeGeneratorTest {
                 .bits!!
                 .first { it.name == "key" }
                 .range,
+        )
+
+        // GraphicsLayerModifierOperation & GraphicsLayerAttribute (A13-A16, C7)
+        val glOp = schema.operationsByName["GraphicsLayerModifierOperation"]!!
+        assertEquals(22, glOp.fields.first { it.name == "attributes" }.maxLength)
+        val glStruct = schema.structs["GraphicsLayerAttribute"]!!
+        val glTagBits = glStruct.fields.first { it.name == "tag" }.bits!!
+        assertEquals("0..5", glTagBits.first { it.name == "attributeType" }.range)
+        assertTrue(glTagBits.first { it.name == "attributeType" }.strictEnum)
+        assertEquals("10..31", glTagBits.first { it.name == "dataType" }.range)
+        assertTrue(glTagBits.first { it.name == "dataType" }.signed)
+        assertEquals(
+            "(tag >> 10) == 0 || (tag >> 10) == 1",
+            glStruct.fields.first { it.name == "value" }.presentIf,
         )
 
         // Nested operation payload metadata
