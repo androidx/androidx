@@ -201,6 +201,11 @@ internal class ParseContext {
             return DividerParseBlock(id = generateBlockId())
         }
 
+        // 2.4. Block Quote (> quoted)
+        if (scanner.matchesBlockQuotePrefix()) {
+            return BlockQuoteParseBlock(id = generateBlockId())
+        }
+
         return null
     }
 
@@ -216,11 +221,14 @@ internal class ParseContext {
 
 /**
  * Whether this line may start a block with a marker character: at most [MAX_BLOCK_START_INDENT]
- * leading spaces followed by a character that begins an ATX heading, fenced code block, or divider.
- * A cheap pre-check before running the full matchers.
+ * leading spaces followed by a character that begins an ATX heading, fenced code block, divider, or
+ * block quote. A cheap pre-check before running the full matchers.
  */
 private fun LineScanner.mayStartMarkedBlock(): Boolean {
     if (leadingSpaceCount > MAX_BLOCK_START_INDENT) return false
-    val c = firstNonSpaceChar
-    return c == ATX_HEADING_MARKER || c.isFenceChar() || c.isDividerMarker()
+    val firstChar = firstNonSpaceChar
+    return firstChar == ATX_HEADING_MARKER ||
+        firstChar.isFenceChar() ||
+        firstChar.isDividerMarker() ||
+        firstChar == BLOCK_QUOTE_MARKER
 }

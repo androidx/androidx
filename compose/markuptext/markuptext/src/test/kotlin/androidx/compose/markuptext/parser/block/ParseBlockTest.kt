@@ -25,21 +25,93 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class ParseBlockTest {
 
+    /** Parses [markdown] split into lines. An empty string is a document with no lines. */
     private fun parseLines(
         markdown: String,
         context: ParseContext = ParseContext(),
+    ): DocumentParseBlock =
+        parseLines(if (markdown.isEmpty()) emptyList() else markdown.split("\n"), context)
+
+    /** Parses [lines], where each element is one line, so `listOf("")` is one blank line. */
+    private fun parseLines(
+        lines: List<String>,
+        context: ParseContext = ParseContext(),
     ): DocumentParseBlock {
         val doc = DocumentParseBlock()
-        if (markdown.isEmpty()) return doc
-        val lines = markdown.split("\n")
         for (line in lines) {
             context.resetLine(LineScanner(line))
             doc.processLine(context)
         }
         return doc
+    }
+
+    // Assertion helpers: each checks the block's type (and content) and returns the block for
+    // further checks.
+
+    /** Asserts this block is a container with exactly one child, and returns the child. */
+    private fun ParseBlock.assertSingleChild(): ParseBlock {
+        val container = assertIs<ContainerParseBlock>(this, "Expected a container")
+        assertEquals(1, container.children.size, "Children of ${this::class.simpleName}")
+        return container.children[0]
+    }
+
+    private fun ParseBlock.assertParagraphText(expected: String): ParagraphParseBlock {
+        val paragraph = assertIs<ParagraphParseBlock>(this, "Expected a paragraph \"$expected\"")
+        assertEquals(expected, paragraph.content.toString(), "Paragraph text")
+        assertEquals(0, paragraph.headingLevel, "Heading level of paragraph \"$expected\"")
+        return paragraph
+    }
+
+    private fun ParseBlock.assertHeading(level: Int, text: String): ParagraphParseBlock {
+        val heading = assertIs<ParagraphParseBlock>(this, "Expected a heading \"$text\"")
+        assertEquals(level, heading.headingLevel, "Heading level of \"$text\"")
+        assertEquals(text, heading.content.toString(), "Heading text")
+        return heading
+    }
+
+    private fun ParseBlock.assertCodeContent(expected: String): ParseBlock {
+        val content =
+            when (this) {
+                is IndentedCodeBlockParseBlock -> getCodeContent()
+                is FencedCodeBlockParseBlock -> getCodeContent()
+                else -> fail("Expected a code block, was ${this::class.simpleName}")
+            }
+        assertEquals(expected, content, "Code content")
+        return this
+    }
+
+    private fun ParseBlock.assertBlockQuote(): BlockQuoteParseBlock =
+        assertIs(this, "Expected a block quote")
+
+    /**
+     * Parses [oldLines], replaces lines `[start, endExclusive)` with [replacement], re-parses
+     * incrementally until convergence or end of input, and asserts the result matches a full parse
+     * of the updated lines.
+     */
+    private fun assertIncrementalParseMatchesFullParse(
+        oldLines: List<String>,
+        start: Int,
+        endExclusive: Int,
+        replacement: List<String>,
+    ) {
+        val context = ParseContext()
+        val doc = parseLines(oldLines, context)
+        val newLines =
+            oldLines.subList(0, start) + replacement + oldLines.subList(endExclusive, oldLines.size)
+
+        doc.invalidateLines(start, endExclusive, replacement.size)
+        var line = doc.lineCount
+        while (line < newLines.size) {
+            context.resetLine(LineScanner(newLines[line]))
+            if (doc.processLine(context).isConverged) break
+            line++
+        }
+
+        assertEquals(dumpParseTree(parseLines(newLines)), dumpParseTree(doc))
     }
 
     @Test
@@ -766,19 +838,6 @@ class ParseBlockTest {
     }
 
     @Test
-    fun testPrefixedContainerReportsNoTrailingEmptyLines() {
-        // ">" lines are blank inside the container but not for its parent, so the container
-        // reports no trailing blank lines even though it ends with an EmptyLineParseBlock.
-        val context = ParseContext()
-        val quote = PrefixedContainer(id = context.generateBlockId())
-        val doc = context.documentStartingWith(quote)
-        doc.feedLines(context, ">", ">")
-        assertEquals(listOf<ParseBlock>(quote), doc.children)
-        assertEquals(2, assertIs<EmptyLineParseBlock>(quote.children[1]).countTrailingEmptyLines())
-        assertEquals(0, quote.countTrailingEmptyLines())
-    }
-
-    @Test
     fun testInitFirstChildSetsOnlyTheFirstChild() {
         val context = ParseContext()
         val quote = PrefixedContainer(id = context.generateBlockId())
@@ -1462,5 +1521,275 @@ class ParseBlockTest {
         assertEquals(1, code.countTrailingEmptyLines())
         assertSame(originalP1, doc.children[1])
         assertSame(originalP2, doc.children[3])
+    }
+
+    @Test
+    fun testBlockQuoteNestedAndLazyContinuation() {
+        val doc =
+            parseLines(
+                """
+                > Quote line 1
+                lazy continuation line 2
+                >
+                > > Nested quote
+                nested lazy continuation
+
+                Outside paragraph
+                """
+                    .trimIndent()
+            )
+        assertEquals(3, doc.children.size)
+        assertEquals(7, doc.lineCount)
+
+        val outerQuote = doc.children[0].assertBlockQuote()
+        assertEquals(5, outerQuote.lineCount)
+        assertEquals(3, outerQuote.children.size)
+        val quoteParagraph =
+            outerQuote.children[0].assertParagraphText("Quote line 1\nlazy continuation line 2")
+        assertEquals(2, quoteParagraph.lineCount)
+        assertIs<EmptyLineParseBlock>(
+            outerQuote.children[1],
+            "The \">\" line is blank in the quote",
+        )
+        val nestedQuote = outerQuote.children[2].assertBlockQuote()
+        assertEquals(2, nestedQuote.lineCount)
+        nestedQuote
+            .assertSingleChild()
+            .assertParagraphText("Nested quote\nnested lazy continuation")
+
+        assertIs<EmptyLineParseBlock>(doc.children[1], "The blank line after the quote")
+        doc.children[2].assertParagraphText("Outside paragraph")
+    }
+
+    @Test
+    fun testBlockQuoteMarkerWithoutSpace() {
+        val quote = parseLines(">foo").assertSingleChild().assertBlockQuote()
+        quote.assertSingleChild().assertParagraphText("foo")
+
+        val outer = parseLines(">>foo").assertSingleChild().assertBlockQuote()
+        outer.assertSingleChild().assertBlockQuote().assertSingleChild().assertParagraphText("foo")
+
+        val continued = parseLines(">bar\n> baz").assertSingleChild().assertBlockQuote()
+        continued.assertSingleChild().assertParagraphText("bar\nbaz")
+
+        val headingQuote = parseLines("># Foo").assertSingleChild().assertBlockQuote()
+        headingQuote.assertSingleChild().assertHeading(level = 1, text = "Foo")
+    }
+
+    @Test
+    fun testTabAfterQuoteMarkerLeavesIndentedCode() {
+        // ">" takes one column of the first tab; the rest of the line is indented code.
+        val quote = parseLines(">\t\tfoo").assertSingleChild().assertBlockQuote()
+        quote.assertSingleChild().assertCodeContent("  foo")
+    }
+
+    @Test
+    fun testQuoteNestsInQuoteOnSameLine() {
+        val outer = parseLines("> > a").assertSingleChild().assertBlockQuote()
+        val inner = outer.assertSingleChild().assertBlockQuote()
+        inner.assertSingleChild().assertParagraphText("a")
+        assertEquals(1, inner.lineCount)
+    }
+
+    @Test
+    fun testBlankLineSeparatesBlockQuotes() {
+        val doc = parseLines("> foo\n\n> bar")
+        assertEquals(3, doc.children.size)
+        doc.children[0].assertBlockQuote().assertSingleChild().assertParagraphText("foo")
+        assertIs<EmptyLineParseBlock>(doc.children[1], "The blank line between the quotes")
+        doc.children[2].assertBlockQuote().assertSingleChild().assertParagraphText("bar")
+    }
+
+    @Test
+    fun testBlankLineWithoutMarkerClosesQuoteAfterBlankQuoteLine() {
+        // Only paragraph text continues lazily: a blank line without ">" after a ">" line closes
+        // the
+        // quote, even though the quote's last block is a blank line too.
+        var doc = parseLines("> foo\n>\n\n> bar")
+        assertEquals(3, doc.children.size)
+        val first = doc.children[0].assertBlockQuote()
+        assertEquals(2, first.lineCount)
+        first.children[0].assertParagraphText("foo")
+        assertIs<EmptyLineParseBlock>(doc.children[1], "The blank line closes the first quote")
+        doc.children[2].assertBlockQuote().assertSingleChild().assertParagraphText("bar")
+
+        // The same one level down: a ">" line closes the inner quote.
+        doc = parseLines("> > a\n> >\n>\n> > b")
+        val outer = doc.assertSingleChild().assertBlockQuote()
+        assertEquals(3, outer.children.size)
+        outer.children[0].assertBlockQuote()
+        assertIs<EmptyLineParseBlock>(outer.children[1], "The \">\" line closes the inner quote")
+        outer.children[2].assertBlockQuote().assertSingleChild().assertParagraphText("b")
+    }
+
+    @Test
+    fun testParagraphAfterBlankQuoteLineIsOutsideTheQuote() {
+        val doc = parseLines("> bar\n>\nbaz")
+        val quote = doc.children[0].assertBlockQuote()
+        quote.children[0].assertParagraphText("bar")
+        assertIs<EmptyLineParseBlock>(quote.children[1], "The blank \">\" line")
+        doc.children[1].assertParagraphText("baz")
+    }
+
+    @Test
+    fun testQuoteMarkerTakesOneSpaceBeforeIndentedCode() {
+        val doc = parseLines(">     code\n\n>    not code")
+        doc.children[0].assertBlockQuote().assertSingleChild().assertCodeContent("code")
+        doc.children[2].assertBlockQuote().assertSingleChild().assertParagraphText("not code")
+    }
+
+    @Test
+    fun testQuoteContinuationAllowsUpToThreeSpaces() {
+        // With 4 spaces, "> c" is lazy paragraph text.
+        val quote = parseLines("> a\n   > b\n    > c").assertSingleChild().assertBlockQuote()
+        quote.assertSingleChild().assertParagraphText("a\nb\n> c")
+    }
+
+    @Test
+    fun testBlockQuoteInterruptsParagraph() {
+        val doc = parseLines("foo\n> bar")
+        doc.children[0].assertParagraphText("foo")
+        doc.children[1].assertBlockQuote().assertSingleChild().assertParagraphText("bar")
+
+        val indentedQuote = parseLines("   > a").assertSingleChild().assertBlockQuote()
+        indentedQuote.assertSingleChild().assertParagraphText("a")
+    }
+
+    @Test
+    fun testInterruptingBlockOpensInOuterQuoteWhenInnerQuoteDoesNotMatch() {
+        // Only the outer ">" matches "> # h": the heading closes the inner quote and opens in the
+        // outer one.
+        var outer = parseLines("> > a\n> # h").assertSingleChild().assertBlockQuote()
+        assertEquals(2, outer.children.size)
+        outer.children[0].assertBlockQuote().assertSingleChild().assertParagraphText("a")
+        outer.children[1].assertHeading(level = 1, text = "h")
+
+        // Plain text continues the inner paragraph lazily.
+        outer = parseLines("> > a\n> b").assertSingleChild().assertBlockQuote()
+        val inner = outer.assertSingleChild().assertBlockQuote()
+        inner.assertSingleChild().assertParagraphText("a\nb")
+    }
+
+    @Test
+    fun testBlockQuoteLazinessAtEachDepth() {
+        // A quoted line after a lazy line continues the same paragraph.
+        val quote = parseLines("> bar\nbaz\n> foo").assertSingleChild().assertBlockQuote()
+        quote.assertSingleChild().assertParagraphText("bar\nbaz\nfoo")
+
+        // Lazy lines at the middle and outer depth continue the innermost paragraph.
+        val outer = parseLines(">>> foo\n> bar\n>>baz").assertSingleChild().assertBlockQuote()
+        val middle = outer.assertSingleChild().assertBlockQuote()
+        val inner = middle.assertSingleChild().assertBlockQuote()
+        inner.assertSingleChild().assertParagraphText("foo\nbar\nbaz")
+    }
+
+    @Test
+    fun testBlockQuoteWithBlankLines() {
+        val blankQuote = parseLines(">\n>  \n> ").assertSingleChild().assertBlockQuote()
+        val blank =
+            assertIs<EmptyLineParseBlock>(blankQuote.assertSingleChild(), "Only blank lines")
+        assertEquals(3, blank.lineCount)
+
+        val quote = parseLines(">\n> foo\n>  ").assertSingleChild().assertBlockQuote()
+        assertEquals(3, quote.children.size)
+        assertIs<EmptyLineParseBlock>(quote.children[0], "The leading blank \">\" line")
+        quote.children[1].assertParagraphText("foo")
+        assertIs<EmptyLineParseBlock>(quote.children[2], "The trailing blank \">\" line")
+    }
+
+    @Test
+    fun testBlockQuoteReportsNoTrailingEmptyLines() {
+        // ">" lines are blank inside the quote but not for the quote's parent.
+        val quote = parseLines("> a\n>\n>").assertSingleChild().assertBlockQuote()
+        val blank = assertIs<EmptyLineParseBlock>(quote.children[1], "The blank \">\" lines")
+        assertEquals(2, blank.countTrailingEmptyLines())
+        assertEquals(
+            0,
+            quote.countTrailingEmptyLines(),
+            "Blank lines the quote reports to its parent",
+        )
+    }
+
+    @Test
+    fun testIncrementalParseAroundBlockQuote() {
+        val edits =
+            listOf(
+                // Deleting the blank line merges two quotes.
+                Triple(listOf("> a", "", "> b"), 1, emptyList()),
+                // A blank line splits a quote.
+                Triple(listOf("> a", "> b", "> c"), 1, listOf("")),
+                // A lazy line becomes a heading that closes the quote.
+                Triple(listOf("> a", "b", "c"), 1, listOf("# b")),
+                // A blank ">" line inside the quote becomes text that closes it.
+                Triple(listOf("> a", ">", "> b", "x"), 1, listOf("y")),
+                // Deleting the quote leaves a single blank line.
+                Triple(listOf("", "> a"), 1, emptyList()),
+            )
+        for ((oldLines, line, replacement) in edits) {
+            assertIncrementalParseMatchesFullParse(oldLines, line, line + 1, replacement)
+        }
+    }
+
+    @Test
+    fun testTryStartInterruptingBlockMatchesOnlyInterruptingBlocks() {
+        // Each line either starts a block that can interrupt a paragraph, or consumes nothing.
+        val context = ParseContext()
+        for ((line, expected) in
+            listOf(
+                "" to true,
+                "# h" to true,
+                "```" to true,
+                "***" to true,
+                "> q" to true,
+                "#NotHeading" to false,
+                "    code" to false,
+                "    # indented" to false,
+                "text" to false,
+            )) {
+            val scanner = LineScanner(line)
+            val lineStartPosition = scanner.position
+            context.resetLine(scanner)
+            val block = context.tryStartInterruptingBlock()
+            assertEquals(expected, block != null, "line \"$line\"")
+            if (block == null) {
+                assertEquals(
+                    lineStartPosition,
+                    scanner.position,
+                    "line \"$line\" must not be consumed",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testLazyLineClosesCodeAndSetextInBlockQuote() {
+        // "---" on a lazy line is a divider, not a setext underline.
+        var doc = parseLines("> foo\n---")
+        val quote = doc.children[0].assertBlockQuote()
+        quote.assertSingleChild().assertParagraphText("foo")
+        assertIs<DividerParseBlock>(doc.children[1], "A lazy \"---\" is a divider")
+
+        // "===" is never a divider, so on a lazy line it stays paragraph text in the quote.
+        doc = parseLines("> foo\n===")
+        val quoteWithLazyLine = doc.assertSingleChild().assertBlockQuote()
+        quoteWithLazyLine.assertSingleChild().assertParagraphText("foo\n===")
+
+        // With the quote marker, "---" is a setext underline inside the quote.
+        doc = parseLines("> foo\n> ---")
+        val quoteWithHeading = doc.assertSingleChild().assertBlockQuote()
+        quoteWithHeading.assertSingleChild().assertHeading(level = 2, text = "foo")
+
+        // Only paragraphs continue lazily: indented and fenced code close with the quote.
+        doc = parseLines(">     foo\n    bar")
+        val quotedCode = doc.children[0].assertBlockQuote().assertSingleChild()
+        quotedCode.assertCodeContent("foo")
+        doc.children[1].assertCodeContent("bar")
+
+        doc = parseLines("> ```\nfoo\n```")
+        assertEquals(3, doc.children.size)
+        val quotedFence = doc.children[0].assertBlockQuote().assertSingleChild()
+        assertIs<FencedCodeBlockParseBlock>(quotedFence, "The fenced code block in the quote")
+        doc.children[1].assertParagraphText("foo")
+        assertIs<FencedCodeBlockParseBlock>(doc.children[2], "A lazy fence opens a new block")
     }
 }

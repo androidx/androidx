@@ -49,8 +49,8 @@ class RandomIncrementalParsingTest {
                 reparseIncrementally(doc, context, newLines, start, endExclusive, replacement.size)
 
                 assertEquals(
-                    dumpStructure(parseFully(newLines, ParseContext())),
-                    dumpStructure(doc),
+                    dumpParseTree(parseFully(newLines, ParseContext())),
+                    dumpParseTree(doc),
                     "Incremental parse mismatch (document $documentIndex, edit $editIndex): " +
                         "lines=$lines, replaced [$start, $endExclusive) with $replacement",
                 )
@@ -59,7 +59,17 @@ class RandomIncrementalParsingTest {
         }
     }
 
-    private fun randomLine(random: Random): String = LINES[random.nextInt(LINES.size)]
+    /**
+     * Builds a line of up to [MAX_NESTING_LEVEL] container markers, each followed by random
+     * spacing, then a random child line, so that edits reach blocks nested in containers.
+     */
+    private fun randomLine(random: Random): String = buildString {
+        repeat(random.nextInt(MAX_NESTING_LEVEL + 1)) {
+            append(CONTAINER_MARKERS.random(random))
+            append(SPACINGS.random(random))
+        }
+        append(CHILD_LINES.random(random))
+    }
 
     private fun parseFully(lines: List<String>, context: ParseContext): DocumentParseBlock {
         val doc = DocumentParseBlock()
@@ -89,57 +99,30 @@ class RandomIncrementalParsingTest {
         }
     }
 
-    /** Renders the structure of [block] and its descendants for comparison. */
-    private fun dumpStructure(block: ParseBlock, indent: String = ""): String = buildString {
-        append(indent).append(block::class.simpleName).append(" lineCount=").append(block.lineCount)
-        when (block) {
-            is ParagraphParseBlock ->
-                append(" heading=")
-                    .append(block.headingLevel)
-                    .append(" '")
-                    .append(block.content)
-                    .append("'")
-            is IndentedCodeBlockParseBlock ->
-                append(" '").append(block.getCodeContent()).append("'")
-            is FencedCodeBlockParseBlock ->
-                append(" closed=")
-                    .append(block.isClosed)
-                    .append(" language=")
-                    .append(block.language)
-                    .append(" '")
-                    .append(block.getCodeContent())
-                    .append("'")
-            else -> {}
-        }
-        append('\n')
-        if (block is ContainerParseBlock) {
-            var childLineCount = 0
-            for (child in block.children) {
-                childLineCount += child.lineCount
-                append(dumpStructure(child, "$indent  "))
-            }
-            if (childLineCount != block.lineCount) {
-                append(indent).append("!! children lineCount sum=").append(childLineCount)
-            }
-        }
-    }
-
     private companion object {
         const val SEED = 20261028
-        const val DOCUMENT_COUNT = 3000
-        const val EDITS_PER_DOCUMENT = 5
-        const val MAX_LINES = 10
-        const val MAX_REPLACEMENT_LINES = 3
+        const val DOCUMENT_COUNT = 5000
+        const val EDITS_PER_DOCUMENT = 20
+        const val MAX_LINES = 30
+        const val MAX_REPLACEMENT_LINES = 5
 
-        /** Line vocabulary covering every block type supported by [ParseContext.startBlock]. */
-        val LINES =
+        const val MAX_NESTING_LEVEL = 30
+
+        /**
+         * Container markers of a line's nesting levels. The empty marker leaves only the spacing,
+         * an indentation that continues a container or makes indented code.
+         */
+        val CONTAINER_MARKERS = listOf("", ">")
+
+        /** Spacing after each container marker, up to indented code and including a tab. */
+        val SPACINGS = listOf("", " ", "  ", "   ", "    ", "     ", "\t")
+
+        /** Line content after the container markers, covering every leaf block start. */
+        val CHILD_LINES =
             listOf(
                 "",
-                "",
-                "   ",
                 "text",
                 "more text",
-                "  indented text",
                 "# Heading",
                 "## Heading #",
                 "#NotHeading",
@@ -147,25 +130,9 @@ class RandomIncrementalParsingTest {
                 "---",
                 "***",
                 "_ _ _",
-                "    code",
-                "      deeper code",
-                "      ",
                 "```",
-                "  ```",
                 "```kotlin",
                 "~~~",
-                "> quote",
-                ">",
-                "> - quoted item",
-                "- item",
-                "* item",
-                "-",
-                "  continuation",
-                "  - nested item",
-                "    - deeper item",
-                "1. first",
-                "2. second",
-                "  1. nested first",
             )
     }
 }
