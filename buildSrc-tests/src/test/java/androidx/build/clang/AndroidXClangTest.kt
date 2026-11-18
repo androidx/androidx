@@ -296,19 +296,12 @@ class AndroidXClangTest : BaseClangTest() {
     }
 
     @Test
-    fun ndkBundleVersionMismatches() {
+    fun missingNdkFailsWithExpectedPath() {
         val mockCheckoutRoot = tmpFolder.newFolder()
         val platform = if (HostManager.hostIsMac) "darwin" else "linux"
-        val ndkBundleDir = mockCheckoutRoot.resolve("prebuilts/fullsdk-$platform/ndk-bundle")
-        ndkBundleDir.mkdirs()
-        ndkBundleDir
-            .resolve("source.properties")
-            .writeText(
-                """
-                Pkg.Revision = 26.1.10909125
-                """
-                    .trimIndent()
-            )
+        // An empty checkout, without source.properties.
+        val ndkDir = mockCheckoutRoot.resolve("prebuilts/fullsdk-$platform/ndk/30.0.16248370")
+        ndkDir.mkdirs()
 
         val mockSupportRoot = mockCheckoutRoot.resolve("frameworks/support")
         mockSupportRoot.mkdirs()
@@ -320,7 +313,7 @@ class AndroidXClangTest : BaseClangTest() {
 
         assertThrows<IllegalStateException> { testProject.getNdkDirectory() }
             .hasMessageThat()
-            .contains("does not match the expected NDK version")
+            .contains("NDK 30.0.16248370 not found at $ndkDir")
     }
 
     @Test

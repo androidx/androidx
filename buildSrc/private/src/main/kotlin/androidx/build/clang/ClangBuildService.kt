@@ -143,11 +143,7 @@ abstract class ClangBuildService @Inject constructor(private val execOperations:
                 it.parameters.projectLayoutType.set(ProjectLayoutType.from(project))
                 it.parameters.androidMinSdk.set(project.defaultAndroidConfig.minSdk)
 
-                val ndkDir = project.getNdkDirectory()
-                checkNotNull(ndkDir) {
-                    "NDK directory could not be resolved. Please ensure NDK is installed."
-                }
-                it.parameters.ndkDirectory.set(ndkDir)
+                it.parameters.ndkDirectory.set(project.getNdkDirectory())
 
                 if (!ProjectLayoutType.isPlayground(project)) {
                     it.parameters.prebuilts.set(project.getKonanPrebuiltsFolder())
