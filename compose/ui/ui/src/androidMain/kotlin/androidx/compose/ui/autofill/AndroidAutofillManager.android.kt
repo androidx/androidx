@@ -29,6 +29,8 @@ import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.focus.FocusListener
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.isInUserInteractionDisabledSubtree
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.requireSemanticsInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
@@ -258,8 +260,11 @@ internal class AndroidAutofillManager(
         for (index in 0 until values.size) {
             val itemId = values.keyAt(index)
             val value = values[itemId]
-            semanticsOwner.getSemanticsInfo(itemId)?.semanticsConfiguration?.let { semanticsConfig
-                ->
+            val semanticsInfo = semanticsOwner.getSemanticsInfo(itemId) ?: continue
+            if ((semanticsInfo as? LayoutNode)?.isInUserInteractionDisabledSubtree() == true) {
+                continue
+            }
+            semanticsInfo.semanticsConfiguration?.let { semanticsConfig ->
                 // Try to use the old and deprecated `onAutofillText`
                 @Suppress("DEPRECATION")
                 semanticsConfig

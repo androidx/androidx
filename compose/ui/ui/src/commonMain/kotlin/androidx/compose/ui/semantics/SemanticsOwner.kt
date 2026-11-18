@@ -25,6 +25,7 @@ import androidx.compose.ui.InteractionBarrierNode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.isUserInteractionDisabled
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.LayoutNode
@@ -297,6 +298,7 @@ public fun SemanticsOwner.forEachUncoveredSemanticsNode(visitor: UncoveredSemant
 private class UncoveredSemanticsNodeTraversal(
     private val root: SemanticsNode,
     private val visitor: UncoveredSemanticsNodeVisitor,
+    private val skipDisabledUserInteraction: Boolean = true,
 ) {
     /** Children of every node on the current path. Each level uses its own index range. */
     private val children = ArrayList<SemanticsNode>()
@@ -305,7 +307,13 @@ private class UncoveredSemanticsNodeTraversal(
     fun traverse() {
         val unaccountedSpace = SemanticsRegion()
         unaccountedSpace.setRounded(root.boundsInRoot)
-        findAllSemanticNodesRecursive(root, SemanticsRegion(), unaccountedSpace, false)
+        findAllSemanticNodesRecursive(
+            currentNode = root,
+            region = SemanticsRegion(),
+            unaccountedSpace = unaccountedSpace,
+            isInMergingHiddenSubtree = false,
+            isInDisabledSubtree = false,
+        )
     }
 
     /** Appends the children of [node] to [children] and returns the index of the first one. */
@@ -360,7 +368,13 @@ private class UncoveredSemanticsNodeTraversal(
         region: SemanticsRegion,
         unaccountedSpace: SemanticsRegion,
         isInMergingHiddenSubtree: Boolean,
+        isInDisabledSubtree: Boolean,
     ) {
+        val isCurrentDisabled =
+            isInDisabledSubtree || currentNode.layoutNode.isUserInteractionDisabled()
+        if (skipDisabledUserInteraction && isCurrentDisabled) {
+            return
+        }
         if (
             !currentNode.layoutNode.isPlaced ||
                 !currentNode.layoutNode.isAttached ||
@@ -400,10 +414,11 @@ private class UncoveredSemanticsNodeTraversal(
                     region,
                     unaccountedSpace,
                     isCurrentHidden,
+                    isCurrentDisabled,
                 )
             }
             removeChildren(start)
-            if (currentNode.isImportantForAccessibility) {
+            if (!isCurrentDisabled && currentNode.isImportantForAccessibility) {
                 unaccountedSpace.difference(left, top, right, bottom)
             }
         }
@@ -414,8 +429,14 @@ private class UncoveredSemanticsNodeTraversal(
         region: SemanticsRegion,
         unaccountedSpace: SemanticsRegion,
         isInMergingHiddenSubtree: Boolean,
+        isInDisabledSubtree: Boolean,
     ) {
         val isRoot = currentNode.id == root.id
+        val isCurrentDisabled =
+            isInDisabledSubtree || (!isRoot && currentNode.layoutNode.isUserInteractionDisabled())
+        if (!isRoot && skipDisabledUserInteraction && isCurrentDisabled) {
+            return
+        }
         val notAttachedOrPlaced =
             !currentNode.layoutNode.isPlaced || !currentNode.layoutNode.isAttached
         if ((unaccountedSpace.isEmpty && !isRoot) || (notAttachedOrPlaced && !currentNode.isFake)) {
@@ -482,6 +503,7 @@ private class UncoveredSemanticsNodeTraversal(
                         SemanticsRegion(),
                         childrenUnaccountedRegion,
                         isCurrentHidden,
+                        isCurrentDisabled,
                     )
                 }
             } else {
@@ -491,11 +513,12 @@ private class UncoveredSemanticsNodeTraversal(
                         region = region,
                         unaccountedSpace = unaccountedSpace,
                         isInMergingHiddenSubtree = isCurrentHidden,
+                        isInDisabledSubtree = isCurrentDisabled,
                     )
                 }
             }
             removeChildren(start)
-            if (currentNode.isImportantForAccessibility) {
+            if (!isCurrentDisabled && currentNode.isImportantForAccessibility) {
                 unaccountedSpace.difference(clippedLeft, clippedTop, clippedRight, clippedBottom)
             }
         } else if (isRoot) {
@@ -524,17 +547,29 @@ private fun SemanticsRegion.setRounded(rect: Rect) {
 @OptIn(ExperimentalComposeUiHostApi::class)
 internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
     customRootNodeId: Int,
+    skipDisabledUserInteraction: Boolean = true,
     shouldIgnoreNode: (SemanticsNode) -> Boolean,
 ): IntObjectMap<AdjustedSemanticsNode> {
     // Default capacity chosen to accommodate common scenarios
     val nodes = MutableIntObjectMap<AdjustedSemanticsNode>(48)
     val rootId = rootInfo.semanticsId
-    forEachUncoveredSemanticsNode { node, left, top, right, bottom, isHidden ->
-        if (!shouldIgnoreNode(node)) {
-            val virtualViewId = if (node.id == rootId) customRootNodeId else node.id
-            nodes[virtualViewId] =
-                AdjustedSemanticsNode(node, IntRect(left, top, right, bottom), isHidden)
-        }
+    val root = unmergedRootSemanticsNode
+    if (!root.layoutNode.isPlaced || !root.layoutNode.isAttached) {
+        return nodes
+    }
+    trace("forEachUncoveredSemanticsNode") {
+        UncoveredSemanticsNodeTraversal(
+                root = root,
+                visitor = { node, left, top, right, bottom, isHidden ->
+                    if (!shouldIgnoreNode(node)) {
+                        val virtualViewId = if (node.id == rootId) customRootNodeId else node.id
+                        nodes[virtualViewId] =
+                            AdjustedSemanticsNode(node, IntRect(left, top, right, bottom), isHidden)
+                    }
+                },
+                skipDisabledUserInteraction = skipDisabledUserInteraction,
+            )
+            .traverse()
     }
     return nodes
 }

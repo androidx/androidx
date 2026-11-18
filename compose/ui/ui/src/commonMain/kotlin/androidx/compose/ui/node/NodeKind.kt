@@ -18,6 +18,7 @@ package androidx.compose.ui.node
 
 import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UserInteractionNode
 import androidx.compose.ui.classKeyForObject
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.focus.FocusEventModifierNode
@@ -165,6 +166,10 @@ internal object Nodes {
     @JvmStatic
     inline val BeyondBoundsLayout
         get() = NodeKind<BeyondBoundsLayoutProviderModifierNode>(0b1 shl 23)
+
+    @JvmStatic
+    inline val UserInteraction
+        get() = NodeKind<UserInteractionNode>(0b1 shl 24)
     // ...
 }
 
@@ -289,6 +294,9 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
         }
         if (node is BeyondBoundsLayoutProviderModifierNode) {
             mask = mask or Nodes.BeyondBoundsLayout
+        }
+        if (node is UserInteractionNode) {
+            mask = mask or Nodes.UserInteraction
         }
         // ...
         mask

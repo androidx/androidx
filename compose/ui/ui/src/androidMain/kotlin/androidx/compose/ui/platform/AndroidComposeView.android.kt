@@ -174,6 +174,7 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
@@ -3730,6 +3731,20 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override fun decrementKeepScreenOnCount() {
         keepScreenOnCount--
         view.keepScreenOn = keepScreenOnCount > 0
+    }
+
+    override var disabledUserInteractionCount: Int = 0
+        private set
+
+    override fun incrementDisabledUserInteractionCount() {
+        disabledUserInteractionCount++
+    }
+
+    override fun decrementDisabledUserInteractionCount() {
+        checkPrecondition(disabledUserInteractionCount > 0) {
+            "disabledUserInteractionCount cannot be decremented below 0"
+        }
+        disabledUserInteractionCount--
     }
 
     override val outOfFrameExecutor
