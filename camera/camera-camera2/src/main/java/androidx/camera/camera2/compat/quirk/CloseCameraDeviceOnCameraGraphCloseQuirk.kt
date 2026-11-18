@@ -18,10 +18,12 @@ package androidx.camera.camera2.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Range
 import androidx.camera.camera2.compat.quirk.Device.isSamsungDevice
 import androidx.camera.camera2.compat.quirk.Device.isSonyDevice
 import androidx.camera.camera2.compat.quirk.Device.isXiaomiDevice
 import androidx.camera.core.impl.Quirk
+import java.util.Locale
 
 /**
  * Quirk needed on devices where not closing the camera device can lead to undesirable behaviors,
@@ -30,7 +32,8 @@ import androidx.camera.core.impl.Quirk
  * the camera device.
  *
  * QuirkSummary
- * - Bug Id: 282871038, 369300443, 425588561, 426104225, 369291594, 385881561, 538140458, 582678736
+ * - Bug Id: 282871038, 369300443, 425588561, 426104225, 369291594, 385881561, 538140458, 582678736,
+ *   587302543
  * - Description: Instructs CameraPipe to close the camera device before creating a new capture
  *   session to avoid undesirable behaviors
  *
@@ -155,8 +158,31 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
                         )
                         .any { Build.DEVICE.startsWith(it, ignoreCase = true) }
 
-        // Samsung API 31+ devices to apply the quirk when Extensions is enabled (b/582678736).
+        // Exact lowercase Build.DEVICE -> closed verified SDK range [minSdk, maxSdk] for Samsung
+        // devices verified via ExtensionsWithoutCloseQuirkProbeTest across rapid bind/unbind,
+        // same-lens mode switch, and lifecycle pause/resume flows (b/587302543). Always use a
+        // closed upper bound (never Int.MAX_VALUE) so future OS upgrades default safely to closing
+        // the camera device until re-verified. Never exempt isSamsungUnconditionalDevice here.
+        internal val SAMSUNG_EXTENSIONS_VERIFIED_CLEAN_DEVICE_API_RANGES: Map<String, Range<Int>> =
+            mapOf(
+                // Samsung Galaxy A54 5G (Exynos s5e8835; BOKEH, HDR, FACE_RETOUCH on API 36).
+                "a54x" to Range(36, 36),
+                // Samsung Galaxy Z Flip5 (Snapdragon SM8550; BOKEH, FACE_RETOUCH, AUTO on API 36).
+                "b5q" to Range(36, 36),
+            )
+
+        private val isSamsungExtensionsVerifiedCleanDevice: Boolean
+            get() =
+                SAMSUNG_EXTENSIONS_VERIFIED_CLEAN_DEVICE_API_RANGES[
+                        Build.DEVICE.lowercase(Locale.ROOT)]
+                    ?.contains(Build.VERSION.SDK_INT) == true
+
+        // Samsung API 31+ devices to apply the quirk when Extensions is enabled (b/582678736),
+        // unless verified clean on the current SDK level (b/587302543).
         private val isSamsungProblematicDevice: Boolean
-            get() = isSamsungDevice() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            get() =
+                isSamsungDevice() &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    !isSamsungExtensionsVerifiedCleanDevice
     }
 }
