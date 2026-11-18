@@ -16,9 +16,12 @@
 
 package androidx.camera.testing.impl
 
+import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import androidx.camera.testing.impl.FakeDataPathContentProvider.Companion.AUTHORITY
+import androidx.camera.testing.impl.FakeDataPathContentProvider.Companion.ENTRY_URI
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -26,6 +29,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
@@ -39,6 +43,8 @@ class FileUtilTest {
     private lateinit var tempDir: File
     private val testFiles = mutableListOf<File>()
     private val testBitmaps = mutableListOf<Bitmap>()
+    private val contentResolver: ContentResolver =
+        ApplicationProvider.getApplicationContext<Context>().contentResolver
 
     @Before
     fun setUp() {
@@ -216,4 +222,32 @@ class FileUtilTest {
 
         assertThat(savedFile).isNull()
     }
+
+    @Test
+    fun getAbsolutePathFromUri_returnsPath() {
+        val provider = setUpFakeDataPathContentProvider()
+        val path = File(tempDir, "video.mp4").absolutePath
+        provider.dataPath = path
+
+        assertThat(FileUtil.getAbsolutePathFromUri(contentResolver, ENTRY_URI)).isEqualTo(path)
+    }
+
+    @Test
+    fun getAbsolutePathFromUri_emptyCursor_returnsNull() {
+        val provider = setUpFakeDataPathContentProvider()
+        provider.dataPath = null
+
+        assertThat(FileUtil.getAbsolutePathFromUri(contentResolver, ENTRY_URI)).isNull()
+    }
+
+    @Test
+    fun getAbsolutePathFromUri_nullCursor_returnsNull() {
+        val provider = setUpFakeDataPathContentProvider()
+        provider.returnNullCursor = true
+
+        assertThat(FileUtil.getAbsolutePathFromUri(contentResolver, ENTRY_URI)).isNull()
+    }
+
+    private fun setUpFakeDataPathContentProvider(): FakeDataPathContentProvider =
+        Robolectric.setupContentProvider(FakeDataPathContentProvider::class.java, AUTHORITY)
 }
