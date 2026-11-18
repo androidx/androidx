@@ -37,8 +37,10 @@ import androidx.camera.camera2.impl.FocusMeteringControl
 import androidx.camera.camera2.impl.State3AControl
 import androidx.camera.camera2.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -72,6 +74,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
@@ -1670,6 +1673,337 @@ class FocusMeteringControlTest {
                 .that(awbRegions?.map { it.rect })
                 .containsExactly(M_RECT_1)
         }
+    }
+
+    @Test
+    fun reset_whenRequestControlIsNull_failsPendingFutureAndCancelsTimers() = testScope.runTest {
+        fakeRequestControl.focusMeteringResult = CompletableDeferred()
+        fakeRequestControl.focusAutoCompletesAfterTimeout = false
+        val state3AControl = createState3AControl(CAMERA_ID_0)
+        focusMeteringControl =
+            initFocusMeteringControl(
+                cameraId = CAMERA_ID_0,
+                useCaseThreads = fakeUseCaseThreads,
+                state3AControl = state3AControl,
+            )
+
+        val firstAction =
+            FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF)
+                .setAutoCancelDuration(3000, TimeUnit.MILLISECONDS)
+                .build()
+        val firstFuture =
+            focusMeteringControl.startFocusAndMetering(firstAction, autoFocusTimeoutMs = 5000L)
+        val inFlightResult = requireNotNull(fakeRequestControl.lastFocusMeteringResult)
+        advanceTimeBy(1000)
+        assertThat(firstFuture.isDone).isFalse()
+        assertThat(inFlightResult.isActive).isTrue()
+
+        // Simulate UseCaseManager.close() / full unbind clearing requestControl before reset().
+        focusMeteringControl.requestControl = null
+        focusMeteringControl.reset()
+        assertThat(state3AControl.preferredFocusMode).isNull()
+        state3AControl.requestControl = null
+        state3AControl.reset()
+
+        assertThat(firstFuture.isDone).isTrue()
+        this@FocusMeteringControlTest.assertFutureFailedWithOperationCancellation(firstFuture)
+        assertThat(inFlightResult.isCancelled).isTrue()
+
+        // Re-attach a new session and start a non-auto-canceling AF action; if reset() failed to
+        // cancel the first action's autoCancelJob (t=3000ms), it would fire on the closed
+        // fakeRequestControl or clobber the second action's AF lock.
+        val newRequestControl = FakeUseCaseCameraRequestControl(testScope)
+        state3AControl.requestControl = newRequestControl
+        focusMeteringControl.requestControl = newRequestControl
+        val secondAction =
+            FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF)
+                .disableAutoCancel()
+                .build()
+        focusMeteringControl.startFocusAndMetering(secondAction, autoFocusTimeoutMs = 5000L)
+        advanceTimeBy(5000)
+        advanceUntilIdle()
+
+        assertThat(state3AControl.preferredFocusMode).isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+        assertThat(fakeRequestControl.cancelFocusMeteringCallCount).isEqualTo(0)
+        assertThat(newRequestControl.cancelFocusMeteringCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun reset_whenRequestControlIsNull_failsPendingCancelFuture() = testScope.runTest {
+        fakeRequestControl.cancelFocusMeteringResult = CompletableDeferred()
+
+        val cancelFuture = focusMeteringControl.cancelFocusAndMeteringAsync().asListenableFuture()
+        assertThat(cancelFuture.isDone).isFalse()
+
+        focusMeteringControl.requestControl = null
+        focusMeteringControl.reset()
+
+        assertThat(cancelFuture.isDone).isTrue()
+        this@FocusMeteringControlTest.assertFutureFailedWithOperationCancellation(cancelFuture)
+    }
+
+    @Test
+    fun reset_whenRequestControlIsAttached_failsPendingFutureCancelsTimersAndResets3A() =
+        testScope.runTest {
+            fakeRequestControl.focusMeteringResult = CompletableDeferred()
+            fakeRequestControl.focusAutoCompletesAfterTimeout = false
+            val state3AControl = createState3AControl(CAMERA_ID_0)
+            focusMeteringControl =
+                initFocusMeteringControl(
+                    cameraId = CAMERA_ID_0,
+                    useCaseThreads = fakeUseCaseThreads,
+                    state3AControl = state3AControl,
+                )
+
+            val action =
+                FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF)
+                    .setAutoCancelDuration(3000, TimeUnit.MILLISECONDS)
+                    .build()
+            val future =
+                focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutMs = 5000L)
+            val inFlightResult = requireNotNull(fakeRequestControl.lastFocusMeteringResult)
+
+            focusMeteringControl.reset()
+
+            assertThat(future.isDone).isTrue()
+            this@FocusMeteringControlTest.assertFutureFailedWithOperationCancellation(future)
+            assertThat(inFlightResult.isCancelled).isTrue()
+            assertThat(state3AControl.preferredFocusMode).isNull()
+            assertThat(fakeRequestControl.cancelFocusMeteringCallCount).isEqualTo(1)
+
+            // Advancing past autoCancelDuration must not trigger a second cancel call.
+            advanceTimeBy(5000)
+            advanceUntilIdle()
+            assertThat(fakeRequestControl.cancelFocusMeteringCallCount).isEqualTo(1)
+        }
+
+    @Test
+    fun partialRebind_withoutReset_preservesStickyAfAndAutoCancelsOnNewRequestControl() =
+        testScope.runTest {
+            val state3AControl = createState3AControl(CAMERA_ID_0)
+            focusMeteringControl =
+                initFocusMeteringControl(
+                    cameraId = CAMERA_ID_0,
+                    useCaseThreads = fakeUseCaseThreads,
+                    state3AControl = state3AControl,
+                )
+
+            val action =
+                FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF)
+                    .setAutoCancelDuration(3000, TimeUnit.MILLISECONDS)
+                    .build()
+            focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutMs = 5000L)
+            advanceTimeBy(1000)
+            assertThat(state3AControl.preferredFocusMode)
+                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+
+            // Simulate partial re-bind: requestControl swaps without reset().
+            val newRequestControl = FakeUseCaseCameraRequestControl(testScope)
+            state3AControl.requestControl = newRequestControl
+            focusMeteringControl.requestControl = newRequestControl
+            assertThat(state3AControl.preferredFocusMode)
+                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+
+            advanceTimeBy(2500)
+            advanceUntilIdle()
+
+            assertThat(state3AControl.preferredFocusMode).isNull()
+            assertThat(fakeRequestControl.cancelFocusMeteringCallCount).isEqualTo(0)
+            assertThat(newRequestControl.cancelFocusMeteringCallCount).isEqualTo(1)
+        }
+
+    @Test
+    fun autoCancel_whileDetachedWithoutReset_resetsPreferredFocusMode() = testScope.runTest {
+        val state3AControl = createState3AControl(CAMERA_ID_0)
+        focusMeteringControl =
+            initFocusMeteringControl(
+                cameraId = CAMERA_ID_0,
+                useCaseThreads = fakeUseCaseThreads,
+                state3AControl = state3AControl,
+            )
+
+        val action =
+            FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF)
+                .setAutoCancelDuration(3000, TimeUnit.MILLISECONDS)
+                .build()
+        focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutMs = 5000L)
+        advanceTimeBy(1000)
+        assertThat(state3AControl.preferredFocusMode).isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+
+        // Concurrent-camera deferral detaches requestControl without calling reset().
+        state3AControl.requestControl = null
+        focusMeteringControl.requestControl = null
+        advanceTimeBy(2500)
+        advanceUntilIdle()
+
+        assertThat(state3AControl.preferredFocusMode).isNull()
+        assertThat(fakeRequestControl.cancelFocusMeteringCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun reset_concurrentlyDuringStartFocusAndMetering_failsFutureAndCancelsTimers() =
+        testScope.runTest {
+            val state3AControl = createState3AControl(CAMERA_ID_0)
+            focusMeteringControl =
+                initFocusMeteringControl(
+                    cameraId = CAMERA_ID_0,
+                    useCaseThreads = fakeUseCaseThreads,
+                    state3AControl = state3AControl,
+                )
+            val detachingRequestControl =
+                object : FakeUseCaseCameraRequestControl(testScope) {
+                    override fun startFocusAndMeteringAsync(
+                        aeRegions: List<MeteringRectangle>?,
+                        afRegions: List<MeteringRectangle>?,
+                        awbRegions: List<MeteringRectangle>?,
+                        aeLockBehavior: Lock3ABehavior?,
+                        afLockBehavior: Lock3ABehavior?,
+                        awbLockBehavior: Lock3ABehavior?,
+                        afTriggerStartAeMode: AeMode?,
+                        timeLimitNs: Long,
+                        convergedCondition: ((FrameMetadata) -> Boolean)?,
+                    ): Deferred<Result3A> {
+                        focusMeteringResult = CompletableDeferred()
+                        focusAutoCompletesAfterTimeout = false
+                        val deferred =
+                            super.startFocusAndMeteringAsync(
+                                aeRegions,
+                                afRegions,
+                                awbRegions,
+                                aeLockBehavior,
+                                afLockBehavior,
+                                awbLockBehavior,
+                                afTriggerStartAeMode,
+                                timeLimitNs,
+                                convergedCondition,
+                            )
+                        // Simulate UseCaseManager.close() detaching and resetting mid-call.
+                        focusMeteringControl.requestControl = null
+                        focusMeteringControl.reset()
+                        state3AControl.requestControl = null
+                        state3AControl.reset()
+                        return deferred
+                    }
+                }
+            state3AControl.requestControl = detachingRequestControl
+            focusMeteringControl.requestControl = detachingRequestControl
+
+            val action =
+                FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF)
+                    .setAutoCancelDuration(3000, TimeUnit.MILLISECONDS)
+                    .build()
+            val future =
+                focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutMs = 5000L)
+            val inFlightResult = requireNotNull(detachingRequestControl.lastFocusMeteringResult)
+
+            assertThat(future.isDone).isTrue()
+            this@FocusMeteringControlTest.assertFutureFailedWithOperationCancellation(future)
+            assertThat(inFlightResult.isCancelled).isTrue()
+            assertThat(state3AControl.preferredFocusMode).isNull()
+
+            val newRequestControl = FakeUseCaseCameraRequestControl(testScope)
+            state3AControl.requestControl = newRequestControl
+            focusMeteringControl.requestControl = newRequestControl
+            advanceTimeBy(5000)
+            advanceUntilIdle()
+
+            assertThat(state3AControl.preferredFocusMode).isNull()
+            assertThat(detachingRequestControl.cancelFocusMeteringCallCount).isEqualTo(0)
+            assertThat(newRequestControl.cancelFocusMeteringCallCount).isEqualTo(0)
+        }
+
+    @Test
+    fun reset_beforeAfModeSetDuringStartFocusAndMetering_restoresDefaultAfMode() =
+        testScope.runTest {
+            fakeRequestControl.focusMeteringResult = CompletableDeferred()
+            fakeRequestControl.focusAutoCompletesAfterTimeout = false
+            val state3AControl = createState3AControl(CAMERA_ID_0)
+            var detachOnNextCropLookup = false
+            val detachingZoomCompat =
+                object : FakeZoomCompat() {
+                    override fun getCropSensorRegion(): Rect {
+                        if (detachOnNextCropLookup) {
+                            detachOnNextCropLookup = false
+                            // Simulate close()/full unbind happening before AF_MODE_AUTO is set.
+                            focusMeteringControl.requestControl = null
+                            focusMeteringControl.reset()
+                            state3AControl.requestControl = null
+                            state3AControl.reset()
+                        }
+                        return super.getCropSensorRegion()
+                    }
+                }
+            focusMeteringControl =
+                initFocusMeteringControl(
+                    cameraId = CAMERA_ID_0,
+                    useCaseThreads = fakeUseCaseThreads,
+                    state3AControl = state3AControl,
+                    zoomCompat = detachingZoomCompat,
+                )
+            detachOnNextCropLookup = true
+
+            val action =
+                FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF)
+                    .setAutoCancelDuration(3000, TimeUnit.MILLISECONDS)
+                    .build()
+            val future =
+                focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutMs = 5000L)
+            val inFlightResult = requireNotNull(fakeRequestControl.lastFocusMeteringResult)
+
+            assertThat(future.isDone).isTrue()
+            this@FocusMeteringControlTest.assertFutureFailedWithOperationCancellation(future)
+            assertThat(inFlightResult.isCancelled).isTrue()
+            assertThat(state3AControl.preferredFocusMode).isNull()
+
+            val newRequestControl = FakeUseCaseCameraRequestControl(testScope)
+            state3AControl.requestControl = newRequestControl
+            focusMeteringControl.requestControl = newRequestControl
+            advanceTimeBy(5000)
+            advanceUntilIdle()
+
+            assertThat(state3AControl.preferredFocusMode).isNull()
+            assertThat(fakeRequestControl.cancelFocusMeteringCallCount).isEqualTo(0)
+            assertThat(newRequestControl.cancelFocusMeteringCallCount).isEqualTo(0)
+        }
+
+    @Test
+    fun startFocusAndMetering_invalidPoint_doesNotCancelRunningAction() = testScope.runTest {
+        fakeRequestControl.focusMeteringResult = CompletableDeferred()
+        fakeRequestControl.focusAutoCompletesAfterTimeout = false
+        val state3AControl = createState3AControl(CAMERA_ID_0)
+        focusMeteringControl =
+            initFocusMeteringControl(
+                cameraId = CAMERA_ID_0,
+                useCaseThreads = fakeUseCaseThreads,
+                state3AControl = state3AControl,
+            )
+
+        val validAction =
+            FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF)
+                .setAutoCancelDuration(3000, TimeUnit.MILLISECONDS)
+                .build()
+        val validFuture =
+            focusMeteringControl.startFocusAndMetering(validAction, autoFocusTimeoutMs = 5000L)
+        val inFlightResult = requireNotNull(fakeRequestControl.lastFocusMeteringResult)
+
+        val invalidPoint = pointFactory.createPoint(1f, 1.1f)
+        val invalidFuture =
+            focusMeteringControl.startFocusAndMetering(
+                FocusMeteringAction.Builder(invalidPoint).build()
+            )
+
+        assertThat(invalidFuture.isDone).isTrue()
+        assertThrows(ExecutionException::class.java) { invalidFuture[3, TimeUnit.SECONDS] }
+            .apply { assertThat(cause).isInstanceOf(IllegalArgumentException::class.java) }
+        assertThat(validFuture.isDone).isFalse()
+        assertThat(inFlightResult.isActive).isTrue()
+        assertThat(state3AControl.preferredFocusMode).isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+
+        advanceTimeBy(3000)
+        advanceUntilIdle()
+
+        assertThat(state3AControl.preferredFocusMode).isNull()
+        assertThat(fakeRequestControl.cancelFocusMeteringCallCount).isEqualTo(1)
     }
 
     private fun TestScope.assertFutureFocusCompleted(
