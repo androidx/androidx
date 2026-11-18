@@ -1,0 +1,589 @@
+{
+  "schemaVersion": "1.0.0",
+  "targetApiLevel": 8,
+  "types": {
+    "int": {
+      "wire": "INT32",
+      "description": "32-bit signed big-endian integer"
+    },
+    "short": {
+      "wire": "INT16",
+      "description": "16-bit signed big-endian integer"
+    },
+    "byte": {
+      "wire": "UINT8",
+      "description": "8-bit unsigned byte"
+    },
+    "long": {
+      "wire": "INT64",
+      "description": "64-bit signed big-endian integer"
+    },
+    "float": {
+      "wire": "FLOAT32",
+      "description": "32-bit IEEE 754 float"
+    },
+    "boolean": {
+      "wire": "BOOLEAN",
+      "description": "Boolean encoded as single byte (0=false, 1=true)"
+    },
+    "string": {
+      "wire": "UTF8",
+      "description": "UTF-8 string prefixed by 32-bit length"
+    },
+    "float_or_id": {
+      "wire": "NAN_ID",
+      "base": "float",
+      "description": "Float value or NaN-encoded 24-bit variable ID"
+    },
+    "color": {
+      "wire": "INT32",
+      "base": "int",
+      "description": "ARGB 32-bit packed color"
+    },
+    "int[]": {
+      "wire": "INT_ARRAY",
+      "description": "Array of 32-bit signed integers prefixed by 16-bit length"
+    },
+    "bytes": {
+      "wire": "int32_length_prefixed_bytes",
+      "description": "4-byte signed big-endian byte length followed by raw bytes"
+    },
+    "float_or_id[]": {
+      "wire": "length_prefixed_float32_nan_boxed_array",
+      "base": "float_or_id",
+      "description": "Length-prefixed array of 32-bit IEEE 754 floats or NaN-boxed IDs / RPN tokens"
+    }
+  },
+  "categories": [
+    {
+      "name": "Document Protocol Operations",
+      "description": "Core document metadata, versioning, themes, and high-level behaviors."
+    },
+    {
+      "name": "Data Operations",
+      "description": "Definitions of static constants, named variables, collections, and resources."
+    },
+    {
+      "name": "Canvas Operations",
+      "description": "Low-level drawing primitives for shapes, paths, text, and bitmaps."
+    },
+    {
+      "name": "Layout Operations",
+      "description": "Structural layout containers (Box, Row, Column, etc.)."
+    },
+    {
+      "name": "Logic & Expressions Operations",
+      "description": "Dynamic calculations, RPN expressions, and animations."
+    },
+    {
+      "name": "Text Operations",
+      "description": "Static text, styled text, and bitmap font operations."
+    }
+  ],
+  "structs": {
+    "Glyph": {
+      "description": "Bitmap font glyph metrics and bitmap reference",
+      "fields": [
+        {
+          "name": "character",
+          "type": "string",
+          "description": "Character or ligature string"
+        },
+        {
+          "name": "bitmapId",
+          "type": "int",
+          "description": "Bitmap asset ID"
+        },
+        {
+          "name": "marginLeft",
+          "type": "short",
+          "description": "Left margin in pixels"
+        },
+        {
+          "name": "marginTop",
+          "type": "short",
+          "description": "Top margin in pixels"
+        },
+        {
+          "name": "marginRight",
+          "type": "short",
+          "description": "Right margin in pixels"
+        },
+        {
+          "name": "marginBottom",
+          "type": "short",
+          "description": "Bottom margin in pixels"
+        },
+        {
+          "name": "width",
+          "type": "short",
+          "description": "Glyph width in pixels"
+        },
+        {
+          "name": "height",
+          "type": "short",
+          "description": "Glyph height in pixels"
+        }
+      ]
+    },
+    "KerningPair": {
+      "description": "Kerning adjustment for a pair of glyphs",
+      "fields": [
+        {
+          "name": "glyphPair",
+          "type": "string",
+          "description": "Two-character sequence"
+        },
+        {
+          "name": "adjustment",
+          "type": "short",
+          "description": "Horizontal kerning adjustment in pixels"
+        }
+      ]
+    }
+  },
+  "operations": [
+    {
+      "id": 0,
+      "name": "Header",
+      "category": "Document Protocol Operations",
+      "description": "Document metadata containing version, dimensions, density behavior, and capabilities",
+      "addedVersion": 6,
+      "fields": [
+        {
+          "name": "majorVersion",
+          "type": "int",
+          "description": "Major version"
+        },
+        {
+          "name": "minorVersion",
+          "type": "int",
+          "description": "Minor version"
+        },
+        {
+          "name": "patchVersion",
+          "type": "int",
+          "description": "Patch version"
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "description": "Document canvas width in pixels"
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "description": "Document canvas height in pixels"
+        },
+        {
+          "name": "capabilities",
+          "type": "long",
+          "description": "Bitmask of supported capability profiles"
+        }
+      ],
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true
+    },
+    {
+      "id": 46,
+      "name": "DrawCircle",
+      "category": "Canvas Operations",
+      "description": "Draws a circle with center (centerX, centerY) and radius",
+      "addedVersion": 6,
+      "fields": [
+        {
+          "name": "centerX",
+          "type": "float_or_id",
+          "description": "Center X coordinate"
+        },
+        {
+          "name": "centerY",
+          "type": "float_or_id",
+          "description": "Center Y coordinate"
+        },
+        {
+          "name": "radius",
+          "type": "float_or_id",
+          "description": "Radius of the circle"
+        }
+      ],
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true
+    },
+    {
+      "id": 81,
+      "name": "FloatExpression",
+      "category": "Logic & Expressions Operations",
+      "description": "Defines a float variable computed via Reverse Polish Notation (RPN) expression evaluation",
+      "addedVersion": 6,
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "role": "idDef",
+          "idKind": "float",
+          "description": "The ID of the expression variable"
+        },
+        {
+          "name": "packedLengths",
+          "type": "int",
+          "description": "Packed expression length (bits 0..15) and animation spec length (bits 16..31)",
+          "bits": [
+            {
+              "name": "expressionLength",
+              "range": "0..15",
+              "derivedFrom": "len(expression)"
+            },
+            {
+              "name": "animationLength",
+              "range": "16..31",
+              "derivedFrom": "len(animationSpec)"
+            }
+          ]
+        },
+        {
+          "name": "expression",
+          "type": "float_or_id[]",
+          "countFrom": "expressionLength",
+          "maxLength": 32,
+          "encoding": "rpn_float_expression",
+          "description": "RPN float expression tokens"
+        },
+        {
+          "name": "animationSpec",
+          "type": "float_or_id[]",
+          "countFrom": "animationLength",
+          "description": "Optional spring/tween animation specification floats"
+        }
+      ],
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true,
+      "encoding": "rpn_float_expression"
+    },
+    {
+      "id": 101,
+      "name": "BitmapData",
+      "category": "Data Operations",
+      "description": "Embed or reference bitmap image data",
+      "addedVersion": 6,
+      "fields": [
+        {
+          "name": "imageId",
+          "type": "int",
+          "role": "idDef",
+          "idKind": "bitmap",
+          "description": "The ID of the bitmap"
+        },
+        {
+          "name": "widthAndType",
+          "type": "int",
+          "unpackBits": false,
+          "description": "Encoded width (bits 0..15) and image type (bits 16..31)",
+          "bits": [
+            {
+              "name": "width",
+              "range": "0..15",
+              "description": "Bitmap width in pixels"
+            },
+            {
+              "name": "imageType",
+              "range": "16..31",
+              "description": "Bitmap image format"
+            }
+          ]
+        },
+        {
+          "name": "heightAndEncoding",
+          "type": "int",
+          "unpackBits": false,
+          "description": "Encoded height (bits 0..15) and data encoding (bits 16..31)",
+          "bits": [
+            {
+              "name": "height",
+              "range": "0..15",
+              "description": "Bitmap height in pixels"
+            },
+            {
+              "name": "bitmapEncoding",
+              "range": "16..31",
+              "description": "Payload encoding (0=INLINE, 1=URL, 2=FILE, 3=EMPTY, 4=COMPONENT_OFFSCREEN_BUFFER)"
+            }
+          ]
+        },
+        {
+          "name": "bitmap",
+          "type": "bytes",
+          "description": "The raw or encoded bitmap data"
+        }
+      ],
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true
+    },
+    {
+      "id": 102,
+      "name": "TextData",
+      "category": "Text Operations",
+      "description": "Define a static string and associate it with an ID",
+      "addedVersion": 6,
+      "fields": [
+        {
+          "name": "textId",
+          "type": "int",
+          "description": "The ID of the text"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "maxLength": 4000,
+          "javaLimit": "Limits.MAX_STRING_SIZE",
+          "description": "The string value"
+        }
+      ],
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true
+    },
+    {
+      "id": 167,
+      "name": "BitmapFontData",
+      "category": "Text Operations",
+      "description": "Embeds font glyph layout, character metrics, and glyph page mappings for bitmap font rendering",
+      "addedVersion": 6,
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "role": "idDef",
+          "idKind": "bitmapFont",
+          "description": "Bitmap font ID"
+        },
+        {
+          "name": "versionAndNumGlyphs",
+          "type": "int",
+          "description": "Packed glyph count (bits 0..15) and format version (bits 16..31)",
+          "bits": [
+            {
+              "name": "numGlyphs",
+              "range": "0..15",
+              "derivedFrom": "len(glyphs)"
+            },
+            {
+              "name": "version",
+              "range": "16..31",
+              "signed": true,
+              "derivedFrom": "nonEmpty(kerningTable)"
+            }
+          ]
+        },
+        {
+          "name": "glyphs",
+          "type": "Glyph[]",
+          "countFrom": "numGlyphs",
+          "description": "Glyph definitions"
+        },
+        {
+          "name": "kerningTable",
+          "type": "KerningPair[]",
+          "lengthType": "ushort",
+          "presentIf": "version >= 1",
+          "description": "Optional kerning adjustment pairs (present when version >= 1)"
+        }
+      ],
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true
+    },
+    {
+      "id": 172,
+      "name": "TimeAttribute",
+      "category": "Logic & Expressions Operations",
+      "description": "Extract time-related information (seconds, hours, etc.)",
+      "addedVersion": 6,
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "description": "The ID of the float variable to store the result"
+        },
+        {
+          "name": "timeId",
+          "type": "int",
+          "description": "The ID of the time variable to extract from"
+        },
+        {
+          "name": "type",
+          "type": "short",
+          "description": "The type of time information to extract"
+        },
+        {
+          "name": "args",
+          "type": "int[]",
+          "lengthType": "short",
+          "maxLength": 32,
+          "javaLimit": "TimeAttribute.MAX_ARG_LEN",
+          "description": "The optional arguments"
+        }
+      ],
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true
+    },
+    {
+      "id": 178,
+      "name": "ConditionalOperations",
+      "category": "Logic & Expressions Operations",
+      "description": "Execute a list of operations if a condition is met",
+      "addedVersion": 6,
+      "fields": [
+        {
+          "name": "type",
+          "type": "byte",
+          "description": "The type of comparison (EQ, NEQ, LT, etc.)",
+          "enum": {
+            "TYPE_EQ": 0,
+            "TYPE_NEQ": 1,
+            "TYPE_LT": 2,
+            "TYPE_LTE": 3,
+            "TYPE_GT": 4,
+            "TYPE_GTE": 5,
+            "TYPE_CHANGED": 6
+          },
+          "strictEnum": true
+        },
+        {
+          "name": "varA",
+          "type": "float_or_id",
+          "description": "The first value to compare"
+        },
+        {
+          "name": "varB",
+          "type": "float_or_id",
+          "description": "The second value to compare"
+        }
+      ],
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true,
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
+    },
+    {
+      "id": 183,
+      "name": "BitmapTextMeasure",
+      "category": "Text Operations",
+      "description": "Measure text dimensions specifically for bitmap fonts",
+      "addedVersion": 7,
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "description": "Output float ID in bits 0..30 and glyphSpacing presence flag in bit 31",
+          "bits": [
+            {
+              "name": "id",
+              "range": "0..30",
+              "role": "idDef",
+              "idKind": "float"
+            },
+            {
+              "name": "hasGlyphSpacing",
+              "range": "31",
+              "derivedFrom": "present(glyphSpacing)"
+            }
+          ]
+        },
+        {
+          "name": "glyphSpacing",
+          "type": "float_or_id",
+          "presentIf": "hasGlyphSpacing != 0",
+          "description": "Optional horizontal spacing between glyphs in pixels",
+          "omitIf": 0.0
+        },
+        {
+          "name": "textId",
+          "type": "int",
+          "role": "idRef",
+          "idKind": "text",
+          "description": "The ID of the text to measure"
+        },
+        {
+          "name": "bitmapFontId",
+          "type": "int",
+          "role": "idRef",
+          "idKind": "bitmapFont",
+          "description": "The ID of the bitmap font"
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "description": "Measurement type and flags"
+        }
+      ],
+      "profiles": [
+        "androidx",
+        "widgets"
+      ],
+      "restrictToLibraryGroup": true
+    },
+    {
+      "id": 214,
+      "name": "ContainerEnd",
+      "category": "Layout Operations",
+      "description": "Closes the current container or layout component",
+      "addedVersion": 6,
+      "isContainerEnd": true,
+      "profiles": [
+        "baseline"
+      ],
+      "restrictToLibraryGroup": true
+    },
+    {
+      "id": 242,
+      "name": "TextStyle",
+      "category": "Text Operations",
+      "description": "Text style implementation",
+      "addedVersion": 7,
+      "fields": [],
+      "profiles": [
+        "androidx",
+        "widgets"
+      ],
+      "restrictToLibraryGroup": true,
+      "encoding": "sparse",
+      "sparseCountType": "ushort",
+      "sparseKeyType": "ubyte",
+      "sparseParameters": [
+        {
+          "id": 1,
+          "name": "id",
+          "type": "int",
+          "defaultValue": "-1"
+        },
+        {
+          "id": 5,
+          "name": "fontSize",
+          "type": "float_or_id",
+          "defaultValue": "36.0"
+        },
+        {
+          "id": 20,
+          "name": "fontAxis",
+          "type": "int[]",
+          "lengthType": "ushort"
+        }
+      ]
+    }
+  ]
+}

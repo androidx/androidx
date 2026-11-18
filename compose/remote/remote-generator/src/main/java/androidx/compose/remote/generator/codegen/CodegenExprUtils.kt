@@ -112,14 +112,39 @@ internal object CodegenExprUtils {
         expr: String,
         lang: ExprLang,
         needsKotlinIntCast: (String) -> Boolean = { true },
+        isKotlinUnsignedByte: (String) -> Boolean = { false },
         resolveIdent: (String) -> String,
     ): String {
         val tokens = tokenize(expr)
-        val parser = ConditionParser(tokens, lang, needsKotlinIntCast, resolveIdent)
+        val parser =
+            ConditionParser(tokens, lang, needsKotlinIntCast, isKotlinUnsignedByte, resolveIdent)
         return parser.parseOr()
     }
 
     fun extractBitExpr(src: String, bit: SchemaBitField, lang: ExprLang): String {
+        val condRange = bit.whenBitSet
+        if (condRange != null) {
+            val b = condRange.bit
+            require(b in 0..31) {
+                "Invalid whenBitSet bit $b for bitfield '${bit.name}' (must be 0..31)"
+            }
+            val normalBit = SchemaBitField(name = bit.name, range = bit.range, signed = bit.signed)
+            val narrowBit = SchemaBitField(name = bit.name, range = condRange.range, signed = false)
+            val normalExpr = extractBitExpr(src, normalBit, lang)
+            val narrowExpr = extractBitExpr(src, narrowBit, lang)
+            return when (lang) {
+                ExprLang.KOTLIN -> "(if ((($src ushr $b) and 1) != 0) $narrowExpr else $normalExpr)"
+                ExprLang.CPP ->
+                    "(((static_cast<uint32_t>($src) >> $b) & 1u) != 0u ? $narrowExpr : $normalExpr)"
+                ExprLang.RUST ->
+                    "(if ((($src as u32) >> $b) & 1) != 0 { $narrowExpr } else { $normalExpr })"
+                ExprLang.SWIFT ->
+                    "(((UInt32(bitPattern: $src) >> $b) & 1) != 0 ? $narrowExpr : $normalExpr)"
+                ExprLang.TYPESCRIPT -> "(((($src >>> $b) & 1) !== 0) ? $narrowExpr : $normalExpr)"
+                ExprLang.PYTHON ->
+                    "($narrowExpr if ((($src & 0xFFFFFFFF) >> $b) & 1) != 0 else $normalExpr)"
+            }
+        }
         val low = bit.lowBit
         val high = bit.highBit
         require(low in 0..31 && high in low..31) {
@@ -230,7 +255,7 @@ internal object CodegenExprUtils {
             when {
                 c.isWhitespace() -> i++
                 i + 1 < expr.length &&
-                    expr.substring(i, i + 2) in setOf("||", "&&", "==", "!=", ">=", "<=") -> {
+                    expr.substring(i, i + 2) in setOf("||", "&&", "==", "!=", ">=", "<=", ">>") -> {
                     result.add(expr.substring(i, i + 2))
                     i += 2
                 }
@@ -262,6 +287,7 @@ internal object CodegenExprUtils {
         private val tokens: List<String>,
         private val lang: ExprLang,
         private val needsKotlinIntCast: (String) -> Boolean,
+        private val isKotlinUnsignedByte: (String) -> Boolean,
         private val resolveIdent: (String) -> String,
     ) {
         private var pos = 0
@@ -290,6 +316,18 @@ internal object CodegenExprUtils {
             return parts.joinToString(sep)
         }
 
+        private fun toKotlinIntOperand(expr: PrimaryExpr): String {
+            if (lang == ExprLang.KOTLIN && expr.rawIdent != null) {
+                if (isKotlinUnsignedByte(expr.rawIdent)) {
+                    return "(${expr.code}.toInt() and 0xFF)"
+                }
+                if (needsKotlinIntCast(expr.rawIdent)) {
+                    return "${expr.code}.toInt()"
+                }
+            }
+            return expr.code
+        }
+
         private fun parseCmp(): String {
             val left = parseBitAnd()
             val op = peek()
@@ -306,30 +344,41 @@ internal object CodegenExprUtils {
                     } else {
                         op!!
                     }
-                return "$left $mappedOp $right"
+                val lhsCode = toKotlinIntOperand(left)
+                val rhsCode = toKotlinIntOperand(right)
+                return "$lhsCode $mappedOp $rhsCode"
             }
-            return left
+            return left.code
         }
 
-        private fun parseBitAnd(): String {
-            val first = parsePrimary()
-            if (peek() != "&") return first.code
+        private fun parseBitAnd(): PrimaryExpr {
+            val first = parseShift()
+            if (peek() != "&") return first
             val parts = mutableListOf(first)
             while (peek() == "&") {
                 next()
-                parts.add(parsePrimary())
+                parts.add(parseShift())
             }
-            return if (lang == ExprLang.KOTLIN) {
-                val mapped = parts.map { part ->
-                    if (part.rawIdent != null && needsKotlinIntCast(part.rawIdent)) {
-                        "${part.code}.toInt()"
-                    } else {
-                        part.code
-                    }
+            val code =
+                if (lang == ExprLang.KOTLIN) {
+                    val mapped = parts.map { toKotlinIntOperand(it) }
+                    "(" + mapped.joinToString(" and ") + ")"
+                } else {
+                    "(" + parts.joinToString(" & ") { it.code } + ")"
                 }
-                "(" + mapped.joinToString(" and ") + ")"
+            return PrimaryExpr(code, null)
+        }
+
+        private fun parseShift(): PrimaryExpr {
+            val first = parsePrimary()
+            if (peek() != ">>") return first
+            next()
+            val shiftAmount = parsePrimary()
+            return if (lang == ExprLang.KOTLIN) {
+                val lhs = toKotlinIntOperand(first)
+                PrimaryExpr("($lhs shr ${shiftAmount.code})", null)
             } else {
-                "(" + parts.joinToString(" & ") { it.code } + ")"
+                PrimaryExpr("(${first.code} >> ${shiftAmount.code})", null)
             }
         }
 

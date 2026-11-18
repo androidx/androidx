@@ -36,9 +36,12 @@ import androidx.compose.remote.generator.ast.NamedVariableNode
 import androidx.compose.remote.generator.ast.PaddingModifierNode
 import androidx.compose.remote.generator.ast.RemoteDocument
 import androidx.compose.remote.generator.ast.TextDataNode
+import androidx.compose.remote.generator.codegen.CodegenExprUtils
 import androidx.compose.remote.generator.codegen.CppGenerator
+import androidx.compose.remote.generator.codegen.ExprLang
 import androidx.compose.remote.generator.codegen.JavaGenerator
 import androidx.compose.remote.generator.codegen.KotlinGenerator
+import androidx.compose.remote.generator.codegen.KotlinProtocolAndSinkGenerator
 import androidx.compose.remote.generator.codegen.PythonGenerator
 import androidx.compose.remote.generator.codegen.RustGenerator
 import androidx.compose.remote.generator.codegen.SwiftGenerator
@@ -592,7 +595,7 @@ class RemoteComposeGeneratorTest {
                     }));
 
                     let mut buffer = WireBuffer::new();
-                    original_doc.save(&mut buffer);
+                    original_doc.save(&mut buffer).expect("Failed to save document");
 
                     assert!(buffer.as_bytes().len() > 0, "Buffer should not be empty");
 
@@ -2713,6 +2716,794 @@ class RemoteComposeGeneratorTest {
         assertTrue(
             "Expected payloadKind validation error, got: $errors",
             errors.any { it.contains("payloadKind") },
+        )
+    }
+
+    @Test
+    fun testCodeReviewFixesAcrossAllGenerators() {
+        // 1. CodegenExprUtils.extractBitExpr rejects out-of-range whenBitSet.bit
+        for (badBit in listOf(-1, 32)) {
+            val badBitField =
+                SchemaBitField(
+                    name = "value",
+                    range = "0..15",
+                    whenBitSet = SchemaConditionalBitRange(bit = badBit, range = "0..7"),
+                )
+            try {
+                CodegenExprUtils.extractBitExpr("raw", badBitField, ExprLang.KOTLIN)
+                fail("Expected IllegalArgumentException for whenBitSet.bit=$badBit")
+            } catch (expected: IllegalArgumentException) {
+                assertTrue(expected.message?.contains("$badBit") == true)
+            }
+        }
+
+        // 2. ConditionParser masks Kotlin unsigned byte with (x.toInt() and 0xFF) and casts
+        // signed short with x.toInt()
+        assertEquals(
+            "(flagByte.toInt() and 0xFF) == 1",
+            CodegenExprUtils.translateCondition(
+                "flagByte == 1",
+                ExprLang.KOTLIN,
+                needsKotlinIntCast = { false },
+                isKotlinUnsignedByte = { it == "flagByte" },
+            ) {
+                it
+            },
+        )
+        assertEquals(
+            "(((flagByte.toInt() and 0xFF) shr 4)) == 12",
+            CodegenExprUtils.translateCondition(
+                "(flagByte >> 4) == 12",
+                ExprLang.KOTLIN,
+                needsKotlinIntCast = { false },
+                isKotlinUnsignedByte = { it == "flagByte" },
+            ) {
+                it
+            },
+        )
+        assertEquals(
+            "flagShort.toInt() == 1",
+            CodegenExprUtils.translateCondition(
+                "flagShort == 1",
+                ExprLang.KOTLIN,
+                needsKotlinIntCast = { it == "flagShort" },
+                isKotlinUnsignedByte = { false },
+            ) {
+                it
+            },
+        )
+        assertEquals(
+            "((flagShort.toInt() and 1)) != 0",
+            CodegenExprUtils.translateCondition(
+                "(flagShort & 1) != 0",
+                ExprLang.KOTLIN,
+                needsKotlinIntCast = { it == "flagShort" },
+            ) {
+                it
+            },
+        )
+        assertEquals(
+            "((flagShort.toInt() shr 8)) == 2",
+            CodegenExprUtils.translateCondition(
+                "(flagShort >> 8) == 2",
+                ExprLang.KOTLIN,
+                needsKotlinIntCast = { it == "flagShort" },
+            ) {
+                it
+            },
+        )
+        assertEquals(
+            "flagBool",
+            CodegenExprUtils.translateCondition(
+                "flagBool",
+                ExprLang.KOTLIN,
+                needsKotlinIntCast = { it == "flagShort" },
+                isKotlinUnsignedByte = { it == "flagByte" },
+            ) {
+                it
+            },
+        )
+
+        // 3. JsonSchemaParser.validate checks structs, whenBitSet, conditionalTypes, sparse types
+        val invalidMetadataRoot =
+            JSONObject(
+                """
+                {
+                  "schemaVersion": "1.0.0",
+                  "targetApiLevel": 8,
+                  "types": { "int": { "size": 4 } },
+                  "categories": ["Test"],
+                  "structs": {
+                    "BadStruct": {
+                      "description": "Struct with bad bitfield",
+                      "fields": [
+                        {
+                          "name": "packed",
+                          "type": "int",
+                          "bits": [
+                            {
+                              "name": "v",
+                              "range": "0..15",
+                              "whenBitSet": { "bit": 32, "range": "0..7" }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "operations": [
+                    {
+                      "id": 251,
+                      "name": "BadSparseOp",
+                      "category": "Test",
+                      "description": "Op with bad sparse and conditionalTypes metadata",
+                      "sparseCountType": "long",
+                      "sparseKeyType": "float",
+                      "fields": [
+                        {
+                          "name": "x",
+                          "type": "int",
+                          "lengthType": "bogus",
+                          "conditionalTypes": [
+                            { "when": "x == 1", "type": "UnknownType" }
+                          ]
+                        }
+                      ],
+                      "sparseParameters": [
+                        {
+                          "id": 1,
+                          "name": "arr",
+                          "type": "int[]",
+                          "lengthType": "badlen"
+                        }
+                      ]
+                    }
+                  ]
+                }
+                """
+                    .trimIndent()
+            )
+        val metaErrors = JsonSchemaParser.validate(invalidMetadataRoot)
+        assertTrue(
+            "Expected whenBitSet validation error, got: $metaErrors",
+            metaErrors.any { it.contains("whenBitSet.bit") && it.contains("BadStruct") },
+        )
+        assertTrue(
+            "Expected sparseCountType validation error, got: $metaErrors",
+            metaErrors.any { it.contains("sparseCountType") },
+        )
+        assertTrue(
+            "Expected sparseKeyType validation error, got: $metaErrors",
+            metaErrors.any { it.contains("sparseKeyType") },
+        )
+        assertTrue(
+            "Expected sparse parameter lengthType validation error, got: $metaErrors",
+            metaErrors.any { it.contains("sparse parameter arr") && it.contains("lengthType") },
+        )
+        assertTrue(
+            "Expected conditionalTypes validation error, got: $metaErrors",
+            metaErrors.any { it.contains("conditionalTypes") },
+        )
+
+        // 4-7. Synthetic schema exercising:
+        // - Nullable presentIf + packed !unpackBits strictEnum (C++ (*field), Kotlin/Rust/Swift/TS)
+        // - addedVersion + packed !unpackBits strictEnum (Kotlin)
+        // - unpackBits = false + sparseParameters in KotlinProtocolAndSinkGenerator convenience
+        // overload
+        // - sparseCountType = "int", sparseKeyType = "short", sparse param lengthType = "int"
+        // matching read & write across all 6 generators
+        // - Rust write() / save() returning Result<(), WireError::MissingRequiredField>
+        val syntheticJson =
+            """
+            {
+              "schemaVersion": "1.0.0",
+              "targetApiLevel": 8,
+              "types": {
+                "int": { "wire": "int", "description": "32-bit int" },
+                "short": { "wire": "short", "description": "16-bit short" },
+                "byte": { "wire": "byte", "description": "8-bit byte" },
+                "long": { "wire": "long", "description": "64-bit long" },
+                "int[]": { "wire": "int[]", "description": "int array" }
+              },
+              "categories": [{ "name": "Test", "description": "Test category" }],
+              "operations": [
+                {
+                  "id": 0,
+                  "name": "Header",
+                  "category": "Test",
+                  "description": "Header op",
+                  "fields": [
+                    { "name": "majorVersion", "type": "int" },
+                    { "name": "minorVersion", "type": "int" },
+                    { "name": "patchVersion", "type": "int" },
+                    { "name": "width", "type": "int" },
+                    { "name": "height", "type": "int" },
+                    { "name": "capabilities", "type": "long" }
+                  ]
+                },
+                {
+                  "id": 200,
+                  "name": "SyntheticTestOp",
+                  "category": "Test",
+                  "description": "Synthetic operation for codegen review checks",
+                  "sparseCountType": "int",
+                  "sparseKeyType": "short",
+                  "fields": [
+                    { "name": "flags", "type": "byte", "description": "Condition byte" },
+                    {
+                      "name": "optPacked",
+                      "type": "int",
+                      "presentIf": "flags == 1",
+                      "unpackBits": false,
+                      "bits": [
+                        {
+                          "name": "mode",
+                          "range": "0..7",
+                          "enum": { "A": 1, "B": 2 },
+                          "strictEnum": true
+                        }
+                      ]
+                    },
+                    {
+                      "name": "versionedPacked",
+                      "type": "int",
+                      "addedVersion": 7,
+                      "defaultValue": "1",
+                      "unpackBits": false,
+                      "bits": [
+                        {
+                          "name": "vMode",
+                          "range": "0..7",
+                          "enum": { "X": 1, "Y": 3 },
+                          "strictEnum": true
+                        }
+                      ]
+                    }
+                  ],
+                  "sparseParameters": [
+                    {
+                      "id": 10,
+                      "name": "sparseInts",
+                      "type": "int[]",
+                      "lengthType": "int",
+                      "description": "Sparse int array with 32-bit length"
+                    },
+                    {
+                      "id": 11,
+                      "name": "sparseSmall",
+                      "type": "int[]",
+                      "lengthType": "ubyte",
+                      "description": "Sparse int array with 8-bit length"
+                    },
+                    {
+                      "id": 12,
+                      "name": "sparseSignedShort",
+                      "type": "int[]",
+                      "lengthType": "short",
+                      "description": "Sparse int array with signed 16-bit length"
+                    }
+                  ]
+                },
+                {
+                  "id": 201,
+                  "name": "SignedShortSparseCountOp",
+                  "category": "Test",
+                  "description": "Synthetic operation with signed 16-bit sparse count",
+                  "sparseCountType": "short",
+                  "sparseKeyType": "ubyte",
+                  "fields": [],
+                  "sparseParameters": [
+                    { "id": 1, "name": "value", "type": "int", "description": "Sparse int value" }
+                  ]
+                }
+              ]
+            }
+            """
+                .trimIndent()
+        assertEquals(emptyList<String>(), JsonSchemaParser.validate(JSONObject(syntheticJson)))
+        val synSchema = JsonSchemaParser.parse(syntheticJson.byteInputStream())
+
+        // Verify KotlinGenerator & KotlinProtocolAndSinkGenerator
+        val ktAst = KotlinGenerator(synSchema).generateAstNodes()
+        val ktWriter = KotlinGenerator(synSchema).generateWriterNodes()
+        val ktSink = KotlinProtocolAndSinkGenerator(synSchema).generateOperationSink()
+        assertTrue(
+            "Kotlin must mask unsigned byte condition with and 0xFF",
+            ktAst.contains("(flags.toInt() and 0xFF) == 1"),
+        )
+        assertTrue(
+            "Kotlin must validate packed bit strictEnum inside presentIf",
+            ktAst.contains("val bit_mode = (parsed and 0xFF)") &&
+                ktAst.contains("Invalid SyntheticTestOpNode.mode:"),
+        )
+        assertTrue(
+            "Kotlin must validate packed bit strictEnum inside addedVersion",
+            ktAst.contains("val bit_vMode = (parsed and 0xFF)") &&
+                ktAst.contains("Invalid SyntheticTestOpNode.vMode:"),
+        )
+        assertTrue(
+            "Kotlin sparse read must use readInt count",
+            ktAst.contains("val sparseCount = buffer.readInt()"),
+        )
+        assertTrue(
+            "Kotlin signed short sparse count must sign-extend readShort()",
+            ktAst.contains("val sparseCount = buffer.readShort().toShort().toInt()"),
+        )
+        assertTrue(
+            "Kotlin signed short sparse key must sign-extend readShort()",
+            ktAst.contains("when (val paramId = buffer.readShort().toShort().toInt())"),
+        )
+        assertTrue(
+            "Kotlin signed short array length must sign-extend readShort()",
+            ktAst.contains("val count = buffer.readShort().toShort().toInt()"),
+        )
+        assertTrue(
+            "Kotlin sparse read must use readByte ubyte len",
+            ktAst.contains("buffer.readByte() and 0xFF"),
+        )
+        assertTrue(
+            "Kotlin sparse write must use writeInt count",
+            ktWriter.contains("buffer.writeInt(sparseCount)"),
+        )
+        assertTrue(
+            "Kotlin sparse write must use writeShort key",
+            ktWriter.contains("buffer.writeShort(10)"),
+        )
+        assertTrue(
+            "Kotlin sparse write must use writeInt array len",
+            ktWriter.contains("buffer.writeInt(sp_sparseInts.size)"),
+        )
+        assertTrue(
+            "Kotlin sparse write must use writeByte array len",
+            ktWriter.contains("buffer.writeByte(sp_sparseSmall.size)"),
+        )
+        assertTrue(
+            "Kotlin sink unpacked overload must include and forward sparseParameters",
+            ktSink.contains("sparseInts: IntArray? = null") &&
+                ktSink.contains("sparseSmall: IntArray? = null"),
+        )
+
+        // Verify CppGenerator
+        val cppGen = CppGenerator(synSchema)
+        val cppSource = cppGen.generateSource()
+        assertTrue(
+            "C++ must dereference std::optional for packed bit strictEnum",
+            cppSource.contains("static_cast<uint32_t>((*optPacked))"),
+        )
+        assertTrue(
+            "C++ sparse read must use readInt count",
+            cppSource.contains("int32_t sparseCount = buffer.readInt();"),
+        )
+        assertTrue(
+            "C++ sparse write must use writeInt count",
+            cppSource.contains("buffer.writeInt(sparseCount);"),
+        )
+        assertTrue(
+            "C++ sparse write must use writeInt array len",
+            cppSource.contains("buffer.writeInt(static_cast<int32_t>((*sparseInts).size()));"),
+        )
+        assertTrue(
+            "C++ sparse write must use writeByte array len",
+            cppSource.contains("buffer.writeByte(static_cast<uint8_t>((*sparseSmall).size()));"),
+        )
+
+        // Verify RustGenerator
+        val rustCode = RustGenerator(synSchema).generate()
+        assertTrue(
+            "Rust write must return Result<(), WireError>",
+            rustCode.contains(
+                "pub fn write(&self, buffer: &mut WireBuffer) -> Result<(), WireError>"
+            ),
+        )
+        assertTrue(
+            "Rust save must return Result<(), WireError>",
+            rustCode.contains(
+                "pub fn save(&self, buffer: &mut WireBuffer) -> Result<(), WireError>"
+            ),
+        )
+        assertTrue(
+            "Rust must return WireError::MissingRequiredField instead of panicking",
+            rustCode.contains("ok_or(WireError::MissingRequiredField(\"optPacked\"))?"),
+        )
+        assertTrue(
+            "Rust must validate packed bit strictEnum inside presentIf",
+            rustCode.contains("let bit_mode = ((val as u32) & 0xFF) as i32;"),
+        )
+        assertTrue(
+            "Rust sparse read must use read_i32 count",
+            rustCode.contains("let sparse_raw_count = buffer.read_i32()?;"),
+        )
+        assertTrue(
+            "Rust sparse write must use write_i32 count",
+            rustCode.contains("buffer.write_i32(sparse_count as i32);"),
+        )
+        assertTrue(
+            "Rust sparse write must use write_i32 array len",
+            rustCode.contains("buffer.write_i32(val.len() as i32);"),
+        )
+        assertTrue(
+            "Rust sparse write must use write_u8 array len",
+            rustCode.contains("buffer.write_u8(val.len() as u8);"),
+        )
+
+        // Verify TypeScriptGenerator
+        val tsCode = TypeScriptGenerator(synSchema).generate()
+        assertTrue(
+            "TS must validate packed bit strictEnum inside presentIf",
+            tsCode.contains("const bit_mode = (this.optPacked & 0xFF);"),
+        )
+        assertTrue(
+            "TS sparse read must use readInt count",
+            tsCode.contains("const sparseCount = buffer.readInt();"),
+        )
+        assertTrue(
+            "TS sparse write must use writeInt count",
+            tsCode.contains("buffer.writeInt(sparseCount);"),
+        )
+        assertTrue(
+            "TS sparse write must use writeInt array len",
+            tsCode.contains("buffer.writeInt(this.sparseInts.length);"),
+        )
+        assertTrue(
+            "TS sparse write must use writeByte array len",
+            tsCode.contains("buffer.writeByte(this.sparseSmall.length);"),
+        )
+
+        // Verify SwiftGenerator
+        val swiftCode = SwiftGenerator(synSchema).generate()
+        assertTrue(
+            "Swift protocol write must throw",
+            swiftCode.contains("func write(to buffer: inout WireBuffer) throws"),
+        )
+        assertTrue(
+            "Swift save must throw and forward try op.write",
+            swiftCode.contains("public func save() throws -> Data") &&
+                swiftCode.contains("try op.write(to: &buffer)"),
+        )
+        assertTrue(
+            "Swift must throw NSError instead of preconditionFailure on missing required field",
+            swiftCode.contains(
+                "throw NSError(domain: \"SyntheticTestOp\", code: 3, userInfo: [NSLocalizedDescriptionKey: \"Missing required field optPacked\"])"
+            ) && !swiftCode.contains("preconditionFailure"),
+        )
+        assertTrue(
+            "Swift must validate packed bit strictEnum on non-optional parsed inside presentIf",
+            swiftCode.contains("let parsed = try buffer.readInt()") &&
+                swiftCode.contains("let bit_mode = Int32(UInt32(bitPattern: parsed) & 0xFF)"),
+        )
+        assertTrue(
+            "Swift sparse read must use readInt count",
+            swiftCode.contains("let sparseCount = Int(try buffer.readInt())"),
+        )
+        assertTrue(
+            "Swift sparse write must use writeInt count",
+            swiftCode.contains("buffer.writeInt(sparseCount)"),
+        )
+        assertTrue(
+            "Swift sparse write must use writeInt array len",
+            swiftCode.contains("buffer.writeInt(Int32(val.count))"),
+        )
+        assertTrue(
+            "Swift sparse write must use writeByte array len",
+            swiftCode.contains("buffer.writeByte(UInt8(truncatingIfNeeded: val.count))"),
+        )
+
+        // Verify PythonGenerator
+        val pyCode = PythonGenerator(synSchema).generate()
+        assertTrue(
+            "Python sparse read must use read_int count",
+            pyCode.contains("_sparse_count = buffer.read_int()"),
+        )
+        assertTrue(
+            "Python sparse write must use write_int count",
+            pyCode.contains("buffer.write_int(_sparse_count)"),
+        )
+        assertTrue(
+            "Python sparse write must use write_int array len",
+            pyCode.contains("buffer.write_int(len(self.sparse_ints))"),
+        )
+        assertTrue(
+            "Python sparse write must use write_byte array len",
+            pyCode.contains("buffer.write_byte(len(self.sparse_small))"),
+        )
+
+        // Native compile & execute synthetic C++ (verifies std::optional packed strictEnum & sparse
+        // round-trip)
+        val compilerCandidates =
+            listOfNotNull(
+                findExecutableOnPath("clang++"),
+                findExecutableOnPath("g++"),
+            )
+        val cppCompiler = compilerCandidates.firstOrNull {
+            it.exists() && it.canExecute() && canCompileCpp(it)
+        }
+        if (cppCompiler != null) {
+            val tmpDir = Files.createTempDirectory("remote_compose_review_cpp").toFile()
+            try {
+                File(tmpDir, "WireBuffer.h").writeText(cppGen.generateWireBufferHeader())
+                File(tmpDir, "WireBuffer.cpp").writeText(cppGen.generateWireBufferSource())
+                File(tmpDir, "RemoteComposeOps.h").writeText(cppGen.generateHeader())
+                File(tmpDir, "RemoteComposeOps.cpp").writeText(cppGen.generateSource())
+                val driver =
+                    """
+                    #include <cassert>
+                    #include <stdexcept>
+                    #include "RemoteComposeOps.h"
+                    using namespace androidx::compose::remote;
+                    int main() {
+                        SyntheticTestOp op;
+                        op.flags = 1;
+                        op.optPacked = 2; // valid mode B=2
+                        op.versionedPacked = 3; // valid vMode Y=3
+                        op.sparseInts = std::vector<int32_t>{10, 20, 30};
+                        op.sparseSmall = std::vector<int32_t>{7, 8};
+
+                        WireBuffer wb;
+                        op.write(wb);
+                        WireBuffer rb(wb.getBytes());
+                        assert(rb.readByte() == static_cast<uint8_t>(OpCode::SyntheticTestOp));
+                        SyntheticTestOp decoded;
+                        decoded.read(rb);
+                        assert(!rb.available());
+                        assert(decoded.flags == 1);
+                        assert(decoded.optPacked.has_value() && *decoded.optPacked == 2);
+                        assert(decoded.sparseInts.has_value() && decoded.sparseInts->size() == 3);
+                        assert(decoded.sparseSmall.has_value() && decoded.sparseSmall->size() == 2);
+
+                        // Invalid packed bit enum inside optional field must throw
+                        SyntheticTestOp bad;
+                        bad.flags = 1;
+                        bad.optPacked = 99;
+                        bad.versionedPacked = 1;
+                        WireBuffer badWb;
+                        bad.write(badWb);
+                        WireBuffer badRb(badWb.getBytes());
+                        badRb.readByte();
+                        SyntheticTestOp badOut;
+                        bool threw = false;
+                        try {
+                            badOut.read(badRb);
+                        } catch (const std::runtime_error&) {
+                            threw = true;
+                        }
+                        assert(threw);
+                        return 0;
+                    }
+                    """
+                        .trimIndent()
+                val driverFile = File(tmpDir, "main.cpp")
+                driverFile.writeText(driver)
+                val binFile = File(tmpDir, "test_bin")
+                val comp =
+                    ProcessBuilder(
+                            cppCompiler.absolutePath,
+                            "-std=c++17",
+                            "-Wall",
+                            "-Werror",
+                            File(tmpDir, "WireBuffer.cpp").absolutePath,
+                            File(tmpDir, "RemoteComposeOps.cpp").absolutePath,
+                            driverFile.absolutePath,
+                            "-o",
+                            binFile.absolutePath,
+                        )
+                        .redirectErrorStream(true)
+                        .start()
+                val compOut = comp.inputStream.bufferedReader().readText()
+                assertEquals("Synthetic C++ compile failed:\n$compOut", 0, comp.waitFor())
+                val run = ProcessBuilder(binFile.absolutePath).redirectErrorStream(true).start()
+                val runOut = run.inputStream.bufferedReader().readText()
+                assertEquals("Synthetic C++ run failed:\n$runOut", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        // Native compile & execute synthetic Rust (verifies Result<(),
+        // WireError::MissingRequiredField>,
+        // optional packed strictEnum, and custom sparse framing round-trip)
+        val rustcCandidates = listOf(File(System.getProperty("user.home"), ".cargo/bin/rustc"))
+        val rustc =
+            (rustcCandidates + listOfNotNull(findExecutableOnPath("rustc"))).firstOrNull {
+                it.exists() && it.canExecute()
+            }
+        if (rustc != null) {
+            val tmpDir = Files.createTempDirectory("remote_compose_review_rust").toFile()
+            try {
+                val mainRs = File(tmpDir, "main.rs")
+                mainRs.writeText(
+                    """
+                    $rustCode
+
+                    fn main() {
+                        // Missing required optional field returns Err without panicking
+                        let missing = SyntheticTestOp {
+                            flags: 1,
+                            opt_packed: None,
+                            versioned_packed: 1,
+                            sparse_ints: None,
+                            sparse_small: None,
+                            sparse_signed_short: None,
+                        };
+                        let mut doc = RemoteDocument::new();
+                        doc.operations.push(Operation::SyntheticTestOp(Box::new(missing)));
+                        let mut err_buf = WireBuffer::new();
+                        assert_eq!(
+                            doc.save(&mut err_buf),
+                            Err(WireError::MissingRequiredField("optPacked"))
+                        );
+
+                        // Valid round-trip with custom sparse count/key/length framing
+                        let valid = SyntheticTestOp {
+                            flags: 1,
+                            opt_packed: Some(2),
+                            versioned_packed: 3,
+                            sparse_ints: Some(vec![10, 20, 30]),
+                            sparse_small: Some(vec![7, 8]),
+                            sparse_signed_short: Some(vec![9]),
+                        };
+                        let mut ok_buf = WireBuffer::new();
+                        valid.write(&mut ok_buf).expect("write should succeed");
+                        let mut rb = WireBuffer::from_bytes(ok_buf.as_bytes());
+                        assert_eq!(rb.read_u8().unwrap(), SyntheticTestOp::OP_CODE);
+                        let decoded = SyntheticTestOp::read(&mut rb).expect("read should succeed");
+                        assert!(!rb.available());
+                        assert_eq!(decoded, valid);
+
+                        // Invalid packed bit strictEnum inside optional presentIf returns InvalidData
+                        let bad = SyntheticTestOp {
+                            flags: 1,
+                            opt_packed: Some(99),
+                            versioned_packed: 1,
+                            sparse_ints: None,
+                            sparse_small: None,
+                            sparse_signed_short: None,
+                        };
+                        let mut bad_buf = WireBuffer::new();
+                        bad.write(&mut bad_buf).expect("write should succeed");
+                        let mut bad_rb = WireBuffer::from_bytes(bad_buf.as_bytes());
+                        let _ = bad_rb.read_u8().unwrap();
+                        assert_eq!(SyntheticTestOp::read(&mut bad_rb), Err(WireError::InvalidData));
+                    }
+                    """
+                        .trimIndent()
+                )
+                val binFile = File(tmpDir, "rust_review_bin")
+                val comp =
+                    ProcessBuilder(
+                            rustc.absolutePath,
+                            mainRs.absolutePath,
+                            "-o",
+                            binFile.absolutePath,
+                        )
+                        .redirectErrorStream(true)
+                        .start()
+                val compOut = comp.inputStream.bufferedReader().readText()
+                assertEquals("Synthetic Rust compile failed:\n$compOut", 0, comp.waitFor())
+                val run = ProcessBuilder(binFile.absolutePath).redirectErrorStream(true).start()
+                val runOut = run.inputStream.bufferedReader().readText()
+                assertEquals("Synthetic Rust run failed:\n$runOut", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        // Native execute synthetic Python (verifies sparse framing round-trip and optional packed
+        // strictEnum)
+        val python3 = findExecutableOnPath("python3")
+        if (python3 != null) {
+            val tmpDir = Files.createTempDirectory("remote_compose_review_py").toFile()
+            try {
+                File(tmpDir, "remote_compose.py").writeText(pyCode)
+                val pyTest = File(tmpDir, "test_review.py")
+                pyTest.writeText(
+                    """
+                    from remote_compose import SyntheticTestOp, WireBuffer
+
+                    op = SyntheticTestOp(
+                        flags=1,
+                        opt_packed=2,
+                        versioned_packed=3,
+                        sparse_ints=[10, 20, 30],
+                        sparse_small=[7, 8],
+                    )
+                    wb = WireBuffer()
+                    op.write(wb)
+                    rb = WireBuffer.from_bytes(wb.get_bytes())
+                    assert rb.read_byte() == SyntheticTestOp.op_code.value
+                    decoded = SyntheticTestOp()
+                    decoded.read_fields(rb)
+                    assert not rb.available()
+                    assert decoded == op
+
+                    bad = SyntheticTestOp(flags=1, opt_packed=99, versioned_packed=1)
+                    bwb = WireBuffer()
+                    bad.write(bwb)
+                    brb = WireBuffer.from_bytes(bwb.get_bytes())
+                    brb.read_byte()
+                    try:
+                        SyntheticTestOp().read_fields(brb)
+                        raise AssertionError("Expected ValueError for invalid packed enum")
+                    except ValueError:
+                        pass
+                    """
+                        .trimIndent()
+                )
+                val run =
+                    ProcessBuilder(python3.absolutePath, pyTest.absolutePath)
+                        .redirectErrorStream(true)
+                        .start()
+                val runOut = run.inputStream.bufferedReader().readText()
+                assertEquals("Synthetic Python run failed:\n$runOut", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+    }
+
+    @Test
+    fun testSubsetSchemaGoldenOutput() {
+        val schemaStream =
+            requireNotNull(javaClass.getResourceAsStream("/golden/subset_schema.json")) {
+                "Missing test resource /golden/subset_schema.json"
+            }
+        val schemaJsonText = schemaStream.bufferedReader().use { it.readText() }
+        assertEquals(emptyList<String>(), JsonSchemaParser.validate(JSONObject(schemaJsonText)))
+
+        val subsetSchema = JsonSchemaParser.parse(schemaJsonText.byteInputStream())
+        assertEquals(11, subsetSchema.operations.size)
+
+        val kotlinGen = KotlinGenerator(subsetSchema)
+        val kotlinSinkGen = KotlinProtocolAndSinkGenerator(subsetSchema)
+        val javaGen = JavaGenerator(subsetSchema)
+        val cppGen = CppGenerator(subsetSchema)
+
+        val sections =
+            listOf(
+                "KOTLIN AST (RemoteOperations.kt)" to kotlinGen.generateAstNodes(),
+                "KOTLIN WRITER (RemoteDocumentWriter.kt)" to kotlinGen.generateWriterNodes(),
+                "KOTLIN SINK (RemoteOperationSink.kt)" to kotlinSinkGen.generateOperationSink(),
+                "JAVA OPERATIONS TABLE (GeneratedOperations.java)" to
+                    javaGen.generateOperationsTable(),
+                "CPP HEADER (RemoteComposeOps.h)" to cppGen.generateHeader(),
+                "CPP SOURCE (RemoteComposeOps.cpp)" to cppGen.generateSource(),
+                "RUST (remote_compose.rs)" to RustGenerator(subsetSchema).generate(),
+                "TYPESCRIPT (remote_compose.ts)" to TypeScriptGenerator(subsetSchema).generate(),
+                "SWIFT (RemoteCompose.swift)" to SwiftGenerator(subsetSchema).generate(),
+                "PYTHON (remote_compose.py)" to PythonGenerator(subsetSchema).generate(),
+            )
+        val actual =
+            sections.joinToString("\n") { (title, content) ->
+                "=== $title ===\n${content.replace("\r\n", "\n").trimEnd()}\n"
+            }
+
+        val updateGolden =
+            System.getProperty("updateGolden") == "true" || System.getenv("UPDATE_GOLDEN") == "true"
+        if (updateGolden) {
+            val localFile = File("src/test/resources/golden/subset_expected_output.txt")
+            val targetFile =
+                if (localFile.parentFile?.exists() == true) {
+                    localFile
+                } else {
+                    File(
+                        "compose/remote/remote-generator/src/test/resources/golden/subset_expected_output.txt"
+                    )
+                }
+            targetFile.parentFile?.mkdirs()
+            targetFile.writeText(actual)
+            return
+        }
+
+        val expectedStream =
+            requireNotNull(javaClass.getResourceAsStream("/golden/subset_expected_output.txt")) {
+                "Missing golden file /golden/subset_expected_output.txt. " +
+                    "Run with UPDATE_GOLDEN=true to generate it."
+            }
+        val expected = expectedStream.bufferedReader().use { it.readText() }.replace("\r\n", "\n")
+        assertEquals(
+            "Generated output differs from golden snapshot. " +
+                "Re-run with UPDATE_GOLDEN=true if this generator change is intentional.",
+            expected,
+            actual,
         )
     }
 }

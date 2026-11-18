@@ -184,10 +184,25 @@
                 "id": { "type": "integer", "minimum": 1 },
                 "name": { "type": "string" },
                 "type": { "type": "string" },
+                "lengthType": {
+                  "type": "string",
+                  "enum": ["short", "ushort", "int"]
+                },
+                "role": { "type": "string" },
+                "idKind": { "type": "string" },
+                "ignored": { "type": "boolean" },
                 "defaultValue": { "type": "string" },
                 "description": { "type": "string" }
               }
             }
+          },
+          "sparseCountType": {
+            "type": "string",
+            "enum": ["ushort", "short", "int"]
+          },
+          "sparseKeyType": {
+            "type": "string",
+            "enum": ["ubyte", "byte", "ushort", "short", "int"]
           },
           "extensions": { "type": "object" },
           "profiles": {
@@ -221,6 +236,19 @@
               "idKind": { "type": "string" },
               "derivedFrom": { "type": "string" },
               "signed": { "type": "boolean" },
+              "enum": {
+                "type": "object",
+                "additionalProperties": { "type": "integer" }
+              },
+              "strictEnum": { "type": "boolean" },
+              "whenBitSet": {
+                "type": "object",
+                "required": ["bit", "range"],
+                "properties": {
+                  "bit": { "type": "integer", "minimum": 0, "maximum": 31 },
+                  "range": { "type": "string" }
+                }
+              },
               "description": { "type": "string" }
             }
           }
@@ -249,6 +277,29 @@
         "omitIf": {},
         "role": { "type": "string" },
         "idKind": { "type": "string" },
+        "conditionalTypes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["when", "type"],
+            "properties": {
+              "when": { "type": "string" },
+              "type": { "type": "string" }
+            }
+          }
+        },
+        "conditionalRoles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["when", "role"],
+            "properties": {
+              "when": { "type": "string" },
+              "role": { "type": "string" },
+              "idKind": { "type": "string" }
+            }
+          }
+        },
         "encoding": { "type": "string" },
         "offset": { "type": ["string", "integer"] },
         "lookupBit": { "type": "integer" }

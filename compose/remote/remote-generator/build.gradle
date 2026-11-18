@@ -26,11 +26,23 @@ dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.9.1")
     implementation("org.json:json:20231013")
+    implementation(libs.javapoet)
+    implementation(libs.kotlinPoet)
 
     testImplementation(project(":compose:remote:remote-core"))
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(project(":kruth:kruth"))
+}
+
+def ktfmtRuntime = configurations.detachedConfiguration(dependencies.create(libs.ktfmt.get()))
+
+tasks.withType(Test).configureEach {
+    it.classpath += ktfmtRuntime
+    it.jvmArgs(
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--sun-misc-unsafe-memory-access=allow",
+    )
 }
 
 androidx {
@@ -45,8 +57,12 @@ def remoteRootDirPath = project.projectDir.parentFile.absolutePath
 tasks.register("updateGeneratedCode", JavaExec) { task ->
     task.group = "codegen"
     task.description = "Regenerates checked-in RemoteCompose Kotlin and Java sources from operations.json"
-    task.classpath = sourceSets.main.runtimeClasspath
+    task.classpath = sourceSets.main.runtimeClasspath + ktfmtRuntime
     task.mainClass.set("androidx.compose.remote.generator.AndroidXCodegenUpdater")
     task.args(remoteRootDirPath)
+    task.jvmArgs(
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--sun-misc-unsafe-memory-access=allow",
+    )
     task.outputs.upToDateWhen { false }
 }
