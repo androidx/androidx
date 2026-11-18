@@ -2758,6 +2758,15 @@ public:
     static std::shared_ptr<RemoteDocument> load(
         WireBuffer& buffer,
         size_t maxOperations = kDefaultMaxOperations);
+    /**
+     * Deserializes a RemoteDocument evaluating conditional skip operations
+     * against the target player API level and profile bitmask.
+     */
+    static std::shared_ptr<RemoteDocument> loadForPlayer(
+        WireBuffer& buffer,
+        int32_t playerApiLevel,
+        int32_t playerProfiles = 0,
+        size_t maxOperations = kDefaultMaxOperations);
 #if defined(RC_ENABLE_WRITER) && RC_ENABLE_WRITER
     /** Serializes this document into the provided buffer. */
     void save(WireBuffer& buffer) const;
@@ -3192,9 +3201,13 @@ std::shared_ptr<Operation> createOperation(OpCode op) {
     }
 }
 
-std::shared_ptr<RemoteDocument> RemoteDocument::load(
+namespace {
+std::shared_ptr<RemoteDocument> loadDocumentImpl(
     WireBuffer& buffer,
-    size_t maxOperations
+    size_t maxOperations,
+    bool evaluateSkip,
+    int32_t playerApiLevel,
+    int32_t playerProfiles
 ) {
     auto doc = std::make_shared<RemoteDocument>();
     if (!buffer.available()) return doc;
@@ -3211,7 +3224,7 @@ std::shared_ptr<RemoteDocument> RemoteDocument::load(
         doc->width = 256;
         doc->height = 256;
         int32_t numProps = buffer.readInt();
-        if (numProps < 0 || static_cast<size_t>(numProps) > kMaxHeaderProperties) {
+        if (numProps < 0 || static_cast<size_t>(numProps) > RemoteDocument::kMaxHeaderProperties) {
             throw std::runtime_error("Invalid numProps in header");
         }
         if (static_cast<size_t>(numProps) > buffer.remaining() / 4) {
@@ -3277,6 +3290,9 @@ std::shared_ptr<RemoteDocument> RemoteDocument::load(
             throw std::runtime_error(
                 "Document exceeds maximum allowed operation count");
         }
+        (void)evaluateSkip;
+        (void)playerApiLevel;
+        (void)playerProfiles;
         auto op = createOperation(static_cast<OpCode>(opByte));
         if (!op) {
             throw std::runtime_error(
@@ -3286,6 +3302,23 @@ std::shared_ptr<RemoteDocument> RemoteDocument::load(
         doc->operations.push_back(op);
     }
     return doc;
+}
+} // namespace
+
+std::shared_ptr<RemoteDocument> RemoteDocument::load(
+    WireBuffer& buffer,
+    size_t maxOperations
+) {
+    return loadDocumentImpl(buffer, maxOperations, false, 0, 0);
+}
+
+std::shared_ptr<RemoteDocument> RemoteDocument::loadForPlayer(
+    WireBuffer& buffer,
+    int32_t playerApiLevel,
+    int32_t playerProfiles,
+    size_t maxOperations
+) {
+    return loadDocumentImpl(buffer, maxOperations, true, playerApiLevel, playerProfiles);
 }
 
 #if defined(RC_ENABLE_WRITER) && RC_ENABLE_WRITER
@@ -3541,6 +3574,20 @@ impl WireBuffer {
     pub fn write_buffer(&mut self, val: &[u8]) {
         self.write_i32(val.len() as i32);
         self.data.extend_from_slice(val);
+    }
+
+    pub fn write_bytes(&mut self, val: &[u8]) {
+        self.data.extend_from_slice(val);
+    }
+
+    pub fn read_bytes(&mut self, len: usize) -> Result<Vec<u8>, WireError> {
+        if len <= self.remaining() {
+            let slice = &self.data[self.index..self.index + len];
+            self.index += len;
+            Ok(slice.to_vec())
+        } else {
+            Err(WireError::Underflow)
+        }
     }
 
     pub fn read_buffer(&mut self) -> Result<Vec<u8>, WireError> {
@@ -3924,6 +3971,22 @@ impl BitmapData {
             height_and_encoding,
             bitmap,
         })
+    }
+
+    pub fn width(&self) -> i32 {
+        ((self.width_and_type as u32) & 0xFFFF) as i32
+    }
+
+    pub fn image_type(&self) -> i32 {
+        (((self.width_and_type as u32) >> 16) & 0xFFFF) as i32
+    }
+
+    pub fn height(&self) -> i32 {
+        ((self.height_and_encoding as u32) & 0xFFFF) as i32
+    }
+
+    pub fn bitmap_encoding(&self) -> i32 {
+        (((self.height_and_encoding as u32) >> 16) & 0xFFFF) as i32
     }
 
     #[cfg(any(feature = "writer", not(any(rc_no_writer, feature = "reader_only"))))]
@@ -4433,12 +4496,47 @@ impl RemoteDocument {
         Self::load_with_limits(buffer, Self::MAX_OPERATION_COUNT)
     }
 
+    /// Loads and deserializes a [RemoteDocument] evaluating conditional skip operations
+    /// against the target player API level and profile bitmask.
+    pub fn load_for_player(
+        buffer: &mut WireBuffer,
+        player_api_level: i32,
+        player_profiles: i32,
+    ) -> Result<Self, WireError> {
+        Self::load_for_player_with_limits(
+            buffer,
+            player_api_level,
+            player_profiles,
+            Self::MAX_OPERATION_COUNT,
+        )
+    }
+
+    /// Loads and deserializes a [RemoteDocument] evaluating conditional skip operations
+    /// with an explicit maximum operation count.
+    pub fn load_for_player_with_limits(
+        buffer: &mut WireBuffer,
+        player_api_level: i32,
+        player_profiles: i32,
+        max_operations: usize,
+    ) -> Result<Self, WireError> {
+        Self::load_impl(buffer, max_operations, Some((player_api_level, player_profiles)))
+    }
+
     /// Loads and deserializes a [RemoteDocument] from the wire buffer with an explicit
     /// maximum operation count.
     pub fn load_with_limits(
         buffer: &mut WireBuffer,
         max_operations: usize,
     ) -> Result<Self, WireError> {
+        Self::load_impl(buffer, max_operations, None)
+    }
+
+    fn load_impl(
+        buffer: &mut WireBuffer,
+        max_operations: usize,
+        player_ctx: Option<(i32, i32)>,
+    ) -> Result<Self, WireError> {
+        let _ = player_ctx;
         let mut doc = Self::new();
         if !buffer.available() {
             return Ok(doc);
@@ -4742,6 +4840,23 @@ export class WireBuffer {
     this.buffer.set(val, this.index);
     this.index += val.length;
     this.size = Math.max(this.size, this.index);
+  }
+
+  writeBytes(val: Uint8Array): void {
+    this.ensureCapacity(val.length);
+    this.buffer.set(val, this.index);
+    this.index += val.length;
+    this.size = Math.max(this.size, this.index);
+  }
+
+  readBytes(len: number): Uint8Array {
+    if (len < 0) {
+      throw new Error("Negative byte slice length in WireBuffer");
+    }
+    this.checkRemaining(len, "bytes");
+    const slice = this.buffer.slice(this.index, this.index + len);
+    this.index += len;
+    return slice;
   }
 
   readBuffer(maxLength?: number): Uint8Array {
@@ -5484,6 +5599,35 @@ export class RemoteDocument {
     bytes: Uint8Array,
     maxOperations: number = RemoteDocument.MAX_OPERATION_COUNT,
   ): RemoteDocument {
+    return RemoteDocument.loadImpl(bytes, maxOperations, false, 0, 0);
+  }
+
+  /**
+   * Loads and parses a RemoteDocument evaluating conditional skip operations
+   * against the target player API level and profile bitmask.
+   */
+  static loadForPlayer(
+    bytes: Uint8Array,
+    playerApiLevel: number,
+    playerProfiles: number = 0,
+    maxOperations: number = RemoteDocument.MAX_OPERATION_COUNT,
+  ): RemoteDocument {
+    return RemoteDocument.loadImpl(
+      bytes,
+      maxOperations,
+      true,
+      playerApiLevel,
+      playerProfiles,
+    );
+  }
+
+  private static loadImpl(
+    bytes: Uint8Array,
+    maxOperations: number,
+    evaluateSkip: boolean,
+    playerApiLevel: number,
+    playerProfiles: number,
+  ): RemoteDocument {
     const buffer = WireBuffer.fromBytes(bytes);
     const doc = new RemoteDocument();
     if (!buffer.available()) return doc;
@@ -5559,7 +5703,11 @@ export class RemoteDocument {
       if (!op) {
         throw new Error("Unknown opcode in RemoteDocument: " + opByte);
       }
-      (op as any).readFields(buffer);
+      if (evaluateSkip && typeof (op as any).readFieldsForPlayer === "function") {
+        (op as any).readFieldsForPlayer(buffer, playerApiLevel, playerProfiles);
+      } else {
+        (op as any).readFields(buffer);
+      }
       doc.operations.push(op);
     }
     return doc;
@@ -5760,6 +5908,22 @@ public struct WireBuffer {
     public mutating func writeBuffer(_ value: Data) {
         writeInt(Int32(value.count))
         data.append(value)
+    }
+
+    public mutating func writeBytes(_ value: Data) {
+        data.append(value)
+    }
+
+    public mutating func readBytes(count: Int) throws -> Data {
+        guard count >= 0 else {
+            throw NSError(domain: "WireBuffer", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid negative byte count"])
+        }
+        guard count <= remaining else {
+            throw NSError(domain: "WireBuffer", code: 1, userInfo: [NSLocalizedDescriptionKey: "Underflow"])
+        }
+        let bufData = data.subdata(in: index..<(index + count))
+        index += count
+        return bufData
     }
 
     public mutating func readBuffer(maxLength: Int? = nil) throws -> Data {
@@ -6487,6 +6651,32 @@ public struct RemoteDocument {
 
     /// Deserializes a RemoteDocument from raw binary data.
     public static func load(from data: Data, maxOperations: Int = MAX_OPERATION_COUNT) throws -> RemoteDocument {
+        return try loadImpl(from: data, maxOperations: maxOperations, evaluateSkip: false, playerApiLevel: 0, playerProfiles: 0)
+    }
+
+    /// Deserializes a RemoteDocument evaluating conditional skip operations against the target player.
+    public static func loadForPlayer(
+        from data: Data,
+        playerApiLevel: Int32,
+        playerProfiles: Int32 = 0,
+        maxOperations: Int = MAX_OPERATION_COUNT
+    ) throws -> RemoteDocument {
+        return try loadImpl(
+            from: data,
+            maxOperations: maxOperations,
+            evaluateSkip: true,
+            playerApiLevel: playerApiLevel,
+            playerProfiles: playerProfiles
+        )
+    }
+
+    private static func loadImpl(
+        from data: Data,
+        maxOperations: Int,
+        evaluateSkip: Bool,
+        playerApiLevel: Int32,
+        playerProfiles: Int32
+    ) throws -> RemoteDocument {
         var buffer = WireBuffer(data: data)
         var doc = RemoteDocument()
         guard buffer.available else { return doc }
@@ -6818,6 +7008,22 @@ class WireBuffer:
         if self._index > self._size:
             self._size = self._index
 
+    def write_bytes(self, val: bytes) -> None:
+        self._ensure_capacity(len(val))
+        self._buffer[self._index : self._index + len(val)] = val
+        self._index += len(val)
+        if self._index > self._size:
+            self._size = self._index
+
+    def read_bytes(self, length: int) -> bytes:
+        if length < 0:
+            raise ValueError(f"Negative byte slice length in WireBuffer: {length}")
+        if length > self.remaining():
+            raise EOFError("WireBuffer underflow reading raw bytes")
+        raw = bytes(self._buffer[self._index : self._index + length])
+        self._index += length
+        return raw
+
     def read_buffer(self, max_length: Optional[int] = None) -> bytes:
         length = self.read_int()
         if length < 0:
@@ -6994,6 +7200,22 @@ class BitmapData(Operation):
         self.width_and_type = buffer.read_int()
         self.height_and_encoding = buffer.read_int()
         self.bitmap = buffer.read_buffer()
+
+    @property
+    def width(self) -> int:
+        return (self.width_and_type & 0xFFFF)
+
+    @property
+    def image_type(self) -> int:
+        return (((self.width_and_type & 0xFFFFFFFF) >> 16) & 0xFFFF)
+
+    @property
+    def height(self) -> int:
+        return (self.height_and_encoding & 0xFFFF)
+
+    @property
+    def bitmap_encoding(self) -> int:
+        return (((self.height_and_encoding & 0xFFFFFFFF) >> 16) & 0xFFFF)
 
     def write(self, buffer: WireBuffer) -> None:
         buffer.write_byte(self.op_code.value)
@@ -7253,6 +7475,27 @@ class RemoteDocument:
 
     @classmethod
     def load(cls, data: bytes, max_operations: int = MAX_OPERATION_COUNT) -> RemoteDocument:
+        return cls._load_impl(data, max_operations, False, 0, 0)
+
+    @classmethod
+    def load_for_player(
+        cls,
+        data: bytes,
+        player_api_level: int,
+        player_profiles: int = 0,
+        max_operations: int = MAX_OPERATION_COUNT,
+    ) -> RemoteDocument:
+        return cls._load_impl(data, max_operations, True, player_api_level, player_profiles)
+
+    @classmethod
+    def _load_impl(
+        cls,
+        data: bytes,
+        max_operations: int,
+        evaluate_skip: bool,
+        player_api_level: int,
+        player_profiles: int,
+    ) -> RemoteDocument:
         buffer = WireBuffer.from_bytes(data)
         doc = cls()
         if not buffer.available():
@@ -7323,7 +7566,10 @@ class RemoteDocument:
             op = create_operation(op_code)
             if op is None:
                 raise ValueError(f"Unsupported opcode in RemoteDocument: {op_byte}")
-            op.read_fields(buffer)
+            if evaluate_skip and hasattr(op, "read_fields_for_player"):
+                op.read_fields_for_player(buffer, player_api_level, player_profiles)
+            else:
+                op.read_fields(buffer)
             doc.operations.append(op)
 
         return doc

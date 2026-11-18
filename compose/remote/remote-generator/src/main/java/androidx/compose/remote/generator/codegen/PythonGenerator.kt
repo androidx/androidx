@@ -20,6 +20,7 @@ import androidx.compose.remote.generator.AstProperty
 import androidx.compose.remote.generator.DerivedExpr
 import androidx.compose.remote.generator.OperationSchema
 import androidx.compose.remote.generator.SchemaBitField
+import androidx.compose.remote.generator.SchemaConditionalSkip
 import androidx.compose.remote.generator.SchemaField
 import androidx.compose.remote.generator.SchemaOperation
 import androidx.compose.remote.generator.SchemaSparseParam
@@ -296,6 +297,27 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                 pyBlock("if self._index > self._size") { line("self._size = self._index") }
             }
             line()
+            pyBlock("def write_bytes(self, val: bytes) -> None") {
+                line("self._ensure_capacity(len(val))")
+                line("self._buffer[self._index : self._index + len(val)] = val")
+                line("self._index += len(val)")
+                pyBlock("if self._index > self._size") { line("self._size = self._index") }
+            }
+            line()
+            pyBlock("def read_bytes(self, length: int) -> bytes") {
+                pyBlock("if length < 0") {
+                    line(
+                        "raise ValueError(f\"Negative byte slice length in WireBuffer: {length}\")"
+                    )
+                }
+                pyBlock("if length > self.remaining()") {
+                    line("raise EOFError(\"WireBuffer underflow reading raw bytes\")")
+                }
+                line("raw = bytes(self._buffer[self._index : self._index + length])")
+                line("self._index += length")
+                line("return raw")
+            }
+            line()
             pyBlock("def read_buffer(self, max_length: Optional[int] = None) -> bytes") {
                 line("length = self.read_int()")
                 pyBlock("if length < 0") {
@@ -334,6 +356,41 @@ internal class PythonGenerator(private val schema: OperationSchema) {
             pyBlock(
                 "def load(cls, data: bytes, max_operations: int = MAX_OPERATION_COUNT) -> RemoteDocument"
             ) {
+                line("return cls._load_impl(data, max_operations, False, 0, 0)")
+            }
+            line()
+            line("@classmethod")
+            block(
+                "def load_for_player(",
+                openSuffix = "",
+                close = null,
+            ) {
+                line("cls,")
+                line("data: bytes,")
+                line("player_api_level: int,")
+                line("player_profiles: int = 0,")
+                line("max_operations: int = MAX_OPERATION_COUNT,")
+            }
+            pyBlock(") -> RemoteDocument") {
+                line(
+                    "return cls._load_impl(data, max_operations, True, player_api_level, player_profiles)"
+                )
+            }
+            line()
+            line("@classmethod")
+            block(
+                "def _load_impl(",
+                openSuffix = "",
+                close = null,
+            ) {
+                line("cls,")
+                line("data: bytes,")
+                line("max_operations: int,")
+                line("evaluate_skip: bool,")
+                line("player_api_level: int,")
+                line("player_profiles: int,")
+            }
+            pyBlock(") -> RemoteDocument") {
                 line("buffer = WireBuffer.from_bytes(data)")
                 line("doc = cls()")
                 pyBlock("if not buffer.available()") { line("return doc") }
@@ -425,7 +482,10 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                             "raise ValueError(f\"Unsupported opcode in RemoteDocument: {op_byte}\")"
                         )
                     }
-                    line("op.read_fields(buffer)")
+                    pyBlock("if evaluate_skip and hasattr(op, \"read_fields_for_player\")") {
+                        line("op.read_fields_for_player(buffer, player_api_level, player_profiles)")
+                    }
+                    pyBlock("else") { line("op.read_fields(buffer)") }
                     line("doc.operations.append(op)")
                 }
                 line()
@@ -502,6 +562,9 @@ internal class PythonGenerator(private val schema: OperationSchema) {
             }
             line()
             pyBlock("def read_fields(self, buffer: WireBuffer) -> None") {
+                if (op.conditionalSkip != null) {
+                    line("skip_taken = True")
+                }
                 emitPyReadBody(
                     this,
                     op.fields,
@@ -511,6 +574,72 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                 )
             }
             line()
+            val opNullableNames = props.filter { it.isNullable }.map { it.name }.toSet()
+            for ((parentName, bit) in op.computedBitProperties) {
+                val getterSnake = sanitizePythonIdentifier(bit.name)
+                val parentSnake = sanitizePythonIdentifier(parentName)
+                val extract =
+                    CodegenExprUtils.extractBitExpr("self.$parentSnake", bit, ExprLang.PYTHON)
+                line("@property")
+                if (parentName in opNullableNames) {
+                    pyBlock("def $getterSnake(self) -> Optional[int]") {
+                        line("return None if self.$parentSnake is None else $extract")
+                    }
+                } else {
+                    pyBlock("def $getterSnake(self) -> int") { line("return $extract") }
+                }
+                line()
+            }
+            if (op.conditionalSkip != null) {
+                val cs = op.conditionalSkip
+                val condSnake = sanitizePythonIdentifier(cs.conditionField)
+                val valSnake = sanitizePythonIdentifier(cs.valueField)
+                val condExpr =
+                    CodegenExprUtils.extractSkipConditionExpr(cs, condSnake, ExprLang.PYTHON)
+                val defaultBool = if (cs.unknownConditionSkips) "True" else "False"
+                line("@staticmethod")
+                pyBlock(
+                    "def should_skip($condSnake: int, $valSnake: int, player_api_level: int, player_profiles: int) -> bool"
+                ) {
+                    line("_cond = $condExpr")
+                    for ((idx, b) in cs.conditions.withIndex()) {
+                        val kw = if (idx == 0) "if" else "elif"
+                        val brExpr =
+                            CodegenExprUtils.evaluateSkipBranchExpr(
+                                b,
+                                valSnake,
+                                "player_api_level",
+                                "player_profiles",
+                                ExprLang.PYTHON,
+                            )
+                        pyBlock("$kw _cond == ${b.whenValue}") { line("return $brExpr") }
+                    }
+                    line("return $defaultBool")
+                }
+                line()
+                pyBlock(
+                    "def read_fields_for_player(self, buffer: WireBuffer, player_api_level: int, player_profiles: int = 0) -> None"
+                ) {
+                    emitPyReadBody(
+                        this,
+                        op.fields,
+                        op.sparseParameters,
+                        op.sparseCountType,
+                        op.sparseKeyType,
+                        conditionalSkip = cs,
+                    )
+                }
+                line()
+                line("@classmethod")
+                pyBlock(
+                    "def read_for_player(cls, buffer: WireBuffer, player_api_level: int, player_profiles: int = 0) -> ${op.name}"
+                ) {
+                    line("inst = cls()")
+                    line("inst.read_fields_for_player(buffer, player_api_level, player_profiles)")
+                    line("return inst")
+                }
+                line()
+            }
             pyBlock("def write(self, buffer: WireBuffer) -> None") {
                 emitPyWriteBody(
                     this,
@@ -520,6 +649,7 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                     writeOpcode = true,
                     sparseCountType = op.sparseCountType,
                     sparseKeyType = op.sparseKeyType,
+                    conditionalSkip = op.conditionalSkip,
                 )
             }
         }
@@ -531,18 +661,37 @@ internal class PythonGenerator(private val schema: OperationSchema) {
         sparseParameters: List<SchemaSparseParam>?,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         if (fields.isEmpty() && sparseParameters.isNullOrEmpty()) {
             w.line("pass")
             return
         }
-        val localVars = mutableSetOf<String>()
+        val localVars = mutableSetOf("skipTaken")
 
         for (f in fields) {
+            if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
+                val condSnake = sanitizePythonIdentifier(conditionalSkip.conditionField)
+                val valSnake = sanitizePythonIdentifier(conditionalSkip.valueField)
+                w.line(
+                    "skip_taken = self.should_skip(self.$condSnake, self.$valSnake, player_api_level, player_profiles)"
+                )
+            }
             val bits = f.bits
             if (bits != null && f.unpackBits) {
                 val rawVar = "_raw_${sanitizePythonIdentifier(f.name)}"
                 w.line("$rawVar = buffer.read_int()")
+                if (f.mustBeZeroBits != null) {
+                    val badBits =
+                        CodegenExprUtils.nonZeroBitsCheckExpr(
+                            rawVar,
+                            f.mustBeZeroBits,
+                            ExprLang.PYTHON,
+                        )
+                    w.pyBlock("if $badBits") {
+                        line("raise ValueError(\"Non-zero reserved bits in ${f.name}\")")
+                    }
+                }
                 for (b in bits) {
                     val bSnake = sanitizePythonIdentifier(b.name)
                     val extract = CodegenExprUtils.extractBitExpr(rawVar, b, ExprLang.PYTHON)
@@ -724,6 +873,13 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                     "raise ValueError(f\"Invalid negative array length for $baseSnake: {$countVar}\")"
                 )
             }
+            if (f.minLength != null && f.minLength > 0) {
+                w.pyBlock("if $countVar < ${f.minLength}") {
+                    line(
+                        "raise ValueError(f\"Array length {$countVar} for $baseSnake below minimum (${f.minLength})\")"
+                    )
+                }
+            }
             if (f.maxLength != null) {
                 w.pyBlock("if $countVar > ${f.maxLength}") {
                     line(
@@ -738,7 +894,34 @@ internal class PythonGenerator(private val schema: OperationSchema) {
             }
             w.line("$targetExpr = [${mapToPyScalarReadExpr(elemType)} for _ in range($countVar)]")
         } else {
-            w.line("$targetExpr = ${mapToPyScalarReadExpr(f.type, f.maxLength)}")
+            val readExpr =
+                if (f.type == "bytes" && f.countFrom != null) {
+                    val countRef =
+                        if (f.countFrom in localVars) sanitizePythonIdentifier(f.countFrom)
+                        else "self.${sanitizePythonIdentifier(f.countFrom)}"
+                    "buffer.read_bytes($countRef)"
+                } else {
+                    mapToPyScalarReadExpr(f.type, f.maxLength)
+                }
+            w.line("$targetExpr = $readExpr")
+            if (f.minValue != null) {
+                w.pyBlock("if $targetExpr < ${f.minValue}") {
+                    line(
+                        "raise ValueError(f\"Invalid $baseSnake ({$targetExpr}) below minimum (${f.minValue})\")"
+                    )
+                }
+            }
+            if (f.mustBeZeroBits != null) {
+                val badBits =
+                    CodegenExprUtils.nonZeroBitsCheckExpr(
+                        targetExpr,
+                        f.mustBeZeroBits,
+                        ExprLang.PYTHON,
+                    )
+                w.pyBlock("if $badBits") {
+                    line("raise ValueError(\"Non-zero reserved bits in $baseSnake\")")
+                }
+            }
             emitPyStrictEnumCheck(w, baseSnake, targetExpr, f.strictEnum, f.enumValues)
             val bits = f.bits
             if (bits != null && !f.unpackBits) {
@@ -764,6 +947,7 @@ internal class PythonGenerator(private val schema: OperationSchema) {
         writeOpcode: Boolean,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         if (writeOpcode) {
             w.line("buffer.write_byte(self.op_code.value)")
@@ -815,6 +999,20 @@ internal class PythonGenerator(private val schema: OperationSchema) {
 
             val fSnake = sanitizePythonIdentifier(f.name)
             val isNullable = propByName[f.name]?.isNullable == true
+
+            if (conditionalSkip != null && f.name == conditionalSkip.lengthField) {
+                val payloadSnake = sanitizePythonIdentifier(conditionalSkip.payloadField)
+                w.line(
+                    "buffer.write_int(len(self.$payloadSnake) if self.$payloadSnake is not None else self.$fSnake)"
+                )
+                continue
+            }
+            if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
+                w.pyBlock("if self.$fSnake is not None") {
+                    line("buffer.write_bytes(self.$fSnake)")
+                }
+                continue
+            }
 
             if (f.presentIf != null) {
                 val cond =
@@ -883,6 +1081,8 @@ internal class PythonGenerator(private val schema: OperationSchema) {
             }
             val elemType = f.type.removeSuffix("[]")
             w.pyBlock("for item in $varExpr") { line(mapToPyScalarWriteStmt(elemType, "item")) }
+        } else if (f.type == "bytes" && f.countFrom != null) {
+            w.line("buffer.write_bytes($varExpr)")
         } else {
             w.line(mapToPyScalarWriteStmt(f.type, varExpr))
         }

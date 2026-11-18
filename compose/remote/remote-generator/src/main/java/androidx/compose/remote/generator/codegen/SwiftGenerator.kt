@@ -20,6 +20,7 @@ import androidx.compose.remote.generator.AstProperty
 import androidx.compose.remote.generator.DerivedExpr
 import androidx.compose.remote.generator.OperationSchema
 import androidx.compose.remote.generator.SchemaBitField
+import androidx.compose.remote.generator.SchemaConditionalSkip
 import androidx.compose.remote.generator.SchemaField
 import androidx.compose.remote.generator.SchemaOperation
 import androidx.compose.remote.generator.SchemaSparseParam
@@ -229,6 +230,24 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                 line("data.append(value)")
             }
             line()
+            block("public mutating func writeBytes(_ value: Data)") { line("data.append(value)") }
+            line()
+            block("public mutating func readBytes(count: Int) throws -> Data") {
+                block("guard count >= 0 else") {
+                    line(
+                        "throw NSError(domain: \"WireBuffer\", code: 3, userInfo: [NSLocalizedDescriptionKey: \"Invalid negative byte count\"])"
+                    )
+                }
+                block("guard count <= remaining else") {
+                    line(
+                        "throw NSError(domain: \"WireBuffer\", code: 1, userInfo: [NSLocalizedDescriptionKey: \"Underflow\"])"
+                    )
+                }
+                line("let bufData = data.subdata(in: index..<(index + count))")
+                line("index += count")
+                line("return bufData")
+            }
+            line()
             block("public mutating func readBuffer(maxLength: Int? = nil) throws -> Data") {
                 line("let len = Int(try readInt())")
                 block("guard len >= 0 else") {
@@ -273,6 +292,46 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             block(
                 "public static func load(from data: Data, maxOperations: Int = MAX_OPERATION_COUNT) throws -> RemoteDocument"
             ) {
+                line(
+                    "return try loadImpl(from: data, maxOperations: maxOperations, evaluateSkip: false, playerApiLevel: 0, playerProfiles: 0)"
+                )
+            }
+            line()
+            line(
+                "/// Deserializes a RemoteDocument evaluating conditional skip operations against the target player."
+            )
+            block(
+                "public static func loadForPlayer(",
+                openSuffix = "",
+                close = null,
+            ) {
+                line("from data: Data,")
+                line("playerApiLevel: Int32,")
+                line("playerProfiles: Int32 = 0,")
+                line("maxOperations: Int = MAX_OPERATION_COUNT")
+            }
+            block(") throws -> RemoteDocument") {
+                block("return try loadImpl(", openSuffix = "", close = ")") {
+                    line("from: data,")
+                    line("maxOperations: maxOperations,")
+                    line("evaluateSkip: true,")
+                    line("playerApiLevel: playerApiLevel,")
+                    line("playerProfiles: playerProfiles")
+                }
+            }
+            line()
+            block(
+                "private static func loadImpl(",
+                openSuffix = "",
+                close = null,
+            ) {
+                line("from data: Data,")
+                line("maxOperations: Int,")
+                line("evaluateSkip: Bool,")
+                line("playerApiLevel: Int32,")
+                line("playerProfiles: Int32")
+            }
+            block(") throws -> RemoteDocument") {
                 line("var buffer = WireBuffer(data: data)")
                 line("var doc = RemoteDocument()")
                 line("guard buffer.available else { return doc }")
@@ -370,6 +429,17 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                                     line(
                                         "throw NSError(domain: \"RemoteDocument\", code: 2, userInfo: [NSLocalizedDescriptionKey: \"Unexpected Header opcode inside document body\"])"
                                     )
+                                } else if (op.conditionalSkip != null) {
+                                    block("if evaluateSkip", close = null) {
+                                        line(
+                                            "doc.operations.append(try ${op.name}.readForPlayer(from: &buffer, playerApiLevel: playerApiLevel, playerProfiles: playerProfiles))"
+                                        )
+                                    }
+                                    block("} else") {
+                                        line(
+                                            "doc.operations.append(try ${op.name}.read(from: &buffer))"
+                                        )
+                                    }
                                 } else {
                                     line(
                                         "doc.operations.append(try ${op.name}.read(from: &buffer))"
@@ -526,6 +596,9 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
 
             line("/// Reads and decodes a [${op.name}] from the wire buffer.")
             block("public static func read(from buffer: inout WireBuffer) throws -> ${op.name}") {
+                if (op.conditionalSkip != null) {
+                    line("let skipTaken = true")
+                }
                 emitSwiftReadBody(
                     this,
                     op.name,
@@ -538,6 +611,46 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             }
             line()
 
+            if (op.conditionalSkip != null) {
+                val cs = op.conditionalSkip
+                val condExpr =
+                    CodegenExprUtils.extractSkipConditionExpr(cs, cs.conditionField, ExprLang.SWIFT)
+                block(
+                    "public static func shouldSkip(${cs.conditionField}: Int32, ${cs.valueField}: Int32, playerApiLevel: Int32, playerProfiles: Int32) -> Bool"
+                ) {
+                    swiftSwitch(condExpr) {
+                        for (b in cs.conditions) {
+                            val brExpr =
+                                CodegenExprUtils.evaluateSkipBranchExpr(
+                                    b,
+                                    cs.valueField,
+                                    "playerApiLevel",
+                                    "playerProfiles",
+                                    ExprLang.SWIFT,
+                                )
+                            line("case ${b.whenValue}: return $brExpr")
+                        }
+                        line("default: return ${cs.unknownConditionSkips}")
+                    }
+                }
+                line()
+                block(
+                    "public static func readForPlayer(from buffer: inout WireBuffer, playerApiLevel: Int32, playerProfiles: Int32 = 0) throws -> ${op.name}"
+                ) {
+                    emitSwiftReadBody(
+                        this,
+                        op.name,
+                        op.fields,
+                        op.sparseParameters,
+                        props,
+                        op.sparseCountType,
+                        op.sparseKeyType,
+                        conditionalSkip = cs,
+                    )
+                }
+                line()
+            }
+
             line("/// Serializes this operation to the wire buffer.")
             block("public func write(to buffer: inout WireBuffer) throws") {
                 line("buffer.writeByte(opCode.rawValue)")
@@ -549,12 +662,15 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                     props,
                     op.sparseCountType,
                     op.sparseKeyType,
+                    op.conditionalSkip,
                 )
             }
         }
     }
 
     private fun hasSwiftScalarValidations(f: SchemaField): Boolean {
+        if (f.minValue != null) return true
+        if (f.mustBeZeroBits != null) return true
         if (f.strictEnum && !f.enumValues.isNullOrEmpty()) return true
         val bits = f.bits
         return bits != null &&
@@ -568,14 +684,34 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
         f: SchemaField,
         varExpr: String,
     ) {
+        val intExpr = if (f.type == "byte" || f.type == "short") "Int32($varExpr)" else varExpr
+        if (f.minValue != null) {
+            w.block("guard $intExpr >= ${f.minValue} else") {
+                line(
+                    "throw NSError(domain: \"$ownerName\", code: 2, userInfo: [NSLocalizedDescriptionKey: \"Invalid ${f.name} below minimum (${f.minValue})\"])"
+                )
+            }
+        }
+        if (f.mustBeZeroBits != null) {
+            val badBits =
+                CodegenExprUtils.nonZeroBitsCheckExpr(
+                    intExpr,
+                    f.mustBeZeroBits,
+                    ExprLang.SWIFT,
+                )
+            w.block("if $badBits") {
+                line(
+                    "throw NSError(domain: \"$ownerName\", code: 2, userInfo: [NSLocalizedDescriptionKey: \"Non-zero reserved bits in ${f.name}\"])"
+                )
+            }
+        }
         emitSwiftStrictEnumCheck(w, ownerName, f.name, varExpr, f.strictEnum, f.enumValues)
         val bits = f.bits
         if (bits != null && !f.unpackBits) {
-            val srcExpr = if (f.type == "byte" || f.type == "short") "Int32($varExpr)" else varExpr
             for (b in bits) {
                 if (b.strictEnum && !b.enumValues.isNullOrEmpty()) {
                     val bVar = "bit_${b.name}"
-                    val extract = CodegenExprUtils.extractBitExpr(srcExpr, b, ExprLang.SWIFT)
+                    val extract = CodegenExprUtils.extractBitExpr(intExpr, b, ExprLang.SWIFT)
                     w.line("let $bVar = $extract")
                     emitSwiftStrictEnumCheck(
                         w,
@@ -598,12 +734,31 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         for (f in fields) {
+            if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
+                w.line(
+                    "let skipTaken = shouldSkip(${conditionalSkip.conditionField}: ${conditionalSkip.conditionField}, ${conditionalSkip.valueField}: ${conditionalSkip.valueField}, playerApiLevel: playerApiLevel, playerProfiles: playerProfiles)"
+                )
+            }
             val bits = f.bits
             if (bits != null && f.unpackBits) {
                 val rawVar = "raw_${f.name}"
                 w.line("let $rawVar = try buffer.readInt()")
+                if (f.mustBeZeroBits != null) {
+                    val badBits =
+                        CodegenExprUtils.nonZeroBitsCheckExpr(
+                            rawVar,
+                            f.mustBeZeroBits,
+                            ExprLang.SWIFT,
+                        )
+                    w.block("if $badBits") {
+                        line(
+                            "throw NSError(domain: \"$ownerName\", code: 2, userInfo: [NSLocalizedDescriptionKey: \"Non-zero reserved bits in ${f.name}\"])"
+                        )
+                    }
+                }
                 for (b in bits) {
                     w.line(
                         "let ${b.name} = ${CodegenExprUtils.extractBitExpr(rawVar, b, ExprLang.SWIFT)}"
@@ -636,11 +791,11 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                         emitSwiftArrayRead(this, ownerName, f, "${f.name}Tmp")
                         line("${f.name} = ${f.name}Tmp")
                     } else if (hasSwiftScalarValidations(f)) {
-                        line("let parsed = try ${mapToSwiftReadExpr(f.type, f.maxLength)}")
+                        line("let parsed = try ${mapToSwiftFieldReadExpr(f)}")
                         emitSwiftScalarValidations(this, ownerName, f, "parsed")
                         line("${f.name} = parsed")
                     } else {
-                        line("${f.name} = try ${mapToSwiftReadExpr(f.type, f.maxLength)}")
+                        line("${f.name} = try ${mapToSwiftFieldReadExpr(f)}")
                     }
                 }
                 w.block("} else") {
@@ -649,7 +804,7 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             } else if (f.type.endsWith("[]")) {
                 emitSwiftArrayRead(w, ownerName, f, f.name)
             } else {
-                w.line("let ${f.name} = try ${mapToSwiftReadExpr(f.type, f.maxLength)}")
+                w.line("let ${f.name} = try ${mapToSwiftFieldReadExpr(f)}")
                 emitSwiftScalarValidations(w, ownerName, f, f.name)
             }
         }
@@ -787,6 +942,13 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                 "throw NSError(domain: \"$ownerName\", code: 1, userInfo: [NSLocalizedDescriptionKey: \"Invalid negative array length\"])"
             )
         }
+        if (f.minLength != null && f.minLength > 0) {
+            w.block("guard $lenVar >= ${f.minLength} else") {
+                line(
+                    "throw NSError(domain: \"$ownerName\", code: 1, userInfo: [NSLocalizedDescriptionKey: \"Array length below minimum (${f.minLength})\"])"
+                )
+            }
+        }
         if (f.maxLength != null) {
             w.block("guard $lenVar <= ${f.maxLength} else") {
                 line(
@@ -815,6 +977,7 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         val propByName = props.associateBy { it.name }
         val localVars = mutableSetOf<String>()
@@ -853,6 +1016,16 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             }
 
             val isNullable = propByName[f.name]?.isNullable == true
+            if (conditionalSkip != null && f.name == conditionalSkip.lengthField) {
+                w.line(
+                    "buffer.writeInt(${conditionalSkip.payloadField} != nil ? Int32(${conditionalSkip.payloadField}!.count) : ${f.name})"
+                )
+                continue
+            }
+            if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
+                w.block("if let val = ${f.name}") { line("buffer.writeBytes(val)") }
+                continue
+            }
             if (f.presentIf != null) {
                 val cond = CodegenExprUtils.translateCondition(f.presentIf, ExprLang.SWIFT) { it }
                 w.block("if $cond") {
@@ -918,9 +1091,18 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             }
             val elemType = f.type.removeSuffix("[]")
             w.block("for item in $varExpr") { line(mapToSwiftWriteExpr(elemType, "item")) }
+        } else if (f.type == "bytes" && f.countFrom != null) {
+            w.line("buffer.writeBytes($varExpr)")
         } else {
             w.line(mapToSwiftWriteExpr(f.type, varExpr))
         }
+    }
+
+    private fun mapToSwiftFieldReadExpr(f: SchemaField): String {
+        if (f.type == "bytes" && f.countFrom != null) {
+            return "buffer.readBytes(count: Int(${f.countFrom}))"
+        }
+        return mapToSwiftReadExpr(f.type, f.maxLength)
     }
 
     private inline fun CodeWriter.swiftSwitch(expr: String, body: CodeWriter.() -> Unit) {

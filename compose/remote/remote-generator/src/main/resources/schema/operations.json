@@ -582,6 +582,7 @@
           "name": "words",
           "type": "int[]",
           "lengthType": "int",
+          "maxLength": 1024,
           "encoding": "paint_bundle",
           "description": "Serialized PaintBundle 32-bit command stream"
         }
@@ -1694,6 +1695,7 @@
           "type": "float_or_id[]",
           "countFrom": "expressionLength",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "encoding": "rpn_float_expression",
           "description": "RPN float expression tokens"
         },
@@ -1815,6 +1817,7 @@
           "type": "int[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_FUNCTION_ARGUMENTS",
           "presentIf": "(commonFlags & 2) == 0",
           "description": "Optional event payload variable IDs"
         },
@@ -1823,6 +1826,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "(commonFlags & 1) == 0",
           "description": "Optional RPN condition expression"
         }
@@ -1855,7 +1859,8 @@
           "name": "widthAndType",
           "type": "int",
           "unpackBits": false,
-          "description": "Encoded width (bits 0..15) and image type (bits 16..31)",
+          "mustBeZeroBits": "31..31",
+          "description": "Encoded width (bits 0..15) and image type (bits 16..30); bit 31 must be zero",
           "bits": [
             {
               "name": "width",
@@ -1864,7 +1869,7 @@
             },
             {
               "name": "imageType",
-              "range": "16..31",
+              "range": "16..30",
               "description": "Bitmap image format"
             }
           ]
@@ -1873,7 +1878,8 @@
           "name": "heightAndEncoding",
           "type": "int",
           "unpackBits": false,
-          "description": "Encoded height (bits 0..15) and data encoding (bits 16..31)",
+          "mustBeZeroBits": "31..31",
+          "description": "Encoded height (bits 0..15) and data encoding (bits 16..30); bit 31 must be zero",
           "bits": [
             {
               "name": "height",
@@ -1882,7 +1888,7 @@
             },
             {
               "name": "bitmapEncoding",
-              "range": "16..31",
+              "range": "16..30",
               "description": "Payload encoding (0=INLINE, 1=URL, 2=FILE, 3=EMPTY, 4=COMPONENT_OFFSCREEN_BUFFER)"
             }
           ]
@@ -2493,6 +2499,8 @@
           "name": "pathData",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 20000,
+          "javaLimit": "PathData.MAX_PATH_LENGTH",
           "encoding": "path_commands",
           "description": "Encoded path command and coordinate float stream"
         }
@@ -3097,6 +3105,8 @@
           "name": "values",
           "type": "int[]",
           "lengthType": "int",
+          "maxLength": 320,
+          "javaLimit": "IntegerExpression.MAX_SIZE",
           "encoding": "rpn_integer_expression",
           "description": "RPN integer expression tokens"
         }
@@ -3126,6 +3136,7 @@
           "type": "DataMapEntry[]",
           "lengthType": "int",
           "maxLength": 2000,
+          "javaLimit": "Limits.MAX_DATA_MAP_SIZE",
           "description": "Named typed variable entries"
         }
       ],
@@ -3152,6 +3163,8 @@
           "name": "ids",
           "type": "int[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "DataListIds.MAX_LIST",
           "description": "Array of element IDs"
         }
       ],
@@ -3178,6 +3191,8 @@
           "name": "values",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "DataListFloat.MAX_FLOAT_ARRAY",
           "description": "Array of float values or variable IDs"
         }
       ],
@@ -3745,6 +3760,8 @@
           "name": "pathData",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "PathAppend.MAX_PATH_BUFFER",
           "encoding": "path_commands",
           "description": "Encoded path command and coordinate float stream to append"
         }
@@ -3778,6 +3795,7 @@
           "type": "ParticleVariable[]",
           "lengthType": "int",
           "maxLength": 2000,
+          "javaLimit": "ParticlesCreate.MAX_FLOAT_ARRAY",
           "description": "Particle state variables and initial equations"
         }
       ],
@@ -3805,6 +3823,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "encoding": "rpn_float_expression",
           "description": "Restart condition RPN expression"
         },
@@ -3813,6 +3832,7 @@
           "type": "ParticleEquation[]",
           "lengthType": "int",
           "maxLength": 2000,
+          "javaLimit": "Limits.MAX_PARTICLE_FLOAT_ARRAY_SIZE",
           "description": "Update RPN expressions for each particle variable"
         }
       ],
@@ -3882,6 +3902,8 @@
           "name": "args",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 80,
+          "javaLimit": "FloatFunctionCall.MAX_FLOAT_ARRAY_SIZE",
           "description": "Function call arguments"
         }
       ],
@@ -3960,6 +3982,7 @@
           "type": "int[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_FUNCTION_ARGUMENTS",
           "description": "Local parameter variable IDs"
         }
       ],
@@ -3987,6 +4010,8 @@
         {
           "name": "data",
           "type": "bytes",
+          "maxLength": 262144,
+          "javaLimit": "SoundData.MAX_SOUND_DATA_SIZE",
           "description": "SC-format raw audio bytes"
         }
       ],
@@ -4083,8 +4108,6 @@
           "name": "args",
           "type": "int[]",
           "lengthType": "short",
-          "maxLength": 32,
-          "javaLimit": "Limits.MAX_FUNCTION_ARGUMENTS",
           "description": "Support for additional arguments"
         }
       ],
@@ -4120,7 +4143,7 @@
           "type": "int[]",
           "lengthType": "short",
           "maxLength": 32,
-          "javaLimit": "Limits.MAX_FUNCTION_ARGUMENTS",
+          "javaLimit": "TimeAttribute.MAX_ARG_LEN",
           "description": "The optional arguments"
         }
       ],
@@ -4613,6 +4636,7 @@
           "name": "values",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 16,
           "description": "Matrix float elements"
         }
       ],
@@ -4644,6 +4668,7 @@
           "name": "expression",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 32,
           "encoding": "rpn_float_expression",
           "description": "Matrix construction expression stream"
         }
@@ -4676,12 +4701,16 @@
           "name": "outputs",
           "type": "int[]",
           "lengthType": "int",
+          "minLength": 1,
+          "maxLength": 4,
           "description": "Output float variable IDs"
         },
         {
           "name": "inputs",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "minLength": 1,
+          "maxLength": 4,
           "description": "Input vector components"
         }
       ],
@@ -4844,6 +4873,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "description": "X/radius RPN expression"
         },
         {
@@ -4851,6 +4881,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "description": "Y/angle RPN expression (may be empty)"
         }
       ],
@@ -4889,18 +4920,24 @@
           "name": "condition",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 46,
+          "javaLimit": "ParticlesCompare.MAX_EQU_LENGTH",
           "description": "Comparison RPN expression"
         },
         {
           "name": "equations1",
-          "type": "ParticleEquation[]",
+          "type": "ParticleCompareEquation[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "ParticlesCompare.MAX_FLOAT_ARRAY",
           "description": "First branch particle equations"
         },
         {
           "name": "equations2",
-          "type": "ParticleEquation[]",
+          "type": "ParticleCompareEquation[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "ParticlesCompare.MAX_FLOAT_ARRAY",
           "description": "Second branch particle equations"
         }
       ],
@@ -6534,11 +6571,83 @@
         "androidx",
         "widgets"
       ],
+      "conditionalSkip": {
+        "conditionField": "conditionType",
+        "conditionBits": "0..15",
+        "conditionSigned": true,
+        "valueField": "value",
+        "lengthField": "skipLength",
+        "payloadField": "skippedBytes",
+        "unknownConditionSkips": false,
+        "conditions": [
+          {
+            "when": 1,
+            "name": "SKIP_IF_API_LESS_THAN",
+            "target": "apiLevel",
+            "op": "<"
+          },
+          {
+            "when": 2,
+            "name": "SKIP_IF_API_GREATER_THAN",
+            "target": "apiLevel",
+            "op": ">"
+          },
+          {
+            "when": 3,
+            "name": "SKIP_IF_API_EQUAL_TO",
+            "target": "apiLevel",
+            "op": "=="
+          },
+          {
+            "when": 4,
+            "name": "SKIP_IF_API_NOT_EQUAL_TO",
+            "target": "apiLevel",
+            "op": "!="
+          },
+          {
+            "when": 5,
+            "name": "SKIP_IF_PROFILE_INCLUDES",
+            "target": "profiles",
+            "op": "mask_any"
+          },
+          {
+            "when": 6,
+            "name": "SKIP_IF_PROFILE_EXCLUDES",
+            "target": "profiles",
+            "op": "mask_none"
+          }
+        ]
+      },
       "fields": [
         {
           "name": "conditionType",
           "type": "int",
-          "description": "Condition code determining whether to skip"
+          "unpackBits": false,
+          "enum": {
+            "SKIP_IF_API_LESS_THAN": 1,
+            "SKIP_IF_API_GREATER_THAN": 2,
+            "SKIP_IF_API_EQUAL_TO": 3,
+            "SKIP_IF_API_NOT_EQUAL_TO": 4,
+            "SKIP_IF_PROFILE_INCLUDES": 5,
+            "SKIP_IF_PROFILE_EXCLUDES": 6
+          },
+          "bits": [
+            {
+              "name": "condition",
+              "range": "0..15",
+              "signed": true,
+              "enum": {
+                "SKIP_IF_API_LESS_THAN": 1,
+                "SKIP_IF_API_GREATER_THAN": 2,
+                "SKIP_IF_API_EQUAL_TO": 3,
+                "SKIP_IF_API_NOT_EQUAL_TO": 4,
+                "SKIP_IF_PROFILE_INCLUDES": 5,
+                "SKIP_IF_PROFILE_EXCLUDES": 6
+              },
+              "description": "Signed low 16 bits evaluated by the reader; unknown values never take the skip"
+            }
+          ],
+          "description": "32-bit condition word; reader keeps only the signed low 16 bits and never skips on unknown types"
         },
         {
           "name": "value",
@@ -6546,10 +6655,18 @@
           "description": "Value to evaluate the skip condition against"
         },
         {
+          "name": "skipLength",
+          "type": "int",
+          "minValue": 0,
+          "description": "Non-negative byte length of the conditionally skipped region"
+        },
+        {
           "name": "skippedBytes",
           "type": "bytes",
+          "countFrom": "skipLength",
+          "presentIf": "skipTaken",
           "payloadKind": "operations",
-          "description": "Raw skipped operation bytes"
+          "description": "Raw skipped operation bytes consumed when the skip condition holds; omitted (decoded inline) when not taken"
         }
       ],
       "restrictToLibraryGroup": true
@@ -7114,6 +7231,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 200,
+          "javaLimit": "Limits.MAX_SHADER_FLOAT_COUNT",
           "description": "Uniform float values or variable IDs"
         }
       ]
@@ -7131,6 +7249,7 @@
           "type": "int[]",
           "lengthType": "int",
           "maxLength": 200,
+          "javaLimit": "Limits.MAX_SHADER_FLOAT_COUNT",
           "description": "Uniform integer values"
         }
       ]
@@ -7255,6 +7374,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "ParticlesCreate.MAX_EQU_LENGTH",
           "encoding": "rpn_float_expression",
           "description": "Initialization RPN float expression"
         }
@@ -7268,8 +7388,23 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "encoding": "rpn_float_expression",
           "description": "Update RPN float expression"
+        }
+      ]
+    },
+    "ParticleCompareEquation": {
+      "description": "Particle comparison branch RPN float expression",
+      "fields": [
+        {
+          "name": "equation",
+          "type": "float_or_id[]",
+          "lengthType": "int",
+          "maxLength": 46,
+          "javaLimit": "ParticlesCompare.MAX_EQU_LENGTH",
+          "encoding": "rpn_float_expression",
+          "description": "Branch update RPN float expression"
         }
       ]
     },

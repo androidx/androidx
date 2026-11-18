@@ -247,6 +247,33 @@ public object JsonSchemaParser {
                         }
                     } else null
 
+                val conditionalSkip =
+                    if (opObj.has("conditionalSkip")) {
+                        val csObj = opObj.getJSONObject("conditionalSkip")
+                        val condsArr = csObj.getJSONArray("conditions")
+                        val branches =
+                            (0 until condsArr.length()).map { idx ->
+                                val cObj = condsArr.getJSONObject(idx)
+                                SchemaSkipConditionBranch(
+                                    whenValue = cObj.getInt("when"),
+                                    name = cObj.getString("name"),
+                                    target = cObj.getString("target"),
+                                    op = cObj.getString("op"),
+                                )
+                            }
+                        SchemaConditionalSkip(
+                            conditionField = csObj.getString("conditionField"),
+                            conditionBits = csObj.getString("conditionBits"),
+                            conditionSigned = csObj.optBoolean("conditionSigned", true),
+                            valueField = csObj.getString("valueField"),
+                            lengthField = csObj.getString("lengthField"),
+                            payloadField = csObj.getString("payloadField"),
+                            unknownConditionSkips =
+                                csObj.optBoolean("unknownConditionSkips", false),
+                            conditions = branches,
+                        )
+                    } else null
+
                 operations.add(
                     SchemaOperation(
                         id = id,
@@ -267,6 +294,7 @@ public object JsonSchemaParser {
                         sparseKeyType = sparseKeyType,
                         sparseParameters = sparseParameters,
                         allowedChildren = allowedChildren,
+                        conditionalSkip = conditionalSkip,
                     )
                 )
             }
@@ -418,6 +446,41 @@ public object JsonSchemaParser {
             if (op.optBoolean("isContainer", false) && !op.has("closedBy")) {
                 errors.add("Container operation $name must specify closedBy")
             }
+            if (op.has("conditionalSkip")) {
+                val cs = op.getJSONObject("conditionalSkip")
+                val declaredFieldNames =
+                    if (op.has("fields")) {
+                        val fa = op.getJSONArray("fields")
+                        (0 until fa.length()).map { fa.getJSONObject(it).getString("name") }.toSet()
+                    } else emptySet()
+                for (refKey in
+                    listOf("conditionField", "valueField", "lengthField", "payloadField")) {
+                    val refField = cs.optString(refKey, "")
+                    if (refField !in declaredFieldNames) {
+                        errors.add(
+                            "Operation $name conditionalSkip.$refKey references missing field '$refField'"
+                        )
+                    }
+                }
+                if (cs.has("conditions")) {
+                    val cArr = cs.getJSONArray("conditions")
+                    for (cIdx in 0 until cArr.length()) {
+                        val cObj = cArr.getJSONObject(cIdx)
+                        val target = cObj.optString("target", "")
+                        if (target !in setOf("apiLevel", "profiles")) {
+                            errors.add(
+                                "Operation $name conditionalSkip condition has invalid target '$target'"
+                            )
+                        }
+                        val condOp = cObj.optString("op", "")
+                        if (condOp !in setOf("<", ">", "==", "!=", "mask_any", "mask_none")) {
+                            errors.add(
+                                "Operation $name conditionalSkip condition has invalid op '$condOp'"
+                            )
+                        }
+                    }
+                }
+            }
             val isSparseEncoding = op.optString("encoding", "") == "sparse"
             val hasSparseParameters = op.has("sparseParameters")
             if (hasSparseParameters && !isSparseEncoding) {
@@ -564,6 +627,37 @@ public object JsonSchemaParser {
         if (f.has("maxLength") && f.getInt("maxLength") < 0) {
             errors.add("$owner field $fName has negative maxLength")
         }
+        if (f.has("minLength") && f.getInt("minLength") < 0) {
+            errors.add("$owner field $fName has negative minLength")
+        }
+        if (
+            f.has("minLength") &&
+                f.has("maxLength") &&
+                f.getInt("minLength") > f.getInt("maxLength")
+        ) {
+            errors.add("$owner field $fName has minLength > maxLength")
+        }
+        if (f.has("mustBeZeroBits")) {
+            val mbz = f.getString("mustBeZeroBits")
+            val low = mbz.substringBefore("..").toIntOrNull()
+            val high = mbz.substringAfter("..", "").toIntOrNull()
+            if (low == null || high == null || low < 0 || high < low || high > 31) {
+                errors.add("$owner field $fName has invalid mustBeZeroBits '$mbz'")
+            } else if (f.has("bits")) {
+                val bitsArr = f.getJSONArray("bits")
+                for (bIdx in 0 until bitsArr.length()) {
+                    val bObj = bitsArr.getJSONObject(bIdx)
+                    val bRange = bObj.optString("range", "")
+                    val bLow = bRange.substringBefore("..").toIntOrNull() ?: continue
+                    val bHigh = bRange.substringAfter("..", bRange).toIntOrNull() ?: continue
+                    if (low <= bHigh && bLow <= high) {
+                        errors.add(
+                            "$owner field $fName mustBeZeroBits '$mbz' overlaps bit '${bObj.getString("name")}' ('$bRange')"
+                        )
+                    }
+                }
+            }
+        }
         if (f.has("payloadKind")) {
             val pk = f.getString("payloadKind")
             if (pk != "operations") {
@@ -698,10 +792,14 @@ public object JsonSchemaParser {
         val offset = if (fieldObj.has("offset")) fieldObj.optString("offset", null) else null
         val lookupBit = if (fieldObj.has("lookupBit")) fieldObj.getInt("lookupBit") else null
         val strictEnum = fieldObj.optBoolean("strictEnum", false)
+        val minValue = if (fieldObj.has("minValue")) fieldObj.getInt("minValue") else null
+        val minLength = if (fieldObj.has("minLength")) fieldObj.getInt("minLength") else null
         val maxLength = if (fieldObj.has("maxLength")) fieldObj.getInt("maxLength") else null
         val javaLimit = if (fieldObj.has("javaLimit")) fieldObj.getString("javaLimit") else null
         val payloadKind =
             if (fieldObj.has("payloadKind")) fieldObj.getString("payloadKind") else null
+        val mustBeZeroBits =
+            if (fieldObj.has("mustBeZeroBits")) fieldObj.getString("mustBeZeroBits") else null
         val conditionalTypes =
             if (fieldObj.has("conditionalTypes")) {
                 val ctArray = fieldObj.getJSONArray("conditionalTypes")
@@ -746,9 +844,12 @@ public object JsonSchemaParser {
             offset = offset,
             lookupBit = lookupBit,
             strictEnum = strictEnum,
+            minValue = minValue,
+            minLength = minLength,
             maxLength = maxLength,
             javaLimit = javaLimit,
             payloadKind = payloadKind,
+            mustBeZeroBits = mustBeZeroBits,
             conditionalTypes = conditionalTypes,
             conditionalRoles = conditionalRoles,
         )

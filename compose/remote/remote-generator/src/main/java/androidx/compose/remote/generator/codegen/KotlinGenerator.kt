@@ -21,6 +21,7 @@ import androidx.compose.remote.generator.AstProperty
 import androidx.compose.remote.generator.DerivedExpr
 import androidx.compose.remote.generator.OperationSchema
 import androidx.compose.remote.generator.SchemaBitField
+import androidx.compose.remote.generator.SchemaConditionalSkip
 import androidx.compose.remote.generator.SchemaField
 import androidx.compose.remote.generator.SchemaOperation
 import androidx.compose.remote.generator.SchemaSparseParam
@@ -370,19 +371,96 @@ public class KotlinGenerator(private val schema: OperationSchema) {
                 )
                 .addFunction(
                     buildReadFunSpec(
-                        classTypeName,
-                        className,
-                        op.fields,
-                        op.sparseParameters,
-                        props,
-                        op.sparseCountType,
-                        op.sparseKeyType,
+                        classTypeName = classTypeName,
+                        className = className,
+                        fields = op.fields,
+                        sparseParameters = op.sparseParameters,
+                        props = props,
+                        sparseCountType = op.sparseCountType,
+                        sparseKeyType = op.sparseKeyType,
+                        emitDefaultSkipTaken = op.conditionalSkip != null,
                     )
                 )
+                .apply {
+                    if (op.conditionalSkip != null) {
+                        addFunctions(buildConditionalSkipHelperFuns(classTypeName, className, op))
+                    }
+                }
                 .build()
 
         builder.addType(companion)
         return builder.build()
+    }
+
+    private fun buildConditionalSkipHelperFuns(
+        classTypeName: ClassName,
+        className: String,
+        op: SchemaOperation,
+    ): List<FunSpec> {
+        val cs = op.conditionalSkip ?: return emptyList()
+        val condParam = sanitizeIdentifier(cs.conditionField)
+        val valParam = sanitizeIdentifier(cs.valueField)
+        val condExpr = CodegenExprUtils.extractSkipConditionExpr(cs, condParam, ExprLang.KOTLIN)
+
+        val shouldSkipFun =
+            FunSpec.builder("shouldSkip")
+                .addKdoc("%L", "Evaluates whether the player should skip this block.")
+                .addModifiers(KModifier.INTERNAL)
+                .addParameter(cleanIdentifier(cs.conditionField), INT)
+                .addParameter(cleanIdentifier(cs.valueField), INT)
+                .addParameter("playerApiLevel", INT)
+                .addParameter("playerProfiles", INT)
+                .returns(BOOLEAN)
+                .apply {
+                    beginControlFlow("return when (%L)", condExpr)
+                    for (b in cs.conditions) {
+                        val branchExpr =
+                            CodegenExprUtils.evaluateSkipBranchExpr(
+                                b,
+                                valParam,
+                                "playerApiLevel",
+                                "playerProfiles",
+                                ExprLang.KOTLIN,
+                            )
+                        addStatement("%L -> %L", b.whenValue, branchExpr)
+                    }
+                    addStatement("else -> %L", cs.unknownConditionSkips)
+                    endControlFlow()
+                }
+                .build()
+
+        val readForPlayerFun =
+            FunSpec.builder("readForPlayer")
+                .addKdoc(
+                    "%L",
+                    "Reads a [$className] evaluating skip condition against the player.",
+                )
+                .addModifiers(KModifier.INTERNAL)
+                .addParameter("buffer", WIRE_BUFFER_CLASS)
+                .addParameter(ParameterSpec.builder("apiLevel", INT).defaultValue("%L", 8).build())
+                .addParameter(
+                    ParameterSpec.builder("playerApiLevel", INT).defaultValue("apiLevel").build()
+                )
+                .addParameter(
+                    ParameterSpec.builder("playerProfiles", INT).defaultValue("%L", 0).build()
+                )
+                .returns(classTypeName)
+                .addCode(
+                    buildReadBodyCode(
+                        classTypeName = classTypeName,
+                        className = className,
+                        fields = op.fields,
+                        sparseParameters = op.sparseParameters,
+                        props = op.astProperties,
+                        sparseCountType = op.sparseCountType,
+                        sparseKeyType = op.sparseKeyType,
+                        emitDefaultSkipTaken = false,
+                        conditionalSkip = cs,
+                    )
+                )
+                .build()
+
+        return listOf(shouldSkipFun, readForPlayerFun)
     }
 
     private fun configurePrimaryConstructorAndProperties(
@@ -594,6 +672,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        emitDefaultSkipTaken: Boolean = false,
     ): FunSpec =
         FunSpec.builder("read")
             .addKdoc("%L", "Reads a [$className] from [buffer].")
@@ -603,13 +682,14 @@ public class KotlinGenerator(private val schema: OperationSchema) {
             .returns(classTypeName)
             .addCode(
                 buildReadBodyCode(
-                    classTypeName,
-                    className,
-                    fields,
-                    sparseParameters,
-                    props,
-                    sparseCountType,
-                    sparseKeyType,
+                    classTypeName = classTypeName,
+                    className = className,
+                    fields = fields,
+                    sparseParameters = sparseParameters,
+                    props = props,
+                    sparseCountType = sparseCountType,
+                    sparseKeyType = sparseKeyType,
+                    emitDefaultSkipTaken = emitDefaultSkipTaken,
                 )
             )
             .build()
@@ -622,15 +702,45 @@ public class KotlinGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        emitDefaultSkipTaken: Boolean = false,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ): CodeBlock = buildCodeBlock {
+        if (emitDefaultSkipTaken) {
+            addStatement("val skipTaken = true")
+        }
+
         val byteNames = fields.filter { it.type == "byte" }.map { it.name }.toSet()
         val shortNames = fields.filter { it.type == "short" }.map { it.name }.toSet()
 
         for (f in fields) {
+            if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
+                val condVar = sanitizeIdentifier(conditionalSkip.conditionField)
+                val valVar = sanitizeIdentifier(conditionalSkip.valueField)
+                addStatement(
+                    "val skipTaken = shouldSkip(%L, %L, playerApiLevel, playerProfiles)",
+                    condVar,
+                    valVar,
+                )
+            }
+
             val bits = f.bits
             if (bits != null && f.unpackBits) {
                 val rawVar = "raw_${f.name}"
                 addStatement("val %L = buffer.readInt()", rawVar)
+                if (f.mustBeZeroBits != null) {
+                    val badBits =
+                        CodegenExprUtils.nonZeroBitsCheckExpr(
+                            rawVar,
+                            f.mustBeZeroBits,
+                            ExprLang.KOTLIN,
+                        )
+                    beginControlFlow("require(!%L)", badBits)
+                    addStatement(
+                        "%L",
+                        "\"Non-zero reserved bits (${f.mustBeZeroBits}) in $className.${f.name}: \$$rawVar\"",
+                    )
+                    endControlFlow()
+                }
                 for (b in bits) {
                     val bName = sanitizeIdentifier(b.name)
                     val extract = CodegenExprUtils.extractBitExpr(rawVar, b, ExprLang.KOTLIN)
@@ -664,7 +774,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
                 if (f.type.endsWith("[]")) {
                     addArrayReadLines(this, f)
                 } else {
-                    val readExpr = mapToKotlinScalarReadExpr(f.type, f.maxLength)
+                    val readExpr = mapToKotlinFieldScalarReadExpr(f)
                     if (hasScalarReadValidations(f)) {
                         addStatement("val parsed = %L", readExpr)
                         addScalarReadValidations(this, className, f, "parsed")
@@ -677,7 +787,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
                 addStatement("%L", fallback)
                 endControlFlow()
             } else if (f.addedVersion != null) {
-                val readExpr = mapToKotlinScalarReadExpr(f.type, f.maxLength)
+                val readExpr = mapToKotlinFieldScalarReadExpr(f)
                 beginControlFlow(
                     "val %L = if (apiLevel >= %L && buffer.available())",
                     fName,
@@ -698,7 +808,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
                 addArrayReadLines(this, f)
                 endControlFlow()
             } else {
-                val readExpr = mapToKotlinScalarReadExpr(f.type, f.maxLength)
+                val readExpr = mapToKotlinFieldScalarReadExpr(f)
                 addStatement("val %L = %L", fName, readExpr)
                 addScalarReadValidations(this, className, f, fName)
             }
@@ -849,6 +959,8 @@ public class KotlinGenerator(private val schema: OperationSchema) {
     }
 
     private fun hasScalarReadValidations(f: SchemaField): Boolean {
+        if (f.minValue != null) return true
+        if (f.mustBeZeroBits != null) return true
         if (f.strictEnum && !f.enumValues.isNullOrEmpty()) return true
         val bits = f.bits
         return bits != null &&
@@ -862,21 +974,43 @@ public class KotlinGenerator(private val schema: OperationSchema) {
         f: SchemaField,
         varName: String,
     ) {
+        val intExpr =
+            when (f.type) {
+                "byte" -> "($varName.toInt() and 0xFF)"
+                "short" -> "$varName.toInt()"
+                else -> varName
+            }
+        if (f.minValue != null) {
+            code.beginControlFlow("require(%L >= %L)", intExpr, f.minValue)
+            code.addStatement(
+                "%L",
+                "\"Invalid $className.${f.name} (\$$varName) < ${f.minValue}\"",
+            )
+            code.endControlFlow()
+        }
+        if (f.mustBeZeroBits != null) {
+            val badBits =
+                CodegenExprUtils.nonZeroBitsCheckExpr(
+                    intExpr,
+                    f.mustBeZeroBits,
+                    ExprLang.KOTLIN,
+                )
+            code.beginControlFlow("require(!%L)", badBits)
+            code.addStatement(
+                "%L",
+                "\"Non-zero reserved bits (${f.mustBeZeroBits}) in $className.${f.name}: \$$varName\"",
+            )
+            code.endControlFlow()
+        }
         if (f.strictEnum && !f.enumValues.isNullOrEmpty()) {
             addStrictEnumCheck(code, className, f, varName)
         }
         val bits = f.bits
         if (bits != null && !f.unpackBits) {
-            val srcExpr =
-                when (f.type) {
-                    "byte" -> "($varName.toInt() and 0xFF)"
-                    "short" -> "$varName.toInt()"
-                    else -> varName
-                }
             for (b in bits) {
                 if (b.strictEnum && !b.enumValues.isNullOrEmpty()) {
                     val bVar = "bit_${cleanIdentifier(b.name)}"
-                    val extract = CodegenExprUtils.extractBitExpr(srcExpr, b, ExprLang.KOTLIN)
+                    val extract = CodegenExprUtils.extractBitExpr(intExpr, b, ExprLang.KOTLIN)
                     code.addStatement("val %L = %L", bVar, extract)
                     addStrictBitEnumCheck(code, className, b, bVar)
                 }
@@ -1049,6 +1183,13 @@ public class KotlinGenerator(private val schema: OperationSchema) {
 
         code.addStatement("val count = %L", lenExpr)
         code.addStatement("require(count >= 0) { %L }", "\"Negative array length: \$count\"")
+        if (f.minLength != null && f.minLength > 0) {
+            code.addStatement(
+                "require(count >= %L) { %L }",
+                f.minLength,
+                "\"Array length \$count below minimum (${f.minLength})\"",
+            )
+        }
         if (f.maxLength != null) {
             code.addStatement(
                 "require(count <= %L) { %L }",
@@ -1343,6 +1484,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
                 props,
                 op.sparseCountType,
                 op.sparseKeyType,
+                op.conditionalSkip,
             )
         )
         return builder.build()
@@ -1354,6 +1496,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ): CodeBlock = buildCodeBlock {
         val propByName = props.associateBy { it.name }
         val byteNames = fields.filter { it.type == "byte" }.map { it.name }.toSet()
@@ -1440,6 +1583,20 @@ public class KotlinGenerator(private val schema: OperationSchema) {
             val fName = effectiveVar(f.name)
             val prop = propByName[f.name]
             val isNullable = prop?.isNullable == true
+
+            if (conditionalSkip != null && f.name == conditionalSkip.lengthField) {
+                val payloadVar = effectiveVar(conditionalSkip.payloadField)
+                addStatement("buffer.writeInt(%L?.size ?: %L)", payloadVar, fName)
+                continue
+            }
+            if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
+                val localVal = "local_${cleanIdentifier(f.name)}"
+                addStatement("val %L = %L", localVal, fName)
+                beginControlFlow("if (%L != null)", localVal)
+                addStatement("buffer.write(%L)", localVal)
+                endControlFlow()
+                continue
+            }
 
             if (f.presentIf != null) {
                 val cond =
@@ -1531,9 +1688,18 @@ public class KotlinGenerator(private val schema: OperationSchema) {
                 else -> code.addStatement("item.write(buffer, targetApiLevel)")
             }
             code.endControlFlow()
+        } else if (f.type == "bytes" && f.countFrom != null) {
+            code.addStatement("buffer.write(%L)", varExpr)
         } else {
             code.addStatement("%L", mapToKotlinScalarWriteExpr(f.type, varExpr))
         }
+    }
+
+    private fun mapToKotlinFieldScalarReadExpr(f: SchemaField): String {
+        if (f.type == "bytes" && f.countFrom != null) {
+            return "buffer.readBytes(${sanitizeIdentifier(f.countFrom)})"
+        }
+        return mapToKotlinScalarReadExpr(f.type, f.maxLength)
     }
 
     private fun derivedExprToKotlin(
