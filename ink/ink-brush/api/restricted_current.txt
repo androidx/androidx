@@ -123,12 +123,12 @@ package androidx.ink.brush {
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushCoat> getCoats();
     method @InaccessibleFromKotlin public String getDeveloperComment();
     method @InaccessibleFromKotlin public androidx.ink.brush.BrushFamily.InputModel getInputModel();
-    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=0L) public long getPaintAnimationLoopDurationMillis();
+    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=0L) @androidx.ink.brush.ExperimentalInkAnimationApi public long getPaintAnimationLoopDurationMillis();
     method public androidx.ink.brush.BrushFamily.Builder toBuilder();
     property public java.util.List<androidx.ink.brush.BrushCoat> coats;
     property public String developerComment;
     property public androidx.ink.brush.BrushFamily.InputModel inputModel;
-    property @SuppressCompatibility @IntRange(from=0L, to=16777216L) public long paintAnimationLoopDurationMillis;
+    property @SuppressCompatibility @IntRange(from=0L, to=16777216L) @androidx.ink.brush.ExperimentalInkAnimationApi public long paintAnimationLoopDurationMillis;
     field public static final androidx.ink.brush.BrushFamily.Companion Companion;
   }
 
@@ -174,24 +174,24 @@ package androidx.ink.brush {
     ctor public BrushPaint(optional java.util.List<? extends androidx.ink.brush.BrushPaint.TextureLayer> textureLayers, optional java.util.List<? extends androidx.ink.brush.BrushPaint.ColorFunction> colorFunctions, optional androidx.ink.brush.SelfOverlap selfOverlap);
     method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushPaint.ColorFunction> getColorFunctions();
-    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=0L) public long getPaintAnimationLoopDurationMillis();
+    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=0L) @androidx.ink.brush.ExperimentalInkAnimationApi public long getPaintAnimationLoopDurationMillis();
     method @InaccessibleFromKotlin public androidx.ink.brush.SelfOverlap getSelfOverlap();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushPaint.TextureLayer> getTextureLayers();
     property public java.util.List<androidx.ink.brush.BrushPaint.ColorFunction> colorFunctions;
-    property @SuppressCompatibility @IntRange(from=0L, to=16777216L) public long paintAnimationLoopDurationMillis;
+    property @SuppressCompatibility @IntRange(from=0L, to=16777216L) @androidx.ink.brush.ExperimentalInkAnimationApi public long paintAnimationLoopDurationMillis;
     property public androidx.ink.brush.SelfOverlap selfOverlap;
     property public java.util.List<androidx.ink.brush.BrushPaint.TextureLayer> textureLayers;
     field public static final androidx.ink.brush.BrushPaint.Companion Companion;
   }
 
-  @SuppressCompatibility public static final class BrushPaint.AnimationRepeatMode {
-    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
+  @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public static final class BrushPaint.AnimationRepeatMode {
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.BrushPaint.AnimationRepeatMode.Companion Companion;
     field public static final androidx.ink.brush.BrushPaint.AnimationRepeatMode RESTART;
     field public static final androidx.ink.brush.BrushPaint.AnimationRepeatMode REVERSE;
   }
 
-  @SuppressCompatibility public static final class BrushPaint.AnimationRepeatMode.Companion {
+  @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public static final class BrushPaint.AnimationRepeatMode.Companion {
     property public androidx.ink.brush.BrushPaint.AnimationRepeatMode RESTART;
     property public androidx.ink.brush.BrushPaint.AnimationRepeatMode REVERSE;
   }
@@ -236,37 +236,37 @@ package androidx.ink.brush {
   public static final class BrushPaint.StampingTexture extends androidx.ink.brush.BrushPaint.TextureLayer {
     ctor public BrushPaint.StampingTexture(String clientTextureId);
     ctor public BrushPaint.StampingTexture(String clientTextureId, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
-    ctor @SuppressCompatibility public BrushPaint.StampingTexture(String clientTextureId, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode, optional @IntRange(from=1L) int animationFrames, optional @IntRange(from=1L) int animationRows, optional @IntRange(from=1L) int animationColumns, optional @IntRange(from=0L) long animationDurationMillis, optional androidx.ink.brush.BrushPaint.AnimationRepeatMode animationRepeatMode);
-    ctor @BytecodeOnly @SuppressCompatibility public BrushPaint.StampingTexture(String!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, int, int, long, androidx.ink.brush.BrushPaint.AnimationRepeatMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public BrushPaint.StampingTexture(String clientTextureId, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode, optional @IntRange(from=1L) int animationFrames, optional @IntRange(from=1L) int animationRows, optional @IntRange(from=1L) int animationColumns, optional @IntRange(from=0L) long animationDurationMillis, optional androidx.ink.brush.BrushPaint.AnimationRepeatMode animationRepeatMode);
+    ctor @BytecodeOnly @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public BrushPaint.StampingTexture(String!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, int, int, long, androidx.ink.brush.BrushPaint.AnimationRepeatMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public BrushPaint.StampingTexture(String!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static androidx.ink.brush.BrushPaint.StampingTexture.Builder builder();
     method public androidx.ink.brush.BrushPaint.StampingTexture copy(optional String clientTextureId, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
-    method @SuppressCompatibility public androidx.ink.brush.BrushPaint.StampingTexture copy(optional String clientTextureId, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode, optional @IntRange(from=1L) int animationFrames, optional @IntRange(from=1L) int animationRows, optional @IntRange(from=1L) int animationColumns, optional @IntRange(from=0L) long animationDurationMillis, optional androidx.ink.brush.BrushPaint.AnimationRepeatMode animationRepeatMode);
-    method @BytecodeOnly @SuppressCompatibility public static androidx.ink.brush.BrushPaint.StampingTexture! copy$default(androidx.ink.brush.BrushPaint.StampingTexture!, String!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, int, int, long, androidx.ink.brush.BrushPaint.AnimationRepeatMode!, int, Object!);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.BrushPaint.StampingTexture copy(optional String clientTextureId, optional androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode, optional @IntRange(from=1L) int animationFrames, optional @IntRange(from=1L) int animationRows, optional @IntRange(from=1L) int animationColumns, optional @IntRange(from=0L) long animationDurationMillis, optional androidx.ink.brush.BrushPaint.AnimationRepeatMode animationRepeatMode);
+    method @BytecodeOnly @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public static androidx.ink.brush.BrushPaint.StampingTexture! copy$default(androidx.ink.brush.BrushPaint.StampingTexture!, String!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, int, int, long, androidx.ink.brush.BrushPaint.AnimationRepeatMode!, int, Object!);
     method @BytecodeOnly public static androidx.ink.brush.BrushPaint.StampingTexture! copy$default(androidx.ink.brush.BrushPaint.StampingTexture!, String!, androidx.ink.brush.BrushPaint.TextureLayer.BlendMode!, int, Object!);
-    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=1L) public int getAnimationColumns();
-    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=0L) public long getAnimationDurationMillis();
-    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=1L) public int getAnimationFrames();
-    method @InaccessibleFromKotlin @SuppressCompatibility public androidx.ink.brush.BrushPaint.AnimationRepeatMode getAnimationRepeatMode();
-    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=1L) public int getAnimationRows();
+    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=1L) @androidx.ink.brush.ExperimentalInkAnimationApi public int getAnimationColumns();
+    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=0L) @androidx.ink.brush.ExperimentalInkAnimationApi public long getAnimationDurationMillis();
+    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=1L) @androidx.ink.brush.ExperimentalInkAnimationApi public int getAnimationFrames();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.BrushPaint.AnimationRepeatMode getAnimationRepeatMode();
+    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=1L) @androidx.ink.brush.ExperimentalInkAnimationApi public int getAnimationRows();
     method @InaccessibleFromKotlin public String getClientTextureId();
     method public androidx.ink.brush.BrushPaint.StampingTexture.Builder toBuilder();
-    property @SuppressCompatibility @IntRange(from=1L, to=4096L) public int animationColumns;
-    property @SuppressCompatibility @IntRange(from=0L, to=16777216L) public long animationDurationMillis;
-    property @SuppressCompatibility @IntRange(from=1L, to=16777216L) public int animationFrames;
-    property @SuppressCompatibility public androidx.ink.brush.BrushPaint.AnimationRepeatMode animationRepeatMode;
-    property @SuppressCompatibility @IntRange(from=1L, to=4096L) public int animationRows;
+    property @SuppressCompatibility @IntRange(from=1L, to=4096L) @androidx.ink.brush.ExperimentalInkAnimationApi public int animationColumns;
+    property @SuppressCompatibility @IntRange(from=0L, to=16777216L) @androidx.ink.brush.ExperimentalInkAnimationApi public long animationDurationMillis;
+    property @SuppressCompatibility @IntRange(from=1L, to=16777216L) @androidx.ink.brush.ExperimentalInkAnimationApi public int animationFrames;
+    property @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.BrushPaint.AnimationRepeatMode animationRepeatMode;
+    property @SuppressCompatibility @IntRange(from=1L, to=4096L) @androidx.ink.brush.ExperimentalInkAnimationApi public int animationRows;
     property public String clientTextureId;
     field public static final androidx.ink.brush.BrushPaint.StampingTexture.Companion Companion;
   }
 
   public static final class BrushPaint.StampingTexture.Builder {
     method public androidx.ink.brush.BrushPaint.StampingTexture build();
-    method @SuppressCompatibility public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationColumns(@IntRange(from=1L) int animationColumns);
-    method @SuppressCompatibility public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationDurationMillis(@IntRange(from=0L) long animationDurationMillis);
-    method @SuppressCompatibility public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationFrames(@IntRange(from=1L) int animationFrames);
-    method @SuppressCompatibility public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationRepeatMode(androidx.ink.brush.BrushPaint.AnimationRepeatMode animationRepeatMode);
-    method @SuppressCompatibility public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationRows(@IntRange(from=1L) int animationRows);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationColumns(@IntRange(from=1L) int animationColumns);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationDurationMillis(@IntRange(from=0L) long animationDurationMillis);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationFrames(@IntRange(from=1L) int animationFrames);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationRepeatMode(androidx.ink.brush.BrushPaint.AnimationRepeatMode animationRepeatMode);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.BrushPaint.StampingTexture.Builder setAnimationRows(@IntRange(from=1L) int animationRows);
     method public androidx.ink.brush.BrushPaint.StampingTexture.Builder setBlendMode(androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode);
     method public androidx.ink.brush.BrushPaint.StampingTexture.Builder setClientTextureId(String clientTextureId);
   }
@@ -462,6 +462,9 @@ package androidx.ink.brush {
     method @CheckResult @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.ink.brush.Brush createWithAndroidColor(androidx.ink.brush.Brush.Companion, androidx.ink.brush.BrushFamily family, android.graphics.Color color, float size, float epsilon);
     method @InaccessibleFromKotlin @CheckResult @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.ink.brush.Brush createWithAndroidColor(androidx.ink.brush.BrushFamily family, android.graphics.Color color, float size, float epsilon);
     method @CheckResult @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.ink.brush.Brush.Builder setAndroidColor(androidx.ink.brush.Brush.Builder, android.graphics.Color color);
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ExperimentalInkAnimationApi {
   }
 
   public final class InputToolType {
@@ -969,7 +972,7 @@ package androidx.ink.brush.behavior {
     field public static final androidx.ink.brush.behavior.TargetNode.Target HUE_OFFSET_IN_RADIANS;
     field public static final androidx.ink.brush.behavior.TargetNode.Target LIGHTNESS_OFFSET;
     field public static final androidx.ink.brush.behavior.TargetNode.Target OPACITY_MULTIPLIER;
-    field @SuppressCompatibility public static final androidx.ink.brush.behavior.TargetNode.Target PAINT_ANIMATION_PROGRESS_OFFSET;
+    field @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public static final androidx.ink.brush.behavior.TargetNode.Target PAINT_ANIMATION_PROGRESS_OFFSET;
     field public static final androidx.ink.brush.behavior.TargetNode.Target PINCH_OFFSET;
     field public static final androidx.ink.brush.behavior.TargetNode.Target POSITION_OFFSET_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE;
     field public static final androidx.ink.brush.behavior.TargetNode.Target POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE;
@@ -988,7 +991,7 @@ package androidx.ink.brush.behavior {
     property public androidx.ink.brush.behavior.TargetNode.Target HUE_OFFSET_IN_RADIANS;
     property public androidx.ink.brush.behavior.TargetNode.Target LIGHTNESS_OFFSET;
     property public androidx.ink.brush.behavior.TargetNode.Target OPACITY_MULTIPLIER;
-    property @SuppressCompatibility public androidx.ink.brush.behavior.TargetNode.Target PAINT_ANIMATION_PROGRESS_OFFSET;
+    property @SuppressCompatibility @androidx.ink.brush.ExperimentalInkAnimationApi public androidx.ink.brush.behavior.TargetNode.Target PAINT_ANIMATION_PROGRESS_OFFSET;
     property public androidx.ink.brush.behavior.TargetNode.Target PINCH_OFFSET;
     property public androidx.ink.brush.behavior.TargetNode.Target POSITION_OFFSET_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE;
     property public androidx.ink.brush.behavior.TargetNode.Target POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE;
