@@ -16,8 +16,6 @@
 
 package androidx.ink.brush
 
-import androidx.annotation.RestrictTo
-
 /**
  * Marks declarations that are are an **experimental** Ink API for animated brush styles. These
  * declarations may (or may not) be changed, deprecated, or removed in the near future, or the
@@ -41,6 +39,5 @@ import androidx.annotation.RestrictTo
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.TYPEALIAS,
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class ExperimentalInkAnimationApi
