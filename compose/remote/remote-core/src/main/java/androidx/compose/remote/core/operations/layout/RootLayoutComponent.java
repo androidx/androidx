@@ -24,6 +24,7 @@ import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SerializableToString;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.Header;
@@ -410,16 +411,49 @@ public class RootLayoutComponent extends Component {
             context.clipRect(0f, 0f, mWidth, mHeight);
         }
 
+        paintOperations(context);
+
+        context.restore();
+        mLastReportedOriginX = originX;
+        mLastReportedOriginY = originY;
+    }
+
+    /**
+     * Paints the root's paint operations only. Data operations declared in the root (strings,
+     * floats, ...) were applied when the document was initialized and must not be re-applied on
+     * paint, as that would reset values the player or the user changed since.
+     */
+    private void paintOperations(@NonNull PaintContext context) {
+        RemoteContext remoteContext = context.getContext();
         for (Operation op : mList) {
+            if (op.isDirty() && op instanceof VariableSupport) {
+                ((VariableSupport) op).updateVariables(remoteContext);
+                op.markNotDirty();
+            }
             if (op instanceof PaintOperation) {
                 ((PaintOperation) op).paint(context);
                 remoteContext.incrementOpCount();
             }
         }
+    }
 
+    /**
+     * Used while the root bounds are animated (e.g. after a resize); unlike the generic
+     * implementation this does not re-apply the root's data operations.
+     */
+    @Override
+    public void paintingComponent(@NonNull PaintContext context) {
+        RemoteContext remoteContext = context.getContext();
+        Component prev = remoteContext.mLastComponent;
+        remoteContext.mLastComponent = this;
+        context.save();
+        context.translate(mX, mY);
+        if (context.isVisualDebug()) {
+            debugBox(this, context);
+        }
+        paintOperations(context);
         context.restore();
-        mLastReportedOriginX = originX;
-        mLastReportedOriginY = originY;
+        remoteContext.mLastComponent = prev;
     }
 
     /**
