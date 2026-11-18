@@ -537,10 +537,12 @@ private fun AnimatedCircularProgressIndicatorWithOverflowImpl(
 /** Contains default values for [CircularProgressIndicator]. */
 public object CircularProgressIndicatorDefaults {
     /** Large stroke width for circular progress indicator. */
+    @Suppress("DefaultsMissingReadOnlyComposable") // b/572758710
     public val largeStrokeWidth: Dp
         @Composable get() = if (isSmallScreen()) 8.dp else 12.dp
 
     /** Small stroke width for circular progress indicator. */
+    @Suppress("DefaultsMissingReadOnlyComposable") // b/572758710
     public val smallStrokeWidth: Dp
         @Composable get() = if (isSmallScreen()) 5.dp else 8.dp
 

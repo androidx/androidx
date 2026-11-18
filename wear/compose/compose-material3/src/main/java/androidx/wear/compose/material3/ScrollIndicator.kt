@@ -36,6 +36,7 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -355,6 +356,7 @@ public object ScrollIndicatorDefaults {
     internal val indicatorHeight = 50.dp
 
     internal val indicatorWidth
+        @ReadOnlyComposable
         @Composable
         get(): Dp {
             return if (isLargeScreen()) 6.dp else 5.dp
