@@ -21,21 +21,59 @@ import androidx.tracing.Tracer
 import kotlin.reflect.KClass
 
 internal actual object ViewModelTracer {
+
+    /**
+     * Tracks whether [Tracer.global] initialized successfully in this process.
+     *
+     * Do not cache the [Tracer] instance itself because [Tracer.global] can be replaced after
+     * startup via `Tracer.setGlobalTracer` or between tests. Cache only permanent initialization
+     * failure so later calls skip repeated `NoClassDefFoundError` throws.
+     */
+    private var isTracerAvailable = true
+
+    /**
+     * Returns [Tracer.global], or `null` if [Tracer] static initialization fails.
+     *
+     * On Android, first access to [Tracer.global] initializes `PerfettoTracer`, which calls
+     * `android.os.Process.myPid()`. Plain-JVM unit tests without Robolectric run against stub
+     * `android.jar` classes that throw `RuntimeException("Stub!")`. That fails static
+     * initialization with [ExceptionInInitializerError] on the first call and
+     * [NoClassDefFoundError] on later calls (both [LinkageError]). Once class initialization fails,
+     * the JVM marks [Tracer] unusable for this classloader, so tracing is disabled permanently.
+     */
+    internal fun getTracerOrNull(): Tracer? {
+        if (!isTracerAvailable) return null
+        return try {
+            Tracer.global
+        } catch (_: LinkageError) {
+            isTracerAvailable = false
+            null
+        }
+    }
+
     actual inline fun <T> trace(
         name: String,
         modelClass: KClass<*>,
         key: String,
         factory: ViewModelProvider.Factory,
         crossinline block: () -> T,
-    ): T =
-        Tracer.global.trace(
-            category = "androidx.lifecycle.viewmodel",
-            name = name,
-            metadataBlock = {
-                addMetadataEntry("key", key)
-                addMetadataEntry("class", modelClass.java.simpleName)
-                addMetadataEntry("factory", factory.javaClass.simpleName)
-            },
-            block = block,
-        )
+    ): T {
+        // Resolve the tracer outside block() so a LinkageError from ViewModel creation is not
+        // caught or retried.
+        val tracer = getTracerOrNull()
+        return if (tracer != null) {
+            tracer.trace(
+                category = "androidx.lifecycle.viewmodel",
+                name = name,
+                metadataBlock = {
+                    addMetadataEntry("key", key)
+                    addMetadataEntry("class", modelClass.java.simpleName)
+                    addMetadataEntry("factory", factory.javaClass.simpleName)
+                },
+                block = block,
+            )
+        } else {
+            block()
+        }
+    }
 }
