@@ -244,6 +244,66 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     /**
+     * Regression test for b/587067915: verify that calling [CallControlScope.setActive] immediately
+     * upon entering [CallsManager.addCall] (before [android.telecom.InCallService] even receives
+     * the call) reliably transitions an incoming backwards-compat call to [Call.STATE_ACTIVE] in
+     * Telecom without getting stuck in [Call.STATE_RINGING].
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testImmediateSetActiveIncomingCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        runBlocking {
+            usingIcs { ics ->
+                assertWithinTimeout_addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                    launch {
+                        assertEquals(CallControlResult.Success(), setActive())
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                        assertEquals(
+                            CallControlResult.Success(),
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Regression test for b/587067915: verify that calling [CallControlScope.answer] immediately
+     * upon entering [CallsManager.addCall] reliably transitions an incoming backwards-compat call
+     * to [Call.STATE_ACTIVE] in Telecom without getting stuck in [Call.STATE_RINGING].
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testImmediateAnswerIncomingCall_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        runBlocking {
+            usingIcs { ics ->
+                assertWithinTimeout_addCall(TestUtils.INCOMING_CALL_ATTRIBUTES) {
+                    launch {
+                        assertEquals(
+                            CallControlResult.Success(),
+                            answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL),
+                        )
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                        assertEquals(
+                            CallControlResult.Success(),
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * assert [CallsManager.addCall] can successfully add a call and **TOGGLE** active and inactive.
      * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
      * APIs* under the hood.

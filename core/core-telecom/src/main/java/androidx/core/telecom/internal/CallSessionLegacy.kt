@@ -55,14 +55,12 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 
 @RequiresApi(VERSION_CODES.O)
@@ -81,6 +79,7 @@ internal class CallSessionLegacy(
     @get:VisibleForTesting internal var preferredStartingCallEndpoint: CallEndpointCompat? = null,
     private val blockingSessionExecution: CompletableDeferred<Unit>,
     val bluetoothDeviceChecker: BluetoothDeviceChecker = ProductionBluetoothDeviceChecker(mContext),
+    private val awaitPlatformRegistration: Boolean = false,
 ) : android.telecom.Connection(), AutoCloseable {
     // instance vars
     private val TAG: String = CallSessionLegacy::class.java.simpleName
@@ -94,7 +93,23 @@ internal class CallSessionLegacy(
     private var mIsMuted: Boolean? = null
     private val mCallSessionLegacyId: Int = CallEndpointUuidTracker.startSession()
     private var mGlobalMuteStateReceiver: MuteStateReceiver? = null
-    private val mDialingOrRingingStateReached = CompletableDeferred<Unit>()
+    // Completed once ConnectionService#createConnection() has attached its listener to this
+    // Connection and sent handleCreateConnectionComplete(). State changes made before that point
+    // are never forwarded to Telecom. See JetpackConnectionService#createSelfManagedConnection.
+    private val mConnectionRegistered =
+        CompletableDeferred<Unit>().apply {
+            if (!awaitPlatformRegistration) {
+                complete(Unit)
+            }
+        }
+    // Completed by the first onCallAudioStateChanged, which Telecom only delivers once it has
+    // finished setting up the call. Awaited for incoming calls, where Telecom can finish incoming
+    // call setup asynchronously and then move the call to RINGING, overwriting an ACTIVE
+    // transition that arrived earlier. Telecom may withhold the callback (e.g. when another call
+    // holds audio focus), so the wait is short and only ever paid once per call.
+    private val mPlatformIncomingCallReady = CompletableDeferred<Unit>()
+    private val mAwaitIncomingPlatformReady: Boolean =
+        awaitPlatformRegistration && !attributes.isOutgoingCall()
     private val mVideoCallSpeakerManager = VideoCallSpeakerManager(bluetoothDeviceChecker)
     private var mCallType: Int = 0
 
@@ -172,7 +187,8 @@ internal class CallSessionLegacy(
         private const val DELAY_INITIAL_ENDPOINT_SWITCH: Long = 2000L
         private const val INITIAL_ENDPOINT_SWITCH_TIMEOUT: Long =
             DELAY_INITIAL_ENDPOINT_SWITCH + 1000L
-        private const val WAIT_FOR_RINGING_OR_DIALING: Long = 5000L
+        private const val WAIT_FOR_CONNECTION_REGISTERED_MS: Long = 5000L
+        private const val WAIT_FOR_INCOMING_PLATFORM_READY_MS: Long = 1000L
         // CallStates. All these states mirror the values in the platform.
         const val STATE_INITIALIZING = 0
         const val STATE_NEW = 1
@@ -190,9 +206,15 @@ internal class CallSessionLegacy(
      */
     override fun onStateChanged(state: Int) {
         Log.d(TAG, "onStateChanged: state=${platformCallStateToString(state)}")
-        if (state == STATE_DIALING || state == STATE_RINGING) {
-            mDialingOrRingingStateReached.complete(Unit)
-        }
+    }
+
+    internal fun markConnectionRegistered() {
+        mConnectionRegistered.complete(Unit)
+    }
+
+    @VisibleForTesting
+    internal fun isConnectionRegistered(): Boolean {
+        return mConnectionRegistered.isCompleted
     }
 
     private fun platformCallStateToString(state: Int): String {
@@ -327,6 +349,8 @@ internal class CallSessionLegacy(
 
     @Suppress("OVERRIDE_DEPRECATION") // b/407498327
     override fun onCallAudioStateChanged(state: CallAudioState) {
+        mConnectionRegistered.complete(Unit)
+        mPlatformIncomingCallReady.complete(Unit)
         mIsCallAudioStateReceived.complete(Unit)
         mFallbackEndpointSeedJob?.cancel()
         if (VERSION.SDK_INT >= VERSION_CODES.P) {
@@ -587,12 +611,11 @@ internal class CallSessionLegacy(
         CoroutineScope(coroutineContext).launch { onStateChangedCallback.emit(callState) }
     }
 
-    fun answer(callType: Int): CallControlResult {
-        setVideoState(toVideoProfileState(callType))
-        setConnectionActive()
+    suspend fun answer(callType: Int): CallControlResult {
+        val videoProfileState = toVideoProfileState(callType)
         mCallType = callType
         callChannels.callTypeChannel.trySend(callType)
-        return CallControlResult.Success()
+        return activateConnection(videoStateToApply = videoProfileState)
     }
 
     fun requestVideoState(androidxVideoState: Int): CallControlResult {
@@ -618,26 +641,49 @@ internal class CallSessionLegacy(
         return CallControlResult.Success()
     }
 
-    fun setConnectionActive(): CallControlResult {
-        setActive()
-        var caughtTimeout = false
-        CoroutineScope(coroutineContext).launch {
-            try {
-                withTimeout(WAIT_FOR_RINGING_OR_DIALING) {
-                    Log.i(TAG, "setConnectionActive: mDialingOrRingingStateReached BEFORE")
-                    mDialingOrRingingStateReached.await()
-                    Log.i(TAG, "setConnectionActive: mDialingOrRingingStateReached AFTER")
-                }
-                setActive()
-                moveState(CallStateEvent.ACTIVE)
-            } catch (timeout: TimeoutCancellationException) {
-                caughtTimeout = true
-            }
+    suspend fun setConnectionActive(): CallControlResult {
+        return activateConnection()
+    }
+
+    private suspend fun activateConnection(videoStateToApply: Int? = null): CallControlResult {
+        awaitTelecomReadyForActivation()
+        if (videoStateToApply != null) {
+            setVideoState(videoStateToApply)
         }
-        return if (caughtTimeout) {
-            CallControlResult.Error(CallException.ERROR_UNKNOWN)
-        } else {
-            CallControlResult.Success()
+        setActive()
+        moveState(CallStateEvent.ACTIVE)
+        return CallControlResult.Success()
+    }
+
+    /**
+     * Suspends until Telecom will accept an ACTIVE transition for this Connection. Both waits are
+     * fail-open: a missing signal can delay activation but never block it.
+     */
+    private suspend fun awaitTelecomReadyForActivation() {
+        val registered =
+            withTimeoutOrNull(WAIT_FOR_CONNECTION_REGISTERED_MS) { mConnectionRegistered.await() }
+        if (registered == null) {
+            Log.w(
+                TAG,
+                "awaitTelecomReadyForActivation: " +
+                    "timed out waiting for ConnectionService registration",
+            )
+        }
+        if (!mAwaitIncomingPlatformReady) {
+            return
+        }
+        val ready =
+            withTimeoutOrNull(WAIT_FOR_INCOMING_PLATFORM_READY_MS) {
+                mPlatformIncomingCallReady.await()
+            }
+        if (ready == null) {
+            Log.w(
+                TAG,
+                "awaitTelecomReadyForActivation: " +
+                    "timed out waiting for platform incoming readiness",
+            )
+            // Do not make later activations of this call wait again.
+            mPlatformIncomingCallReady.complete(Unit)
         }
     }
 

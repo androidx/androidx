@@ -40,6 +40,7 @@ import java.io.FileInputStream
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +48,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -383,7 +385,7 @@ class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppCont
     private val isLocallySilencedFlow: MutableSharedFlow<Pair<String, Boolean>> =
         MutableStateFlow(Pair("", false))
     private val callAddedFlow: MutableSharedFlow<Pair<Int, String>> = MutableSharedFlow(replay = 1)
-    private val isMutedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val isMutedChannel: Channel<Boolean> = Channel(Channel.UNLIMITED)
 
     companion object {
         private val TAG: String = TestCallCallbackListener::class.java.simpleName.toString()
@@ -391,7 +393,7 @@ class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppCont
 
     override fun onGlobalMuteStateChanged(isMuted: Boolean) {
         Log.i(TAG, "onGlobalMuteStateChanged: isMuted: $isMuted")
-        scope.launch { isMutedFlow.emit(isMuted) }
+        isMutedChannel.trySend(isMuted)
     }
 
     override fun onCallAdded(requestId: Int, callId: String?) {
@@ -442,10 +444,11 @@ class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppCont
         Log.i(TAG, "waitForGlobalMuteState: v=[$isMuted], id=[$id]")
         val result =
             withTimeoutOrNull(5000) {
-                isMutedFlow
-                    .filter {
-                        Log.i(TAG, "it=[$isMuted], isMuted=[$isMuted]")
-                        it == isMuted
+                isMutedChannel
+                    .receiveAsFlow()
+                    .filter { state ->
+                        Log.i(TAG, "it=[$state], isMuted=[$isMuted]")
+                        state == isMuted
                     }
                     .firstOrNull()
             }

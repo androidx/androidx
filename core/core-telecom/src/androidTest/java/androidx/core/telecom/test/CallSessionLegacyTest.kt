@@ -20,11 +20,15 @@ import android.media.ToneGenerator
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
+import android.os.SystemClock
 import android.telecom.CallAudioState
 import android.telecom.CallAudioState.ROUTE_EARPIECE
 import android.telecom.CallAudioState.ROUTE_WIRED_HEADSET
 import android.telecom.CallEndpoint
+import android.telecom.Connection
 import android.telecom.DisconnectCause
+import android.telecom.VideoProfile
+import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.CallChannels
@@ -34,11 +38,14 @@ import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -524,6 +531,213 @@ class CallSessionLegacyTest : BaseTelecomTest() {
                     }
                 }
             assertEquals(CallEndpointCompat.TYPE_WIRED_HEADSET, platformCurrent.type)
+
+            callSession.close()
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verify that for an outgoing call with awaitPlatformRegistration = true, setConnectionActive
+     * suspends until markConnectionRegistered() completes, and then transitions to STATE_ACTIVE
+     * without waiting for incoming platform readiness.
+     */
+    @SmallTest
+    @Test
+    fun testSetConnectionActive_outgoing_awaitsRegistrationOnly() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val callSession =
+                CallSessionLegacy(
+                    getRandomParcelUuid(),
+                    mContext,
+                    TestUtils.OUTGOING_CALL_ATTRIBUTES,
+                    callChannels,
+                    coroutineContext,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                    { _, _ -> },
+                    MutableSharedFlow(),
+                    null,
+                    CompletableDeferred(Unit),
+                    awaitPlatformRegistration = true,
+                )
+            callSession.setDialing()
+
+            val activeDeferred = async { callSession.setConnectionActive() }
+            delay(50)
+            assertFalse(activeDeferred.isCompleted)
+            assertEquals(Connection.STATE_DIALING, callSession.state)
+
+            callSession.markConnectionRegistered()
+            assertEquals(CallControlResult.Success(), activeDeferred.await())
+            assertEquals(Connection.STATE_ACTIVE, callSession.state)
+
+            callSession.close()
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verify that for an incoming call with awaitPlatformRegistration = true, setConnectionActive
+     * suspends until both markConnectionRegistered() and the first onCallAudioStateChanged, so an
+     * early activation cannot be overwritten by Telecom moving the call to RINGING once incoming
+     * call setup finishes.
+     */
+    @SmallTest
+    @Test
+    fun testSetConnectionActive_incoming_awaitsRegistrationAndPlatformReady() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val callSession =
+                CallSessionLegacy(
+                    getRandomParcelUuid(),
+                    mContext,
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    callChannels,
+                    coroutineContext,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                    { _, _ -> },
+                    MutableSharedFlow(),
+                    null,
+                    CompletableDeferred(Unit),
+                    awaitPlatformRegistration = true,
+                )
+            callSession.setRinging()
+
+            val activeDeferred = async { callSession.setConnectionActive() }
+            delay(50)
+            assertFalse(activeDeferred.isCompleted)
+            assertEquals(Connection.STATE_RINGING, callSession.state)
+
+            // Completing registration alone should still wait for platform incoming readiness.
+            callSession.markConnectionRegistered()
+            delay(50)
+            assertFalse(activeDeferred.isCompleted)
+            assertEquals(Connection.STATE_RINGING, callSession.state)
+
+            // Simulate Telecom delivering the first audio state once the call is set up.
+            callSession.onCallAudioStateChanged(
+                CallAudioState(
+                    false,
+                    ROUTE_EARPIECE,
+                    ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER,
+                )
+            )
+            assertEquals(CallControlResult.Success(), activeDeferred.await())
+            assertEquals(Connection.STATE_ACTIVE, callSession.state)
+
+            callSession.close()
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verify that answer(CALL_TYPE_VIDEO_CALL) on an incoming call waits until Telecom is ready and
+     * only then applies the requested video state alongside STATE_ACTIVE.
+     */
+    @SmallTest
+    @Test
+    fun testAnswer_incomingVideo_awaitsReadinessAndAppliesVideoState() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val callSession =
+                CallSessionLegacy(
+                    getRandomParcelUuid(),
+                    mContext,
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    callChannels,
+                    coroutineContext,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                    { _, _ -> },
+                    MutableSharedFlow(),
+                    null,
+                    CompletableDeferred(Unit),
+                    awaitPlatformRegistration = true,
+                )
+            callSession.setRinging()
+            callSession.setVideoState(VideoProfile.STATE_AUDIO_ONLY)
+
+            val answerDeferred = async {
+                callSession.answer(CallAttributesCompat.CALL_TYPE_VIDEO_CALL)
+            }
+            delay(50)
+            assertFalse(answerDeferred.isCompleted)
+            assertEquals(Connection.STATE_RINGING, callSession.state)
+
+            // The first audio state from Telecom signals both registration and readiness.
+            callSession.onCallAudioStateChanged(
+                CallAudioState(
+                    false,
+                    CallAudioState.ROUTE_SPEAKER,
+                    ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER,
+                )
+            )
+            assertEquals(CallControlResult.Success(), answerDeferred.await())
+            assertEquals(Connection.STATE_ACTIVE, callSession.state)
+            if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
+                assertEquals(VideoProfile.STATE_BIDIRECTIONAL, callSession.videoState)
+            }
+
+            callSession.close()
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verify the platform readiness wait is fail-open and only paid once: if Telecom never delivers
+     * an audio state for an incoming call, setConnectionActive waits out the timeout and then still
+     * activates the Connection, and a later activation of the same call does not wait again.
+     */
+    @MediumTest
+    @Test
+    fun testSetConnectionActive_incoming_failsOpenOnceWhenPlatformReadyNeverArrives() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val callSession =
+                CallSessionLegacy(
+                    getRandomParcelUuid(),
+                    mContext,
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    callChannels,
+                    coroutineContext,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                    { _, _ -> },
+                    MutableSharedFlow(),
+                    null,
+                    CompletableDeferred(Unit),
+                    awaitPlatformRegistration = true,
+                )
+            callSession.setRinging()
+            callSession.markConnectionRegistered()
+            val startMs = SystemClock.elapsedRealtime()
+
+            assertEquals(CallControlResult.Success(), callSession.setConnectionActive())
+
+            assertTrue(
+                "Expected to wait for the readiness timeout before failing open",
+                SystemClock.elapsedRealtime() - startMs >= 900L,
+            )
+            assertEquals(Connection.STATE_ACTIVE, callSession.state)
+
+            // The timeout latches readiness, so activating again must not wait a second time.
+            val secondStartMs = SystemClock.elapsedRealtime()
+            assertEquals(CallControlResult.Success(), callSession.setConnectionActive())
+            assertTrue(
+                "Expected the second activation not to wait for readiness again",
+                SystemClock.elapsedRealtime() - secondStartMs < 500L,
+            )
 
             callSession.close()
             callChannels.closeAllChannels()
