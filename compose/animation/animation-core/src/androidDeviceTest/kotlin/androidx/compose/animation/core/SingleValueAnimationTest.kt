@@ -18,19 +18,25 @@ package androidx.compose.animation.core
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -735,5 +741,101 @@ class SingleValueAnimationTest {
         // 64ms into 200ms tween -> 32f (100ms tween would be 64f)
         rule.mainClock.advanceTimeBy(64L)
         assertEquals(32f, currentValue, 0.1f)
+    }
+
+    @Test
+    fun animateIntAsStateUpdatesRenderedValueWhenLabelAndTargetChange() {
+        var request by mutableStateOf(0 to "first")
+        var finishedValue: Int? = null
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            val (target, label) = request
+            RenderAnimatedValue(
+                animateIntAsState(
+                    targetValue = target,
+                    animationSpec = tween(durationMillis = 100, easing = LinearEasing),
+                    label = label,
+                    finishedListener = { finishedValue = it },
+                )
+            )
+        }
+        rule.onNodeWithTag("value-0").assertExists()
+
+        rule.runOnIdle { request = 100 to "second" }
+        rule.mainClock.advanceTimeBy(160L)
+
+        rule.runOnIdle { assertEquals(100, finishedValue) }
+        rule.onNodeWithTag("value-100").assertExists()
+    }
+
+    @Test
+    fun animateIntAsStateUpdatesRenderedValueWhenLabelChangesBeforeTargetChange() {
+        var request by mutableStateOf(0 to "first")
+        var finishedValue: Int? = null
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            val (target, label) = request
+            RenderAnimatedValue(
+                animateIntAsState(
+                    targetValue = target,
+                    animationSpec = tween(durationMillis = 100, easing = LinearEasing),
+                    label = label,
+                    finishedListener = { finishedValue = it },
+                )
+            )
+        }
+        rule.onNodeWithTag("value-0").assertExists()
+
+        rule.runOnIdle { request = 0 to "second" }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        rule.runOnIdle { request = 100 to "second" }
+        rule.mainClock.advanceTimeBy(160L)
+
+        rule.runOnIdle { assertEquals(100, finishedValue) }
+        rule.onNodeWithTag("value-100").assertExists()
+    }
+
+    @Test
+    fun animateValueAsStateUpdatesRenderedValueWhenTypeConverterAndTargetChange() {
+        fun intConverter() =
+            TwoWayConverter<Int, AnimationVector1D>(
+                convertToVector = { AnimationVector1D(it.toFloat()) },
+                convertFromVector = { it.value.toInt() },
+            )
+
+        var request by mutableStateOf(0 to intConverter())
+        var finishedValue: Int? = null
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            val (target, converter) = request
+            RenderAnimatedValue(
+                animateValueAsState(
+                    targetValue = target,
+                    typeConverter = converter,
+                    animationSpec = tween(durationMillis = 100, easing = LinearEasing),
+                    finishedListener = { finishedValue = it },
+                )
+            )
+        }
+        rule.onNodeWithTag("value-0").assertExists()
+
+        rule.runOnIdle { request = 100 to intConverter() }
+        rule.mainClock.advanceTimeBy(160L)
+
+        rule.runOnIdle { assertEquals(100, finishedValue) }
+        rule.onNodeWithTag("value-100").assertExists()
+    }
+}
+
+@Composable
+private fun RenderAnimatedValue(value: State<Int>) {
+    Layout(content = {}, modifier = Modifier.testTag("value-${value.value}")) { _, _ ->
+        layout(16, 16) {}
     }
 }
