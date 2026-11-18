@@ -29,6 +29,8 @@ import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.test.core.app.ApplicationProvider
@@ -67,7 +69,7 @@ class SemanticsModifierTest {
                             text = "test text".rs
                             stateDescription = "test state".rs
                             role = RemoteRole.Button
-                            isEnabled = false
+                            isEnabled = false.rb
                         }
                 ) {}
             }
@@ -139,6 +141,26 @@ class SemanticsModifierTest {
         assertThat(semantics).isNotNull()
         assertThat(semantics.mode).isEqualTo(AccessibleComponent.Mode.CLEAR_AND_SET)
         assertThat(context.getText(semantics.textId!!)).isEqualTo("item")
+    }
+
+    @Test
+    fun semanticsModifier_nonConstantEnabled_defaultsToTrue() = runTest {
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
+        val nonConstantEnabled = RemoteBoolean.createNamedRemoteBoolean("enabled", false)
+        val captured =
+            captureSingleRemoteDocument(
+                creationDisplayInfo = displayInfo,
+                context = applicationContext,
+            ) {
+                RemoteBox(modifier = RemoteModifier.semantics { isEnabled = nonConstantEnabled }) {}
+            }
+
+        val coreDoc = makeAndUpdateCoreDocument(captured)
+        val boxLayout = coreDoc.getComponent(-3) as BoxLayout
+        val semantics =
+            boxLayout.componentModifiers.modifiersList.filterIsInstance<CoreSemantics>().first()
+
+        assertThat(semantics.mEnabled).isTrue()
     }
 
     private fun makeAndUpdateCoreDocument(captured: RemoteCapturedDocument) =

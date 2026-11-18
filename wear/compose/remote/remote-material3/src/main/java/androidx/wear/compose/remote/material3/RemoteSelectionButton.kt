@@ -52,6 +52,7 @@ import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.lerp
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -123,7 +124,7 @@ internal fun RemoteSelectionButtonImpl(
             // the player's generic click haptic.
             .clickable(
                 onClick = onClick,
-                enabled = (enabled.constantValueOrNull ?: false) && onClick != RemoteAction.None,
+                enabled = if (onClick != RemoteAction.None) enabled else false.rb,
             )
             .padding(contentPadding)
             .semantics(mergeDescendants = true) { this.role = role }

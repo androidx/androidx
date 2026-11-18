@@ -3278,7 +3278,9 @@ class RcPlayerInteractivityTest {
         rule.setRemoteContent(
             playComposableWrapper = { Box(modifier = Modifier.size(100.dp)) { it() } }
         ) {
-            val scrollState = remember { RemoteScrollState(position = 100f, notches = 2) }
+            val scrollState = remember {
+                RemoteScrollState(positionState = MutableRemoteFloat(100f), notches = 2)
+            }
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 RemoteRow(
                     modifier = RemoteModifier.size(100.rdp, 80.rdp).horizontalScroll(scrollState)
@@ -3325,7 +3327,7 @@ class RcPlayerInteractivityTest {
                     captureSingleRemoteDocument(context = context) {
                             val scrollState = remember {
                                 RemoteScrollState(
-                                    position = initialPositionPx,
+                                    positionState = MutableRemoteFloat(initialPositionPx),
                                     notches = (pageCount - 1).coerceAtLeast(0),
                                 )
                             }

@@ -140,9 +140,7 @@ public fun RemoteSplitCheckboxButton(
                     .clip(startSectionShape)
                     .clickable(
                         onClick = onContainerClick,
-                        enabled =
-                            (enabled.constantValueOrNull ?: false) &&
-                                onContainerClick != RemoteAction.None,
+                        enabled = if (onContainerClick != RemoteAction.None) enabled else false.rb,
                     )
                     .drawWithContent {
                         drawSolidColorShape(startSectionShape, containerColor)
@@ -198,9 +196,7 @@ public fun RemoteSplitCheckboxButton(
                     .clip(endSectionShape)
                     .clickable(
                         onClick = onCheckedChange,
-                        enabled =
-                            (enabled.constantValueOrNull ?: false) &&
-                                onCheckedChange != RemoteAction.None,
+                        enabled = if (onCheckedChange != RemoteAction.None) enabled else false.rb,
                     )
                     .drawWithContent {
                         drawSolidColorShape(

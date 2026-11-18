@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.FloatRange
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -41,16 +40,6 @@ public class RemoteCollapsibleRowScope internal constructor() {
      */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(WidthModifier(Type.WEIGHT, weight))
-
-    /**
-     * Sets the horizontal weight of the child.
-     *
-     * @param weight The weight of the child.
-     * @return a [RemoteModifier] that assigns horizontal [weight] to the child
-     */
-    public fun RemoteModifier.weight(
-        @FloatRange(from = 0.0, fromInclusive = false) weight: Float
-    ): RemoteModifier = then(WidthModifier(Type.WEIGHT, RemoteFloat(weight)))
 
     /**
      * Sets the collapsible priority of the child.

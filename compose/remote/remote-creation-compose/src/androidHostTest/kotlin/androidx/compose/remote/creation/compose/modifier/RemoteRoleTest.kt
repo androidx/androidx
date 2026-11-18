@@ -18,6 +18,9 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.rs
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,5 +90,16 @@ class RemoteRoleTest {
         assertThat(combinedButton).isNotEqualTo(RemoteModifier)
         assertThat(combinedModifier).isNotEqualTo(RemoteModifier)
         assertThat(combinedNullRole).isEqualTo(RemoteModifier)
+    }
+
+    @Test
+    fun clickableAndCombinedClickable_nonConstantEnabled_defaultsToTrue() {
+        val nonConstantEnabled = RemoteBoolean.createNamedRemoteBoolean("enabled", false)
+        val action = hostAction("click".rs)
+
+        assertThat(RemoteModifier.clickable(onClick = action, enabled = nonConstantEnabled))
+            .isNotEqualTo(RemoteModifier)
+        assertThat(RemoteModifier.combinedClickable(onClick = action, enabled = nonConstantEnabled))
+            .isNotEqualTo(RemoteModifier)
     }
 }

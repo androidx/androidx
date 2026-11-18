@@ -55,6 +55,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
@@ -831,7 +832,9 @@ class RcPlayerPixelTest {
                 Box(modifier = Modifier.size(100.dp).testTag("player")) { it() }
             }
         ) {
-            val scrollState = remember { RemoteScrollState(position = 100f, notches = 2) }
+            val scrollState = remember {
+                RemoteScrollState(positionState = MutableRemoteFloat(100f), notches = 2)
+            }
             RemoteRow(modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)) {
                 RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
                 RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))
@@ -1058,7 +1061,9 @@ class RcPlayerPixelTest {
                 creationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(100f, 100f)),
                 context = context,
             ) {
-                val scrollState = remember { RemoteScrollState(position = 0f, notches = 2) }
+                val scrollState = remember {
+                    RemoteScrollState(positionState = MutableRemoteFloat(0f), notches = 2)
+                }
                 RemoteRow(modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)) {
                     RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
                     RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))
@@ -1115,7 +1120,9 @@ class RcPlayerPixelTest {
                 CompositionLocalProvider(
                     LocalRemoteLayoutDirection provides RemoteLayoutDirection.Rtl
                 ) {
-                    val scrollState = remember { RemoteScrollState(position = 0f, notches = 2) }
+                    val scrollState = remember {
+                        RemoteScrollState(positionState = MutableRemoteFloat(0f), notches = 2)
+                    }
                     RemoteRow(
                         modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)
                     ) {
@@ -1145,7 +1152,9 @@ class RcPlayerPixelTest {
             heightDp = 100,
             hostLayoutDirection = hostLayoutDirection,
         ) {
-            val scrollState = remember { RemoteScrollState(position = position, notches = 2) }
+            val scrollState = remember {
+                RemoteScrollState(positionState = MutableRemoteFloat(position), notches = 2)
+            }
             RemoteRow(modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)) {
                 RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
                 RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))

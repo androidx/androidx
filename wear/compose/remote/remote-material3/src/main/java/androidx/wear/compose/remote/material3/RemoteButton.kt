@@ -386,7 +386,7 @@ public fun RemoteCompactButton(
                 .clip(shape = shape)
                 .clickable(
                     onClick,
-                    enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.None,
+                    enabled = if (onClick != RemoteAction.None) enabled else false.rb,
                 ),
         contentAlignment = RemoteAlignment.Center,
     ) {
@@ -488,7 +488,7 @@ private fun RemoteButtonImpl(
         RemoteModifier.clip(shape = shape)
             .clickable(
                 onClick = onClick,
-                enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.None,
+                enabled = if (onClick != RemoteAction.None) enabled else false.rb,
             )
             .padding(contentPadding)
             .let {

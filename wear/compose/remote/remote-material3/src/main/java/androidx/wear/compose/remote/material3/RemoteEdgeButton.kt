@@ -138,7 +138,7 @@ public fun RemoteEdgeButton(
                 .height(buttonSize.maximumHeight)
                 .semantics(mergeDescendants = true) { role = RemoteRole.Button }
                 .clip(shape = shape)
-                .clickable(onClick, enabled = enabled.constantValueOrNull ?: false)
+                .clickable(onClick, enabled = enabled)
                 .drawWithContent {
                     drawShapedBackground(
                         shape = shape,

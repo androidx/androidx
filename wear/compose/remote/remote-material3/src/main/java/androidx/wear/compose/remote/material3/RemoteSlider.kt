@@ -109,7 +109,6 @@ public fun RemoteSlider(
 ) {
     require(steps >= 0) { "steps should be greater than or equal to 0" }
 
-    val isEnabled = enabled.constantValueOrNull ?: true
     val visibleSegments = if (segmented) steps + 1 else 1
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
@@ -146,7 +145,7 @@ public fun RemoteSlider(
             modifier =
                 RemoteModifier.size(RemoteSliderDefaults.ControlSize)
                     // TODO(b/557131896): Use repeatableClickable once supported
-                    .clickable(decreaseAction, enabled = isEnabled)
+                    .clickable(decreaseAction, enabled = enabled)
                     .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             contentAlignment = RemoteAlignment.Center,
             content =
@@ -176,7 +175,7 @@ public fun RemoteSlider(
             modifier =
                 RemoteModifier.size(RemoteSliderDefaults.ControlSize)
                     // TODO(b/557131896): Use repeatableClickable once supported
-                    .clickable(increaseAction, enabled = isEnabled)
+                    .clickable(increaseAction, enabled = enabled)
                     .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             contentAlignment = RemoteAlignment.Center,
             content =
