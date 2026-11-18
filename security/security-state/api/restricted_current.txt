@@ -134,12 +134,17 @@ package androidx.security.state {
   }
 
   public final class UpdateCheckResult implements android.os.Parcelable {
+    ctor @BytecodeOnly public UpdateCheckResult(String!, java.util.List!, long, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public UpdateCheckResult(String providerPackageName, java.util.List<androidx.security.state.UpdateInfo> updates, long lastCheckTimeMillis);
+    ctor public UpdateCheckResult(String providerPackageName, java.util.List<androidx.security.state.UpdateInfo> updates, long lastCheckTimeMillis, optional java.util.Map<java.lang.String,java.lang.Long> componentLastCheckTimesMillis);
     method public int describeContents();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Long> getComponentLastCheckTimesMillis();
     method @InaccessibleFromKotlin public long getLastCheckTimeMillis();
+    method public long getLastCheckTimeMillis(@androidx.security.state.SecurityPatchState.Component String component);
     method @InaccessibleFromKotlin public String getProviderPackageName();
     method @InaccessibleFromKotlin public java.util.List<androidx.security.state.UpdateInfo> getUpdates();
     method public void writeToParcel(android.os.Parcel parcel, int flags);
+    property public java.util.Map<java.lang.String,java.lang.Long> componentLastCheckTimesMillis;
     property public long lastCheckTimeMillis;
     property public String providerPackageName;
     property public java.util.List<androidx.security.state.UpdateInfo> updates;
