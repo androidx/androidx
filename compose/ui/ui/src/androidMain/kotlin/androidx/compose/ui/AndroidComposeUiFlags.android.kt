@@ -120,16 +120,6 @@ public object AndroidComposeUiFlags {
     public var isScrollAccessibilityFocusEventEnabled: Boolean = true
 
     /**
-     * If enabled, [android.R.id.accessibilityActionShowOnScreen] accounts for the scrollable
-     * container's content padding (such as `LazyColumn(contentPadding = ...)`) when calculating the
-     * scroll delta required to make a target node fully visible.
-     */
-    // TODO: b/568388723
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isShowOnScreenContentPaddingEnabled: Boolean = true
-
-    /**
      * Enables dispatching nested scroll events from [androidx.compose.ui.viewinterop.AndroidView]
      * to parent Compose nested scroll connections when the root hosted `View` has
      * `isNestedScrollingEnabled` set to `false` by default (such as `FrameLayout` or

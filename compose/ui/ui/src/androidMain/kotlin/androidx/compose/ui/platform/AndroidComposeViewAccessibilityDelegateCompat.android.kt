@@ -1860,12 +1860,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             scrollableAncestor.layoutInfo.coordinates.parentLayoutCoordinates?.positionInRoot()
                 ?: Offset.Zero
         val outerViewport = viewportInParent.translate(parentInRoot)
-        val viewport =
-            if (AndroidComposeUiFlags.isShowOnScreenContentPaddingEnabled) {
-                insetViewportByContentPadding(scrollableAncestor, outerViewport)
-            } else {
-                outerViewport
-            }
+        val viewport = insetViewportByContentPadding(scrollableAncestor, outerViewport)
         val target = Rect(positionInRoot + offsetAdjustment, size.toSize())
 
         // Given the desired scroll value to align either side of the target with the
