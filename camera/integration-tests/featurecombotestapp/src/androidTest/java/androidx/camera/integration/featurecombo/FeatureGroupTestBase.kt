@@ -61,6 +61,7 @@ import androidx.camera.integration.featurecombo.AppUseCase.IMAGE_CAPTURE
 import androidx.camera.integration.featurecombo.AppUseCase.PREVIEW
 import androidx.camera.integration.featurecombo.AppUseCase.VIDEO_CAPTURE
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.Camera2CaptureCallbackImpl
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider
@@ -93,6 +94,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -228,6 +230,24 @@ open class FeatureGroupTestBase(
         // Clear the configuration even if setUp() failed before cameraProvider was assigned, e.g.
         // when ProcessCameraProvider.getInstance() timed out after configureInstance().
         ProcessCameraProvider.clearConfiguration()
+    }
+
+    /**
+     * Skips the test on emulators when [features] contains [HDR_HLG10] and the camera advertises
+     * [DynamicRange.HLG_10_BIT]: the emulator camera HAL advertises HLG10 support but can stall
+     * while streaming 10-bit output, hanging flush() until the cameraserver watchdog aborts
+     * (b/586597125, b/569835725).
+     */
+    protected fun assumeHlg10StreamingReliable(features: Collection<GroupableFeature>) {
+        if (HDR_HLG10 !in features) return
+        assumeFalse(
+            "Emulator camera HAL cannot reliably stream or flush HLG10 frames (b/586597125)",
+            AndroidUtil.isEmulator() &&
+                cameraProvider
+                    .getCameraInfo(cameraSelector)
+                    .querySupportedDynamicRanges(setOf(DynamicRange.HLG_10_BIT))
+                    .contains(DynamicRange.HLG_10_BIT),
+        )
     }
 
     @SuppressLint("NewApi")
