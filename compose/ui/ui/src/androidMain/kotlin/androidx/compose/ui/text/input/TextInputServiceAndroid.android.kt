@@ -47,6 +47,11 @@ import kotlin.math.roundToInt
 
 private const val DEBUG_CLASS = "TextInputServiceAndroid"
 
+/** Receives legacy editor focus changes from [TextInputServiceAndroid]. */
+internal fun interface LegacyEditorFocusListener {
+    fun onLegacyEditorFocusChanged()
+}
+
 /**
  * Provide Android specific input service with the Operating System.
  *
@@ -84,6 +89,9 @@ internal class TextInputServiceAndroid(
      * when it asks if the compose view is a text editor.
      */
     private var editorHasFocus = false
+
+    /** Notified when a legacy editor gains focus ([startInput]) or loses it ([stopInput]). */
+    internal var legacyEditorFocusListener: LegacyEditorFocusListener? = null
 
     /**
      * True if [View.onCreateInputConnection] has already created an [InputConnection] for the
@@ -238,6 +246,7 @@ internal class TextInputServiceAndroid(
         this.imeOptions = imeOptions
         this.onEditCommand = onEditCommand
         this.onImeActionPerformed = onImeActionPerformed
+        legacyEditorFocusListener?.onLegacyEditorFocusChanged()
 
         // Don't actually send the command to the IME yet, it may be overruled by a subsequent call
         // to stopInput.
@@ -261,11 +270,15 @@ internal class TextInputServiceAndroid(
     override fun stopInput() {
         if (DEBUG) Log.d(TAG, "$DEBUG_CLASS.stopInput")
 
+        val wasFocused = editorHasFocus
         editorHasFocus = false
         inputConnectionCreatedForCurrentSession = false
         onEditCommand = {}
         onImeActionPerformed = {}
         focusedRect = null
+        if (wasFocused) {
+            legacyEditorFocusListener?.onLegacyEditorFocusChanged()
+        }
 
         // Don't actually send the command to the IME yet, it may be overruled by a subsequent call
         // to startInput.
