@@ -432,6 +432,12 @@ constructor(
         val closingJobs =
             synchronized(lock) {
                 closeCurrentUseCases()
+                // Like a full unbind, detach the @CameraScope controls from the closed
+                // @UseCaseCameraScope request control so they don't retain it.
+                for (control in allControls) {
+                    control.requestControl = null
+                    control.reset()
+                }
                 cameraGraphConfigProvider.onUseCasesEmpty()
                 meteringRepeating.onUnbind()
                 closingCameraJobs.toList()

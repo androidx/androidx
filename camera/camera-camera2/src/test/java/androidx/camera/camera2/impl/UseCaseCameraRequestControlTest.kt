@@ -66,8 +66,10 @@ import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
+import androidx.camera.testing.impl.GarbageCollectionUtil
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import com.google.common.truth.Truth.assertThat
+import java.lang.ref.WeakReference
 import java.util.ArrayDeque
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
@@ -316,6 +318,115 @@ class UseCaseCameraRequestControlTest {
         // Assert. All the listeners should receive the onComplete signal.
         assertThat(testCaptureCallback.latch.await(1, TimeUnit.SECONDS)).isTrue()
     }
+
+    @Test
+    fun close_releasesSessionCaptureCallbacks_whenRepeatingRequestIsRetained(): Unit = runBlocking {
+        var callback: CameraCaptureCallback? = object : CameraCaptureCallback() {}
+        val callbackRef = WeakReference(callback)
+        requestControl
+            .setSessionConfigAsync(
+                SessionConfig.Builder()
+                    .apply {
+                        setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                        addSurface(surface)
+                        addRepeatingCameraCaptureCallback(callback!!)
+                    }
+                    .build()
+            )
+            .await()
+        // Simulates CameraPipe retaining the last repeating Request of a closed CameraGraph.
+        val retainedRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.last()
+
+        requestControl.close()
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
+        callback = null
+        GarbageCollectionUtil.runFinalization()
+
+        assertThat(retainedRequest.listeners).isNotEmpty()
+        assertThat(callbackRef.get()).isNull()
+    }
+
+    @Test
+    fun close_releasesSupersededSessionAndInteropCallbacks_whenEarlierRequestIsRetained(): Unit =
+        runBlocking {
+            val (retainedRequest, sessionCbRef, interopCbRef, interopRepeatingCbRef) =
+                submitAndSupersedeCallbacksBeforeClose()
+
+            requestControl.close()
+            GarbageCollectionUtil.runFinalization()
+
+            assertThat(retainedRequest.listeners).isNotEmpty()
+            assertThat(sessionCbRef.get()).isNull()
+            assertThat(interopCbRef.get()).isNull()
+            assertThat(interopRepeatingCbRef.get()).isNull()
+        }
+
+    private suspend fun submitAndSupersedeCallbacksBeforeClose(): SupersededCallbacksFixture {
+        var sessionCallback: CameraCaptureCallback? = object : CameraCaptureCallback() {}
+        var interopCallback: CameraCaptureSession.CaptureCallback? =
+            object : CameraCaptureSession.CaptureCallback() {}
+        var interopRepeatingCallback: CameraCaptureSession.CaptureCallback? =
+            object : CameraCaptureSession.CaptureCallback() {}
+        val sessionCbRef = WeakReference(sessionCallback!!)
+        val interopCbRef = WeakReference(interopCallback!!)
+        val interopRepeatingCbRef = WeakReference(interopRepeatingCallback!!)
+
+        val interopConfig =
+            Camera2ImplConfig.Builder()
+                .apply {
+                    mutableConfig.insertOption(
+                        Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION,
+                        interopCallback!!,
+                    )
+                    mutableConfig.insertOption(
+                        Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION,
+                        interopRepeatingCallback!!,
+                    )
+                }
+                .build()
+        val sessionConfig =
+            SessionConfig.Builder()
+                .apply {
+                    setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                    addSurface(surface)
+                    addRepeatingCameraCaptureCallback(sessionCallback!!)
+                }
+                .build()
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
+        sessionCallback = null
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
+        interopCallback = null
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
+        interopRepeatingCallback = null
+
+        requestControl.updateCamera2ConfigAsync(config = interopConfig).await()
+        requestControl.setSessionConfigAsync(sessionConfig).await()
+        val retainedRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.last()
+
+        // Overwrite both SESSION_CONFIG and CAMERA2_CAMERA_CONTROL entries in infoBundleMap with
+        // empty callback sets (simulating UseCase deactivation / clearCaptureRequestOptions on
+        // LEGACY or an update racing with close() before the new repeating Request is submitted).
+        requestControl
+            .updateRepeatingRequestAsync(isPrimary = true, runningUseCases = emptyList())
+            .await()
+        requestControl
+            .updateCamera2ConfigAsync(config = Camera2ImplConfig.Builder().build())
+            .await()
+
+        return SupersededCallbacksFixture(
+            retainedRequest = retainedRequest,
+            sessionCbRef = sessionCbRef,
+            interopCbRef = interopCbRef,
+            interopRepeatingCbRef = interopRepeatingCbRef,
+        )
+    }
+
+    private data class SupersededCallbacksFixture(
+        val retainedRequest: Request,
+        val sessionCbRef: WeakReference<CameraCaptureCallback>,
+        val interopCbRef: WeakReference<CameraCaptureSession.CaptureCallback>,
+        val interopRepeatingCbRef: WeakReference<CameraCaptureSession.CaptureCallback>,
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test

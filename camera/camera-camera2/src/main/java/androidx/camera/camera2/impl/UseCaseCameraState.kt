@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import javax.inject.Inject
+import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -65,7 +66,7 @@ constructor(
 
     public data class RequestSignal(val requestNo: Int, val signal: CompletableDeferred<Unit>)
 
-    @GuardedBy("lock") private var updateSignals = ArrayDeque<RequestSignal>()
+    @GuardedBy("lock") private val updateSignals = ArrayDeque<RequestSignal>()
 
     @GuardedBy("lock") private var updating = false
 
@@ -87,8 +88,8 @@ constructor(
     @GuardedBy("lock") private var lastAfMode: AfMode? = null
     @GuardedBy("lock") private var lastAwbMode: AwbMode? = null
 
-    private val requestListener = RequestListener()
     private val pendingSignalCount = atomic(0)
+    private val requestListener = RequestListener(lock, updateSignals, pendingSignalCount)
 
     /**
      * Updates the camera state by applying the provided parameters to a repeating request and
@@ -354,6 +355,11 @@ constructor(
                 closed = true
                 updating = false
                 hasPendingUpdate = false
+                // Drop references to session-scoped state that a retained CameraGraph must not pin.
+                currentListeners.clear()
+                currentParameters.clear()
+                currentInternalParameters.clear()
+                currentStreams.clear()
                 takeAllSignalsLocked()
             }
         signalsToCancel.forEach {
@@ -412,7 +418,16 @@ constructor(
     private fun Map<CaptureRequest.Key<*>, Any?>?.getIntOrNull(key: CaptureRequest.Key<*>): Int? =
         this?.get(key) as? Int
 
-    public inner class RequestListener : Request.Listener {
+    /**
+     * Completes pending update signals as repeating requests complete. This is intentionally not an
+     * inner class: a closed [CameraGraph] may retain its last repeating [Request], which must not
+     * retain this [UseCaseCameraState] or its [UseCaseCameraContext].
+     */
+    private class RequestListener(
+        private val lock: Any,
+        @GuardedBy("lock") private val updateSignals: ArrayDeque<RequestSignal>,
+        private val pendingSignalCount: AtomicInt,
+    ) : Request.Listener {
         override fun onTotalCaptureResult(
             requestMetadata: RequestMetadata,
             frameNumber: CameraFrameNumber,

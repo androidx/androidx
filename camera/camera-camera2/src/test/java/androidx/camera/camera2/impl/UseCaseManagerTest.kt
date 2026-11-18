@@ -478,6 +478,34 @@ class UseCaseManagerTest {
     }
 
     @Test
+    fun close_detachesControlsFromClosedRequestControl() = runTest {
+        // Arrange
+        initializeUseCaseThreads(this)
+        val fakeControl =
+            object : UseCaseCameraControl {
+                var resetCount = 0
+
+                override var requestControl: UseCaseCameraRequestControl? = null
+
+                override fun reset() {
+                    resetCount++
+                }
+            }
+        val useCaseManager = createUseCaseManager(controls = setOf(fakeControl))
+        val preview = createPreview()
+        useCaseManager.activate(preview)
+        useCaseManager.attach(listOf(preview))
+        assertThat(fakeControl.requestControl).isNotNull()
+
+        // Act
+        useCaseManager.close()
+
+        // Assert. The @CameraScope control must not keep the closed request control alive.
+        assertThat(fakeControl.requestControl).isNull()
+        assertThat(fakeControl.resetCount).isEqualTo(1)
+    }
+
+    @Test
     fun createCameraGraphConfig_propagateUseCaseConfigToGraphConfig() = runTest {
         // Arrange
         initializeUseCaseThreads(this)
