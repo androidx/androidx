@@ -71,7 +71,7 @@ public open class BaseSceneNodeRegistry<K : Any> {
         nodeEntityMap.values.mapNotNull { it.get() }.distinct()
 
     /** Removes the given node of type [K] from the map. */
-    public fun removeEntityForNode(node: K) {
+    public open fun removeEntityForNode(node: K) {
         nodeEntityMap.remove(node)
     }
 
@@ -104,7 +104,7 @@ public open class BaseSceneNodeRegistry<K : Any> {
     ): List<T> = systemSpaces.filterIsInstance(systemSpaceScenePoseClass)
 
     /** Clears the SceneNodeRegistry. */
-    public fun clear() {
+    public open fun clear() {
         nodeEntityMap.clear()
         systemSpaces.clear()
     }

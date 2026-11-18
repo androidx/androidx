@@ -113,6 +113,7 @@ public abstract class AndroidXrEntity(
                 }
                 transaction.apply()
             }
+            sceneNodeRegistry.onNodeHierarchyChanged?.invoke()
         }
 
     override fun getPose(@SpaceValue relativeTo: Int): Pose {

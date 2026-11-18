@@ -37,6 +37,8 @@ import androidx.xr.scenecore.runtime.NodeHolder
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import com.android.extensions.xr.ShadowXrExtensions
+import com.android.extensions.xr.node.FakeCloseable
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
@@ -487,5 +489,42 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
         verify(anchorStateListener).onStateChanged(AnchorEntity.State.ERROR)
         Truth.assertThat(NodeRepository.getInstance().getAnchorId(anchorEntity.getNode())).isNull()
         Truth.assertThat(NodeRepository.getInstance().getParent(anchorEntity.getNode())).isNull()
+    }
+
+    @Test
+    fun setAnchor_withKeyEntityChild_subscribesOnAnchoredAndUnsubscribesOnDispose() {
+        val runtimeSceneNodeRegistry = SceneNodeRegistry()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        val runtime =
+            SpatialSceneRuntime.create(
+                activity,
+                fakeExecutor,
+                xrExtensions,
+                runtimeSceneNodeRegistry,
+            )
+        try {
+            val anchorEntity = runtime.createAnchorEntity()
+            val childEntity = runtime.createEntity(Pose(), "child", anchorEntity)
+            runtime.keyEntity = childEntity
+
+            Truth.assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.UNANCHORED)
+            Truth.assertThat(runtime.keyEntityTransformCloseable).isNull()
+
+            val anchor = (Anchor.create(session, Pose.Identity) as AnchorCreateSuccess).anchor
+            Truth.assertThat(anchorEntity.setAnchor(anchor)).isTrue()
+
+            Truth.assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
+            val closeable = runtime.keyEntityTransformCloseable as FakeCloseable
+            Truth.assertThat(closeable.isClosed).isFalse()
+
+            anchorEntity.dispose()
+
+            Truth.assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+            Truth.assertThat(closeable.isClosed).isTrue()
+            Truth.assertThat(runtime.keyEntityTransformCloseable).isNull()
+        } finally {
+            runtime.destroy()
+            ShadowXrExtensions.extract(xrExtensions).setApiVersion(1)
+        }
     }
 }
