@@ -33,6 +33,7 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.XmlContext
 import com.android.tools.lint.detector.api.XmlScanner
+import com.intellij.psi.PsiModifier
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.util.EnumSet
 import org.jetbrains.uast.UClass
@@ -88,14 +89,18 @@ class EnsureInitializerMetadataDetector : Detector(), SourceCodeScanner, XmlScan
             return
         }
 
-        if (!declaration.isInterface) {
+        // Abstract classes are never instantiated, so they do not need a <meta-data> entry
+        if (!declaration.isInterface && !declaration.hasModifierProperty(PsiModifier.ABSTRACT)) {
             val location = context.getLocation(declaration.javaPsi)
             components[declaration] = location
         }
 
-        // Check every dependencies() method for reachable Initializer's
+        // Check every dependencies() method for reachable Initializer's.
+        // An inherited dependencies() is checked when visiting the class declaring it.
         val method =
-            declaration.methods.first { it.name == "dependencies" && it.parameterList.isEmpty }
+            declaration.methods.firstOrNull {
+                it.name == "dependencies" && it.parameterList.isEmpty
+            } ?: return
         val visitor =
             object : AbstractUastVisitor() {
                 override fun visitClassLiteralExpression(node: UClassLiteralExpression): Boolean {
