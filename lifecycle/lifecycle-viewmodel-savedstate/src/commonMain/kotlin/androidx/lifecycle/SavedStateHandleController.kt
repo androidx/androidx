@@ -23,7 +23,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
-import androidx.savedstate.SavedStateRegistry.SavedStateRestorer
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.read
 import androidx.savedstate.savedState
@@ -69,11 +68,17 @@ import androidx.savedstate.write
  *                        +=======> [ViewModel Key B] ---> SavedStateHandle B
  * ```
  *
+ * @param savedStateRegistryOwner registry owner to associate with
  * @param viewModelStoreOwner store owner to store handles in
  */
 internal class SavedStateHandleController
-private constructor(viewModelStoreOwner: ViewModelStoreOwner) :
-    SavedStateProvider, SavedStateRestorer, ViewModelStoreOwner by viewModelStoreOwner {
+private constructor(
+    savedStateRegistryOwner: SavedStateRegistryOwner,
+    viewModelStoreOwner: ViewModelStoreOwner,
+) :
+    SavedStateProvider,
+    SavedStateRegistryOwner by savedStateRegistryOwner,
+    ViewModelStoreOwner by viewModelStoreOwner {
 
     private var _stateHolder: StateHolder? = null
 
@@ -126,11 +131,12 @@ private constructor(viewModelStoreOwner: ViewModelStoreOwner) :
     }
 
     /** Restores the state from the [SavedStateRegistry] if not already restored. */
-    override fun restoreState(savedState: SavedState?) {
+    fun performRestore() {
         if (!isRestored) {
+            val newState = savedStateRegistry.consumeRestoredStateForKey(SAVED_STATE_KEY)
             restoredState = savedState {
                 restoredState?.let { putAll(it) }
-                savedState?.let { putAll(it) }
+                newState?.let { putAll(it) }
             }
             isRestored = true
 
@@ -147,6 +153,7 @@ private constructor(viewModelStoreOwner: ViewModelStoreOwner) :
      * @return restored [SavedState], or `null` if none exists
      */
     fun consumeRestoredStateForKey(key: String): SavedState? {
+        performRestore()
         val state = restoredState ?: return null
         if (!state.read { contains(key) }) return null
 
@@ -222,14 +229,28 @@ private constructor(viewModelStoreOwner: ViewModelStoreOwner) :
          * @param viewModelStoreOwner store owner to save handles
          * @return controller instance
          */
-        fun getOrCreate(
+        internal fun getOrCreate(
             owner: SavedStateRegistryOwner,
             viewModelStoreOwner: ViewModelStoreOwner,
         ): SavedStateHandleController {
             var controller = getOrNull(owner)
             if (controller == null) {
-                controller = SavedStateHandleController(viewModelStoreOwner)
+                controller = SavedStateHandleController(owner, viewModelStoreOwner)
                 owner.savedStateRegistry.registerSavedStateProvider(SAVED_STATE_KEY, controller)
+
+                // If the Lifecycle is already CREATED, restore the state immediately. Otherwise,
+                // register an observer to restore the state when the Lifecycle reaches CREATED.
+                if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                    controller.performRestore()
+                } else {
+                    owner.lifecycle.addObserver { source, event ->
+                        check(event == Lifecycle.Event.ON_CREATE) {
+                            "Next event must be ON_CREATE, it was $event"
+                        }
+                        source.lifecycle.removeObserver(this)
+                        controller.performRestore()
+                    }
+                }
             }
             return controller
         }
