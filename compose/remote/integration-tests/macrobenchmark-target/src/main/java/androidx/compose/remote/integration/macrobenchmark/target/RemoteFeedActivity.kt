@@ -183,7 +183,10 @@ private fun FeedScreen(config: FeedConfig) {
 
     LaunchedEffect(config.templates, config.player) {
         if (config.player != FeedPlayer.Compose && config.player != FeedPlayer.Empty) {
-            templateBytes = loadFeedTemplates(context, config.templates)
+            val useGlobalScope =
+                config.player == FeedPlayer.View || config.player == FeedPlayer.DocumentPlayerView
+            templateBytes =
+                loadFeedTemplates(context, config.templates, globalScope = useGlobalScope)
         }
     }
 
@@ -461,10 +464,12 @@ private fun ViewFeedCard(
                     repeat(3) { i ->
                         player.setUserLocalFloat("share$i", shareFor(index, tick, i))
                     }
+                    invalidateViewTree(player)
                 }
             } else if (template == BenchTemplate.Stateful && tick > 0) {
                 trace("RemoteBench:hostUpdate") {
                     player.setUserLocalInt("state", (tick + index) % 3)
+                    invalidateViewTree(player)
                 }
             }
         },

@@ -146,7 +146,6 @@ fun RemotePlayerHost(
                             )
                         doOnPreDraw { fullyDrawnReporter?.removeReporter() }
                         bitmapLoader?.let(::setBitmapLoader)
-                        onJavaPlayerReady?.invoke(this)
                     }
                 },
                 update = { player ->

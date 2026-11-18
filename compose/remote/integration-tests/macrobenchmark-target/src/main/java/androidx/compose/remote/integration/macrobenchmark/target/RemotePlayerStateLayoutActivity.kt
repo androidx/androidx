@@ -99,10 +99,10 @@ class RemotePlayerStateLayoutActivity : ComponentActivity() {
                 state = (state + 1) % 4
                 trace("RemoteBench:hostUpdate") {
                     player.setUserLocalInt("stateIndex", state)
-                    // TODO(b/585202905): Remove explicit invalidate() once
+                    // TODO(b/585202905): Remove explicit invalidateViewTree() once
                     // RemoteComposeView.setLocal*
                     // invalidates the view.
-                    player.invalidate()
+                    invalidateViewTree(player)
                 }
             }
         }
@@ -132,10 +132,18 @@ class RemotePlayerStateLayoutActivity : ComponentActivity() {
         var documentBytes by remember { mutableStateOf<ByteArray?>(null) }
         val context = LocalContext.current
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(mode) {
+            val useGlobalScope = playerVariantFromMode(mode).first != PlayerVariant.Embedded
             documentBytes =
-                BenchDocuments.getOrCapture(context, "state_layout_4state") {
-                    val stateIndex = remember { createNamedRemoteInt("stateIndex", 0) }
+                BenchDocuments.getOrCapture(
+                    context = context,
+                    name = "state_layout_4state",
+                    globalScope = useGlobalScope,
+                ) {
+                    val stateIndex = remember {
+                        createNamedRemoteInt("stateIndex", 0)
+                    }
+                        .withGlobalScopeIf(useGlobalScope)
                     RemoteColumn(
                         horizontalAlignment = RemoteAlignment.CenterHorizontally,
                         verticalArrangement = RemoteArrangement.Center,

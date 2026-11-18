@@ -91,10 +91,10 @@ class RemotePlayerStateUpdateActivity : ComponentActivity() {
                 count++
                 trace("RemoteBench:hostUpdate") {
                     player.setUserLocalString("counterText", "Count: $count")
-                    // TODO(b/585202905): Remove explicit invalidate() once
+                    // TODO(b/585202905): Remove explicit invalidateViewTree() once
                     // RemoteComposeView.setLocal*
                     // invalidates the view.
-                    player.invalidate()
+                    invalidateViewTree(player)
                 }
             }
         }
@@ -124,12 +124,18 @@ class RemotePlayerStateUpdateActivity : ComponentActivity() {
         var documentBytes by remember { mutableStateOf<ByteArray?>(null) }
         val context = LocalContext.current
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(mode) {
+            val useGlobalScope = playerVariantFromMode(mode).first != PlayerVariant.Embedded
             documentBytes =
-                BenchDocuments.getOrCapture(context, "state_update_counter") {
+                BenchDocuments.getOrCapture(
+                    context = context,
+                    name = "state_update_counter",
+                    globalScope = useGlobalScope,
+                ) {
                     val counterText = remember {
                         createNamedRemoteString("counterText", "Count: 0")
                     }
+                        .withGlobalScopeIf(useGlobalScope)
                     RemoteColumn(
                         horizontalAlignment = RemoteAlignment.CenterHorizontally,
                         verticalArrangement = RemoteArrangement.Center,

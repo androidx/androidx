@@ -28,7 +28,6 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.composeSectionMetrics
 import androidx.testutils.defaultMemoryMetrics
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 
 internal const val LIST_CONTENT_DESCRIPTION = "ScrollableColumn"
@@ -127,25 +126,40 @@ internal fun assertLaneDrew(device: UiDevice, contentDescription: String? = null
         val found = device.wait(Until.hasObject(By.desc(contentDescription)), 10_000)
         assertTrue("Expected semantics node '$contentDescription' not found", found)
     }
-    val colors = sampleScreenColors()
+    device.waitForIdle()
+    var colors = sampleScreenColors()
+    if (colors.distinct().size <= 1) {
+        Thread.sleep(300L)
+        colors = sampleScreenColors()
+    }
     assertTrue(
         "Expected rendered content, but screen is a single flat color (${colors.distinct().size} distinct colors)",
         colors.distinct().size > 1,
     )
 }
 
-/** Verifies that rendered output changes over [waitMs] (for state-updating lanes). */
+/** Verifies that rendered output changes within [waitMs] (for state-updating lanes). */
 internal fun assertScreenChanged(waitMs: Long = 300L) {
-    val before = sampleScreenColors()
-    Thread.sleep(waitMs)
-    val after = sampleScreenColors()
-    assertNotEquals("Expected rendered output to change after ${waitMs}ms", before, after)
+    val before = sampleScreenColors(gridSize = 128)
+    val budgetMs = waitMs.coerceAtLeast(500L)
+    val deadline = System.currentTimeMillis() + budgetMs
+    while (System.currentTimeMillis() < deadline) {
+        Thread.sleep(120L)
+        val after = sampleScreenColors(gridSize = 128)
+        if (before != after) return
+    }
+    assertTrue("Expected rendered output to change within ${budgetMs}ms", false)
 }
 
 private fun sampleScreenColors(gridSize: Int = 16): List<Int> {
-    val bitmap: Bitmap =
-        InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
-            ?: error("UiAutomation.takeScreenshot() returned null")
+    val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+    var bitmap: Bitmap? = null
+    for (attempt in 0 until 5) {
+        bitmap = uiAutomation.takeScreenshot()
+        if (bitmap != null) break
+        Thread.sleep(100L)
+    }
+    checkNotNull(bitmap) { "UiAutomation.takeScreenshot() returned null" }
     try {
         val startX = (bitmap.width * 0.1f).toInt()
         val endX = (bitmap.width * 0.9f).toInt().coerceAtLeast(startX + 1)

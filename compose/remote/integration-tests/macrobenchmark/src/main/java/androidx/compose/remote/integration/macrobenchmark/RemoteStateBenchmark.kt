@@ -65,7 +65,7 @@ class RemoteStateBenchmark(val player: String) {
             iterations = 5,
             setupBlock = {
                 killProcess()
-                startActivityAndWait(
+                startActivityIntent(
                     Intent(STATE_BENCH_ACTIVITY).apply {
                         putExtra("player", player)
                         putExtra("mode", "s2a")
@@ -73,7 +73,7 @@ class RemoteStateBenchmark(val player: String) {
                     }
                 )
                 assertLaneDrew(device, STATE_BENCH_CONTENT_DESCRIPTION)
-                assertScreenChanged(waitMs = 300L)
+                assertScreenChanged(waitMs = 220L)
             },
         ) {
             Thread.sleep(2000L)
@@ -88,7 +88,7 @@ class RemoteStateBenchmark(val player: String) {
             iterations = 5,
             setupBlock = {
                 killProcess()
-                startActivityAndWait(
+                startActivityIntent(
                     Intent(FEED_ACTIVITY).apply {
                         putExtra("player", player)
                         putExtra("templates", "stateful")
@@ -117,7 +117,7 @@ class RemoteStateBenchmark(val player: String) {
             iterations = 5,
             setupBlock = {
                 killProcess()
-                startActivityAndWait(
+                startActivityIntent(
                     Intent(STATE_BENCH_ACTIVITY).apply {
                         putExtra("player", player)
                         putExtra("mode", "s1")

@@ -17,8 +17,12 @@
 package androidx.compose.remote.integration.macrobenchmark.target
 
 import android.content.Context
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.withGlobalScope
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import java.io.File
@@ -35,42 +39,76 @@ object BenchDocuments {
     suspend fun getOrCapture(
         context: Context,
         name: String,
+        globalScope: Boolean = false,
         content: @RemoteComposable @Composable () -> Unit,
     ): ByteArray {
-        synchronized(memoryCache) { memoryCache[name] }
+        val cacheKey = if (globalScope) "${name}_global" else name
+        synchronized(memoryCache) { memoryCache[cacheKey] }
             ?.let {
                 return it
             }
 
-        val dir = File(context.cacheDir, "rcbench")
-        val file = File(dir, "$name.rc")
+        val appStamp = runCatching {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
+        }
+            .getOrDefault(0L)
+        val dir = File(context.cacheDir, "rcbench/$appStamp")
+        val file = File(dir, "$cacheKey.rc")
         val existing =
             withContext(Dispatchers.IO) {
                 if (file.exists() && file.length() > 0L) file.readBytes() else null
             }
         if (existing != null) {
-            synchronized(memoryCache) { memoryCache[name] = existing }
+            synchronized(memoryCache) { memoryCache[cacheKey] = existing }
             return existing
         }
 
-        val captured =
-            captureSingleRemoteDocument(
-                    profile = RcPlatformProfiles.ANDROIDX,
-                    context = context,
-                    content = content,
-                )
-                .bytes
+        val captured = captureBytes(context, globalScope, content)
 
         withContext(Dispatchers.IO) {
             dir.mkdirs()
-            val tmp = File(dir, "$name.rc.tmp")
+            val tmp = File(dir, "$cacheKey.rc.tmp")
             tmp.writeBytes(captured)
             if (!tmp.renameTo(file)) {
                 file.writeBytes(captured)
                 tmp.delete()
             }
         }
-        synchronized(memoryCache) { memoryCache[name] = captured }
+        synchronized(memoryCache) { memoryCache[cacheKey] = captured }
         return captured
     }
+
+    @OptIn(ExperimentalRemoteCreationComposeApi::class)
+    private suspend fun captureBytes(
+        context: Context,
+        globalScope: Boolean,
+        content: @RemoteComposable @Composable () -> Unit,
+    ): ByteArray {
+        if (!globalScope) {
+            return captureSingleRemoteDocument(
+                    profile = RcPlatformProfiles.ANDROIDX,
+                    context = context,
+                    content = content,
+                )
+                .bytes
+        }
+        val prevFlag = RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+        return try {
+            captureSingleRemoteDocument(
+                    profile = RcPlatformProfiles.ANDROIDX,
+                    context = context,
+                    content = content,
+                )
+                .bytes
+        } finally {
+            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = prevFlag
+        }
+    }
 }
+
+@Composable
+@RemoteComposable
+internal fun <T : RemoteState<*>> T.withGlobalScopeIf(enabled: Boolean): T =
+    if (enabled) withGlobalScope() else this
