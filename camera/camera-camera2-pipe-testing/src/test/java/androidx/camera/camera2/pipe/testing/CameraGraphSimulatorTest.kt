@@ -18,9 +18,11 @@ package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.util.Size
+import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
@@ -33,6 +35,7 @@ import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageReaderWrapper
@@ -722,4 +725,40 @@ class CameraGraphSimulatorTest {
             .isEqualTo(CaptureRequest.CONTROL_AWB_MODE_DAYLIGHT)
         assertThat(builtMetadata[CaptureRequest.JPEG_ORIENTATION]).isEqualTo(270)
     }
+
+    @Test
+    fun simulateTotalCaptureResult_populatesRequestTemplateDefaultsAndAppliesOverrides() =
+        testScope.runTest {
+            val listener = FakeRequestListener()
+            simulator.parameters[CaptureRequest.JPEG_QUALITY] = 88.toByte()
+            val request =
+                Request(
+                    streams = listOf(stream.id),
+                    template = RequestTemplate(CameraDevice.TEMPLATE_RECORD),
+                    parameters = mapOf(CaptureRequest.JPEG_ORIENTATION to 90),
+                    listeners = listOf(listener),
+                )
+            simulator.acquireSession().use {
+                it.update3A(aeMode = AeMode.OFF)
+                it.submit(request = request)
+            }
+            simulator.start()
+            simulator.initializeSurfaces()
+            simulator.simulateCameraStarted()
+
+            val frame = simulator.simulateNextFrame()
+            frame.simulatePartialCaptureResult(mapOf(CaptureResult.SENSOR_EXPOSURE_TIME to 25L))
+            frame.simulateTotalCaptureResult()
+
+            val totalMetadata = listener.onTotalCaptureResultFlow.first().frameInfo.metadata
+            assertThat(totalMetadata[CaptureResult.CONTROL_AF_MODE])
+                .isEqualTo(CaptureResult.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+            assertThat(totalMetadata[CaptureResult.CONTROL_CAPTURE_INTENT])
+                .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_VIDEO_RECORD)
+            assertThat(totalMetadata[CaptureResult.JPEG_QUALITY]).isEqualTo(88.toByte())
+            assertThat(totalMetadata[CaptureResult.JPEG_ORIENTATION]).isEqualTo(90)
+            assertThat(totalMetadata[CaptureResult.CONTROL_AE_MODE])
+                .isEqualTo(CaptureResult.CONTROL_AE_MODE_OFF)
+            assertThat(totalMetadata[CaptureResult.SENSOR_EXPOSURE_TIME]).isEqualTo(25L)
+        }
 }

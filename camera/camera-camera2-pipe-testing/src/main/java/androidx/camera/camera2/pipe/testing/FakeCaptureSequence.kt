@@ -78,6 +78,8 @@ public data class FakeCaptureSequence(
             graphParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
             listeners: List<Request.Listener> = emptyList(),
             sequenceListener: CaptureSequence.CaptureSequenceListener = fakeCaptureSequenceListener,
+            requestTemplateParameters: Map<RequestTemplate, Map<CaptureRequest.Key<*>, Any?>> =
+                emptyMap(),
         ): FakeCaptureSequence? {
             if (surfaceMap.isEmpty()) {
                 println(
@@ -89,8 +91,14 @@ public data class FakeCaptureSequence(
             val requestInfoMap = mutableMapOf<Request, RequestMetadata>()
             val requestInfoList = mutableListOf<RequestMetadata>()
             for (request in requests) {
+                val template = request.template ?: defaultTemplate
                 val captureParameters = mutableMapOf<CaptureRequest.Key<*>, Any?>()
                 val metadataParameters = mutableMapOf<Metadata.Key<*>, Any?>()
+                for ((k, v) in requestTemplateParameters[template].orEmpty()) {
+                    if ((k as CaptureRequest.Key<*>?) != null) {
+                        captureParameters[k] = v
+                    }
+                }
                 for ((k, v) in defaultParameters) {
                     if (k != null) {
                         if (k is CaptureRequest.Key<*>) {
@@ -156,7 +164,7 @@ public data class FakeCaptureSequence(
                         request = request,
                         requestParameters = captureParameters,
                         metadata = metadataParameters,
-                        template = request.template ?: defaultTemplate,
+                        template = template,
                         streams = streamMap,
                         repeating = repeating,
                         requestNumber = requestNumber,

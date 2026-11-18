@@ -387,6 +387,8 @@ internal constructor(
         private val mappedRequestResultMetadata: Map<CaptureResult.Key<*>, Any?> =
             RequestToResultMetadataMapper.mapRequestToResult(requestMetadata)
 
+        private val partialResultMetadata = mutableMapOf<CaptureResult.Key<*>, Any?>()
+
         public fun simulateStarted(timestampNanos: Long) {
             this.timestampNanos = timestampNanos
 
@@ -400,6 +402,7 @@ internal constructor(
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
         ) {
+            partialResultMetadata.putAll(resultMetadata)
             val metadata =
                 createFakeMetadataFor(
                     resultMetadata = resultMetadata,
@@ -545,6 +548,7 @@ internal constructor(
                     // Camera2 reports the onCaptureStarted timestamp as SENSOR_TIMESTAMP.
                     timestampNanos?.let { put(CaptureResult.SENSOR_TIMESTAMP, it) }
                     putAll(mappedRequestResultMetadata)
+                    putAll(partialResultMetadata)
                     putAll(resultMetadata)
                 }
             val metadata =

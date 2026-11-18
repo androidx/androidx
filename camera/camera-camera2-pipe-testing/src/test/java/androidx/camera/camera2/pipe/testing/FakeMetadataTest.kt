@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.testing
 
 import android.graphics.PixelFormat
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MultiResolutionStreamInfo
@@ -26,6 +27,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.MetadataTransform
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.common.CameraCharacteristicsWrapper
 import androidx.camera.common.CameraFrameNumber
@@ -407,6 +409,107 @@ class CameraMetadataTest {
         assertThat(metadata.unwrapAs(CameraCharacteristicsWrapper::class.java))
             .isSameInstanceAs(metadata)
         assertThat(metadata.unwrapAs(CameraCharacteristics::class.java)).isNull()
+    }
+
+    @Test
+    fun verifyHighEndDeviceTemplate_providesBackAndFrontRequestTemplateParameters() {
+        val backTemplates =
+            FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    cameraId = CameraId("0"),
+                )
+                .requestTemplateParameters
+        val frontTemplates =
+            FakeCameraMetadata.fromTemplate(
+                    template = HighEndDeviceTemplate,
+                    cameraId = CameraId("1"),
+                    lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+                )
+                .requestTemplateParameters
+
+        val expectedTemplates =
+            listOf(
+                RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+                RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+                RequestTemplate(CameraDevice.TEMPLATE_RECORD),
+                RequestTemplate(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT),
+                RequestTemplate(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG),
+                RequestTemplate(CameraDevice.TEMPLATE_MANUAL),
+            )
+        assertThat(backTemplates.keys).containsExactlyElementsIn(expectedTemplates)
+        assertThat(frontTemplates.keys).containsExactlyElementsIn(expectedTemplates)
+
+        val backPreview = backTemplates.getValue(RequestTemplate(CameraDevice.TEMPLATE_PREVIEW))
+        val frontPreview = frontTemplates.getValue(RequestTemplate(CameraDevice.TEMPLATE_PREVIEW))
+        assertThat(backPreview[CaptureRequest.LENS_FOCAL_LENGTH]).isEqualTo(6.9f)
+        assertThat(frontPreview[CaptureRequest.LENS_FOCAL_LENGTH]).isEqualTo(2.713f)
+        assertThat(backPreview[CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+        assertThat(
+                backTemplates
+                    .getValue(RequestTemplate(CameraDevice.TEMPLATE_RECORD))[
+                        CaptureRequest.CONTROL_AF_MODE]
+            )
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+        assertThat(
+                frontTemplates
+                    .getValue(RequestTemplate(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT))[
+                        CaptureRequest.CONTROL_AF_MODE]
+            )
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+        assertThat(
+                backTemplates
+                    .getValue(RequestTemplate(CameraDevice.TEMPLATE_MANUAL))[
+                        CaptureRequest.CONTROL_MODE]
+            )
+            .isEqualTo(CaptureRequest.CONTROL_MODE_OFF)
+    }
+
+    @Test
+    fun verifyHighEndDeviceTemplate_clampsRequestTemplateModesToCharacteristicsOverrides() {
+        val autoOnlyAfTemplates =
+            FakeCameraMetadata.fromTemplate(
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                                intArrayOf(
+                                    CaptureRequest.CONTROL_AF_MODE_OFF,
+                                    CaptureRequest.CONTROL_AF_MODE_AUTO,
+                                ),
+                            CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AE_MODE_OFF),
+                            CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_OFF),
+                        )
+                )
+                .requestTemplateParameters
+        val fixedFocusTemplates =
+            FakeCameraMetadata.fromTemplate(
+                    characteristicsOverrides =
+                        mapOf(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE to 0.0f)
+                )
+                .requestTemplateParameters
+
+        val autoOnlyPreview =
+            autoOnlyAfTemplates.getValue(RequestTemplate(CameraDevice.TEMPLATE_PREVIEW))
+        assertThat(autoOnlyPreview[CaptureRequest.CONTROL_AF_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
+        assertThat(autoOnlyPreview[CaptureRequest.CONTROL_AE_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF)
+        assertThat(autoOnlyPreview[CaptureRequest.CONTROL_AWB_MODE])
+            .isEqualTo(CaptureRequest.CONTROL_AWB_MODE_OFF)
+        assertThat(
+                autoOnlyAfTemplates
+                    .getValue(RequestTemplate(CameraDevice.TEMPLATE_MANUAL))[
+                        CaptureRequest.CONTROL_AF_MODE]
+            )
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_OFF)
+        assertThat(
+                fixedFocusTemplates
+                    .getValue(RequestTemplate(CameraDevice.TEMPLATE_PREVIEW))[
+                        CaptureRequest.CONTROL_AF_MODE]
+            )
+            .isEqualTo(CaptureRequest.CONTROL_AF_MODE_OFF)
     }
 
     private fun assertPhysicalCamerasHaveMetadata(
