@@ -33,8 +33,11 @@ internal class PointerCaptureComponentImpl(
             return false
         }
 
+        if (!entity.requestPointerCapture(executor, inputListener, stateListener)) {
+            return false
+        }
         attachedEntity = entity
-        return attachedEntity!!.requestPointerCapture(executor, inputListener, stateListener)
+        return true
     }
 
     override fun onDetach(entity: Entity) {

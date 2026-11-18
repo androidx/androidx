@@ -103,6 +103,22 @@ class PointerCaptureComponentTest {
     }
 
     @Test
+    fun addComponent_whenRuntimeRejects_canStillAttachLater() {
+        val entity = Entity.create(session, "test")
+        val pointerCaptureComponent =
+            PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
+        val rtComponent = pointerCaptureComponent.rtComponent as FakePointerCaptureComponent
+
+        rtComponent.canBeAttached = false
+        assertThat(entity.addComponent(pointerCaptureComponent)).isFalse()
+        assertThat(entity.rtEntity.getComponents()).isEmpty()
+
+        rtComponent.canBeAttached = true
+        assertThat(entity.addComponent(pointerCaptureComponent)).isTrue()
+        assertThat(entity.rtEntity.getComponents()).containsExactly(rtComponent)
+    }
+
+    @Test
     fun stateListener_propagatesCorrectlyFromRuntime() {
         val entity = Entity.create(session, "test")
         val rtEntity = entity.rtEntity

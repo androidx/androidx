@@ -99,9 +99,11 @@ private constructor(
         if (attachedEntity != null) {
             return false
         }
+        if (!entity.rtEntity.addComponent(rtComponent)) {
+            return false
+        }
         attachedEntity = entity
-
-        return entity.rtEntity.addComponent(rtComponent)
+        return true
     }
 
     override fun onDetach(entity: Entity) {
