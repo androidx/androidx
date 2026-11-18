@@ -58,8 +58,10 @@ import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.delay
@@ -205,6 +207,7 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         )
     }
 
+    // See canCaptureWithFlashOnInDarkEnvironment for why @LabTestFrontCamera is used.
     @LabTestRule.LabTestFrontCamera
     @Test
     fun canCaptureWithFlashOnInDarkEnvironment_whenVideoCaptureIsBound() {
@@ -228,6 +231,7 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         )
     }
 
+    // See canCaptureWithFlashOnInDarkEnvironment for why @LabTestFrontCamera is used.
     @LabTestRule.LabTestFrontCamera
     @Test
     fun canCaptureWithFlashOnInDarkEnvironment_whenSurfaceProcessorVideoCaptureIsBound() {
@@ -450,11 +454,11 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
         ImageCapture.OnImageCapturedCallback() {
 
         private val latch = CountDownLatch(capturesCount)
-        val errors = mutableListOf<ImageCaptureException>()
-        private var numImages = 0
+        val errors = CopyOnWriteArrayList<ImageCaptureException>()
+        private val numImages = AtomicInteger(0)
 
         override fun onCaptureSuccess(image: ImageProxy) {
-            numImages++
+            numImages.incrementAndGet()
             image.close()
             latch.countDown()
         }
@@ -473,16 +477,23 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
             latch.await(timeout, TimeUnit.MILLISECONDS)
 
             if (assertCaptureCount) {
-                Truth.assertThat(numImages).isEqualTo(capturedImagesCount)
+                if (errorsCount == 0) {
+                    errors.firstOrNull()?.let {
+                        throw AssertionError("Image capture errors: $errors", it)
+                    }
+                }
+                Truth.assertWithMessage("Image capture errors: $errors")
+                    .that(numImages.get())
+                    .isEqualTo(capturedImagesCount)
             } else {
                 assumeThat(
-                    "$numImages image(s) captured within $timeout MS",
-                    numImages,
+                    "${numImages.get()} image(s) captured within $timeout MS, errors: $errors",
+                    numImages.get(),
                     equalTo(capturedImagesCount),
                 )
             }
 
-            Truth.assertThat(errors.size).isEqualTo(errorsCount)
+            Truth.assertThat(errors).hasSize(errorsCount)
         }
     }
 }

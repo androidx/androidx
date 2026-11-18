@@ -37,6 +37,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import org.junit.Assume.assumeFalse
@@ -53,7 +54,7 @@ class EffectsFragmentDeviceTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
-    @get:Rule
+    @get:Rule(order = 0)
     val requireForegroundRule = RequireForegroundRule {
         assumeFalse("Test fails on API 24 emulator (b/539514196)", AndroidUtil.isEmulator(24))
         assumeFalse(
@@ -62,14 +63,14 @@ class EffectsFragmentDeviceTest(
         )
     }
 
-    @get:Rule
+    @get:Rule(order = 1)
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraControllerFragmentTest.testCameraRule,
             CameraUtil.PreTestCameraIdList(cameraConfig),
         )
 
-    @get:Rule
+    @get:Rule(order = 2)
     val grantPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -139,25 +140,29 @@ class EffectsFragmentDeviceTest(
 
     private fun EffectsFragment.assertCanTakePicture() {
         val imageCallbackSemaphore = Semaphore(0)
-        var uri: Uri? = null
+        var captureError: ImageCaptureException? = null
+        var savedUri: Uri? = null
         instrumentation.runOnMainSync {
             this.takePicture(
                 object : ImageCapture.OnImageSavedCallback {
                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                        uri = outputFileResults.savedUri
+                        savedUri = outputFileResults.savedUri
                         imageCallbackSemaphore.release()
                     }
 
                     override fun onError(exception: ImageCaptureException) {
-                        Log.d(TAG, "onError", exception)
+                        Log.e(TAG, "onError", exception)
+                        captureError = exception
                         imageCallbackSemaphore.release()
                     }
                 }
             )
         }
-        assertThat(imageCallbackSemaphore.tryAcquire(CAPTURE_TIMEOUT_SECONDS, TimeUnit.SECONDS))
+        assertWithMessage("Timed out waiting for image capture callback")
+            .that(imageCallbackSemaphore.tryAcquire(CAPTURE_TIMEOUT_SECONDS, TimeUnit.SECONDS))
             .isTrue()
-        assertThat(uri).isNotNull()
+        captureError?.let { throw AssertionError("Image capture failed", it) }
+        assertThat(savedUri).isNotNull()
     }
 
     companion object {
