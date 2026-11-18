@@ -165,7 +165,7 @@ class PanelTransformationTest {
             assertPose(
                 scaledChildPanel.getPose(Space.ACTIVITY),
                 Pose(Vector3(2.0f, 1f, -2f)),
-                epsilon = 1e-3f,
+                translationEpsilon = 1e-3f,
             )
             val distance =
                 Pose.distance(

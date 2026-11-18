@@ -21,7 +21,6 @@ import androidx.test.filters.LargeTest
 import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
@@ -94,25 +93,35 @@ class GltfNodeHierarchyTransformTest {
             val targetLocalPose =
                 Pose(translation = Vector3(0.5f, 0.2f, -0.3f), rotation = initialLocalRotation)
             head.localPose = targetLocalPose
-            assertPose(head.localPose, targetLocalPose, 1e-4f)
+            assertPose(
+                head.localPose,
+                targetLocalPose,
+                translationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+                rotationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+            )
             // Changing the local pose must be reflected in the accumulated model pose.
             assertModelPoseAccumulatesFromParent(child = head, parent = neck)
 
             val targetLocalScale = Vector3(1.2f, 1.2f, 1.2f)
             head.localScale = targetLocalScale
-            assertVector3(head.localScale, targetLocalScale, 1e-4f)
+            assertVector3(head.localScale, targetLocalScale, COMPOSED_TRANSFORM_EPSILON)
 
             val initialModelRotation = head.modelPose.rotation
             val targetModelPose =
                 Pose(translation = Vector3(1.0f, 0.0f, -2.0f), rotation = initialModelRotation)
             head.modelPose = targetModelPose
-            assertPose(head.modelPose, targetModelPose, 1e-4f)
+            assertPose(
+                head.modelPose,
+                targetModelPose,
+                translationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+                rotationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+            )
             // Setting the model pose must recompute the local pose relative to `Neck`.
             assertModelPoseAccumulatesFromParent(child = head, parent = neck)
 
             val targetModelScale = Vector3(2.0f, 2.0f, 2.0f)
             head.modelScale = targetModelScale
-            assertVector3(head.modelScale, targetModelScale, 1e-4f)
+            assertVector3(head.modelScale, targetModelScale, COMPOSED_TRANSFORM_EPSILON)
         }
     }
 
@@ -147,9 +156,24 @@ class GltfNodeHierarchyTransformTest {
             entity.setEnabled(true)
             assertThat(entity.isEnabled(includeParents = false)).isTrue()
 
-            assertPose(node.localPose, hiddenPose, 1e-4f)
-            assertPose(node.modelPose, hiddenModelPose, 1e-4f)
-            assertPose(entity.getPose(), entityNewPose, 1e-4f)
+            assertPose(
+                node.localPose,
+                hiddenPose,
+                translationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+                rotationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+            )
+            assertPose(
+                node.modelPose,
+                hiddenModelPose,
+                translationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+                rotationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+            )
+            assertPose(
+                entity.getPose(),
+                entityNewPose,
+                translationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+                rotationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+            )
         }
     }
 
@@ -169,18 +193,12 @@ class GltfNodeHierarchyTransformTest {
                 parentModelPose.rotation * childLocalPose.translation.scale(parentModelScale)
         val expectedRotation = parentModelPose.rotation * childLocalPose.rotation
 
-        val actualModelPose = child.modelPose
-        assertVector3(actualModelPose.translation, expectedTranslation, ACCUMULATION_EPSILON)
-        assertRotationEquivalent(actualModelPose.rotation, expectedRotation, ACCUMULATION_EPSILON)
-    }
-
-    /** Asserts that [actual] and [expected] are the same rotation (`q` and `-q` are equivalent). */
-    private fun assertRotationEquivalent(actual: Quaternion, expected: Quaternion, epsilon: Float) {
-        val aligned = if ((actual dot expected) < 0f) -expected else expected
-        assertThat(actual.x).isWithin(epsilon).of(aligned.x)
-        assertThat(actual.y).isWithin(epsilon).of(aligned.y)
-        assertThat(actual.z).isWithin(epsilon).of(aligned.z)
-        assertThat(actual.w).isWithin(epsilon).of(aligned.w)
+        assertPose(
+            child.modelPose,
+            Pose(expectedTranslation, expectedRotation),
+            translationEpsilon = ACCUMULATION_EPSILON,
+            rotationEpsilon = ACCUMULATION_EPSILON,
+        )
     }
 
     private companion object {

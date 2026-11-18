@@ -535,9 +535,24 @@ class ShowHideEntityTest {
         sessionRule.onMainThread {
             val gltfs = createGltfHierarchy()
 
-            assertPose(gltfs.parent.getPose(Space.PARENT), PARENT_GLTF_POSE, POSE_TOLERANCE)
-            assertPose(gltfs.child1.getPose(Space.PARENT), CHILD_GLTF_1_POSE, POSE_TOLERANCE)
-            assertPose(gltfs.child2.getPose(Space.PARENT), CHILD_GLTF_2_POSE, POSE_TOLERANCE)
+            assertPose(
+                gltfs.parent.getPose(Space.PARENT),
+                PARENT_GLTF_POSE,
+                translationEpsilon = POSE_TOLERANCE,
+                rotationEpsilon = POSE_TOLERANCE,
+            )
+            assertPose(
+                gltfs.child1.getPose(Space.PARENT),
+                CHILD_GLTF_1_POSE,
+                translationEpsilon = POSE_TOLERANCE,
+                rotationEpsilon = POSE_TOLERANCE,
+            )
+            assertPose(
+                gltfs.child2.getPose(Space.PARENT),
+                CHILD_GLTF_2_POSE,
+                translationEpsilon = POSE_TOLERANCE,
+                rotationEpsilon = POSE_TOLERANCE,
+            )
 
             val initialParentActivityPos = gltfs.parent.getPose(Space.ACTIVITY).translation
             val initialChild1OffsetFromParent =
@@ -573,7 +588,12 @@ class ShowHideEntityTest {
                 expectChild1Enabled = false,
                 expectChild2Enabled = false,
             )
-            assertPose(gltfs.parent.getPose(Space.PARENT), movedParentPose, POSE_TOLERANCE)
+            assertPose(
+                gltfs.parent.getPose(Space.PARENT),
+                movedParentPose,
+                translationEpsilon = POSE_TOLERANCE,
+                rotationEpsilon = POSE_TOLERANCE,
+            )
             val movedParentActivityPos = gltfs.parent.getPose(Space.ACTIVITY).translation
             assertVector3(
                 movedParentActivityPos,
@@ -749,8 +769,18 @@ class ShowHideEntityTest {
         expectedChild1Offset: Vector3,
         expectedChild2Offset: Vector3,
     ) {
-        assertPose(gltfs.child1.getPose(Space.PARENT), CHILD_GLTF_1_POSE, POSE_TOLERANCE)
-        assertPose(gltfs.child2.getPose(Space.PARENT), CHILD_GLTF_2_POSE, POSE_TOLERANCE)
+        assertPose(
+            gltfs.child1.getPose(Space.PARENT),
+            CHILD_GLTF_1_POSE,
+            translationEpsilon = POSE_TOLERANCE,
+            rotationEpsilon = POSE_TOLERANCE,
+        )
+        assertPose(
+            gltfs.child2.getPose(Space.PARENT),
+            CHILD_GLTF_2_POSE,
+            translationEpsilon = POSE_TOLERANCE,
+            rotationEpsilon = POSE_TOLERANCE,
+        )
         assertVector3(
             gltfs.child1.getPose(Space.ACTIVITY).translation - parentActivityPos,
             expectedChild1Offset,

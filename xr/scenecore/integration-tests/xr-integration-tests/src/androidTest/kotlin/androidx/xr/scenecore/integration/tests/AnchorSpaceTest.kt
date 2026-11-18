@@ -256,7 +256,8 @@ class AnchorSpaceTest {
         assertPose(
             anchorPanel.getPose(Space.ACTIVITY),
             anchorSpace.getPose(Space.ACTIVITY),
-            POSE_TOLERANCE,
+            translationEpsilon = POSE_TOLERANCE,
+            rotationEpsilon = POSE_TOLERANCE,
         )
 
         anchorPanel.parent = null
