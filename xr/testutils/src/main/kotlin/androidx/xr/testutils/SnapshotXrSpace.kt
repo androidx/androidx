@@ -27,7 +27,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.testutils.runtime.cpm.captureSceneWithPolling
+import androidx.xr.testutils.runtime.cpm.captureDefaultSceneWithPolling
 import java.util.regex.Pattern
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -109,6 +109,12 @@ constructor(
     public val properties: Map<String, String> = emptyMap(),
     /** Optional explicit package name associated with this task space. */
     packageName: String? = null,
+    /**
+     * Optional 3D subspace collider or stereo-surface extents in meters resolved from Impress scene
+     * dumps (`dumpsys spf_cpm --proto --renderer`), used as a [worldExtents] fallback when no 2D
+     * surface bounds are defined.
+     */
+    public val subspaceBoundsInMeters: Vector3? = null,
 ) {
     internal val isNodeActive: Boolean = isActive
     private val directComputedPixelsPerMeter: Float? = computedPixelsPerMeter
@@ -441,6 +447,9 @@ constructor(
                     if (childExtents != null) return childExtents
                 }
             }
+            subspaceBoundsInMeters?.let {
+                return it
+            }
             if (isInputTarget && effectiveScale.x > 0f && effectiveScale.y > 0f) {
                 return effectiveScale
             }
@@ -453,17 +462,24 @@ constructor(
     public val worldHalfExtents: Vector3?
         get() = worldExtents?.let { Vector3(it.x * 0.5f, it.y * 0.5f, it.z * 0.5f) }
 
+    private val isInputSink: Boolean
+        get() =
+            properties["isInputSink"]?.toBoolean() == true ||
+                name.contains("ActivityRecordInputSink")
+
     /** Whether this space represents a spatial panel (embedded window leash). */
     public val isSpatialPanel: Boolean
         get() = isEmbeddedWindowLeash
 
     /**
      * Whether this space represents a 2D SurfaceFlinger buffer quad layer (`isAndroid2d=true` with
-     * a positive buffer or surface bounds).
+     * a positive buffer or surface bounds), excluding WindowManager `ActivityRecordInputSink`
+     * helper layers.
      */
     public val isAndroid2dSurface: Boolean
         get() =
             isAndroid2d &&
+                !isInputSink &&
                 ((bufferSize != null && bufferSize.x > 0f && bufferSize.y > 0f) || hasSurfaceBounds)
 
     /** Whether this space is a window leash for an Android task window. */
@@ -504,15 +520,14 @@ constructor(
     public val primarySurfaceNode: SnapshotXrSpace?
         get() {
             if (isAndroid2dSurface) return this
-            children
-                .firstOrNull { it.isAndroid2dSurface && !it.isSysUi }
+            (children.firstOrNull { it.isAndroid2dSurface && !it.isSysUi && it.isVisible }
+                    ?: children.firstOrNull { it.isAndroid2dSurface && !it.isSysUi })
                 ?.let {
                     return it
                 }
-            children
-                .firstOrNull { it.isTaskWindowWrapper }
-                ?.children
-                ?.firstOrNull { it.isAndroid2dSurface && !it.isSysUi }
+            val wrapperChildren = children.firstOrNull { it.isTaskWindowWrapper }?.children
+            (wrapperChildren?.firstOrNull { it.isAndroid2dSurface && !it.isSysUi && it.isVisible }
+                    ?: wrapperChildren?.firstOrNull { it.isAndroid2dSurface && !it.isSysUi })
                 ?.let {
                     return it
                 }
@@ -941,7 +956,7 @@ constructor(
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         }
         if (pollScene) {
-            captureSceneWithPolling(
+            captureDefaultSceneWithPolling(
                 uiAutomation = uiAutomation,
                 maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
             )

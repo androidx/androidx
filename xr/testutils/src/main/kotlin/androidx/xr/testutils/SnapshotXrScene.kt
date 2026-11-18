@@ -31,34 +31,26 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * Holds attached tree counts, summed buffer pixel area, and optional trailer node count for a
- * [SnapshotXrScene].
+ * Holds attached tree counts and summed buffer pixel area for a [SnapshotXrScene].
  *
  * @property attachedNodes total [SnapshotXrSpace] count across [SnapshotXrScene.rootNodes]
  * @property bufferPixels total 2D buffer area in pixels (`width * height` summed across
  *   [SnapshotXrSpace.bufferSize] in [SnapshotXrScene.rootNodes])
- * @property livingNodes total live C++ `Node` instances from the text `dumpsys spf_cpm` trailer
- *   (`Number of living nodes:`), including detached nodes not yet finalized, or `null` when
- *   unavailable (such as binary `--proto` dumps without trailer stats)
  */
 public data class SpatialSceneStats
 @JvmOverloads
 constructor(
     public val attachedNodes: Int = 0,
     public val bufferPixels: Long = 0L,
-    public val livingNodes: Int? = null,
 )
 
 /**
- * Computes [SpatialSceneStats] directly from [rootNodes] and optional text trailer [livingNodes].
+ * Computes [SpatialSceneStats] directly from [rootNodes].
  *
- * Returns `null` only when [rootNodes] is empty and [livingNodes] is `null`, preventing empty or
- * failed shell dumps from passing leak checks vacuously.
+ * Returns `null` when [rootNodes] is empty, preventing empty or failed shell dumps from passing
+ * leak checks vacuously.
  */
-internal fun computeSceneStats(
-    rootNodes: List<SnapshotXrSpace>,
-    livingNodes: Int? = null,
-): SpatialSceneStats? {
+internal fun computeSceneStats(rootNodes: List<SnapshotXrSpace>): SpatialSceneStats? {
     var attachedNodes = 0
     var bufferPixels = 0L
     val visited = Collections.newSetFromMap(IdentityHashMap<SnapshotXrSpace, Boolean>())
@@ -81,13 +73,12 @@ internal fun computeSceneStats(
             }
         }
     }
-    if (attachedNodes == 0 && livingNodes == null) {
+    if (attachedNodes == 0) {
         return null
     }
     return SpatialSceneStats(
         attachedNodes = attachedNodes,
         bufferPixels = bufferPixels,
-        livingNodes = livingNodes,
     )
 }
 

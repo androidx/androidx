@@ -56,10 +56,13 @@ import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
+import androidx.xr.testutils.runtime.cpm.captureProtoSceneWithPolling
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -899,8 +902,6 @@ class SpatialSceneHelperAndroidTest {
         val session = assertNotNull(capturedSession, "Expected XR Session from LocalSession")
 
         waitForSettledSpatialTask(activity = composeTestRule.activity)
-        val baselineNodes = waitForQuiescentLivingNodes()
-        assertTrue(baselineNodes > 0, "Expected positive quiescent livingNodes count")
 
         val scene = captureSpatialScene()
         val stats =
@@ -913,13 +914,10 @@ class SpatialSceneHelperAndroidTest {
             stats.bufferPixels > 0L,
             "Expected positive bufferPixels, was ${stats.bufferPixels}",
         )
-        val livingNodes = assertNotNull(stats.livingNodes, "Expected non-null livingNodes")
-        assertTrue(livingNodes > 0, "Expected positive livingNodes, was $livingNodes")
 
         XrResourceLeakRule(
                 maxAttachedNodesDelta = 0,
                 maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
                 settleTimeoutMs = 3000L,
             )
             .assertWithinBudget { createAndDisposeScopedEntities(session) }
@@ -931,7 +929,6 @@ class SpatialSceneHelperAndroidTest {
             XrResourceLeakRule(
                     maxAttachedNodesDelta = 0,
                     maxBufferPixelsDelta = 0L,
-                    maxLivingNodesDelta = 0,
                     settleTimeoutMs = 300L,
                     pollIntervalMs = 50L,
                 )
@@ -978,24 +975,6 @@ class SpatialSceneHelperAndroidTest {
         )
     }
 
-    @Suppress("BanThreadSleep")
-    private fun waitForQuiescentLivingNodes(): Int {
-        val deadline = System.currentTimeMillis() + 2500L
-        var previous: Int? = null
-        while (System.currentTimeMillis() < deadline) {
-            val current = captureSpatialScene().stats?.livingNodes
-            if (current != null && current == previous) {
-                return current
-            }
-            previous = current
-            SystemClock.sleep(150L)
-        }
-        return assertNotNull(
-            previous ?: captureSpatialScene().stats?.livingNodes,
-            "Expected non-null SnapshotXrScene.stats.livingNodes before diagnostic checks",
-        )
-    }
-
     private fun createAndDisposeScopedEntities(session: Session) {
         val createdEntities = mutableListOf<Entity>()
         val expectedNames = List(3) { idx -> "scopedEntity$idx" }
@@ -1026,6 +1005,184 @@ class SpatialSceneHelperAndroidTest {
             composeTestRule.runOnUiThread {
                 createdEntities.forEach { entity -> entity.parent = null }
                 createdEntities.clear()
+            }
+            composeTestRule.waitForIdle()
+        }
+    }
+
+    @Test
+    fun captureProtoSceneWithPolling_preservesSubMillimeterPoseAndSubspaceWorldExtents() {
+        runBlocking(Dispatchers.Main) { composeTestRule.activity.requestFullSpace() }
+
+        var capturedSession: Session? = null
+        composeTestRule.setContent {
+            capturedSession = LocalSession.current
+            Subspace {
+                SpatialPanel(modifier = SubspaceModifier.width(400.dp).height(300.dp)) {
+                    Box(modifier = Modifier.fillMaxSize()) { Text("Proto Scene Test Host") }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val session = assertNotNull(capturedSession, "Expected XR Session from LocalSession")
+        waitForSettledSpatialTask(activity = composeTestRule.activity)
+
+        val refPanelName = "protoRefPanel"
+        val subMmPanelName = "protoSubMmPanel"
+        val expectedDelta = Vector3(0.3127f, -0.1044f, -0.0008f)
+
+        var refPanel: androidx.xr.scenecore.PanelEntity? = null
+        var subMmPanel: androidx.xr.scenecore.PanelEntity? = null
+        var surfaceEntity: SurfaceEntity? = null
+
+        try {
+            composeTestRule.runOnUiThread {
+                session.scene.mainPanelEntity.setEnabled(false)
+                refPanel =
+                    androidx.xr.scenecore.PanelEntity.create(
+                        session = session,
+                        view =
+                            android.widget.TextView(composeTestRule.activity).apply {
+                                text = "Proto Ref"
+                            },
+                        pixelDimensions = androidx.xr.runtime.math.IntSize2d(320, 320),
+                        name = refPanelName,
+                        pose = Pose(Vector3(0f, 0f, -1.5f)),
+                        parent = session.scene.activitySpace,
+                    )
+                subMmPanel =
+                    androidx.xr.scenecore.PanelEntity.create(
+                        session = session,
+                        view =
+                            android.widget.TextView(composeTestRule.activity).apply {
+                                text = "Proto SubMm"
+                            },
+                        pixelDimensions = androidx.xr.runtime.math.IntSize2d(320, 320),
+                        name = subMmPanelName,
+                        pose = Pose(Vector3(0.3127f, -0.1044f, -1.5008f)),
+                        parent = session.scene.activitySpace,
+                    )
+                surfaceEntity =
+                    SurfaceEntity.create(
+                        session = session,
+                        pose = Pose(Vector3(-0.4f, 0f, -1.5f)),
+                        shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.2f, 0.8f)),
+                        parent = session.scene.activitySpace,
+                    )
+            }
+            composeTestRule.waitForIdle()
+            val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            var settledProtoScene: SnapshotXrScene? = null
+            var lastTask: SnapshotXrSpace? = null
+            val deadline = System.currentTimeMillis() + 5000L
+            while (System.currentTimeMillis() < deadline) {
+                val candidate = captureProtoSceneWithPolling(uiAutomation = uiAutomation)
+                val candidateTask = candidate.findTaskByActivity(composeTestRule.activity)
+                lastTask = candidateTask
+                val activitySpaceNode = candidateTask?.findNode {
+                    it.name == "SpatialSceneAndActivitySpaceRootNode"
+                }
+                val refNode = candidateTask?.findNode {
+                    it.name == refPanelName && it.isEmbeddedWindowLeash
+                }
+                val subMmNode = candidateTask?.findNode {
+                    it.name == subMmPanelName && it.isEmbeddedWindowLeash
+                }
+                val surfaceSubspaceNode =
+                    candidateTask?.subspaceNodes?.firstOrNull {
+                        it.name.contains("stereo_surface_panel_entity_subspace_") &&
+                            it.subspaceBoundsInMeters != null
+                    }
+                        ?: candidateTask?.findNode {
+                            it.name.contains("stereo_surface_panel_entity_subspace_") &&
+                                it.subspaceBoundsInMeters != null
+                        }
+                if (
+                    activitySpaceNode != null &&
+                        refNode != null &&
+                        subMmNode != null &&
+                        surfaceSubspaceNode != null
+                ) {
+                    settledProtoScene = candidate
+                    break
+                }
+                SystemClock.sleep(100L)
+            }
+            val scene =
+                assertNotNull(
+                    settledProtoScene,
+                    "Timed out waiting for proto panels and stereo surface subspace; subspaces=" +
+                        lastTask?.subspaceNodes?.map {
+                            "${it.name}(bounds=${it.subspaceBoundsInMeters},extents=${it.worldExtents})"
+                        },
+                )
+
+            val task = assertNotNull(scene.findTaskByActivity(composeTestRule.activity))
+            val activitySpaceNode =
+                assertNotNull(
+                    task.findNode { it.name == "SpatialSceneAndActivitySpaceRootNode" },
+                    "Expected SpatialSceneAndActivitySpaceRootNode",
+                )
+            val refNode =
+                assertNotNull(
+                    task.findNode { it.name == refPanelName && it.isEmbeddedWindowLeash },
+                    "Expected refPanel node",
+                )
+            val subMmNode =
+                assertNotNull(
+                    task.findNode { it.name == subMmPanelName && it.isEmbeddedWindowLeash },
+                    "Expected subMmPanel node",
+                )
+            val refPosInActivitySpace = activitySpaceNode.transformPointFromWorld(refNode.position)
+            val subMmPosInActivitySpace =
+                activitySpaceNode.transformPointFromWorld(subMmNode.position)
+            val measuredDelta = subMmPosInActivitySpace - refPosInActivitySpace
+            assertEquals(expectedDelta.x, measuredDelta.x, 2e-4f)
+            assertEquals(expectedDelta.y, measuredDelta.y, 2e-4f)
+            assertEquals(expectedDelta.z, measuredDelta.z, 2e-4f)
+
+            val allSubspacesSummary =
+                task.subspaceNodes.joinToString {
+                    "${it.name}(bounds=${it.subspaceBoundsInMeters},extents=${it.worldExtents},surfaceContainer=${it.isSurfaceContainer})"
+                }
+            val surfaceSubspaceNode =
+                assertNotNull(
+                    task.subspaceNodes.firstOrNull {
+                        it.name.contains("stereo_surface_panel_entity_subspace_") &&
+                            it.subspaceBoundsInMeters != null
+                    }
+                        ?: task.findNode {
+                            it.name.contains("stereo_surface_panel_entity_subspace_") &&
+                                it.subspaceBoundsInMeters != null
+                        },
+                    "Expected stereo_surface_panel_entity_subspace_ node with non-null subspaceBoundsInMeters; subspaces=[$allSubspacesSummary]",
+                )
+            val extents =
+                assertNotNull(
+                    surfaceSubspaceNode.worldExtents,
+                    "Expected non-null worldExtents on ${surfaceSubspaceNode.name}; subspaces=[$allSubspacesSummary]",
+                )
+            assertEquals(
+                1.2f,
+                extents.x,
+                1e-2f,
+                "Unexpected width for ${surfaceSubspaceNode.name} (subspaceBounds=${surfaceSubspaceNode.subspaceBoundsInMeters}, all=[$allSubspacesSummary])",
+            )
+            assertEquals(
+                0.8f,
+                extents.y,
+                1e-2f,
+                "Unexpected height for ${surfaceSubspaceNode.name} (subspaceBounds=${surfaceSubspaceNode.subspaceBoundsInMeters}, all=[$allSubspacesSummary])",
+            )
+            val stats = assertNotNull(scene.stats, "Expected proto scene.stats to be populated")
+            assertTrue(stats.attachedNodes > 0, "Expected positive attachedNodes in $stats")
+            assertTrue(stats.bufferPixels > 0L, "Expected positive bufferPixels in $stats")
+        } finally {
+            composeTestRule.runOnUiThread {
+                refPanel?.parent = null
+                subMmPanel?.parent = null
+                surfaceEntity?.parent = null
+                session.scene.mainPanelEntity.setEnabled(true)
             }
             composeTestRule.waitForIdle()
         }

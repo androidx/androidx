@@ -26,7 +26,7 @@ import android.graphics.Rect
 import android.os.Looper
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.xr.testutils.runtime.cpm.captureSceneWithPolling
+import androidx.xr.testutils.runtime.cpm.captureDefaultSceneWithPolling
 import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -36,9 +36,9 @@ import kotlin.time.TimeSource
 /**
  * Captures a point-in-time snapshot of the spatial scene graph from `dumpsys spf_cpm`.
  *
- * Parses point-in-time scene graph snapshots from `dumpsys spf_cpm` into a clean object structure
- * based strictly on system-guaranteed CPM and SpaceFlinger keywords, properties, and task
- * boundaries.
+ * When instrumentation argument `xrSceneUseProto` is `"true"`, captures from binary protobuf dumps
+ * (`dumpsys spf_cpm --proto` + `--proto --renderer`), falling back automatically to the text parser
+ * if binary output is unavailable. Otherwise uses the text parser over `dumpsys spf_cpm`.
  *
  * For the complete structural and keyword specification of `dumpsys spf_cpm`, see
  * `CPM_DUMPSYS_ARCHITECTURE.md` located in the `xr:testutils` root directory.
@@ -48,7 +48,7 @@ import kotlin.time.TimeSource
 @JvmOverloads
 public fun captureSpatialScene(
     uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
-): SnapshotXrScene = captureSceneWithPolling(uiAutomation = uiAutomation)
+): SnapshotXrScene = captureDefaultSceneWithPolling(uiAutomation = uiAutomation)
 
 /**
  * Repeatedly captures the spatial scene graph until [until] holds for the value returned by
@@ -196,7 +196,7 @@ public fun captureSceneToBitmap(
     if (Looper.myLooper() != Looper.getMainLooper()) {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
-    captureSceneWithPolling(
+    captureDefaultSceneWithPolling(
         uiAutomation = uiAutomation,
         maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
     )
@@ -290,7 +290,7 @@ public fun captureSceneToBitmap(
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
     val scene =
-        captureSceneWithPolling(
+        captureDefaultSceneWithPolling(
             uiAutomation = uiAutomation,
             maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
         )
