@@ -2769,6 +2769,13 @@ class RemoteComposeGeneratorTest {
             glStruct.fields.first { it.name == "value" }.presentIf,
         )
 
+        // DrawBitmapTextAnchored conditional bit range (A17)
+        val anchoredOp = schema.operationsByName["DrawBitmapTextAnchored"]!!
+        val anchoredTextBit =
+            anchoredOp.fields.first { it.name == "textId" }.bits!!.first { it.name == "textId" }
+        assertEquals(31, anchoredTextBit.whenBitSet?.bit)
+        assertEquals("0..15", anchoredTextBit.whenBitSet?.range)
+
         // Nested operation payload metadata
         val skip = schema.operationsByName["Skip"]!!
         assertEquals("operations", skip.fields.first { it.name == "skippedBytes" }.payloadKind)

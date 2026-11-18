@@ -4329,13 +4329,17 @@
         {
           "name": "textId",
           "type": "int",
-          "description": "Text ID in bits 0..30 and optional glyphSpacing presence flag in bit 31",
+          "description": "Text ID (bits 0..15 when bit 31 is set, bits 0..30 otherwise) and glyphSpacing presence flag in bit 31",
           "bits": [
             {
               "name": "textId",
               "range": "0..30",
               "role": "idRef",
-              "idKind": "text"
+              "idKind": "text",
+              "whenBitSet": {
+                "bit": 31,
+                "range": "0..15"
+              }
             },
             {
               "name": "hasGlyphSpacing",
