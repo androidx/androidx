@@ -499,6 +499,12 @@ public abstract class UpdateInfoService : Service() {
      * server error), the base class will catch it, invoke [onFetchFailed] for telemetry logging,
      * and gracefully return the currently cached data to the client.
      *
+     * **Check Times:** When this method returns successfully, the base class records the
+     * provider-wide check time. It does not record a check time for individual components, because
+     * the returned list does not show which components were checked. A host that checks more than
+     * one component should record each of them, including components with no update, by calling
+     * `UpdateInfoManager.setLastCheckTimeMillis(component, timestampMillis)`.
+     *
      * @return A list of [UpdateInfo] objects currently available for the device.
      */
     protected abstract suspend fun fetchUpdates(): List<UpdateInfo>
@@ -506,8 +512,10 @@ public abstract class UpdateInfoService : Service() {
     /**
      * Determines if the local cache is stale and a refresh should be attempted.
      *
-     * The default implementation returns `true` if the data is older than 1 hour. Hosts can
-     * override this to implement custom caching policies (e.g., 4 hours, 24 hours).
+     * The default implementation returns `true` if the data is older than 1 hour. The age is
+     * measured from the most recent recorded check, whether provider-wide or for a single
+     * component, so a check recorded for one component makes all of the data count as fresh. Hosts
+     * can override this to implement custom caching policies (e.g., 4 hours, 24 hours).
      *
      * @return `true` if a network fetch should be attempted.
      */
@@ -613,6 +621,7 @@ public abstract class UpdateInfoService : Service() {
             providerPackageName = packageName,
             updates = updateInfoManager.getAllUpdates(),
             lastCheckTimeMillis = updateInfoManager.getLastCheckTimeMillis(),
+            componentLastCheckTimesMillis = updateInfoManager.getComponentLastCheckTimesMillis(),
         )
     }
 
@@ -654,8 +663,9 @@ public abstract class UpdateInfoService : Service() {
      *
      * This implementation provides a snapshot of the internal state, including:
      * * **Active Request Count:** To detect stuck threads or high concurrency.
-     * * **Global Last Check Time:** The timestamp of the last successful service-wide sync (Service
-     *   Health).
+     * * **Global Last Check Time:** The timestamp of the latest successful check, service-wide or
+     *   for a single component (Service Health).
+     * * **Component Last Check Times:** Per-component sync timestamps recorded by the host.
      * * **Throttling Status:** Whether the rate limiter is currently blocking network requests.
      * * **Cached Updates:** A complete list of stored updates with detailed metadata (Component,
      *   SPL, Provider, Published Date, Last Checked Time).
@@ -666,6 +676,15 @@ public abstract class UpdateInfoService : Service() {
         pw.println("UpdateInfoService State:")
         pw.println("  Active Requests: ${activeRequestCount.get()}")
         pw.println("  Global Last Check: ${Date(updateInfoManager.getLastCheckTimeMillis())}")
+        val componentCheckTimes = updateInfoManager.getComponentLastCheckTimesMillis()
+        pw.println("  Component Last Checks (${componentCheckTimes.size}):")
+        if (componentCheckTimes.isEmpty()) {
+            pw.println("    (None)")
+        } else {
+            componentCheckTimes.forEach { (component, timestampMillis) ->
+                pw.println("    - $component: ${Date(timestampMillis)}")
+            }
+        }
         pw.println("  Should Throttle: ${shouldThrottle()}")
 
         val updates = updateInfoManager.getAllUpdates()

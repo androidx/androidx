@@ -259,10 +259,41 @@ class UpdateInfoServiceTest {
         assertEquals(1L, result.updates[0].publishedDateMillis)
         assertEquals(1000L, result.updates[0].lastCheckTimeMillis)
 
-        // Verify the global check time matches
+        // Verify the global check time matches. SYSTEM reports the check time of its pending
+        // update, and no per-component check time was recorded.
         assertEquals(1000L, result.lastCheckTimeMillis)
+        assertEquals(1000L, result.getLastCheckTimeMillis("SYSTEM"))
+        assertEquals(0L, result.getLastCheckTimeMillis("SYSTEM_MODULES"))
+        assertTrue(result.componentLastCheckTimesMillis.isEmpty())
 
         // Cleanup the session
+        session.close()
+    }
+
+    @Test
+    fun listAvailableUpdates_isolatesPerComponentCheckTimes_whenNoUpdatesPending() {
+        val manager = UpdateInfoManager(context)
+        manager.setLastCheckTimeMillis("SYSTEM_MODULES", 3000L)
+
+        val factory =
+            service.onBind(Intent("androidx.security.state.provider.UPDATE_INFO_SERVICE"))
+                as IUpdateInfoService
+        val session = factory.openSession("com.example.client", Binder())
+
+        val result = session.listAvailableUpdates()
+        assertTrue(result.updates.isEmpty())
+        assertEquals(3000L, result.lastCheckTimeMillis)
+        assertEquals(mapOf("SYSTEM_MODULES" to 3000L), result.componentLastCheckTimesMillis)
+        assertEquals(3000L, result.getLastCheckTimeMillis("SYSTEM_MODULES"))
+        assertEquals(0L, result.getLastCheckTimeMillis("SYSTEM"))
+
+        // Clearing the component check time with 0L removes it from subsequent results
+        manager.setLastCheckTimeMillis("SYSTEM_MODULES", 0L)
+        val clearedResult = session.listAvailableUpdates()
+        assertTrue(clearedResult.componentLastCheckTimesMillis.isEmpty())
+        assertEquals(0L, clearedResult.getLastCheckTimeMillis("SYSTEM_MODULES"))
+        assertEquals(0L, clearedResult.lastCheckTimeMillis)
+
         session.close()
     }
 
@@ -397,8 +428,9 @@ class UpdateInfoServiceTest {
         // WHEN we call the API
         val result = service.callListAvailableUpdates()
 
-        // THEN we get both updates back
+        // THEN we get both updates back, and no per-component check time is reported
         assertEquals(2, result.updates.size)
+        assertTrue(result.componentLastCheckTimesMillis.isEmpty())
 
         // AND they are persisted to storage (cleanup did NOT delete them)
         val storedUpdates = UpdateInfoManager(context).getAllUpdates()
