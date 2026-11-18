@@ -22,6 +22,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -457,14 +458,15 @@ private class AnimateAsState<T, V : AnimationVector>(
     override var animationSpec = resolveAnimationSpec(animationSpec, visibilityThreshold)
     private var job: Job? = null
 
-    private var toolingOverride: State<T>? by mutableStateOf(null)
+    private var valueState: State<T> by
+        mutableStateOf(animatable.asState(), referentialEqualityPolicy())
 
     override fun setToolingOverrideState(toolingOverrideState: State<T>?) {
-        this.toolingOverride = toolingOverrideState
+        this.valueState = toolingOverrideState ?: animatable.asState()
     }
 
     override val value: T
-        get() = toolingOverride?.value ?: animatable.value
+        get() = valueState.value
 
     fun update(
         target: T,
@@ -475,12 +477,21 @@ private class AnimateAsState<T, V : AnimationVector>(
         finishedListener: ((T) -> Unit)?,
     ) {
         var restartAnimation = false
+        var isInterrupted = false
         if (animatable.typeConverter !== typeConverter || animatable.label != label) {
-            animatable = Animatable(animatable.value, typeConverter, visibilityThreshold, label)
+            val oldAnimatable = animatable
+            isInterrupted = oldAnimatable.isRunning
+            val newAnimatable =
+                Animatable(oldAnimatable.value, typeConverter, visibilityThreshold, label)
+            animatable = newAnimatable
+            if (valueState === oldAnimatable.asState()) {
+                valueState = newAnimatable.asState()
+            }
             restartAnimation = true
         }
 
         if (target != animatable.targetValue) {
+            isInterrupted = isInterrupted || animatable.isRunning
             restartAnimation = true
         }
 
@@ -488,12 +499,15 @@ private class AnimateAsState<T, V : AnimationVector>(
         this.finishedListener = finishedListener
 
         if (restartAnimation) {
-            restartAnimation(target, this.animationSpec)
+            restartAnimation(target, this.animationSpec, isInterrupted)
         }
     }
 
-    private fun restartAnimation(newTarget: T, animSpec: AnimationSpec<T>) {
-        val isInterrupted = animatable.isRunning
+    private fun restartAnimation(
+        newTarget: T,
+        animSpec: AnimationSpec<T>,
+        isInterrupted: Boolean,
+    ) {
         if (job != null) {
             job?.cancel()
         }
