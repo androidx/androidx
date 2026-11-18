@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.lerp
 
 /**
@@ -142,7 +143,10 @@ internal fun lerp(a: RoundedCornerShape, b: RoundedCornerShape, t: Float): Round
 internal fun lerp(a: CornerSize, b: CornerSize, t: Float): CornerSize {
     return object : CornerSize {
         override fun toPx(shapeSize: Size, density: Density): Float {
+            // Overshooting animations can extrapolate to a negative corner size, but
+            // `CornerBasedShape.createOutline` throws on it
             return lerp(a.toPx(shapeSize, density), b.toPx(shapeSize, density), t)
+                .fastCoerceAtLeast(0f)
         }
     }
 }

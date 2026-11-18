@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Interpolatable
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import kotlin.test.Test
@@ -44,6 +45,18 @@ class ShapeInterpolationTests {
         val result = Interpolatable.lerp(a, b, 0.5f)
         assertIs<RoundedCornerShape>(result)
         assertEquals(CornerSize(15.dp), result.topStart)
+    }
+
+    @Test
+    fun testRoundedCornerToRoundedCorner_overshoot_isNotNegative() {
+        val a = RoundedCornerShape(10.dp)
+        val b = RoundedCornerShape(0.dp)
+        // An overshooting animation extrapolates past b, to -5.dp
+        val result = Interpolatable.lerp(a, b, 1.5f)
+        assertIs<RoundedCornerShape>(result)
+        assertEquals(CornerSize(0.dp), result.topStart)
+        // Negative corner sizes would throw here
+        result.createOutline(size, LayoutDirection.Ltr, density)
     }
 
     @Test
