@@ -317,6 +317,5 @@ class SpatialPointerAndCaptureComponentTest {
 
     private companion object {
         const val ACTIVITY_SPACE_NODE_NAME = "SpatialSceneAndActivitySpaceRootNode"
-        const val MAIN_PANEL_NODE_NAME = "MainPanelAndTaskWindowLeashNode"
     }
 }

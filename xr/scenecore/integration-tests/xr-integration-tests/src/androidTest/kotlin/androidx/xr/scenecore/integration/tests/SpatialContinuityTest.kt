@@ -25,8 +25,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -452,7 +450,7 @@ class SpatialContinuityTest {
                 .isGreaterThan(MIN_CONTINUITY_SHIFT_METERS)
         } finally {
             instrumentation.removeMonitor(monitor)
-            finishActivitiesOtherThan(sessionRule.activity)
+            sessionRule.finishActivitiesOtherThan()
         }
     }
 
@@ -665,33 +663,6 @@ class SpatialContinuityTest {
             .that(normSq)
             .isWithin(TRANSFORM_EPSILON)
             .of(1f)
-    }
-
-    private fun finishActivitiesOtherThan(hostActivity: Activity) {
-        val monitor = ActivityLifecycleMonitorRegistry.getInstance()
-        val stages =
-            listOf(
-                Stage.PRE_ON_CREATE,
-                Stage.CREATED,
-                Stage.STARTED,
-                Stage.RESUMED,
-                Stage.PAUSED,
-                Stage.STOPPED,
-                Stage.RESTARTED,
-            )
-        sessionRule.onMainThread {
-            for (stage in stages) {
-                for (candidate in monitor.getActivitiesInStage(stage)) {
-                    if (
-                        candidate !== hostActivity &&
-                            !candidate.isFinishing &&
-                            !candidate.isDestroyed
-                    ) {
-                        candidate.finish()
-                    }
-                }
-            }
-        }
     }
 
     private companion object {

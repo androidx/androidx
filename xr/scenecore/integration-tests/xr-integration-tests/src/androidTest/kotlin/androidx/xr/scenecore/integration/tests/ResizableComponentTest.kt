@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore.integration.tests
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Color as AndroidColor
 import android.view.Gravity
@@ -42,8 +41,6 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
@@ -270,7 +267,7 @@ class ResizableComponentTest {
         } finally {
             // No public API closes the embedded activity before the host finishes; finish it
             // directly.
-            finishActivitiesOtherThan(sessionRule.activity)
+            sessionRule.finishActivitiesOtherThan()
         }
     }
 
@@ -1733,33 +1730,6 @@ class ResizableComponentTest {
     }
 
     /**
-     * Finishes every activity of this process except [host], and blocks until they are destroyed.
-     *
-     * An [ActivityPanelEntity] only destroys its embedded activity when the entity itself is
-     * destroyed, which happens after [host] has finished. If the embedded activity is still alive
-     * when [host] finishes, it becomes the top activity of the task and crashes SystemUI.
-     *
-     * Must be called from the instrumentation thread before the test finishes.
-     */
-    private fun finishActivitiesOtherThan(host: Activity) {
-        val monitor = ActivityLifecycleMonitorRegistry.getInstance()
-        fun aliveActivities(): List<Activity> =
-            Stage.values()
-                .filter { it != Stage.DESTROYED }
-                .flatMap { monitor.getActivitiesInStage(it) }
-                .filter { it !== host }
-
-        sessionRule.onMainThread { aliveActivities().forEach { it.finish() } }
-        waitUntil(
-            description = "embedded activities to be destroyed",
-            timeout = EMBEDDED_ACTIVITY_FINISH_TIMEOUT,
-            pollInterval = POLL_INTERVAL,
-        ) {
-            sessionRule.onMainThread { aliveActivities().isEmpty() }
-        }
-    }
-
-    /**
      * Blocks the instrumentation thread until [listener] has reported the end of the resize, and
      * fails on timeout.
      */
@@ -2017,14 +1987,8 @@ class ResizableComponentTest {
         /** Timeout applied when waiting for the end of a resize to be reported by the component. */
         val RESIZE_TIMEOUT = 5.seconds
 
-        /** Timeout applied when waiting for embedded activities to be destroyed. */
-        val EMBEDDED_ACTIVITY_FINISH_TIMEOUT = 5.seconds
-
         /** Interval between two consecutive polls. */
         val POLL_INTERVAL = 100.milliseconds
-
-        /** Name of the task scoped node that backs the main panel. */
-        const val MAIN_PANEL_NODE_NAME = "MainPanelAndTaskWindowLeashNode"
 
         /**
          * Size of the Compose spatial panel and of the activity panel created by baseline tests.

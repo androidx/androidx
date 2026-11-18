@@ -943,17 +943,3 @@ class PanelCoordinateToPoseTest {
         val POLL_INTERVAL = 100.milliseconds
     }
 }
-
-/**
- * Reads [GltfModelEntity.nodes] while the renderer is still running.
- *
- * When the activity is destroyed, `Session` destroys its rendering runtime before its scene runtime
- * disposes entities. `GltfFeatureImpl.dispose()` then builds the lazy `nodes` list if nothing read
- * it before, querying the torn-down renderer, which intermittently crashes the test process with
- * "IllegalArgumentException: Illegal Capacity: -1".
- */
-internal fun GltfModelEntity.loadNodesBeforeTeardown() {
-    // TODO(b/584771482): Remove once entities are disposed before the rendering runtime is
-    // destroyed.
-    assertThat(nodes).isNotEmpty()
-}
