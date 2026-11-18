@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 internal class EntityRegistry {
     private val rtEntityEntityMap = ConcurrentHashMap<RtEntity, WeakReference<Entity>>()
+    @Volatile internal var onEntityDisposed: ((Entity) -> Unit)? = null
 
     /**
      * Returns the [Entity] associated with the given [androidx.xr.scenecore.runtime.Entity].
@@ -107,8 +108,13 @@ internal class EntityRegistry {
     internal fun containsRtEntity(rtEntity: RtEntity): Boolean =
         rtEntityEntityMap.containsKey(rtEntity)
 
+    internal fun notifyEntityDisposed(entity: Entity) {
+        onEntityDisposed?.invoke(entity)
+    }
+
     /** Clears the EntityRegistry. */
     internal fun clear() {
+        onEntityDisposed = null
         rtEntityEntityMap.clear()
     }
 }

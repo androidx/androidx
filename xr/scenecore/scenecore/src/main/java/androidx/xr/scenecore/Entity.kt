@@ -29,6 +29,7 @@ import androidx.xr.scenecore.runtime.HandlerExecutor
 import androidx.xr.scenecore.runtime.ReferenceCleaner
 import androidx.xr.scenecore.runtime.ScenePose as RtScenePose
 import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SystemSpaceEntity as RtSystemSpaceEntity
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -303,6 +304,22 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
     public val isDisposed: Boolean
         get() = _rtEntity == null
 
+    /**
+     * Returns `true` if this entity is not disposed and its runtime parent chain reaches a root
+     * [RtSystemSpaceEntity] (such as [ActivitySpace] or [AnchorSpace]).
+     */
+    internal fun isAttachedToSceneSpace(): Boolean {
+        var current: RtEntity? = _rtEntity ?: return false
+        val visited = HashSet<RtEntity>()
+        while (current != null && visited.add(current)) {
+            if (current is RtSystemSpaceEntity) {
+                return true
+            }
+            current = current.parent
+        }
+        return false
+    }
+
     internal open fun disposeInternal() {
         if (isDisposed) return
         // Clear the parent to remove this entity from the parent's children list.
@@ -322,6 +339,7 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
         _rtEntity?.let {
             cleanupAction.rtEntityRef.set(null)
             removeAllComponents()
+            entityRegistry.notifyEntityDisposed(this)
             entityRegistry.removeEntity(it)
             it.dispose()
             _rtEntity = null

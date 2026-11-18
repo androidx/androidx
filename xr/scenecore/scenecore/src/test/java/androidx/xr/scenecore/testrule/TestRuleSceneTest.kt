@@ -323,8 +323,6 @@ class TestRuleSceneTest {
         val listener = Consumer<SpaceChangeEvent> { _ -> listenerCalled = true }
 
         session.scene.setSpaceChangedListener(listener)
-        // Set keyEntity to null to avoid the IllegalStateException in FakeEntity
-        session.scene.keyEntity = null
         session.scene.clearSpaceChangedListener()
 
         val expectedPose = Pose.Identity

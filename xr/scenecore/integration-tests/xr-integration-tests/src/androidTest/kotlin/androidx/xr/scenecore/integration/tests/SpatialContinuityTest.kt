@@ -493,6 +493,69 @@ class SpatialContinuityTest {
             .isGreaterThan(10.0f)
     }
 
+    @Test
+    fun detachedCustomKeyEntity_skipsDefaultSpaceUpdateUntilReattached() {
+        val baselineNode = waitForHomeSpaceTaskNode(sessionRule.activity)
+        sessionRule.requestFullSpace()
+        waitForSettledSpatialTask(
+            activity = sessionRule.activity,
+            requireFullSpace = true,
+            expectedMainPanelVisible = true,
+            timeout = SCENE_TIMEOUT,
+        )
+
+        val scene = sessionRule.session.scene
+        val customPanel = createCustomPanel()
+        scene.keyEntity = customPanel
+        assertThat(scene.keyEntity).isSameInstanceAs(customPanel)
+
+        // Detach the active keyEntity and verify transitions do not throw or mutate its pose.
+        customPanel.parent = null
+        assertThat(scene.keyEntity).isSameInstanceAs(customPanel)
+
+        sessionRule.requestHomeSpace()
+        waitForHomeSpaceTaskNode(sessionRule.activity)
+
+        sessionRule.requestFullSpace()
+        waitForSettledSpatialTask(
+            activity = sessionRule.activity,
+            requireFullSpace = true,
+            expectedMainPanelVisible = true,
+            timeout = SCENE_TIMEOUT,
+        )
+        assertThat(scene.keyEntity).isSameInstanceAs(customPanel)
+        assertPose(customPanel.getPose(), RIGHT_PANEL_POSE, TRANSFORM_EPSILON)
+
+        // Reattaching resumes keyEntity continuity and space-change pose alignment.
+        customPanel.parent = scene.activitySpace
+        waitForSeparatedPanelsInSingleSnapshot(
+            hostActivity = sessionRule.activity,
+            customPanelName = CUSTOM_PANEL_NAME,
+            minDistanceMeters = 0.25f,
+        )
+
+        sessionRule.requestHomeSpace()
+        val hsmNode = waitForHomeSpaceTaskNode(sessionRule.activity)
+        assertWithMessage(
+                "Reattached keyEntity continuity should shift HSM window (${hsmNode.position}) " +
+                    "away from baseline (${baselineNode.position})"
+            )
+            .that((hsmNode.position - baselineNode.position).length)
+            .isGreaterThan(MIN_CONTINUITY_SHIFT_METERS)
+
+        sessionRule.requestFullSpace()
+        waitForSettledSpatialTask(
+            activity = sessionRule.activity,
+            requireFullSpace = true,
+            expectedMainPanelVisible = true,
+            timeout = SCENE_TIMEOUT,
+        )
+        waitUntil("Returning to Full Space resets reattached custom keyEntity pose to origin") {
+            customPanel.getPose(Space.ACTIVITY).translation.length < TRANSFORM_EPSILON
+        }
+        assertPose(customPanel.getPose(Space.ACTIVITY), Pose.Identity, TRANSFORM_EPSILON)
+    }
+
     private fun createCustomPanel(): PanelEntity {
         return sessionRule.onMainThread {
             val view = View(sessionRule.activity).apply { setBackgroundColor(Color.BLUE) }

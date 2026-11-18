@@ -113,8 +113,9 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
      * will throw [IllegalArgumentException] if set.
      *
      * By default, this is set to [mainPanelEntity]. This field can be `null` if the key entity was
-     * cleared by setting this value to `null`. When `null`, the default listener takes no action
-     * during spatial mode changes.
+     * cleared by setting this value to `null` or if the active key entity is disposed. When
+     * [keyEntity] is `null` or not attached to a root space in the scene graph, the default
+     * space-changed listener takes no action during spatial mode changes.
      *
      * When a new non-null [Entity] is assigned as [keyEntity], the [spaceChangedListener] is
      * immediately invoked with the last known recommended pose and scale values if the following
@@ -135,9 +136,10 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
                 else -> {
                     // If the previous keyEntity was from null value, invoke the
                     // spatialModeChangedListener to apply cached values to new keyEntity.
+                    val rtEntity = value?.rtEntity
                     val wasNull = field == null
                     field = value
-                    sceneRuntime.keyEntity = value?.rtEntity
+                    sceneRuntime.keyEntity = rtEntity
                     // If we've just transitioned from a null to a non-null entity,
                     // and we have cached values, apply them to the new entity.
                     if (wasNull && value != null) {
@@ -173,8 +175,11 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
 
     private val defaultSpaceChangedListener =
         Consumer<SpaceChangeEvent> { event ->
-            keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
-            keyEntity?.setScale(event.recommendedScale, Space.ACTIVITY)
+            val currentKeyEntity = keyEntity
+            if (currentKeyEntity != null && currentKeyEntity.isAttachedToSceneSpace()) {
+                currentKeyEntity.setPose(event.recommendedPose, Space.ACTIVITY)
+                currentKeyEntity.setScale(event.recommendedScale, Space.ACTIVITY)
+            }
         }
     private var spaceChangedListener = defaultSpaceChangedListener
     private var spaceChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
@@ -192,6 +197,11 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun initialize(runtimes: List<JxrRuntime>) {
         this.sceneRuntime = runtimes.filterIsInstance<SceneRuntime>().first()
+        entityRegistry.onEntityDisposed = { disposedEntity ->
+            if (keyEntity === disposedEntity) {
+                keyEntity = null
+            }
+        }
         spatialEnvironment = SpatialEnvironment(sceneRuntime, entityRegistry)
         perceptionSpace = PerceptionSpace.create(sceneRuntime)
         activitySpace = ActivitySpace.create(sceneRuntime, entityRegistry)
