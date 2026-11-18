@@ -29,12 +29,14 @@ import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteContentScale
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -80,6 +82,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -988,23 +993,163 @@ class RcPlayerPixelTest {
     }
 
     @Test
-    fun horizontalScroll_hostRtl_doesNotReverseScrollDirection() {
+    fun horizontalScroll_hostRtl_offsetZero_showsFirstChildRed() {
         val bitmap =
-            renderAtUnitDensity(
-                widthDp = 100,
-                heightDp = 100,
+            renderHorizontalScrollAtUnitDensity(
+                position = 0f,
                 hostLayoutDirection = LayoutDirection.Rtl,
+            )
+        val center = Color(bitmap.getPixel(50, 50))
+        assertThat(center.red).isGreaterThan(0.8f)
+        assertThat(center.green).isLessThan(0.2f)
+        assertThat(center.blue).isLessThan(0.2f)
+    }
+
+    @Test
+    fun horizontalScroll_hostRtl_offsetMax_showsLastChildGreen() {
+        val bitmap =
+            renderHorizontalScrollAtUnitDensity(
+                position = 200f,
+                hostLayoutDirection = LayoutDirection.Rtl,
+            )
+        val center = Color(bitmap.getPixel(50, 50))
+        assertThat(center.green).isGreaterThan(0.8f)
+        assertThat(center.red).isLessThan(0.2f)
+        assertThat(center.blue).isLessThan(0.2f)
+    }
+
+    @Test
+    fun horizontalScroll_hostRtl_partialStartOffset_doesNotReverseScrollDirection() {
+        val bitmap =
+            renderHorizontalScrollAtUnitDensity(
+                position = 50f,
+                hostLayoutDirection = LayoutDirection.Rtl,
+            )
+        val left = Color(bitmap.getPixel(25, 50))
+        assertThat(left.red).isGreaterThan(0.8f)
+        assertThat(left.blue).isLessThan(0.2f)
+
+        val right = Color(bitmap.getPixel(75, 50))
+        assertThat(right.blue).isGreaterThan(0.8f)
+        assertThat(right.red).isLessThan(0.2f)
+    }
+
+    @Test
+    fun horizontalScroll_hostRtl_partialEndOffset_doesNotReverseScrollDirection() {
+        val bitmap =
+            renderHorizontalScrollAtUnitDensity(
+                position = 150f,
+                hostLayoutDirection = LayoutDirection.Rtl,
+            )
+        val left = Color(bitmap.getPixel(25, 50))
+        assertThat(left.blue).isGreaterThan(0.8f)
+        assertThat(left.green).isLessThan(0.2f)
+
+        val right = Color(bitmap.getPixel(75, 50))
+        assertThat(right.green).isGreaterThan(0.8f)
+        assertThat(right.blue).isLessThan(0.2f)
+    }
+
+    @Test
+    fun horizontalScroll_hostRtl_swipeLeftScrollsForwardAndSwipeRightScrollsBack() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val captured = runBlocking {
+            captureSingleRemoteDocument(
+                creationDisplayInfo = createRemoteCreationDisplayInfo(context, Size(100f, 100f)),
+                context = context,
             ) {
-                val scrollState = remember { RemoteScrollState(position = 100f, notches = 2) }
+                val scrollState = remember { RemoteScrollState(position = 0f, notches = 2) }
                 RemoteRow(modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)) {
                     RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
                     RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))
                     RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Green.rc))
                 }
             }
+        }
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(captured.bytes).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalDensity provides Density(1f),
+                LocalLayoutDirection provides LayoutDirection.Rtl,
+            ) {
+                Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                    RcPlayer(document = document)
+                }
+            }
+        }
+        rule.waitForIdle()
 
+        val initialCenter =
+            Color(rule.onNodeWithTag("player").captureToImage().asAndroidBitmap().getPixel(50, 50))
+        assertThat(initialCenter.red).isGreaterThan(0.8f)
+
+        rule.onNodeWithTag("player").performTouchInput { swipeLeft() }
+        rule.waitForIdle()
+
+        val afterLeftSwipe =
+            Color(rule.onNodeWithTag("player").captureToImage().asAndroidBitmap().getPixel(50, 50))
+        assertThat(afterLeftSwipe.red).isLessThan(0.2f)
+        assertThat(afterLeftSwipe.blue > 0.8f || afterLeftSwipe.green > 0.8f).isTrue()
+
+        rule.onNodeWithTag("player").performTouchInput { swipeRight() }
+        rule.waitForIdle()
+
+        val afterRightSwipe =
+            Color(rule.onNodeWithTag("player").captureToImage().asAndroidBitmap().getPixel(50, 50))
+        assertThat(afterRightSwipe.red).isGreaterThan(0.8f)
+    }
+
+    @Test
+    fun horizontalScroll_creationRtl_hostRtl_offsetZero_preservesPhysicalWireOrder() {
+        val bitmap =
+            renderAtUnitDensity(
+                widthDp = 100,
+                heightDp = 100,
+                hostLayoutDirection = LayoutDirection.Rtl,
+            ) {
+                CompositionLocalProvider(
+                    LocalRemoteLayoutDirection provides RemoteLayoutDirection.Rtl
+                ) {
+                    val scrollState = remember { RemoteScrollState(position = 0f, notches = 2) }
+                    RemoteRow(
+                        modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)
+                    ) {
+                        RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
+                        RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))
+                        RemoteBox(
+                            modifier = RemoteModifier.size(100.rdp).background(Color.Green.rc)
+                        )
+                    }
+                }
+            }
+
+        // Under RTL creation, RemoteRow places Green at x=0..100, Blue at 100..200, Red at
+        // 200..300. At position = 0f under host RTL, reverseScrolling preserves wire coordinates
+        // and renders Green (not Red).
         val center = Color(bitmap.getPixel(50, 50))
-        assertThat(center.blue).isGreaterThan(0.8f)
+        assertThat(center.green).isGreaterThan(0.8f)
         assertThat(center.red).isLessThan(0.2f)
     }
+
+    private fun renderHorizontalScrollAtUnitDensity(
+        position: Float,
+        hostLayoutDirection: LayoutDirection,
+    ): Bitmap =
+        renderAtUnitDensity(
+            widthDp = 100,
+            heightDp = 100,
+            hostLayoutDirection = hostLayoutDirection,
+        ) {
+            val scrollState = remember { RemoteScrollState(position = position, notches = 2) }
+            RemoteRow(modifier = RemoteModifier.size(100.rdp).horizontalScroll(scrollState)) {
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Green.rc))
+            }
+        }
 }
