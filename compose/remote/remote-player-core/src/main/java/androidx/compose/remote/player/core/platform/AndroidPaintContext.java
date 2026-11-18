@@ -768,6 +768,11 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
             return false;
         }
         int lastCharIndexOnLine = layout.getLineEnd(lineIndex) - 1;
+        if (lastCharIndexOnLine < 0 || lastCharIndexOnLine + 1 >= originalText.length()) {
+            // Empty line, or a line ending at the end of the text (e.g. the line before the
+            // empty trailing line a final newline produces): nothing follows the break.
+            return false;
+        }
         char charBeforeBreak = originalText.charAt(lastCharIndexOnLine);
         char charAfterBreak = originalText.charAt(lastCharIndexOnLine + 1);
         if (!Character.isWhitespace(charBeforeBreak) && !Character.isWhitespace(charAfterBreak)) {
