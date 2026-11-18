@@ -56,33 +56,28 @@ import java.util.WeakHashMap
 /**
  * Suppresses the status bar and collapses top status bar inset padding to 0.dp.
  *
- * In cases where the system status bar overlay is not yet supported by the platform, the fallback
- * [TimeText] will also be suppressed for consistency. Outside of a scaffold (such as in a
- * standalone dialog or overlay window), hides the status bar directly on the current window and
- * restores the initial visibility state when leaving composition or becoming inactive.
+ * Outside of a scaffold (such as in a standalone dialog or overlay window),
+ * [Modifier.suppressStatusBar] hides the status bar directly on the current window and restores the
+ * initial visibility state when leaving composition or becoming inactive.
+ *
+ * The system status bar is supported where the target SDK version is at least VANILLA_ICE_CREAM,
+ * and the system image is at least CINNAMON_BUN_2. If either of those is not met, the fallback
+ * [TimeText] will also be suppressed for consistency.
  *
  * For design guidance and best practices on status bar suppression and immersive experiences on
  * Wear OS, see the [Status Bar](https://developer.android.com/training/wearables/status-bar) guide.
  *
  * **Layout-Phase Usage:** When using [ScreenScaffold], pass `contentPadding` directly to containers
  * like TransformingLazyColumn as content padding or to layout modifiers (such as
- * `Modifier.padding(contentPadding)`) rather than inspecting `contentPadding.calculateTopPadding()`
- * directly during the composition phase. Inspecting padding values during composition before the
- * first layout pass can observe initial unsuppressed insets before suppression nodes are fully
- * attached, whereas layout modifiers evaluate insets during measure/layout where suppression state
- * is fully resolved:
+ * `Modifier.padding(contentPadding)`). Do not inspect `contentPadding.calculateTopPadding()` or
+ * similar padding methods directly during the composition phase, which observes initial
+ * unsuppressed insets before suppression nodes are fully attached:
  * ```
- * // Recommended (evaluated in layout phase after child nodes attach):
+ * // Recommended (contentPadding evaluated in layout phase after child nodes attach):
  * ScreenScaffold { contentPadding ->
- *     Box(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
- *         DatePicker() // Suppresses status bar internally
+ *     Box(modifier = Modifier.suppressStatusBar().background(MaterialTheme.colorScheme.background)
+ *         .fillMaxSize().padding(contentPadding)) {
  *     }
- * }
- *
- * // Avoid (eager composition read before child nodes attach):
- * ScreenScaffold { contentPadding ->
- *     val topPadding = contentPadding.calculateTopPadding()
- *     DatePicker() // Suppresses status bar internally
  * }
  * ```
  *
@@ -518,8 +513,7 @@ private const val TAG = "StatusBar"
 /** Checks if the global status bar is enabled for the given application [Context]. */
 internal fun isStatusBarEnabled(context: Context): Boolean =
     try {
-        context.applicationInfo.targetSdkVersion >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
-            WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_2) &&
+        WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_2) &&
             WearSettings.isStatusBarEnabled(context)
     } catch (e: Throwable) {
         false
