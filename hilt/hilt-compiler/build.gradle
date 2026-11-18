@@ -50,6 +50,14 @@ dependencies {
     testImplementation(SdkHelperKt.getSdkDependency(project))
 }
 
+dependencies {
+    constraints {
+        implementation(libs.guava) {
+            because("b/586875095 - upgrading to fix vulns")
+        }
+    }
+}
+
 tasks.withType(KotlinCompile).configureEach { task ->
     task.compilerOptions {
         it.freeCompilerArgs.addAll(
