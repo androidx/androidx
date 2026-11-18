@@ -2780,6 +2780,24 @@ class RemoteComposeGeneratorTest {
         val floatConstOp = schema.operationsByName["FloatConstant"]!!
         assertEquals("float_or_id", floatConstOp.fields.first { it.name == "value" }.type)
 
+        // Sparse framing metadata (A19, A20, C6)
+        for (spOpName in listOf("CoreText", "TextStyle")) {
+            val spOp = schema.operationsByName[spOpName]!!
+            assertEquals("ushort", spOp.sparseCountType)
+            assertEquals("ubyte", spOp.sparseKeyType)
+            assertEquals(
+                "ushort",
+                spOp.sparseParameters!!.first { it.id == 20 }.lengthType,
+            )
+            assertEquals(
+                "ushort",
+                spOp.sparseParameters!!.first { it.id == 21 }.lengthType,
+            )
+        }
+        val textStyleOp = schema.operationsByName["TextStyle"]!!
+        assertTrue(textStyleOp.sparseParameters!!.first { it.id == 2 }.ignored)
+        assertTrue(textStyleOp.sparseParameters!!.first { it.id == 23 }.ignored)
+
         // Nested operation payload metadata
         val skip = schema.operationsByName["Skip"]!!
         assertEquals("operations", skip.fields.first { it.name == "skippedBytes" }.payloadKind)
@@ -3024,6 +3042,12 @@ class RemoteComposeGeneratorTest {
             "Expected conditionalTypes validation error, got: $metaErrors",
             metaErrors.any { it.contains("conditionalTypes") },
         )
+        assertTrue(
+            "Expected missing encoding == 'sparse' validation error, got: $metaErrors",
+            metaErrors.any {
+                it.contains("declares sparseParameters without encoding == 'sparse'")
+            },
+        )
 
         // 4-7. Synthetic schema exercising:
         // - Nullable presentIf + packed !unpackBits strictEnum (C++ (*field), Kotlin/Rust/Swift/TS)
@@ -3066,6 +3090,7 @@ class RemoteComposeGeneratorTest {
                   "name": "SyntheticTestOp",
                   "category": "Test",
                   "description": "Synthetic operation for codegen review checks",
+                  "encoding": "sparse",
                   "sparseCountType": "int",
                   "sparseKeyType": "short",
                   "fields": [
@@ -3129,6 +3154,7 @@ class RemoteComposeGeneratorTest {
                   "name": "SignedShortSparseCountOp",
                   "category": "Test",
                   "description": "Synthetic operation with signed 16-bit sparse count",
+                  "encoding": "sparse",
                   "sparseCountType": "short",
                   "sparseKeyType": "ubyte",
                   "fields": [],

@@ -415,6 +415,30 @@ public object JsonSchemaParser {
                     }
                 }
             }
+            val isSparseEncoding = op.optString("encoding", "") == "sparse"
+            val hasSparseParameters = op.has("sparseParameters")
+            if (hasSparseParameters && !isSparseEncoding) {
+                errors.add("Operation $name declares sparseParameters without encoding == 'sparse'")
+            }
+            if (isSparseEncoding || hasSparseParameters) {
+                if (!op.has("sparseCountType")) {
+                    errors.add("Sparse operation $name must specify sparseCountType")
+                }
+                if (!op.has("sparseKeyType")) {
+                    errors.add("Sparse operation $name must specify sparseKeyType")
+                }
+                if (hasSparseParameters) {
+                    val spArr = op.getJSONArray("sparseParameters")
+                    for (spIdx in 0 until spArr.length()) {
+                        val spObj = spArr.getJSONObject(spIdx)
+                        if (spObj.getString("type").endsWith("[]") && !spObj.has("lengthType")) {
+                            errors.add(
+                                "Sparse operation $name array parameter ${spObj.getString("name")} must specify lengthType"
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         // 4. Reference integrity for closedBy

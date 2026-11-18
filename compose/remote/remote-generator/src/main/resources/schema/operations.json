@@ -6140,12 +6140,14 @@
         {
           "id": 20,
           "name": "fontAxis",
-          "type": "int[]"
+          "type": "int[]",
+          "lengthType": "ushort"
         },
         {
           "id": 21,
           "name": "fontAxisValues",
-          "type": "float_or_id[]"
+          "type": "float_or_id[]",
+          "lengthType": "ushort"
         },
         {
           "id": 22,
@@ -6166,7 +6168,9 @@
           "defaultValue": "-1"
         }
       ],
-      "isContainer": true
+      "isContainer": true,
+      "sparseCountType": "ushort",
+      "sparseKeyType": "ubyte"
     },
     {
       "id": 240,
@@ -6286,7 +6290,8 @@
           "id": 2,
           "name": "animationId",
           "type": "int",
-          "defaultValue": "-1"
+          "defaultValue": "-1",
+          "ignored": true
         },
         {
           "id": 3,
@@ -6405,12 +6410,14 @@
         {
           "id": 20,
           "name": "fontAxis",
-          "type": "int[]"
+          "type": "int[]",
+          "lengthType": "ushort"
         },
         {
           "id": 21,
           "name": "fontAxisValues",
-          "type": "float_or_id[]"
+          "type": "float_or_id[]",
+          "lengthType": "ushort"
         },
         {
           "id": 22,
@@ -6422,7 +6429,8 @@
           "id": 23,
           "name": "flags",
           "type": "int",
-          "defaultValue": "0"
+          "defaultValue": "0",
+          "ignored": true
         },
         {
           "id": 24,
@@ -6430,7 +6438,9 @@
           "type": "int",
           "defaultValue": "-1"
         }
-      ]
+      ],
+      "sparseCountType": "ushort",
+      "sparseKeyType": "ubyte"
     },
     {
       "id": 243,
