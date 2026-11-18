@@ -18,8 +18,6 @@ package androidx.xr.scenecore.integration.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.screenshot.assertAgainstGolden
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.math.Vector4
@@ -30,10 +28,10 @@ import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.KhronosPbrMaterial
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
 import androidx.xr.testutils.XrSessionRule
+import androidx.xr.testutils.assertAgainstGolden
 import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.waitUntil
@@ -54,8 +52,8 @@ import org.junit.runner.RunWith
  * 2. Waits for async environment/passthrough state via [waitForSpatialEnvironmentSettled] and scene
  *    graph readiness via [waitUntil] + [captureSpatialScene], then captures the stabilized 3D
  *    compositor viewport via [XrSessionRule.captureToBitmap].
- * 3. Asserts the captured bitmap against the golden image using
- *    `androidx.test.screenshot.assertAgainstGolden` with [XrScreenshotTestRule] and [MSSIMMatcher].
+ * 3. Asserts the captured bitmap against the golden image using [assertAgainstGolden] with
+ *    [XrScreenshotTestRule] (defaulting to [androidx.xr.testutils.XrSsimMatcher]).
  */
 @RunWith(AndroidJUnit4::class)
 @XrDeviceTest
@@ -117,7 +115,6 @@ class GltfMaterialAndIblScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "gltf_dragon_studio_lighting_ibl",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
@@ -163,7 +160,6 @@ class GltfMaterialAndIblScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "gltf_dragon_pbr_material_override",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 

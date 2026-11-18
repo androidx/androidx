@@ -20,8 +20,6 @@ import android.graphics.Color as AndroidColor
 import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.screenshot.assertAgainstGolden
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -33,12 +31,12 @@ import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
 import androidx.xr.testutils.FakeHeadTrackingRule
 import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.SpatialAlignment
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
+import androidx.xr.testutils.assertAgainstGolden
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.waitForSpatialScene
 import java.nio.file.Paths
@@ -164,11 +162,7 @@ class PanelCoordinateToPoseScreenshotTest {
 
         sessionRule
             .captureToBitmap(padding = CROP_PADDING_PX, autoCrop = true)
-            .assertAgainstGolden(
-                screenshotRule,
-                goldenIdentifier,
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
-            )
+            .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }
 
     private fun awaitVisiblePanelAndGltfSubspace(): SnapshotXrSpace =

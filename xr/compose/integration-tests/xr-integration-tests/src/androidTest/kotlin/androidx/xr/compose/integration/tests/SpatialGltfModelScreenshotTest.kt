@@ -43,8 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.screenshot.assertAgainstGolden
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialGltfModel
@@ -70,9 +68,9 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.math.Vector4
 import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.KhronosPbrMaterial
-import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
+import androidx.xr.testutils.assertAgainstGolden
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.nio.file.Paths
@@ -116,7 +114,6 @@ class SpatialGltfModelScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_gltf_model_dragon_from_path",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
@@ -144,7 +141,6 @@ class SpatialGltfModelScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_gltf_model_arrows_from_uri",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
@@ -199,7 +195,6 @@ class SpatialGltfModelScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_gltf_model_node_transform_modified",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
@@ -244,7 +239,6 @@ class SpatialGltfModelScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_gltf_model_material_override",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
@@ -282,7 +276,6 @@ class SpatialGltfModelScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_gltf_model_with_child_panel",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
@@ -330,7 +323,6 @@ class SpatialGltfModelScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_gltf_model_in_spatial_row",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 

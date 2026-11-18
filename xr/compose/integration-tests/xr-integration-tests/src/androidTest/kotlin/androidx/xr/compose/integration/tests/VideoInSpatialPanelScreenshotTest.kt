@@ -51,8 +51,6 @@ import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.screenshot.assertAgainstGolden
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
@@ -68,9 +66,9 @@ import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.PositionalAudioComponent
-import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
+import androidx.xr.testutils.assertAgainstGolden
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -191,7 +189,6 @@ class VideoInSpatialPanelScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_video_in_spatial_panel_first_frame",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
 
         // 4. Click "Stop Video" and verify the video stops and surface is destroyed.

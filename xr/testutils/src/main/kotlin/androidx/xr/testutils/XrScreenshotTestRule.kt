@@ -34,9 +34,8 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * Default Structural Similarity Index (MSSIM) threshold for 3D XR compositor screenshots on XR
- * devices. Tolerates minor subpixel/MSAA GPU variance while catching visual regressions in
- * materials, lighting, and 3D spatial layouts.
+ * Legacy default `MSSIMMatcher` threshold kept for compatibility with existing callers. Prefer
+ * [XrSsimMatcher] (the default matcher on [XrScreenshotTestRule]) for 3D XR screenshots.
  */
 public const val DEFAULT_XR_MSSIM_THRESHOLD: Double = 0.95
 
@@ -72,10 +71,10 @@ private val TOAST_WINDOW_MODE_REGEX =
  *
  * Uses the same golden repository root and [moduleDirectory] layout as
  * `AndroidXScreenshotTestRule`, but runs on any device with the XR spatial feature instead of only
- * on API 35 emulators. Use it with the standard `androidx.test.screenshot.assertAgainstGolden`
- * extensions. While a test is executing on an XR device, `com.android.systemui` `TOAST_WINDOW`
- * overlays (such as the post-wake input-recovery toast) are temporarily suppressed via AppOps so
- * transient system toasts cannot pollute compositor captures or auto-cropped bounds.
+ * on API 35 emulators. Use it with [assertAgainstGolden] or [assertBitmapAgainstGolden]
+ * (`androidx.xr.testutils`). While a test is executing on an XR device, `com.android.systemui`
+ * `TOAST_WINDOW` overlays (such as the post-wake input-recovery toast) are temporarily suppressed
+ * via AppOps so transient system toasts cannot pollute compositor captures or auto-cropped bounds.
  *
  * When a golden is missing or mismatched, the captured bitmap is staged under
  * [stagedGoldensDirectory] using its repository-relative path so that it can be pulled directly
@@ -105,11 +104,15 @@ private val TOAST_WINDOW_MODE_REGEX =
  * @param updateGoldens When `true`, stages captured bitmaps for missing or mismatched goldens and
  *   does not throw [AssertionError]. Defaults to reading the [UPDATE_GOLDENS_ARG] instrumentation
  *   argument.
+ * @param defaultMatcher Default [BitmapMatcher] used when calling `assertAgainstGolden` without an
+ *   explicit matcher or calling the two-argument [assertBitmapAgainstGolden] overload. Defaults to
+ *   [XrSsimMatcher].
  */
 public class XrScreenshotTestRule
 internal constructor(
     moduleDirectory: String,
     private val updateGoldens: Boolean,
+    public val defaultMatcher: BitmapMatcher = XrSsimMatcher(),
     private val shellCommandExecutor: (String) -> String,
 ) :
     ScreenshotTestRule(
@@ -127,9 +130,11 @@ internal constructor(
     public constructor(
         moduleDirectory: String,
         updateGoldens: Boolean = isUpdateGoldensArgumentEnabled(),
+        defaultMatcher: BitmapMatcher = XrSsimMatcher(),
     ) : this(
         moduleDirectory = moduleDirectory,
         updateGoldens = updateGoldens,
+        defaultMatcher = defaultMatcher,
         shellCommandExecutor = { executeSceneShellCommand(it) },
     )
 
@@ -171,6 +176,14 @@ internal constructor(
     /** Skips the test on devices without the XR spatial feature, matching [XrDeviceTest]. */
     override fun assumeSupportedDevice() {
         Assume.assumeTrue("Requires an XR device", isXrDevice())
+    }
+
+    /**
+     * Asserts [actual] against the golden identified by [goldenIdentifier] using [defaultMatcher],
+     * staging the captured bitmap under [stagedGoldensDirectory] when missing or mismatched.
+     */
+    public fun assertBitmapAgainstGolden(actual: Bitmap, goldenIdentifier: String) {
+        assertBitmapAgainstGolden(actual, goldenIdentifier, defaultMatcher)
     }
 
     /**
@@ -287,6 +300,21 @@ internal constructor(
 
     private fun buildAdbPullAllCommand(): String =
         "adb pull ${stagedGoldensDirectory.absolutePath}/. ../../golden/"
+}
+
+/**
+ * Asserts this bitmap against the golden identified by [goldenIdentifier] using [rule].
+ *
+ * Uses [XrScreenshotTestRule.defaultMatcher] (which defaults to [XrSsimMatcher]) unless [matcher]
+ * is provided explicitly.
+ */
+@JvmOverloads
+public fun Bitmap.assertAgainstGolden(
+    rule: XrScreenshotTestRule,
+    goldenIdentifier: String,
+    matcher: BitmapMatcher = rule.defaultMatcher,
+) {
+    rule.assertBitmapAgainstGolden(this, goldenIdentifier, matcher)
 }
 
 private fun isUpdateGoldensArgumentEnabled(): Boolean = runCatching {

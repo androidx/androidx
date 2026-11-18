@@ -40,8 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
-import androidx.test.screenshot.assertAgainstGolden
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.arcore.ArDevice
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
@@ -64,10 +62,10 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
 import androidx.xr.testutils.FakeHeadTrackingRule
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
+import androidx.xr.testutils.assertAgainstGolden
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.filterSupportedPermissions
 import com.google.common.truth.Truth.assertThat
@@ -193,7 +191,6 @@ class RotateToLookAtUserScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_rotate_to_look_at_user_standard_and_billboard",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
@@ -237,7 +234,6 @@ class RotateToLookAtUserScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_rotate_to_look_at_user_under_rolled_parent",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
