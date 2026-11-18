@@ -94,26 +94,27 @@ class StillCaptureRequestControlTest {
     private lateinit var fakeConfigAdapter: CaptureConfigAdapter
     private lateinit var fakeUseCaseCameraState: UseCaseCameraState
 
+    private val fakeState3ARequestControl = FakeUseCaseCameraRequestControl()
+
     private val fakeState3AControl: State3AControl =
         FakeState3AControlCreator.createState3AControl(
-            requestControl = FakeUseCaseCameraRequestControl(),
+            requestControl = fakeState3ARequestControl,
             threads = fakeUseCaseThreads,
         )
 
     private lateinit var useCaseCameraRequestControl: UseCaseCameraRequestControlImpl
 
-    private val stillCaptureRequestControl =
-        StillCaptureRequestControl(
-            FlashControl(
-                fakeCameraProperties,
-                fakeState3AControl,
-                fakeUseCaseThreads,
-                TorchControl(fakeCameraProperties, fakeState3AControl, fakeUseCaseThreads),
-                NotUseFlashModeTorchFor3aUpdate,
-            ),
+    private val flashControl =
+        FlashControl(
+            fakeCameraProperties,
+            fakeState3AControl,
             fakeUseCaseThreads,
-            cameraSessionLifecycleAdapter,
+            TorchControl(fakeCameraProperties, fakeState3AControl, fakeUseCaseThreads),
+            NotUseFlashModeTorchFor3aUpdate,
         )
+
+    private val stillCaptureRequestControl =
+        StillCaptureRequestControl(flashControl, fakeUseCaseThreads, cameraSessionLifecycleAdapter)
 
     private val captureConfigList =
         listOf(
@@ -549,6 +550,148 @@ class StillCaptureRequestControlTest {
 
             advanceUntilIdle()
             requestFutures.forEach { it.failsWithCameraClosedError() }
+        }
+
+    @Test
+    fun cancelledInFlightRequest_onSessionStopThenRestart_notResubmitted() =
+        runTest(testDispatcher) {
+            cameraStateAdapter.onGraphStateUpdated(fakeCameraGraph, GraphState.GraphStateStarted)
+            val requestFuture = stillCaptureRequestControl.issueCaptureRequests()
+            advanceUntilIdle()
+            assertThat(fakeCameraGraphSession.submittedRequests).hasSize(captureConfigList.size)
+            val submittedRequests = fakeCameraGraphSession.submittedRequests.toList()
+            fakeCameraGraphSession.submittedRequests.clear()
+
+            // Simulate ImageCapture.onSessionStop() -> RequestWithCallback.abort() cancelling the
+            // capture request future before the HAL reports ERROR_CAMERA_CLOSED.
+            requestFuture.cancel(true)
+            cameraStateAdapter.onGraphStateUpdated(fakeCameraGraph, GraphState.GraphStateStopped)
+            submittedRequests.first().let { request ->
+                request.listeners.forEach { listener -> listener.onAborted(request) }
+            }
+            advanceUntilIdle()
+
+            // Simulate ON_START restarting the session (and also attaching a new camera).
+            cameraStateAdapter.onGraphStateUpdated(fakeCameraGraph, GraphState.GraphStateStarted)
+            advanceUntilIdle()
+            assertThat(fakeCameraGraphSession.submittedRequests).isEmpty()
+
+            stillCaptureRequestControl.setNewRequestControl()
+            advanceUntilIdle()
+            assertThat(fakeCameraGraphSession.submittedRequests).isEmpty()
+        }
+
+    @Test
+    fun cancelledInFlightRequest_preservesCapturePipelinePostCaptureRestoration() =
+        runTest(testDispatcher) {
+            val preCaptureGate = CompletableDeferred<Unit>()
+            fakeCameraGraphSession.lock3ASuspendGate = preCaptureGate
+
+            // MAXIMIZE_QUALITY + USE_TORCH_AS_FLASH with FLASH_MODE_OFF routes through
+            // CapturePipelineImpl.defaultNoFlashCapture(lock3ARequired = true), locking AF in
+            // PRE_CAPTURE and unlocking AF in NonCancellable POST_CAPTURE.
+            val requestFuture =
+                stillCaptureRequestControl.issueCaptureRequests(
+                    captureConfigList,
+                    ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
+                    ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH,
+                )
+            advanceUntilIdle()
+            assertThat(fakeCameraGraphSession.lock3ACallCount).isEqualTo(1)
+            assertThat(fakeCameraGraphSession.unlock3ACallCount).isEqualTo(0)
+
+            // Cancel while CapturePipeline is suspended in PRE_CAPTURE.
+            requestFuture.cancel(true)
+            preCaptureGate.complete(Unit)
+            advanceUntilIdle()
+
+            assertThat(fakeCameraGraphSession.submittedRequests).hasSize(captureConfigList.size)
+            val submittedRequests = fakeCameraGraphSession.submittedRequests.toList()
+            fakeCameraGraphSession.submittedRequests.clear()
+
+            submittedRequests.forEach { request ->
+                request.listeners.forEach { listener ->
+                    listener.onTotalCaptureResult(
+                        FakeRequestMetadata(),
+                        CameraFrameNumber(0),
+                        FakeFrameInfo(),
+                    )
+                }
+            }
+            advanceUntilIdle()
+
+            assertThat(requestFuture.isCancelled).isTrue()
+            assertThat(fakeCameraGraphSession.unlock3ACallCount).isEqualTo(1)
+            assertThat(fakeCameraGraphSession.submittedRequests).isEmpty()
+        }
+
+    @Test
+    fun cancelledInFlightRequest_withNewCameraBeforeOnAborted_notImmediatelyRetried() =
+        runTest(testDispatcher) {
+            val requestFuture = stillCaptureRequestControl.issueCaptureRequests()
+            advanceUntilIdle()
+            assertThat(fakeCameraGraphSession.submittedRequests).hasSize(captureConfigList.size)
+            val oldSubmittedRequests = fakeCameraGraphSession.submittedRequests.toList()
+
+            // Simulate partial unbind of ImageCapture while Preview stays bound: requestFuture is
+            // cancelled and a new UseCaseCamera is attached before old HAL reports onAborted.
+            requestFuture.cancel(true)
+            stillCaptureRequestControl.setNewRequestControl()
+            oldSubmittedRequests.first().let { request ->
+                request.listeners.forEach { listener -> listener.onAborted(request) }
+            }
+            advanceUntilIdle()
+
+            assertThat(fakeCameraGraphSession.submittedRequests).isEmpty()
+        }
+
+    @Test
+    fun cancelledPendingRequest_whenCameraIsNull_notSubmittedWhenCameraAttached() =
+        runTest(testDispatcher) {
+            stillCaptureRequestControl.requestControl = null
+            val requestFuture = stillCaptureRequestControl.issueCaptureRequests()
+            advanceUntilIdle()
+
+            requestFuture.cancel(true)
+            stillCaptureRequestControl.setNewRequestControl()
+            advanceUntilIdle()
+
+            assertThat(fakeCameraGraphSession.submittedRequests).isEmpty()
+        }
+
+    @Test
+    fun cancelledRequest_whileAwaitingSurfaceSetup_notSubmittedWhenSurfaceSetupCompletes() =
+        runTest(testDispatcher) {
+            val isSurfaceSetupSuccessful = CompletableDeferred<Boolean>()
+            stillCaptureRequestControl.setNewRequestControl(isSurfaceSetupSuccessful)
+
+            val requestFuture = stillCaptureRequestControl.issueCaptureRequests()
+            advanceUntilIdle()
+
+            requestFuture.cancel(true)
+            isSurfaceSetupSuccessful.complete(true)
+            advanceUntilIdle()
+
+            assertThat(fakeCameraGraphSession.submittedRequests).isEmpty()
+        }
+
+    @Test
+    fun cancelledRequest_whileAwaitingFlashModeUpdate_notSubmittedWhenFlashUpdateCompletes() =
+        runTest(testDispatcher) {
+            val flashUpdateGate = CompletableDeferred<Unit>()
+            fakeState3ARequestControl.addParameterResult = flashUpdateGate
+            flashControl.requestControl = fakeState3ARequestControl
+            flashControl.setFlashAsync(FLASH_MODE_OFF)
+
+            val requestFuture = stillCaptureRequestControl.issueCaptureRequests()
+            advanceUntilIdle()
+            assertThat(fakeCameraGraphSession.submittedRequests).isEmpty()
+
+            requestFuture.cancel(true)
+            flashUpdateGate.complete(Unit)
+            advanceUntilIdle()
+
+            assertThat(fakeCameraGraphSession.submittedRequests).isEmpty()
         }
 
     private fun StillCaptureRequestControl.issueCaptureRequests() =

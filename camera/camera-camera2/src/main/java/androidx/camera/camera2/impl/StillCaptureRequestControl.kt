@@ -25,7 +25,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.CameraSessionLifecycleCallback
 import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.Binds
 import dagger.Module
@@ -113,6 +113,15 @@ constructor(
         }
     }
 
+    /**
+     * Issues [captureConfigs] to the active [UseCaseCameraRequestControl], or queues them in
+     * [pendingRequests] until a session is ready.
+     *
+     * Cancelling the returned [ListenableFuture] (e.g. via `RequestWithCallback.abort()` on
+     * `ON_STOP`) marks the request's result cancelled so it is never queued or retried, without
+     * cancelling any already-running [CapturePipeline] coroutine (preserving `NonCancellable`
+     * post-capture 3A/flash/torch restoration).
+     */
     public fun issueCaptureRequests(
         captureConfigs: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
@@ -124,16 +133,9 @@ constructor(
             val request = CaptureRequest(captureConfigs, captureMode, flashType, signal)
             val requestControl = requestControl
             if (requestControl != null && requestControl.awaitSurfaceSetup()) {
-                val submittedSessionStartCount = sessionStartCount
-                submitRequest(request, requireNotNull(requestControl))
-                    .propagateResultOrEnqueueRequest(
-                        submittedRequest = request,
-                        currentRequestControl = requireNotNull(requestControl),
-                        submittedSessionStartCount = submittedSessionStartCount,
-                    )
-            } else {
+                submitRequest(request, requestControl)
+            } else if (enqueuePendingRequest(request)) {
                 // UseCaseCamera may become null by the time the coroutine is started
-                mutex.withLock { pendingRequests.add(request) }
                 Camera2Logger.debug {
                     "StillCaptureRequestControl: useCaseCamera is null, $request" +
                         " will be retried with a future UseCaseCamera"
@@ -141,7 +143,26 @@ constructor(
             }
         }
 
-        return Futures.nonCancellationPropagating(signal.asListenableFuture())
+        return signal.asListenableFuture().also { future ->
+            future.addListener(
+                {
+                    if (future.isCancelled) {
+                        signal.cancel()
+                    }
+                },
+                CameraXExecutors.directExecutor(),
+            )
+        }
+    }
+
+    /** Queues [request] for a future session unless its caller already cancelled it. */
+    private suspend fun enqueuePendingRequest(request: CaptureRequest): Boolean = mutex.withLock {
+        if (request.result.isActive) {
+            pendingRequests.add(request)
+            true
+        } else {
+            false
+        }
     }
 
     private fun trySubmitPendingRequests() {
@@ -151,15 +172,7 @@ constructor(
                 mutex.withLock {
                     while (pendingRequests.isNotEmpty()) {
                         pendingRequests.poll()?.let { request ->
-                            requestControl.let { requestControl ->
-                                val submittedSessionStartCount = sessionStartCount
-                                submitRequest(request, requestControl)
-                                    .propagateResultOrEnqueueRequest(
-                                        submittedRequest = request,
-                                        currentRequestControl = requestControl,
-                                        submittedSessionStartCount = submittedSessionStartCount,
-                                    )
-                            }
+                            submitRequest(request, requestControl)
                         }
                     }
                 }
@@ -170,12 +183,19 @@ constructor(
     private suspend fun submitRequest(
         request: CaptureRequest,
         requestControl: UseCaseCameraRequestControl,
-    ): Deferred<List<Void?>> {
+    ) {
+        if (!request.result.isActive) {
+            return
+        }
         Camera2Logger.debug { "StillCaptureRequestControl: submitting $request at $requestControl" }
         // Prior to submitStillCaptures, wait until the pending flash mode session change is
         // completed. On some devices, AE preCapture triggered in submitStillCaptures may not
         // work properly if the repeating request to change the flash mode is not completed.
         val flashMode = flashControl.awaitFlashModeUpdate()
+        if (!request.result.isActive) {
+            return
+        }
+        val submittedSessionStartCount = sessionStartCount
         Camera2Logger.debug { "StillCaptureRequestControl: Issuing single capture" }
         val deferredList =
             requestControl.issueSingleCaptureAsync(
@@ -185,18 +205,24 @@ constructor(
                 flashMode,
             )
 
-        return threads.sequentialScope.async(start = CoroutineStart.UNDISPATCHED) {
-            // requestControl.issueSingleCaptureAsync shouldn't be invoked from here directly,
-            // because sequentialScope.async is may not be executed immediately
-            Camera2Logger.debug {
-                "StillCaptureRequestControl: Waiting for deferred list from $request"
-            }
-            deferredList.awaitAll().also {
+        threads.sequentialScope
+            .async(start = CoroutineStart.UNDISPATCHED) {
+                // requestControl.issueSingleCaptureAsync shouldn't be invoked from here directly,
+                // because sequentialScope.async is may not be executed immediately
                 Camera2Logger.debug {
-                    "StillCaptureRequestControl: Waiting for deferred list from $request done"
+                    "StillCaptureRequestControl: Waiting for deferred list from $request"
+                }
+                deferredList.awaitAll().also {
+                    Camera2Logger.debug {
+                        "StillCaptureRequestControl: Waiting for deferred list from $request done"
+                    }
                 }
             }
-        }
+            .propagateResultOrEnqueueRequest(
+                submittedRequest = request,
+                currentRequestControl = requestControl,
+                submittedSessionStartCount = submittedSessionStartCount,
+            )
     }
 
     private fun Deferred<List<Void?>>.propagateResultOrEnqueueRequest(
@@ -220,20 +246,13 @@ constructor(
                         ) {
                             // camera has already been changed or session restarted, can retry
                             // immediately
-                            val currentSessionStartCount = sessionStartCount
                             submitRequest(submittedRequest, latestRequestControl)
-                                .propagateResultOrEnqueueRequest(
-                                    submittedRequest = submittedRequest,
-                                    currentRequestControl = latestRequestControl,
-                                    submittedSessionStartCount = currentSessionStartCount,
-                                )
                             isPending = false
                         }
                     }
 
                     // no new camera to retry at, adding to pending list for trying later
-                    if (isPending) {
-                        mutex.withLock { pendingRequests.add(submittedRequest) }
+                    if (isPending && enqueuePendingRequest(submittedRequest)) {
                         Camera2Logger.debug {
                             "StillCaptureRequestControl: failed to submit $submittedRequest" +
                                 ", will be retried with a future UseCaseCamera"
