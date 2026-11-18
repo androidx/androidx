@@ -20,9 +20,9 @@ import android.content.res.Configuration
 import android.os.Build
 import android.window.BackEvent
 import androidx.activity.BackEventCompat
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
-import androidx.activity.OnBackPressedDispatcherOwner
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,7 +51,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -60,8 +60,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.testing.TestNavHostController
@@ -78,9 +76,12 @@ import org.junit.Rule
 import org.junit.Test
 
 class SwipeDismissableNavHostTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
-    private lateinit var backPressedDispatcher: OnBackPressedDispatcher
+    // Under max_dep_versions, production handlers register on ComponentActivity's
+    // NavigationEventDispatcher, which is backed by this OnBackPressedDispatcher.
+    private val backPressedDispatcher: OnBackPressedDispatcher
+        get() = rule.activity.onBackPressedDispatcher
 
     @Test
     fun supports_testtag() {
@@ -713,16 +714,17 @@ class SwipeDismissableNavHostTest {
     private fun ComposeContentTestRule.setContentWithBackPressedDispatcher(
         composable: @Composable () -> Unit
     ) {
-        backPressedDispatcher = OnBackPressedDispatcher()
-        val dispatcherOwner =
-            object : OnBackPressedDispatcherOwner, LifecycleOwner by TestLifecycleOwner() {
-                override val onBackPressedDispatcher = backPressedDispatcher
-            }
-        setContent {
-            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
-                composable()
-            }
+        // Catch-all for back events the NavHost doesn't handle (e.g., userSwipeEnabled = false),
+        // so they don't fall through to ComponentActivity's default finish(). Registered before
+        // setContent so every handler added by the composition takes priority over it.
+        runOnUiThread {
+            backPressedDispatcher.addCallback(
+                object : OnBackPressedCallback(enabled = true) {
+                    override fun handleOnBackPressed() {}
+                }
+            )
         }
+        setContent(composable)
     }
 }
 

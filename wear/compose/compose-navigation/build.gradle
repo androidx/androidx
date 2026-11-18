@@ -48,7 +48,6 @@ dependencies {
     androidTestImplementation(project(":wear:compose:compose-material"))
     androidTestImplementation(project(":wear:compose:compose-navigation-samples"))
     androidTestImplementation(libs.truth)
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.7.0")
     androidTestImplementation("androidx.navigation:navigation-testing:2.6.0")
 }
 
