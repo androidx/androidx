@@ -60,7 +60,7 @@ import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.createXrSessionRule
@@ -228,8 +228,8 @@ class ActivityPanelIntegrationTest {
             assertThat(panel.addComponent(resizable)).isTrue()
 
             val expectedLocalDelta = UPDATED_POSE.translation - INITIAL_POSE.translation
-            var configuredNodeRef: SpatialNode? = null
-            var configuredActivitySpaceRef: SpatialNode? = null
+            var configuredNodeRef: SnapshotXrSpace? = null
+            var configuredActivitySpaceRef: SnapshotXrSpace? = null
             waitUntil(
                 "CPM reflects configured ActivityPanel visibility, capabilities, bounds, and pose",
                 timeout = SCENE_TIMEOUT,
@@ -502,9 +502,9 @@ class ActivityPanelIntegrationTest {
                 )
                 .isNotNull()
 
-            var destNodeRef: SpatialNode? = null
-            var destActivitySpaceRef: SpatialNode? = null
-            var sourceNodeAfterRef: SpatialNode? = null
+            var destNodeRef: SnapshotXrSpace? = null
+            var destActivitySpaceRef: SnapshotXrSpace? = null
+            var sourceNodeAfterRef: SnapshotXrSpace? = null
             waitUntil(
                 "Destination ActivityPanel receives embedded activity surface and source releases it",
                 timeout = SCENE_TIMEOUT,
@@ -775,8 +775,8 @@ class ActivityPanelIntegrationTest {
             activityPanel.setPose(UPDATED_POSE, Space.PARENT)
 
             val expectedLocalDelta = UPDATED_POSE.translation - INITIAL_POSE.translation
-            var updatedNode: SpatialNode? = null
-            var updatedActivitySpace: SpatialNode? = null
+            var updatedNode: SnapshotXrSpace? = null
+            var updatedActivitySpace: SnapshotXrSpace? = null
             waitUntil(
                 "CPM scene node reflects updated ActivityPanel sizeInPixels and pose",
                 timeout = SCENE_TIMEOUT,
@@ -873,8 +873,8 @@ class ActivityPanelIntegrationTest {
         return embedded
     }
 
-    private fun waitForMainPanelNode(hostActivity: ComponentActivity): SpatialNode {
-        var found: SpatialNode? = null
+    private fun waitForMainPanelNode(hostActivity: ComponentActivity): SnapshotXrSpace {
+        var found: SnapshotXrSpace? = null
         waitUntil("Main panel SpatialNode is visible with extents", timeout = SCENE_TIMEOUT) {
             val scene = captureSpatialScene()
             val task = scene.findTaskByActivity(hostActivity)
@@ -898,8 +898,8 @@ class ActivityPanelIntegrationTest {
         panelName: String,
         requireActivityWindowLeash: Boolean = false,
         requireSurfaceBoundsInPixels: Boolean = false,
-    ): Pair<SpatialNode, SpatialNode> {
-        var found: Pair<SpatialNode, SpatialNode>? = null
+    ): Pair<SnapshotXrSpace, SnapshotXrSpace> {
+        var found: Pair<SnapshotXrSpace, SnapshotXrSpace>? = null
         waitUntil(
             "ActivityPanel SpatialNode '$panelName' is visible with extents",
             timeout = SCENE_TIMEOUT,

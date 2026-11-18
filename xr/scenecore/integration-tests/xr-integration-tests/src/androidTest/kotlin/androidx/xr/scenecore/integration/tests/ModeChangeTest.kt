@@ -47,9 +47,8 @@ import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.SpatialWindow
 import androidx.xr.scenecore.createBundleForFullSpaceLaunch
 import androidx.xr.scenecore.scene
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.SpatialAlignment
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createAndroidXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
@@ -354,7 +353,7 @@ class ModeChangeTest {
      * Blocks until the system scene graph shows the main panel ready for an injected gesture: it
      * passes [isReady] (the capability the gesture needs) and has known extents.
      */
-    private fun awaitMainPanelNode(isReady: (SpatialNode) -> Boolean): SpatialNode {
+    private fun awaitMainPanelNode(isReady: (SnapshotXrSpace) -> Boolean): SnapshotXrSpace {
         val activity = sessionRule.activity
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         return checkNotNull(
@@ -496,7 +495,7 @@ class ModeChangeTest {
     private fun IntSize2d.aspectRatio(): Float = width.toFloat() / height
 
     /** Whether SysUI shows a caption bar surface for this task. */
-    private fun SpatialTask.hasVisibleCaptionBar(): Boolean =
+    private fun SnapshotXrSpace.hasVisibleCaptionBar(): Boolean =
         findNode { it.isCaptionBar && it.isAndroid2dSurface && it.isVisible } != null
 
     private companion object {

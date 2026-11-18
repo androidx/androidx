@@ -39,8 +39,7 @@ import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.DEFAULT_MOVE_HANDLE_MARGIN
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
@@ -81,8 +80,8 @@ import org.junit.runner.RunWith
  *   size to `surfaceEntity.shape` on the main thread.
  * - SplitEngine `SurfaceEntity` CPM nodes (`stereo_surface_panel_entity_subspace_*`) do not emit
  *   `worldHalfExtents`, and Aura SpaceFlinger renders resize highlights in Impress rather than CPM
- *   `resizeAffordanceNodes`, so interaction targeting uses `SpatialTask.subspaceNodes` and known
- *   shape extents (plus `DEFAULT_MOVE_HANDLE_MARGIN`) relative to `subspace.parent`.
+ *   `resizeAffordanceNodes`, so interaction targeting uses `SnapshotXrSpace.subspaceNodes` and
+ *   known shape extents (plus `DEFAULT_MOVE_HANDLE_MARGIN`) relative to `subspace.parent`.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -758,18 +757,18 @@ class SurfaceEntityInteractionAndReformTest {
         }
     }
 
-    private fun readSubspaceAlpha(subspace: SpatialNode): Float? =
+    private fun readSubspaceAlpha(subspace: SnapshotXrSpace): Float? =
         subspace.properties["computedAlpha"]?.toFloatOrNull()
             ?: subspace.parent?.properties?.get("computedAlpha")?.toFloatOrNull()
 
-    private fun awaitSingleSurfaceSubspaceNode(): SpatialNode {
+    private fun awaitSingleSurfaceSubspaceNode(): SnapshotXrSpace {
         val task = awaitSurfaceSubspaceCount(expectedCount = 1)
         return task.subspaceNodes.first {
             it.name.startsWith(SURFACE_SUBSPACE_PREFIX) && it.isVisible
         }
     }
 
-    private fun awaitSurfaceSubspaceCount(expectedCount: Int): SpatialTask =
+    private fun awaitSurfaceSubspaceCount(expectedCount: Int): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
                 description = "SurfaceEntity subspace node count == $expectedCount",
@@ -784,7 +783,7 @@ class SurfaceEntityInteractionAndReformTest {
             )
         )
 
-    private fun awaitSurfaceParentNode(predicate: (SpatialNode) -> Boolean): SpatialNode {
+    private fun awaitSurfaceParentNode(predicate: (SnapshotXrSpace) -> Boolean): SnapshotXrSpace {
         val task =
             checkNotNull(
                 waitForSpatialScene(
@@ -808,21 +807,21 @@ class SurfaceEntityInteractionAndReformTest {
         }
     }
 
-    private fun findHostTask(): SpatialTask =
+    private fun findHostTask(): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
-                description = "active SpatialTask for ${sessionRule.activity}",
+                description = "active task space for ${sessionRule.activity}",
                 timeout = SCENE_TIMEOUT,
                 select = { scene -> scene.findTaskByActivity(sessionRule.activity) },
                 until = { it != null },
             )
         ) {
-            "Expected active SpatialTask for ${sessionRule.activity}"
+            "Expected active task space for ${sessionRule.activity}"
         }
 
-    private fun findActivitySpaceNode(task: SpatialTask): SpatialNode =
+    private fun findActivitySpaceNode(task: SnapshotXrSpace): SnapshotXrSpace =
         checkNotNull(task.findNodeByName(ACTIVITY_SPACE_NODE_NAME)) {
-            "Expected $ACTIVITY_SPACE_NODE_NAME in SpatialTask"
+            "Expected $ACTIVITY_SPACE_NODE_NAME in task space"
         }
 
     private companion object {

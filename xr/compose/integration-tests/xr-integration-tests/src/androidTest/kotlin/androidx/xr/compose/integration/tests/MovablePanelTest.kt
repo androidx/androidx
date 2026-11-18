@@ -54,8 +54,7 @@ import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.performSpatialInteraction
@@ -808,7 +807,7 @@ class MovablePanelTest {
         )
     }
 
-    private fun capturePanelNode(): SpatialNode {
+    private fun capturePanelNode(): SnapshotXrSpace {
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
         val currentTaskId = composeTestRule.activity.taskId
         val scene = captureSpatialScene()
@@ -854,7 +853,7 @@ class MovablePanelTest {
         return updatedPosition
     }
 
-    private fun findPanelNode(task: SpatialTask?): SpatialNode? =
+    private fun findPanelNode(task: SnapshotXrSpace?): SnapshotXrSpace? =
         task?.windowLeashes?.firstOrNull { it.isEmbeddedWindowLeash && it.isMovable }
             ?: task?.windowLeashes?.firstOrNull { it.isEmbeddedWindowLeash }
             ?: task?.findNodesByName("ViewPanel")?.firstOrNull { it.isMovable }
@@ -864,12 +863,12 @@ class MovablePanelTest {
                         !it.isSysUi &&
                         !it.isTaskWindowLeash &&
                         !it.name.startsWith("space-transform-task") &&
-                        it != task.activitySpaceRoot
+                        it != task
                 }
                 ?.firstOrNull()
             ?: task?.findNodes { it.isMovable && !it.isSysUi }?.firstOrNull()
             ?: task?.findNodesByName("ViewPanel")?.lastOrNull()
-            ?: task?.activitySpaceRoot?.findNode {
+            ?: task?.findNode {
                 !it.isWindowLeash && !it.isSysUi && it.hasSurfaceBounds
             }
 }

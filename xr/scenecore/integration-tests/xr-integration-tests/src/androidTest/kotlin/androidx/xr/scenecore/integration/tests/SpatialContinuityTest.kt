@@ -41,8 +41,7 @@ import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpaceChangeEvent
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
@@ -507,7 +506,7 @@ class SpatialContinuityTest {
         }
     }
 
-    private fun waitForMainPanelNode(hostActivity: Activity): SpatialNode {
+    private fun waitForMainPanelNode(hostActivity: Activity): SnapshotXrSpace {
         return checkNotNull(
             waitForSpatialScene(
                 description = "Main panel task window node present and visible",
@@ -525,7 +524,7 @@ class SpatialContinuityTest {
     private fun waitForMainPanelShiftedFromActivityOrigin(
         hostActivity: Activity,
         minDistanceMeters: Float,
-    ): SpatialNode {
+    ): SnapshotXrSpace {
         return checkNotNull(
             waitForSpatialScene(
                 description =
@@ -549,7 +548,7 @@ class SpatialContinuityTest {
         )
     }
 
-    private fun waitForMovableMainPanelNode(hostActivity: Activity): SpatialNode {
+    private fun waitForMovableMainPanelNode(hostActivity: Activity): SnapshotXrSpace {
         return checkNotNull(
             waitForSpatialScene(
                 description = "Main panel node becomes movable in CPM",
@@ -569,7 +568,7 @@ class SpatialContinuityTest {
         hostActivity: Activity,
         customPanelName: String,
         minDistanceMeters: Float,
-    ): Pair<SpatialNode, SpatialNode> {
+    ): Pair<SnapshotXrSpace, SnapshotXrSpace> {
         return checkNotNull(
             waitForSpatialScene(
                 description = "Main panel and $customPanelName separated in CPM",
@@ -598,7 +597,7 @@ class SpatialContinuityTest {
     private fun waitForGltfSubspaceParentNode(
         hostActivity: Activity,
         minOffsetFromActivityOriginMeters: Float,
-    ): SpatialNode {
+    ): SnapshotXrSpace {
         return checkNotNull(
             waitForSpatialScene(
                 description = "glTF entity CPM parent node settled at key offset",
@@ -609,7 +608,7 @@ class SpatialContinuityTest {
                     val originNode =
                         task.findNodeByName(ACTIVITY_SPACE_NODE_NAME)
                             ?: return@waitForSpatialScene null
-                    task.activitySpaceRoot
+                    (task.activitySpaceRoot ?: task)
                         .findNodes { node ->
                             node.isVisible &&
                                 node.name != ACTIVITY_SPACE_NODE_NAME &&
@@ -628,7 +627,7 @@ class SpatialContinuityTest {
         )
     }
 
-    private fun waitForHomeSpaceTaskNode(hostActivity: Activity): SpatialNode {
+    private fun waitForHomeSpaceTaskNode(hostActivity: Activity): SnapshotXrSpace {
         waitForSpatialScene(
             description = "Activity transitions into Home Space with visible task node",
             timeout = SCENE_TIMEOUT,
@@ -648,7 +647,7 @@ class SpatialContinuityTest {
         return checkNotNull(resolveTaskWindowNode(settled))
     }
 
-    private fun resolveTaskWindowNode(task: SpatialTask): SpatialNode? =
+    private fun resolveTaskWindowNode(task: SnapshotXrSpace): SnapshotXrSpace? =
         task.taskWindowLeash?.takeIf { it.isVisible && it.worldExtents != null }
             ?: task.topLevelWindowLeashes.firstOrNull { it.isVisible && it.worldExtents != null }
 

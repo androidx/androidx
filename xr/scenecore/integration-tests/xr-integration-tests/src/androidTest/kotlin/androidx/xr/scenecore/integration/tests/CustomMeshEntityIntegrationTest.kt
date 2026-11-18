@@ -52,8 +52,7 @@ import androidx.xr.scenecore.VertexAttribute
 import androidx.xr.scenecore.VertexAttributeType
 import androidx.xr.scenecore.VertexLayout
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.createXrSessionRule
@@ -92,8 +91,8 @@ import org.junit.runner.RunWith
  *   `sessionRule.onMainThread`. Entity transforms, parenting, enabled/alpha state,
  *   [InteractableComponent] attach/detach, and all assertions run on the test thread.
  * - [MeshEntity] uses Impress geometry affordances (`MeshFeatureImpl.setReformAffordanceEnabled`)
- *   rather than CPM `ReformOptions`, so [SpatialNode.isMovable], [SpatialNode.isResizable], and CPM
- *   `resizeAffordanceNodes` remain `false` / empty on `mesh_entity_subspace_*` nodes.
+ *   rather than CPM `ReformOptions`, so [SnapshotXrSpace.isMovable], [SnapshotXrSpace.isResizable],
+ *   and CPM `resizeAffordanceNodes` remain `false` / empty on `mesh_entity_subspace_*` nodes.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -903,7 +902,7 @@ class CustomMeshEntityIntegrationTest {
         return ByteBufferRegion(buffer, 0, byteCount)
     }
 
-    private fun awaitVisibleMeshSubspaceCount(expectedCount: Int): SpatialTask =
+    private fun awaitVisibleMeshSubspaceCount(expectedCount: Int): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
                 description = "visible MeshEntity subspace node count == $expectedCount",
@@ -918,7 +917,7 @@ class CustomMeshEntityIntegrationTest {
             )
         )
 
-    private fun findSingleVisibleMeshSubspace(task: SpatialTask): SpatialNode =
+    private fun findSingleVisibleMeshSubspace(task: SnapshotXrSpace): SnapshotXrSpace =
         task.subspaceNodes.single { it.name.startsWith(MESH_SUBSPACE_PREFIX) && it.isVisible }
 
     private data class CreatedMeshFixture(

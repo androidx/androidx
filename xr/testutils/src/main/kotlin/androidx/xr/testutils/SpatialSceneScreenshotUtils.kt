@@ -35,30 +35,31 @@ internal const val MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS = 5000L
 private const val FRAME_STABILITY_MSSIM_THRESHOLD: Double = 0.999
 
 /**
- * Recursively traverses [root] to find all visible, non-system-UI [SpatialNode] entities that have
- * defined spatial geometry (either [SpatialNode.worldExtents] or
- * [SpatialNode.effectiveSurfaceBoundsInMeters]).
+ * Recursively traverses [root] to find all visible, non-system-UI [SnapshotXrSpace] entities that
+ * have defined spatial geometry (either [SnapshotXrSpace.worldExtents] or
+ * [SnapshotXrSpace.effectiveSurfaceBoundsInMeters]).
  *
- * @param root The root [SpatialNode] to search.
+ * @param root The root [SnapshotXrSpace] to search.
  * @return A list of geometry-bearing descendants (and/or the root itself).
  */
-internal fun collectGeometryNodes(root: SpatialNode): List<SpatialNode> = root.findNodes { node ->
-    node.isVisible &&
-        !node.isSysUi &&
-        (node.worldExtents != null || node.effectiveSurfaceBoundsInMeters != null)
-}
+internal fun collectGeometryNodes(root: SnapshotXrSpace): List<SnapshotXrSpace> =
+    root.findNodes { node ->
+        node.isVisible &&
+            !node.isSysUi &&
+            (node.worldExtents != null || node.effectiveSurfaceBoundsInMeters != null)
+    }
 
 /**
  * Computes the effective 3D dimensions of this node in world coordinates (meters).
  *
- * If [SpatialNode.worldExtents] is explicitly defined, it is returned directly. Otherwise, if
- * [SpatialNode.effectiveSurfaceBoundsInMeters] is available, scales those 2D surface dimensions by
- * [SpatialNode.scale] along the X and Y axes, applying a default minimum thickness (0.01m) along Z.
- * Returns `null` if neither metric is present.
+ * If [SnapshotXrSpace.worldExtents] is explicitly defined, it is returned directly. Otherwise, if
+ * [SnapshotXrSpace.effectiveSurfaceBoundsInMeters] is available, scales those 2D surface dimensions
+ * by [SnapshotXrSpace.scale] along the X and Y axes, applying a default minimum thickness (0.01m)
+ * along Z. Returns `null` if neither metric is present.
  *
  * @return A [Vector3] representing (width, height, depth) in meters, or `null`.
  */
-internal fun SpatialNode.effectiveWorldExtents(): Vector3? {
+internal fun SnapshotXrSpace.effectiveWorldExtents(): Vector3? {
     worldExtents?.let {
         return it
     }
@@ -77,11 +78,11 @@ internal fun SpatialNode.effectiveWorldExtents(): Vector3? {
  * Used during screenshot testing to compute auto-crop regions when isolating individual spatial
  * nodes or subtrees.
  *
- * @param node The [SpatialNode] whose projected bounds fraction should be computed.
+ * @param node The [SnapshotXrSpace] whose projected bounds fraction should be computed.
  * @return A [RectF] with `[left, top, right, bottom]` fractions in `[0f..1f]` relative to the
  *   enclosing root's projected extents. Returns `(0f, 0f, 1f, 1f)` if full bounds apply.
  */
-internal fun computeRelativeNodeBoundsFraction(node: SpatialNode): RectF {
+internal fun computeRelativeNodeBoundsFraction(node: SnapshotXrSpace): RectF {
     if (node.isTaskRoot || node.name.startsWith("space-transform-spatial-")) {
         return RectF(0f, 0f, 1f, 1f)
     }
@@ -99,7 +100,7 @@ internal fun computeRelativeNodeBoundsFraction(node: SpatialNode): RectF {
     val head = node.headPose ?: Pose.Identity
     val viewRotInv = head.rotation.inverse
 
-    fun computeBoundsInHead(nodes: List<SpatialNode>): FloatArray? {
+    fun computeBoundsInHead(nodes: List<SnapshotXrSpace>): FloatArray? {
         var minX = Float.POSITIVE_INFINITY
         var maxX = Float.NEGATIVE_INFINITY
         var minY = Float.POSITIVE_INFINITY

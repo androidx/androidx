@@ -50,7 +50,7 @@ import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialTask
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrScreenshotTestRule
 import androidx.xr.testutils.captureSceneToBitmap
 import androidx.xr.testutils.crop
@@ -227,7 +227,7 @@ internal fun AndroidComposeTestRule<*, out ComponentActivity>.captureToBitmap(
         ) {
             "No Subspace content found"
         }
-    val task = awaitSettledSpatialTask(initialRoot, activity = activity)
+    val task = awaitSettledSnapshotXrSpace(initialRoot, activity = activity)
     val settledRoot =
         checkNotNull(
             onAllSubspaceNodes(anySubspaceNode)
@@ -246,8 +246,8 @@ internal fun AndroidComposeTestRule<*, out ComponentActivity>.captureToBitmap(
  *
  * Uses the node's bounding size ([SubspaceSemanticsInfo.size]) and pose
  * ([SubspaceSemanticsInfo.poseInRoot]) together with the CPM scene graph's virtual pixel density
- * ([SpatialTask.computedPixelsPerMeter]) to calculate the crop framing, supporting 3D containers
- * (such as `SpatialRow`, `SpatialColumn`, and `SpatialBox`), 3D models, and panels.
+ * ([SnapshotXrSpace.computedPixelsPerMeter]) to calculate the crop framing, supporting 3D
+ * containers (such as `SpatialRow`, `SpatialColumn`, and `SpatialBox`), 3D models, and panels.
  *
  * @param padding Extra padding in pixels to preserve around the cropped content bounds.
  * @return A cropped software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
@@ -256,7 +256,7 @@ internal fun AndroidComposeTestRule<*, out ComponentActivity>.captureToBitmap(
 internal fun SubspaceSemanticsNodeInteraction.captureToBitmap(padding: Int = 0): Bitmap {
     require(padding >= 0) { "padding must be non-negative, was $padding" }
     val initialNode = fetchSemanticsNode("Failed to fetch Subspace node for captureToBitmap")
-    val task = awaitSettledSpatialTask(findSubspaceRoot(initialNode))
+    val task = awaitSettledSnapshotXrSpace(findSubspaceRoot(initialNode))
     val settledNode = fetchSemanticsNode("Failed to fetch Subspace node for captureToBitmap")
     return captureAndCropToComposeNode(settledNode, task, padding)
 }
@@ -321,13 +321,13 @@ internal fun assertSpatialGltfModelsLoaded(vararg modelStates: SpatialGltfModelS
 }
 
 /**
- * Waits for the active [SpatialTask] in the CPM scene graph to settle with all enabled Subspace
+ * Waits for the active [SnapshotXrSpace] in the CPM scene graph to settle with all enabled Subspace
  * panels and the main panel at their expected visibility.
  */
-private fun awaitSettledSpatialTask(
+private fun awaitSettledSnapshotXrSpace(
     subspaceRoot: SubspaceSemanticsInfo,
     activity: ComponentActivity? = null,
-): SpatialTask {
+): SnapshotXrSpace {
     val treeNodes = collectNodes(subspaceRoot)
     val panelEntities = treeNodes.mapNotNull { it.semanticsEntity as? PanelEntity }.distinct()
     val (expectedEmbeddedPanelCount, expectedMainPanelVisible) =
@@ -401,7 +401,7 @@ private fun isRenderedEntity(node: SubspaceSemanticsInfo): Boolean {
  */
 private fun captureAndCropToComposeNode(
     semanticsInfo: SubspaceSemanticsInfo,
-    task: SpatialTask,
+    task: SnapshotXrSpace,
     padding: Int,
 ): Bitmap {
     val fullBitmap = captureSceneToBitmap(cropBounds = null, autoCrop = false)
@@ -431,7 +431,7 @@ private fun captureAndCropToComposeNode(
 private fun cropToComposeNode(
     bitmap: Bitmap,
     semanticsInfo: SubspaceSemanticsInfo,
-    task: SpatialTask,
+    task: SnapshotXrSpace,
     padding: Int,
 ): Bitmap {
     val softwareBitmap = toSoftwareBitmap(bitmap)
@@ -463,7 +463,7 @@ private fun cropToComposeNode(
         subspaceCpmNode?.computedPixelsPerMeter
             ?: task.computedPixelsPerMeter
             ?: DEFAULT_PIXELS_PER_METER
-    val head = (subspaceCpmNode ?: task.activitySpaceRoot).headPose ?: Pose.Identity
+    val head = (subspaceCpmNode ?: task).headPose ?: Pose.Identity
     val viewRotInv = head.rotation.inverse
     val rootRotation = subspaceCpmNode?.rotation ?: head.rotation
     val rootScale = subspaceCpmNode?.scale ?: Vector3.One

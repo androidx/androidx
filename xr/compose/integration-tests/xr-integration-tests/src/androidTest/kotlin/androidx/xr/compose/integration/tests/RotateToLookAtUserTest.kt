@@ -72,7 +72,7 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.math.toDegrees
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.filterSupportedPermissions
@@ -624,7 +624,7 @@ class RotateToLookAtUserTest {
         waitForNodeToFaceUser(TAG_TOGGLE_PANEL)
     }
 
-    private fun waitForMovablePanelCpmNode(): SpatialNode =
+    private fun waitForMovablePanelCpmNode(): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
                 description = "movable embedded panel with bounds ready for interaction",

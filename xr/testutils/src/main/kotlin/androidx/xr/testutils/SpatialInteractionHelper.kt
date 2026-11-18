@@ -55,11 +55,11 @@ public const val CLI_TMP_PATH: String = "/data/local/tmp/xr_inject_input_cli"
 @Volatile private var resolvedCliPath: String? = null
 
 /**
- * Performs a series of spatial raycast interactions targeting this [SpatialNode] within a scoped
- * [SpatialInteractionScope].
+ * Performs a series of spatial raycast interactions targeting this [SnapshotXrSpace] within a
+ * scoped [SpatialInteractionScope].
  *
  * Scopes all relative coordinates, ray origins, targets, and displacements directly within this
- * [SpatialNode]'s local coordinate frame.
+ * [SnapshotXrSpace]'s local coordinate frame.
  *
  * Automatically dispatches a system input reset upon scope completion or failure, ensuring clean
  * state isolation across tests.
@@ -71,7 +71,7 @@ public const val CLI_TMP_PATH: String = "/data/local/tmp/xr_inject_input_cli"
  * @param uiAutomation The [UiAutomation] instance to execute shell commands with.
  * @param block The interaction lambda executed in [SpatialInteractionScope].
  */
-public fun SpatialNode.performSpatialInteraction(
+public fun SnapshotXrSpace.performSpatialInteraction(
     deviceType: SpatialDeviceType = SpatialDeviceType.Controller,
     pointerType: SpatialPointerType = SpatialPointerType.Left,
     uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
@@ -79,34 +79,6 @@ public fun SpatialNode.performSpatialInteraction(
 ) {
     SpatialInteractionScopeImpl(
             node = this,
-            deviceType = deviceType,
-            pointerType = pointerType,
-            uiAutomation = uiAutomation,
-        )
-        .use { it.block() }
-}
-
-/**
- * Performs a series of spatial raycast interactions within this [SpatialTask]'s activity space.
- *
- * Automatically scopes all coordinates and ray operations relative to this task's
- * [SpatialTask.activitySpaceRoot].
- *
- * @param deviceType The [SpatialDeviceType] for this interaction (default:
- *   [SpatialDeviceType.Controller]).
- * @param pointerType The [SpatialPointerType] for this interaction (default:
- *   [SpatialPointerType.Left]).
- * @param uiAutomation The [UiAutomation] instance to execute shell commands with.
- * @param block The interaction lambda executed in [SpatialInteractionScope].
- */
-public fun SpatialTask.performSpatialInteraction(
-    deviceType: SpatialDeviceType = SpatialDeviceType.Controller,
-    pointerType: SpatialPointerType = SpatialPointerType.Left,
-    uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
-    block: SpatialInteractionScope.() -> Unit,
-) {
-    SpatialInteractionScopeImpl(
-            node = activitySpaceRoot,
             deviceType = deviceType,
             pointerType = pointerType,
             uiAutomation = uiAutomation,
@@ -287,10 +259,10 @@ public interface SpatialInteractionScope {
     // =========================================================================================
 
     /**
-     * The [SpatialNode] to which this interaction scope is anchored. All coordinates in this scope
-     * operate relative to this node's local coordinate frame.
+     * The [SnapshotXrSpace] to which this interaction scope is anchored. All coordinates in this
+     * scope operate relative to this node's local coordinate frame.
      */
-    public val node: SpatialNode
+    public val node: SnapshotXrSpace
 
     /**
      * Current position of the pointer source (controller, hand, or eye origin) in [node]-local
@@ -327,12 +299,12 @@ public interface SpatialInteractionScope {
      * @param offset Metric translation offset in [node]-local space (default: [Vector3.Zero]).
      * @param alignment Normalized alignment within [node]'s half-extents (default:
      *   [SpatialAlignment.Center]).
-     * @param targetNode The target [SpatialNode] (default: this scope's [node]).
+     * @param targetNode The target [SnapshotXrSpace] (default: this scope's [node]).
      */
     public fun pointAt(
         offset: Vector3 = Vector3.Zero,
         alignment: SpatialAlignment = SpatialAlignment.Center,
-        targetNode: SpatialNode = node,
+        targetNode: SnapshotXrSpace = node,
     )
 
     /**
@@ -398,12 +370,12 @@ public interface SpatialInteractionScope {
      * [targetNode].
      *
      * @param boundsInWindow Screen/window pixel bounding rectangle.
-     * @param targetNode The panel or window [SpatialNode] hosting the 2D content (default: this
+     * @param targetNode The panel or window [SnapshotXrSpace] hosting the 2D content (default: this
      *   scope's [node]).
      */
     public fun pointAt(
         boundsInWindow: Rect,
-        targetNode: SpatialNode = node,
+        targetNode: SnapshotXrSpace = node,
     ) {
         val offset = calculateWindowBoundsOffset(targetNode, boundsInWindow)
         pointAt(offset = offset, alignment = SpatialAlignment.Center, targetNode = targetNode)
@@ -413,14 +385,14 @@ public interface SpatialInteractionScope {
      * Calculates the 3D coordinates in [node]'s local coordinate frame corresponding to an aligned
      * point on [targetNode] with an optional metric [offset].
      *
-     * @param targetNode The target [SpatialNode].
+     * @param targetNode The target [SnapshotXrSpace].
      * @param offset Optional translation offset in meters in [targetNode]-local space.
      * @param alignment Normalized bias alignment within [targetNode]'s half-extents (default:
      *   [SpatialAlignment.Center]).
      * @return The 3D position in [node]'s local space.
      */
     public fun localPointOf(
-        targetNode: SpatialNode,
+        targetNode: SnapshotXrSpace,
         offset: Vector3 = Vector3.Zero,
         alignment: SpatialAlignment = SpatialAlignment.Center,
     ): Vector3 {
@@ -432,12 +404,12 @@ public interface SpatialInteractionScope {
      * Calculates the 3D coordinates in [node]'s local coordinate frame corresponding to the center
      * of a 2D View / UIAutomator [boundsInWindow] on [targetNode].
      *
-     * @param targetNode The panel or window [SpatialNode] hosting the 2D content.
+     * @param targetNode The panel or window [SnapshotXrSpace] hosting the 2D content.
      * @param boundsInWindow Screen/window pixel bounding rectangle.
      * @return The 3D position in [node]'s local space.
      */
     public fun localPointOf(
-        targetNode: SpatialNode,
+        targetNode: SnapshotXrSpace,
         boundsInWindow: Rect,
     ): Vector3 {
         val offset = calculateWindowBoundsOffset(targetNode, boundsInWindow)
@@ -481,7 +453,7 @@ public interface SpatialInteractionScope {
 
     /**
      * Aims the pointer ray at [node]'s move affordance (`DragBar` from
-     * [SpatialNode.moveAffordanceNodes] if present), falling back to an outer edge position at
+     * [SnapshotXrSpace.moveAffordanceNodes] if present), falling back to an outer edge position at
      * [alignment] with [marginMeters], with an optional [offset] in [node]'s local coordinate
      * frame.
      *
@@ -517,7 +489,7 @@ public interface SpatialInteractionScope {
 
     /**
      * Aims the pointer ray at [node]'s resize affordance (`Resize*` from
-     * [SpatialNode.resizeAffordanceNodes] if present), falling back to an outer edge/corner
+     * [SnapshotXrSpace.resizeAffordanceNodes] if present), falling back to an outer edge/corner
      * position at [alignment] with [marginMeters], with an optional [offset] in [node]'s local
      * coordinate frame.
      *
@@ -626,7 +598,7 @@ public interface SpatialInteractionScope {
 /** Default internal implementation of [SpatialInteractionScope]. */
 @PublishedApi
 internal class SpatialInteractionScopeImpl(
-    override val node: SpatialNode,
+    override val node: SnapshotXrSpace,
     override val deviceType: SpatialDeviceType,
     override val pointerType: SpatialPointerType,
     private val uiAutomation: UiAutomation? = null,
@@ -653,7 +625,7 @@ internal class SpatialInteractionScopeImpl(
     override fun pointAt(
         offset: Vector3,
         alignment: SpatialAlignment,
-        targetNode: SpatialNode,
+        targetNode: SnapshotXrSpace,
     ) {
         val targetWorldPoint = calculateAlignedPoint(targetNode, alignment, offset)
         currentTarget = node.transformPointFromWorld(targetWorldPoint)
@@ -743,7 +715,7 @@ internal class SpatialInteractionScopeImpl(
         }
 }
 
-internal fun calculateWindowBoundsOffset(node: SpatialNode, bounds: Rect): Vector3 =
+internal fun calculateWindowBoundsOffset(node: SnapshotXrSpace, bounds: Rect): Vector3 =
     calculateWindowPixelOffset(
         node = node,
         pixelX = (bounds.left + bounds.right) / 2.0f,
@@ -751,7 +723,7 @@ internal fun calculateWindowBoundsOffset(node: SpatialNode, bounds: Rect): Vecto
     )
 
 private fun calculateWindowPixelOffset(
-    node: SpatialNode,
+    node: SnapshotXrSpace,
     pixelX: Float,
     pixelY: Float,
 ): Vector3 {
@@ -779,7 +751,7 @@ private fun calculateWindowPixelOffset(
  *   coordinates.
  */
 internal fun calculateAlignedPoint(
-    node: SpatialNode,
+    node: SnapshotXrSpace,
     alignment: SpatialAlignment = SpatialAlignment.Center,
     offset: Vector3 = Vector3.Zero,
 ): Vector3 {

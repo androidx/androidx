@@ -1066,7 +1066,7 @@ class CpmSceneParserTest {
     fun spatialScene_findTaskByPackageName_findsTaskAndQueriesTaskHierarchy() {
         val appScene = parseSpatialScene(fullSpaceComposeDumpsys)
         val task = assertNotNull(appScene.findTaskByPackageName("androidx.xr.compose.testapp"))
-        assertTrue(task.activitySpaceRoot.name.startsWith("space-root-task-963"))
+        assertTrue(task.name.startsWith("space-root-task-963"))
 
         // allNodes on the task
         val appNodes = task.allNodes
@@ -1179,14 +1179,14 @@ class CpmSceneParserTest {
         val baseAppNode = assertNotNull(baseAppTask.findNode { it.name.contains("MainActivity") })
         assertEquals(21, baseAppNode.id)
         assertEquals(Vector3(2.0f, 2.0f, 2.0f), baseAppNode.position)
-        assertEquals(20, baseAppTask.activitySpaceRoot.id)
+        assertEquals(20, baseAppTask.id)
 
         // Matching com.example.app.pro should find task 1 / window 11
         val proAppTask = assertNotNull(scene.findTaskByPackageName("com.example.app.pro"))
         val proAppNode = assertNotNull(proAppTask.findNode { it.name.contains("MainActivity") })
         assertEquals(11, proAppNode.id)
         assertEquals(Vector3(1.0f, 1.0f, 1.0f), proAppNode.position)
-        assertEquals(10, proAppTask.activitySpaceRoot.id)
+        assertEquals(10, proAppTask.id)
 
         // Partial prefix com.example should not match either app
         assertNull(scene.findTaskByPackageName("com.example"))
@@ -1329,7 +1329,7 @@ class CpmSceneParserTest {
         assertEquals("visible on both", root.stereoVisibility)
         assertTrue(root.isVisible)
 
-        val task1 = assertNotNull(scene.findTaskById(1)?.activitySpaceRoot)
+        val task1 = assertNotNull(scene.findTaskById(1))
         assertEquals("hidden on both", task1.stereoVisibility)
         assertEquals("hide", task1.properties["requested-vis"])
         assertFalse(task1.isVisible)
@@ -1536,7 +1536,7 @@ class CpmSceneParserTest {
         assertEquals(Quaternion.Identity, headPose.rotation)
 
         // Verify that nodes in the scene resolve headPose directly
-        val anyNode = assertNotNull(scene.tasks.firstOrNull()?.activitySpaceRoot)
+        val anyNode = assertNotNull(scene.tasks.firstOrNull())
         assertEquals(headPose, anyNode.headPose)
     }
 
@@ -1867,5 +1867,32 @@ class CpmSceneParserTest {
         assertEquals(2, activityDumpCalls)
         assertEquals("com.example.first", scene.findTaskById(100)?.packageName)
         assertEquals("com.example.second", scene.findTaskById(200)?.packageName)
+    }
+
+    @Test
+    fun parseSpatialScene_zeroDimensionBoundsAndBuffer_doNotQualifyAsSurface() {
+        val zeroBoundsDump =
+            """
+            Node Root (stateIndex=0) id=1:
+              Node space-root-task-42 (stateIndex=0) id=42:
+                Node window-task-42 (stateIndex=0) id=43:
+                  Node ZeroLayer (stateIndex=0) id=44:
+                  visible on both (requested-vis=show) isSysUi=false isAndroid2d=true buffer=0x0
+                  root2DSurfaceBoundsInMeters: [0.0, 0.0]
+                  root2DSurfaceBoundsInPixels: [0.0, 0.0]
+                  touchableRegion: [0.0, 0.0, 0.0, 0.0]
+            """
+                .trimIndent()
+        val scene = parseSpatialScene(zeroBoundsDump)
+        val task = assertNotNull(scene.findTaskById(42))
+        val windowNode = assertNotNull(task.findNodeByName("window-task-42"))
+        val zeroLayer = assertNotNull(task.findNodeByName("ZeroLayer"))
+
+        assertNull(zeroLayer.bufferSize)
+        assertNull(zeroLayer.surfaceBoundsInMeters)
+        assertNull(zeroLayer.surfaceBoundsInPixels)
+        assertFalse(zeroLayer.hasSurfaceBounds)
+        assertFalse(zeroLayer.isAndroid2dSurface)
+        assertNull(windowNode.primarySurfaceNode)
     }
 }

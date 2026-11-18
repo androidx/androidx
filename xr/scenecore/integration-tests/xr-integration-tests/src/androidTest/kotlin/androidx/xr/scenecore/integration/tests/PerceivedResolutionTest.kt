@@ -45,9 +45,9 @@ import androidx.xr.scenecore.ResizeEvent
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.SpatialAlignment
 import androidx.xr.testutils.SpatialInteractionScope
-import androidx.xr.testutils.SpatialNode
 import androidx.xr.testutils.XrDeviceConfig
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
@@ -615,7 +615,7 @@ class PerceivedResolutionTest {
         requireMovable: Boolean,
         requireResizable: Boolean,
         movedFromPosition: Vector3? = null,
-    ): SpatialNode =
+    ): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
                 description = "settled interactive spatial panel '$panelName'",

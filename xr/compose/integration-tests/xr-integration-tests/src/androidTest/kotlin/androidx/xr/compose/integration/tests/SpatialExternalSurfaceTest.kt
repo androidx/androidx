@@ -80,7 +80,7 @@ import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.DEFAULT_MOVE_HANDLE_MARGIN
-import androidx.xr.testutils.SpatialNode
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.performSpatialInteraction
@@ -927,7 +927,7 @@ class SpatialExternalSurfaceTest {
         }
     }
 
-    private fun findMovableAndResizableSurfaceNode(): SpatialNode? {
+    private fun findMovableAndResizableSurfaceNode(): SnapshotXrSpace? {
         val scene = captureSpatialScene()
         val task =
             scene.findTaskById(composeTestRule.activity.taskId)
@@ -942,7 +942,7 @@ class SpatialExternalSurfaceTest {
                     !it.isSysUi &&
                     !it.isTaskWindowLeash &&
                     !it.name.startsWith("space-transform-task") &&
-                    it != task.activitySpaceRoot
+                    it != task
             }
     }
 

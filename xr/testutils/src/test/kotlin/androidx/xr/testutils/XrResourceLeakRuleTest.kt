@@ -31,8 +31,8 @@ class XrResourceLeakRuleTest {
     private val testDescription =
         Description.createTestDescription(XrResourceLeakRuleTest::class.java, "sampleTest")
 
-    private fun sceneWithStats(stats: SpatialSceneStats?): SpatialScene =
-        SpatialScene(rootNodes = emptyList(), stats = stats)
+    private fun sceneWithStats(stats: SpatialSceneStats?): SnapshotXrScene =
+        SnapshotXrScene(rootNodes = emptyList(), stats = stats)
 
     @Test
     fun resourceLeakRule_passesAfterGcReclaimsLeakedNodesWithinTimeout() {

@@ -21,7 +21,9 @@ import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
+import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -75,15 +77,12 @@ class SpatialInteractionHelperTest {
     @Test
     fun spatialInteractionScopeImpl_tracksTargetAndSynthesizesRays() {
         val node =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "TestWindow",
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(0.0f, 1.447f, -1.743f),
-                        "ImpNodeWorldRotation" to floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1.0f, 1.0f, 1.0f),
-                        "root2DSurfaceBoundsInMeters" to floatArrayOf(1.0f, 0.9f),
-                    ),
+                position = Vector3(0.0f, 1.447f, -1.743f),
+                rotation = Quaternion.Identity,
+                scale = Vector3.One,
+                surfaceBoundsInMeters = Vector2(1.0f, 0.9f),
             )
 
         val scope =
@@ -119,7 +118,7 @@ class SpatialInteractionHelperTest {
             SpatialInteractionScopeImpl(
                 deviceType = SpatialDeviceType.Controller,
                 pointerType = SpatialPointerType.Left,
-                node = SpatialNode(name = "IdentityNode"),
+                node = SnapshotXrSpace(name = "IdentityNode"),
             )
         scope.moveOriginTo(Vector3(0f, 0f, 0.5f))
 
@@ -141,14 +140,11 @@ class SpatialInteractionHelperTest {
         // Node at (1.0f, 1.5f, -2.0f), rotated 90 degrees around Y axis:
         // [w = 0.7071068f, x = 0f, y = 0.7071068f, z = 0f]
         val taskRootNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "space-root-task-42",
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(1.0f, 1.5f, -2.0f),
-                        "ImpNodeWorldRotation" to floatArrayOf(0.7071068f, 0.0f, 0.7071068f, 0.0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1.0f, 1.0f, 1.0f),
-                    ),
+                position = Vector3(1.0f, 1.5f, -2.0f),
+                rotation = Quaternion(x = 0.0f, y = 0.7071068f, z = 0.0f, w = 0.7071068f),
+                scale = Vector3.One,
             )
 
         val scope =
@@ -218,14 +214,11 @@ class SpatialInteractionHelperTest {
         // and scaled uniformly by 0.5:
         // [w = 0.7071068f, x = 0f, y = 0.7071068f, z = 0f]
         val taskRootNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "space-root-task-42",
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(1.0f, 1.5f, -2.0f),
-                        "ImpNodeWorldRotation" to floatArrayOf(0.7071068f, 0.0f, 0.7071068f, 0.0f),
-                        "ImpNodeWorldScale" to floatArrayOf(0.5f, 0.5f, 0.5f),
-                    ),
+                position = Vector3(1.0f, 1.5f, -2.0f),
+                rotation = Quaternion(x = 0.0f, y = 0.7071068f, z = 0.0f, w = 0.7071068f),
+                scale = Vector3(0.5f, 0.5f, 0.5f),
             )
 
         val scope =
@@ -277,14 +270,11 @@ class SpatialInteractionHelperTest {
         // A child node located in world space at (1.0, 1.5, -2.5) should map back to local space
         // (1.0, 0, 0)
         val childNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "window-task-42",
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(1.0f, 1.5f, -2.5f),
-                        "ImpNodeWorldRotation" to floatArrayOf(0.7071068f, 0.0f, 0.7071068f, 0.0f),
-                        "ImpNodeWorldScale" to floatArrayOf(0.5f, 0.5f, 0.5f),
-                    ),
+                position = Vector3(1.0f, 1.5f, -2.5f),
+                rotation = Quaternion(x = 0.0f, y = 0.7071068f, z = 0.0f, w = 0.7071068f),
+                scale = Vector3(0.5f, 0.5f, 0.5f),
             )
         taskRootNode.addChild(childNode)
         val calculatedLocalPoint = scope.localPointOf(childNode)
@@ -300,7 +290,7 @@ class SpatialInteractionHelperTest {
             SpatialInteractionScopeImpl(
                 deviceType = SpatialDeviceType.Controller,
                 pointerType = SpatialPointerType.Left,
-                node = SpatialNode(name = "IdentityNode"),
+                node = SnapshotXrSpace(name = "IdentityNode"),
             )
         scope.moveOriginTo(Vector3(0f, 0f, 1f))
 
@@ -331,7 +321,7 @@ class SpatialInteractionHelperTest {
             SpatialInteractionScopeImpl(
                 deviceType = SpatialDeviceType.Controller,
                 pointerType = SpatialPointerType.Left,
-                node = SpatialNode(name = "IdentityNode"),
+                node = SnapshotXrSpace(name = "IdentityNode"),
             )
 
         scope.animate(durationMs = 600L) { fraction ->
@@ -351,7 +341,7 @@ class SpatialInteractionHelperTest {
             SpatialInteractionScopeImpl(
                 deviceType = SpatialDeviceType.Controller,
                 pointerType = SpatialPointerType.Left,
-                node = SpatialNode(name = "IdentityNode"),
+                node = SnapshotXrSpace(name = "IdentityNode"),
             )
 
         scope.animate(durationMs = 0L) { fraction ->
@@ -364,26 +354,20 @@ class SpatialInteractionHelperTest {
     @Test
     fun spatialInteractionScope_localPointOf_crossNodeClicksHitSameLocations_identitySpace() {
         val taskRootNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "space-root-task-1",
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(0.0f, 1.5f, -1.5f),
-                        "ImpNodeWorldRotation" to floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1.0f, 1.0f, 1.0f),
-                    ),
+                position = Vector3(0.0f, 1.5f, -1.5f),
+                rotation = Quaternion.Identity,
+                scale = Vector3.One,
             )
 
         val windowNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "window-task-1",
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(0.0f, 1.5f, -1.5f),
-                        "ImpNodeWorldRotation" to floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1.0f, 1.0f, 1.0f),
-                        "root2DSurfaceBoundsInMeters" to floatArrayOf(1.0f, 0.8f),
-                    ),
+                position = Vector3(0.0f, 1.5f, -1.5f),
+                rotation = Quaternion.Identity,
+                scale = Vector3.One,
+                surfaceBoundsInMeters = Vector2(1.0f, 0.8f),
             )
         taskRootNode.addChild(windowNode)
 
@@ -442,27 +426,21 @@ class SpatialInteractionHelperTest {
     @Test
     fun spatialInteractionScope_localPointOf_withWindowBounds() {
         val taskRootNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "space-root-task-1",
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(0.0f, 1.5f, -1.5f),
-                        "ImpNodeWorldRotation" to floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1.0f, 1.0f, 1.0f),
-                    ),
+                position = Vector3(0.0f, 1.5f, -1.5f),
+                rotation = Quaternion.Identity,
+                scale = Vector3.One,
             )
 
         val windowNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "window-task-1",
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(0.0f, 1.5f, -1.5f),
-                        "ImpNodeWorldRotation" to floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1.0f, 1.0f, 1.0f),
-                        "root2DSurfaceBoundsInMeters" to floatArrayOf(1.0f, 0.5f),
-                        "root2DSurfaceBoundsInPixels" to floatArrayOf(1000.0f, 500.0f),
-                    ),
+                position = Vector3(0.0f, 1.5f, -1.5f),
+                rotation = Quaternion.Identity,
+                scale = Vector3.One,
+                surfaceBoundsInMeters = Vector2(1.0f, 0.5f),
+                surfaceBoundsInPixels = Vector2(1000.0f, 500.0f),
             )
         taskRootNode.addChild(windowNode)
 

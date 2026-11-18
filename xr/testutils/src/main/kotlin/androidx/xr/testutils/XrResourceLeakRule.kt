@@ -28,7 +28,7 @@ import org.junit.runners.model.Statement
  *
  * Intended specifically for dedicated resource-reclamation tests rather than blanket attachment to
  * every functional integration test. Triggers GC after the wrapped statement (and any inner
- * session/activity teardown rules) finishes and polls [SpatialScene.stats] until
+ * session/activity teardown rules) finishes and polls [SnapshotXrScene.stats] until
  * [SpatialSceneStats.attachedNodes], [SpatialSceneStats.bufferPixels], and (when present in the
  * baseline) [SpatialSceneStats.livingNodes] settle within budget.
  *
@@ -60,7 +60,7 @@ internal constructor(
     private val maxLivingNodesDelta: Int,
     private val settleTimeoutMs: Long,
     private val pollIntervalMs: Long,
-    private val sceneProvider: () -> SpatialScene,
+    private val sceneProvider: () -> SnapshotXrScene,
     private val gcTrigger: () -> Unit,
     private val sleeper: (Long) -> Unit,
     private val clockMs: () -> Long,
