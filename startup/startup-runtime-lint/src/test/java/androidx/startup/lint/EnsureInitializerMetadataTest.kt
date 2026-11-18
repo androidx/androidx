@@ -21,6 +21,7 @@ package androidx.startup.lint
 import androidx.startup.lint.Stubs.INITIALIZER
 import androidx.startup.lint.Stubs.TEST_INITIALIZER
 import androidx.startup.lint.Stubs.TEST_INITIALIZER_2
+import androidx.startup.lint.Stubs.TEST_INITIALIZER_WITH_ABSTRACT_BASE
 import androidx.startup.lint.Stubs.TEST_INITIALIZER_WITH_DEPENDENCIES
 import com.android.tools.lint.checks.infrastructure.TestFiles.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
@@ -101,6 +102,37 @@ class EnsureInitializerMetadataTest {
 
         lint()
             .files(INITIALIZER, TEST_INITIALIZER_WITH_DEPENDENCIES, TEST_INITIALIZER_2, manifest)
+            .issues(EnsureInitializerMetadataDetector.ISSUE)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testSuccessWhenNoMetadataIsProvidedForAbstractInitializer() {
+        val manifest =
+            manifest(
+                    """
+               <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  package="com.example">
+                  <application>
+                    <provider
+                        android:name="androidx.startup.InitializationProvider"
+                        android:authorities="com.example.androidx-startup"
+                        android:exported="false"
+                        tools:node="merge">
+                        <meta-data
+                            android:name="com.example.TestInitializer"
+                            android:value="androidx.startup" />
+                    </provider>
+                  </application>
+                </manifest>
+        """
+                )
+                .indented()
+
+        lint()
+            .files(INITIALIZER, TEST_INITIALIZER_WITH_ABSTRACT_BASE, manifest)
             .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
             .expectClean()
