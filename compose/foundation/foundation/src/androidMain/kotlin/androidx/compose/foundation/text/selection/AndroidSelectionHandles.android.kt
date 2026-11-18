@@ -18,11 +18,10 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.Handle.SelectionEnd
 import androidx.compose.foundation.text.Handle.SelectionStart
 import androidx.compose.foundation.text.selection.SelectionHandleAnchor.Left
@@ -54,7 +53,9 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.isSpecified
@@ -78,12 +79,13 @@ internal actual fun SelectionHandle(
 
     val semanticsModifier = modifier.semantics {
         val position = offsetProvider.provide()
+        val visible = position.isSpecified
         this[SelectionHandleInfoKey] =
             SelectionHandleInfo(
                 handle = if (isStartHandle) SelectionStart else SelectionEnd,
                 position = position,
                 anchor = if (isLeft) Left else Right,
-                visible = position.isSpecified,
+                visible = visible,
             )
     }
 
@@ -91,37 +93,22 @@ internal actual fun SelectionHandle(
     val viewConfiguration = LocalViewConfiguration.current
     HandlePopup(positionProvider = offsetProvider, handleReferencePoint = handleReferencePoint) {
         CompositionLocalProvider(LocalViewConfiguration provides viewConfiguration) {
-            if (minTouchTargetSize.isSpecified) {
-                // wrap the content in a Row and align it to an edge according to the specified
-                // direction.
-                val arrangement =
-                    if (isLeft) {
-                        Arrangement.Absolute.Right
-                    } else {
-                        Arrangement.Absolute.Left
-                    }
-
-                Row(
-                    horizontalArrangement = arrangement,
-                    modifier =
-                        semanticsModifier.requiredSizeIn(
+            val iconModifier =
+                if (minTouchTargetSize.isSpecified) {
+                    semanticsModifier
+                        .requiredSizeIn(
                             minWidth = minTouchTargetSize.width,
                             minHeight = minTouchTargetSize.height,
-                        ),
-                ) {
-                    SelectionHandleIcon(
-                        modifier = Modifier,
-                        iconVisible = { offsetProvider.provide().isSpecified },
-                        isLeft = isLeft,
-                    )
+                        )
+                        .wrapContentSize(handleReferencePoint)
+                } else {
+                    semanticsModifier
                 }
-            } else {
-                SelectionHandleIcon(
-                    modifier = semanticsModifier,
-                    iconVisible = { offsetProvider.provide().isSpecified },
-                    isLeft = isLeft,
-                )
-            }
+            SelectionHandleIcon(
+                modifier = iconModifier,
+                iconVisible = { offsetProvider.provide().isSpecified },
+                isLeft = isLeft,
+            )
         }
     }
 }
@@ -129,7 +116,15 @@ internal actual fun SelectionHandle(
 @Composable
 /*@VisibleForTesting*/
 internal fun SelectionHandleIcon(modifier: Modifier, iconVisible: () -> Boolean, isLeft: Boolean) {
-    Spacer(modifier.size(HandleWidth, HandleHeight).drawSelectionHandle(iconVisible, isLeft))
+    Spacer(
+        modifier
+            .size(HandleWidth, HandleHeight)
+            .semantics {
+                shape = if (isLeft) HandleShape.SelectionLeft else HandleShape.SelectionRight
+                if (!iconVisible()) hideFromAccessibility()
+            }
+            .drawSelectionHandle(iconVisible, isLeft)
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

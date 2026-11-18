@@ -16,11 +16,12 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.selection.HandlePopup
+import androidx.compose.foundation.text.selection.HandleShape
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.OffsetProvider
 import androidx.compose.foundation.text.selection.SelectionHandleAnchor
@@ -36,11 +37,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 
-private const val Sqrt2 = 1.41421356f
+private const val Sqrt2 = 1.4142135f
 internal val CursorHandleHeight
     get() = 25.dp
 internal val CursorHandleWidth
@@ -62,20 +64,18 @@ internal actual fun CursorHandle(
             )
     }
     HandlePopup(positionProvider = offsetProvider, handleReferencePoint = Alignment.TopCenter) {
-        if (minTouchTargetSize.isSpecified) {
-            Box(
-                modifier =
-                    finalModifier.requiredSizeIn(
+        val iconModifier =
+            if (minTouchTargetSize.isSpecified) {
+                finalModifier
+                    .requiredSizeIn(
                         minWidth = minTouchTargetSize.width,
                         minHeight = minTouchTargetSize.height,
-                    ),
-                contentAlignment = Alignment.TopCenter,
-            ) {
-                DefaultCursorHandle()
+                    )
+                    .wrapContentSize(Alignment.TopCenter)
+            } else {
+                finalModifier
             }
-        } else {
-            DefaultCursorHandle(finalModifier)
-        }
+        DefaultCursorHandle(iconModifier)
     }
 }
 
@@ -85,6 +85,7 @@ private fun DefaultCursorHandle(modifier: Modifier = Modifier) {
     Spacer(
         modifier
             .size(CursorHandleWidth, CursorHandleHeight)
+            .semantics { shape = HandleShape.Cursor }
             .drawCursorHandle(LocalTextSelectionColors.current.handleColor)
     )
 }
