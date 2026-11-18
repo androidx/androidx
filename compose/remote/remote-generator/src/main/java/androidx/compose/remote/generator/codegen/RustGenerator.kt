@@ -225,7 +225,7 @@ internal class RustGenerator(private val schema: OperationSchema) {
                 when {
                     prop.type.endsWith("[]") || prop.type == "string" || prop.type == "bytes" -> 24
                     prop.type == "long" -> 8
-                    prop.type in setOf("int", "color", "float", "float_or_id") -> 4
+                    prop.type in setOf("int", "int_id", "color", "float", "float_or_id") -> 4
                     prop.type == "short" -> 2
                     prop.type in setOf("byte", "boolean") -> 1
                     else -> 24
@@ -1249,7 +1249,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
     private fun mapToRustType(type: String, isNullable: Boolean = false): String {
         val base =
             when (type) {
-                "int" -> "i32"
+                "int",
+                "int_id" -> "i32"
                 "short" -> "i16"
                 "byte" -> "u8"
                 "long" -> "i64"
@@ -1303,7 +1304,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
 
     private fun mapToRustScalarReadExpr(type: String, maxLength: Int? = null): String =
         when (type) {
-            "int" -> "buffer.read_i32()?"
+            "int",
+            "int_id" -> "buffer.read_i32()?"
             "short" -> "buffer.read_i16()?"
             "byte" -> "buffer.read_u8()?"
             "long" -> "buffer.read_i64()?"
@@ -1326,7 +1328,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
         isOwnedOrValue: Boolean,
     ): String =
         when (type) {
-            "int" -> "buffer.write_i32($varName)"
+            "int",
+            "int_id" -> "buffer.write_i32($varName)"
             "short" -> "buffer.write_i16($varName)"
             "byte" -> "buffer.write_u8($varName)"
             "long" -> "buffer.write_i64($varName)"

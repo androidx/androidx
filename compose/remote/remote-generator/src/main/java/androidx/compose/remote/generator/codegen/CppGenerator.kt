@@ -1437,7 +1437,8 @@ internal class CppGenerator(private val schema: OperationSchema) {
         fun mapToCppType(type: String, isNullable: Boolean = false): String {
             val base =
                 when (type) {
-                    "int" -> "int32_t"
+                    "int",
+                    "int_id" -> "int32_t"
                     "short" -> "int16_t"
                     "byte" -> "uint8_t"
                     "long" -> "int64_t"
@@ -1492,7 +1493,8 @@ internal class CppGenerator(private val schema: OperationSchema) {
 
         fun mapToCppScalarReadExpr(type: String, maxLength: Int? = null): String =
             when (type) {
-                "int" -> "buffer.readInt()"
+                "int",
+                "int_id" -> "buffer.readInt()"
                 "short" -> "buffer.readShort()"
                 "byte" -> "buffer.readByte()"
                 "long" -> "buffer.readLong()"
@@ -1511,7 +1513,8 @@ internal class CppGenerator(private val schema: OperationSchema) {
 
         fun mapToCppScalarWriteExpr(type: String, varName: String): String =
             when (type) {
-                "int" -> "buffer.writeInt($varName)"
+                "int",
+                "int_id" -> "buffer.writeInt($varName)"
                 "short" -> "buffer.writeShort($varName)"
                 "byte" -> "buffer.writeByte($varName)"
                 "long" -> "buffer.writeLong($varName)"

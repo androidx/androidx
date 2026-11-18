@@ -48,6 +48,7 @@ internal object CodegenExprUtils {
             "boolean" -> 1
             "short" -> 2
             "int",
+            "int_id",
             "color",
             "float",
             "float_or_id",

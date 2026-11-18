@@ -959,7 +959,8 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                 type == "short[]" -> "Int16Array"
                 type == "float[]" || type == "float_or_id[]" -> "Float32Array"
                 type.endsWith("[]") -> "${mapToTsType(type.removeSuffix("[]"), false)}[]"
-                type in setOf("int", "short", "byte", "float", "color", "float_or_id") -> "number"
+                type in setOf("int", "int_id", "short", "byte", "float", "color", "float_or_id") ->
+                    "number"
                 type == "long" -> "bigint"
                 type == "boolean" -> "boolean"
                 type == "string" -> "string"
@@ -982,7 +983,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
             type == "short[]" -> "new Int16Array(0)"
             type == "float[]" || type == "float_or_id[]" -> "new Float32Array(0)"
             type.endsWith("[]") -> "[]"
-            type in setOf("int", "short", "byte", "float", "color", "float_or_id") -> "0"
+            type in setOf("int", "int_id", "short", "byte", "float", "color", "float_or_id") -> "0"
             type == "long" -> "0n"
             type == "boolean" -> "false"
             type == "string" -> "\"\""
@@ -995,6 +996,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
     private fun mapToTsReadExpr(type: String, maxLength: Int? = null): String =
         when (type) {
             "int",
+            "int_id",
             "color" -> "buffer.readInt()"
             "short" -> "buffer.readShort()"
             "byte" -> "buffer.readByte()"
@@ -1013,6 +1015,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
     private fun mapToTsWriteExpr(type: String, varName: String): String =
         when (type) {
             "int",
+            "int_id",
             "color" -> "buffer.writeInt($varName)"
             "short" -> "buffer.writeShort($varName)"
             "byte" -> "buffer.writeByte($varName)"

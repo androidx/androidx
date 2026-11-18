@@ -957,6 +957,7 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             } else {
                 when (type) {
                     "int",
+                    "int_id",
                     "color" -> "Int32"
                     "short" -> "Int16"
                     "byte" -> "UInt8"
@@ -989,6 +990,7 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
         if (type.endsWith("[]")) return "[]"
         return when (type) {
             "int",
+            "int_id",
             "color",
             "short",
             "byte" -> "0"
@@ -1005,6 +1007,7 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
     private fun mapToSwiftReadExpr(type: String, maxLength: Int? = null): String =
         when (type) {
             "int",
+            "int_id",
             "color" -> "buffer.readInt()"
             "short" -> "buffer.readShort()"
             "byte" -> "buffer.readByte()"
@@ -1026,6 +1029,7 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
     private fun mapToSwiftWriteExpr(type: String, varName: String): String =
         when (type) {
             "int",
+            "int_id",
             "color" -> "buffer.writeInt($varName)"
             "short" -> "buffer.writeShort($varName)"
             "byte" -> "buffer.writeByte($varName)"

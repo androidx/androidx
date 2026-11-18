@@ -1874,6 +1874,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
             val base: TypeName =
                 when (type) {
                     "int",
+                    "int_id",
                     "color" -> INT
                     "short" -> SHORT
                     "byte" -> BYTE
@@ -1903,6 +1904,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
             val base =
                 when (type) {
                     "int",
+                    "int_id",
                     "color" -> "Int"
                     "short" -> "Short"
                     "byte" -> "Byte"
@@ -1947,6 +1949,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
             }
             return when (type) {
                 "int",
+                "int_id",
                 "color" -> "0"
                 "short" -> "0"
                 "byte" -> "0"
@@ -1972,6 +1975,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
         fun mapToKotlinScalarReadExpr(type: String, maxLength: Int? = null): String =
             when (type) {
                 "int",
+                "int_id",
                 "color" -> "buffer.readInt()"
                 "short" -> "buffer.readShort().toShort()"
                 "byte" -> "buffer.readByte().toByte()"
@@ -1990,6 +1994,7 @@ public class KotlinGenerator(private val schema: OperationSchema) {
         fun mapToKotlinScalarWriteExpr(type: String, varName: String): String =
             when (type) {
                 "int",
+                "int_id",
                 "color" -> "buffer.writeInt($varName)"
                 "short" -> "buffer.writeShort($varName.toInt())"
                 "byte" -> "buffer.writeByte($varName.toInt())"

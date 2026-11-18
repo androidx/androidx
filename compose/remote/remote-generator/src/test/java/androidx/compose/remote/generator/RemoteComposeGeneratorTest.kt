@@ -1968,7 +1968,7 @@ class RemoteComposeGeneratorTest {
                         assert(doc->operations[1]->getOpCode() == OpCode::ContainerEnd);
                     }
 
-                    // AddMesh2D type=99 reads literal float mesh
+                    // AddMesh2D type=99 reads literal float mesh; ColorExpression mode=99 rejected
                     {
                         WireBuffer wb = makeV6Header();
                         wb.writeByte(static_cast<uint8_t>(OpCode::AddMesh2D));
@@ -1993,6 +1993,16 @@ class RemoteComposeGeneratorTest {
                         assert(mesh->verts.size() == 2);
                         assert(mesh->getCapSegments() == 5);
                         assert(mesh->antialiasWidth == 1.0f);
+
+                        WireBuffer badCe = makeV6Header();
+                        badCe.writeByte(static_cast<uint8_t>(OpCode::ColorExpression));
+                        badCe.writeInt(1);
+                        badCe.writeInt(99); // invalid mode > 6
+                        badCe.writeInt(0);
+                        badCe.writeInt(0);
+                        badCe.writeInt(0);
+                        WireBuffer rCe(badCe.getBytes());
+                        assertThrowsRuntime([&]() { RemoteDocument::load(rCe); });
                     }
 
                     // maxLength enforced even when buffer contains enough bytes
@@ -2273,7 +2283,7 @@ class RemoteComposeGeneratorTest {
                         assert!(matches!(doc.operations[1], Operation::ContainerEnd(_)));
                     }
 
-                    // AddMesh2D type=99 reads literal float mesh
+                    // AddMesh2D type=99 reads literal float mesh; ColorExpression mode=99 -> InvalidData
                     {
                         let mut buf = make_v6_header();
                         buf.write_u8(OpId::AddMesh2D.as_u8());
@@ -2298,6 +2308,16 @@ class RemoteComposeGeneratorTest {
                             }
                             other => panic!("Expected AddMesh2D, got {:?}", other),
                         }
+
+                        let mut bad_ce = make_v6_header();
+                        bad_ce.write_u8(OpId::ColorExpression.as_u8());
+                        bad_ce.write_i32(1);
+                        bad_ce.write_i32(99); // invalid mode > 6
+                        bad_ce.write_i32(0);
+                        bad_ce.write_i32(0);
+                        bad_ce.write_i32(0);
+                        let mut ce_reader = WireBuffer::from_bytes(bad_ce.as_bytes());
+                        assert_eq!(RemoteDocument::load(&mut ce_reader), Err(WireError::InvalidData));
                     }
 
                     // maxLength enforced even when backing buffer is large enough
@@ -2532,7 +2552,7 @@ class RemoteComposeGeneratorTest {
                 assert doc.operations[0].kerning_table == []
                 assert type(doc.operations[1]).__name__ == "ContainerEnd"
 
-                # AddMesh2D type=99 reads literal float mesh
+                # AddMesh2D type=99 reads literal float mesh; ColorExpression mode=99 rejected
                 b = make_v6_header()
                 b.write_byte(OpCode.AddMesh2D.value)
                 b.write_int(1)
@@ -2549,6 +2569,14 @@ class RemoteComposeGeneratorTest {
                 assert len(doc.operations) == 1
                 assert doc.operations[0].verts == [3.0, 4.0]
                 assert doc.operations[0].antialias_width == 1.0
+
+                bad_ce = make_v6_header()
+                bad_ce.write_byte(OpCode.ColorExpression.value)
+                bad_ce.write_int(1)
+                bad_ce.write_int(99)
+                for _ in range(3):
+                    bad_ce.write_int(0)
+                assert_raises(ValueError, lambda: RemoteDocument.load(bad_ce.get_bytes()))
 
                 # maxLength enforced even when backing buffer is large enough
                 b = make_v6_header()
@@ -2608,6 +2636,7 @@ class RemoteComposeGeneratorTest {
         assertTrue(tsCode.contains("Invalid header magic number"))
         assertTrue(tsCode.contains("_glyphsCount * 20 > buffer.remaining()"))
         assertTrue(tsCode.contains("sparseCount * 2 > buffer.remaining()"))
+        assertTrue(tsCode.contains("Invalid enum value for mode:"))
         assertTrue(tsCode.contains("Invalid enum value for attributeType:"))
         assertTrue(tsCode.contains("buffer.readUTF8(4000)"))
         assertTrue(tsCode.contains("buffer.readBuffer(800000)"))
@@ -2636,6 +2665,7 @@ class RemoteComposeGeneratorTest {
         assertTrue(swiftCode.contains("Invalid header magic number"))
         assertTrue(swiftCode.contains("guard _glyphsCount <= buffer.remaining / 20 else"))
         assertTrue(swiftCode.contains("guard sparseCount <= buffer.remaining / 2 else"))
+        assertTrue(swiftCode.contains("Invalid enum value for mode"))
         assertTrue(swiftCode.contains("Invalid enum value for attributeType"))
         assertTrue(swiftCode.contains("buffer.readUTF8(maxLength: 4000)"))
         assertTrue(swiftCode.contains("buffer.readBuffer(maxLength: 800000)"))
@@ -2647,6 +2677,7 @@ class RemoteComposeGeneratorTest {
         val ktCode = KotlinGenerator(schema).generateAstNodes()
         assertTrue(ktCode.contains("require(count <= buffer.remaining() / 20)"))
         assertTrue(ktCode.contains("require(sparseCount <= buffer.remaining() / 2)"))
+        assertTrue(ktCode.contains("Invalid ColorExpressionNode.mode:"))
         assertTrue(ktCode.contains("Invalid GraphicsLayerAttribute.attributeType:"))
         assertTrue(ktCode.contains("buffer.readUTF8(4000)"))
         assertTrue(ktCode.contains("buffer.readBuffer(800000)"))
@@ -2817,6 +2848,144 @@ class RemoteComposeGeneratorTest {
         val fontData = schema.operationsByName["FontData"]!!.fields.first { it.name == "fontData" }
         assertEquals(800000, fontData.maxLength)
         assertEquals("Limits.MAX_FONT_DATA", fontData.javaLimit)
+
+        // int_id type declaration & polymorphic conditionalTypes / conditionalRoles
+        val intIdType = schema.types["int_id"]!!
+        assertEquals("INT32", intIdType.wire)
+        assertEquals("int", intIdType.base)
+
+        val customPropRaw =
+            schema.structs["CustomProperty"]!!.fields.first { it.name == "rawValue" }
+        assertEquals(
+            "int",
+            customPropRaw.conditionalTypes!!.first { it.condition == "dataType == 0" }.type,
+        )
+        assertEquals(
+            "float_or_id",
+            customPropRaw.conditionalTypes!!
+                .first { it.condition == "dataType == 1 || dataType == 3" }
+                .type,
+        )
+        assertEquals(
+            "color",
+            customPropRaw.conditionalTypes!!.first { it.condition == "dataType == 8" }.type,
+        )
+        assertEquals(
+            "int_id",
+            customPropRaw.conditionalTypes!!
+                .first {
+                    it.condition ==
+                        "dataType == 2 || dataType == 4 || dataType == 5 || dataType == 6 || dataType == 7 || dataType == 9"
+                }
+                .type,
+        )
+        val customPropRoles = customPropRaw.conditionalRoles!!
+        assertEquals(
+            "text",
+            customPropRoles.first { it.condition == "dataType == 2 || dataType == 4" }.idKind,
+        )
+        assertEquals(
+            "int",
+            customPropRoles.first { it.condition == "dataType == 5 || dataType == 9" }.idKind,
+        )
+        assertEquals(
+            "color",
+            customPropRoles.first { it.condition == "dataType == 6 || dataType == 7" }.idKind,
+        )
+
+        val colorExprOp = schema.operationsByName["ColorExpression"]!!
+        val ceArg1 = colorExprOp.fields.first { it.name == "arg1" }
+        assertEquals(
+            "int_id",
+            ceArg1.conditionalTypes!!
+                .first { it.condition == "(flagsAndMode & 255) == 1 || (flagsAndMode & 255) == 3" }
+                .type,
+        )
+        assertEquals(
+            "color",
+            ceArg1.conditionalTypes!!
+                .first { it.condition == "(flagsAndMode & 255) == 0 || (flagsAndMode & 255) == 2" }
+                .type,
+        )
+        val ceArg2 = colorExprOp.fields.first { it.name == "arg2" }
+        assertEquals(
+            "int_id",
+            ceArg2.conditionalTypes!!
+                .first { it.condition == "(flagsAndMode & 255) == 2 || (flagsAndMode & 255) == 3" }
+                .type,
+        )
+        val textLayoutColor =
+            schema.operationsByName["TextLayout"]!!.fields.first { it.name == "color" }
+        assertEquals(
+            "int_id",
+            textLayoutColor.conditionalTypes!!
+                .first { it.condition == "(textAlign & 65536) != 0" }
+                .type,
+        )
+        assertEquals(
+            "color",
+            textLayoutColor.conditionalTypes!!
+                .first { it.condition == "(textAlign & 65536) == 0" }
+                .type,
+        )
+
+        // Direct int_id field codegen across all target generators
+        val intIdSchemaJson =
+            """
+            {
+              "schemaVersion": "1.0.0",
+              "targetApiLevel": 8,
+              "types": {
+                "int": { "wire": "INT32", "description": "32-bit int" },
+                "long": { "wire": "INT64", "description": "64-bit long" },
+                "int_id": { "wire": "INT32", "base": "int", "description": "32-bit ID" }
+              },
+              "categories": [{ "name": "Test", "description": "Test category" }],
+              "operations": [
+                {
+                  "id": 0,
+                  "name": "Header",
+                  "category": "Test",
+                  "description": "Header",
+                  "fields": [
+                    { "name": "majorVersion", "type": "int" },
+                    { "name": "minorVersion", "type": "int" },
+                    { "name": "patchVersion", "type": "int" },
+                    { "name": "width", "type": "int" },
+                    { "name": "height", "type": "int" },
+                    { "name": "capabilities", "type": "long" }
+                  ]
+                },
+                {
+                  "id": 210,
+                  "name": "IntIdOp",
+                  "category": "Test",
+                  "description": "Op with int_id field",
+                  "fields": [
+                    { "name": "targetId", "type": "int_id", "description": "Target ID" }
+                  ]
+                }
+              ]
+            }
+            """
+                .trimIndent()
+        assertEquals(emptyList<String>(), JsonSchemaParser.validate(JSONObject(intIdSchemaJson)))
+        val intIdSchema = JsonSchemaParser.parse(intIdSchemaJson.byteInputStream())
+        assertTrue(KotlinGenerator(intIdSchema).generateAstNodes().contains("val targetId: Int"))
+        assertTrue(
+            KotlinGenerator(intIdSchema).generateWriterNodes().contains("buffer.writeInt(targetId)")
+        )
+        assertTrue(CppGenerator(intIdSchema).generateHeader().contains("int32_t targetId{};"))
+        assertTrue(RustGenerator(intIdSchema).generate().contains("pub target_id: i32"))
+        assertTrue(TypeScriptGenerator(intIdSchema).generate().contains("targetId: number = 0"))
+        val swiftIntId = SwiftGenerator(intIdSchema).generate()
+        assertTrue(
+            swiftIntId.contains("public var targetId: Int32") &&
+                swiftIntId.contains("targetId: Int32 = 0")
+        )
+        assertTrue(PythonGenerator(intIdSchema).generate().contains("target_id: int = 0"))
+        assertEquals("int", JavaGenerator.mapToJavaType("int_id"))
+        assertEquals("DocumentedOperation.INT", JavaGenerator.mapToJavaDocType("int_id"))
 
         // Validator rejects invalid strictEnum, maxLength, and payloadKind
         val invalidRoot =

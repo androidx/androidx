@@ -900,6 +900,7 @@ internal class PythonGenerator(private val schema: OperationSchema) {
     private fun mapToPyScalarReadExpr(type: String, maxLength: Int? = null): String =
         when (type) {
             "int",
+            "int_id",
             "color" -> "buffer.read_int()"
             "short" -> "buffer.read_short()"
             "byte" -> "buffer.read_byte()"
@@ -917,6 +918,7 @@ internal class PythonGenerator(private val schema: OperationSchema) {
     private fun mapToPyScalarWriteStmt(type: String, varExpr: String): String =
         when (type) {
             "int",
+            "int_id",
             "color" -> "buffer.write_int($varExpr)"
             "short" -> "buffer.write_short($varExpr)"
             "byte" -> "buffer.write_byte($varExpr)"
@@ -980,6 +982,7 @@ internal class PythonGenerator(private val schema: OperationSchema) {
             val base =
                 when (type) {
                     "int",
+                    "int_id",
                     "short",
                     "byte",
                     "color",
@@ -1041,6 +1044,7 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                     type !in
                         setOf(
                             "int",
+                            "int_id",
                             "short",
                             "byte",
                             "color",
