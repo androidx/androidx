@@ -739,7 +739,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                 when (qualifiedName) {
                     USES_REFLECTION_TO_CONSTRUCT_FQN,
                     USES_REFLECTION_TO_ACCESS_METHOD_FQN -> {
-                        val (className, classNameIsConstant) = annotation.getClassName()
+                        val (className, classNameIsConstant) = annotation.getClassName(context)
                         val methodName =
                             if (qualifiedName != USES_REFLECTION_TO_CONSTRUCT_FQN)
                                 annotation.findAttributeValue("methodName")?.evaluateString()
@@ -780,7 +780,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                             val classConstantAttribute =
                                 annotation.findDeclaredAttributeValue("returnType")
                             if (classConstantAttribute is UClassLiteralExpression) {
-                                classConstantAttribute.type?.canonicalText?.let {
+                                classConstantAttribute.erasedCanonicalText(context)?.let {
                                     returnClass = it
                                     returnClassIsConstant = true
                                 }
@@ -800,7 +800,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                         )
                     }
                     USES_REFLECTION_TO_ACCESS_FIELD_FQN -> {
-                        val (className, classNameIsConstant) = annotation.getClassName()
+                        val (className, classNameIsConstant) = annotation.getClassName(context)
                         val fieldName = annotation.findAttributeValue("fieldName")?.evaluateString()
 
                         var fieldClass = ""
@@ -813,7 +813,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                             val classConstantAttribute =
                                 annotation.findDeclaredAttributeValue("fieldType")
                             if (classConstantAttribute is UClassLiteralExpression) {
-                                classConstantAttribute.type?.canonicalText?.let {
+                                classConstantAttribute.erasedCanonicalText(context)?.let {
                                     fieldClass =
                                         if (isKotlin) javaPrimitiveToKotlinPrimitive(it) ?: it
                                         else it
@@ -837,7 +837,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             }
         }
 
-        private fun UAnnotation.getClassName(): Pair<String, Boolean> {
+        private fun UAnnotation.getClassName(context: JavaContext): Pair<String, Boolean> {
             val classNameAttribute = findDeclaredAttributeValue("className")
             if (classNameAttribute != null) {
                 val className = classNameAttribute.evaluateString() ?: return "" to false
@@ -845,12 +845,17 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
             }
             val classConstantAttribute = findDeclaredAttributeValue("classConstant")
             if (classConstantAttribute is UClassLiteralExpression) {
-                classConstantAttribute.type?.canonicalText?.let {
+                classConstantAttribute.erasedCanonicalText(context)?.let {
                     return it to true
                 }
             }
 
             return "" to false
+        }
+
+        private fun UClassLiteralExpression.erasedCanonicalText(context: JavaContext): String? {
+            val type = this.type ?: return null
+            return (context.evaluator.erasure(type) ?: type).canonicalText
         }
 
         private fun isApplicableClassName(context: Context, className: String): Boolean {
