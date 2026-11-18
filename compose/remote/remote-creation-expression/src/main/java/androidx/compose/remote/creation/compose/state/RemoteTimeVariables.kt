@@ -30,7 +30,7 @@ public object RemoteTimeVariables {
         get() = RemoteFloat(RemoteContext.FLOAT_ANIMATION_TIME)
 
     /** The delta time in seconds since the previous animation frame as a [RemoteFloat]. */
-    public val animationDeltaTime: RemoteFloat
+    internal val animationDeltaTime: RemoteFloat
         get() = RemoteFloat(RemoteContext.FLOAT_ANIMATION_DELTA_TIME)
 
     /** The continuous seconds `[0.0, 3600.0)` in the current hour as a [RemoteFloat]. */
@@ -74,6 +74,6 @@ public object RemoteTimeVariables {
         get() = RemoteInt.createForContextId(RemoteContext.ID_OFFSET_TO_UTC)
 
     /** The elapsed seconds since the Unix epoch as a [RemoteInt]. */
-    public val epochSecond: RemoteInt
+    internal val epochSecond: RemoteInt
         get() = RemoteInt.createForContextId(RemoteContext.ID_EPOCH_SECOND)
 }

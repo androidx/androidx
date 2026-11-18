@@ -570,26 +570,22 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public final class RemoteTimeVariables {
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getAnimationDeltaTime();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getAnimationTime();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getContinuousSeconds();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getDayOfMonth();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getDayOfWeek();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getDayOfYear();
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getEpochSecond();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getHourOfDay();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getMinuteOfDay();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getMonth();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getSecondOfHour();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getUtcOffsetSeconds();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getYear();
-    property public androidx.compose.remote.creation.compose.state.RemoteFloat animationDeltaTime;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat animationTime;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat continuousSeconds;
     property public androidx.compose.remote.creation.compose.state.RemoteInt dayOfMonth;
     property public androidx.compose.remote.creation.compose.state.RemoteInt dayOfWeek;
     property public androidx.compose.remote.creation.compose.state.RemoteInt dayOfYear;
-    property public androidx.compose.remote.creation.compose.state.RemoteInt epochSecond;
     property public androidx.compose.remote.creation.compose.state.RemoteInt hourOfDay;
     property public androidx.compose.remote.creation.compose.state.RemoteInt minuteOfDay;
     property public androidx.compose.remote.creation.compose.state.RemoteInt month;
