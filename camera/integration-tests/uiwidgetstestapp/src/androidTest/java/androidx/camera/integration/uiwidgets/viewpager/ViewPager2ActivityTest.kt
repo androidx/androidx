@@ -36,11 +36,6 @@ import androidx.camera.view.PreviewView
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -63,7 +58,6 @@ import org.junit.runners.Parameterized
 class ViewPager2ActivityTest(private val lensFacing: Int, private val implementationMode: Int) {
 
     companion object {
-        private const val ACTION_IDLE_TIMEOUT: Long = 5000
         private const val PREVIEW_UPDATE_COUNT = 10
 
         @JvmStatic
@@ -88,12 +82,12 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val implementa
         @JvmField val testCameraRule = CameraUtil.PreTestCamera()
     }
 
-    @get:Rule
+    @get:Rule(order = 0)
     val requireForegroundRule = RequireForegroundRule {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
     }
 
-    @get:Rule
+    @get:Rule(order = 1)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             testCameraRule,
@@ -115,6 +109,7 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val implementa
     fun testPreviewViewUpdateAfterStopResume() {
         launchActivity(lensFacing).useInCameraTest { scenario ->
             // At first, check Preview in stream state
+            waitUntilViewDisplayed(scenario, R.id.preview_textureview)
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
             // Go through Stop/Resume and then check Preview in stream state still
@@ -135,15 +130,17 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val implementa
 
         launchActivity(lensFacing).useInCameraTest { scenario ->
             // At first, check Preview in stream state
+            waitUntilViewDisplayed(scenario, R.id.preview_textureview)
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
             // Switch from CameraFragment to BlankFragment, and then switch back to check Preview
             // update
-            onView(withId(ViewPager2Activity.BLANK_VIEW_ID)).perform(click())
-            onView(withId(R.id.blank_textview)).check(matches(isDisplayed()))
+            selectTab(scenario, ViewPager2Activity.BLANK_VIEW_ID)
+            waitUntilViewDisplayed(scenario, R.id.blank_textview)
 
-            onView(withId(ViewPager2Activity.CAMERA_VIEW_ID)).perform(click())
-            onView(withId(R.id.preview_textureview)).check(matches(isDisplayed()))
+            selectTab(scenario, ViewPager2Activity.CAMERA_VIEW_ID)
+            waitUntilViewDisplayed(scenario, R.id.preview_textureview)
+            assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
             // For b/149877652, need to check if the surface texture of TextureView continues
             // getting updates after detaching from window and then attaching to window.
@@ -166,20 +163,21 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val implementa
     fun testPreviewViewUpdateAfterSwitchAndStop_ResumeAndSwitchBack() {
         launchActivity(lensFacing).useInCameraTest { scenario ->
             // At first, check Preview in stream state
+            waitUntilViewDisplayed(scenario, R.id.preview_textureview)
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
             // Switch from CameraFragment to BlankFragment, and then Stop and Resume
             // ViewPager2Activity
-            onView(withId(ViewPager2Activity.BLANK_VIEW_ID)).perform(click())
-            onView(withId(R.id.blank_textview)).check(matches(isDisplayed()))
+            selectTab(scenario, ViewPager2Activity.BLANK_VIEW_ID)
+            waitUntilViewDisplayed(scenario, R.id.blank_textview)
 
             scenario.moveToState(State.CREATED)
             scenario.moveToState(State.RESUMED)
             InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
             // After resume, switch back to CameraFragment, to check Preview in stream state
-            onView(withId(ViewPager2Activity.CAMERA_VIEW_ID)).perform(click())
-            onView(withId(R.id.preview_textureview)).check(matches(isDisplayed()))
+            selectTab(scenario, ViewPager2Activity.CAMERA_VIEW_ID)
+            waitUntilViewDisplayed(scenario, R.id.preview_textureview)
 
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
@@ -187,6 +185,13 @@ class ViewPager2ActivityTest(private val lensFacing: Int, private val implementa
             // check the surface texture of TextureView continues getting updates for b/149877652.
             assertPreviewViewUpdate(scenario)
         }
+    }
+
+    private fun selectTab(scenario: ActivityScenario<ViewPager2Activity>, tabViewId: Int) {
+        scenario.onActivity { activity ->
+            requireNotNull(activity.findViewById<View>(tabViewId)).performClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
     private fun launchActivity(lensFacing: Int): ActivityScenario<ViewPager2Activity> {
