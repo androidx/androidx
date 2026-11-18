@@ -16,4 +16,3 @@ per-file app-testing/**=file:/car/app/LIBRARY_OWNERS
 per-file app-samples/**=file:/car/app/LIBRARY_OWNERS
 per-file app-samples/**=file:/car/app/APP_SAMPLES_OWNERS
 per-file app/app/src/main/java/androidx/car/app/mediaextensions/**=arnaudberry@google.com
-per-file app/app/src/main/java/androidx/car/app/mediaextensions/**=markstanford@google.com
