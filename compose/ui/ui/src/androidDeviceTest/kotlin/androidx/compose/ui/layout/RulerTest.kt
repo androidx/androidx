@@ -1102,6 +1102,675 @@ class RulerTest(val useIndividualRulers: Boolean) {
         assertThat(readValues.last()).isEqualTo(20f)
     }
 
+    /**
+     * Checks that when an inner ruler provider stops providing a value, readers underneath fall
+     * back to the outer provider's value and switch back when the inner provider resumes.
+     */
+    @Test
+    fun nestedProviders_innerOverridesOuterAndFallsBackWhenRemoved() {
+        var provideInner by mutableStateOf(true)
+        var innerRead = Float.NaN
+        var outerRead = Float.NaN
+
+        rule.setContent {
+            Box(Modifier.provideRulers(vert = 10f)) {
+                Box(
+                    Modifier.provideRulers(
+                        horz = { null },
+                        vert = { if (provideInner) 50f else null },
+                    )
+                ) {
+                    Box(
+                        Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                innerRead = verticalRuler.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        }
+                    )
+                }
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            outerRead = verticalRuler.current(Float.NaN)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(innerRead).isEqualTo(50f)
+        assertThat(outerRead).isEqualTo(10f)
+
+        provideInner = false
+        rule.waitForIdle()
+        assertThat(innerRead).isEqualTo(10f)
+        assertThat(outerRead).isEqualTo(10f)
+
+        provideInner = true
+        rule.waitForIdle()
+        assertThat(innerRead).isEqualTo(50f)
+        assertThat(outerRead).isEqualTo(10f)
+    }
+
+    /**
+     * Checks that detaching an inner ruler-providing modifier notifies child readers to fall back
+     * to the outer provider, and re-attaching notifies them again.
+     */
+    @Test
+    fun nestedProviders_innerModifierRemoved_notifiesReaders() {
+        var hasInnerModifier by mutableStateOf(true)
+        var innerRead = Float.NaN
+
+        rule.setContent {
+            Box(Modifier.provideRulers(vert = 10f)) {
+                Box(if (hasInnerModifier) Modifier.provideRulers(vert = 50f) else Modifier) {
+                    Box(
+                        Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                innerRead = verticalRuler.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(innerRead).isEqualTo(50f)
+
+        hasInnerModifier = false
+        rule.waitForIdle()
+        assertThat(innerRead).isEqualTo(10f)
+
+        hasInnerModifier = true
+        rule.waitForIdle()
+        assertThat(innerRead).isEqualTo(50f)
+    }
+
+    /**
+     * Checks that a reader that originally fell back to the root gets notified when a provider
+     * under the root later starts providing that ruler.
+     */
+    @Test
+    fun nestedProviders_addedUnderRoot_notifiesReader() {
+        var provide by mutableStateOf(false)
+        var readValue = Float.NaN
+
+        rule.setContent {
+            Box(Modifier.provideRulers(horz = { null }, vert = { if (provide) 42f else null })) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValue = verticalRuler.current(-1f)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(-1f)
+
+        provide = true
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(42f)
+    }
+
+    /**
+     * Checks that rulers on a single `LayoutNode` flow inward to later modifiers, the node's
+     * `MeasurePolicy`, and children, never outward to earlier modifiers.
+     */
+    @Test
+    fun sameLayoutNode_modifierOrderAndMeasurePolicy() {
+        var outerModifierRead = Float.NaN
+        var innerModifierRead = Float.NaN
+        var measurePolicyRead = Float.NaN
+        var childVertRead = Float.NaN
+        var childHorzRead = Float.NaN
+
+        rule.setContent {
+            Layout(
+                modifier =
+                    Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                outerModifierRead = verticalRuler.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        }
+                        .provideRulers(horz = 5f, vert = 10f)
+                        .layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                innerModifierRead = verticalRuler.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        },
+                content = {
+                    Box(
+                        Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                childVertRead = verticalRuler.current(Float.NaN)
+                                childHorzRead = horizontalRuler.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        }
+                    )
+                },
+            ) { measurables, constraints ->
+                val p = measurables.first().measure(constraints)
+                if (useIndividualRulers) {
+                    layout(
+                        p.width,
+                        p.height,
+                        isRulerProvided = { it == horizontalRuler },
+                        rulerProvider = { ruler ->
+                            if (ruler == horizontalRuler) {
+                                horizontalRuler.provides(20f)
+                            }
+                        },
+                    ) {
+                        measurePolicyRead = verticalRuler.current(Float.NaN)
+                        p.place(0, 0)
+                    }
+                } else {
+                    layout(p.width, p.height, rulers = { horizontalRuler.provides(20f) }) {
+                        measurePolicyRead = verticalRuler.current(Float.NaN)
+                        p.place(0, 0)
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(outerModifierRead).isNaN()
+        assertThat(innerModifierRead).isEqualTo(10f)
+        assertThat(measurePolicyRead).isEqualTo(10f)
+        assertThat(childVertRead).isEqualTo(10f)
+        assertThat(childHorzRead).isEqualTo(20f)
+    }
+
+    /**
+     * Checks that `RectRulers.innermostOf` and `RectRulers.outermostOf` combine two rect rulers,
+     * adjust for the reader's offset, and update when an underlying ruler value changes.
+     */
+    @Test
+    fun rectRulers_providesAndInnermostOutermost() {
+        val rect1 = RectRulers()
+        val rect2 = RectRulers()
+        val inner = RectRulers.innermostOf(rect1, rect2)
+        val outer = RectRulers.outermostOf(rect1, rect2)
+
+        var rect2Left by mutableFloatStateOf(30f)
+        var innerLeft = Float.NaN
+        var innerTop = Float.NaN
+        var innerRight = Float.NaN
+        var innerBottom = Float.NaN
+        var outerLeft = Float.NaN
+        var outerTop = Float.NaN
+        var outerRight = Float.NaN
+        var outerBottom = Float.NaN
+
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier.size(300.toDp()).layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        if (useIndividualRulers) {
+                            layout(
+                                p.width,
+                                p.height,
+                                isRulerProvided = {
+                                    it == rect1.left ||
+                                        it == rect1.top ||
+                                        it == rect1.right ||
+                                        it == rect1.bottom ||
+                                        it == rect2.left ||
+                                        it == rect2.top ||
+                                        it == rect2.right ||
+                                        it == rect2.bottom
+                                },
+                                rulerProvider = { ruler ->
+                                    when (ruler) {
+                                        rect1.left -> rect1.left.provides(10f)
+                                        rect1.top -> rect1.top.provides(20f)
+                                        rect1.right -> rect1.right.provides(100f)
+                                        rect1.bottom -> rect1.bottom.provides(200f)
+                                        rect2.left -> rect2.left.provides(rect2Left)
+                                        rect2.top -> rect2.top.provides(10f)
+                                        rect2.right -> rect2.right.provides(80f)
+                                        rect2.bottom -> rect2.bottom.provides(250f)
+                                        else -> {}
+                                    }
+                                },
+                            ) {
+                                p.place(0, 0)
+                            }
+                        } else {
+                            layout(
+                                p.width,
+                                p.height,
+                                rulers = {
+                                    rect1.left.provides(10f)
+                                    rect1.top.provides(20f)
+                                    rect1.right.provides(100f)
+                                    rect1.bottom.provides(200f)
+                                    rect2.left.provides(rect2Left)
+                                    rect2.top.provides(10f)
+                                    rect2.right.provides(80f)
+                                    rect2.bottom.provides(250f)
+                                },
+                            ) {
+                                p.place(0, 0)
+                            }
+                        }
+                    }
+                ) {
+                    Box(
+                        Modifier.absoluteOffset(x = 5.toDp(), y = 5.toDp()).layout {
+                            measurable,
+                            constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                innerLeft = inner.left.current(Float.NaN)
+                                innerTop = inner.top.current(Float.NaN)
+                                innerRight = inner.right.current(Float.NaN)
+                                innerBottom = inner.bottom.current(Float.NaN)
+                                outerLeft = outer.left.current(Float.NaN)
+                                outerTop = outer.top.current(Float.NaN)
+                                outerRight = outer.right.current(Float.NaN)
+                                outerBottom = outer.bottom.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(innerLeft).isEqualTo(25f)
+        assertThat(innerTop).isEqualTo(15f)
+        assertThat(innerRight).isEqualTo(75f)
+        assertThat(innerBottom).isEqualTo(195f)
+        assertThat(outerLeft).isEqualTo(5f)
+        assertThat(outerTop).isEqualTo(5f)
+        assertThat(outerRight).isEqualTo(95f)
+        assertThat(outerBottom).isEqualTo(245f)
+
+        rect2Left = 5f
+        rule.waitForIdle()
+        assertThat(innerLeft).isEqualTo(5f)
+        assertThat(outerLeft).isEqualTo(0f)
+    }
+
+    /**
+     * Checks that a `VerticalRuler` provided with `providesRelative` in RTL mirrors from the right
+     * edge and updates readers when the provider's width changes.
+     */
+    @Test
+    fun providesRelative_rtlWidthChange_updatesRulerValue() {
+        var width by mutableIntStateOf(100)
+        var readValue = Float.NaN
+
+        rule.setContent {
+            with(LocalDensity.current) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    Box(Modifier.size(width.toDp(), 100.toDp()).provideRelativeRuler(20f)) {
+                        Box(
+                            Modifier.align(AbsoluteAlignment.TopLeft).layout {
+                                measurable,
+                                constraints ->
+                                val p = measurable.measure(constraints)
+                                layout(p.width, p.height) {
+                                    readValue = verticalRuler.current(Float.NaN)
+                                    p.place(0, 0)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(80f)
+
+        width = 150
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(130f)
+    }
+
+    /**
+     * Checks that removing the `rulers` lambda from `layout(...)` notifies child readers to fall
+     * back to the default value, and adding it back notifies them again.
+     */
+    @Test
+    fun rulersLambdaRemoved_notifiesReaders() {
+        if (useIndividualRulers) return
+
+        var useRulers by mutableStateOf(true)
+        var readValue = Float.NaN
+
+        rule.setContent {
+            Box(
+                Modifier.layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    if (useRulers) {
+                        layout(p.width, p.height, rulers = { verticalRuler.provides(10f) }) {
+                            p.place(0, 0)
+                        }
+                    } else {
+                        layout(p.width, p.height) { p.place(0, 0) }
+                    }
+                }
+            ) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValue = verticalRuler.current(-1f)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(10f)
+
+        useRulers = false
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(-1f)
+
+        useRulers = true
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(10f)
+    }
+
+    /**
+     * Checks that switching a node between eager `rulers = { ... }` and lazy `isRulerProvided` /
+     * `rulerProvider` notifies child readers of the updated values.
+     */
+    @Test
+    fun switchBetweenRulersAndLazyProvider_notifiesReaders() {
+        var useLazy by mutableStateOf(false)
+        var readValue = Float.NaN
+
+        rule.setContent {
+            Box(
+                Modifier.layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    if (useLazy) {
+                        layout(
+                            p.width,
+                            p.height,
+                            isRulerProvided = { it == verticalRuler },
+                            rulerProvider = { verticalRuler.provides(20f) },
+                        ) {
+                            p.place(0, 0)
+                        }
+                    } else {
+                        layout(p.width, p.height, rulers = { verticalRuler.provides(10f) }) {
+                            p.place(0, 0)
+                        }
+                    }
+                }
+            ) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValue = verticalRuler.current(Float.NaN)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(10f)
+
+        useLazy = true
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(20f)
+
+        useLazy = false
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(10f)
+    }
+
+    /**
+     * Checks that when a ruler provider is placed early for alignment (`isPlacingForAlignment`),
+     * its rulers are skipped during the alignment pass but captured once real placement runs.
+     */
+    @Test
+    fun providerPlacedForAlignment_stillCapturesRulersOnCommit() {
+        val readValues = mutableFloatListOf()
+        rule.setContent {
+            Row {
+                Box(Modifier.alignByBaseline().provideRulers(vert = 42f)) {
+                    Text(
+                        "Hello",
+                        Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                readValues += verticalRuler.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        },
+                    )
+                }
+                Text("World", Modifier.alignByBaseline())
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readValues.size).isGreaterThan(1)
+        assertThat(readValues[0]).isNaN()
+        assertThat(readValues.last()).isEqualTo(42f)
+    }
+
+    /**
+     * Checks that lookahead and main passes keep separate ruler values and state-read tracking so
+     * changing one pass's ruler value does not overwrite the other.
+     */
+    @Test
+    fun lookaheadAndMainPass_differentRulerValues() {
+        var lookaheadState by mutableFloatStateOf(100f)
+        var mainState by mutableFloatStateOf(50f)
+        val lookaheadValues = mutableFloatListOf()
+        val mainValues = mutableFloatListOf()
+
+        rule.setContent {
+            LookaheadScope {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        val lookingAhead = isLookingAhead
+                        if (useIndividualRulers) {
+                            layout(
+                                p.width,
+                                p.height,
+                                isRulerProvided = { it == verticalRuler },
+                                rulerProvider = {
+                                    verticalRuler.provides(
+                                        if (lookingAhead) lookaheadState else mainState
+                                    )
+                                },
+                            ) {
+                                p.place(0, 0)
+                            }
+                        } else {
+                            layout(
+                                p.width,
+                                p.height,
+                                rulers = {
+                                    verticalRuler.provides(
+                                        if (lookingAhead) lookaheadState else mainState
+                                    )
+                                },
+                            ) {
+                                p.place(0, 0)
+                            }
+                        }
+                    }
+                ) {
+                    Box(
+                        Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            val lookingAhead = isLookingAhead
+                            layout(p.width, p.height) {
+                                val value = verticalRuler.current(Float.NaN)
+                                if (lookingAhead) {
+                                    lookaheadValues += value
+                                } else {
+                                    mainValues += value
+                                }
+                                p.place(0, 0)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(lookaheadValues.last()).isEqualTo(100f)
+        assertThat(mainValues.last()).isEqualTo(50f)
+
+        mainState = 60f
+        rule.waitForIdle()
+        assertThat(lookaheadValues.last()).isEqualTo(100f)
+        assertThat(mainValues.last()).isEqualTo(60f)
+
+        lookaheadState = 120f
+        rule.waitForIdle()
+        assertThat(lookaheadValues.last()).isEqualTo(120f)
+        assertThat(mainValues.last()).isEqualTo(60f)
+    }
+
+    /**
+     * Checks that a lazy `rulerProvider` reading `coordinates` re-evaluates and notifies child
+     * readers when an ancestor moves it, including transitioning between unprovided and provided.
+     */
+    @Test
+    fun lazyProvider_coordinatesBecomesProvidedOnMove() {
+        if (!useIndividualRulers) return
+
+        var offset by mutableIntStateOf(0)
+        var readValue = Float.NaN
+
+        rule.setContent {
+            Box(Modifier.offset { IntOffset(offset, 0) }) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(
+                            p.width,
+                            p.height,
+                            isRulerProvided = { it == verticalRuler },
+                            rulerProvider = {
+                                if (coordinates.positionInRoot().x > 50f) {
+                                    verticalRuler.provides(99f)
+                                }
+                            },
+                        ) {
+                            p.place(0, 0)
+                        }
+                    }
+                ) {
+                    Box(
+                        Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                readValue = verticalRuler.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readValue).isNaN()
+
+        offset = 100
+        rule.waitForIdle()
+        assertThat(readValue).isEqualTo(99f)
+
+        offset = 0
+        rule.waitForIdle()
+        assertThat(readValue).isNaN()
+    }
+
+    /**
+     * Checks that a reader can read different rulers from different ancestors and updates
+     * independently when either ancestor changes or stops providing its ruler.
+     */
+    @Test
+    fun multipleProviders_readerReadsFromDifferentAncestors() {
+        var vertValue by mutableFloatStateOf(10f)
+        var horzValue by mutableFloatStateOf(20f)
+        var provideHorz by mutableStateOf(true)
+        var readVert = Float.NaN
+        var readHorz = Float.NaN
+
+        rule.setContent {
+            Box(Modifier.provideRulers(horz = { null }, vert = { vertValue })) {
+                Box(
+                    Modifier.provideRulers(
+                        horz = { if (provideHorz) horzValue else null },
+                        vert = { null },
+                    )
+                ) {
+                    Box(
+                        Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            layout(p.width, p.height) {
+                                readVert = verticalRuler.current(Float.NaN)
+                                readHorz = horizontalRuler.current(Float.NaN)
+                                p.place(0, 0)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(readVert).isEqualTo(10f)
+        assertThat(readHorz).isEqualTo(20f)
+
+        vertValue = 15f
+        rule.waitForIdle()
+        assertThat(readVert).isEqualTo(15f)
+        assertThat(readHorz).isEqualTo(20f)
+
+        horzValue = 25f
+        rule.waitForIdle()
+        assertThat(readVert).isEqualTo(15f)
+        assertThat(readHorz).isEqualTo(25f)
+
+        provideHorz = false
+        rule.waitForIdle()
+        assertThat(readVert).isEqualTo(15f)
+        assertThat(readHorz).isNaN()
+    }
+
     private class NonStateRulerNode(val ruler: VerticalRuler, val useIndividualRulers: Boolean) :
         Modifier.Node(), LayoutModifierNode {
         var rulerValue = 0f
