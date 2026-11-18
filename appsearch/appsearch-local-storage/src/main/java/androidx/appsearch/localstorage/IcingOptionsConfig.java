@@ -335,6 +335,7 @@ public interface IcingOptionsConfig {
                 .setEnableQuantizationScoringOptimization(
                         Flags.enableQuantizationScoringOptimization())
                 .setEnableTermIndexFlushFix(Flags.enableIcingTermIndexFlushFix())
+                .setEnableOfflineObservers(Flags.enableOfflineObservers())
                 .build();
     }
 }

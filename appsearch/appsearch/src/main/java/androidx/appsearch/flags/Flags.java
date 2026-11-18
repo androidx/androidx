@@ -335,6 +335,14 @@ public final class Flags {
     public static final String FLAG_ENABLE_PACKAGE_SIGNING_CERTIFICATE_CACHE =
             FLAG_PREFIX + "enable_package_signing_certificate_cache";
 
+    /**
+     * Enables offline observers, which allow callers to retrieve document changes that happened
+     * since a given point in time via
+     * {@code androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync}.
+     */
+    public static final String FLAG_ENABLE_OFFLINE_OBSERVERS =
+            FLAG_PREFIX + "enable_offline_observers";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -731,6 +739,17 @@ public final class Flags {
      */
     public static boolean enableUpgradableLockAndTwoStageOptimize() {
         // TODO(b/448657720): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
+    }
+
+    /**
+     * Whether offline observers should be enabled.
+     *
+     * <p>This enables tracking of document changes in Icing, and the
+     * {@code androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync} API.
+     */
+    public static boolean enableOfflineObservers() {
+        // TODO: Enable this once the offline observers feature is ready.
         return false;
     }
 }
