@@ -32,8 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.screenshot.assertAgainstGolden
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialPanel
@@ -47,9 +45,9 @@ import androidx.xr.compose.subspace.layout.depth
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
-import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
+import androidx.xr.testutils.assertAgainstGolden
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +57,7 @@ import org.junit.runner.RunWith
  *
  * Uses standard [createAndroidComposeRule] and [setXrScreenshotContent], captures the settled 3D
  * compositor viewport via [captureToBitmap], and asserts against golden images with
- * `androidx.test.screenshot.assertAgainstGolden` and [XrScreenshotTestRule].
+ * [assertAgainstGolden] and [XrScreenshotTestRule].
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -121,7 +119,6 @@ class SpatialLayoutScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_row_and_column_multi_panel_layout",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 
@@ -175,7 +172,6 @@ class SpatialLayoutScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_box_depth_aligned_panels",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
     }
 

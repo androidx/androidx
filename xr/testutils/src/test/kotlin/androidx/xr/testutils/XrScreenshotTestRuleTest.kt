@@ -660,4 +660,48 @@ class XrScreenshotTestRuleTest {
         assertFailsWith<AssumptionViolatedException> { runWithRule(rule) {} }
         assertTrue(executedCommands.isEmpty())
     }
+
+    @Test
+    fun defaultMatcher_defaultsToXrSsimMatcher() {
+        val rule = XrScreenshotTestRule("xr/testutils", updateGoldens = false)
+        assertTrue(rule.defaultMatcher is XrSsimMatcher)
+    }
+
+    @Test
+    fun assertAgainstGolden_withoutExplicitMatcher_usesDefaultMatcher() {
+        val defaultRule = XrScreenshotTestRule("xr/testutils", updateGoldens = false)
+        val strictRule =
+            XrScreenshotTestRule(
+                moduleDirectory = "xr/testutils",
+                updateGoldens = false,
+                defaultMatcher = PixelPerfectMatcher(),
+            )
+        val slightlyLargerRedBitmap = createSolidBitmap(Color.RED, width = 6, height = 5)
+        val blueBitmap = createSolidBitmap(Color.BLUE, width = 4, height = 4)
+        try {
+            runWithRule(defaultRule) {
+                slightlyLargerRedBitmap.assertAgainstGolden(defaultRule, "test_golden")
+                defaultRule.assertBitmapAgainstGolden(slightlyLargerRedBitmap, "test_golden")
+                assertFailsWith<AssertionError> {
+                    blueBitmap.assertAgainstGolden(defaultRule, "test_golden")
+                }
+            }
+            runWithRule(strictRule) {
+                assertFailsWith<AssertionError> {
+                    slightlyLargerRedBitmap.assertAgainstGolden(strictRule, "test_golden")
+                }
+                assertFailsWith<AssertionError> {
+                    strictRule.assertBitmapAgainstGolden(slightlyLargerRedBitmap, "test_golden")
+                }
+                slightlyLargerRedBitmap.assertAgainstGolden(
+                    strictRule,
+                    "test_golden",
+                    XrSsimMatcher(),
+                )
+            }
+        } finally {
+            slightlyLargerRedBitmap.recycle()
+            blueBitmap.recycle()
+        }
+    }
 }

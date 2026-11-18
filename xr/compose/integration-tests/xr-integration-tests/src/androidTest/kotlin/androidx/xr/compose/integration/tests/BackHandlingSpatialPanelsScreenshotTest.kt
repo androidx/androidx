@@ -52,8 +52,6 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.screenshot.assertAgainstGolden
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.compose.platform.SpatialConfiguration
 import androidx.xr.compose.spatial.SpatialDialog
 import androidx.xr.compose.subspace.SpatialActivityPanel
@@ -73,10 +71,10 @@ import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.testutils.DEFAULT_XR_MSSIM_THRESHOLD
 import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
+import androidx.xr.testutils.assertAgainstGolden
 import androidx.xr.testutils.captureSceneToBitmap
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
@@ -227,7 +225,6 @@ class BackHandlingSpatialPanelsScreenshotTest {
             openBitmap.assertAgainstGolden(
                 screenshotRule,
                 "compose_back_handling_spatial_dialog_open",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
         } finally {
             openBitmap.recycle()
@@ -250,7 +247,6 @@ class BackHandlingSpatialPanelsScreenshotTest {
             dismissedBitmap.assertAgainstGolden(
                 screenshotRule,
                 "compose_back_handling_spatial_dialog_dismissed",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
         } finally {
             dismissedBitmap.recycle()
@@ -338,7 +334,6 @@ class BackHandlingSpatialPanelsScreenshotTest {
             movedBitmap.assertAgainstGolden(
                 screenshotRule,
                 "compose_back_handling_moved_panel_before_back",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
         } finally {
             movedBitmap.recycle()
@@ -364,7 +359,6 @@ class BackHandlingSpatialPanelsScreenshotTest {
             closedBitmap.assertAgainstGolden(
                 screenshotRule,
                 "compose_back_handling_moved_panel_closed",
-                MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
             )
         } finally {
             closedBitmap.recycle()
@@ -463,7 +457,6 @@ class BackHandlingSpatialPanelsScreenshotTest {
                 visibleBitmap.assertAgainstGolden(
                     screenshotRule,
                     "compose_back_handling_activity_panel_visible",
-                    MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
                 )
             } finally {
                 visibleBitmap.recycle()
@@ -500,7 +493,6 @@ class BackHandlingSpatialPanelsScreenshotTest {
                 closedBitmap.assertAgainstGolden(
                     screenshotRule,
                     "compose_back_handling_activity_panel_closed",
-                    MSSIMMatcher(threshold = DEFAULT_XR_MSSIM_THRESHOLD),
                 )
             } finally {
                 closedBitmap.recycle()
