@@ -203,7 +203,7 @@ public fun DrawScope.drawText(
         clip(textLayoutResult)
     }) {
         drawAnnotationsBehind(text, textLayoutResult)
-        textLayoutResult.multiParagraph.paint(canvas = drawContext.canvas, blendMode = blendMode)
+        paint(textLayoutResult, blendMode = blendMode)
         drawAnnotationsOver(text, textLayoutResult)
     }
 }
@@ -267,7 +267,7 @@ public fun DrawScope.drawText(
         translate(topLeft.x, topLeft.y)
         clip(textLayoutResult)
     }) {
-        textLayoutResult.multiParagraph.paint(canvas = drawContext.canvas, blendMode = blendMode)
+        paint(textLayoutResult, blendMode = blendMode)
     }
 }
 
@@ -284,7 +284,7 @@ public fun DrawScope.drawText(
  *   transparent to fully opaque respectively
  * @param shadow The shadow effect applied on the text.
  * @param textDecoration The decorations to paint on the text (e.g., an underline).
- * @param drawStyle Whether or not the text is stroked or filled in.
+ * @param drawStyle Whether the text is stroked or filled in.
  * @param blendMode Blending algorithm to be applied to the text
  * @sample androidx.compose.ui.text.samples.DrawTextMeasureInLayoutSample
  * @sample androidx.compose.ui.text.samples.DrawTextDrawWithCacheSample
@@ -299,39 +299,20 @@ public fun DrawScope.drawText(
     drawStyle: DrawStyle? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) {
-    val spanStyle = textLayoutResult.layoutInput.style.spanStyle
-    val newShadow = shadow ?: spanStyle.shadow
-    val newTextDecoration = textDecoration ?: spanStyle.textDecoration
-    val newDrawStyle = drawStyle ?: spanStyle.drawStyle
-
     withTransform({
         translate(topLeft.x, topLeft.y)
         clip(textLayoutResult)
     }) {
         drawAnnotationsBehind(textLayoutResult.layoutInput.text, textLayoutResult)
-        // if text layout was created using brush, and [color] is unspecified, we should treat this
-        // like drawText(brush) call
-        val brush = spanStyle.brush
-        if (brush != null && color.isUnspecified) {
-            textLayoutResult.multiParagraph.paint(
-                drawContext.canvas,
-                brush,
-                if (!alpha.isNaN()) alpha else spanStyle.alpha,
-                newShadow,
-                newTextDecoration,
-                newDrawStyle,
-                blendMode,
-            )
-        } else {
-            textLayoutResult.multiParagraph.paint(
-                drawContext.canvas,
-                color.takeOrElse { spanStyle.color }.modulate(alpha),
-                newShadow,
-                newTextDecoration,
-                newDrawStyle,
-                blendMode,
-            )
-        }
+        paint(
+            textLayoutResult = textLayoutResult,
+            color = color,
+            alpha = alpha,
+            shadow = shadow,
+            textDecoration = textDecoration,
+            drawStyle = drawStyle,
+            blendMode = blendMode,
+        )
         drawAnnotationsOver(textLayoutResult.layoutInput.text, textLayoutResult)
     }
 }
@@ -349,7 +330,7 @@ public fun DrawScope.drawText(
  *   fully opaque respectively.
  * @param shadow The shadow effect applied on the text.
  * @param textDecoration The decorations to paint on the text (e.g., an underline).
- * @param drawStyle Whether or not the text is stroked or filled in.
+ * @param drawStyle Whether the text is stroked or filled in.
  * @param blendMode Blending algorithm to be applied to the text
  */
 public fun DrawScope.drawText(
@@ -367,17 +348,62 @@ public fun DrawScope.drawText(
         clip(textLayoutResult)
     }) {
         drawAnnotationsBehind(textLayoutResult.layoutInput.text, textLayoutResult)
-        val spanStyle = textLayoutResult.layoutInput.style.spanStyle
-        textLayoutResult.multiParagraph.paint(
-            drawContext.canvas,
-            brush,
-            if (!alpha.isNaN()) alpha else spanStyle.alpha,
-            shadow ?: spanStyle.shadow,
-            textDecoration ?: spanStyle.textDecoration,
-            drawStyle ?: spanStyle.drawStyle,
-            blendMode,
+        paint(
+            textLayoutResult = textLayoutResult,
+            alpha = alpha,
+            shadow = shadow,
+            textDecoration = textDecoration,
+            drawStyle = drawStyle,
+            blendMode = blendMode,
+            brush = brush,
         )
         drawAnnotationsOver(textLayoutResult.layoutInput.text, textLayoutResult)
+    }
+}
+
+private fun DrawScope.paint(
+    textLayoutResult: TextLayoutResult,
+    color: Color = Color.Unspecified,
+    alpha: Float = Float.NaN,
+    shadow: Shadow? = null,
+    textDecoration: TextDecoration? = null,
+    drawStyle: DrawStyle? = null,
+    blendMode: BlendMode = DrawScope.DefaultBlendMode,
+    brush: Brush? = null,
+) {
+    val spanStyle = textLayoutResult.layoutInput.style.spanStyle
+    val newShadow = shadow ?: spanStyle.shadow ?: Shadow.None
+    val newTextDecoration = textDecoration ?: spanStyle.textDecoration ?: TextDecoration.None
+    val newDrawStyle = drawStyle ?: spanStyle.drawStyle ?: Fill
+
+    // if [brush] is unspecified, but text layout was created using brush, and [color] is
+    // unspecified, we should treat this like drawText(brush) call
+    val newBrush = brush ?: if (color.isUnspecified) spanStyle.brush else null
+    if (newBrush != null) {
+        val newAlpha =
+            when {
+                !alpha.isNaN() -> alpha
+                !spanStyle.alpha.isNaN() -> spanStyle.alpha
+                else -> 1.0f
+            }
+        textLayoutResult.multiParagraph.paint(
+            canvas = drawContext.canvas,
+            brush = newBrush,
+            alpha = newAlpha,
+            shadow = newShadow,
+            decoration = newTextDecoration,
+            drawStyle = newDrawStyle,
+            blendMode = blendMode,
+        )
+    } else {
+        textLayoutResult.multiParagraph.paint(
+            canvas = drawContext.canvas,
+            color = color.takeOrElse { spanStyle.color }.takeOrElse { Color.Black }.modulate(alpha),
+            shadow = newShadow,
+            decoration = newTextDecoration,
+            drawStyle = newDrawStyle,
+            blendMode = blendMode,
+        )
     }
 }
 
