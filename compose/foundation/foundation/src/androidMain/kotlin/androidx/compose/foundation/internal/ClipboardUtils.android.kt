@@ -48,9 +48,6 @@ private const val PLAIN_TEXT_LABEL = "plain text"
 // Having this object just to be able to mock the static methods (for unit testing)
 internal object ClipboardUtils {
     @JvmStatic
-    fun readText(clipEntry: ClipEntry): String? = clipEntry.clipData.getItemAt(0)?.text?.toString()
-
-    @JvmStatic
     fun readAnnotatedString(clipEntry: ClipEntry): AnnotatedString? =
         clipEntry.clipData.getItemAt(0)?.text?.convertToAnnotatedString()
 
@@ -78,10 +75,6 @@ internal object ClipboardUtils {
             clipboard.nativeClipboardManager.primaryClipDescription ?: return false
         return clipDescription.hasMimeType("text/*")
     }
-}
-
-internal actual suspend fun ClipEntry.readText(): String? {
-    return ClipboardUtils.readText(this)
 }
 
 internal actual suspend fun ClipEntry.readAnnotatedString(): AnnotatedString? {

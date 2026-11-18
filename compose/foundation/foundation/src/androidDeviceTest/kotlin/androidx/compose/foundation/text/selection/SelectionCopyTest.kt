@@ -18,7 +18,6 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText

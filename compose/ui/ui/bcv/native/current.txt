@@ -2263,10 +2263,25 @@ final class androidx.compose.ui.platform/ClipEntry { // androidx.compose.ui.plat
 
     final val clipMetadata // androidx.compose.ui.platform/ClipEntry.clipMetadata|{}clipMetadata[0]
         final fun <get-clipMetadata>(): androidx.compose.ui.platform/ClipMetadata // androidx.compose.ui.platform/ClipEntry.clipMetadata.<get-clipMetadata>|<get-clipMetadata>(){}[0]
+
+    final suspend fun readHtml(): kotlin/String? // androidx.compose.ui.platform/ClipEntry.readHtml|readHtml(){}[0]
+    final suspend fun readPlainText(): kotlin/String? // androidx.compose.ui.platform/ClipEntry.readPlainText|readPlainText(){}[0]
+    final suspend fun readText(): kotlin/String? // androidx.compose.ui.platform/ClipEntry.readText|readText(){}[0]
+    final suspend fun readUrl(): kotlin/String? // androidx.compose.ui.platform/ClipEntry.readUrl|readUrl(){}[0]
+
+    final object Companion { // androidx.compose.ui.platform/ClipEntry.Companion|null[0]
+        final fun withText(kotlin/String, kotlin/String? = ...): androidx.compose.ui.platform/ClipEntry // androidx.compose.ui.platform/ClipEntry.Companion.withText|withText(kotlin.String;kotlin.String?){}[0]
+        final fun withUrl(kotlin/String, kotlin/String = ..., kotlin/String? = ...): androidx.compose.ui.platform/ClipEntry // androidx.compose.ui.platform/ClipEntry.Companion.withUrl|withUrl(kotlin.String;kotlin.String;kotlin.String?){}[0]
+    }
 }
 
 final class androidx.compose.ui.platform/ClipMetadata { // androidx.compose.ui.platform/ClipMetadata|null[0]
     constructor <init>() // androidx.compose.ui.platform/ClipMetadata.<init>|<init>(){}[0]
+
+    final fun hasHtml(): kotlin/Boolean // androidx.compose.ui.platform/ClipMetadata.hasHtml|hasHtml(){}[0]
+    final fun hasPlainText(): kotlin/Boolean // androidx.compose.ui.platform/ClipMetadata.hasPlainText|hasPlainText(){}[0]
+    final fun hasText(): kotlin/Boolean // androidx.compose.ui.platform/ClipMetadata.hasText|hasText(){}[0]
+    final fun hasUrl(): kotlin/Boolean // androidx.compose.ui.platform/ClipMetadata.hasUrl|hasUrl(){}[0]
 }
 
 final class androidx.compose.ui.platform/InspectableModifier : androidx.compose.ui.platform/InspectorValueInfo, androidx.compose.ui/Modifier.Element { // androidx.compose.ui.platform/InspectableModifier|null[0]

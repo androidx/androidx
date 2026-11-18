@@ -21,9 +21,36 @@ import androidx.compose.ui.implementedInJetBrainsFork
 public actual class ClipEntry {
     public actual val clipMetadata: ClipMetadata
         get() = implementedInJetBrainsFork()
+
+    public actual suspend fun readText(): String? = implementedInJetBrainsFork()
+
+    public actual suspend fun readPlainText(): String? = implementedInJetBrainsFork()
+
+    public actual suspend fun readHtml(): String? = implementedInJetBrainsFork()
+
+    public actual suspend fun readUrl(): String? = implementedInJetBrainsFork()
+
+    public actual companion object {
+        public actual fun withText(plainText: String, html: String?): ClipEntry =
+            implementedInJetBrainsFork()
+
+        public actual fun withUrl(
+            url: String,
+            plainText: String,
+            html: String?,
+        ): ClipEntry = implementedInJetBrainsFork()
+    }
 }
 
-public actual class ClipMetadata
+public actual class ClipMetadata {
+    public actual fun hasText(): Boolean = implementedInJetBrainsFork()
+
+    public actual fun hasPlainText(): Boolean = implementedInJetBrainsFork()
+
+    public actual fun hasHtml(): Boolean = implementedInJetBrainsFork()
+
+    public actual fun hasUrl(): Boolean = implementedInJetBrainsFork()
+}
 
 @Deprecated("Use direct reference to platform type instead of typealias")
 public actual class NativeClipboard

@@ -21,10 +21,6 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.text.AnnotatedString
 
-internal actual suspend fun ClipEntry.readText(): String? {
-    implementedInJetBrainsFork()
-}
-
 internal actual suspend fun ClipEntry.readAnnotatedString(): AnnotatedString? {
     implementedInJetBrainsFork()
 }

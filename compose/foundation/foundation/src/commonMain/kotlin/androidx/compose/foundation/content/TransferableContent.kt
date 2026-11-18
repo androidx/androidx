@@ -93,8 +93,14 @@ internal constructor(
 public expect fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean
 
 /**
- * Reads the text part of this [ClipEntry]. The returned result may not include the full text
+ * Reads the text parts of this [ClipEntry]. The returned result may not include the full text
  * representation of content e.g., if there is a URL pointing at another source. This function only
  * reads the explicit text that was transferred directly inside the [ClipEntry].
+ *
+ * Unlike the public [ClipEntry.readPlainText] method which reads only the first Clip item, this
+ * extension function reads all Clip items.
+ *
+ * Returns the non-null text values from this [ClipEntry], joined by newline characters, or null if
+ * there are none.
  */
-internal expect fun ClipEntry.readPlainText(): String?
+internal expect fun ClipEntry.readAllPlainText(): String?

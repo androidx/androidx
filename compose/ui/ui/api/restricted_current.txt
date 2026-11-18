@@ -4394,13 +4394,29 @@ package androidx.compose.ui.platform {
     ctor public ClipEntry(android.content.ClipData clipData);
     method @InaccessibleFromKotlin public android.content.ClipData getClipData();
     method @InaccessibleFromKotlin public androidx.compose.ui.platform.ClipMetadata getClipMetadata();
+    method public suspend Object? readHtml(kotlin.coroutines.Continuation<? super java.lang.String?>);
+    method public suspend Object? readPlainText(kotlin.coroutines.Continuation<? super java.lang.String?>);
+    method public suspend Object? readText(kotlin.coroutines.Continuation<? super java.lang.String?>);
+    method public suspend Object? readUrl(kotlin.coroutines.Continuation<? super java.lang.String?>);
     property public android.content.ClipData clipData;
     property public androidx.compose.ui.platform.ClipMetadata clipMetadata;
+    field public static final androidx.compose.ui.platform.ClipEntry.Companion Companion;
+  }
+
+  public static final class ClipEntry.Companion {
+    method public androidx.compose.ui.platform.ClipEntry withText(String plainText, optional String? html);
+    method @BytecodeOnly public static androidx.compose.ui.platform.ClipEntry! withText$default(androidx.compose.ui.platform.ClipEntry.Companion!, String!, String!, int, Object!);
+    method public androidx.compose.ui.platform.ClipEntry withUrl(String url, optional String plainText, optional String? html);
+    method @BytecodeOnly public static androidx.compose.ui.platform.ClipEntry! withUrl$default(androidx.compose.ui.platform.ClipEntry.Companion!, String!, String!, String!, int, Object!);
   }
 
   public final class ClipMetadata {
     ctor public ClipMetadata(android.content.ClipDescription clipDescription);
     method @InaccessibleFromKotlin public android.content.ClipDescription getClipDescription();
+    method public boolean hasHtml();
+    method public boolean hasPlainText();
+    method public boolean hasText();
+    method public boolean hasUrl();
     property public android.content.ClipDescription clipDescription;
   }
 

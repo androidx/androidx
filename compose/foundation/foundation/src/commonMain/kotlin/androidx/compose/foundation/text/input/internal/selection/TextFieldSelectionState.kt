@@ -20,7 +20,7 @@ import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
-import androidx.compose.foundation.content.readPlainText
+import androidx.compose.foundation.content.readAllPlainText
 import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -32,7 +32,6 @@ import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.internal.isAutofillAvailable
 import androidx.compose.foundation.internal.isReadSupported
 import androidx.compose.foundation.internal.isWriteSupported
-import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
@@ -1614,7 +1613,7 @@ internal class TextFieldSelectionState(
 
         // TODO(halilibo): this is not 1-to-1 compatible with ClipboardManager.getText() which
         //  returns an AnnotatedString and supports copy-pasting AnnotatedStrings inside the app.
-        remaining?.clipEntry?.readPlainText()?.let { clipboardText ->
+        remaining?.clipEntry?.readAllPlainText()?.let { clipboardText ->
             textFieldState.replaceSelectedText(
                 clipboardText,
                 undoBehavior = TextFieldEditUndoBehavior.NeverMerge,
@@ -1632,7 +1631,7 @@ internal class TextFieldSelectionState(
      * end of the newly added text.
      */
     private suspend fun pasteAsPlainText(isFromHardwareSource: Boolean) {
-        val clipboardText = clipboard.getClipEntry()?.readText() ?: return
+        val clipboardText = clipboard.getClipEntry()?.readPlainText() ?: return
 
         textFieldState.replaceSelectedText(
             clipboardText,

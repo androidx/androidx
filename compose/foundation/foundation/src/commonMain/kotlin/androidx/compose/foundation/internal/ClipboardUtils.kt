@@ -21,12 +21,6 @@ import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.text.AnnotatedString
 
 /**
- * Returns a string if it's available in the ClipEntry. This method must not throw any Exceptions.
- * It can return null if the string can not be retrieved.
- */
-internal expect suspend fun ClipEntry.readText(): String?
-
-/**
  * Returns [AnnotatedString] if it's available in the ClipEntry. This method must not throw any
  * Exceptions. It can return null if the string can not be retrieved.
  */
