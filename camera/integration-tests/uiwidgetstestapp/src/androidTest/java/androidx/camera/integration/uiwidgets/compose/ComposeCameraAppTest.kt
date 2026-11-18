@@ -35,7 +35,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.RepeatRule
 import org.junit.Assume
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -68,16 +67,13 @@ class ComposeCameraAppTest {
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(*ComposeCameraActivity.REQUIRED_PERMISSIONS)
 
-    @get:Rule(order = 3)
+    // Order RepeatRule outside createAndroidComposeRule so each repeat iteration launches a fresh
+    // ComposeCameraActivity with savedInstanceState == null instead of restoring the previous
+    // iteration's NavController destination via scenario.recreate().
+    @get:Rule(order = 3) val repeatRule = RepeatRule()
+
+    @get:Rule(order = 4)
     val androidComposeTestRule = createAndroidComposeRule<ComposeCameraActivity>()
-
-    @get:Rule(order = 4) val repeatRule = RepeatRule()
-
-    @Before
-    fun setup() {
-        // Recreate the activity as it might terminate in other tests
-        androidComposeTestRule.activityRule.scenario.recreate()
-    }
 
     // Activity launch will render ImageCaptureScreen
     // Ensure that ImageCapture screen's PreviewView is streaming properly
@@ -95,8 +91,8 @@ class ComposeCameraAppTest {
     fun testPreviewViewStreamStateOnNavigation() {
         val scenario = androidComposeTestRule.activityRule.scenario
 
-        // Wait for the initial ImageCapture screen's PreviewView to reach STREAMING after
-        // setup()'s recreate() before navigating to avoid racing an in-flight camera open.
+        // Wait for the initial ImageCapture screen's PreviewView to reach STREAMING before
+        // navigating to avoid racing an in-flight camera open.
         assertExpectedScreenAndStreamState(scenario)
 
         // Get VideoCapture Navigation Tab (Node)
