@@ -34,6 +34,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -46,7 +48,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Abstract Analyzer that wraps around {@link ImageAnalysis.Analyzer} and implements
@@ -304,38 +305,59 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
                         try {
                             executor.execute(() -> {
                                 if (mIsAttached) {
-                                    ImageInfo imageInfo = ImmutableImageInfo.create(
-                                            imageProxy.getImageInfo().getTagBundle(),
-                                            imageProxy.getImageInfo().getTimestamp(),
-                                            mOutputImageRotationEnabled ? 0
-                                                    : mRelativeRotation,
-                                            transformMatrix,
-                                            imageProxy.getImageInfo().getFlashState());
-
-                                    ImageProxy outputSettableImageProxy = new SettableImageProxy(
-                                            outputImageProxy, imageInfo);
-                                    if (!cropRect.isEmpty()) {
-                                        outputSettableImageProxy.setCropRect(cropRect);
-                                    }
                                     try {
+                                        ImageInfo imageInfo = ImmutableImageInfo.create(
+                                                imageProxy.getImageInfo().getTagBundle(),
+                                                imageProxy.getImageInfo().getTimestamp(),
+                                                mOutputImageRotationEnabled ? 0
+                                                        : mRelativeRotation,
+                                                transformMatrix,
+                                                imageProxy.getImageInfo().getFlashState());
+
+                                        ImageProxy outputSettableImageProxy =
+                                                new SettableImageProxy(
+                                                        outputImageProxy, imageInfo);
+                                        if (!cropRect.isEmpty()) {
+                                            outputSettableImageProxy.setCropRect(cropRect);
+                                        }
                                         analyzer.analyze(outputSettableImageProxy);
                                         completer.set(null);
-                                    } catch (Exception e) {
-                                        closeProcessedImageIfNeeded(outputImageProxy, imageProxy);
-                                        completer.setException(e);
+                                    } catch (Throwable t) {
+                                        completer.setException(t);
+                                        if (t instanceof Error) {
+                                            throw (Error) t;
+                                        }
                                     }
                                 } else {
-                                    closeProcessedImageIfNeeded(outputImageProxy, imageProxy);
                                     completer.setException(new OperationCanceledException(
                                             "ImageAnalysis is detached"));
                                 }
                             });
-                        } catch (RejectedExecutionException e) {
-                            closeProcessedImageIfNeeded(outputImageProxy, imageProxy);
-                            completer.setException(e);
+                        } catch (Throwable t) {
+                            completer.setException(t);
+                            if (t instanceof Error) {
+                                closeProcessedImageIfNeeded(outputImageProxy, imageProxy);
+                                throw (Error) t;
+                            }
                         }
                         return "analyzeImage";
                     });
+            // Ensure processed intermediate images are closed on any failure path (including
+            // silent task drops whose Completer is later GC'd), before subclass callbacks run.
+            if (outputImageProxy != imageProxy) {
+                Futures.addCallback(future, new FutureCallback<Void>() {
+                    @Override
+                    public void onSuccess(@Nullable Void result) {
+                        // Analyzer succeeded and is now responsible for closing
+                        // outputImageProxy.
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Throwable t) {
+                        outputImageProxy.close();
+                    }
+                }, CameraXExecutors.directExecutor());
+            }
         } else {
             future = Futures.immediateFailedFuture(new OperationCanceledException(
                     "No analyzer or executor currently set."));

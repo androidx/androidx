@@ -21,6 +21,8 @@ import static android.os.Looper.getMainLooper;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -41,7 +43,11 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Unit tests for {@link ImageAnalysisNonBlockingAnalyzer}
@@ -150,5 +156,139 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
         mImageAnalysisNonBlockingAnalyzer.detach();
         // Assert.
         assertThat(mImageAnalysisNonBlockingAnalyzer.mCachedImage).isNull();
+    }
+
+    @Test
+    public void closingPostedImageMultipleTimes_doesNotClearSubsequentPostedImage() {
+        // Arrange: capture analyzed ImageProxies without closing immediately.
+        Queue<Runnable> pendingAnalyzerTasks = new ArrayDeque<>();
+        AtomicReference<ImageProxy> capturedImage = new AtomicReference<>();
+        mImageAnalysisNonBlockingAnalyzer.setAnalyzer(
+                pendingAnalyzerTasks::add, image -> capturedImage.set(image));
+
+        ImageProxy image1 = createMockImageProxy(1L);
+        ImageProxy image2 = createMockImageProxy(2L);
+        ImageProxy image3 = createMockImageProxy(3L);
+
+        // Post image1 and cache image2.
+        mImageAnalysisNonBlockingAnalyzer.onValidImageAvailable(image1);
+        assertThat(pendingAnalyzerTasks).hasSize(1);
+        pendingAnalyzerTasks.poll().run();
+        ImageProxy posted1 = capturedImage.getAndSet(null);
+        assertThat(posted1).isNotNull();
+
+        mImageAnalysisNonBlockingAnalyzer.onValidImageAvailable(image2);
+
+        // Act: double-close posted1; first close dispatches image2, second close must be a no-op.
+        posted1.close();
+        assertThat(pendingAnalyzerTasks).hasSize(1);
+        pendingAnalyzerTasks.poll().run();
+        ImageProxy posted2 = capturedImage.getAndSet(null);
+        assertThat(posted2).isNotNull();
+
+        posted1.close();
+
+        // image3 arrives while posted2 is still unclosed; it must be cached, not posted
+        // concurrently.
+        mImageAnalysisNonBlockingAnalyzer.onValidImageAvailable(image3);
+        assertThat(pendingAnalyzerTasks).isEmpty();
+        assertThat(mImageAnalysisNonBlockingAnalyzer.mCachedImage).isSameInstanceAs(image3);
+
+        // Closing posted2 dispatches image3 cleanly.
+        posted2.close();
+        assertThat(pendingAnalyzerTasks).hasSize(1);
+        assertThat(mImageAnalysisNonBlockingAnalyzer.mCachedImage).isNull();
+        pendingAnalyzerTasks.poll().run();
+        ImageProxy posted3 = capturedImage.getAndSet(null);
+        assertThat(posted3).isNotNull();
+        posted3.close();
+    }
+
+    @Test
+    public void analyzeCachedImage_catchesIllegalStateException_andRecoversOnNextFrame() {
+        // Arrange.
+        Queue<Runnable> pendingAnalyzerTasks = new ArrayDeque<>();
+        AtomicReference<ImageProxy> capturedImage = new AtomicReference<>();
+        mImageAnalysisNonBlockingAnalyzer.setAnalyzer(
+                pendingAnalyzerTasks::add, image -> capturedImage.set(image));
+
+        ImageProxy image1 = createMockImageProxy(1L);
+        ImageProxy image2 = createMockImageProxy(2L);
+        ImageProxy image3 = createMockImageProxy(3L);
+
+        doAnswer(
+                        invocation -> {
+                            ImageProxy arg = invocation.getArgument(0);
+                            if (arg.getImageInfo().getTimestamp() == 2L) {
+                                throw new IllegalStateException(
+                                        "maxImages (4) has already been acquired");
+                            }
+                            return invocation.callRealMethod();
+                        })
+                .when(mImageAnalysisNonBlockingAnalyzer)
+                .analyzeImage(any());
+
+        mImageAnalysisNonBlockingAnalyzer.onValidImageAvailable(image1);
+        pendingAnalyzerTasks.poll().run();
+        ImageProxy posted1 = capturedImage.getAndSet(null);
+
+        mImageAnalysisNonBlockingAnalyzer.onValidImageAvailable(image2);
+
+        // Act: closing posted1 triggers cached image2 which throws IllegalStateException
+        // synchronously inside CacheAnalyzingImageProxy's background callback.
+        posted1.close();
+
+        // Assert: failed cached image2 was closed, no exception escaped, and image3 still analyzes.
+        verify(image2, times(1)).close();
+        mImageAnalysisNonBlockingAnalyzer.onValidImageAvailable(image3);
+        assertThat(pendingAnalyzerTasks).hasSize(1);
+        pendingAnalyzerTasks.poll().run();
+        assertThat(capturedImage.get()).isNotNull();
+        capturedImage.get().close();
+    }
+
+    @Test
+    public void closingPostedImage_handlesRejectedBackgroundExecutorGracefully() {
+        // Arrange.
+        ImageAnalysisNonBlockingAnalyzer analyzer =
+                new ImageAnalysisNonBlockingAnalyzer(
+                        command -> {
+                            throw new RejectedExecutionException("Background executor shut down");
+                        });
+        Queue<Runnable> pendingAnalyzerTasks = new ArrayDeque<>();
+        AtomicReference<ImageProxy> capturedImage = new AtomicReference<>();
+        analyzer.setAnalyzer(pendingAnalyzerTasks::add, image -> capturedImage.set(image));
+        analyzer.attach();
+
+        ImageProxy image1 = createMockImageProxy(1L);
+        ImageProxy image2 = createMockImageProxy(2L);
+        ImageProxy image3 = createMockImageProxy(3L);
+
+        analyzer.onValidImageAvailable(image1);
+        pendingAnalyzerTasks.poll().run();
+        ImageProxy posted1 = capturedImage.getAndSet(null);
+        analyzer.onValidImageAvailable(image2);
+
+        // Act: closing posted1 must not throw RejectedExecutionException; clears gate and cache.
+        posted1.close();
+
+        // Assert.
+        verify(image2, times(1)).close();
+        assertThat(analyzer.mCachedImage).isNull();
+        analyzer.onValidImageAvailable(image3);
+        assertThat(pendingAnalyzerTasks).hasSize(1);
+        pendingAnalyzerTasks.poll().run();
+        assertThat(capturedImage.get()).isNotNull();
+        assertThat(capturedImage.get().getImageInfo().getTimestamp()).isEqualTo(3L);
+        capturedImage.get().close();
+    }
+
+    private ImageProxy createMockImageProxy(long timestamp) {
+        ImageInfo imageInfo = mock(ImageInfo.class);
+        when(imageInfo.getTagBundle()).thenReturn(mTagBundle);
+        when(imageInfo.getTimestamp()).thenReturn(timestamp);
+        ImageProxy imageProxy = mock(ImageProxy.class);
+        when(imageProxy.getImageInfo()).thenReturn(imageInfo);
+        return imageProxy;
     }
 }

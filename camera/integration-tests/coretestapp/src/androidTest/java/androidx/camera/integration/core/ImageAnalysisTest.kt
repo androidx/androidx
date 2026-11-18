@@ -19,7 +19,11 @@ import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
+import android.graphics.PixelFormat
 import android.hardware.HardwareBuffer
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
@@ -29,8 +33,11 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
@@ -83,7 +90,11 @@ import com.google.mlkit.vision.common.InputImage
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
+import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -147,6 +158,7 @@ internal class ImageAnalysisTest(
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
     private lateinit var cameraSelector: CameraSelector
+    private val executorsToShutdown = mutableListOf<ExecutorService>()
 
     @Before
     fun setUp(): Unit = runBlocking {
@@ -168,12 +180,23 @@ internal class ImageAnalysisTest(
     @After
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
+            val shutdownFuture = withContext(Dispatchers.Main) { cameraProvider.shutdownAsync() }
+            shutdownFuture[10, TimeUnit.SECONDS]
+            runOnMainSync {}
         }
 
         if (::handler.isInitialized) {
             handlerThread.quitSafely()
         }
+
+        executorsToShutdown.asReversed().forEach { executor ->
+            executor.shutdown()
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.shutdownNow()
+                executor.awaitTermination(5, TimeUnit.SECONDS)
+            }
+        }
+        executorsToShutdown.clear()
     }
 
     @Test
@@ -1117,6 +1140,184 @@ internal class ImageAnalysisTest(
                 handlerIdleLatch.await(6, TimeUnit.SECONDS)
             }
             barcodeScanner.close()
+        }
+    }
+
+    @Test
+    fun rgbaKeepOnlyLatest_doesNotExceedMaxImages_whenExecutorSilentlyDropsTasks(): Unit =
+        runBlocking {
+            val uncaughtRef = AtomicReference<Throwable?>()
+            val crashLatch = CountDownLatch(1)
+            val bgExecutor = newRecordingBgExecutor("ImageAnalysisDropBg", uncaughtRef, crashLatch)
+            val captureCompletedSemaphore = Semaphore(0)
+            val dropTasks = AtomicBoolean(true)
+            val imageAnalysis =
+                buildRgbaKeepOnlyLatestAnalysis(bgExecutor, captureCompletedSemaphore)
+            val handlerExecutor = CameraXExecutors.newHandlerExecutor(handler)
+            val conditionalExecutor = Executor { command ->
+                if (!dropTasks.get()) {
+                    handlerExecutor.execute(command)
+                }
+            }
+
+            imageAnalysis.setAnalyzer(conditionalExecutor, analyzer)
+            withBoundImageAnalysis(imageAnalysis, captureCompletedSemaphore) {
+                repeat(10) {
+                    captureCompletedSemaphore.drainPermits()
+                    captureCompletedSemaphore.tryAcquire(3, 5, TimeUnit.SECONDS)
+                    runGcAndFinalization()
+                    bgExecutor.submit {}.get(5, TimeUnit.SECONDS)
+                    if (uncaughtRef.get() != null) {
+                        return@repeat
+                    }
+                }
+
+                uncaughtRef.get()?.let { throw AssertionError("Background executor crashed", it) }
+
+                dropTasks.set(false)
+                runGcAndFinalization()
+                assertThat(analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+                assertRgbaDeliveredAndNoBgCrash(uncaughtRef)
+                assertThat(crashLatch.await(50, TimeUnit.MILLISECONDS)).isFalse()
+                uncaughtRef.get()?.let { throw AssertionError("Background executor crashed", it) }
+            }
+        }
+
+    @Test
+    fun rgbaKeepOnlyLatest_doesNotExceedMaxImages_whenAnalyzerThrowsException(): Unit =
+        runBlocking {
+            val uncaughtRef = AtomicReference<Throwable?>()
+            val bgExecutor = newRecordingBgExecutor("ImageAnalysisThrowBg", uncaughtRef)
+            val userExecutor = Executors.newFixedThreadPool(5).also { executorsToShutdown.add(it) }
+            val captureCompletedSemaphore = Semaphore(0)
+            val invocations = AtomicInteger(0)
+            val inFlightCount = AtomicInteger(0)
+            val maxInFlightCount = AtomicInteger(0)
+            val imageAnalysis =
+                buildRgbaKeepOnlyLatestAnalysis(bgExecutor, captureCompletedSemaphore)
+
+            imageAnalysis.setAnalyzer(userExecutor) { image ->
+                updateMax(maxInFlightCount, inFlightCount.incrementAndGet())
+                try {
+                    val count = invocations.incrementAndGet()
+                    if (count <= 8 && count % 2 == 1) {
+                        captureCompletedSemaphore.drainPermits()
+                        captureCompletedSemaphore.tryAcquire(2, 5, TimeUnit.SECONDS)
+                        throw RuntimeException("Simulated analyzer failure #$count")
+                    }
+                    if (count <= 8 && count % 2 == 0) {
+                        captureCompletedSemaphore.drainPermits()
+                        captureCompletedSemaphore.tryAcquire(6, 5, TimeUnit.SECONDS)
+                    }
+                    synchronized(analysisResultLock) { analysisResults.add(ImageProperties(image)) }
+                    image.close()
+                    analysisResultsSemaphore.release()
+                } finally {
+                    inFlightCount.decrementAndGet()
+                }
+            }
+
+            withBoundImageAnalysis(imageAnalysis, captureCompletedSemaphore) {
+                assertThat(analysisResultsSemaphore.tryAcquire(5, 30, TimeUnit.SECONDS)).isTrue()
+                assertRgbaDeliveredAndNoBgCrash(uncaughtRef)
+                assertThat(maxInFlightCount.get()).isEqualTo(1)
+            }
+        }
+
+    private fun newRecordingBgExecutor(
+        threadName: String,
+        uncaughtRef: AtomicReference<Throwable?>,
+        crashLatch: CountDownLatch? = null,
+    ): ExecutorService =
+        Executors.newSingleThreadExecutor(
+                ThreadFactory { runnable ->
+                    Thread(runnable, threadName).apply {
+                        uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, throwable ->
+                            uncaughtRef.compareAndSet(null, throwable)
+                            crashLatch?.countDown()
+                        }
+                    }
+                }
+            )
+            .also { executorsToShutdown.add(it) }
+
+    @OptIn(ExperimentalCamera2Interop::class)
+    @Suppress("DEPRECATION")
+    private fun buildRgbaKeepOnlyLatestAnalysis(
+        bgExecutor: ExecutorService,
+        captureCompletedSemaphore: Semaphore,
+    ): ImageAnalysis {
+        val builder =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setBackgroundExecutor(bgExecutor)
+        Camera2Interop.Extender(builder)
+            .setSessionCaptureCallback(
+                object : CameraCaptureSession.CaptureCallback() {
+                    override fun onCaptureCompleted(
+                        session: CameraCaptureSession,
+                        request: CaptureRequest,
+                        result: TotalCaptureResult,
+                    ) {
+                        captureCompletedSemaphore.release()
+                    }
+                }
+            )
+        return builder.build()
+    }
+
+    private suspend fun withBoundImageAnalysis(
+        imageAnalysis: ImageAnalysis,
+        captureCompletedSemaphore: Semaphore,
+        block: suspend () -> Unit,
+    ) {
+        try {
+            withContext(Dispatchers.Main) {
+                cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageAnalysis)
+            }
+            block()
+        } finally {
+            captureCompletedSemaphore.release(100)
+            withContext(Dispatchers.Main) {
+                imageAnalysis.clearAnalyzer()
+                cameraProvider.unbindAll()
+            }
+        }
+    }
+
+    private fun assertRgbaDeliveredAndNoBgCrash(uncaughtRef: AtomicReference<Throwable?>) {
+        uncaughtRef.get()?.let { throw AssertionError("Background executor crashed", it) }
+        synchronized(analysisResultLock) {
+            assertThat(analysisResults).isNotEmpty()
+            assertThat(analysisResults.last().format).isEqualTo(PixelFormat.RGBA_8888)
+        }
+    }
+
+    private fun updateMax(maxValue: AtomicInteger, currentValue: Int) {
+        while (true) {
+            val prevMax = maxValue.get()
+            if (currentValue <= prevMax || maxValue.compareAndSet(prevMax, currentValue)) {
+                break
+            }
+        }
+    }
+
+    // Best-effort GC trigger needed to collect dropped CallbackToFutureAdapter.Completer instances.
+    private fun runGcAndFinalization() {
+        val finalizedLatch = CountDownLatch(1)
+        createUnreachableFinalizer(finalizedLatch)
+        Runtime.getRuntime().gc()
+        System.runFinalization()
+        finalizedLatch.await(200, TimeUnit.MILLISECONDS)
+    }
+
+    private fun createUnreachableFinalizer(latch: CountDownLatch) {
+        object {
+            @Suppress("unused")
+            protected fun finalize() {
+                latch.countDown()
+            }
         }
     }
 

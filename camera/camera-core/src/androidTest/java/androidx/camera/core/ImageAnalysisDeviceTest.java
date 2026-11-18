@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_NV21;
+import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
+import static androidx.camera.core.ImageAnalysis.STRATEGY_BLOCK_PRODUCER;
 import static androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST;
 import static androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy;
 import static androidx.camera.testing.impl.TestImageUtil.getAverageDiff;
@@ -53,10 +56,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -330,6 +339,425 @@ public class ImageAnalysisDeviceTest {
         imageAnalysisRef[0] = null;
         fakeCameraRef[0] = null;
         cameraInfoInternalRef[0] = null;
+    }
+
+    @Test
+    public void nonBlockingAnalyzer_rgba_closesProcessedImage_whenExecutorSilentlyDropsTasks()
+            throws Exception {
+        verifyProcessedImageClosesWhenExecutorDropsTasks(
+                STRATEGY_KEEP_ONLY_LATEST, 0, "ImageAnalysisDropTestBg");
+    }
+
+    @Test
+    public void nonBlockingAnalyzer_rgba_doesNotExceedMaxImages_whenAnalyzerThrowsExceptionOrError()
+            throws Exception {
+        AtomicReference<Throwable> bgUncaughtRef = new AtomicReference<>();
+        ExecutorService bgExecutor =
+                newRecordingExecutor("ImageAnalysisThrowTestBg", bgUncaughtRef);
+        AtomicReference<Throwable> userUnexpectedUncaughtRef = new AtomicReference<>();
+        ExecutorService userThreadExecutor =
+                newRecordingExecutor("ImageAnalysisThrowTestUser", userUnexpectedUncaughtRef);
+        AtomicInteger rethrownErrorCount = new AtomicInteger(0);
+        Executor userExecutor =
+                command ->
+                        userThreadExecutor.execute(
+                                () -> {
+                                    try {
+                                        command.run();
+                                    } catch (AssertionError e) {
+                                        if ("Simulated analyzer error".equals(e.getMessage())) {
+                                            rethrownErrorCount.incrementAndGet();
+                                        } else {
+                                            userUnexpectedUncaughtRef.compareAndSet(null, e);
+                                        }
+                                    }
+                                });
+
+        Size resolution = new Size(8, 4);
+        ImageAnalysis imageAnalysis =
+                buildTestImageAnalysis(
+                        OUTPUT_IMAGE_FORMAT_RGBA_8888, STRATEGY_KEEP_ONLY_LATEST, 0, bgExecutor);
+        FakeCamera fakeCamera = bindAnalysisToFakeCamera(imageAnalysis, resolution);
+
+        CountDownLatch[] enteredLatches = createLatches(4);
+        CountDownLatch[] proceedLatches = createLatches(4);
+        CountDownLatch enteredSlowFrameLatch = new CountDownLatch(1);
+        CountDownLatch releaseSlowFrameLatch = new CountDownLatch(1);
+        AtomicInteger invocations = new AtomicInteger(0);
+
+        imageAnalysis.setAnalyzer(
+                userExecutor,
+                image -> {
+                    int index = invocations.getAndIncrement();
+                    if (index < 4) {
+                        enteredLatches[index].countDown();
+                        awaitQuietly(proceedLatches[index]);
+                        if (index < 2) {
+                            throw new RuntimeException("Simulated analyzer exception");
+                        }
+                        throw new AssertionError("Simulated analyzer error");
+                    }
+                    if (index == 4) {
+                        enteredSlowFrameLatch.countDown();
+                        awaitQuietly(releaseSlowFrameLatch);
+                    }
+                    image.close();
+                });
+
+        ImageAnalysisAbstractAnalyzer abstractAnalyzer =
+                imageAnalysis.mImageAnalysisAbstractAnalyzer;
+        SafeCloseImageReaderProxy processedReader = abstractAnalyzer.getProcessedImageReaderProxy();
+        assertThat(processedReader).isNotNull();
+
+        try {
+            long ts = 1L;
+            submitFrame(bgExecutor, abstractAnalyzer, resolution, ts++);
+
+            for (int i = 0; i < 4; i++) {
+                awaitLatchWithGcFallback(enteredLatches[i]);
+                submitFrame(bgExecutor, abstractAnalyzer, resolution, ts++);
+                proceedLatches[i].countDown();
+            }
+
+            awaitLatchWithGcFallback(enteredSlowFrameLatch);
+            for (int i = 0; i < 4; i++) {
+                submitFrame(bgExecutor, abstractAnalyzer, resolution, ts++);
+            }
+
+            assertNoBackgroundError(bgUncaughtRef);
+            assertThat(processedReader.getOutstandingImages()).isEqualTo(1);
+
+            releaseSlowFrameLatch.countDown();
+            userThreadExecutor.submit(() -> {}).get(5, TimeUnit.SECONDS);
+            bgExecutor.submit(() -> {}).get(5, TimeUnit.SECONDS);
+            userThreadExecutor.submit(() -> {}).get(5, TimeUnit.SECONDS);
+            bgExecutor.submit(() -> {}).get(5, TimeUnit.SECONDS);
+
+            assertNoBackgroundError(bgUncaughtRef);
+            assertThat(userUnexpectedUncaughtRef.get()).isNull();
+            assertThat(rethrownErrorCount.get()).isEqualTo(2);
+            assertThat(processedReader.getOutstandingImages()).isEqualTo(0);
+        } finally {
+            countDownAll(proceedLatches);
+            releaseSlowFrameLatch.countDown();
+            tearDownBoundAnalysis(imageAnalysis, fakeCamera, userThreadExecutor, bgExecutor);
+        }
+    }
+
+    @Test
+    public void nonBlockingAnalyzer_rgba_closesProcessedImage_whenExecutorThrowsRuntimeException()
+            throws Exception {
+        AtomicReference<Throwable> bgUncaughtRef = new AtomicReference<>();
+        ExecutorService bgExecutor =
+                newRecordingExecutor("ImageAnalysisExecThrowTestBg", bgUncaughtRef);
+
+        Size resolution = new Size(8, 4);
+        ImageAnalysis imageAnalysis =
+                buildTestImageAnalysis(
+                        OUTPUT_IMAGE_FORMAT_RGBA_8888, STRATEGY_KEEP_ONLY_LATEST, 0, bgExecutor);
+        FakeCamera fakeCamera = bindAnalysisToFakeCamera(imageAnalysis, resolution);
+
+        Executor throwingExecutor =
+                command -> {
+                    throw new IllegalStateException("Custom executor failure");
+                };
+        imageAnalysis.setAnalyzer(throwingExecutor, mMockAnalyzer);
+        ImageAnalysisAbstractAnalyzer abstractAnalyzer =
+                imageAnalysis.mImageAnalysisAbstractAnalyzer;
+        SafeCloseImageReaderProxy processedReader = abstractAnalyzer.getProcessedImageReaderProxy();
+        assertThat(processedReader).isNotNull();
+
+        try {
+            long ts = 1L;
+            for (int i = 0; i < 6; i++) {
+                FakeImageProxy frame = createRgbaTestYuvFrame(resolution, ts++);
+                FakeImageProxy cached = createRgbaTestYuvFrame(resolution, ts++);
+                bgExecutor
+                        .submit(
+                                () -> {
+                                    abstractAnalyzer.onValidImageAvailable(frame);
+                                    abstractAnalyzer.onValidImageAvailable(cached);
+                                })
+                        .get(5, TimeUnit.SECONDS);
+                bgExecutor.submit(() -> {}).get(5, TimeUnit.SECONDS);
+                if (bgUncaughtRef.get() != null) {
+                    break;
+                }
+            }
+
+            assertNoBackgroundError(bgUncaughtRef);
+            assertThat(processedReader.getOutstandingImages()).isEqualTo(0);
+        } finally {
+            tearDownBoundAnalysis(imageAnalysis, fakeCamera, bgExecutor);
+        }
+    }
+
+    @Test
+    public void blockingAnalyzer_rgba_closesProcessedImage_whenExecutorSilentlyDropsTasks()
+            throws Exception {
+        verifyProcessedImageClosesWhenExecutorDropsTasks(
+                STRATEGY_BLOCK_PRODUCER, 4, "ImageAnalysisBlockDropBg");
+    }
+
+    @Test
+    public void
+            nonBlockingAnalyzer_nv21_doesNotDeliverConcurrently_whenAnalyzerThrowsCheckedException()
+                    throws Exception {
+        AtomicReference<Throwable> bgUncaughtRef = new AtomicReference<>();
+        ExecutorService bgExecutor = newRecordingExecutor("ImageAnalysisNv21Bg", bgUncaughtRef);
+        ExecutorService userExecutor = Executors.newFixedThreadPool(4);
+
+        Size resolution = new Size(8, 4);
+        ImageAnalysis imageAnalysis =
+                buildTestImageAnalysis(
+                        OUTPUT_IMAGE_FORMAT_NV21, STRATEGY_KEEP_ONLY_LATEST, 0, bgExecutor);
+        FakeCamera fakeCamera = bindAnalysisToFakeCamera(imageAnalysis, resolution);
+
+        CountDownLatch[] enteredLatches = createLatches(4);
+        CountDownLatch[] proceedLatches = createLatches(4);
+        CountDownLatch fifthCompletedLatch = new CountDownLatch(1);
+        AtomicInteger invocations = new AtomicInteger(0);
+        AtomicInteger inFlight = new AtomicInteger(0);
+        AtomicInteger maxInFlight = new AtomicInteger(0);
+
+        imageAnalysis.setAnalyzer(
+                userExecutor,
+                image -> {
+                    updateMax(maxInFlight, inFlight.incrementAndGet());
+                    try {
+                        int index = invocations.getAndIncrement();
+                        if (index < 4) {
+                            enteredLatches[index].countDown();
+                            awaitQuietly(proceedLatches[index]);
+                            sneakyThrow(new IOException("Simulated checked exception"));
+                        }
+                        image.close();
+                        if (index == 4) {
+                            fifthCompletedLatch.countDown();
+                        }
+                    } finally {
+                        inFlight.decrementAndGet();
+                    }
+                });
+
+        ImageAnalysisAbstractAnalyzer abstractAnalyzer =
+                imageAnalysis.mImageAnalysisAbstractAnalyzer;
+        try {
+            long ts = 1L;
+            submitFrame(bgExecutor, abstractAnalyzer, resolution, ts++);
+
+            for (int i = 0; i < 4; i++) {
+                assertThat(enteredLatches[i].await(5, TimeUnit.SECONDS)).isTrue();
+                submitFrame(bgExecutor, abstractAnalyzer, resolution, ts++);
+                proceedLatches[i].countDown();
+            }
+
+            assertThat(fifthCompletedLatch.await(5, TimeUnit.SECONDS)).isTrue();
+            bgExecutor.submit(() -> {}).get(5, TimeUnit.SECONDS);
+
+            assertNoBackgroundError(bgUncaughtRef);
+            assertThat(maxInFlight.get()).isEqualTo(1);
+        } finally {
+            countDownAll(proceedLatches);
+            tearDownBoundAnalysis(imageAnalysis, fakeCamera, userExecutor, bgExecutor);
+        }
+    }
+
+    private void verifyProcessedImageClosesWhenExecutorDropsTasks(
+            int backpressureStrategy, int imageQueueDepth, String threadName) throws Exception {
+        AtomicReference<Throwable> bgUncaughtRef = new AtomicReference<>();
+        ExecutorService bgExecutor = newRecordingExecutor(threadName, bgUncaughtRef);
+
+        Size resolution = new Size(8, 4);
+        ImageAnalysis imageAnalysis =
+                buildTestImageAnalysis(
+                        OUTPUT_IMAGE_FORMAT_RGBA_8888,
+                        backpressureStrategy,
+                        imageQueueDepth,
+                        bgExecutor);
+        FakeCamera fakeCamera = bindAnalysisToFakeCamera(imageAnalysis, resolution);
+
+        Executor droppingExecutor =
+                command -> {
+                    // Intentionally drop tasks to simulate Handler.post() returning false or
+                    // DiscardPolicy.
+                };
+        imageAnalysis.setAnalyzer(droppingExecutor, mMockAnalyzer);
+        ImageAnalysisAbstractAnalyzer abstractAnalyzer =
+                imageAnalysis.mImageAnalysisAbstractAnalyzer;
+        SafeCloseImageReaderProxy processedReader = abstractAnalyzer.getProcessedImageReaderProxy();
+        assertThat(processedReader).isNotNull();
+
+        try {
+            for (long ts = 1L; ts <= 8L; ts++) {
+                submitFrame(bgExecutor, abstractAnalyzer, resolution, ts);
+                runGcAndFinalization();
+                bgExecutor.submit(() -> {}).get(5, TimeUnit.SECONDS);
+                if (bgUncaughtRef.get() != null) {
+                    break;
+                }
+            }
+            runGcAndFinalization();
+            bgExecutor.submit(() -> {}).get(5, TimeUnit.SECONDS);
+
+            assertNoBackgroundError(bgUncaughtRef);
+            assertThat(processedReader.getOutstandingImages()).isEqualTo(0);
+        } finally {
+            tearDownBoundAnalysis(imageAnalysis, fakeCamera, bgExecutor);
+        }
+    }
+
+    private static ExecutorService newRecordingExecutor(
+            String threadName, AtomicReference<Throwable> uncaughtRef) {
+        return Executors.newSingleThreadExecutor(
+                runnable -> {
+                    Thread thread = new Thread(runnable, threadName);
+                    thread.setUncaughtExceptionHandler(
+                            (t, e) -> uncaughtRef.compareAndSet(null, e));
+                    return thread;
+                });
+    }
+
+    private static ImageAnalysis buildTestImageAnalysis(
+            int outputImageFormat,
+            int backpressureStrategy,
+            int imageQueueDepth,
+            Executor bgExecutor) {
+        ImageAnalysis.Builder builder =
+                new ImageAnalysis.Builder()
+                        .setOutputImageFormat(outputImageFormat)
+                        .setBackpressureStrategy(backpressureStrategy)
+                        .setBackgroundExecutor(bgExecutor)
+                        .setSessionOptionUnpacker((resolution2, config, sessionBuilder) -> {})
+                        .setCaptureOptionUnpacker((config, captureBuilder) -> {});
+        if (imageQueueDepth > 0) {
+            builder.setImageQueueDepth(imageQueueDepth);
+        }
+        return builder.build();
+    }
+
+    private static FakeCamera bindAnalysisToFakeCamera(
+            ImageAnalysis imageAnalysis, Size resolution) {
+        FakeCameraInfoInternal cameraInfoInternal =
+                new FakeCameraInfoInternal("0", 0, CameraSelector.LENS_FACING_BACK);
+        FakeCamera fakeCamera = new FakeCamera("0", null, cameraInfoInternal);
+        InstrumentationRegistry.getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            imageAnalysis.bindToCamera(fakeCamera, null, null, null);
+                            imageAnalysis.onSuggestedStreamSpecUpdated(
+                                    StreamSpec.builder(resolution).build(), null);
+                        });
+        return fakeCamera;
+    }
+
+    private static void tearDownBoundAnalysis(
+            ImageAnalysis imageAnalysis,
+            FakeCamera fakeCamera,
+            ExecutorService... executorsToShutdown)
+            throws InterruptedException {
+        InstrumentationRegistry.getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            imageAnalysis.clearAnalyzer();
+                            imageAnalysis.unbindFromCamera(fakeCamera);
+                        });
+        for (ExecutorService executor : executorsToShutdown) {
+            executor.shutdownNow();
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    private static void submitFrame(
+            ExecutorService bgExecutor,
+            ImageAnalysisAbstractAnalyzer abstractAnalyzer,
+            Size resolution,
+            long timestamp)
+            throws Exception {
+        FakeImageProxy frame = createRgbaTestYuvFrame(resolution, timestamp);
+        bgExecutor
+                .submit(() -> abstractAnalyzer.onValidImageAvailable(frame))
+                .get(5, TimeUnit.SECONDS);
+    }
+
+    private static void assertNoBackgroundError(AtomicReference<Throwable> bgUncaughtRef) {
+        if (bgUncaughtRef.get() != null) {
+            throw new AssertionError(
+                    "Background executor threw uncaught exception", bgUncaughtRef.get());
+        }
+    }
+
+    private static CountDownLatch[] createLatches(int count) {
+        CountDownLatch[] latches = new CountDownLatch[count];
+        for (int i = 0; i < count; i++) {
+            latches[i] = new CountDownLatch(1);
+        }
+        return latches;
+    }
+
+    private static void countDownAll(CountDownLatch[] latches) {
+        for (CountDownLatch latch : latches) {
+            latch.countDown();
+        }
+    }
+
+    private static void awaitQuietly(CountDownLatch latch) {
+        try {
+            latch.await(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private static void awaitLatchWithGcFallback(CountDownLatch latch) throws InterruptedException {
+        if (!latch.await(500, TimeUnit.MILLISECONDS)) {
+            runGcAndFinalization();
+            assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
+        }
+    }
+
+    private static void updateMax(AtomicInteger maxValue, int currentValue) {
+        while (true) {
+            int prevMax = maxValue.get();
+            if (currentValue <= prevMax || maxValue.compareAndSet(prevMax, currentValue)) {
+                break;
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> RuntimeException sneakyThrow(Throwable e) throws E {
+        throw (E) e;
+    }
+
+    private static FakeImageProxy createRgbaTestYuvFrame(Size resolution, long timestamp) {
+        FakeImageInfo imageInfo = new FakeImageInfo();
+        imageInfo.setTimestamp(timestamp);
+        return createYuvFakeImageProxy(
+                imageInfo,
+                resolution.getWidth(),
+                resolution.getHeight(),
+                ImageProxyUtil.YUV_FORMAT_PLANE_DATA_TYPE_I420,
+                false);
+    }
+
+    // Best-effort GC trigger needed to collect dropped CallbackToFutureAdapter.Completer instances.
+    private static void runGcAndFinalization() throws InterruptedException {
+        CountDownLatch finalizedLatch = new CountDownLatch(1);
+        createUnreachableFinalizer(finalizedLatch);
+        Runtime.getRuntime().gc();
+        System.runFinalization();
+        finalizedLatch.await(200, TimeUnit.MILLISECONDS);
+    }
+
+    private static void createUnreachableFinalizer(CountDownLatch latch) {
+        new Object() {
+            @SuppressWarnings({"deprecation", "removal"})
+            @Override
+            protected void finalize() {
+                latch.countDown();
+            }
+        };
     }
 
     private void verifyAnalysis(
