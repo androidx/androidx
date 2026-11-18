@@ -17,10 +17,13 @@
 package androidx.compose.ui.spatial
 
 import androidx.collection.mutableIntListOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Assert.assertEquals
@@ -164,7 +167,7 @@ class RectListTest {
     fun insertMultipleGesturableUpdatesRemoveClear() {
         val list = RectList()
 
-        list.insert(1, 1, 1, 2, 2)
+        list.insert(1, 1, 1, 2, 2, hasCallbacks = true)
         var meta = list.metaFor(1)
         assertEquals(1, unpackMetaValue(meta))
         assertEquals(1, unpackMetaUpdated(meta))
@@ -205,7 +208,7 @@ class RectListTest {
     fun insertMultipleFocusableUpdatesRemoveClear() {
         val list = RectList()
 
-        list.insert(1, 1, 1, 2, 2)
+        list.insert(1, 1, 1, 2, 2, hasCallbacks = true)
         var meta = list.metaFor(1)
         assertEquals(1, unpackMetaValue(meta))
         assertEquals(1, unpackMetaUpdated(meta))
@@ -246,7 +249,7 @@ class RectListTest {
     fun insertMultipleFocusableAndGesturablesUpdatesRemoveClear() {
         val list = RectList()
 
-        list.insert(1, 1, 1, 2, 2)
+        list.insert(1, 1, 1, 2, 2, hasCallbacks = true)
         var meta = list.metaFor(1)
         assertEquals(1, unpackMetaValue(meta))
         assertEquals(1, unpackMetaUpdated(meta))
@@ -539,6 +542,181 @@ class RectListTest {
         val rect2 = packXY(minValue, minValue)
         assertEquals(minValue, unpackX(rect2))
         assertEquals(minValue, unpackY(rect2))
+    }
+
+    private fun RectList.consumeUpdatedIds(): List<Int> = buildList {
+        consumeUpdatedRects { id, _, _ -> add(id) }
+    }
+
+    @Test
+    fun updatedIndicesOnlyTrackItemsWithCallbacks() {
+        val list = RectList()
+        list.insert(1, 0, 0, 10, 10)
+        list.insert(2, 0, 0, 10, 10, hasCallbacks = true)
+        assertEquals(1, list.updatedIndices?.size ?: 0)
+        assertEquals(listOf(2), list.consumeUpdatedIds())
+        assertEquals(emptyList<Int>(), list.consumeUpdatedIds())
+
+        list.update(1, 1, 1, 11, 11)
+        assertEquals(0, list.updatedIndices?.size ?: 0)
+        assertEquals(emptyList<Int>(), list.consumeUpdatedIds())
+
+        // updating the same item multiple times only tracks it once
+        list.update(2, 1, 1, 11, 11)
+        list.update(2, 2, 2, 12, 12)
+        assertEquals(1, list.updatedIndices?.size ?: 0)
+        var topLeft = 0L
+        var bottomRight = 0L
+        list.consumeUpdatedRects { _, tl, br ->
+            topLeft = tl
+            bottomRight = br
+        }
+        assertEquals(packXY(2, 2), topLeft)
+        assertEquals(packXY(12, 12), bottomRight)
+        assertEquals(0, unpackMetaUpdated(list.metaFor(2)))
+    }
+
+    @Test
+    fun moveMarksDescendantsWithCallbacksUpdated() {
+        val list = RectList()
+        list.insert(1, 0, 0, 100, 100)
+        list.insert(
+            2,
+            0,
+            0,
+            50,
+            50,
+            parentId = 1,
+            parentIndex = list.indexOf(1),
+            hasCallbacks = true,
+        )
+        list.insert(3, 50, 50, 100, 100, parentId = 1, parentIndex = list.indexOf(1))
+        list.insert(
+            4,
+            0,
+            0,
+            10,
+            10,
+            parentId = 2,
+            parentIndex = list.indexOf(2),
+            hasCallbacks = true,
+        )
+        assertEquals(listOf(2, 4), list.consumeUpdatedIds())
+
+        list.moveAt(list.indexOf(1), 5, 5, 105, 105)
+        assertEquals(listOf(2, 4), list.consumeUpdatedIds())
+        assertRectWithIdEquals(list, 4, 5, 5, 15, 15)
+
+        // Single callback descendant (node 4) under moved node 2: parent 2 is reported before child
+        // 4
+        list.moveAt(list.indexOf(2), 10, 10, 60, 60)
+        assertEquals(listOf(2, 4), list.consumeUpdatedIds())
+        assertRectWithIdEquals(list, 4, 10, 10, 20, 20)
+
+        // Pre-updated callback descendant (node 4) is still reported after ancestor node 2
+        list.updateAt(list.indexOf(4), 11, 11, 21, 21)
+        list.moveAt(list.indexOf(1), 15, 15, 115, 115)
+        assertEquals(listOf(2, 4), list.consumeUpdatedIds())
+    }
+
+    @Test
+    fun updateHasCallbacksAtTracksUpdates() {
+        val list = RectList()
+        list.insert(1, 0, 0, 10, 10)
+        assertEquals(emptyList<Int>(), list.consumeUpdatedIds())
+
+        list.updateHasCallbacksAt(list.indexOf(1), true)
+        assertEquals(listOf(1), list.consumeUpdatedIds())
+
+        list.updateHasCallbacksAt(list.indexOf(1), false)
+        list.update(1, 1, 1, 11, 11)
+        assertEquals(emptyList<Int>(), list.consumeUpdatedIds())
+
+        // removing and re-adding callbacks before consuming reports the item once
+        list.updateHasCallbacksAt(list.indexOf(1), true)
+        list.updateHasCallbacksAt(list.indexOf(1), false)
+        list.updateHasCallbacksAt(list.indexOf(1), true)
+        assertEquals(listOf(1), list.consumeUpdatedIds())
+    }
+
+    @Test
+    fun removedItemIsNotReportedUpdated() {
+        val list = RectList()
+        list.insert(1, 0, 0, 10, 10, hasCallbacks = true)
+        list.insert(2, 0, 0, 10, 10, hasCallbacks = true)
+        list.consumeUpdatedIds()
+
+        list.update(1, 1, 1, 11, 11)
+        list.remove(1)
+        assertEquals(emptyList<Int>(), list.consumeUpdatedIds())
+    }
+
+    @Test
+    fun defragmentKeepsPendingUpdates() {
+        val list = RectList()
+        list.insert(1, 0, 0, 10, 10, hasCallbacks = true)
+        list.insert(2, 0, 0, 10, 10, hasCallbacks = true)
+        list.insert(3, 0, 0, 10, 10, hasCallbacks = true)
+        list.consumeUpdatedIds()
+
+        list.update(3, 1, 1, 11, 11)
+        list.remove(1)
+        list.defragment()
+        assertEquals(1, list.updatedIndices?.size ?: 0)
+        assertEquals(list.indexOf(3), list.updatedIndices?.get(0))
+        assertEquals(listOf(3), list.consumeUpdatedIds())
+    }
+
+    @Test
+    fun updatesDuringConsumeAreKeptForNextConsume() {
+        val list = RectList()
+        list.insert(1, 0, 0, 10, 10, hasCallbacks = true)
+        list.insert(2, 0, 0, 10, 10, hasCallbacks = true)
+        val ids = mutableListOf<Int>()
+        list.consumeUpdatedRects { id, _, _ ->
+            ids.add(id)
+            if (id == 1) {
+                list.update(1, 1, 1, 11, 11)
+                list.update(2, 1, 1, 11, 11)
+            }
+        }
+        // 2 was already updated, so it is reported once; 1 was updated again during dispatch
+        assertEquals(listOf(1, 2), ids)
+        assertEquals(listOf(1), list.consumeUpdatedIds())
+    }
+
+    @Test
+    fun reentrantConsumeKeepsUpdatesForNextConsume() {
+        val list = RectList()
+        list.insert(1, 0, 0, 10, 10, hasCallbacks = true)
+        list.insert(2, 0, 0, 10, 10, hasCallbacks = true)
+        val ids = mutableListOf<Int>()
+        val nestedIds = mutableListOf<Int>()
+        list.consumeUpdatedRects { id, _, _ ->
+            ids.add(id)
+            if (id == 1) {
+                list.update(1, 1, 1, 11, 11)
+                list.consumeUpdatedRects { nestedId, _, _ -> nestedIds.add(nestedId) }
+            }
+        }
+        assertEquals(listOf(1, 2), ids)
+        assertEquals(emptyList<Int>(), nestedIds)
+        assertFalse(list.isConsumingUpdates)
+        assertEquals(listOf(1), list.consumeUpdatedIds())
+    }
+
+    @Test
+    fun throwingConsumeKeepsUnvisitedUpdates() {
+        val list = RectList()
+        list.insert(1, 0, 0, 10, 10, hasCallbacks = true)
+        list.insert(2, 0, 0, 10, 10, hasCallbacks = true)
+        list.insert(3, 0, 0, 10, 10, hasCallbacks = true)
+        assertFailsWith<IllegalStateException> {
+            list.consumeUpdatedRects { id, _, _ -> if (id == 1) throw IllegalStateException() }
+        }
+        assertFalse(list.isConsumingUpdates)
+        assertTrue(list.hasPendingUpdates)
+        assertEquals(listOf(2, 3), list.consumeUpdatedIds())
     }
 
     @Test
@@ -994,6 +1172,127 @@ class RectListTest {
         rectManager.scheduleDebounceCallback(true)
 
         assertTrue(removeDelayedExecutionCalled)
+    }
+
+    @Test
+    fun reentrantDispatchSchedulesPendingUpdates() {
+        val scheduled = mutableSetOf<Any>()
+        val rectManager =
+            RectManager(
+                executeDelayed =
+                    object : ExecuteDelayed {
+                        override fun executeDelayed(delayMillis: Long, block: () -> Unit): Any =
+                            Any().also { scheduled.add(it) }
+
+                        override fun removeDelayedExecution(token: Any) {
+                            scheduled.remove(token)
+                        }
+                    }
+            )
+        val layoutNode = LayoutNode(semanticsId = 1)
+        layoutNode.measurePassDelegate.isPlaced = true
+        val node = object : Modifier.Node() {}
+        node.updateCoordinator(layoutNode.outerCoordinator)
+        layoutNode.rectListIndex =
+            rectManager.rects.insert(
+                value = 1,
+                l = 0,
+                t = 0,
+                r = 10,
+                b = 10,
+                parentId = -1,
+                parentIndex = NotFound,
+                focusable = false,
+                gesturable = false,
+                hasCallbacks = false,
+            )
+        var calls = 0
+        rectManager.registerOnRectChangedCallback(1, 0, 0, node) {
+            calls++
+            if (calls == 1) {
+                // update the rect, then dispatch again from inside the callback
+                rectManager.invalidateCallbacksFor(layoutNode)
+                rectManager.dispatchCallbacks()
+            }
+        }
+
+        rectManager.dispatchCallbacks()
+        assertEquals(1, calls)
+        // the update made by the callback is pending, and a dispatch is scheduled for it
+        assertTrue(rectManager.rects.hasPendingUpdates)
+        assertEquals(1, scheduled.size)
+
+        rectManager.dispatchCallbacks()
+        assertEquals(2, calls)
+    }
+
+    @Test
+    fun dispatchIsScheduledOncePerDispatch() {
+        var executeDelayedCount = 0
+        var removeDelayedExecutionCount = 0
+
+        val executeDelayed =
+            object : ExecuteDelayed {
+                override fun executeDelayed(delayMillis: Long, block: () -> Unit): Any {
+                    executeDelayedCount++
+                    return Any()
+                }
+
+                override fun removeDelayedExecution(token: Any) {
+                    removeDelayedExecutionCount++
+                }
+            }
+
+        val rectManager = RectManager(executeDelayed = executeDelayed)
+        // a debounce deadline earlier than the next frame used to reschedule on every call
+        rectManager.throttledCallbacks.minDebounceDeadline = 1
+        val node = LayoutNode()
+
+        repeat(3) { rectManager.invalidateCallbacksFor(node) }
+        assertEquals(1, executeDelayedCount)
+        assertEquals(0, removeDelayedExecutionCount)
+
+        rectManager.dispatchCallbacks()
+        assertEquals(1, removeDelayedExecutionCount)
+
+        // the next invalidation after a dispatch schedules again
+        repeat(3) { rectManager.invalidateCallbacksFor(node) }
+        assertEquals(2, executeDelayedCount)
+
+        // as does the next one after the scheduled dispatch was removed
+        rectManager.removeScheduledCallback()
+        rectManager.invalidateCallbacksFor(node)
+        assertEquals(3, executeDelayedCount)
+    }
+
+    @Test
+    fun onChangedCallbacksAreCalledWhenDirty() {
+        val rectManager =
+            RectManager(
+                executeDelayed =
+                    object : ExecuteDelayed {
+                        override fun executeDelayed(delayMillis: Long, block: () -> Unit) = Any()
+
+                        override fun removeDelayedExecution(token: Any) {}
+                    }
+            )
+        // dispatching without registered callbacks works
+        rectManager.invalidate()
+        rectManager.dispatchCallbacks()
+
+        var calls = 0
+        val token = rectManager.registerOnChangedCallback { calls++ }
+        rectManager.dispatchCallbacks()
+        assertEquals(0, calls)
+
+        rectManager.invalidate()
+        rectManager.dispatchCallbacks()
+        assertEquals(1, calls)
+
+        rectManager.unregisterOnChangedCallback(token)
+        rectManager.invalidate()
+        rectManager.dispatchCallbacks()
+        assertEquals(1, calls)
     }
 
     // TODO: test update scrollable behavior
