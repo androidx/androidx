@@ -330,7 +330,8 @@ internal object RuntimeUtils {
             if (hitTestResultExt.surfaceNormal == null) null
             else
                 originCompensation.toActivitySpaceNormal(getVector3(hitTestResultExt.surfaceNormal))
-        val distance = hitTestResultExt.distance * originCompensation.sceneParentScale
+        // XrExtensions reports HitTestResult.distance in unscaled meters.
+        val distance = hitTestResultExt.distance
         val surfaceType = getHitTestSurfaceType(hitTestResultExt.surfaceType)
         return RuntimeHitTestResult(hitPosition, surfaceNormal, surfaceType, distance)
     }
