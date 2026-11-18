@@ -26,6 +26,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.AndroidUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.viewfinder.core.FrameRenderedListener
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
@@ -111,7 +112,9 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
             arrayOf(ImplementationMode.EXTERNAL, ImplementationMode.EMBEDDED)
     }
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule(order = 0) val requireForegroundRule = RequireForegroundRule()
+
+    @get:Rule(order = 1) val rule = createComposeRule()
 
     @After
     fun tearDown() {
@@ -469,32 +472,35 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
 
     @Test
     fun movableContentOf_afterMove_validSurfaceIsAvailable(): Unit = runBlocking {
-        testMovableWithSession {
-            val surfaceSession = awaitSurfaceSession()
-            assertThat(surfaceSession.surface.isValid).isTrue()
-            rule.awaitIdleWithPausedRendering()
+        withTimeout(30.seconds) {
+            testMovableWithSession {
+                val surfaceSession = withTimeout(10.seconds) { awaitSurfaceSession() }
+                assertThat(surfaceSession.surface.isValid).isTrue()
+                rule.awaitIdleWithPausedRendering()
 
-            moveViewfinder()
+                moveViewfinder()
 
-            rule.awaitIdleWithPausedRendering()
+                rule.awaitIdleWithPausedRendering()
 
-            when (implementationMode) {
-                ImplementationMode.EMBEDDED -> assertThat(surfaceSession.surface.isValid).isTrue()
-                ImplementationMode.EXTERNAL ->
-                    if (Build.VERSION.SDK_INT >= 29) {
+                when (implementationMode) {
+                    ImplementationMode.EMBEDDED ->
                         assertThat(surfaceSession.surface.isValid).isTrue()
-                    } else {
-                        // A new surface would need to be created on API 28 and lower, wait for
-                        // the new surface session
-                        allowNextSessionCompletion()
-                        rule.awaitIdle()
-                        val newSurfaceSession =
-                            withTimeoutOrNull(5.seconds) {
-                                awaitSurfaceSession { it !== surfaceSession }
-                            }
-                        assertThat(newSurfaceSession).isNotNull()
-                        assertThat(newSurfaceSession!!.surface.isValid).isTrue()
-                    }
+                    ImplementationMode.EXTERNAL ->
+                        if (Build.VERSION.SDK_INT >= 29) {
+                            assertThat(surfaceSession.surface.isValid).isTrue()
+                        } else {
+                            // A new surface would need to be created on API 28 and lower, wait for
+                            // the new surface session
+                            allowNextSessionCompletion()
+                            rule.awaitIdleWithPausedRendering()
+                            val newSurfaceSession =
+                                withTimeoutOrNull(5.seconds) {
+                                    awaitSurfaceSession { it !== surfaceSession }
+                                }
+                            assertThat(newSurfaceSession).isNotNull()
+                            assertThat(checkNotNull(newSurfaceSession).surface.isValid).isTrue()
+                        }
+                }
             }
         }
     }
@@ -630,7 +636,7 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
                 numSessions++
                 surfaceSessionFlow.value = this@onSurfaceSession
 
-                renderJob =
+                val sessionRenderJob =
                     launch(AndroidUiDispatcher.Main) {
                         val w = request.width
                         val h = request.height
@@ -653,8 +659,13 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
                             }
                         }
                     }
+                renderJob = sessionRenderJob
 
-                withContext(NonCancellable) { sessionCompleteCount.first { it >= numSessions } }
+                try {
+                    withContext(NonCancellable) { sessionCompleteCount.first { it >= numSessions } }
+                } finally {
+                    sessionRenderJob.cancel()
+                }
             }
         }
 
@@ -665,13 +676,20 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
 
         val specificSessionTestScope = scopeProvider(baseSessionTestScope)
 
+        var blockFailed = false
         try {
             block.invoke(specificSessionTestScope)
+        } catch (t: Throwable) {
+            blockFailed = true
+            throw t
         } finally {
+            paused.value = true
             sessionCompleteCount.value = Int.MAX_VALUE
             renderJob?.cancel()
-            renderJob?.join()
-            rule.awaitIdle()
+            if (!blockFailed) {
+                renderJob?.join()
+                rule.awaitIdle()
+            }
         }
     }
 
@@ -744,7 +762,7 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
             scopeProvider = { baseScope ->
                 object : SessionTestScope by baseScope, MovableSessionTestScope {
                     override fun moveViewfinder() {
-                        moveViewfinderState.value = true
+                        rule.runOnUiThread { moveViewfinderState.value = true }
                     }
                 }
             },
