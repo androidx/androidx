@@ -32,7 +32,7 @@ package androidx.room3 {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertAdapter<T> {
     ctor public EntityUpsertAdapter(androidx.room3.EntityInsertAdapter<T> entityInsertAdapter, androidx.room3.EntityDeleteOrUpdateAdapter<T> updateAdapter);
-    ctor public EntityUpsertAdapter(androidx.room3.EntityInsertAdapter<T> entityInsertAdapter, androidx.room3.EntityDeleteOrUpdateAdapter<T> updateAdapter, String? upsertQuery);
+    ctor public EntityUpsertAdapter(androidx.room3.EntityInsertAdapter<T> entityInsertAdapter, androidx.room3.EntityDeleteOrUpdateAdapter<T> updateAdapter, String? insertOrUpdateQuery, String? insertOrNothingQuery);
     method public suspend Object? upsert(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T?>? entities, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? upsert(androidx.sqlite.SQLiteConnection connection, T? entity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? upsert(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super kotlin.Unit>);

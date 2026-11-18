@@ -65,7 +65,7 @@ internal class MyDao_Impl(
         statement.bindLong(1, entity.pk.toLong())
         statement.bindLong(2, entity.pk.toLong())
       }
-    }, "INSERT INTO `MyEntity` (`pk`) VALUES (?) ON CONFLICT (`pk`) DO NOTHING")
+    }, "INSERT INTO `MyEntity` (`pk`) VALUES (?) ON CONFLICT (`pk`) DO NOTHING", "INSERT INTO `MyEntity` (`pk`) VALUES (?) ON CONFLICT (`pk`) DO NOTHING")
   }
 
   public override suspend fun insert(item: MyEntity): Foo = __fooReturnTypeConverter.convert() {

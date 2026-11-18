@@ -40,22 +40,31 @@ private constructor(val tableName: String, val dataClass: DataClass) {
         val updateHelper = EntityUpdateAdapterWriter.create(entity, "").createAnonymous(typeWriter)
         val pkColumnNames = entity.primaryKey.columnNames
         // Upsert is not supported on virtual tables and needs primary key columns to conflict on.
-        val upsertQuery =
-            if (entity.isVirtualTable || pkColumnNames.isEmpty()) {
-                null
-            } else {
-                val pkCols = pkColumnNames.joinToString(",") { "`$it`" }
-                val updateCols =
-                    (dataClass.columnNames - pkColumnNames.toSet()).joinToString(",") {
-                        "`$it` = excluded.`$it`"
-                    }
-                val action = if (updateCols.isEmpty()) "NOTHING" else "UPDATE SET $updateCols"
-                "${insertWriter.createInsertQuery()} ON CONFLICT ($pkCols) DO $action"
-            }
+        val insertOrUpdateQuery: String?
+        val insertOrNothingQuery: String?
+        if (entity.isVirtualTable || pkColumnNames.isEmpty()) {
+            insertOrUpdateQuery = null
+            insertOrNothingQuery = null
+        } else {
+            val insertQuery = insertWriter.createInsertQuery()
+            val pkCols = pkColumnNames.joinToString(",") { "`$it`" }
+            insertOrNothingQuery = "$insertQuery ON CONFLICT ($pkCols) DO NOTHING"
+            val updateCols =
+                (dataClass.columnNames - pkColumnNames.toSet()).joinToString(",") {
+                    "`$it` = excluded.`$it`"
+                }
+            // An entity with only primary key columns has nothing to update.
+            insertOrUpdateQuery =
+                if (updateCols.isEmpty()) {
+                    insertOrNothingQuery
+                } else {
+                    "$insertQuery ON CONFLICT ($pkCols) DO UPDATE SET $updateCols"
+                }
+        }
         return XCodeBlock.ofNewInstance(
             typeName = upsertAdapter,
-            argsFormat = "%L, %L, %S",
-            args = arrayOf(insertHelper, updateHelper, upsertQuery),
+            argsFormat = "%L, %L, %S, %S",
+            args = arrayOf(insertHelper, updateHelper, insertOrUpdateQuery, insertOrNothingQuery),
         )
     }
 }

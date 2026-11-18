@@ -44,7 +44,7 @@ internal class MyDao_Impl(
         statement.bindText(2, entity.data)
         statement.bindLong(3, entity.pk.toLong())
       }
-    }, "INSERT INTO `MyEntity` (`pk`,`data`) VALUES (?,?) ON CONFLICT (`pk`) DO UPDATE SET `data` = excluded.`data`")
+    }, "INSERT INTO `MyEntity` (`pk`,`data`) VALUES (?,?) ON CONFLICT (`pk`) DO UPDATE SET `data` = excluded.`data`", "INSERT INTO `MyEntity` (`pk`,`data`) VALUES (?,?) ON CONFLICT (`pk`) DO NOTHING")
     this.__upsertAdapterOfCompositeEntity = EntityUpsertAdapter<CompositeEntity>(object : EntityInsertAdapter<CompositeEntity>() {
       protected override fun createQuery(): String = "INSERT INTO `CompositeEntity` (`pk1`,`pk2`,`value`) VALUES (?,?,?)"
 
@@ -63,7 +63,7 @@ internal class MyDao_Impl(
         statement.bindLong(4, entity.pk1.toLong())
         statement.bindText(5, entity.pk2)
       }
-    }, "INSERT INTO `CompositeEntity` (`pk1`,`pk2`,`value`) VALUES (?,?,?) ON CONFLICT (`pk1`,`pk2`) DO UPDATE SET `value` = excluded.`value`")
+    }, "INSERT INTO `CompositeEntity` (`pk1`,`pk2`,`value`) VALUES (?,?,?) ON CONFLICT (`pk1`,`pk2`) DO UPDATE SET `value` = excluded.`value`", "INSERT INTO `CompositeEntity` (`pk1`,`pk2`,`value`) VALUES (?,?,?) ON CONFLICT (`pk1`,`pk2`) DO NOTHING")
     this.__upsertAdapterOfPkOnlyEntity = EntityUpsertAdapter<PkOnlyEntity>(object : EntityInsertAdapter<PkOnlyEntity>() {
       protected override fun createQuery(): String = "INSERT INTO `PkOnlyEntity` (`a`,`b`) VALUES (?,?)"
 
@@ -80,7 +80,7 @@ internal class MyDao_Impl(
         statement.bindLong(3, entity.a)
         statement.bindLong(4, entity.b)
       }
-    }, "INSERT INTO `PkOnlyEntity` (`a`,`b`) VALUES (?,?) ON CONFLICT (`a`,`b`) DO NOTHING")
+    }, "INSERT INTO `PkOnlyEntity` (`a`,`b`) VALUES (?,?) ON CONFLICT (`a`,`b`) DO NOTHING", "INSERT INTO `PkOnlyEntity` (`a`,`b`) VALUES (?,?) ON CONFLICT (`a`,`b`) DO NOTHING")
     this.__upsertAdapterOfTitleOnlyAsAutoGenEntity = EntityUpsertAdapter<TitleOnly>(object : EntityInsertAdapter<TitleOnly>() {
       protected override fun createQuery(): String = "INSERT INTO `AutoGenEntity` (`title`) VALUES (?)"
 
@@ -93,7 +93,7 @@ internal class MyDao_Impl(
       protected override fun bind(statement: SQLiteStatement, entity: TitleOnly) {
         statement.bindText(1, entity.title)
       }
-    }, null)
+    }, null, null)
     this.__upsertAdapterOfFtsEntityItem = EntityUpsertAdapter<FtsEntityItem>(object : EntityInsertAdapter<FtsEntityItem>() {
       protected override fun createQuery(): String = "INSERT INTO `FtsEntityItem` (`rowid`,`body`) VALUES (nullif(?, 0),?)"
 
@@ -109,7 +109,7 @@ internal class MyDao_Impl(
         statement.bindText(2, entity.body)
         statement.bindLong(3, entity.rowId.toLong())
       }
-    }, null)
+    }, null, null)
   }
 
   public override suspend fun upsertStandard(item: MyEntity): Unit = performSuspending(__db, false, true) { _connection ->

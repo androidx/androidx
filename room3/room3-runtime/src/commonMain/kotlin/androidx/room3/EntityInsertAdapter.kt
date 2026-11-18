@@ -49,6 +49,8 @@ public abstract class EntityInsertAdapter<T> {
      */
     protected abstract fun bind(statement: SQLiteStatement, entity: T)
 
+    internal fun bindInternal(statement: SQLiteStatement, entity: T) = bind(statement, entity)
+
     /**
      * Inserts the entity into the database.
      *

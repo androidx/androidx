@@ -29,6 +29,8 @@ interface ToyDao {
 
     @Upsert fun upsert(toy: Toy)
 
+    @Upsert fun upsertAndReturnId(toy: Toy): Long
+
     @Query("SELECT * FROM Toy WHERE id = :id") fun getToy(id: Int): Toy?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE) fun insertOrReplace(toy: Toy)

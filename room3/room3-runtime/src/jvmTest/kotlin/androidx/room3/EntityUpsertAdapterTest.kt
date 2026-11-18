@@ -80,6 +80,12 @@ class EntityUpsertAdapterTest {
     private val itemUpsertQuery =
         "INSERT INTO `Item` (`id`,`name`) VALUES (?,?) ON CONFLICT (`id`) DO UPDATE SET `name` = excluded.`name`"
 
+    private val itemDoNothingQuery =
+        "INSERT INTO `Item` (`id`,`name`) VALUES (?,?) ON CONFLICT (`id`) DO NOTHING"
+
+    private val pkDoNothingQuery =
+        "INSERT INTO `PkOnly` (`id`) VALUES (?) ON CONFLICT (`id`) DO NOTHING"
+
     @BeforeTest
     fun setUp() {
         rawConnection.execSQL(
@@ -105,7 +111,13 @@ class EntityUpsertAdapterTest {
     @Test
     fun nativeUpsertUsesOnConflictDoUpdateAndCachesVersionCheck() = runTest {
         val recordingConn = RecordingConnection(rawConnection, versionOverride = "3.24.0")
-        val adapter = EntityUpsertAdapter(itemInsertAdapter, itemUpdateAdapter, itemUpsertQuery)
+        val adapter =
+            EntityUpsertAdapter(
+                itemInsertAdapter,
+                itemUpdateAdapter,
+                itemUpsertQuery,
+                itemDoNothingQuery,
+            )
 
         adapter.upsert(recordingConn, null as Item?)
         assertThat(recordingConn.preparedSqls).isEmpty()
@@ -124,16 +136,25 @@ class EntityUpsertAdapterTest {
     @Test
     fun legacyFallbackWhenSqliteVersionBelow324() = runTest {
         val recordingConn = RecordingConnection(rawConnection, versionOverride = "3.22.0")
-        val adapter = EntityUpsertAdapter(itemInsertAdapter, itemUpdateAdapter, itemUpsertQuery)
+        val adapter =
+            EntityUpsertAdapter(
+                itemInsertAdapter,
+                itemUpdateAdapter,
+                itemUpsertQuery,
+                itemDoNothingQuery,
+            )
 
         adapter.upsert(recordingConn, Item(1L, "first"))
         adapter.upsert(recordingConn, Item(1L, "updated"))
+        assertThat(adapter.upsertAndReturnId(recordingConn, Item(2L, "second"))).isEqualTo(2L)
+        assertThat(adapter.upsertAndReturnId(recordingConn, Item(2L, "secondUpdated")))
+            .isEqualTo(-1L)
 
         assertThat(recordingConn.preparedSqls.count { it == "SELECT sqlite_version()" })
             .isEqualTo(1)
         assertThat(recordingConn.preparedSqls.none { it.contains("ON CONFLICT") }).isTrue()
         assertThat(recordingConn.preparedSqls.any { it.startsWith("UPDATE ") }).isTrue()
-        assertThat(readAllItems()).isEqualTo(listOf(Item(1L, "updated")))
+        assertThat(readAllItems()).isEqualTo(listOf(Item(1L, "updated"), Item(2L, "secondUpdated")))
     }
 
     @Test
@@ -143,23 +164,161 @@ class EntityUpsertAdapterTest {
 
         adapter.upsert(recordingConn, Item(1L, "first"))
         adapter.upsert(recordingConn, Item(1L, "updated"))
+        assertThat(adapter.upsertAndReturnId(recordingConn, Item(2L, "second"))).isEqualTo(2L)
+        assertThat(adapter.upsertAndReturnId(recordingConn, Item(2L, "secondUpdated")))
+            .isEqualTo(-1L)
 
         assertThat(recordingConn.preparedSqls.none { it == "SELECT sqlite_version()" }).isTrue()
         assertThat(recordingConn.preparedSqls.none { it.contains("ON CONFLICT") }).isTrue()
-        assertThat(readAllItems()).isEqualTo(listOf(Item(1L, "updated")))
+        assertThat(readAllItems()).isEqualTo(listOf(Item(1L, "updated"), Item(2L, "secondUpdated")))
     }
 
     @Test
     fun pkOnlyEntityUsesDoNothingWithoutUpdate() = runTest {
         val recordingConn = RecordingConnection(rawConnection, versionOverride = null)
-        val doNothingQuery = "INSERT INTO `PkOnly` (`id`) VALUES (?) ON CONFLICT (`id`) DO NOTHING"
-        val adapter = EntityUpsertAdapter(pkOnlyInsertAdapter, pkOnlyUpdateAdapter, doNothingQuery)
+        val adapter =
+            EntityUpsertAdapter(
+                pkOnlyInsertAdapter,
+                pkOnlyUpdateAdapter,
+                pkDoNothingQuery,
+                pkDoNothingQuery,
+            )
 
         adapter.upsert(recordingConn, PkOnly(10L))
         adapter.upsert(recordingConn, PkOnly(10L))
 
-        assertThat(recordingConn.preparedSqls).contains(doNothingQuery)
+        assertThat(recordingConn.preparedSqls).contains(pkDoNothingQuery)
         assertThat(recordingConn.preparedSqls.none { it.startsWith("UPDATE ") }).isTrue()
+    }
+
+    @Test
+    fun nativeUpsertAndReturnIdsUsesDoNothingAndUpdateOnConflict() = runTest {
+        val recordingConn = RecordingConnection(rawConnection, versionOverride = "3.24.0")
+        val itemAdapter =
+            EntityUpsertAdapter(
+                itemInsertAdapter,
+                itemUpdateAdapter,
+                itemUpsertQuery,
+                itemDoNothingQuery,
+            )
+        val pkOnlyAdapter =
+            EntityUpsertAdapter(
+                pkOnlyInsertAdapter,
+                pkOnlyUpdateAdapter,
+                pkDoNothingQuery,
+                pkDoNothingQuery,
+            )
+
+        assertThat(itemAdapter.upsertAndReturnId(recordingConn, null)).isEqualTo(-1L)
+        assertThat(itemAdapter.upsertAndReturnIdsList(recordingConn, emptyList())).isEmpty()
+        assertThat(itemAdapter.upsertAndReturnIdsArray(recordingConn, emptyArray())).isEmpty()
+        assertThat(itemAdapter.upsertAndReturnIdsArrayBox(recordingConn, emptyList())).isEmpty()
+        assertThat(recordingConn.preparedSqls).isEmpty()
+
+        // Consecutive inserts of rowid 1 across two tables, plus negative PK -1L insert.
+        assertThat(itemAdapter.upsertAndReturnId(recordingConn, Item(1L, "first"))).isEqualTo(1L)
+        assertThat(pkOnlyAdapter.upsertAndReturnId(recordingConn, PkOnly(1L))).isEqualTo(1L)
+        assertThat(itemAdapter.upsertAndReturnId(recordingConn, Item(-1L, "neg"))).isEqualTo(-1L)
+        assertThat(recordingConn.preparedSqls).contains(itemDoNothingQuery)
+        assertThat(recordingConn.preparedSqls.none { it.startsWith("UPDATE ") }).isTrue()
+
+        // Conflict on PkOnly returns -1L without running UPDATE; conflict on Item runs UPDATE.
+        assertThat(pkOnlyAdapter.upsertAndReturnId(recordingConn, PkOnly(1L))).isEqualTo(-1L)
+        assertThat(recordingConn.preparedSqls.none { it.startsWith("UPDATE ") }).isTrue()
+        assertThat(itemAdapter.upsertAndReturnId(recordingConn, Item(1L, "updated"))).isEqualTo(-1L)
+        assertThat(recordingConn.preparedSqls.count { it.startsWith("UPDATE ") }).isEqualTo(1)
+
+        // Insert-only batch should not prepare an UPDATE statement.
+        assertThat(
+                itemAdapter.upsertAndReturnIdsList(
+                    recordingConn,
+                    listOf(Item(8L, "eighth"), Item(9L, "ninth")),
+                )
+            )
+            .containsExactly(8L, 9L)
+            .inOrder()
+        assertThat(recordingConn.preparedSqls.count { it.startsWith("UPDATE ") }).isEqualTo(1)
+
+        // All 6 batch overloads (Collection + Array x List, LongArray, Array<out Long>),
+        // including back-to-back conflicts in one batch.
+        assertThat(
+                itemAdapter.upsertAndReturnIdsList(
+                    recordingConn,
+                    listOf(
+                        Item(1L, "updated2"),
+                        Item(8L, "eighthUpd"),
+                        Item(2L, "second"),
+                        null,
+                        Item(2L, "secondUpd"),
+                    ),
+                )
+            )
+            .containsExactly(-1L, -1L, 2L, -1L, -1L)
+            .inOrder()
+        assertThat(
+                itemAdapter.upsertAndReturnIdsList(
+                    recordingConn,
+                    arrayOf(Item(2L, "secondUpd2"), Item(3L, "third")),
+                )
+            )
+            .containsExactly(-1L, 3L)
+            .inOrder()
+        assertThat(
+                itemAdapter
+                    .upsertAndReturnIdsArray(
+                        recordingConn,
+                        arrayOf(Item(3L, "thirdUpd"), Item(4L, "fourth")),
+                    )
+                    .asList()
+            )
+            .containsExactly(-1L, 4L)
+            .inOrder()
+        assertThat(
+                itemAdapter
+                    .upsertAndReturnIdsArray(
+                        recordingConn,
+                        listOf(Item(4L, "fourthUpd"), Item(5L, "fifth")),
+                    )
+                    .asList()
+            )
+            .containsExactly(-1L, 5L)
+            .inOrder()
+        assertThat(
+                itemAdapter
+                    .upsertAndReturnIdsArrayBox(
+                        recordingConn,
+                        listOf(Item(5L, "fifthUpd"), Item(6L, "sixth")),
+                    )
+                    .asList()
+            )
+            .containsExactly(-1L, 6L)
+            .inOrder()
+        assertThat(
+                itemAdapter
+                    .upsertAndReturnIdsArrayBox(
+                        recordingConn,
+                        arrayOf(Item(6L, "sixthUpd"), Item(7L, "seventh")),
+                    )
+                    .asList()
+            )
+            .containsExactly(-1L, 7L)
+            .inOrder()
+
+        assertThat(readAllItems())
+            .isEqualTo(
+                listOf(
+                    Item(-1L, "neg"),
+                    Item(1L, "updated2"),
+                    Item(2L, "secondUpd2"),
+                    Item(3L, "thirdUpd"),
+                    Item(4L, "fourthUpd"),
+                    Item(5L, "fifthUpd"),
+                    Item(6L, "sixthUpd"),
+                    Item(7L, "seventh"),
+                    Item(8L, "eighthUpd"),
+                    Item(9L, "ninth"),
+                )
+            )
     }
 
     private fun readAllItems(): List<Item> = buildList {

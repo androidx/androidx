@@ -498,9 +498,11 @@ class UpsertTest(driver: UseDriver) : TestDatabaseTest(driver) {
         val toyDao = database.toyDao()
         toyDao.upsert(Toy(1, "ball", 1))
         toyDao.upsert(Toy(1, "ball", 1))
+        assertThat(toyDao.upsertAndReturnId(Toy(1, "ball", 1))).isEqualTo(-1L)
         assertThat(toyDao.getToy(1)?.name).isEqualTo("ball")
 
         assertFailsWith<SQLiteException> { toyDao.upsert(Toy(2, "ball", 1)) }
+        assertFailsWith<SQLiteException> { toyDao.upsertAndReturnId(Toy(2, "ball", 1)) }
     }
 
     @Test
@@ -511,6 +513,8 @@ class UpsertTest(driver: UseDriver) : TestDatabaseTest(driver) {
 
         booksDao.upsertBookAuthors(TestUtil.BOOK_AUTHOR_1_1)
         booksDao.upsertBookAuthors(TestUtil.BOOK_AUTHOR_1_1)
+        assertThat(booksDao.upsertBookAuthorsReturnIds(TestUtil.BOOK_AUTHOR_1_1).asList())
+            .containsExactly(-1L)
         assertThat(booksDao.getBookAuthors()).containsExactly(TestUtil.BOOK_AUTHOR_1_1)
     }
 }
