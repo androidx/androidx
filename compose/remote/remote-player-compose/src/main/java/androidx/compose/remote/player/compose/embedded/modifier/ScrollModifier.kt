@@ -42,11 +42,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlin.math.sign
 
 /**
  * The even-notch count of a scroll, or 0 for free scrolling. The scroll's `TouchExpression` (a
@@ -121,21 +127,50 @@ internal fun Modifier.scroll(op: ScrollModifierOperation): Modifier {
     }
 
     // Even-notch scrolling: snap the fling to one of `notches` evenly-spaced positions over the
-    // scrollable range (Compose's scrollState.maxValue), mirroring the TouchExpression's
-    // STOP_NOTCHES_EVEN settle.
+    // scrollable range (Compose's scrollState.maxValue). Unlike core `STOP_NOTCHES_EVEN`, which
+    // settles to the nearest notch from the final offset, `calculateSnapOffset` intentionally
+    // advances or retreats at least one notch in the fling direction whenever release velocity
+    // exceeds `SnapVelocityThresholdDpPerSec` (while `calculateApproachOffset` caps decay to at
+    // most one step), so wheel flicks reliably progress without multi-notch overshoot.
     val notches = remember(op) { evenNotchCount(op) }
+    val velocityThresholdPxPerSec =
+        with(LocalDensity.current) { SnapVelocityThresholdDpPerSec.toPx() }
     val flingBehavior =
         if (notches > 0) {
             val provider =
-                remember(scrollState, notches) {
+                remember(scrollState, notches, velocityThresholdPxPerSec) {
                     object : SnapLayoutInfoProvider {
+                        override fun calculateApproachOffset(
+                            velocity: Float,
+                            decayOffset: Float,
+                        ): Float {
+                            val max = scrollState.maxValue
+                            if (max <= 0) return 0f
+                            val step = max.toFloat() / notches
+                            if (step <= 0f || abs(decayOffset) <= step) return 0f
+                            return (abs(decayOffset) - step).coerceAtLeast(0f) * sign(decayOffset)
+                        }
+
                         override fun calculateSnapOffset(velocity: Float): Float {
                             val max = scrollState.maxValue
                             if (max <= 0) return 0f
                             val step = max.toFloat() / notches
                             if (step <= 0f) return 0f
                             val current = scrollState.value.toFloat()
-                            return (current / step).roundToInt() * step - current
+                            val posInSteps = current / step
+                            val targetStep =
+                                when {
+                                    velocity > velocityThresholdPxPerSec -> {
+                                        val next = ceil(posInSteps).toInt()
+                                        if (next - posInSteps < 0.02f) next + 1 else next
+                                    }
+                                    velocity < -velocityThresholdPxPerSec -> {
+                                        val prev = floor(posInSteps).toInt()
+                                        if (posInSteps - prev < 0.02f) prev - 1 else prev
+                                    }
+                                    else -> posInSteps.roundToInt()
+                                }.coerceIn(0, notches)
+                            return targetStep * step - current
                         }
                     }
                 }
@@ -185,3 +220,5 @@ internal fun Modifier.scroll(op: ScrollModifierOperation): Modifier {
             )
     }
 }
+
+private val SnapVelocityThresholdDpPerSec = 150.dp

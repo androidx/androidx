@@ -517,6 +517,7 @@ internal fun RcPlayerImpl(
             LocalComponentValueStateMap provides componentValueStateMap,
             LocalComponentTouchExpressionsMap provides preprocessed.componentTouchExpressionsMap,
             LocalHasTouchExpressions provides preprocessed.touchExpressions.isNotEmpty(),
+            LocalTouchExpressionIds provides preprocessed.touchExpressionIds,
             LocalRootLayoutCoordinates provides rootCoordsHolder,
             LocalCurrentTimeMillis provides currentTimeMillisState,
             LocalGraphContext provides graphContext,

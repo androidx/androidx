@@ -40,9 +40,11 @@ import androidx.compose.remote.core.operations.layout.modifiers.ValueIntegerChan
 import androidx.compose.remote.core.operations.layout.modifiers.ValueIntegerExpressionChangeActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ValueStringChangeActionOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
+import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteActionHandler
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteNamedActionHandler
+import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
@@ -77,6 +79,7 @@ internal class ClickActionHandlers(
 internal fun rememberClickActionHandlers(ops: List<Operation>): ClickActionHandlers {
     val coreDocument = LocalCoreDocument.current
     val remoteContext = LocalRemoteContext.current
+    val graphContext = LocalGraphContext.current
     val onAction = LocalRemoteActionHandler.current
     val onNamedAction = LocalRemoteNamedActionHandler.current
 
@@ -99,7 +102,14 @@ internal fun rememberClickActionHandlers(ops: List<Operation>): ClickActionHandl
         if (actions.isEmpty()) return null
         return {
             actions.fastForEach {
-                applyClickAction(it, coreDocument, remoteContext, onAction, onNamedAction)
+                applyClickAction(
+                    action = it,
+                    coreDocument = coreDocument,
+                    remoteContext = remoteContext,
+                    graphContext = graphContext,
+                    onAction = onAction,
+                    onNamedAction = onNamedAction,
+                )
             }
             coreDocument.updateVariables(
                 remoteContext,
@@ -124,6 +134,7 @@ internal fun Modifier.combinedClick(
 ): Modifier {
     val coreDocument = LocalCoreDocument.current
     val remoteContext = LocalRemoteContext.current
+    val graphContext = LocalGraphContext.current
     val onAction = LocalRemoteActionHandler.current
     val onNamedAction = LocalRemoteNamedActionHandler.current
     val contentDescription =
@@ -156,7 +167,14 @@ internal fun Modifier.combinedClick(
         trace("RcPlayer:executeClickActions") {
             actionLists.fastForEach { actions ->
                 actions.fastForEach { action ->
-                    applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
+                    applyClickAction(
+                        action = action,
+                        coreDocument = coreDocument,
+                        remoteContext = remoteContext,
+                        graphContext = graphContext,
+                        onAction = onAction,
+                        onNamedAction = onNamedAction,
+                    )
                 }
             }
             coreDocument.updateVariables(
@@ -210,6 +228,7 @@ internal fun Modifier.touchActions(
 ): Modifier {
     val coreDocument = LocalCoreDocument.current
     val remoteContext = LocalRemoteContext.current
+    val graphContext = LocalGraphContext.current
     val onAction = LocalRemoteActionHandler.current
     val onNamedAction = LocalRemoteNamedActionHandler.current
 
@@ -220,7 +239,14 @@ internal fun Modifier.touchActions(
         if (ops.isNotEmpty()) {
             ops.fastForEach { actions ->
                 actions.fastForEach { action ->
-                    applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
+                    applyClickAction(
+                        action = action,
+                        coreDocument = coreDocument,
+                        remoteContext = remoteContext,
+                        graphContext = graphContext,
+                        onAction = onAction,
+                        onNamedAction = onNamedAction,
+                    )
                 }
             }
             coreDocument.updateVariables(
@@ -282,9 +308,11 @@ private fun applyClickAction(
     action: Operation,
     coreDocument: CoreDocument,
     remoteContext: RemoteContext,
+    graphContext: GraphContext?,
     onAction: (Int, String?) -> Unit,
     onNamedAction: (String, Any?) -> Unit,
 ) {
+    val readContext = graphContext ?: remoteContext
     when (action) {
         is ValueIntegerChangeActionOperation ->
             remoteContext.overrideInteger(action.targetValueId, action.value)
@@ -296,35 +324,47 @@ private fun applyClickAction(
             // Both ids may carry the long variable-id offset (Utils.idFromLong). As in the
             // operation's own runAction, the target keeps its low 32 bits, and
             // evaluateIntExpression looks the expression up with and without the offset.
-            coreDocument.evaluateIntExpression(
-                action.valueExpressionId,
-                action.targetValueId.toInt(),
-                remoteContext,
-            )
+            val exprId = (action.valueExpressionId and 0xFFFFFFFFL).toInt()
+            if (graphContext != null && graphContext.isComputed(exprId)) {
+                remoteContext.overrideInteger(
+                    action.targetValueId.toInt(),
+                    graphContext.getInteger(exprId),
+                )
+            } else {
+                coreDocument.evaluateIntExpression(
+                    action.valueExpressionId,
+                    action.targetValueId.toInt(),
+                    remoteContext,
+                )
+            }
         }
         is ValueFloatExpressionChangeActionOperation -> {
             val targetId = action.targetValueId
             val expressionId = action.valueExpressionId
-            coreDocument.evaluateFloatExpression(expressionId, targetId, remoteContext)
+            if (graphContext != null && graphContext.isComputed(expressionId)) {
+                remoteContext.overrideFloat(targetId, graphContext.getFloat(expressionId))
+            } else {
+                coreDocument.evaluateFloatExpression(expressionId, targetId, remoteContext)
+            }
         }
         // Host callback (id only; HostActionOperation carries no value).
         is HostActionOperation -> onAction(action.actionId, null)
         // Host callback with a metadata text, as the View player's IdActionCallback receives.
         is HostActionMetadataOperation ->
-            onAction(action.actionId, remoteContext.getText(action.metadataId) ?: "")
+            onAction(action.actionId, readContext.getText(action.metadataId) ?: "")
         // Named host action (what the public hostAction(name, value) authors): resolve the name
         // and the typed value, then notify the host.
         is HostNamedActionOperation -> {
-            val name = remoteContext.getText(action.textId) ?: ""
+            val name = readContext.getText(action.textId) ?: ""
             val valueId = action.valueId
             val value: Any? =
                 if (valueId == -1) {
                     null
                 } else {
                     when (action.type) {
-                        HostNamedActionOperation.FLOAT_TYPE -> remoteContext.getFloat(valueId)
-                        HostNamedActionOperation.INT_TYPE -> remoteContext.getInteger(valueId)
-                        HostNamedActionOperation.STRING_TYPE -> remoteContext.getText(valueId)
+                        HostNamedActionOperation.FLOAT_TYPE -> readContext.getFloat(valueId)
+                        HostNamedActionOperation.INT_TYPE -> readContext.getInteger(valueId)
+                        HostNamedActionOperation.STRING_TYPE -> readContext.getText(valueId)
                         HostNamedActionOperation.FLOAT_ARRAY_TYPE ->
                             remoteContext.mRemoteComposeState.getFloats(valueId)
                         else -> null
@@ -335,7 +375,14 @@ private fun applyClickAction(
         // A container of nested actions — run each.
         is RunActionOperation ->
             action.getList().fastForEach {
-                applyClickAction(it, coreDocument, remoteContext, onAction, onNamedAction)
+                applyClickAction(
+                    action = it,
+                    coreDocument = coreDocument,
+                    remoteContext = remoteContext,
+                    graphContext = graphContext,
+                    onAction = onAction,
+                    onNamedAction = onNamedAction,
+                )
             }
     }
 }
