@@ -57,7 +57,6 @@ import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 /** Integration tests for observeAppFunctions API. */
@@ -323,7 +322,6 @@ class ObserveAppFunctionsIntegrationTest {
         }
     }
 
-    @Ignore("b/584236031: Uninstall path is broken")
     @Test
     fun observeAppFunctions_onPackageUninstalled_emitsPackageChange() = doBlocking {
         val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()
@@ -349,7 +347,6 @@ class ObserveAppFunctionsIntegrationTest {
         }
     }
 
-    @Ignore("b/584236031: Uninstall path is broken")
     @Test
     fun observeAppFunctions_onPackageInstalled_emitsPackageChange() = doBlocking {
         val receivedEvents = mutableListOf<AppFunctionsChangeEvent>()

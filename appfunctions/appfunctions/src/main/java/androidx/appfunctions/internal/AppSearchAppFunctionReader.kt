@@ -17,7 +17,12 @@
 package androidx.appfunctions.internal
 
 import android.content.Context
+import android.content.pm.LauncherApps
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.Process
+import android.os.UserHandle
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
@@ -489,30 +494,104 @@ internal class AppSearchAppFunctionReader(
 
     override fun observeAppFunctions(): Flow<AppFunctionsChangeEvent> {
         return callbackFlow {
-            val session = createSearchSession(context)
-            val appSearchObserver = AppFunctionObserverCallback()
+            val launcherApps = checkNotNull(context.getSystemService(LauncherApps::class.java))
+            val currentUser = Process.myUserHandle()
             val dispatcher =
                 currentCoroutineContext()[ContinuationInterceptor] as? CoroutineDispatcher
             val executor = dispatcher?.asExecutor() ?: Executor { command -> command.run() }
 
-            session.registerObserverCallback(
-                SYSTEM_PACKAGE_NAME,
-                ObserverSpec.Builder().build(),
-                executor,
-                appSearchObserver,
-            )
+            createSearchSession(context).use { session ->
+                AppFunctionObserverCallback().use { appSearchObserver ->
+                    val packageRemovedCallback =
+                        object : LauncherApps.Callback() {
+                            override fun onPackageRemoved(packageName: String, user: UserHandle) {
+                                // LauncherApps also reports changes in other profiles of this user
+                                // (e.g. work profile). AppSearch is per-user, so only track the
+                                // current user.
+                                if (user == currentUser) {
+                                    appSearchObserver.onPackageRemoved(packageName)
+                                }
+                            }
 
-            val observerJob = launch {
-                appSearchObserver.observe().collect { event -> send(event) }
-            }
+                            override fun onPackageAdded(packageName: String, user: UserHandle) {}
 
-            awaitClose {
-                observerJob.cancel()
-                appSearchObserver.close()
-                session.unregisterObserverCallback(SYSTEM_PACKAGE_NAME, appSearchObserver)
-                session.close()
+                            override fun onPackageChanged(packageName: String, user: UserHandle) {}
+
+                            override fun onPackagesAvailable(
+                                packageNames: Array<out String>,
+                                user: UserHandle,
+                                replacing: Boolean,
+                            ) {}
+
+                            override fun onPackagesUnavailable(
+                                packageNames: Array<out String>,
+                                user: UserHandle,
+                                replacing: Boolean,
+                            ) {}
+                        }
+
+                    var isLauncherCallbackRegistered = false
+                    var isAppSearchObserverRegistered = false
+                    try {
+                        // Register both listeners before snapshotting the known packages, so that
+                        // no install or uninstall can fall between the snapshot and the start of
+                        // observation.
+                        launcherApps.registerCallback(
+                            packageRemovedCallback,
+                            Handler(Looper.getMainLooper()),
+                        )
+                        isLauncherCallbackRegistered = true
+
+                        session.registerObserverCallback(
+                            SYSTEM_PACKAGE_NAME,
+                            ObserverSpec.Builder().build(),
+                            executor,
+                            appSearchObserver,
+                        )
+                        isAppSearchObserverRegistered = true
+
+                        launch { appSearchObserver.observe().collect { event -> send(event) } }
+
+                        appSearchObserver.seedKnownPackages(queryKnownAppFunctionPackages(session))
+
+                        awaitClose()
+                    } finally {
+                        try {
+                            if (isLauncherCallbackRegistered) {
+                                launcherApps.unregisterCallback(packageRemovedCallback)
+                            }
+                        } finally {
+                            if (isAppSearchObserverRegistered) {
+                                session.unregisterObserverCallback(
+                                    SYSTEM_PACKAGE_NAME,
+                                    appSearchObserver,
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private suspend fun queryKnownAppFunctionPackages(session: GlobalSearchSession): Set<String> {
+        val searchSpec =
+            SearchSpec.Builder()
+                .addFilterNamespaces(APP_FUNCTIONS_NAMESPACE)
+                .addFilterDocumentClasses(AppFunctionMetadataDocument::class.java)
+                .addFilterPackageNames(SYSTEM_PACKAGE_NAME)
+                .addProjectionPaths(
+                    SearchSpec.SCHEMA_TYPE_WILDCARD,
+                    listOf(PropertyPath(PROPERTY_PACKAGE_NAME)),
+                )
+                .build()
+        return session
+            .search("", searchSpec)
+            .consumeAll { searchResult ->
+                searchResult.genericDocument.getPropertyString(PROPERTY_PACKAGE_NAME)
+            }
+            .filterNotNull()
+            .toSet()
     }
 
     companion object {
@@ -522,6 +601,7 @@ internal class AppSearchAppFunctionReader(
         const val APP_FUNCTIONS_STATIC_DATABASE_NAME = "apps-db"
         const val APP_FUNCTIONS_RUNTIME_DATABASE_NAME = "appfunctions-db"
         const val PROPERTY_ENABLED_BY_DEFAULT = "enabledByDefault"
+        const val PROPERTY_PACKAGE_NAME = "packageName"
 
         val OBSERVER_DEBOUNCE_MILLIS = 1.seconds
 
