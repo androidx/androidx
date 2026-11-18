@@ -280,6 +280,7 @@ playServicesDevicePerformance = { module = "com.google.android.gms:play-services
 playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "21.3.0"}
 playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0-alpha13"}
 playServicesMlkitTextRecognition = { module = "com.google.android.gms:play-services-mlkit-text-recognition", version = "19.0.2" }
+playServicesPeople = { module = "com.google.android.gms:play-services-people", version = "16.0.0-alpha01" }
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "20.0.1" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 protobufCompiler = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }

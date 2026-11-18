@@ -24,25 +24,49 @@
  */
 import androidx.build.SoftwareType
 
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
 
 dependencies {
-    // Add dependencies here
-}
+    // PlayServicesPeopleBackendFactory implements the backend SPI of androidx.people:people, so the
+    // type is part of its signature even though the class itself is @RestrictTo.
+    api(project(":people:people"))
 
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinCoroutinesPlayServices)
+    implementation("androidx.annotation:annotation:1.8.1")
+
+    // Closed source dependencies
+    implementation(libs.playServicesPeople)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
+}
 
 android {
-    namespace = "people.play.services"
+    namespace = "androidx.people.playservices"
+    // Matches :people:people, whose AAR metadata requires compileSdk 37.
+    compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(29) }
+    }
 }
 
+// Google Play services' DataHolder, which backs the People Provider result buffers, ships stack maps
+// that the desktop JVM verifier rejects (it is fine on Android). Unit tests build real result
+// buffers, so skip verification of non-JDK classes in this module's host tests. Added at execution
+// time because the AndroidX plugin replaces the test JVM arguments during configuration.
+tasks.withType(Test).configureEach {
+    doFirst { jvmArgs("-XX:+UnlockDiagnosticVMOptions", "-XX:-BytecodeVerificationRemote") }
+}
 
 androidx {
-    name = "people:people-play-services"
+    name = "androidx.people:people-play-services"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
     description = "Optional Google Play services backport of the People Provider."
+    enableRobolectric()
 }
