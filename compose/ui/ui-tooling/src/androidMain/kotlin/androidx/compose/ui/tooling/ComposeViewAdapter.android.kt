@@ -388,8 +388,13 @@ internal class ComposeViewAdapter : FrameLayout {
                 PreviewExpandAxis.VERTICAL -> widthMeasureSpec
                 PreviewExpandAxis.HORIZONTAL -> heightMeasureSpec
             }
+        // Only invalidate when the expanded axis is measured with UNSPECIFIED (ready to re-expand)
+        // or EXACTLY (explicitly constrained). Transient AT_MOST passes — such as LayoutLib's
+        // root probe or ViewRootImpl.measureHierarchy() inset by a display cutout prior to relayout
+        // — cannot re-expand and must not discard expandedSizePx or recreate the composition.
         if (
-            expandedCrossAxisMeasureSpec != 0 &&
+            MeasureSpec.getMode(axisMeasureSpec) != MeasureSpec.AT_MOST &&
+                expandedCrossAxisMeasureSpec != 0 &&
                 crossAxisMeasureSpec != expandedCrossAxisMeasureSpec
         ) {
             expandedSizePx = -1
