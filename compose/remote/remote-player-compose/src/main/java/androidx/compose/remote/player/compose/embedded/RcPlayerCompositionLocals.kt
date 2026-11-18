@@ -17,6 +17,8 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.annotation.RestrictTo
+import androidx.collection.IntSet
+import androidx.collection.emptyIntSet
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -71,6 +73,10 @@ internal val LocalComponentTouchExpressionsMap:
 
 internal val LocalHasTouchExpressions: ProvidableCompositionLocal<Boolean> = compositionLocalOf {
     false
+}
+
+internal val LocalTouchExpressionIds: ProvidableCompositionLocal<IntSet> = compositionLocalOf {
+    emptyIntSet()
 }
 
 internal class RootLayoutCoordinatesHolder(var coordinates: LayoutCoordinates? = null) {

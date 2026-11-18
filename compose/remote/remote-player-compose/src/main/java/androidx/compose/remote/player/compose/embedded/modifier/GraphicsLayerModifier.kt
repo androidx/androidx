@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.player.compose.embedded.modifier
 
+import androidx.collection.IntSet
 import androidx.collection.MutableIntSet
 import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.core.animateFloatAsState
@@ -27,6 +28,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerMod
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateMap
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
+import androidx.compose.remote.player.compose.embedded.LocalTouchExpressionIds
 import androidx.compose.remote.player.compose.embedded.doc.isTimeVariable
 import androidx.compose.remote.player.compose.embedded.doc.mapEasing
 import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
@@ -139,13 +141,17 @@ private fun rememberGraphicsLayerFloatAsState(source: Float): State<Float> {
     val id = field.id
     val document = LocalCoreDocument.current
     val componentValueStates = LocalComponentValueStateMap.current
+    val touchExpressionIds = LocalTouchExpressionIds.current
     val shouldAnimate =
-        remember(document, id, componentValueStates) {
+        remember(document, id, componentValueStates, touchExpressionIds) {
             val expressions = document.getFloatExpressions()
-            !isTimeVariable(id) &&
-                !componentValueStates.containsKey(id) &&
-                !expressionDependsOnAnimation(expressions, id) &&
-                !expressionDependsOnTime(expressions, id)
+            !expressionDependsOnAnimation(expressions, id) &&
+                !expressionDependsOnContinuousSource(
+                    expressions = expressions,
+                    componentValueStates = componentValueStates,
+                    touchExpressionIds = touchExpressionIds,
+                    id = id,
+                )
         }
     return if (shouldAnimate) {
         animateFloatAsState(
@@ -157,14 +163,30 @@ private fun rememberGraphicsLayerFloatAsState(source: Float): State<Float> {
     }
 }
 
-private fun expressionDependsOnTime(
+private fun expressionDependsOnContinuousSource(
     expressions: Map<Int, FloatExpression>,
+    componentValueStates: Map<Int, *>,
+    touchExpressionIds: IntSet,
     id: Int,
     visited: MutableIntSet = mutableIntSetOf(),
 ): Boolean {
-    if (isTimeVariable(id)) return true
+    if (
+        isTimeVariable(id) ||
+            componentValueStates.containsKey(id) ||
+            touchExpressionIds.contains(id)
+    ) {
+        return true
+    }
     if (!visited.add(id)) return false
     val expr = expressions[id] ?: return false
     val src = expr.mSrcValue ?: return false
-    return src.anyScalarReference { expressionDependsOnTime(expressions, it, visited) }
+    return src.anyScalarReference {
+        expressionDependsOnContinuousSource(
+            expressions = expressions,
+            componentValueStates = componentValueStates,
+            touchExpressionIds = touchExpressionIds,
+            id = it,
+            visited = visited,
+        )
+    }
 }
