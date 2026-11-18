@@ -17,10 +17,8 @@
 package androidx.benchmark.gradle
 
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -34,7 +32,7 @@ abstract class LockClocksTask : DefaultTask() {
 
     init {
         group = "Android"
-        description = "locks clocks of connected, supported, rooted device"
+        description = "locks clocks of connected, supported device"
     }
 
     @get:Input abstract val adbPath: Property<String>
@@ -49,31 +47,32 @@ abstract class LockClocksTask : DefaultTask() {
         adb.execSync("root", silent = true, shouldThrow = false)
 
         val isAdbdRoot = adb.isAdbdRoot()
-        val isRooted = isAdbdRoot || adb.isSuInstalled()
-
-        if (!isRooted) {
-            throw GradleException("Your device must be rooted to lock clocks.")
-        }
 
         val dest = "/data/local/tmp/lockClocks.sh"
         val source = javaClass.classLoader.getResource("scripts/lockClocks.sh")
-        val tmpSource = Files.createTempFile("lockClocks.sh", null).toString()
-        Files.copy(source.openStream(), Paths.get(tmpSource), StandardCopyOption.REPLACE_EXISTING)
-        adb.execSync("push $tmpSource $dest")
-
-        // Files pushed by adb push don't always preserve file permissions.
-        adb.execSync("shell chmod 700 $dest")
-
-        // Forward gradle arguments to lockClocks.sh.
-
-        if (!isAdbdRoot) {
-            // Default shell is not running as root, escalate with su 0. Although the root group is
-            // su's default, using syntax different from "su gid cmd", can cause the adb shell
-            // command to hang on some devices.
-            adb.execSync("shell su 0 $dest ${coresArg.get()}")
-        } else {
-            adb.execSync("shell $dest ${coresArg.get()}")
+        val tmpSource = Files.createTempFile("lockClocks.sh", null)
+        try {
+            Files.copy(source.openStream(), tmpSource, StandardCopyOption.REPLACE_EXISTING)
+            adb.execSync("push $tmpSource $dest")
+        } finally {
+            Files.deleteIfExists(tmpSource)
         }
-        adb.execSync("shell rm $dest")
+
+        try {
+            // Files pushed by adb push don't always preserve file permissions.
+            adb.execSync("shell chmod 700 $dest")
+
+            // Forward gradle arguments to lockClocks.sh.
+            if (!isAdbdRoot && adb.isSuInstalled()) {
+                // Default shell is not running as root, escalate with su 0. Although the root group
+                // is su's default, using syntax different from "su gid cmd", can cause the adb
+                // shell command to hang on some devices.
+                adb.execSync("shell su 0 $dest ${coresArg.get()}")
+            } else {
+                adb.execSync("shell $dest ${coresArg.get()}")
+            }
+        } finally {
+            adb.execSync("shell rm -f $dest", shouldThrow = false)
+        }
     }
 }
