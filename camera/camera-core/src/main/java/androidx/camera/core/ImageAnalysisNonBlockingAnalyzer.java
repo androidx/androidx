@@ -23,11 +23,15 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * OnImageAvailableListener with non-blocking behavior. Analyzes images in a non-blocking way by
@@ -36,6 +40,8 @@ import java.util.concurrent.Executor;
  * <p> Used with {@link ImageAnalysis}.
  */
 final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer {
+
+    private static final String TAG = "ImageAnalysisAnalyzer";
 
     // The executor for managing cached image.
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -98,7 +104,14 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
             final CacheAnalyzingImageProxy newPostedImage = new CacheAnalyzingImageProxy(imageProxy,
                     this);
             mPostedImage = newPostedImage;
-            Futures.addCallback(analyzeImage(newPostedImage), new FutureCallback<Void>() {
+            ListenableFuture<Void> analyzeFuture;
+            try {
+                analyzeFuture = analyzeImage(newPostedImage);
+            } catch (Throwable t) {
+                newPostedImage.close();
+                throw t;
+            }
+            Futures.addCallback(analyzeFuture, new FutureCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
                     // No-op. If the post is successful, app should close it.
@@ -126,14 +139,26 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
     /**
      * Removes cached image from cache and analyze it.
      */
-    void analyzeCachedImage() {
+    void analyzeCachedImage(@NonNull CacheAnalyzingImageProxy closedImage) {
         synchronized (mLock) {
+            if (mPostedImage != closedImage) {
+                return;
+            }
             mPostedImage = null;
             if (mCachedImage != null) {
                 ImageProxy cachedImage = mCachedImage;
                 mCachedImage = null;
                 onValidImageAvailable(cachedImage);
             }
+        }
+    }
+
+    void onPostedImageCloseRejected(@NonNull CacheAnalyzingImageProxy closedImage) {
+        synchronized (mLock) {
+            if (mPostedImage == closedImage) {
+                mPostedImage = null;
+            }
+            clearCache();
         }
     }
 
@@ -145,6 +170,7 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
         // WeakReference so that if the app holds onto the ImageProxy instance the analyzer can
         // still be GCed.
         final WeakReference<ImageAnalysisNonBlockingAnalyzer> mNonBlockingAnalyzerWeakReference;
+        private final AtomicBoolean mClosed = new AtomicBoolean(false);
 
         /**
          * Creates a new instance which wraps the given image.
@@ -160,10 +186,29 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
             addOnImageCloseListener((imageProxy) -> {
                 ImageAnalysisNonBlockingAnalyzer analyzer = mNonBlockingAnalyzerWeakReference.get();
                 if (analyzer != null) {
-                    analyzer.mBackgroundExecutor.execute(
-                            () -> analyzer.analyzeCachedImage());
+                    try {
+                        analyzer.mBackgroundExecutor.execute(() -> {
+                            try {
+                                analyzer.analyzeCachedImage(this);
+                            } catch (IllegalStateException e) {
+                                Logger.e(TAG, "Failed to acquire image.", e);
+                            }
+                        });
+                    } catch (RejectedExecutionException e) {
+                        Logger.e(TAG,
+                                "Failed to execute analyzeCachedImage on background executor.",
+                                e);
+                        analyzer.onPostedImageCloseRejected(this);
+                    }
                 }
             });
+        }
+
+        @Override
+        public void close() {
+            if (!mClosed.getAndSet(true)) {
+                super.close();
+            }
         }
     }
 }

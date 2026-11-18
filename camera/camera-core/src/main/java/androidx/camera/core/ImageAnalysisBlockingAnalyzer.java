@@ -41,7 +41,13 @@ final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer 
 
     @Override
     void onValidImageAvailable(@NonNull ImageProxy imageProxy) {
-        ListenableFuture<Void> analyzeFuture = analyzeImage(imageProxy);
+        ListenableFuture<Void> analyzeFuture;
+        try {
+            analyzeFuture = analyzeImage(imageProxy);
+        } catch (Throwable t) {
+            imageProxy.close();
+            throw t;
+        }
 
         // Callback to close the image only after analysis complete regardless of success
         Futures.addCallback(analyzeFuture, new FutureCallback<Void>() {
