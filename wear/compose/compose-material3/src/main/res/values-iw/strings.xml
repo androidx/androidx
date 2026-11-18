@@ -37,19 +37,26 @@
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"תקופת זמן"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"צריך לגלול כדי להגדיר שעה"</string>
-    <!-- no translation found for wear_m3c_duration_picker_hours (4288300928880452564) -->
-    <skip />
-    <!-- no translation found for wear_m3c_duration_picker_minutes (6759764208576885024) -->
-    <skip />
-    <!-- no translation found for wear_m3c_duration_picker_seconds (5624751791165971941) -->
-    <skip />
-    <!-- no translation found for wear_m3c_duration_picker_hours_content_description (2486089619879985882) -->
-    <!-- no translation found for wear_m3c_duration_picker_minutes_content_description (2507197697775462986) -->
-    <!-- no translation found for wear_m3c_duration_picker_seconds_content_description (6578662344009900525) -->
-    <!-- no translation found for wear_m3c_duration_picker_heading (6793820977433803332) -->
-    <skip />
-    <!-- no translation found for wear_m3c_duration_picker_disabled_range_description (2362628454721917282) -->
-    <skip />
+    <string name="wear_m3c_duration_picker_hours" msgid="4288300928880452564">"שעות"</string>
+    <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"דקות"</string>
+    <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"שניות"</string>
+    <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="one">‏‫%d שעות</item>
+      <item quantity="two">‏שעתיים (%d)</item>
+      <item quantity="other">‏‫%d שעות</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="one">‏‫%d דקות</item>
+      <item quantity="two">‏‫%d דקות</item>
+      <item quantity="other">‏‫%d דקות</item>
+    </plurals>
+    <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="one">‏‫%d שניות</item>
+      <item quantity="two">‏‫%d שניות</item>
+      <item quantity="other">‏‫%d שניות</item>
+    </plurals>
+    <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"צריך לגלול כדי להגדיר את משך הזמן"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"‏משך הזמן חייב להיות בין %1$s לבין %2$s."</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"יום"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"חודש"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"שנה"</string>
