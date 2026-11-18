@@ -20,17 +20,19 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.creation.compose.action.CombinedAction
 import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.rb
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.combinedClickable(
     onClick: RemoteAction = RemoteAction.None,
     onLongClick: RemoteAction = RemoteAction.None,
     onDoubleClick: RemoteAction = RemoteAction.None,
-    enabled: Boolean = true,
+    enabled: RemoteBoolean = true.rb,
     role: RemoteRole? = null,
 ): RemoteModifier =
     then(
-            if (enabled) {
+            if (enabled.constantValueOrNull == null || enabled.constantValue) {
                 var modifier: RemoteModifier = RemoteModifier
 
                 fun RemoteAction?.getActions(): List<RemoteAction> =

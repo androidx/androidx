@@ -26,6 +26,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -83,7 +85,7 @@ class CombinedClickableModifierTest {
     @Test
     fun disabled_ignoresClick() {
         runActionTest(
-            enabled = false,
+            enabled = false.rb,
             finder = { onElement { text?.toString() == BUTTON_LABEL } },
         ) { element ->
             element.click()
@@ -94,7 +96,7 @@ class CombinedClickableModifierTest {
     @Test
     fun disabled_ignoresLongClick() {
         runActionTest(
-            enabled = false,
+            enabled = false.rb,
             finder = { onElement { text?.toString() == BUTTON_LABEL } },
         ) { element ->
             element.longClick()
@@ -105,7 +107,7 @@ class CombinedClickableModifierTest {
     @Test
     fun disabled_ignoresDoubleClick() {
         runActionTest(
-            enabled = false,
+            enabled = false.rb,
             finder = { onElement { text?.toString() == BUTTON_LABEL } },
         ) { element ->
             element.doubleClickUsingMotionEvents()
@@ -205,7 +207,7 @@ class CombinedClickableModifierTest {
     }
 
     private fun runActionTest(
-        enabled: Boolean = true,
+        enabled: RemoteBoolean = true.rb,
         finder: (UiAutomatorTestScope.() -> UiObject2)? = null,
         block: (element: UiObject2) -> Unit,
     ) {

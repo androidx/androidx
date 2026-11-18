@@ -19,7 +19,9 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.creation.compose.action.CombinedAction
 import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.modifiers.ClickActionModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
@@ -46,18 +48,18 @@ internal class ClickableModifier(
  * @sample androidx.compose.remote.creation.compose.samples.ClickableValueChangeSample
  * @param onClick will be called when user clicks on the element
  * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will appear
- *   disabled for accessibility services
+ *   disabled for accessibility services. Non-constant values currently default to `true`.
  * @param role the type of user interface element. Accessibility services might use this to describe
  *   the element or do customizations. By default, no role is set (`null`).
  * @return a [RemoteModifier] that makes the component clickable
  */
 public fun RemoteModifier.clickable(
     onClick: RemoteAction,
-    enabled: Boolean = true,
+    enabled: RemoteBoolean = true.rb,
     role: RemoteRole? = null,
 ): RemoteModifier =
     then(
-            if (enabled) {
+            if (enabled.constantValueOrNull == null || enabled.constantValue) {
                 val actions =
                     when (onClick) {
                         is CombinedAction -> onClick.actions.toList()

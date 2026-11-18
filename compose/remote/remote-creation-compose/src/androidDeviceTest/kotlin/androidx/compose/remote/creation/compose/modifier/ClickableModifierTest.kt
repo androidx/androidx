@@ -23,6 +23,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteInteractionTestRule
 import androidx.test.core.app.ApplicationProvider
@@ -73,7 +75,7 @@ class ClickableModifierTest {
     fun disabled_ignoresClick() {
         runActionTest(
             action = HostAction(CLICK_ACTION.rs, CLICK_ACTION1_VALUE.rs),
-            enabled = false,
+            enabled = false.rb,
             finder = { onElement { text?.toString() == BUTTON_LABEL } },
         ) { element ->
             element.click()
@@ -83,7 +85,7 @@ class ClickableModifierTest {
 
     private fun runActionTest(
         action: RemoteAction,
-        enabled: Boolean = true,
+        enabled: RemoteBoolean = true.rb,
         finder: (UiAutomatorTestScope.() -> UiObject2)? = null,
         block: (element: UiObject2) -> Unit,
     ) {

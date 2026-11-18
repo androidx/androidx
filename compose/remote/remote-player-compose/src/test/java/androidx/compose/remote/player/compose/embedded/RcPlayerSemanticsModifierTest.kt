@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.stateDescription
 import androidx.compose.remote.creation.compose.modifier.text
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
@@ -159,7 +160,7 @@ class RcPlayerSemanticsModifierTest {
                 modifier =
                     RemoteModifier.semantics {
                             contentDescription = "disabled box".rs
-                            isEnabled = false
+                            isEnabled = false.rb
                         }
                         .size(40.rdp)
             )

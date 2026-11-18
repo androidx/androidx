@@ -137,9 +137,7 @@ public fun RemoteSplitRadioButton(
                     .clip(startSectionShape)
                     .clickable(
                         onClick = onContainerClick,
-                        enabled =
-                            (enabled.constantValueOrNull ?: false) &&
-                                onContainerClick != RemoteAction.None,
+                        enabled = if (onContainerClick != RemoteAction.None) enabled else false.rb,
                     )
                     .drawWithContent {
                         drawSolidColorShape(startSectionShape, containerColor)
@@ -195,9 +193,7 @@ public fun RemoteSplitRadioButton(
                     .clip(endSectionShape)
                     .clickable(
                         onClick = onSelectionClick,
-                        enabled =
-                            (enabled.constantValueOrNull ?: false) &&
-                                onSelectionClick != RemoteAction.None,
+                        enabled = if (onSelectionClick != RemoteAction.None) enabled else false.rb,
                     )
                     .drawWithContent {
                         drawSolidColorShape(

@@ -22,8 +22,10 @@ import androidx.compose.remote.core.semantics.AccessibleComponent.Mode.MERGE
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode.SET
 import androidx.compose.remote.core.semantics.CoreSemantics
 import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.SemanticsModifier as CreationSemanticsModifier
 
@@ -89,7 +91,8 @@ public object RemoteSemanticsProperties {
         RemoteSemanticsPropertyKey("StateDescription")
 
     /** Semantics property key for [RemoteSemanticsPropertyReceiver.isEnabled]. */
-    public val Enabled: RemoteSemanticsPropertyKey<Boolean> = RemoteSemanticsPropertyKey("Enabled")
+    public val Enabled: RemoteSemanticsPropertyKey<RemoteBoolean> =
+        RemoteSemanticsPropertyKey("Enabled")
 }
 
 /**
@@ -123,8 +126,8 @@ public var RemoteSemanticsPropertyReceiver.stateDescription: RemoteString?
     }
 
 /** Whether the component is enabled. */
-public var RemoteSemanticsPropertyReceiver.isEnabled: Boolean
-    get() = get(RemoteSemanticsProperties.Enabled) ?: true
+public var RemoteSemanticsPropertyReceiver.isEnabled: RemoteBoolean
+    get() = get(RemoteSemanticsProperties.Enabled) ?: true.rb
     set(value) {
         set(RemoteSemanticsProperties.Enabled, value)
     }
@@ -145,7 +148,12 @@ internal data class SemanticsModifier(
                     mStateDescriptionId =
                         (properties[RemoteSemanticsProperties.StateDescription] as? RemoteString)
                             ?.id ?: 0
-                    mEnabled = properties[RemoteSemanticsProperties.Enabled] as? Boolean ?: true
+                    val enabledProp =
+                        properties[RemoteSemanticsProperties.Enabled] as? RemoteBoolean
+                    mEnabled =
+                        enabledProp == null ||
+                            enabledProp.constantValueOrNull == null ||
+                            enabledProp.constantValue
                     mRole =
                         (properties[RemoteSemanticsProperties.Role] as? RemoteRole)
                             ?.toAccessibleRole()
