@@ -48,6 +48,10 @@ androidx.appsearch.playservicesstorage
 androidx.appsearch.serializers
 androidx.appsearch.usagereporting
 androidx.appsearch.util
+androidx.appstate.datastore
+androidx.appstate.statestore
+androidx.appstate.transform
+androidx.appstate.transform.testing
 androidx.arch.core.executor.testing
 androidx.arch.core.util
 androidx.asynclayoutinflater.appcompat
@@ -407,6 +411,8 @@ androidx.fragment.app.testing
 androidx.fragment.compose
 androidx.glance
 androidx.glance.action
+androidx.glance.adaptive.appwidget
+androidx.glance.adaptive.core
 androidx.glance.appwidget
 androidx.glance.appwidget.action
 androidx.glance.appwidget.components
@@ -523,6 +529,7 @@ androidx.media3.datasource.rtmp
 androidx.media3.decoder
 androidx.media3.effect
 androidx.media3.effect.lottie
+androidx.media3.effect.playservices
 androidx.media3.exoplayer
 androidx.media3.exoplayer.analytics
 androidx.media3.exoplayer.audio
@@ -598,6 +605,7 @@ androidx.media3.inspector
 androidx.media3.inspector.frame
 androidx.media3.muxer
 androidx.media3.session
+androidx.media3.session.artwork
 androidx.media3.test.utils
 androidx.media3.test.utils.robolectric
 androidx.media3.test.utils.truth
@@ -734,10 +742,6 @@ androidx.security.app.authenticator
 androidx.security.crypto
 androidx.security.state
 androidx.security.state.provider
-androidx.slice
-androidx.slice.builders
-androidx.slice.core
-androidx.slice.widget
 androidx.slidingpanelayout.widget
 androidx.sqlite
 androidx.sqlite.async
@@ -889,6 +893,7 @@ androidx.wear.watchface.style
 androidx.wear.watchfacepush
 androidx.wear.widget
 androidx.wear.widget.drawer
+androidx.web
 androidx.webgpu
 androidx.webgpu.helper
 androidx.webkit

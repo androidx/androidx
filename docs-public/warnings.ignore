@@ -106,13 +106,7 @@ WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$DOCS_DIR\/u
 WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/room\/paging\/rxjava3\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
 WARN: `V` is unresolved in androidx\.glance\.appwidget\/\/\/#\/PointingToDeclaration\/
 WARN: `V` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/appwidget\/LayoutSelection\.kt:[0-9]+:[0-9]+
-WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/\/#\/PointingToDeclaration\/
-WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/component4\/#\/PointingToDeclaration\/
-WARN: `ViewStructureCompat` is unresolved in androidx\.compose\.ui\.contentcapture\/ContentCaptureEvent\/copy\/#kotlin\.Int#kotlin\.Long#androidx\.compose\.ui\.contentcapture\.ContentCaptureEventType#<ERROR CLASS> ERROR CLASS: Symbol not found for ViewStructureCompat\?\?\/PointingToCallableParameters\(3\)\/
-WARN: `ViewStructureCompat` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/contentcapture\/AndroidContentCaptureManager\.android\.kt:[0-9]+:[0-9]+
-WARN: `ViewStructureCompat` is unresolved in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/contentcapture\/ContentCaptureSessionWrapper\.android\.kt:[0-9]+:[0-9]+
 WARN: Couldn't resolve link: \[activityOptions\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/action\/StartActivityAction\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
-WARN: Couldn't resolve link: \[AutoCloseable\.close\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/tracing\/Tracer\.kt:[0-9]+:[0-9]+ \(androidx\/jvmAndAndroidMain\)
 WARN: Couldn't resolve link: \[backgroundColor\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/Button\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
 WARN: Couldn't resolve link: \[content\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
 WARN: Couldn't resolve link: \[contentColor\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/Button\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
@@ -122,7 +116,6 @@ WARN: Couldn't resolve link: \[parameters\] in file:\/\/\/\$DOCS_DIR\/unzippedJv
 WARN: Couldn't resolve link: \[SharedAssetsT\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/wear\/watchface\/Renderer\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
 WARN: Couldn't resolve link: \[size\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
 WARN: Couldn't resolve link: \[state\] in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
-WARN: Couldn't resolve link: \[Value\] in file:\/\/\/\$DOCS_DIR\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvmAndAndroid\.kt:[0-9]+:[0-9]+ \(androidx\/jvmAndAndroidMain\)
 # b/542222706
 WARN: Couldn't resolve JavaDoc link 'CacheControl' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/datasource\/okhttp\/OkHttpDataSource\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'Call\.Factory' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/media3\/datasource\/okhttp\/OkHttpDataSource\.java:[0-9]+:[0-9]+
@@ -171,7 +164,6 @@ WARN: Couldn't resolve JavaDoc link 'sendTestNotification' in file:\/\/\/\$DOCS_
 WARN: Couldn't resolve JavaDoc link 'androidx\.test\.orchestrator\.AndroidTestOrchestrator' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/orchestrator\/junit\/BundleJUnitUtils\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'org\.junit\.manipulation\.Filter' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/test/filters/SdkSuppressFilter\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'TestStorage' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/platform\/io\/PlatformTestStorageRegistry\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'forceEnableAppTracing' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/platform\/tracing\/AndroidXTracer\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'android\.viee\.inspector\.WindowInspector' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/platform\/view\/inspector\/WindowInspectorCompat\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'ActivityTestRule' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'getTargetContext' in file:\/\/\/\$DOCS_DIR\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
@@ -194,7 +186,6 @@ WARN: Couldn't resolve JavaDoc link 'validate' in file:\/\/\/\$DOCS_DIR\/unzippe
 # b/513146616
 WARN: Package androidx\.media3\.cast is a compose package but is included in java docs
 # b/527069050
-WARN: Couldn't resolve JavaDoc link 'Lifecycle\.Event\.ON_DESTROY' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/MenuHost\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.HighlightedElement\.AllComplications' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/RenderParametersWireFormat\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.HighlightedElement\.Complication' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/RenderParametersWireFormat\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'androidx\.wear\.watchface\.HighlightedElement\.UserStyle' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/watchface/data/RenderParametersWireFormat\.java:[0-9]+:[0-9]+
@@ -241,60 +232,6 @@ WARN: Couldn't resolve JavaDoc link 'Build\.VERSION_CODES\.TIRAMISU' in file:///
 WARN: Couldn't resolve JavaDoc link 'android\.os\.Build\.VERSION_CODES\.TIRAMISU' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/transition/TransitionManager\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'setContentIntent' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/role/RoleManagerCompat\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'android\.os\.Build\.VERSION_CODES\.TIRAMISU' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/role/RoleManagerCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'extras' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'small icon' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setExact' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/AlarmManagerCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'shouldUpRecreateTask' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NavUtils\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'navigateUpTo' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NavUtils\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'android\.provider\.Settings\.ACTION_APP_NOTIFICATION_SETTINGS' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/ActivityCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'getBinder' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/BundleCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'putBinder' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/BundleCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'priorityCallSenders' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationManagerCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'priorityCategories' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationManagerCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'priorityMessageSenders' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/app/NotificationManagerCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'showAsDropDown' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/PopupWindowCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'createDragToOpenListener' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/ListPopupWindowCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setCompoundDrawables' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TintableCompoundDrawablesView\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setCompoundDrawablesRelative' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TextViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setCompoundDrawablesRelativeWithIntrinsicBounds' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TextViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setSupportOnActionExpandListener' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'Menu' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'META_META_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'META_CTRL_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'META_ALT_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'META_SHIFT_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'META_SYM_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'META_FUNCTION_ON' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/internal/view/SupportMenuItem\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'startActivity' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/content/ContextCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'getExternalFilesDirs' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/content/ContextCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'dispatchPopulateAccessibilityEvent' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setAutofillId' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'dispatchProvideAutofillStructure' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'getAutofillId' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'getNextAutofillId' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'attached to  a window' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setImportantForContentCapture' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'isImportantForContentCapture' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'ContentCaptureManager' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setContentCaptureSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'ContentCaptureContext' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'onDraw' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setLayoutMode' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewGroupCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'Lifecycle\.Event\.ON_DESTROY' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/MenuHostHelper\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setQuickScaleEnabled' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ScaleGestureDetectorCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'notifySubtreeAccessibilityStateChanged' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/ViewParentCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'getFrame' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/WindowInsetsCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'selection' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityNodeInfoCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'android\.view\.Display\.DEFAULT_DISPLAY' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityWindowInfoCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setSource' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityRecordCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setMaxScrollX' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityRecordCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setMaxScrollY' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityRecordCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setContentChangeTypes' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityEventCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setMovementGranularity' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityEventCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setAction' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/view/accessibility/AccessibilityEventCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'loadDescription' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/accessibilityservice/AccessibilityServiceInfoCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setHasMipMap' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/graphics/BitmapCompat\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'setAutoMirrored' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/graphics/drawable/DrawableCompat\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'MessageFormat' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/i[0-9]+n/messageformat_icu/simple/MessageFormat\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'Clickable' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/material/Chip\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'Clickable' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/tiles/material/TitleChip\.java:[0-9]+:[0-9]+
@@ -309,8 +246,6 @@ WARN: Couldn't resolve JavaDoc link 'CircularProgressIndicator' in file:///\$DOC
 WARN: Couldn't resolve JavaDoc link 'BoundingBoxRatio' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/ModifiersBuilders\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link '\#onInvalidate\(\)' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/expression/DynamicBuilders\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link '  \#onInvalidate\(\)' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/wear/protolayout/expression/FixedValueBuilders\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'provideMessagPort' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/javascriptengine/JavaScriptSandbox\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'ViewModelProvider' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/lifecycle/ViewModelProviders\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'setCustomSelectionActionModeCallback' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/EmojiButton\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'init' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/EmojiExtractEditText\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'init' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/EmojiExtractTextLayout\.java:[0-9]+:[0-9]+
@@ -338,9 +273,6 @@ WARN: Couldn't resolve JavaDoc link 'androidx\.resourceinspection\.processor' in
 WARN: Couldn't resolve JavaDoc link 'PendingSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/customtabs/ExperimentalPendingSession\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'attachSession' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/customtabs/ExperimentalPendingSession\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'getCurrentScene' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/transition/Scene\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'androidx\.resourceinspection\.processor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TintableCheckedTextView\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'androidx\.resourceinspection\.processor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/AutoSizeableTextView\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'androidx\.resourceinspection\.processor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/core/widget/TintableImageSourceView\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'EmojiExtractViewHelper' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/emoji/widget/ExtractButtonCompat\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'RESULT_VERIFICATION_FAILED' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'Executor' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/customtabs/EngagementSignalsCallback\.java:[0-9]+:[0-9]+
@@ -348,8 +280,6 @@ WARN: Couldn't resolve JavaDoc link '< >' in file:///\$DOCS_DIR/unzippedJvmSourc
 WARN: Couldn't resolve JavaDoc link 'drawerArrowStyle' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/app/ActionBarDrawerToggle\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'windowActionBar' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/app/ActionBar\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'Spinner_popupTheme' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/appcompat/widget/AppCompatSpinner\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'ViewModelProvider\.AndroidViewModelFactory' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/lifecycle/ViewModelProviders\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'getInstance' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/lifecycle/ViewModelProviders\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'RESULT_OK' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'RESULT_CANCELED' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'RESULT_VERIFICATION_TIMED_OUT' in file:///\$DOCS_DIR/unzippedJvmSources/androidx/browser/auth/AuthTabIntent\.java:[0-9]+:[0-9]+
@@ -382,9 +312,7 @@ WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[
 WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `night` in DFunction setSwitchThumbIcon
 WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/widget/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `night` in DFunction setSwitchTrackIcon
 WARN: \$DOCS_DIR/unzippedMultiplatformSources/androidMain/androidx/constraintlayout/compose/MotionCarousel\.kt:[0-9]+ Missing @param tag for parameter `motionScene` in DFunction MotionCarousel
-WARN: \$DOCS_DIR/unzippedJvmSources/androidx/core/database/sqlite/SQLiteDatabase\.kt:[0-9]+ Missing @param tag for parameter `body` in DFunction transaction
 WARN: \$DOCS_DIR/unzippedJvmSources/androidx/camera/view/RotationProvider\.java:[0-9]+ Missing @param tag for parameter `listener` in DFunction addListener
 WARN: \$DOCS_DIR/unzippedJvmSources/androidx/emoji2/text/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
-WARN: \$DOCS_DIR/unzippedMultiplatformSources/commonMain/androidx/compose/material/TextFieldDefaults\.kt:[0-9]+ Missing @param tag for parameter `shape` in DFunction BorderBox
 WARN: \$DOCS_DIR/unzippedMultiplatformSources/commonMain/androidx/compose/material3/Card\.kt:[0-9]+ Missing @param tag for parameter `disabledElevation` in DFunction outlinedCardElevation
 WARN: \$DOCS_DIR/unzippedMultiplatformSources/commonMain/androidx/compose/material3/MaterialTheme\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction MaterialTheme
