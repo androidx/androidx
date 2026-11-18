@@ -1968,19 +1968,31 @@ class RemoteComposeGeneratorTest {
                         assert(doc->operations[1]->getOpCode() == OpCode::ContainerEnd);
                     }
 
-                    // AddMesh2D strictEnum rejects unknown type=99
+                    // AddMesh2D type=99 reads literal float mesh
                     {
                         WireBuffer wb = makeV6Header();
                         wb.writeByte(static_cast<uint8_t>(OpCode::AddMesh2D));
                         wb.writeInt(1);  // meshId
-                        wb.writeInt(99); // invalid type
+                        wb.writeInt(99); // fallback literal float mesh type
                         wb.writeInt(0);  // layout
                         wb.writeInt(0);  // uCount
                         wb.writeInt(0);  // vCount
-                        wb.writeInt(0);  // flags
+                        wb.writeInt(5);  // flags (capSegments=5)
                         wb.writeInt(0);  // aux
+                        wb.writeInt(0);  // indices len
+                        wb.writeInt(2);  // vertsLen
+                        wb.writeInt(0);  // uvLen
+                        wb.writeInt(0);  // colorsLen
+                        wb.writeFloat(3.0f);
+                        wb.writeFloat(4.0f);
                         WireBuffer r(wb.getBytes());
-                        assertThrowsRuntime([&]() { RemoteDocument::load(r); });
+                        auto doc = RemoteDocument::load(r);
+                        assert(doc->operations.size() == 1);
+                        auto* mesh = dynamic_cast<AddMesh2D*>(doc->operations[0].get());
+                        assert(mesh != nullptr);
+                        assert(mesh->verts.size() == 2);
+                        assert(mesh->getCapSegments() == 5);
+                        assert(mesh->antialiasWidth == 1.0f);
                     }
 
                     // maxLength enforced even when buffer contains enough bytes
@@ -2261,19 +2273,31 @@ class RemoteComposeGeneratorTest {
                         assert!(matches!(doc.operations[1], Operation::ContainerEnd(_)));
                     }
 
-                    // AddMesh2D strictEnum rejects unknown type=99
+                    // AddMesh2D type=99 reads literal float mesh
                     {
                         let mut buf = make_v6_header();
                         buf.write_u8(OpId::AddMesh2D.as_u8());
                         buf.write_i32(1);  // mesh_id
-                        buf.write_i32(99); // invalid type
-                        buf.write_i32(0);
-                        buf.write_i32(0);
-                        buf.write_i32(0);
-                        buf.write_i32(0);
-                        buf.write_i32(0);
+                        buf.write_i32(99); // fallback literal float mesh type
+                        for _ in 0..5 {
+                            buf.write_i32(0);
+                        }
+                        buf.write_i32(0); // indices len
+                        buf.write_i32(2); // verts_len
+                        buf.write_i32(0); // uv_len
+                        buf.write_i32(0); // colors_len
+                        buf.write_f32(3.0);
+                        buf.write_f32(4.0);
                         let mut reader = WireBuffer::from_bytes(buf.as_bytes());
-                        assert_eq!(RemoteDocument::load(&mut reader), Err(WireError::InvalidData));
+                        let doc = RemoteDocument::load(&mut reader).expect("Expected AddMesh2D literal fallback");
+                        assert_eq!(doc.operations.len(), 1);
+                        match &doc.operations[0] {
+                            Operation::AddMesh2D(mesh) => {
+                                assert_eq!(mesh.verts.len(), 2);
+                                assert_eq!(mesh.antialias_width, 1.0);
+                            }
+                            other => panic!("Expected AddMesh2D, got {:?}", other),
+                        }
                     }
 
                     // maxLength enforced even when backing buffer is large enough
@@ -2508,14 +2532,23 @@ class RemoteComposeGeneratorTest {
                 assert doc.operations[0].kerning_table == []
                 assert type(doc.operations[1]).__name__ == "ContainerEnd"
 
-                # AddMesh2D strictEnum rejects unknown type=99
+                # AddMesh2D type=99 reads literal float mesh
                 b = make_v6_header()
                 b.write_byte(OpCode.AddMesh2D.value)
                 b.write_int(1)
                 b.write_int(99)
                 for _ in range(5):
                     b.write_int(0)
-                assert_raises(ValueError, lambda: RemoteDocument.load(b.get_bytes()))
+                b.write_int(0)  # indices
+                b.write_int(2)  # verts_len
+                b.write_int(0)  # uv_len
+                b.write_int(0)  # colors_len
+                b.write_float(3.0)
+                b.write_float(4.0)
+                doc = RemoteDocument.load(b.get_bytes())
+                assert len(doc.operations) == 1
+                assert doc.operations[0].verts == [3.0, 4.0]
+                assert doc.operations[0].antialias_width == 1.0
 
                 # maxLength enforced even when backing buffer is large enough
                 b = make_v6_header()
@@ -2575,7 +2608,6 @@ class RemoteComposeGeneratorTest {
         assertTrue(tsCode.contains("Invalid header magic number"))
         assertTrue(tsCode.contains("_glyphsCount * 20 > buffer.remaining()"))
         assertTrue(tsCode.contains("sparseCount * 2 > buffer.remaining()"))
-        assertTrue(tsCode.contains("Invalid enum value for type:"))
         assertTrue(tsCode.contains("Invalid enum value for attributeType:"))
         assertTrue(tsCode.contains("buffer.readUTF8(4000)"))
         assertTrue(tsCode.contains("buffer.readBuffer(800000)"))
@@ -2604,7 +2636,6 @@ class RemoteComposeGeneratorTest {
         assertTrue(swiftCode.contains("Invalid header magic number"))
         assertTrue(swiftCode.contains("guard _glyphsCount <= buffer.remaining / 20 else"))
         assertTrue(swiftCode.contains("guard sparseCount <= buffer.remaining / 2 else"))
-        assertTrue(swiftCode.contains("Invalid enum value for type"))
         assertTrue(swiftCode.contains("Invalid enum value for attributeType"))
         assertTrue(swiftCode.contains("buffer.readUTF8(maxLength: 4000)"))
         assertTrue(swiftCode.contains("buffer.readBuffer(maxLength: 800000)"))
@@ -2616,7 +2647,6 @@ class RemoteComposeGeneratorTest {
         val ktCode = KotlinGenerator(schema).generateAstNodes()
         assertTrue(ktCode.contains("require(count <= buffer.remaining() / 20)"))
         assertTrue(ktCode.contains("require(sparseCount <= buffer.remaining() / 2)"))
-        assertTrue(ktCode.contains("Invalid AddMesh2DNode.type:"))
         assertTrue(ktCode.contains("Invalid GraphicsLayerAttribute.attributeType:"))
         assertTrue(ktCode.contains("buffer.readUTF8(4000)"))
         assertTrue(ktCode.contains("buffer.readBuffer(800000)"))
@@ -2650,9 +2680,41 @@ class RemoteComposeGeneratorTest {
                 .first { it.name == "version" }
         assertTrue("BitmapFontData.version must be signed", versionField.signed)
 
-        // AddMesh2D strictEnum
+        // AddMesh2D literal fallback & default antialiasWidth = 1.0
         val addMesh = schema.operationsByName["AddMesh2D"]!!
-        assertTrue(addMesh.fields.first { it.name == "type" }.strictEnum)
+        assertFalse(addMesh.fields.first { it.name == "type" }.strictEnum)
+        assertEquals(
+            "type != 0 && type != 3 && type != 4",
+            addMesh.fields.first { it.name == "indices" }.presentIf,
+        )
+        assertEquals(
+            "type != 0 && type != 2 && type != 3 && type != 4",
+            addMesh.fields.first { it.name == "verts" }.presentIf,
+        )
+        assertEquals(
+            "1.0",
+            addMesh.fields.first { it.name == "antialiasWidth" }.defaultValue,
+        )
+        assertEquals(
+            "Limits.MAX_EXPRESSION_SIZE",
+            addMesh.fields.first { it.name == "expX" }.javaLimit,
+        )
+        assertEquals(
+            "Limits.MAX_MESH_2D_INDICES",
+            addMesh.fields.first { it.name == "indices" }.javaLimit,
+        )
+        assertEquals(
+            "Limits.MAX_MESH_2D_VERTICES * 2",
+            addMesh.fields.first { it.name == "verts" }.javaLimit,
+        )
+        assertEquals(
+            "Limits.MAX_MESH_2D_VERTICES",
+            addMesh.fields.first { it.name == "colors" }.javaLimit,
+        )
+        assertEquals(
+            "Limits.MAX_MESH_2D_WIDTH_SAMPLES",
+            addMesh.fields.first { it.name == "widths" }.javaLimit,
+        )
 
         // Header full schema parity (A7-A10, C4)
         val headerOp = schema.operationsByName["Header"]!!

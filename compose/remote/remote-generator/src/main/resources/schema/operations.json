@@ -1955,7 +1955,6 @@
             "PATH_SPLINE_STRIP": 3,
             "SPLINE_ROUND_STRIP": 4
           },
-          "strictEnum": true,
           "description": "Mesh encoding variant discriminator"
         },
         {
@@ -1976,7 +1975,20 @@
         {
           "name": "flags",
           "type": "int",
-          "description": "Mesh flags (bit 8 = antialiasWidth)"
+          "description": "Mesh flags (bit 8 = antialiasWidth)",
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "capSegments",
+              "range": "0..7",
+              "description": "Cap column count for TYPE_SPLINE_ROUND_STRIP"
+            },
+            {
+              "name": "antialias",
+              "range": "8",
+              "description": "Edge antialiasing skirt flag"
+            }
+          ]
         },
         {
           "name": "aux",
@@ -1988,6 +2000,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex X expression"
         },
@@ -1996,6 +2009,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex Y expression"
         },
@@ -2004,6 +2018,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Texcoord U expression"
         },
@@ -2012,6 +2027,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Texcoord V expression"
         },
@@ -2020,6 +2036,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex alpha expression"
         },
@@ -2028,6 +2045,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex red expression"
         },
@@ -2036,6 +2054,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex green expression"
         },
@@ -2044,6 +2063,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex blue expression"
         },
@@ -2052,6 +2072,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Strip width expression"
         },
@@ -2060,28 +2081,29 @@
           "type": "short[]",
           "lengthType": "int",
           "maxLength": 49152,
-          "presentIf": "type == 1 || type == 2",
+          "javaLimit": "Limits.MAX_MESH_2D_INDICES",
+          "presentIf": "type != 0 && type != 3 && type != 4",
           "description": "Triangle index buffer"
         },
         {
           "name": "vertsLen",
           "type": "int",
           "derivedFrom": "len(verts)",
-          "presentIf": "type == 1",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "Vertex float count"
         },
         {
           "name": "uvLen",
           "type": "int",
           "derivedFrom": "len(uv)",
-          "presentIf": "type == 1",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "UV float count"
         },
         {
           "name": "colorsLen",
           "type": "int",
           "derivedFrom": "len(colors)",
-          "presentIf": "type == 1",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "Color int count"
         },
         {
@@ -2089,7 +2111,8 @@
           "type": "float_or_id[]",
           "countFrom": "vertsLen",
           "maxLength": 32768,
-          "presentIf": "type == 1",
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES * 2",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "32-bit vertex coordinates"
         },
         {
@@ -2097,7 +2120,8 @@
           "type": "float[]",
           "countFrom": "uvLen",
           "maxLength": 32768,
-          "presentIf": "type == 1",
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES * 2",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "32-bit UV texture coordinates"
         },
         {
@@ -2105,7 +2129,8 @@
           "type": "int[]",
           "countFrom": "colorsLen",
           "maxLength": 16384,
-          "presentIf": "type == 1",
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "ARGB vertex colors"
         },
         {
@@ -2134,6 +2159,7 @@
           "type": "short[]",
           "countFrom": "vertsF16Len",
           "maxLength": 32768,
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES * 2",
           "presentIf": "type == 2",
           "description": "IEEE 754 binary16 vertex coordinates"
         },
@@ -2142,6 +2168,7 @@
           "type": "short[]",
           "countFrom": "uvF16Len",
           "maxLength": 32768,
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES * 2",
           "presentIf": "type == 2",
           "description": "IEEE 754 binary16 UV coordinates"
         },
@@ -2150,6 +2177,7 @@
           "type": "int[]",
           "countFrom": "colorsF16Len",
           "maxLength": 16384,
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES",
           "presentIf": "type == 2",
           "description": "ARGB vertex colors for F16 mesh"
         },
@@ -2158,6 +2186,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 64,
+          "javaLimit": "Limits.MAX_MESH_2D_WIDTH_SAMPLES",
           "presentIf": "type == 3 || type == 4",
           "description": "Spline strip width samples"
         },
@@ -2166,13 +2195,14 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 64,
+          "javaLimit": "Limits.MAX_MESH_2D_WIDTH_SAMPLES",
           "presentIf": "type == 3 || type == 4",
           "description": "Spline strip width sample positions"
         },
         {
           "name": "antialiasWidth",
           "type": "float_or_id",
-          "defaultValue": "0.0",
+          "defaultValue": "1.0",
           "presentIf": "(flags & 256) != 0",
           "description": "Optional edge antialiasing width"
         }
