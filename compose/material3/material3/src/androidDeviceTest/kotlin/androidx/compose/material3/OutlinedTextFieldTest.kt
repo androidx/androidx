@@ -60,6 +60,8 @@ import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.contentType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -78,6 +80,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.semantics.hintText
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -87,6 +90,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
@@ -2414,6 +2418,30 @@ class OutlinedTextFieldTest {
         val rootNode = rule.onNodeWithTag("TextField", useUnmergedTree = false).fetchSemanticsNode()
         val textList = rootNode.config.getOrNull(SemanticsProperties.Text)?.map { it.text }
         assertThat(textList).containsExactly("www.", "google", ".com").inOrder()
+    }
+
+    @Test
+    fun testOutlinedTextField_contentTypeAndHintText_appliedToEditableNode() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                label = { Text("Label") },
+                modifier =
+                    Modifier.contentType(ContentType.EmailAddress).semantics { hintText = "Hint" },
+            )
+        }
+
+        // Autofill and accessibility services read these properties from the editable node itself,
+        // so they must not end up on a wrapper or child node.
+        rule
+            .onNode(hasSetTextAction(), useUnmergedTree = true)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ContentType,
+                    ContentType.EmailAddress,
+                )
+            )
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.HintText, "Hint"))
     }
 
     private fun getLabelPosition(labelHeight: Int): Int {

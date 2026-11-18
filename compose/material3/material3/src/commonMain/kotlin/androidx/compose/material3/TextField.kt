@@ -130,6 +130,17 @@ import androidx.compose.ui.unit.dp
  * Hiding a software keyboard on IME action performed:
  *
  * @sample androidx.compose.material3.samples.TextFieldWithHideKeyboardOnImeAction
+ *
+ * Autofill services don't receive the [label] text. To tell them what the field is for, set
+ * [contentType][androidx.compose.ui.autofill.contentType] on the [modifier] for standard field
+ * types, such as email addresses:
+ *
+ * @sample androidx.compose.material3.samples.TextFieldWithContentType
+ *
+ * For other fields, set [hintText][androidx.compose.ui.semantics.hintText] on the [modifier] and
+ * hide the [label] from accessibility services, which also announce the hint:
+ *
+ * @sample androidx.compose.material3.samples.OutlinedTextFieldWithHintText
  * @param state [TextFieldState] object that holds the internal editing state of the text field.
  * @param modifier the [Modifier] to be applied to this text field.
  * @param enabled controls the enabled state of this text field. When `false`, this component will

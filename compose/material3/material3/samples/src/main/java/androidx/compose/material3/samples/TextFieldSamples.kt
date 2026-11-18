@@ -72,6 +72,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.contentType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
@@ -80,6 +82,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.hintText
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.semantics.paneTitle
@@ -365,6 +369,39 @@ fun TextFieldWithHideKeyboardOnImeAction() {
         label = { Text("Label") },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun TextFieldWithContentType() {
+    TextField(
+        state = rememberTextFieldState(),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text("Email") },
+        // Tell autofill services that this field holds an email address. Accessibility services
+        // still announce the label as usual.
+        modifier = Modifier.contentType(ContentType.EmailAddress),
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun OutlinedTextFieldWithHintText() {
+    // In an application, this label would typically be a localized string.
+    val labelText = "Departure city"
+    OutlinedTextField(
+        state = rememberTextFieldState(),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = {
+            // Hide the visual label from accessibility services to prevent duplicate
+            // announcements, as the text field already provides the hint text.
+            Text(labelText, Modifier.semantics { hideFromAccessibility() })
+        },
+        // Provide the label to autofill and accessibility services as the text field's hint.
+        modifier = Modifier.semantics { hintText = labelText },
     )
 }
 
