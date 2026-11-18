@@ -79,16 +79,17 @@ class RemoteStateBenchActivity : ComponentActivity() {
 
         RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = playerVariantFromMode(playerMode).second
 
+        val updateIndex = valueCount / 2
         setContent {
             StateBenchScreen(
                 playerMode = playerMode,
                 benchMode = benchMode,
                 valueCount = valueCount,
                 onJavaPlayerReady = { player ->
-                    startJavaUpdates(player, benchMode, intervalMs)
+                    startJavaUpdates(player, benchMode, updateIndex, intervalMs)
                 },
                 onEmbeddedStateReady = { state ->
-                    startEmbeddedUpdates(state, benchMode, intervalMs)
+                    startEmbeddedUpdates(state, benchMode, updateIndex, intervalMs)
                 },
             )
         }
@@ -102,6 +103,7 @@ class RemoteStateBenchActivity : ComponentActivity() {
     private fun startJavaUpdates(
         player: RemoteComposePlayer,
         benchMode: String,
+        updateIndex: Int,
         intervalMs: Long,
     ) {
         updateJob?.cancel()
@@ -114,8 +116,12 @@ class RemoteStateBenchActivity : ComponentActivity() {
                     if (benchMode == "s2a") {
                         player.setUserLocalInt("stateIndex", tick % 4)
                     } else {
-                        player.setUserLocalString("v0", "Value 0: $tick")
+                        player.setUserLocalString("v$updateIndex", "Value $updateIndex: $tick")
                     }
+                    // TODO(b/585202905): Remove explicit invalidateViewTree() once
+                    // RemoteComposeView.setLocal*
+                    // invalidates the view.
+                    invalidateViewTree(player)
                 }
             }
         }
@@ -124,6 +130,7 @@ class RemoteStateBenchActivity : ComponentActivity() {
     private fun startEmbeddedUpdates(
         rcState: RcPlayerState,
         benchMode: String,
+        updateIndex: Int,
         intervalMs: Long,
     ) {
         updateJob?.cancel()
@@ -138,13 +145,13 @@ class RemoteStateBenchActivity : ComponentActivity() {
                 }
             }
         } else {
-            val v0 = rcState.stringState("v0")
+            val updated = rcState.stringState("v$updateIndex")
             updateJob = lifecycleScope.launch {
                 var tick = 0
                 while (isActive) {
                     delay(intervalMs)
                     tick++
-                    trace("RemoteBench:hostUpdate") { v0.value = "Value 0: $tick" }
+                    trace("RemoteBench:hostUpdate") { updated.value = "Value $updateIndex: $tick" }
                 }
             }
         }
@@ -161,18 +168,29 @@ class RemoteStateBenchActivity : ComponentActivity() {
         var documentBytes by remember { mutableStateOf<ByteArray?>(null) }
         val context = LocalContext.current
 
-        LaunchedEffect(benchMode, valueCount) {
+        LaunchedEffect(benchMode, valueCount, playerMode) {
+            val useGlobalScope = playerVariantFromMode(playerMode).first != PlayerVariant.Embedded
             documentBytes =
                 if (benchMode == "s2a") {
-                    BenchDocuments.getOrCapture(context, "state_layout_4state") {
-                        val stateIndex = remember { createNamedRemoteInt("stateIndex", 0) }
+                    BenchDocuments.getOrCapture(
+                        context = context,
+                        name = "state_layout_4state",
+                        globalScope = useGlobalScope,
+                    ) {
+                        val stateIndex = remember {
+                            createNamedRemoteInt("stateIndex", 0)
+                        }
+                            .withGlobalScopeIf(useGlobalScope)
                         RemoteColumn(
                             horizontalAlignment = RemoteAlignment.CenterHorizontally,
                             verticalArrangement = RemoteArrangement.Center,
                             modifier =
-                                RemoteModifier.fillMaxSize().padding(16.rdp).semantics {
-                                    contentDescription = STATE_BENCH_CONTENT_DESCRIPTION.rs
-                                },
+                                RemoteModifier.fillMaxSize()
+                                    .background(Color.White.rc)
+                                    .padding(16.rdp)
+                                    .semantics {
+                                        contentDescription = STATE_BENCH_CONTENT_DESCRIPTION.rs
+                                    },
                         ) {
                             RemoteStateLayout(
                                 currentState = stateIndex,
@@ -191,35 +209,45 @@ class RemoteStateBenchActivity : ComponentActivity() {
                                             Triple(Color(0xFFFFF9C4), Color(0xFFF57F17), "State 3")
                                     }
                                 RemoteBox(
+                                    contentAlignment = RemoteAlignment.Center,
                                     modifier =
                                         RemoteModifier.fillMaxSize()
                                             .background(bg.rc)
-                                            .padding(16.rdp)
+                                            .padding(16.rdp),
                                 ) {
-                                    RemoteText(text = label.rs, fontSize = 20.rsp, color = fg.rc)
+                                    RemoteText(text = label.rs, fontSize = 24.rsp, color = fg.rc)
                                 }
                             }
                         }
                     }
                 } else {
-                    BenchDocuments.getOrCapture(context, "state_s1_$valueCount") {
+                    BenchDocuments.getOrCapture(
+                        context = context,
+                        name = "state_s1_$valueCount",
+                        globalScope = useGlobalScope,
+                    ) {
                         val values = remember {
                             List(valueCount) { i ->
                                 createNamedRemoteString("v$i", "Value $i: 0")
                             }
                         }
+                            .map { it.withGlobalScopeIf(useGlobalScope) }
                         RemoteColumn(
-                            horizontalAlignment = RemoteAlignment.Start,
-                            verticalArrangement = RemoteArrangement.Top,
+                            horizontalAlignment = RemoteAlignment.CenterHorizontally,
+                            verticalArrangement = RemoteArrangement.Center,
                             modifier =
-                                RemoteModifier.fillMaxSize().padding(16.rdp).semantics {
-                                    contentDescription = STATE_BENCH_CONTENT_DESCRIPTION.rs
-                                },
+                                RemoteModifier.fillMaxSize()
+                                    .background(Color.White.rc)
+                                    .padding(16.rdp)
+                                    .semantics {
+                                        contentDescription = STATE_BENCH_CONTENT_DESCRIPTION.rs
+                                    },
                         ) {
                             values.forEach { textVar ->
                                 RemoteText(
                                     text = textVar,
-                                    fontSize = 14.rsp,
+                                    fontSize = 20.rsp,
+                                    color = Color.Black.rc,
                                     modifier = RemoteModifier.padding(vertical = 2.rdp),
                                 )
                             }

@@ -16,6 +16,9 @@
 
 package androidx.compose.remote.integration.macrobenchmark.target
 
+import android.view.View
+import android.view.ViewGroup
+
 const val LIST_CONTENT_DESCRIPTION = "ScrollableColumn"
 const val BENCHMARK_MODE_ARG = "benchmark_mode"
 const val MODE_RENDER_FROM_CACHE = "render_from_cache"
@@ -51,3 +54,16 @@ const val STATE_LAYOUT_CONTENT_DESCRIPTION = "StateLayoutContainer"
 const val IMAGE_GRID_CONTENT_DESCRIPTION = "ImageGridContainer"
 const val FEED_CONTENT_DESCRIPTION = "RemoteFeedList"
 const val STATE_BENCH_CONTENT_DESCRIPTION = "StateBenchContainer"
+
+/**
+ * Invalidates [view] and its descendants (e.g. [RemoteComposePlayer]'s inner [RemoteComposeView])
+ * until `setLocal*` triggers invalidation directly (b/585202905).
+ */
+internal fun invalidateViewTree(view: View) {
+    view.invalidate()
+    if (view is ViewGroup) {
+        for (i in 0 until view.childCount) {
+            invalidateViewTree(view.getChildAt(i))
+        }
+    }
+}

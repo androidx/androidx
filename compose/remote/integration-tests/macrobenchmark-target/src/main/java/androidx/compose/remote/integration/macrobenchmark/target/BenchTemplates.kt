@@ -97,12 +97,17 @@ internal val FEED_CARD_HEIGHT_RDP = 112.rdp
 internal suspend fun loadFeedTemplates(
     context: Context,
     templates: List<BenchTemplate>,
+    globalScope: Boolean = false,
 ): Map<BenchTemplate, ByteArray> {
     val result = LinkedHashMap<BenchTemplate, ByteArray>()
     for (template in templates.distinct()) {
         result[template] =
-            BenchDocuments.getOrCapture(context, "feed_${template.key}") {
-                RemoteTemplateContent(template)
+            BenchDocuments.getOrCapture(
+                context = context,
+                name = "feed_${template.key}",
+                globalScope = globalScope,
+            ) {
+                RemoteTemplateContent(template, globalScope = globalScope)
             }
     }
     return result
@@ -110,13 +115,13 @@ internal suspend fun loadFeedTemplates(
 
 @RemoteComposable
 @Composable
-private fun RemoteTemplateContent(template: BenchTemplate) {
+private fun RemoteTemplateContent(template: BenchTemplate, globalScope: Boolean) {
     when (template) {
         BenchTemplate.AppCard -> RemoteAppCard()
         BenchTemplate.Headline -> RemoteHeadlineCard()
-        BenchTemplate.Poll -> RemotePollCard(liveBadge = false)
-        BenchTemplate.Live -> RemotePollCard(liveBadge = true)
-        BenchTemplate.Stateful -> RemoteStatefulCard()
+        BenchTemplate.Poll -> RemotePollCard(liveBadge = false, globalScope = globalScope)
+        BenchTemplate.Live -> RemotePollCard(liveBadge = true, globalScope = globalScope)
+        BenchTemplate.Stateful -> RemoteStatefulCard(globalScope = globalScope)
     }
 }
 
@@ -203,10 +208,10 @@ private fun RemoteHeadlineCard() {
 
 @RemoteComposable
 @Composable
-private fun RemotePollCard(liveBadge: Boolean) {
-    val share0 = remember { createNamedRemoteFloat("share0", 120f) }
-    val share1 = remember { createNamedRemoteFloat("share1", 80f) }
-    val share2 = remember { createNamedRemoteFloat("share2", 50f) }
+private fun RemotePollCard(liveBadge: Boolean, globalScope: Boolean) {
+    val share0 = remember { createNamedRemoteFloat("share0", 120f) }.withGlobalScopeIf(globalScope)
+    val share1 = remember { createNamedRemoteFloat("share1", 80f) }.withGlobalScopeIf(globalScope)
+    val share2 = remember { createNamedRemoteFloat("share2", 50f) }.withGlobalScopeIf(globalScope)
 
     RemoteColumn(
         modifier =
@@ -273,8 +278,8 @@ private fun RemotePollCard(liveBadge: Boolean) {
 
 @RemoteComposable
 @Composable
-private fun RemoteStatefulCard() {
-    val stateIndex = remember { createNamedRemoteInt("state", 0) }
+private fun RemoteStatefulCard(globalScope: Boolean) {
+    val stateIndex = remember { createNamedRemoteInt("state", 0) }.withGlobalScopeIf(globalScope)
     RemoteBox(
         modifier =
             RemoteModifier.fillMaxWidth()

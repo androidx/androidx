@@ -92,7 +92,7 @@ class RemoteFeedBenchmark(val player: String) {
             iterations = 5,
             setupBlock = {
                 killProcess()
-                startActivityAndWait(Intent(FEED_ACTIVITY).putExtra("player", player).apply(extras))
+                startActivityIntent(Intent(FEED_ACTIVITY).putExtra("player", player).apply(extras))
                 assertLaneDrew(device, FEED_CONTENT_DESCRIPTION)
             },
         ) {
