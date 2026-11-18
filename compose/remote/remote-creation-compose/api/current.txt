@@ -288,7 +288,6 @@ package androidx.compose.remote.creation.compose.layout {
   @androidx.compose.remote.creation.compose.layout.RemoteLayoutScopeMarker @androidx.compose.runtime.Immutable public final class RemoteCollapsibleColumnScope {
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier collapsiblePriority(androidx.compose.remote.creation.compose.modifier.RemoteModifier, float priority);
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier weight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat weight);
-    method public androidx.compose.remote.creation.compose.modifier.RemoteModifier weight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, @FloatRange(from=0.0, fromInclusive=false) float weight);
   }
 
   public final class RemoteCollapsibleRowKt {
@@ -299,7 +298,6 @@ package androidx.compose.remote.creation.compose.layout {
   @androidx.compose.remote.creation.compose.layout.RemoteLayoutScopeMarker @androidx.compose.runtime.Immutable public final class RemoteCollapsibleRowScope {
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier collapsiblePriority(androidx.compose.remote.creation.compose.modifier.RemoteModifier, float priority);
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier weight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat weight);
-    method public androidx.compose.remote.creation.compose.modifier.RemoteModifier weight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, @FloatRange(from=0.0, fromInclusive=false) float weight);
   }
 
   public final class RemoteColumnKt {
@@ -789,8 +787,6 @@ package androidx.compose.remote.creation.compose.modifier {
     ctor @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState();
     ctor @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState(optional androidx.compose.remote.creation.compose.state.MutableRemoteFloat positionState, optional @IntRange(from=0L) int notches);
     ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState(androidx.compose.remote.creation.compose.state.MutableRemoteFloat!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState(float position, optional @IntRange(from=0L) int notches);
-    ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public RemoteScrollState(float, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getNotches();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.MutableRemoteFloat getPositionState();
     property public int notches;

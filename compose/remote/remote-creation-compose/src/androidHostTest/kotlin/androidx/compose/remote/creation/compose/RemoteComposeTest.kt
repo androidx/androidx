@@ -147,7 +147,7 @@ class RemoteComposeTest {
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 RemoteCollapsibleColumn {
                     RemoteText(text = "Fixed".rs)
-                    RemoteCollapsibleRow(modifier = RemoteModifier.weight(1f)) {
+                    RemoteCollapsibleRow(modifier = RemoteModifier.weight(1f.rf)) {
                         RemoteText(text = "Weighted Row Content".rs)
                     }
                 }

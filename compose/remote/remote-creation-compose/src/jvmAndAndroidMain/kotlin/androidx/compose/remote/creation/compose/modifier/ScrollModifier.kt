@@ -47,19 +47,6 @@ constructor(
     public val positionState: MutableRemoteFloat = MutableRemoteFloat.createReserved(),
     @IntRange(from = 0) public val notches: Int = 0,
 ) {
-    /**
-     * Creates a [RemoteScrollState] with an initial [position] and number of [notches].
-     *
-     * @param position Initial scroll position in pixels.
-     * @param notches The number of equally spaced snap points along the scroll range, or 0 for
-     *   continuous scrolling.
-     */
-    @RememberInComposition
-    public constructor(
-        position: Float,
-        @IntRange(from = 0) notches: Int = 0,
-    ) : this(MutableRemoteFloat(position), notches)
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteScrollState) return false
