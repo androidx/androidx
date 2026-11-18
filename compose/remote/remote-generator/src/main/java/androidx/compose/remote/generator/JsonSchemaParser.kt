@@ -415,6 +415,9 @@ public object JsonSchemaParser {
                     }
                 }
             }
+            if (op.optBoolean("isContainer", false) && !op.has("closedBy")) {
+                errors.add("Container operation $name must specify closedBy")
+            }
             val isSparseEncoding = op.optString("encoding", "") == "sparse"
             val hasSparseParameters = op.has("sparseParameters")
             if (hasSparseParameters && !isSparseEncoding) {

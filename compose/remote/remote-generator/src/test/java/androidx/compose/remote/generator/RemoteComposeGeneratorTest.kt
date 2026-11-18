@@ -2829,6 +2829,42 @@ class RemoteComposeGeneratorTest {
         assertTrue(textStyleOp.sparseParameters!!.first { it.id == 2 }.ignored)
         assertTrue(textStyleOp.sparseParameters!!.first { it.id == 23 }.ignored)
 
+        // Enums & all containers closedBy ContainerEnd (C1, C5)
+        val themeEnums =
+            schema.operationsByName["Theme"]!!.fields.first { it.name == "themeId" }.enumValues!!
+        assertEquals(-3, themeEnums["LIGHT"])
+        assertEquals(-2, themeEnums["DARK"])
+        assertEquals(-1, themeEnums["UNSPECIFIED"])
+        val nvEnums =
+            schema.operationsByName["NamedVariable"]!!
+                .fields
+                .first { it.name == "varType" }
+                .enumValues!!
+        assertEquals(0, nvEnums["STRING"])
+        assertEquals(4, nvEnums["INT"])
+        assertEquals(2, nvEnums["COLOR"])
+        assertEquals(
+            1,
+            schema.operationsByName["BoxLayout"]!!
+                .fields
+                .first { it.name == "horizontalPositioning" }
+                .enumValues!!["START"],
+        )
+        assertEquals(
+            6,
+            schema.operationsByName["ConditionalOperations"]!!
+                .fields
+                .first { it.name == "type" }
+                .enumValues!!["TYPE_CHANGED"],
+        )
+        for (op in schema.operations.filter { it.isContainer }) {
+            assertEquals("ContainerEnd", op.closedBy)
+        }
+        val soundParams =
+            schema.operationsByName["SoundExpression"]!!.fields.first { it.name == "params" }
+        assertEquals(64, soundParams.maxLength)
+        assertEquals("SoundExpression.MAX_PARAMS", soundParams.javaLimit)
+
         // Nested operation payload metadata
         val skip = schema.operationsByName["Skip"]!!
         assertEquals("operations", skip.fields.first { it.name == "skippedBytes" }.payloadKind)

@@ -1403,11 +1403,12 @@
         {
           "name": "themeId",
           "type": "int",
-          "description": "Theme identifier (0=system, 1=light, 2=dark)",
+          "description": "Theme identifier (0=SYSTEM, -1=UNSPECIFIED, -2=DARK, -3=LIGHT)",
           "enum": {
             "SYSTEM": 0,
-            "LIGHT": 1,
-            "DARK": 2
+            "UNSPECIFIED": -1,
+            "DARK": -2,
+            "LIGHT": -3
           }
         }
       ],
@@ -1728,7 +1729,8 @@
         "experimental"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 93,
@@ -1766,7 +1768,8 @@
         }
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 100,
@@ -2924,13 +2927,16 @@
         {
           "name": "varType",
           "type": "int",
-          "description": "Type of variable (1=FLOAT, 2=INT, 3=STRING, 4=BOOLEAN, 5=COLOR)",
+          "description": "Type of variable (0=STRING, 1=FLOAT, 2=COLOR, 3=IMAGE, 4=INT, 5=LONG, 6=FLOAT_ARRAY/PATH)",
           "enum": {
+            "STRING": 0,
             "FLOAT": 1,
-            "INT": 2,
-            "STRING": 3,
-            "BOOLEAN": 4,
-            "COLOR": 5
+            "COLOR": 2,
+            "IMAGE": 3,
+            "INT": 4,
+            "LONG": 5,
+            "FLOAT_ARRAY": 6,
+            "PATH": 6
           }
         },
         {
@@ -3042,7 +3048,8 @@
           "description": "The ID of the operations container"
         }
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 143,
@@ -3813,7 +3820,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 164,
@@ -3837,7 +3845,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 165,
@@ -3849,7 +3858,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 166,
@@ -3954,7 +3964,8 @@
         }
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 169,
@@ -4128,7 +4139,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 174,
@@ -4223,7 +4235,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 177,
@@ -4260,7 +4273,8 @@
             "TYPE_LT": 2,
             "TYPE_LTE": 3,
             "TYPE_GT": 4,
-            "TYPE_GTE": 5
+            "TYPE_GTE": 5,
+            "TYPE_CHANGED": 6
           }
         },
         {
@@ -4278,7 +4292,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 179,
@@ -4894,7 +4909,8 @@
         "widgets"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 196,
@@ -5060,7 +5076,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 201,
@@ -5079,7 +5096,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 202,
@@ -5105,9 +5123,9 @@
           "type": "int",
           "description": "Horizontal positioning mode",
           "enum": {
-            "START": 0,
-            "CENTER": 1,
-            "END": 2
+            "START": 1,
+            "CENTER": 2,
+            "END": 3
           }
         },
         {
@@ -5115,9 +5133,9 @@
           "type": "int",
           "description": "Vertical positioning mode",
           "enum": {
-            "TOP": 0,
-            "CENTER": 1,
-            "BOTTOM": 2
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5
           }
         }
       ],
@@ -5155,12 +5173,12 @@
           "type": "int",
           "description": "Horizontal positioning mode",
           "enum": {
-            "START": 0,
-            "CENTER": 1,
-            "END": 2,
-            "SPACE_BETWEEN": 3,
-            "SPACE_EVENLY": 4,
-            "SPACE_AROUND": 5
+            "START": 1,
+            "CENTER": 2,
+            "END": 3,
+            "SPACE_BETWEEN": 6,
+            "SPACE_EVENLY": 7,
+            "SPACE_AROUND": 8
           }
         },
         {
@@ -5168,9 +5186,9 @@
           "type": "int",
           "description": "Vertical positioning mode",
           "enum": {
-            "TOP": 0,
-            "CENTER": 1,
-            "BOTTOM": 2
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5
           }
         },
         {
@@ -5213,9 +5231,9 @@
           "type": "int",
           "description": "Horizontal positioning mode",
           "enum": {
-            "START": 0,
-            "CENTER": 1,
-            "END": 2
+            "START": 1,
+            "CENTER": 2,
+            "END": 3
           }
         },
         {
@@ -5223,12 +5241,12 @@
           "type": "int",
           "description": "Vertical positioning mode",
           "enum": {
-            "TOP": 0,
-            "CENTER": 1,
-            "BOTTOM": 2,
-            "SPACE_BETWEEN": 3,
-            "SPACE_EVENLY": 4,
-            "SPACE_AROUND": 5
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5,
+            "SPACE_BETWEEN": 6,
+            "SPACE_EVENLY": 7,
+            "SPACE_AROUND": 8
           }
         },
         {
@@ -5269,7 +5287,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 206,
@@ -5307,7 +5326,9 @@
           "name": "params",
           "type": "float_or_id[]",
           "lengthType": "int",
-          "description": "Sound modulation expression"
+          "description": "Sound modulation expression",
+          "maxLength": 64,
+          "javaLimit": "SoundExpression.MAX_PARAMS"
         }
       ],
       "restrictToLibraryGroup": true
@@ -5334,7 +5355,8 @@
         "modifiers",
         "LayoutContent",
         "layout"
-      ]
+      ],
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 208,
@@ -5448,7 +5470,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 209,
@@ -5669,7 +5692,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 218,
@@ -5714,7 +5738,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 220,
@@ -5726,7 +5751,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 221,
@@ -5822,7 +5848,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 226,
@@ -5856,7 +5883,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 227,
@@ -5955,12 +5983,25 @@
         {
           "name": "horizontalPositioning",
           "type": "int",
-          "description": "Horizontal positioning value"
+          "description": "Horizontal positioning value",
+          "enum": {
+            "START": 1,
+            "CENTER": 2,
+            "END": 3,
+            "SPACE_BETWEEN": 6,
+            "SPACE_EVENLY": 7,
+            "SPACE_AROUND": 8
+          }
         },
         {
           "name": "verticalPositioning",
           "type": "int",
-          "description": "Vertical positioning value"
+          "description": "Vertical positioning value",
+          "enum": {
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5
+          }
         },
         {
           "name": "spacedBy",
@@ -5972,7 +6013,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 231,
@@ -6040,12 +6082,25 @@
         {
           "name": "horizontalPositioning",
           "type": "int",
-          "description": "Horizontal positioning value"
+          "description": "Horizontal positioning value",
+          "enum": {
+            "START": 1,
+            "CENTER": 2,
+            "END": 3
+          }
         },
         {
           "name": "verticalPositioning",
           "type": "int",
-          "description": "Vertical positioning value"
+          "description": "Vertical positioning value",
+          "enum": {
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5,
+            "SPACE_BETWEEN": 6,
+            "SPACE_EVENLY": 7,
+            "SPACE_AROUND": 8
+          }
         },
         {
           "name": "spacedBy",
@@ -6057,7 +6112,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 234,
@@ -6124,7 +6180,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 235,
@@ -6159,7 +6216,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 237,
@@ -6214,7 +6272,8 @@
         "experimental"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 239,
@@ -6397,7 +6456,8 @@
       ],
       "isContainer": true,
       "sparseCountType": "ushort",
-      "sparseKeyType": "ubyte"
+      "sparseKeyType": "ubyte",
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 240,
@@ -6461,7 +6521,8 @@
         "experimental"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 241,
@@ -6723,7 +6784,8 @@
           "description": "Local item variable ID bound during iteration"
         }
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 245,
@@ -6778,7 +6840,8 @@
           "description": "Serialized pattern body operations"
         }
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 247,
@@ -6810,7 +6873,8 @@
       "restrictToLibraryGroup": true,
       "allowedChildren": [
         "PatternBlock"
-      ]
+      ],
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 248,
@@ -6851,7 +6915,8 @@
           "description": "The index of the parameter block"
         }
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 250,
