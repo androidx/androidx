@@ -162,7 +162,8 @@ class KeyEntityTest {
             assertPose(
                 activityPanel.getPose(Space.ACTIVITY),
                 Pose.Identity,
-                epsilon = TRANSFORM_EPSILON,
+                translationEpsilon = TRANSFORM_EPSILON,
+                rotationEpsilon = TRANSFORM_EPSILON,
             )
             assertVector3(
                 sessionRule.session.scene.mainPanelEntity.getPose(Space.ACTIVITY).translation,
@@ -207,7 +208,12 @@ class KeyEntityTest {
         val event = captureCachedSpaceChangeEvent(gltfEntity)
         assertThat(event.recommendedScale).isGreaterThan(0f)
         assertVector3(event.recommendedPose.translation, Vector3.Zero, TRANSFORM_EPSILON)
-        assertPose(gltfEntity.getPose(Space.ACTIVITY), event.recommendedPose, TRANSFORM_EPSILON)
+        assertPose(
+            gltfEntity.getPose(Space.ACTIVITY),
+            event.recommendedPose,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
         assertThat(gltfEntity.getScale(Space.ACTIVITY))
             .isWithin(TRANSFORM_EPSILON)
             .of(event.recommendedScale)
@@ -233,7 +239,12 @@ class KeyEntityTest {
         val event = captureCachedSpaceChangeEvent(panel)
         assertThat(event.recommendedScale).isGreaterThan(0f)
         assertVector3(event.recommendedPose.translation, Vector3.Zero, TRANSFORM_EPSILON)
-        assertPose(panel.getPose(Space.ACTIVITY), event.recommendedPose, TRANSFORM_EPSILON)
+        assertPose(
+            panel.getPose(Space.ACTIVITY),
+            event.recommendedPose,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
         assertThat(panel.getScale(Space.ACTIVITY))
             .isWithin(TRANSFORM_EPSILON)
             .of(event.recommendedScale)
@@ -252,7 +263,12 @@ class KeyEntityTest {
         val panel1 = createConfiguredPanel(CUSTOM_OFFSET_POSE, CUSTOM_SCALE)
         val panel2 = createConfiguredPanel(SECOND_OFFSET_POSE, scale = 1.0f)
 
-        assertPose(panel1.getPose(Space.ACTIVITY), CUSTOM_OFFSET_POSE, TRANSFORM_EPSILON)
+        assertPose(
+            panel1.getPose(Space.ACTIVITY),
+            CUSTOM_OFFSET_POSE,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
 
         sessionRule.session.scene.keyEntity = panel1
         waitUntil("Cached SpaceChangeEvent applies on null-to-non-null keyEntity transition") {
@@ -261,14 +277,24 @@ class KeyEntityTest {
         }
 
         val event = captureCachedSpaceChangeEvent(panel1)
-        assertPose(panel1.getPose(Space.ACTIVITY), event.recommendedPose, TRANSFORM_EPSILON)
+        assertPose(
+            panel1.getPose(Space.ACTIVITY),
+            event.recommendedPose,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
         assertThat(panel1.getScale(Space.ACTIVITY))
             .isWithin(TRANSFORM_EPSILON)
             .of(event.recommendedScale)
 
         sessionRule.session.scene.keyEntity = panel2
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        assertPose(panel2.getPose(Space.ACTIVITY), SECOND_OFFSET_POSE, TRANSFORM_EPSILON)
+        assertPose(
+            panel2.getPose(Space.ACTIVITY),
+            SECOND_OFFSET_POSE,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
         assertThat(panel2.getScale(Space.ACTIVITY)).isWithin(TRANSFORM_EPSILON).of(1.0f)
     }
 
@@ -302,7 +328,12 @@ class KeyEntityTest {
         assertThat(listenerCount.get()).isEqualTo(1)
         assertThat(receivedEvent.recommendedScale).isGreaterThan(0f)
         assertVector3(receivedEvent.recommendedPose.translation, Vector3.Zero, TRANSFORM_EPSILON)
-        assertPose(panel.getPose(Space.ACTIVITY), CUSTOM_OFFSET_POSE, TRANSFORM_EPSILON)
+        assertPose(
+            panel.getPose(Space.ACTIVITY),
+            CUSTOM_OFFSET_POSE,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
         assertThat(panel.getScale(Space.ACTIVITY)).isWithin(TRANSFORM_EPSILON).of(CUSTOM_SCALE)
 
         scene.clearSpaceChangedListener()

@@ -206,7 +206,12 @@ class SpatialContinuityTest {
         waitUntil("Returning to Full Space resets custom keyEntity pose to origin") {
             customPanel.getPose(Space.ACTIVITY).translation.length < TRANSFORM_EPSILON
         }
-        assertPose(customPanel.getPose(Space.ACTIVITY), Pose.Identity, TRANSFORM_EPSILON)
+        assertPose(
+            customPanel.getPose(Space.ACTIVITY),
+            Pose.Identity,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
         assertVector3(
             mainPanel.getPose(Space.ACTIVITY).translation,
             LEFT_PANEL_POSE.translation,
@@ -266,7 +271,12 @@ class SpatialContinuityTest {
         waitUntil("Returning to Full Space resets glTF keyEntity pose to origin") {
             gltfEntity.getPose(Space.ACTIVITY).translation.length < TRANSFORM_EPSILON
         }
-        assertPose(gltfEntity.getPose(Space.ACTIVITY), Pose.Identity, TRANSFORM_EPSILON)
+        assertPose(
+            gltfEntity.getPose(Space.ACTIVITY),
+            Pose.Identity,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
     }
 
     @Test
@@ -324,7 +334,12 @@ class SpatialContinuityTest {
             timeout = SCENE_TIMEOUT,
         )
 
-        assertPose(mainPanel.getPose(Space.ACTIVITY), CLEAR_PANEL_POSE, TRANSFORM_EPSILON)
+        assertPose(
+            mainPanel.getPose(Space.ACTIVITY),
+            CLEAR_PANEL_POSE,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
         assertThat(mainPanel.getScale(Space.ACTIVITY)).isWithin(TRANSFORM_EPSILON).of(CUSTOM_SCALE)
     }
 
@@ -375,7 +390,12 @@ class SpatialContinuityTest {
         assertThat(event.recommendedScale.isFinite()).isTrue()
         assertVector3(event.recommendedPose.translation, Vector3.Zero, TRANSFORM_EPSILON)
         assertFiniteUnitQuaternion(event.recommendedPose.rotation)
-        assertPose(mainPanel.getPose(Space.ACTIVITY), ROTATED_KEY_POSE, TRANSFORM_EPSILON)
+        assertPose(
+            mainPanel.getPose(Space.ACTIVITY),
+            ROTATED_KEY_POSE,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
         assertThat(mainPanel.getScale(Space.ACTIVITY)).isWithin(TRANSFORM_EPSILON).of(CUSTOM_SCALE)
     }
 
@@ -521,7 +541,12 @@ class SpatialContinuityTest {
             timeout = SCENE_TIMEOUT,
         )
         assertThat(scene.keyEntity).isSameInstanceAs(customPanel)
-        assertPose(customPanel.getPose(), RIGHT_PANEL_POSE, TRANSFORM_EPSILON)
+        assertPose(
+            customPanel.getPose(),
+            RIGHT_PANEL_POSE,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
 
         // Reattaching resumes keyEntity continuity and space-change pose alignment.
         customPanel.parent = scene.activitySpace
@@ -550,7 +575,12 @@ class SpatialContinuityTest {
         waitUntil("Returning to Full Space resets reattached custom keyEntity pose to origin") {
             customPanel.getPose(Space.ACTIVITY).translation.length < TRANSFORM_EPSILON
         }
-        assertPose(customPanel.getPose(Space.ACTIVITY), Pose.Identity, TRANSFORM_EPSILON)
+        assertPose(
+            customPanel.getPose(Space.ACTIVITY),
+            Pose.Identity,
+            translationEpsilon = TRANSFORM_EPSILON,
+            rotationEpsilon = TRANSFORM_EPSILON,
+        )
     }
 
     private fun createCustomPanel(): PanelEntity {

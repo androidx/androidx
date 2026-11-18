@@ -299,11 +299,17 @@ class EntityEcsLifecycleAndAlphaTest {
 
         // Attaching container to ActivitySpace propagates pose, scale, and alpha into CPM.
         container.parent = activitySpace
-        assertPose(panel.getPose(Space.ACTIVITY), Pose(Vector3(-0.6f, 0f, -1.8f)), FLOAT_TOLERANCE)
+        assertPose(
+            panel.getPose(Space.ACTIVITY),
+            Pose(Vector3(-0.6f, 0f, -1.8f)),
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
+        )
         assertPose(
             gltfEntity.getPose(Space.ACTIVITY),
             Pose(Vector3(0.6f, 0f, -1.8f)),
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
         assertThat(panel.getScale(Space.ACTIVITY)).isWithin(FLOAT_TOLERANCE).of(1.5f)
         assertThat(gltfEntity.getScale(Space.ACTIVITY)).isWithin(FLOAT_TOLERANCE).of(1.5f)

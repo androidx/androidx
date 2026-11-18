@@ -153,7 +153,12 @@ class SurfaceEntityInteractionAndReformTest {
         val updatedPose = Pose(Vector3(-0.3f, 0.4f, -2.0f), Quaternion.fromEulerAngles(0f, 15f, 0f))
         created.setPose(updatedPose, Space.PARENT)
         created.setAlpha(0.5f)
-        assertPose(created.getPose(Space.PARENT), updatedPose, FLOAT_TOLERANCE)
+        assertPose(
+            created.getPose(Space.PARENT),
+            updatedPose,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
+        )
         assertThat(created.getAlpha()).isWithin(FLOAT_TOLERANCE).of(0.5f)
 
         val updatedTask =

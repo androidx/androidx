@@ -236,7 +236,12 @@ class EntityTransformationTest {
 
         val moonActivityPose =
             planetActivityPose.compose(Pose(moonPos * (sunScale * planetScale), moonRot))
-        assertPose(moonEntity.getPose(Space.ACTIVITY), moonActivityPose, epsilon = 1e-4f)
+        assertPose(
+            moonEntity.getPose(Space.ACTIVITY),
+            moonActivityPose,
+            translationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+            rotationEpsilon = COMPOSED_TRANSFORM_EPSILON,
+        )
     }
 
     @Test

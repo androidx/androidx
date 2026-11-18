@@ -334,7 +334,12 @@ class SurfaceEntityCustomMeshTest {
     private fun assertAttachedToActivitySpace(entity: SurfaceEntity) {
         assertThat(entity.parent).isSameInstanceAs(sessionRule.session.scene.activitySpace)
         assertThat(entity.isEnabled(includeParents = true)).isTrue()
-        assertPose(entity.getPose(Space.ACTIVITY), SURFACE_POSE, TOLERANCE)
+        assertPose(
+            entity.getPose(Space.ACTIVITY),
+            SURFACE_POSE,
+            translationEpsilon = TOLERANCE,
+            rotationEpsilon = TOLERANCE,
+        )
         assertThat(entity.getScale()).isWithin(TOLERANCE).of(1.0f)
     }
 

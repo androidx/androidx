@@ -29,29 +29,74 @@ import kotlin.math.sqrt
  */
 internal const val GOLDEN_PATH = "xr/scenecore/integration-tests/xr-integration-tests"
 
-internal fun assertPose(actual: Pose, expected: Pose, epsilon: Float = 1e-5f) {
-    assertVector3(actual.translation, expected.translation, epsilon)
-    assertFiniteQuaternion(actual.rotation, "actual.rotation")
-    assertFiniteQuaternion(expected.rotation, "expected.rotation")
+/** Default per-component tolerance for exact pose, vector, and unit-quaternion comparisons. */
+internal const val DEFAULT_EPSILON = 1e-5f
 
-    val actualNorm = quaternionNorm(actual.rotation)
-    val expectedNorm = quaternionNorm(expected.rotation)
-    assertWithMessage("actual.rotation norm ($actualNorm) must be positive")
+/**
+ * Per-component tolerance for comparisons involving composed spatial transforms or matrix
+ * decomposition round-trips.
+ */
+internal const val COMPOSED_TRANSFORM_EPSILON = 1e-4f
+
+/**
+ * Asserts that [actual] and [expected] have finite components within [translationEpsilon] per
+ * coordinate and [rotationEpsilon] per sign-aligned unit-quaternion component (not degrees or
+ * radians; `q` and `-q` are treated as equivalent).
+ */
+internal fun assertPose(
+    actual: Pose,
+    expected: Pose,
+    translationEpsilon: Float = DEFAULT_EPSILON,
+    rotationEpsilon: Float = DEFAULT_EPSILON,
+) {
+    assertVector3(actual.translation, expected.translation, translationEpsilon)
+    assertQuaternion(actual.rotation, expected.rotation, rotationEpsilon)
+}
+
+/** Asserts that [actual] and [expected] have finite components within [epsilon] per coordinate. */
+internal fun assertVector3(
+    actual: Vector3,
+    expected: Vector3,
+    epsilon: Float = DEFAULT_EPSILON,
+) {
+    assertFiniteVector3(actual, "actual")
+    assertFiniteVector3(expected, "expected")
+    assertThat(actual.x).isWithin(epsilon).of(expected.x)
+    assertThat(actual.y).isWithin(epsilon).of(expected.y)
+    assertThat(actual.z).isWithin(epsilon).of(expected.z)
+}
+
+/**
+ * Asserts that [actual] and [expected] are finite, positive-norm quaternions whose sign-aligned
+ * unit components match within [epsilon] per component (not degrees or radians; `q` and `-q` are
+ * treated as equivalent).
+ */
+internal fun assertQuaternion(
+    actual: Quaternion,
+    expected: Quaternion,
+    epsilon: Float = DEFAULT_EPSILON,
+) {
+    assertFiniteQuaternion(actual, "actual")
+    assertFiniteQuaternion(expected, "expected")
+
+    val actualNorm = quaternionNorm(actual)
+    val expectedNorm = quaternionNorm(expected)
+    assertWithMessage("actual norm ($actualNorm) must be positive")
         .that(actualNorm)
         .isGreaterThan(1e-6f)
-    assertWithMessage("expected.rotation norm ($expectedNorm) must be positive")
+    assertWithMessage("expected norm ($expectedNorm) must be positive")
         .that(expectedNorm)
         .isGreaterThan(1e-6f)
 
-    val ax = actual.rotation.x / actualNorm
-    val ay = actual.rotation.y / actualNorm
-    val az = actual.rotation.z / actualNorm
-    val aw = actual.rotation.w / actualNorm
+    val ax = actual.x / actualNorm
+    val ay = actual.y / actualNorm
+    val az = actual.z / actualNorm
+    val aw = actual.w / actualNorm
 
-    val ex = expected.rotation.x / expectedNorm
-    val ey = expected.rotation.y / expectedNorm
-    val ez = expected.rotation.z / expectedNorm
-    val ew = expected.rotation.w / expectedNorm
+    val ex = expected.x / expectedNorm
+    val ey = expected.y / expectedNorm
+    val ez = expected.z / expectedNorm
+    val ew = expected.w / expectedNorm
 
     val dot = ax * ex + ay * ey + az * ez + aw * ew
     val sign = if (dot < 0f) -1f else 1f
@@ -59,14 +104,6 @@ internal fun assertPose(actual: Pose, expected: Pose, epsilon: Float = 1e-5f) {
     assertThat(ay * sign).isWithin(epsilon).of(ey)
     assertThat(az * sign).isWithin(epsilon).of(ez)
     assertThat(aw * sign).isWithin(epsilon).of(ew)
-}
-
-internal fun assertVector3(actual: Vector3, expected: Vector3, epsilon: Float = 1e-5f) {
-    assertFiniteVector3(actual, "actual")
-    assertFiniteVector3(expected, "expected")
-    assertThat(actual.x).isWithin(epsilon).of(expected.x)
-    assertThat(actual.y).isWithin(epsilon).of(expected.y)
-    assertThat(actual.z).isWithin(epsilon).of(expected.z)
 }
 
 private fun assertFiniteVector3(vector: Vector3, label: String) {

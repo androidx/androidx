@@ -319,7 +319,8 @@ class ActivitySpaceScaleAndBoundsTest {
         assertPose(
             perceptionSpace.transformPoseTo(hsmOriginInPerception, activitySpace),
             Pose.Identity,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
 
         val directLatch = CountDownLatch(1)
@@ -360,7 +361,8 @@ class ActivitySpaceScaleAndBoundsTest {
         assertPose(
             perceptionSpace.transformPoseTo(fsmOriginInPerception, activitySpace),
             Pose.Identity,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
         assertThat(Pose.distance(hsmOriginInPerception, fsmOriginInPerception))
             .isGreaterThan(ORIGIN_DELTA_MIN)
@@ -426,7 +428,8 @@ class ActivitySpaceScaleAndBoundsTest {
         assertPose(
             perceptionSpace.transformPoseTo(activityPoseInPerception, activitySpace),
             Pose.Identity,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
 
         assertThat(parentEntity.getScale(Space.ACTIVITY)).isWithin(FLOAT_TOLERANCE).of(1.5f)
@@ -438,32 +441,41 @@ class ActivitySpaceScaleAndBoundsTest {
         assertPose(
             perceptionSpace.transformPoseTo(parentPoseInPerception, parentEntity),
             Pose.Identity,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
         val childPoseInPerception = childEntity.transformPoseTo(Pose.Identity, perceptionSpace)
         assertFinitePose(childPoseInPerception)
         assertPose(
             perceptionSpace.transformPoseTo(childPoseInPerception, childEntity),
             Pose.Identity,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
 
         val parentInActivity = parentEntity.getPose(Space.ACTIVITY)
         assertPose(
             activitySpace.transformPoseTo(parentInActivity, perceptionSpace),
             parentPoseInPerception,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
 
         // Parent (0.4, -0.2, -1.0) scaled 1.5x + child offset (0.2, 0.3, -0.1) => (0.7, 0.25,
         // -1.15).
         val expectedChildInActivity = Pose(Vector3(0.7f, 0.25f, -1.15f), Quaternion.Identity)
         val actualChildInActivity = childEntity.getPose(Space.ACTIVITY)
-        assertPose(actualChildInActivity, expectedChildInActivity, FLOAT_TOLERANCE)
+        assertPose(
+            actualChildInActivity,
+            expectedChildInActivity,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
+        )
         assertPose(
             activitySpace.transformPoseTo(actualChildInActivity, perceptionSpace),
             childPoseInPerception,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
 
         val parentDeltaInActivity = parentInActivity.translation
@@ -485,17 +497,20 @@ class ActivitySpaceScaleAndBoundsTest {
         assertPose(
             childEntity.transformPoseTo(Pose.Identity, parentEntity),
             childEntity.getPose(Space.PARENT),
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
         assertPose(
             childEntity.transformPoseTo(Pose.Identity, activitySpace),
             actualChildInActivity,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
         assertPose(
             activitySpace.transformPoseTo(actualChildInActivity, childEntity),
             Pose.Identity,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
 
         // Local offset (0.2, 0, 0) in 0.75x child space adds (0.15, 0, 0) in ActivitySpace.
@@ -504,12 +519,14 @@ class ActivitySpaceScaleAndBoundsTest {
         assertPose(
             offsetInActivity,
             Pose(Vector3(0.85f, 0.25f, -1.15f), Quaternion.Identity),
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
         assertPose(
             activitySpace.transformPoseTo(offsetInActivity, childEntity),
             localOffset,
-            FLOAT_TOLERANCE,
+            translationEpsilon = FLOAT_TOLERANCE,
+            rotationEpsilon = FLOAT_TOLERANCE,
         )
         return inferredScale
     }

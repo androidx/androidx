@@ -844,7 +844,8 @@ class InteractableComponentTest {
         assertPose(
             actual = movedDownHit.transform.inverse.toPose(),
             expected = movedPose,
-            epsilon = HIT_TRANSFORM_EPSILON,
+            translationEpsilon = HIT_TRANSFORM_EPSILON,
+            rotationEpsilon = HIT_TRANSFORM_EPSILON,
         )
         assertThat(checkNotNull(movedDownHit.hitPosition).x)
             .isGreaterThan(initialHitPosition.x + 0.05f)
@@ -893,7 +894,8 @@ class InteractableComponentTest {
         assertPose(
             actual = resizedDownHit.transform.inverse.toPose(),
             expected = resizedPose,
-            epsilon = HIT_TRANSFORM_EPSILON,
+            translationEpsilon = HIT_TRANSFORM_EPSILON,
+            rotationEpsilon = HIT_TRANSFORM_EPSILON,
         )
         assertVector3(
             actual = checkNotNull(resizedDownHit.hitPosition),

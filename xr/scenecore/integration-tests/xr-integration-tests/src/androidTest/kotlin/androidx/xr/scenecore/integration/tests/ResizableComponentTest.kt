@@ -415,7 +415,12 @@ class ResizableComponentTest {
         assertThat(shrunkSize.height).isLessThan(initialSize.height - MIN_RESIZE_DELTA_METERS)
         assertThat(shrunkPx.width).isLessThan(initialPx.width)
         assertThat(shrunkPx.height).isLessThan(initialPx.height)
-        assertPose(shrunkPose, initialPose, POSE_EPSILON)
+        assertPose(
+            shrunkPose,
+            initialPose,
+            translationEpsilon = POSE_EPSILON,
+            rotationEpsilon = POSE_EPSILON,
+        )
 
         // Phase 2: Wait for CPM worldExtents to reflect the shrunk panel size before growing
         // outward from TopLeft (-X = left, +Y = up).
@@ -444,7 +449,12 @@ class ResizableComponentTest {
         assertThat(grownSize.height).isGreaterThan(shrunkSize.height + MIN_RESIZE_DELTA_METERS)
         assertThat(grownPx.width).isGreaterThan(shrunkPx.width)
         assertThat(grownPx.height).isGreaterThan(shrunkPx.height)
-        assertPose(grownPose, shrunkPose, POSE_EPSILON)
+        assertPose(
+            grownPose,
+            shrunkPose,
+            translationEpsilon = POSE_EPSILON,
+            rotationEpsilon = POSE_EPSILON,
+        )
     }
 
     @Test
@@ -924,7 +934,12 @@ class ResizableComponentTest {
         gltfEntity.removeComponent(component)
         assertThat(gltfEntity.getComponentsOfType(ResizableComponent::class.java)).isEmpty()
 
-        assertPose(gltfEntity.getPose(Space.ACTIVITY), initialPose, POSE_EPSILON)
+        assertPose(
+            gltfEntity.getPose(Space.ACTIVITY),
+            initialPose,
+            translationEpsilon = POSE_EPSILON,
+            rotationEpsilon = POSE_EPSILON,
+        )
         assertThat(gltfEntity.getScale(Space.ACTIVITY)).isWithin(POSE_EPSILON).of(1f)
     }
 
@@ -1902,7 +1917,12 @@ class ResizableComponentTest {
             assertThat(resizeListener.snapshotStates()).isEmpty()
             assertThat(panel.size).isEqualTo(expectedSize)
             assertThat(panel.sizeInPixels).isEqualTo(expectedPixelSize)
-            assertPose(panel.getPose(Space.ACTIVITY), expectedPose, POSE_EPSILON)
+            assertPose(
+                panel.getPose(Space.ACTIVITY),
+                expectedPose,
+                translationEpsilon = POSE_EPSILON,
+                rotationEpsilon = POSE_EPSILON,
+            )
 
             consecutiveCleanPolls += 1
             consecutiveCleanPolls >= SETTLE_POLL_COUNT && TimeSource.Monotonic.markNow() >= deadline

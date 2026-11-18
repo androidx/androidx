@@ -538,7 +538,12 @@ class MovableComponentTest {
         }
 
         val finalChildLocalPose = child.getPose(Space.PARENT)
-        assertPose(finalChildLocalPose, initialChildLocalPose, POSE_TOLERANCE)
+        assertPose(
+            finalChildLocalPose,
+            initialChildLocalPose,
+            translationEpsilon = POSE_TOLERANCE,
+            rotationEpsilon = POSE_TOLERANCE,
+        )
     }
 
     @Test
@@ -639,7 +644,12 @@ class MovableComponentTest {
             )
             .isFalse()
         assertThat(parentMoveListener.moveStartCount.get()).isEqualTo(0)
-        assertPose(parent.getPose(Space.ACTIVITY), initialParentPose, POSE_TOLERANCE)
+        assertPose(
+            parent.getPose(Space.ACTIVITY),
+            initialParentPose,
+            translationEpsilon = POSE_TOLERANCE,
+            rotationEpsilon = POSE_TOLERANCE,
+        )
 
         // Step 2: Wait for CPM node to reflect Step 1 move before resizing it ("Everything"
         // supports move + resize).
@@ -770,7 +780,12 @@ class MovableComponentTest {
             .isFalse()
 
         assertThat(moveListener.moveStartCount.get()).isEqualTo(1)
-        assertPose(target.getPose(Space.ACTIVITY), poseAfterRemoval, POSE_TOLERANCE)
+        assertPose(
+            target.getPose(Space.ACTIVITY),
+            poseAfterRemoval,
+            translationEpsilon = POSE_TOLERANCE,
+            rotationEpsilon = POSE_TOLERANCE,
+        )
     }
 
     @Test
@@ -857,7 +872,12 @@ class MovableComponentTest {
             .isFalse()
 
         assertThat(moveListener.moveStartCount.get()).isEqualTo(0)
-        assertPose(target.getPose(Space.ACTIVITY), initialPose, POSE_TOLERANCE)
+        assertPose(
+            target.getPose(Space.ACTIVITY),
+            initialPose,
+            translationEpsilon = POSE_TOLERANCE,
+            rotationEpsilon = POSE_TOLERANCE,
+        )
     }
 
     /**
