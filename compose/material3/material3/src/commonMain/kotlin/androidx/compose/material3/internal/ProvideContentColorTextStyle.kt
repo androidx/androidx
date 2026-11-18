@@ -21,6 +21,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.TextStyle
  * Text styles will be merged with the current value of [LocalTextStyle].
  */
 @Composable
+@NonRestartableComposable
 internal fun ProvideContentColorTextStyle(
     contentColor: Color,
     textStyle: TextStyle,
@@ -47,12 +49,37 @@ internal fun ProvideContentColorTextStyle(
 
 /**
  * A convenience method to provide values to both [LocalContentColor] and [LocalTextStyle] in one
+ * call, as well as an additional [CompositionLocal] value. This is less expensive than nesting
+ * calls to [CompositionLocalProvider] or spreading a `vararg`.
+ *
+ * Text styles will be merged with the current value of [LocalTextStyle].
+ */
+@Composable
+@NonRestartableComposable
+internal fun ProvideContentColorTextStyle(
+    contentColor: Color,
+    textStyle: TextStyle,
+    otherValue: ProvidedValue<*>,
+    content: @Composable () -> Unit,
+) {
+    val mergedStyle = LocalTextStyle.current.merge(textStyle)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides mergedStyle,
+        otherValue,
+        content = content,
+    )
+}
+
+/**
+ * A convenience method to provide values to both [LocalContentColor] and [LocalTextStyle] in one
  * call, as well as other [CompositionLocal] values. This is less expensive than nesting calls to
  * [CompositionLocalProvider].
  *
  * Text styles will be merged with the current value of [LocalTextStyle].
  */
 @Composable
+@NonRestartableComposable
 internal fun ProvideContentColorTextStyle(
     contentColor: Color,
     textStyle: TextStyle,

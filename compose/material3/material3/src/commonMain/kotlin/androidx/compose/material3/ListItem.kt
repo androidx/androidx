@@ -48,7 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,6 +56,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -68,7 +69,6 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -78,10 +78,12 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
@@ -1300,101 +1302,99 @@ private fun verticalPadding(listItemType: ListItemType): Dp =
     }
 
 @Composable
+@NonRestartableComposable
 private fun LeadingDecorator(
     startPadding: Dp,
     color: Color,
-    textStyle: TypographyToken,
-    content: (@Composable () -> Unit)?,
+    textStyle: TextStyle,
+    content: @Composable () -> Unit,
 ) {
-    if (content != null) {
-        Box(Modifier.padding(end = InteractiveListInternalSpacing)) {
-            val horizontalPadding = startPadding + InteractiveListInternalSpacing
-            // Padding contributes to content's touch target, so we can reduce enforcement value
-            val mics =
-                (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
-                        horizontalPadding)
-                    .coerceAtLeast(0.dp)
-            ProvideContentColorTextStyle(
-                contentColor = color,
-                textStyle = textStyle.value,
-                LocalMinimumInteractiveComponentSize provides mics,
-                content = content,
-            )
-        }
+    Box(Modifier.padding(end = InteractiveListInternalSpacing)) {
+        val horizontalPadding = startPadding + InteractiveListInternalSpacing
+        // Padding contributes to content's touch target, so we can reduce enforcement value
+        val mics =
+            (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } - horizontalPadding)
+                .coerceAtLeast(0.dp)
+        ProvideContentColorTextStyle(
+            contentColor = color,
+            textStyle = textStyle,
+            LocalMinimumInteractiveComponentSize provides mics,
+            content = content,
+        )
     }
 }
 
 @Composable
+@NonRestartableComposable
 private fun TrailingDecorator(
     endPadding: Dp,
     color: Color,
-    textStyle: TypographyToken,
-    content: (@Composable () -> Unit)?,
+    textStyle: TextStyle,
+    content: @Composable () -> Unit,
 ) {
-    if (content != null) {
-        Box(Modifier.padding(start = InteractiveListInternalSpacing)) {
-            val horizontalPadding = endPadding + InteractiveListInternalSpacing
-            // Padding contributes to content's touch target, so we can reduce enforcement value
-            val mics =
-                (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
-                        horizontalPadding)
-                    .coerceAtLeast(0.dp)
-            ProvideContentColorTextStyle(
-                contentColor = color,
-                textStyle = textStyle.value,
-                LocalMinimumInteractiveComponentSize provides mics,
-                content = content,
-            )
-        }
+    Box(Modifier.padding(start = InteractiveListInternalSpacing)) {
+        val horizontalPadding = endPadding + InteractiveListInternalSpacing
+        // Padding contributes to content's touch target, so we can reduce enforcement value
+        val mics =
+            (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } - horizontalPadding)
+                .coerceAtLeast(0.dp)
+        ProvideContentColorTextStyle(
+            contentColor = color,
+            textStyle = textStyle,
+            LocalMinimumInteractiveComponentSize provides mics,
+            content = content,
+        )
     }
 }
 
 @Composable
+@NonRestartableComposable
 private fun OverlineDecorator(
     color: Color,
-    textStyle: TypographyToken,
-    content: (@Composable () -> Unit)?,
-) {
-    if (content != null) {
-        Box {
-            ProvideContentColorTextStyle(
-                contentColor = color,
-                textStyle = textStyle.value,
-                content = content,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SupportingDecorator(
-    color: Color,
-    textStyle: TypographyToken,
-    content: (@Composable () -> Unit)?,
-) {
-    if (content != null) {
-        Box {
-            ProvideContentColorTextStyle(
-                contentColor = color,
-                textStyle = textStyle.value,
-                content = content,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ContentDecorator(
-    color: Color,
-    textStyle: TypographyToken,
+    textStyle: TextStyle,
     content: @Composable () -> Unit,
 ) {
     Box {
         ProvideContentColorTextStyle(
             contentColor = color,
-            textStyle = textStyle.value,
+            textStyle = textStyle,
             content = content,
         )
+    }
+}
+
+@Composable
+@NonRestartableComposable
+private fun SupportingDecorator(
+    color: Color,
+    textStyle: TextStyle,
+    content: @Composable () -> Unit,
+) {
+    Box {
+        ProvideContentColorTextStyle(
+            contentColor = color,
+            textStyle = textStyle,
+            content = content,
+        )
+    }
+}
+
+@Composable
+@NonRestartableComposable
+private fun ContentDecorator(textStyle: TextStyle, content: @Composable () -> Unit) {
+    Box {
+        val localTextStyle = LocalTextStyle.current
+        if (localTextStyle == textStyle) {
+            // List content text style and local text style use the same default (bodyLarge).
+            // In most cases, we can avoid a TextStyle.merge() call.
+            content()
+        } else {
+            CompositionLocalProvider(
+                // LocalContentColor is already provided in InteractiveListItem
+                LocalTextStyle provides localTextStyle.merge(textStyle),
+                content = content,
+            )
+        }
     }
 }
 
@@ -1479,102 +1479,186 @@ private fun InteractiveListItem(
     elevation: ListItemElevation,
     contentPadding: PaddingValues,
 ) {
-    @Suppress("NAME_SHADOWING")
-    val interactionSource =
-        if (onClick == null) {
-            null
-        } else {
-            interactionSource ?: remember { MutableInteractionSource() }
-        }
+    val isInteractive = onClick != null
 
-    val pressed = remember { mutableStateOf(false) }
-    val focused = remember { mutableStateOf(false) }
-    val hovered = remember { mutableStateOf(false) }
-    val dragged = remember { mutableStateOf(false) }
+    val resolvedInteractionSource: MutableInteractionSource?
+    val shape: Shape
+    val containerColor: Color
+    val contentColor: Color
+    val leadingColor: Color
+    val trailingColor: Color
+    val overlineColor: Color
+    val supportingColor: Color
+    val getElevation: (() -> Dp)?
 
-    interactionSource.CollectInteractionsAsState(
-        pressedState = pressed,
-        focusedState = focused,
-        hoveredState = hovered,
-        draggedState = dragged,
-    )
+    if (isInteractive) {
+        resolvedInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
-    // TODO: Load the motionScheme tokens from the component tokens file
-    val colorAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Color>()
-    val shapeAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
-    val elevationAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Dp>()
+        val pressed = remember { mutableStateOf(false) }
+        val focused = remember { mutableStateOf(false) }
+        val hovered = remember { mutableStateOf(false) }
+        val dragged = remember { mutableStateOf(false) }
 
-    val shape =
-        shapes.shapeForInteraction(
-            selected = selected,
-            pressed = pressed.value,
-            focused = focused.value,
-            hovered = hovered.value,
-            dragged = dragged.value,
-            animationSpec = shapeAnimationSpec,
+        resolvedInteractionSource.CollectInteractionsAsState(
+            pressedState = pressed,
+            focusedState = focused,
+            hoveredState = hovered,
+            draggedState = dragged,
         )
 
-    val colorState = InteractiveListColorState(enabled, selected, dragged.value)
-    val transition = updateTransition(colorState, "ListColor")
+        // TODO: Load the motionScheme tokens from the component tokens file
+        val colorAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Color>()
+        val shapeAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
 
-    val containerColor by
-        transition.animateColor(transitionSpec = { colorAnimationSpec }) { state ->
-            colors.containerColor(
-                enabled = state.enabled,
-                selected = state.selected,
-                dragged = state.dragged,
+        shape =
+            shapes.shapeForInteraction(
+                selected = selected,
+                pressed = pressed.value,
+                focused = focused.value,
+                hovered = hovered.value,
+                dragged = dragged.value,
+                animationSpec = shapeAnimationSpec,
             )
-        }
-    val contentColor by
-        transition.animateColor(transitionSpec = { colorAnimationSpec }) { state ->
-            colors.contentColor(
-                enabled = state.enabled,
-                selected = state.selected,
-                dragged = state.dragged,
-            )
-        }
-    val leadingColor by
-        transition.animateColor(transitionSpec = { colorAnimationSpec }) { state ->
-            colors.leadingContentColor(
-                enabled = state.enabled,
-                selected = state.selected,
-                dragged = state.dragged,
-            )
-        }
-    val trailingColor by
-        transition.animateColor(transitionSpec = { colorAnimationSpec }) { state ->
-            colors.trailingContentColor(
-                enabled = state.enabled,
-                selected = state.selected,
-                dragged = state.dragged,
-            )
-        }
-    val overlineColor by
-        transition.animateColor(transitionSpec = { colorAnimationSpec }) { state ->
-            colors.overlineContentColor(
-                enabled = state.enabled,
-                selected = state.selected,
-                dragged = state.dragged,
-            )
-        }
-    val supportingColor by
-        transition.animateColor(transitionSpec = { colorAnimationSpec }) { state ->
-            colors.supportingContentColor(
-                enabled = state.enabled,
-                selected = state.selected,
-                dragged = state.dragged,
-            )
-        }
 
-    val leadingTextStyle = ListTokens.ItemLeadingAvatarLabelFont
-    val trailingTextStyle = ListTokens.ItemTrailingSupportingTextFont
-    val overlineTextStyle = ListTokens.ItemOverlineFont
-    val supportingTextStyle = ListTokens.ItemSupportingTextFont
-    val contentTextStyle = ListTokens.ItemLabelTextFont
+        val colorState = InteractiveListColorState(enabled, selected, dragged.value)
+        val transition = updateTransition(colorState, "ListColor")
 
-    val targetElevation = if (dragged.value) elevation.draggedElevation else elevation.elevation
-    val shadowElevation = animateDpAsState(targetElevation, elevationAnimationSpec)
-    val density = LocalDensity.current
+        containerColor =
+            transition
+                .animateColor(transitionSpec = { colorAnimationSpec }) { state ->
+                    colors.containerColor(
+                        enabled = state.enabled,
+                        selected = state.selected,
+                        dragged = state.dragged,
+                    )
+                }
+                .value
+        contentColor =
+            transition
+                .animateColor(transitionSpec = { colorAnimationSpec }) { state ->
+                    colors.contentColor(
+                        enabled = state.enabled,
+                        selected = state.selected,
+                        dragged = state.dragged,
+                    )
+                }
+                .value
+        leadingColor =
+            if (leadingContent != null) {
+                transition
+                    .animateColor(transitionSpec = { colorAnimationSpec }) { state ->
+                        colors.leadingContentColor(
+                            enabled = state.enabled,
+                            selected = state.selected,
+                            dragged = state.dragged,
+                        )
+                    }
+                    .value
+            } else {
+                Color.Unspecified
+            }
+        trailingColor =
+            if (trailingContent != null) {
+                transition
+                    .animateColor(transitionSpec = { colorAnimationSpec }) { state ->
+                        colors.trailingContentColor(
+                            enabled = state.enabled,
+                            selected = state.selected,
+                            dragged = state.dragged,
+                        )
+                    }
+                    .value
+            } else {
+                Color.Unspecified
+            }
+        overlineColor =
+            if (overlineContent != null) {
+                transition
+                    .animateColor(transitionSpec = { colorAnimationSpec }) { state ->
+                        colors.overlineContentColor(
+                            enabled = state.enabled,
+                            selected = state.selected,
+                            dragged = state.dragged,
+                        )
+                    }
+                    .value
+            } else {
+                Color.Unspecified
+            }
+        supportingColor =
+            if (supportingContent != null) {
+                transition
+                    .animateColor(transitionSpec = { colorAnimationSpec }) { state ->
+                        colors.supportingContentColor(
+                            enabled = state.enabled,
+                            selected = state.selected,
+                            dragged = state.dragged,
+                        )
+                    }
+                    .value
+            } else {
+                Color.Unspecified
+            }
+
+        getElevation =
+            if (elevation.elevation <= 0.dp && elevation.draggedElevation <= 0.dp) {
+                null
+            } else {
+                val targetElevation =
+                    if (dragged.value) elevation.draggedElevation else elevation.elevation
+                // TODO: Load the motionScheme tokens from the component tokens file
+                val elevationAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Dp>()
+                animateDpAsState(targetElevation, elevationAnimationSpec)::value
+            }
+    } else {
+        resolvedInteractionSource = null
+        shape = shapes.shape
+        containerColor =
+            colors.containerColor(enabled = enabled, selected = selected, dragged = false)
+        contentColor = colors.contentColor(enabled = enabled, selected = selected, dragged = false)
+        leadingColor =
+            if (leadingContent != null) {
+                colors.leadingContentColor(enabled = enabled, selected = selected, dragged = false)
+            } else {
+                Color.Unspecified
+            }
+        trailingColor =
+            if (trailingContent != null) {
+                colors.trailingContentColor(enabled = enabled, selected = selected, dragged = false)
+            } else {
+                Color.Unspecified
+            }
+        overlineColor =
+            if (overlineContent != null) {
+                colors.overlineContentColor(enabled = enabled, selected = selected, dragged = false)
+            } else {
+                Color.Unspecified
+            }
+        supportingColor =
+            if (supportingContent != null) {
+                colors.supportingContentColor(
+                    enabled = enabled,
+                    selected = selected,
+                    dragged = false,
+                )
+            } else {
+                Color.Unspecified
+            }
+        getElevation =
+            if (elevation.elevation <= 0.dp) {
+                null
+            } else {
+                { elevation.elevation }
+            }
+    }
+
+    val typography = MaterialTheme.typography
+    val leadingTextStyle = typography.fromToken(ListTokens.ItemLeadingAvatarLabelFont)
+    val trailingTextStyle = typography.fromToken(ListTokens.ItemTrailingSupportingTextFont)
+    val overlineTextStyle = typography.fromToken(ListTokens.ItemOverlineFont)
+    val supportingTextStyle = typography.fromToken(ListTokens.ItemSupportingTextFont)
+    val contentTextStyle = typography.fromToken(ListTokens.ItemLabelTextFont)
+
     val layoutDirection = LocalLayoutDirection.current
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
@@ -1583,24 +1667,32 @@ private fun InteractiveListItem(
                 modifier
                     .semantics(mergeDescendants = true, properties = applySemantics)
                     .then(
-                        if (onClick != null) {
+                        if (isInteractive) {
                             Modifier.minimumInteractiveComponentSize()
                         } else {
                             Modifier
                         }
                     )
-                    .zIndexLambda { if (shadowElevation.value > 0.dp) 1f else 0f }
-                    .graphicsLayer {
-                        this.shadowElevation = with(density) { shadowElevation.value.toPx() }
-                        this.shape = shape
-                        clip = false
-                    }
+                    .then(
+                        if (getElevation != null) {
+                            Modifier.zIndexLambda {
+                                    if (getElevation() > 0.dp) 1f else 0f
+                                }
+                                .graphicsLayer {
+                                    this.shadowElevation = getElevation().toPx()
+                                    this.shape = shape
+                                    clip = false
+                                }
+                        } else {
+                            Modifier
+                        }
+                    )
                     .background(color = containerColor, shape = shape)
                     .clip(shape)
                     .then(
                         if (onClick != null) {
                             Modifier.combinedClickable(
-                                interactionSource = interactionSource,
+                                interactionSource = resolvedInteractionSource,
                                 indication =
                                     @OptIn(ExperimentalMaterial3Api::class)
                                     ripple(focusRingShape = shape),
@@ -1612,57 +1704,70 @@ private fun InteractiveListItem(
                         } else {
                             Modifier
                         }
-                    )
-                    .padding(contentPadding),
+                    ),
             verticalAlignment = verticalAlignment,
-            verticalPadding =
-                contentPadding.calculateTopPadding() + contentPadding.calculateBottomPadding(),
-            leading = {
-                LeadingDecorator(
-                    startPadding = contentPadding.calculateStartPadding(layoutDirection),
-                    color = leadingColor,
-                    textStyle = leadingTextStyle,
-                    content = leadingContent,
-                )
-            },
-            trailing = {
-                TrailingDecorator(
-                    endPadding = contentPadding.calculateEndPadding(layoutDirection),
-                    color = trailingColor,
-                    textStyle = trailingTextStyle,
-                    content = trailingContent,
-                )
-            },
-            overline = {
-                OverlineDecorator(
-                    color = overlineColor,
-                    textStyle = overlineTextStyle,
-                    content = overlineContent,
-                )
-            },
-            supporting = {
-                SupportingDecorator(
-                    color = supportingColor,
-                    textStyle = supportingTextStyle,
-                    content = supportingContent,
-                )
-            },
-            content = {
-                ContentDecorator(
-                    color = contentColor,
-                    textStyle = contentTextStyle,
-                    content = content,
-                )
-            },
+            contentPadding = contentPadding,
+            leading =
+                if (leadingContent != null) {
+                    {
+                        LeadingDecorator(
+                            startPadding = contentPadding.calculateStartPadding(layoutDirection),
+                            color = leadingColor,
+                            textStyle = leadingTextStyle,
+                            content = leadingContent,
+                        )
+                    }
+                } else {
+                    EmptyContent
+                },
+            trailing =
+                if (trailingContent != null) {
+                    {
+                        TrailingDecorator(
+                            endPadding = contentPadding.calculateEndPadding(layoutDirection),
+                            color = trailingColor,
+                            textStyle = trailingTextStyle,
+                            content = trailingContent,
+                        )
+                    }
+                } else {
+                    EmptyContent
+                },
+            overline =
+                if (overlineContent != null) {
+                    {
+                        OverlineDecorator(
+                            color = overlineColor,
+                            textStyle = overlineTextStyle,
+                            content = overlineContent,
+                        )
+                    }
+                } else {
+                    EmptyContent
+                },
+            supporting =
+                if (supportingContent != null) {
+                    {
+                        SupportingDecorator(
+                            color = supportingColor,
+                            textStyle = supportingTextStyle,
+                            content = supportingContent,
+                        )
+                    }
+                } else {
+                    EmptyContent
+                },
+            content = { ContentDecorator(textStyle = contentTextStyle, content = content) },
         )
     }
 }
 
 @Composable
+@NonRestartableComposable
 private fun InteractiveListItemLayout(
     modifier: Modifier,
     verticalAlignment: Alignment.Vertical,
-    verticalPadding: Dp,
+    contentPadding: PaddingValues,
     leading: @Composable () -> Unit,
     trailing: @Composable () -> Unit,
     overline: @Composable () -> Unit,
@@ -1670,10 +1775,10 @@ private fun InteractiveListItemLayout(
     content: @Composable () -> Unit,
 ) {
     val measurePolicy =
-        remember(verticalAlignment, verticalPadding) {
+        remember(verticalAlignment, contentPadding) {
             InteractiveListItemMeasurePolicy(
                 verticalAlignment = verticalAlignment,
-                verticalPadding = verticalPadding,
+                contentPadding = contentPadding,
             )
         }
     Layout(
@@ -1685,7 +1790,7 @@ private fun InteractiveListItemLayout(
 
 private class InteractiveListItemMeasurePolicy(
     val verticalAlignment: Alignment.Vertical,
-    val verticalPadding: Dp,
+    val contentPadding: PaddingValues,
 ) : MultiContentMeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<List<Measurable>>,
@@ -1699,7 +1804,17 @@ private class InteractiveListItemMeasurePolicy(
             contentMeasurable,
         ) = measurables
 
-        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val startPadding = contentPadding.calculateStartPadding(layoutDirection).roundToPx()
+        val endPadding = contentPadding.calculateEndPadding(layoutDirection).roundToPx()
+        val topPadding = contentPadding.calculateTopPadding().roundToPx()
+        val bottomPadding = contentPadding.calculateBottomPadding().roundToPx()
+        val horizontalPadding = startPadding + endPadding
+        val verticalPadding = topPadding + bottomPadding
+
+        val looseConstraints =
+            constraints
+                .offset(horizontal = -horizontalPadding, vertical = -verticalPadding)
+                .copy(minWidth = 0, minHeight = 0)
         var constraintOffsetX = 0
         var constraintOffsetY = 0
 
@@ -1739,8 +1854,11 @@ private class InteractiveListItemMeasurePolicy(
                     )
                 )
 
+        // Calculating baselines is moderately expensive. Avoid it if we can.
+        val calculateSupportingMultiline = constraints.minHeight == 0 && overlinePlaceable == null
         val isSupportingMultiline =
-            supportingPlaceable != null &&
+            calculateSupportingMultiline &&
+                supportingPlaceable != null &&
                 (supportingPlaceable[FirstBaseline] != supportingPlaceable[LastBaseline])
 
         val listItemType =
@@ -1757,6 +1875,7 @@ private class InteractiveListItemMeasurePolicy(
                 overlineWidth = overlinePlaceable.widthOrZero,
                 supportingWidth = supportingPlaceable.widthOrZero,
                 contentWidth = contentPlaceable.widthOrZero,
+                horizontalPadding = horizontalPadding,
                 constraints = constraints,
             )
         val height =
@@ -1766,6 +1885,7 @@ private class InteractiveListItemMeasurePolicy(
                 overlineHeight = overlinePlaceable.heightOrZero,
                 supportingHeight = supportingPlaceable.heightOrZero,
                 contentHeight = contentPlaceable.heightOrZero,
+                verticalPadding = verticalPadding,
                 constraints = constraints,
                 listItemType = listItemType,
             )
@@ -1778,6 +1898,10 @@ private class InteractiveListItemMeasurePolicy(
             contentPlaceable = contentPlaceable,
             overlinePlaceable = overlinePlaceable,
             supportingPlaceable = supportingPlaceable,
+            startPadding = startPadding,
+            endPadding = endPadding,
+            topPadding = topPadding,
+            bottomPadding = bottomPadding,
         )
     }
 
@@ -1801,7 +1925,7 @@ private class InteractiveListItemMeasurePolicy(
         height: Int,
     ): Int = calculateIntrinsicWidth(measurables, height, IntrinsicMeasurable::minIntrinsicWidth)
 
-    private fun calculateIntrinsicWidth(
+    private fun IntrinsicMeasureScope.calculateIntrinsicWidth(
         measurables: List<List<IntrinsicMeasurable>>,
         height: Int,
         intrinsicMeasure: IntrinsicMeasurable.(height: Int) -> Int,
@@ -1814,17 +1938,27 @@ private class InteractiveListItemMeasurePolicy(
             contentMeasurable,
         ) = measurables
 
+        val horizontalPadding =
+            contentPadding.calculateStartPadding(layoutDirection).roundToPx() +
+                contentPadding.calculateEndPadding(layoutDirection).roundToPx()
+        val verticalPadding =
+            contentPadding.calculateTopPadding().roundToPx() +
+                contentPadding.calculateBottomPadding().roundToPx()
+        val innerHeight = height.subtractConstraintSafely(verticalPadding)
+
         return calculateWidth(
-            leadingWidth = leadingMeasurable.firstOrNull()?.intrinsicMeasure(height) ?: 0,
-            trailingWidth = trailingMeasurable.firstOrNull()?.intrinsicMeasure(height) ?: 0,
-            overlineWidth = overlineMeasurable.firstOrNull()?.intrinsicMeasure(height) ?: 0,
-            supportingWidth = supportingMeasurable.firstOrNull()?.intrinsicMeasure(height) ?: 0,
-            contentWidth = contentMeasurable.firstOrNull()?.intrinsicMeasure(height) ?: 0,
+            leadingWidth = leadingMeasurable.firstOrNull()?.intrinsicMeasure(innerHeight) ?: 0,
+            trailingWidth = trailingMeasurable.firstOrNull()?.intrinsicMeasure(innerHeight) ?: 0,
+            overlineWidth = overlineMeasurable.firstOrNull()?.intrinsicMeasure(innerHeight) ?: 0,
+            supportingWidth =
+                supportingMeasurable.firstOrNull()?.intrinsicMeasure(innerHeight) ?: 0,
+            contentWidth = contentMeasurable.firstOrNull()?.intrinsicMeasure(innerHeight) ?: 0,
+            horizontalPadding = horizontalPadding,
             constraints = Constraints(),
         )
     }
 
-    private fun Density.calculateIntrinsicHeight(
+    private fun IntrinsicMeasureScope.calculateIntrinsicHeight(
         measurables: List<List<IntrinsicMeasurable>>,
         width: Int,
         intrinsicMeasure: IntrinsicMeasurable.(width: Int) -> Int,
@@ -1837,7 +1971,14 @@ private class InteractiveListItemMeasurePolicy(
             contentMeasurable,
         ) = measurables
 
-        var remainingWidth = width
+        val horizontalPadding =
+            contentPadding.calculateStartPadding(layoutDirection).roundToPx() +
+                contentPadding.calculateEndPadding(layoutDirection).roundToPx()
+        val verticalPadding =
+            contentPadding.calculateTopPadding().roundToPx() +
+                contentPadding.calculateBottomPadding().roundToPx()
+
+        var remainingWidth = width.subtractConstraintSafely(horizontalPadding)
 
         val leadingHeight =
             leadingMeasurable.firstOrNull()?.let {
@@ -1876,6 +2017,7 @@ private class InteractiveListItemMeasurePolicy(
             overlineHeight = overlineHeight,
             supportingHeight = supportingHeight,
             contentHeight = contentHeight,
+            verticalPadding = verticalPadding,
             constraints = Constraints(),
             listItemType = listItemType,
         )
@@ -1889,19 +2031,25 @@ private class InteractiveListItemMeasurePolicy(
         contentPlaceable: Placeable?,
         overlinePlaceable: Placeable?,
         supportingPlaceable: Placeable?,
+        startPadding: Int,
+        endPadding: Int,
+        topPadding: Int,
+        bottomPadding: Int,
     ): MeasureResult {
+        val innerHeight = (height - topPadding - bottomPadding).coerceAtLeast(0)
         return layout(width, height) {
             leadingPlaceable?.placeRelative(
-                x = 0,
-                y = verticalAlignment.align(leadingPlaceable.height, height),
+                x = startPadding,
+                y = topPadding + verticalAlignment.align(leadingPlaceable.height, innerHeight),
             )
 
-            val mainContentX = leadingPlaceable.widthOrZero
+            val mainContentX = startPadding + leadingPlaceable.widthOrZero
             val mainContentTotalHeight =
                 contentPlaceable.heightOrZero +
                     overlinePlaceable.heightOrZero +
                     supportingPlaceable.heightOrZero
-            val mainContentY = verticalAlignment.align(mainContentTotalHeight, height)
+            val mainContentY =
+                topPadding + verticalAlignment.align(mainContentTotalHeight, innerHeight)
             var currY = mainContentY
 
             overlinePlaceable?.placeRelative(mainContentX, currY)
@@ -1913,8 +2061,8 @@ private class InteractiveListItemMeasurePolicy(
             supportingPlaceable?.placeRelative(mainContentX, currY)
 
             trailingPlaceable?.placeRelative(
-                x = width - trailingPlaceable.width,
-                y = verticalAlignment.align(trailingPlaceable.height, height),
+                x = width - endPadding - trailingPlaceable.width,
+                y = topPadding + verticalAlignment.align(trailingPlaceable.height, innerHeight),
             )
         }
     }
@@ -1925,6 +2073,7 @@ private class InteractiveListItemMeasurePolicy(
         overlineWidth: Int,
         supportingWidth: Int,
         contentWidth: Int,
+        horizontalPadding: Int,
         constraints: Constraints,
     ): Int {
         if (constraints.hasBoundedWidth) {
@@ -1932,7 +2081,9 @@ private class InteractiveListItemMeasurePolicy(
         }
         // Fallback behavior if width constraints are infinite
         val mainContentWidth = maxOf(contentWidth, overlineWidth, supportingWidth)
-        return leadingWidth + mainContentWidth + trailingWidth
+        return constraints.constrainWidth(
+            leadingWidth + mainContentWidth + trailingWidth + horizontalPadding
+        )
     }
 
     private fun Density.calculateHeight(
@@ -1941,11 +2092,13 @@ private class InteractiveListItemMeasurePolicy(
         overlineHeight: Int,
         supportingHeight: Int,
         contentHeight: Int,
+        verticalPadding: Int,
         constraints: Constraints,
         listItemType: ListItemType,
     ): Int {
         val mainContentHeight = contentHeight + overlineHeight + supportingHeight
-        val calculatedHeight = maxOf(leadingHeight, mainContentHeight, trailingHeight)
+        val calculatedHeight =
+            maxOf(leadingHeight, mainContentHeight, trailingHeight) + verticalPadding
 
         @OptIn(ExperimentalMaterial3Api::class)
         val defaultMinHeight =
@@ -1958,11 +2111,10 @@ private class InteractiveListItemMeasurePolicy(
             } else {
                 ListTokens.ItemOneLineContainerHeight
             }
-        val defaultMinHeightNoPadding = (defaultMinHeight - verticalPadding).coerceAtLeast(0.dp)
         // Same behavior as Modifier.defaultMinSize: only set min height if user hasn't set one.
         val minHeight =
             if (constraints.minHeight == 0) {
-                defaultMinHeightNoPadding.roundToPx().fastCoerceIn(0, constraints.maxHeight)
+                defaultMinHeight.roundToPx().fastCoerceIn(0, constraints.maxHeight)
             } else {
                 constraints.minHeight
             }
@@ -1978,6 +2130,8 @@ private class InteractiveListItemMeasurePolicy(
         return newConstraints.constrainHeight(calculatedHeight)
     }
 }
+
+private val EmptyContent: @Composable () -> Unit = {}
 
 private fun Modifier.zIndexLambda(zIndex: FloatProducer): Modifier =
     layout { measurable, constraints ->

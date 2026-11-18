@@ -543,18 +543,9 @@ public object ListItemDefaults {
      */
     @Composable
     public fun verticalAlignment(): Alignment.Vertical {
-        val density = LocalDensity.current
-        return Alignment.Vertical { size, space ->
-            val breakpoint =
-                with(density) { InteractiveListVerticalAlignmentBreakpoint.roundToPx() }
-            val baseAlignment =
-                if (space < breakpoint) {
-                    Alignment.CenterVertically
-                } else {
-                    Alignment.Top
-                }
-            baseAlignment.align(size, space)
-        }
+        val breakpointPx =
+            with(LocalDensity.current) { InteractiveListVerticalAlignmentBreakpoint.roundToPx() }
+        return ListItemVerticalAlignment(breakpointPx)
     }
 
     /**
@@ -1183,4 +1174,25 @@ public class ListItemElevation(public val elevation: Dp, public val draggedEleva
         result = 31 * result + draggedElevation.hashCode()
         return result
     }
+}
+
+@Immutable
+private class ListItemVerticalAlignment(private val breakpointPx: Int) : Alignment.Vertical {
+    override fun align(size: Int, space: Int): Int {
+        val baseAlignment =
+            if (space < breakpointPx) {
+                Alignment.CenterVertically
+            } else {
+                Alignment.Top
+            }
+        return baseAlignment.align(size, space)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ListItemVerticalAlignment) return false
+        return breakpointPx == other.breakpointPx
+    }
+
+    override fun hashCode(): Int = breakpointPx
 }
