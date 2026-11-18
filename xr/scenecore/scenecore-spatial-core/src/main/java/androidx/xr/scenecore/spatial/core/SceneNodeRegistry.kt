@@ -26,4 +26,16 @@ import com.android.extensions.xr.node.Node
 @RestrictTo(
     RestrictTo.Scope.LIBRARY_GROUP
 ) // TODO(b/452961674): Review RestrictTo annotations in SceneCore.
-public class SceneNodeRegistry : BaseSceneNodeRegistry<Node>()
+public class SceneNodeRegistry : BaseSceneNodeRegistry<Node>() {
+    @Volatile internal var onNodeHierarchyChanged: (() -> Unit)? = null
+
+    override fun removeEntityForNode(node: Node) {
+        super.removeEntityForNode(node)
+        onNodeHierarchyChanged?.invoke()
+    }
+
+    override fun clear() {
+        onNodeHierarchyChanged = null
+        super.clear()
+    }
+}

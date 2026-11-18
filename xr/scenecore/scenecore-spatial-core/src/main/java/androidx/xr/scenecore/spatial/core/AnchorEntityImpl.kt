@@ -47,13 +47,9 @@ internal class AnchorEntityImpl(
 ) : SystemSpaceEntityImpl(context, node, extensions, sceneNodeRegistry, executor), AnchorEntity {
     private val platformReferenceScenePoseHelper = PlatformReferenceScenePoseHelper(activitySpace)
     private var onStateChangedListener: AnchorEntity.OnStateChangedListener? = null
-    private var _state: @AnchorEntity.State Int = AnchorEntity.State.UNANCHORED
+    @Volatile private var _state: @AnchorEntity.State Int = AnchorEntity.State.UNANCHORED
     override val state: @AnchorEntity.State Int
-        get() {
-            synchronized(this) {
-                return _state
-            }
-        }
+        get() = _state
 
     private val anchorCleanupAction: AnchorEntityCleanupAction
 
@@ -73,32 +69,41 @@ internal class AnchorEntityImpl(
         })
 
     override fun setAnchor(anchor: Anchor): Boolean {
+        val previousState: Int
+        val didAnchor: Boolean
         synchronized(this) {
             if (_state == AnchorEntity.State.ERROR) {
                 return false
             }
+            previousState = _state
             val anchorToken = anchor.anchorToken
             if (anchorToken == null) {
                 updateState(AnchorEntity.State.ERROR)
-                return false
+                didAnchor = false
+            } else {
+                didAnchor =
+                    try {
+                        extensions.createNodeTransaction().use { transaction ->
+                            // Attach to the root CPM node. This will enable the anchored content
+                            // to be visible. Note that the parent of the Entity is null, but the
+                            // CPM Node is still attached.
+                            transaction
+                                .setParent(node, activitySpace.node)
+                                .setAnchorId(node, anchorToken)
+                                .apply()
+                        }
+                        updateState(AnchorEntity.State.ANCHORED)
+                        true
+                    } catch (e: Throwable) {
+                        updateState(AnchorEntity.State.ERROR)
+                        false
+                    }
             }
-            try {
-                extensions.createNodeTransaction().use { transaction ->
-                    // Attach to the root CPM node. This will enable the anchored content to be
-                    // visible. Note that the parent of the Entity is null, but the CPM Node is
-                    // still attached.
-                    transaction
-                        .setParent(node, activitySpace.node)
-                        .setAnchorId(node, anchorToken)
-                        .apply()
-                }
-            } catch (e: Throwable) {
-                updateState(AnchorEntity.State.ERROR)
-                return false
-            }
-            updateState(AnchorEntity.State.ANCHORED)
-            return true
         }
+        if (didAnchor || previousState == AnchorEntity.State.ANCHORED) {
+            sceneNodeRegistry.onNodeHierarchyChanged?.invoke()
+        }
+        return didAnchor
     }
 
     private fun updateState(newState: @AnchorEntity.State Int) {

@@ -80,9 +80,13 @@ import com.android.extensions.xr.space.VisibilityState
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors
+import java.io.Closeable
+import java.io.IOException
 import java.lang.ref.WeakReference
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.function.Consumer
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -2504,6 +2508,243 @@ class SpatialSceneRuntimeTest {
         testRuntime.destroy()
 
         assertThat(closeable.isClosed).isTrue()
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun setKeyEntity_apiV2_unparentedEntity_subscribesOnlyWhenAttachedAndUnsubscribesOnDetach() {
+        testRuntime.destroy()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        testRuntime = createRuntime()
+
+        val entity = testRuntime.createEntity(Pose(), "test", null)
+        testRuntime.keyEntity = entity
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+
+        entity.parent = testRuntime.activitySpace
+        val closeable1 = testRuntime.keyEntityTransformCloseable as FakeCloseable
+        assertThat(closeable1.isClosed).isFalse()
+        val staleListener =
+            ShadowNode.extract((entity as AndroidXrEntity).getNode()).transformListener
+        assertThat(staleListener).isNotNull()
+
+        entity.parent = null
+        assertThat(closeable1.isClosed).isTrue()
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+
+        // Invoking the stale transform listener after detach short-circuits before reading
+        // transform.
+        staleListener.accept(ShadowNodeTransform.create(null))
+
+        entity.parent = testRuntime.activitySpace
+        val closeable2 = testRuntime.keyEntityTransformCloseable as FakeCloseable
+        assertThat(closeable2).isNotSameInstanceAs(closeable1)
+        assertThat(closeable2.isClosed).isFalse()
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun setKeyEntity_apiV2_ancestorDetached_unsubscribesAndResubscribesOnReattach() {
+        testRuntime.destroy()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        testRuntime = createRuntime()
+
+        val parentEntity = testRuntime.createEntity(Pose(), "parent", testRuntime.activitySpace)
+        val childEntity = testRuntime.createEntity(Pose(), "child", parentEntity)
+        testRuntime.keyEntity = childEntity
+
+        val closeable1 = testRuntime.keyEntityTransformCloseable as FakeCloseable
+        assertThat(closeable1.isClosed).isFalse()
+
+        parentEntity.parent = null
+        assertThat(closeable1.isClosed).isTrue()
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+
+        parentEntity.parent = testRuntime.activitySpace
+        val closeable2 = testRuntime.keyEntityTransformCloseable as FakeCloseable
+        assertThat(closeable2).isNotSameInstanceAs(closeable1)
+        assertThat(closeable2.isClosed).isFalse()
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun setKeyEntity_apiV2_disposedEntity_unsubscribes() {
+        testRuntime.destroy()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        testRuntime = createRuntime()
+
+        val entity = createEntity()
+        testRuntime.keyEntity = entity
+        val closeable = testRuntime.keyEntityTransformCloseable as FakeCloseable
+        assertThat(closeable.isClosed).isFalse()
+
+        entity.dispose()
+
+        assertThat(closeable.isClosed).isTrue()
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun setKeyEntity_apiV2_closeFailure_allowsSubsequentReattachAndReassignment() {
+        testRuntime.destroy()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        testRuntime = createRuntime()
+
+        val entity1 = testRuntime.createEntity(Pose(), "entity1", testRuntime.activitySpace)
+        val entity2 = testRuntime.createEntity(Pose(), "entity2", testRuntime.activitySpace)
+        val entity3 = testRuntime.createEntity(Pose(), "entity3", testRuntime.activitySpace)
+
+        testRuntime.keyEntity = entity1
+        testRuntime.keyEntityTransformCloseable = Closeable { throw IOException("close failed") }
+
+        assertThrows(RuntimeException::class.java) { testRuntime.keyEntity = entity2 }
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+
+        // Detaching and reattaching entity2 recovers subscription without getting stuck.
+        entity2.parent = null
+        entity2.parent = testRuntime.activitySpace
+        val closeable2 = testRuntime.keyEntityTransformCloseable as FakeCloseable
+        assertThat(closeable2.isClosed).isFalse()
+
+        // Injecting another close failure also allows direct reassignment of the same entity.
+        testRuntime.keyEntityTransformCloseable = Closeable { throw IOException("close failed 2") }
+        assertThrows(RuntimeException::class.java) { testRuntime.keyEntity = entity3 }
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+
+        testRuntime.keyEntity = entity3
+        val closeable3 = testRuntime.keyEntityTransformCloseable as FakeCloseable
+        assertThat(closeable3.isClosed).isFalse()
+    }
+
+    @Test
+    fun setKeyEntity_apiV2_ancestorRemovedFromRegistryBeforeParentCleared_unsubscribes() {
+        testRuntime.destroy()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        testRuntime = createRuntime()
+
+        var clearCount = 0
+        testRuntime.clearSpatialContinuityHintCallback = { _ -> clearCount++ }
+
+        val parentEntity = testRuntime.createEntity(Pose(), "parent", testRuntime.activitySpace)
+        val childEntity = testRuntime.createEntity(Pose(), "child", parentEntity)
+        testRuntime.keyEntity = childEntity
+
+        val closeable = testRuntime.keyEntityTransformCloseable as FakeCloseable
+        assertThat(closeable.isClosed).isFalse()
+
+        // BaseEntity.dispose() removes the node from SceneNodeRegistry before clearing parent.
+        sceneNodeRegistry.removeEntityForNode((parentEntity as AndroidXrEntity).getNode())
+
+        assertThat(closeable.isClosed).isTrue()
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+        assertThat(clearCount).isEqualTo(1)
+    }
+
+    @Test
+    fun setKeyEntity_apiV2_closeThrowsIOException_stillClearsSpatialContinuityHint() {
+        testRuntime.destroy()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        testRuntime = createRuntime()
+
+        var clearCount = 0
+        testRuntime.clearSpatialContinuityHintCallback = { _ -> clearCount++ }
+
+        val entity = testRuntime.createEntity(Pose(), "entity", testRuntime.activitySpace)
+        testRuntime.keyEntity = entity
+        testRuntime.keyEntityTransformCloseable = Closeable { throw IOException("close failed") }
+
+        entity.parent = null
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+        assertThat(clearCount).isEqualTo(1)
+
+        entity.parent = testRuntime.activitySpace
+        testRuntime.keyEntityTransformCloseable = Closeable { throw IOException("close failed 2") }
+
+        assertThrows(RuntimeException::class.java) { testRuntime.keyEntity = null }
+        assertThat(testRuntime.keyEntityTransformCloseable).isNull()
+        assertThat(clearCount).isEqualTo(2)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun setKeyEntity_apiV2_concurrentCallbackPreemptedBeforeHintLock_doesNotRestoreStaleHintAfterDetach() {
+        testRuntime.destroy()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        testRuntime = createRuntime()
+
+        val events = CopyOnWriteArrayList<String>()
+        testRuntime.setSpatialContinuityHintCallback = { _, _, _ -> events.add("set") }
+        testRuntime.clearSpatialContinuityHintCallback = { _ -> events.add("clear") }
+
+        val entity = createEntity()
+        testRuntime.keyEntity = entity
+        val listener = ShadowNode.extract((entity as AndroidXrEntity).getNode()).transformListener
+        assertThat(listener).isNotNull()
+
+        var workerError: Throwable? = null
+        lateinit var worker: Thread
+        synchronized(testRuntime.continuityHintLock) {
+            worker =
+                Thread {
+                    try {
+                        val identityMatrix =
+                            floatArrayOf(
+                                1f,
+                                0f,
+                                0f,
+                                0f,
+                                0f,
+                                1f,
+                                0f,
+                                0f,
+                                0f,
+                                0f,
+                                1f,
+                                0f,
+                                0f,
+                                0f,
+                                0f,
+                                1f,
+                            )
+                        listener.accept(ShadowNodeTransform.create(Mat4f(identityMatrix)))
+                    } catch (t: Throwable) {
+                        workerError = t
+                    }
+                }
+                    .apply { start() }
+
+            val deadlineMs = System.currentTimeMillis() + 5_000L
+            while (
+                worker.state != Thread.State.BLOCKED && System.currentTimeMillis() < deadlineMs
+            ) {
+                Thread.yield()
+            }
+            assertThat(worker.state).isEqualTo(Thread.State.BLOCKED)
+
+            // Detaching while the worker is blocked waiting on continuityHintLock bumps
+            // generation and clears the hint on this thread via re-entrant lock acquisition.
+            entity.parent = null
+        }
+
+        worker.join(5_000L)
+        assertThat(worker.isAlive).isFalse()
+        assertThat(workerError).isNull()
+        assertThat(events).containsExactly("clear")
+    }
+
+    @Test
+    fun setKeyEntity_apiV2_childOfUnanchoredAnchor_doesNotSubscribe() {
+        testRuntime.destroy()
+        ShadowXrExtensions.extract(xrExtensions).setApiVersion(2)
+        testRuntime = createRuntime()
+
+        val anchorEntity = testRuntime.createAnchorEntity()
+        val childEntity = testRuntime.createEntity(Pose(), "child", anchorEntity)
+        testRuntime.keyEntity = childEntity
+
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.UNANCHORED)
         assertThat(testRuntime.keyEntityTransformCloseable).isNull()
     }
 

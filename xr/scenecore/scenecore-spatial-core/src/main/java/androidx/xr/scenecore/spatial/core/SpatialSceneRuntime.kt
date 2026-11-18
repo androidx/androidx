@@ -76,6 +76,7 @@ import androidx.xr.scenecore.runtime.SpatialVisibility
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
+import androidx.xr.scenecore.runtime.SystemSpaceEntity
 import androidx.xr.scenecore.runtime.TrackableComponent
 import androidx.xr.scenecore.runtime.TypeHolder
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
@@ -141,7 +142,26 @@ private constructor(
     private var spatialVisibilityHandler: Pair<Executor, Consumer<SpatialVisibility>>? = null
     private var boundaryConsentObserver: ContentObserver? = null
     @VisibleForTesting internal var isExtensionVisibilityStateCallbackRegistered: Boolean = false
-    @VisibleForTesting internal var keyEntityTransformCloseable: Closeable? = null
+    private val keyEntitySubscriptionLock = Any()
+    @VisibleForTesting internal val continuityHintLock = Any()
+    private var subscribedKeyEntityNode: Node? = null
+    @Volatile private var keyEntitySubscriptionGeneration: Long = 0L
+    @Volatile private var lastKeyEntityReconcileFailed: Boolean = false
+    @VisibleForTesting @Volatile internal var keyEntityTransformCloseable: Closeable? = null
+    @VisibleForTesting
+    internal var setSpatialContinuityHintCallback:
+        (Activity, android.extensions.xr.node.Vec3, android.extensions.xr.node.Quatf) -> Unit =
+        { targetActivity, position, rotation ->
+            xrExtensions.underlyingObject.setSpatialContinuityHint(
+                targetActivity,
+                position,
+                rotation,
+            )
+        }
+    @VisibleForTesting
+    internal var clearSpatialContinuityHintCallback: (Activity) -> Unit = { targetActivity ->
+        xrExtensions.underlyingObject.clearSpatialContinuityHint(targetActivity)
+    }
     override val activitySpace: ActivitySpaceImpl
     override val mainPanelEntity: PanelEntity
         get() {
@@ -182,18 +202,14 @@ private constructor(
             activitySpace.setSpatialModeChangeListener(value)
         }
 
+    @Volatile
     override var keyEntity: Entity? = null
         set(value) {
-            if (field == value) {
+            if (field == value && !lastKeyEntityReconcileFailed) {
                 return
             }
-            clearKeyEntitySubscription(true)
             field = value
-
-            // If the new entity is valid, set up a new subscription.
-            if (value is AndroidXrEntity) {
-                setupKeyEntitySubscription(value)
-            }
+            reconcileKeyEntitySubscription(throwExceptionOnCloseFailure = true)
         }
 
     override var config: Config = Config.Builder().build()
@@ -238,6 +254,9 @@ private constructor(
         isBoundaryConsentGrantedCache = AtomicBoolean(calculateBoundaryConsentState())
         registerBoundaryConsentStateListener()
         spatialApiVersion = SpatialCoreApiVersionProvider().spatialApiVersion
+        sceneNodeRegistry.onNodeHierarchyChanged = {
+            reconcileKeyEntitySubscription(throwExceptionOnCloseFailure = false)
+        }
 
         setSpatialStateCallback()
     }
@@ -257,7 +276,7 @@ private constructor(
         sceneNodeRegistry.clear()
 
         spatialEnvironmentImpl.dispose()
-        clearKeyEntitySubscription(false)
+        reconcileKeyEntitySubscription(throwExceptionOnCloseFailure = false, forceClear = true)
         spatialModeChangeListener = null
         activity?.let {
             // TODO: b/540038561 - XrExtensions should deregister callbacks on Activity teardown
@@ -874,45 +893,133 @@ private constructor(
         return BoundsComponentImpl()
     }
 
-    /** Clears any existing subscription for the current key entity. */
-    private fun clearKeyEntitySubscription(throwException: Boolean) {
-        if (keyEntityTransformCloseable == null) {
-            return
-        }
-        if (spatialApiVersion >= 2) {
-            try {
-                keyEntityTransformCloseable!!.close()
-                activity?.let { xrExtensions.underlyingObject.clearSpatialContinuityHint(it) }
-            } catch (e: IOException) {
-                if (throwException) {
-                    // Re-throw as an unchecked exception but include the original cause.
-                    throw RuntimeException(
-                        "Could not close the key entity's transform subscription.",
-                        e,
-                    )
-                }
-            } finally {
-                // Ensure the reference is cleared even if closing fails.
-                keyEntityTransformCloseable = null
+    private fun isAttachedToSystemSpace(entity: AndroidXrEntity): Boolean {
+        var current: Entity? = entity
+        val visited = HashSet<Entity>()
+        while (current != null && visited.add(current)) {
+            if (current is AndroidXrEntity && !sceneNodeRegistry.containsNode(current.getNode())) {
+                return false
             }
+            if (current is SystemSpaceEntity) {
+                return current !is AnchorEntity || current.state == AnchorEntity.State.ANCHORED
+            }
+            current = current.parent
         }
+        return false
     }
 
-    /** Creates a new subscription to the transform of the given key entity. */
-    private fun setupKeyEntitySubscription(entity: AndroidXrEntity) {
-        if (spatialApiVersion >= 2) {
-            keyEntityTransformCloseable =
-                entity.getNode().subscribeToTransform(scheduledExecutorService) { nodeTransform ->
-                    if (isDestroyed) return@subscribeToTransform
+    /**
+     * Reconciles the continuity hint subscription with [keyEntity] attachment and disposal state.
+     * Invoked globally on entity parent/disposal changes and short-circuits when unchanged.
+     */
+    private fun reconcileKeyEntitySubscription(
+        throwExceptionOnCloseFailure: Boolean = false,
+        forceClear: Boolean = false,
+    ) {
+        if (spatialApiVersion < 2) {
+            return
+        }
+
+        val closeableToClose: Closeable?
+        val hadActiveTarget: Boolean
+        val desiredNode: Node?
+        val generation: Long
+        synchronized(keyEntitySubscriptionLock) {
+            desiredNode =
+                if (forceClear || isDestroyed) {
+                    null
+                } else {
+                    (keyEntity as? AndroidXrEntity)
+                        ?.takeIf { isAttachedToSystemSpace(it) }
+                        ?.getNode()
+                }
+            if (desiredNode === subscribedKeyEntityNode) {
+                lastKeyEntityReconcileFailed = false
+                return
+            }
+            hadActiveTarget = subscribedKeyEntityNode != null || keyEntityTransformCloseable != null
+            closeableToClose = keyEntityTransformCloseable
+            keyEntityTransformCloseable = null
+            subscribedKeyEntityNode = desiredNode
+            generation = ++keyEntitySubscriptionGeneration
+        }
+
+        var closeFailure: IOException? = null
+        if (closeableToClose != null) {
+            try {
+                closeableToClose.close()
+            } catch (e: IOException) {
+                if (throwExceptionOnCloseFailure) {
+                    synchronized(keyEntitySubscriptionLock) {
+                        if (keyEntitySubscriptionGeneration == generation) {
+                            subscribedKeyEntityNode = null
+                            lastKeyEntityReconcileFailed = true
+                        }
+                    }
+                    closeFailure = e
+                }
+            }
+        }
+        if (hadActiveTarget) {
+            synchronized(continuityHintLock) {
+                if (keyEntitySubscriptionGeneration == generation) {
+                    activity?.let { clearSpatialContinuityHintCallback(it) }
+                }
+            }
+        }
+        if (closeFailure != null) {
+            // Re-throw as an unchecked exception but include the original cause.
+            throw RuntimeException(
+                "Could not close the key entity's transform subscription.",
+                closeFailure,
+            )
+        }
+
+        val newCloseable =
+            try {
+                desiredNode?.subscribeToTransform(scheduledExecutorService) { nodeTransform ->
+                    if (isDestroyed || keyEntitySubscriptionGeneration != generation) {
+                        return@subscribeToTransform
+                    }
                     val transform = getMatrix(nodeTransform!!.transform)
-                    activity?.let {
-                        xrExtensions.underlyingObject.setSpatialContinuityHint(
-                            it,
-                            getPositionFromTransform(transform),
-                            getRotationFromTransform(transform),
-                        )
+                    val position = getPositionFromTransform(transform)
+                    val rotation = getRotationFromTransform(transform)
+                    synchronized(continuityHintLock) {
+                        if (isDestroyed || keyEntitySubscriptionGeneration != generation) {
+                            return@subscribeToTransform
+                        }
+                        activity?.let { setSpatialContinuityHintCallback(it, position, rotation) }
                     }
                 }
+            } catch (t: Throwable) {
+                synchronized(keyEntitySubscriptionLock) {
+                    if (keyEntitySubscriptionGeneration == generation) {
+                        subscribedKeyEntityNode = null
+                        lastKeyEntityReconcileFailed = true
+                    }
+                }
+                throw t
+            }
+
+        var staleCloseable: Closeable? = null
+        synchronized(keyEntitySubscriptionLock) {
+            if (keyEntitySubscriptionGeneration == generation) {
+                lastKeyEntityReconcileFailed = false
+            }
+            if (newCloseable != null) {
+                if (!isDestroyed && keyEntitySubscriptionGeneration == generation) {
+                    keyEntityTransformCloseable = newCloseable
+                } else {
+                    staleCloseable = newCloseable
+                }
+            }
+        }
+        if (staleCloseable != null) {
+            try {
+                staleCloseable.close()
+            } catch (_: IOException) {
+                // Best-effort cleanup if superseded before storage.
+            }
         }
     }
 

@@ -250,8 +250,6 @@ class SceneTest {
         val listener = Consumer<SpaceChangeEvent> { _ -> listenerCalled = true }
 
         session.scene.setSpaceChangedListener(listener)
-        // Set keyEntity to null to avoid the IllegalStateException in FakeEntity
-        session.scene.keyEntity = null
         session.scene.clearSpaceChangedListener()
 
         sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(Pose.Identity, Vector3.One)
@@ -646,6 +644,108 @@ class SceneTest {
 
         assertThat(session.scene.virtualPixelDensity.convertMetersToPixels(meters))
             .isEqualTo(expectedPixels)
+    }
+
+    @Test
+    fun keyEntity_detachedFromScene_defaultListenerSkipsUpdateUntilReattached() {
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
+        val initialPose = Pose(Vector3(0.25f, 0.5f, 0.75f))
+        keyEntity.setPose(initialPose)
+        val initialScale = keyEntity.getScale()
+        session.scene.keyEntity = keyEntity
+
+        keyEntity.parent = null
+        assertThat(session.scene.keyEntity).isEqualTo(keyEntity)
+
+        val detachedPose = Pose(Vector3(1f, 2f, 3f))
+        val detachedScale = Vector3(2f, 2f, 2f)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(detachedPose, detachedScale)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(keyEntity.getPose()).isEqualTo(initialPose)
+        assertThat(keyEntity.getScale()).isEqualTo(initialScale)
+
+        keyEntity.parent = session.scene.activitySpace
+        val reattachedPose = Pose(Vector3(3f, 4f, 5f))
+        val reattachedScale = Vector3(1.5f, 1.5f, 1.5f)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+            reattachedPose,
+            reattachedScale,
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(keyEntity.getPose(Space.ACTIVITY)).isEqualTo(reattachedPose)
+        assertThat(keyEntity.getScale(Space.ACTIVITY)).isEqualTo(reattachedScale.x)
+    }
+
+    @Test
+    fun keyEntity_ancestorDetachedFromScene_defaultListenerSkipsUpdateUntilReattached() {
+        val parentEntity =
+            Entity.create(session, "Parent Entity", parent = session.scene.activitySpace)
+        val keyEntity = Entity.create(session, "Child Entity", parent = parentEntity)
+        val initialPose = Pose(Vector3(0.5f, 0.25f, 0f))
+        keyEntity.setPose(initialPose)
+        val initialScale = keyEntity.getScale()
+        session.scene.keyEntity = keyEntity
+
+        parentEntity.parent = null
+        assertThat(session.scene.keyEntity).isEqualTo(keyEntity)
+
+        val detachedPose = Pose(Vector3(2f, 3f, 4f))
+        val detachedScale = Vector3(2.5f, 2.5f, 2.5f)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(detachedPose, detachedScale)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(keyEntity.getPose()).isEqualTo(initialPose)
+        assertThat(keyEntity.getScale()).isEqualTo(initialScale)
+
+        parentEntity.parent = session.scene.activitySpace
+        val reattachedPose = Pose(Vector3(4f, 5f, 6f))
+        val reattachedScale = Vector3(1.25f, 1.25f, 1.25f)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+            reattachedPose,
+            reattachedScale,
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(keyEntity.getPose(Space.ACTIVITY)).isEqualTo(reattachedPose)
+        assertThat(keyEntity.getScale(Space.ACTIVITY)).isEqualTo(reattachedScale.x)
+    }
+
+    @Test
+    fun keyEntity_whenDisposed_clearsKeyEntityAndSkipsSpaceChangeUpdate() {
+        val keyEntity = Entity.create(session, "Test Entity", parent = session.scene.activitySpace)
+        session.scene.keyEntity = keyEntity
+        assertThat(session.scene.keyEntity).isEqualTo(keyEntity)
+
+        keyEntity.dispose()
+
+        assertThat(keyEntity.isDisposed).isTrue()
+        assertThat(session.scene.keyEntity).isNull()
+        assertThat((sceneRuntime as FakeSceneRuntime).keyEntity).isNull()
+
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+            Pose(Vector3(1f, 2f, 3f)),
+            Vector3(2f, 2f, 2f),
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    @Test
+    fun keyEntity_setDisposedEntity_throwsAndRetainsPreviousKeyEntity() {
+        val activeKeyEntity =
+            Entity.create(session, "Active Entity", parent = session.scene.activitySpace)
+        session.scene.keyEntity = activeKeyEntity
+
+        val disposedEntity =
+            Entity.create(session, "Disposed Entity", parent = session.scene.activitySpace)
+        disposedEntity.dispose()
+
+        assertFailsWith<Entity.DisposedException> { session.scene.keyEntity = disposedEntity }
+
+        assertThat(session.scene.keyEntity).isSameInstanceAs(activeKeyEntity)
+        assertThat((sceneRuntime as FakeSceneRuntime).keyEntity)
+            .isSameInstanceAs(activeKeyEntity.rtEntity)
     }
 
     @Test
