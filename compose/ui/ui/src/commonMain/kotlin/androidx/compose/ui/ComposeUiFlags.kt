@@ -101,6 +101,18 @@ public object ComposeUiFlags {
     public var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
 
     /**
+     * Enables treating clipped focusable merging containers as traversal groups by default and
+     * using unclipped window bounds (`boundsInWindow(clipBounds = false)`) inside clipped merging
+     * subtrees (or when `boundsInWindow` collapses to `Rect.Zero`) in `SemanticsSort`, so visually
+     * clipped child controls do not sort ahead of visible items. Set `isTraversalGroup = false` on
+     * a container to opt it out of the implicit grouping.
+     */
+    // TODO(b/582507124): Remove flag and fallback checks once rollout is complete.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isSemanticsSortUnclippedFallbackEnabled: Boolean = true
+
+    /**
      * Enable the integration of [LocalUiMediaScope] at the root compose view which provides various
      * signals for adapting the UI across different devices.
      *
