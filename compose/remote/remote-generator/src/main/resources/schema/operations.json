@@ -105,7 +105,20 @@
         {
           "name": "majorVersion",
           "type": "int",
-          "description": "Major version"
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "version",
+              "range": "0..15",
+              "description": "Major format version in modern layout"
+            },
+            {
+              "name": "magic",
+              "range": "16..31",
+              "description": "Magic marker 0x048C written in modern layout"
+            }
+          ],
+          "description": "Signed values < 0x10000 select legacy layout; values >= 0x10000 select property-map layout with version in bits 0..15"
         },
         {
           "name": "minorVersion",
@@ -120,17 +133,32 @@
         {
           "name": "width",
           "type": "int",
-          "description": "Document canvas width in pixels"
+          "defaultValue": "256",
+          "presentIf": "majorVersion < 65536",
+          "description": "Document canvas width in pixels (legacy layout)"
         },
         {
           "name": "height",
           "type": "int",
-          "description": "Document canvas height in pixels"
+          "defaultValue": "256",
+          "presentIf": "majorVersion < 65536",
+          "description": "Document canvas height in pixels (legacy layout)"
         },
         {
           "name": "capabilities",
           "type": "long",
-          "description": "Bitmask of supported capability profiles"
+          "defaultValue": "0",
+          "presentIf": "majorVersion < 65536",
+          "description": "Bitmask of supported capability profiles (legacy layout)"
+        },
+        {
+          "name": "properties",
+          "type": "HeaderProperty[]",
+          "lengthType": "int",
+          "maxLength": 1000,
+          "javaLimit": "Limits.MAX_TABLE_SIZE",
+          "presentIf": "majorVersion >= 65536",
+          "description": "Header property map entries (modern layout)"
         }
       ],
       "extensions": {
@@ -138,10 +166,160 @@
         "tagType": "short",
         "supportedTags": [
           {
+            "name": "DOC_WIDTH",
+            "tag": 5,
+            "type": "int",
+            "description": "Document width in pixels"
+          },
+          {
+            "name": "DOC_HEIGHT",
+            "tag": 6,
+            "type": "int",
+            "description": "Document height in pixels"
+          },
+          {
+            "name": "DOC_DENSITY_AT_GENERATION",
+            "tag": 7,
+            "type": "float",
+            "description": "Density at generation"
+          },
+          {
+            "name": "DOC_DESIRED_FPS",
+            "tag": 8,
+            "type": "int",
+            "description": "Desired frame rate"
+          },
+          {
+            "name": "DOC_CONTENT_DESCRIPTION",
+            "tag": 9,
+            "type": "string",
+            "description": "Document content description"
+          },
+          {
+            "name": "DOC_SOURCE",
+            "tag": 11,
+            "type": "int",
+            "description": "Document source identifier"
+          },
+          {
+            "name": "DOC_DATA_UPDATE",
+            "tag": 12,
+            "type": "int",
+            "description": "Document data update flag"
+          },
+          {
+            "name": "HOST_EXCEPTION_HANDLER",
+            "tag": 13,
+            "type": "int",
+            "description": "Host action ID invoked on exception"
+          },
+          {
+            "name": "DOC_PROFILES",
+            "tag": 14,
+            "type": "int",
+            "description": "Capability profile bitmask"
+          },
+          {
+            "name": "FEATURE_PAINT_MEASURE",
+            "tag": 15,
+            "type": "int",
+            "description": "Direct measure in paint"
+          },
+          {
+            "name": "DEBUG",
+            "tag": 16,
+            "type": "int",
+            "description": "Player debug verbosity level"
+          },
+          {
+            "name": "FEATURE_MEASURE_VERSION",
+            "tag": 17,
+            "type": "int",
+            "description": "Measure implementation version"
+          },
+          {
+            "name": "FEATURE_TOUCH_VERSION",
+            "tag": 18,
+            "type": "int",
+            "description": "Touch implementation version"
+          },
+          {
+            "name": "TEST_TIME",
+            "tag": 19,
+            "type": "long",
+            "description": "Test capture epoch time in ms"
+          },
+          {
+            "name": "TEST_AFTER",
+            "tag": 20,
+            "type": "float",
+            "description": "Test capture offset in seconds"
+          },
+          {
+            "name": "TEST_COLOR_THEME",
+            "tag": 21,
+            "type": "string",
+            "description": "Simulated color theme overrides"
+          },
+          {
+            "name": "TEST_ACTIONS",
+            "tag": 22,
+            "type": "string",
+            "description": "Scripted test touch actions"
+          },
+          {
+            "name": "FEATURE_PRIORITY_FIX",
+            "tag": 23,
+            "type": "int",
+            "description": "Collapsible priority fix"
+          },
+          {
+            "name": "FEATURE_LT_RESIZE",
+            "tag": 24,
+            "type": "int",
+            "description": "Origin-aware resizing animations"
+          },
+          {
+            "name": "FEATURE_ARRAY_LISTENERS",
+            "tag": 25,
+            "type": "int",
+            "description": "Array listener pattern in TextLookup"
+          },
+          {
+            "name": "FEATURE_CLICK_VERSION",
+            "tag": 26,
+            "type": "int",
+            "description": "Click behavior version"
+          },
+          {
+            "name": "DOC_DENSITY_BEHAVIOR",
+            "tag": 27,
+            "type": "int",
+            "description": "Density behavior (0=legacy, 1=px, 2=dp)"
+          },
+          {
+            "name": "FEATURE_OPTIMIZATION_LEVEL",
+            "tag": 28,
+            "type": "int",
+            "description": "Layout optimization level"
+          },
+          {
+            "name": "FEATURE_DISALLOW_INTERCEPT_TOUCH",
+            "tag": 29,
+            "type": "int",
+            "description": "Disallow parent touch intercept"
+          },
+          {
+            "name": "FEATURE_DATA_PASS_CANVAS_OPS",
+            "tag": 30,
+            "type": "int",
+            "description": "Evaluate CanvasOperations in DATA pass"
+          },
+          {
             "name": "COMPRESS",
             "tag": 31,
             "type": "int",
-            "description": "Compression mode (1 = zlib DEFLATE)"
+            "description": "Compression mode (0=none, 1=zlib DEFLATE)"
           },
           {
             "name": "DOC_SCROLL",
@@ -6646,6 +6824,61 @@
           "maxLength": 32,
           "encoding": "rpn_float_expression",
           "description": "Update RPN float expression"
+        }
+      ]
+    },
+    "HeaderProperty": {
+      "description": "Property map entry in modern (v1.1+) Header operations",
+      "fields": [
+        {
+          "name": "tag",
+          "type": "short",
+          "description": "Packed 6-bit property key (bits 0..5) and signed data type (bits 10..15)",
+          "bits": [
+            {
+              "name": "key",
+              "range": "0..5",
+              "description": "Property tag key (0..63)"
+            },
+            {
+              "name": "dataType",
+              "range": "10..15",
+              "signed": true,
+              "description": "0=int, 1=float, 2=long, 3=string; any other value reads 0 bytes"
+            }
+          ],
+          "unpackBits": false
+        },
+        {
+          "name": "itemLen",
+          "type": "short",
+          "description": "Declared payload byte length (read and ignored by Java reader)"
+        },
+        {
+          "name": "intValue",
+          "type": "int",
+          "presentIf": "(tag >> 10) == 0",
+          "description": "32-bit integer property value when dataType == 0"
+        },
+        {
+          "name": "floatValue",
+          "type": "float",
+          "presentIf": "(tag >> 10) == 1",
+          "description": "32-bit float property value when dataType == 1"
+        },
+        {
+          "name": "longValue",
+          "type": "long",
+          "presentIf": "(tag >> 10) == 2",
+          "description": "64-bit integer property value when dataType == 2"
+        },
+        {
+          "name": "stringValue",
+          "type": "string",
+          "maxLength": 4000,
+          "javaLimit": "Limits.MAX_STRING_SIZE",
+          "presentIf": "(tag >> 10) == 3",
+          "description": "UTF-8 string property value when dataType == 3"
         }
       ]
     }

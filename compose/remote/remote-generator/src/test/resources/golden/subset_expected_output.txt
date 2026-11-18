@@ -3208,6 +3208,8 @@ std::shared_ptr<RemoteDocument> RemoteDocument::load(
     doc->patchVersion = buffer.readInt();
     if ((static_cast<uint32_t>(rawMajor) & 0xFFFF0000u) == 0x048C0000u) {
         doc->majorVersion = rawMajor & 0xFFFF;
+        doc->width = 256;
+        doc->height = 256;
         int32_t numProps = buffer.readInt();
         if (numProps < 0 || static_cast<size_t>(numProps) > kMaxHeaderProperties) {
             throw std::runtime_error("Invalid numProps in header");
@@ -3217,10 +3219,10 @@ std::shared_ptr<RemoteDocument> RemoteDocument::load(
                 "Header property count exceeds remaining buffer size");
         }
         for (int32_t i = 0; i < numProps; i++) {
-            uint16_t tag = static_cast<uint16_t>(buffer.readShort());
-            uint16_t itemLen = static_cast<uint16_t>(buffer.readShort());
-            int32_t dataType = (tag >> 10) & 0x3F;
-            int32_t key = tag & 0x3FF;
+            int16_t tag = buffer.readShort();
+            buffer.readShort(); // itemLen (read and ignored)
+            int32_t dataType = static_cast<int32_t>(tag) >> 10;
+            int32_t key = static_cast<int32_t>(tag) & 0x3F;
             switch (dataType) {
                 case 0: { // INT
                     int32_t val = buffer.readInt();
@@ -3249,15 +3251,10 @@ std::shared_ptr<RemoteDocument> RemoteDocument::load(
                     break;
                 }
                 case 3: { // STRING
-                    buffer.readStringView();
+                    buffer.readStringView(4000);
                     break;
                 }
                 default: {
-                    if (itemLen > buffer.remaining()) {
-                        throw std::runtime_error(
-                            "Header property length exceeds remaining buffer size");
-                    }
-                    buffer.setIndex(buffer.getIndex() + itemLen);
                     break;
                 }
             }
@@ -3489,11 +3486,18 @@ impl WireBuffer {
     }
 
     pub fn skip_utf8(&mut self) -> Result<(), WireError> {
+        self.skip_utf8_limited(usize::MAX)
+    }
+
+    pub fn skip_utf8_limited(&mut self, max_len: usize) -> Result<(), WireError> {
         let len = self.read_i32()?;
         if len < 0 {
             return Err(WireError::InvalidData);
         }
         let len = len as usize;
+        if len > max_len {
+            return Err(WireError::InvalidData);
+        }
         if len <= self.remaining() {
             let slice = &self.data[self.index..self.index + len];
             std::str::from_utf8(slice).map_err(|_| WireError::InvalidUtf8)?;
@@ -4450,6 +4454,8 @@ impl RemoteDocument {
         doc.patch_version = buffer.read_i32()?;
         if (raw_major as u32 & 0xFFFF0000) == 0x048C0000 {
             doc.major_version = raw_major & 0xFFFF;
+            doc.width = 256;
+            doc.height = 256;
             let num_props = buffer.read_i32()?;
             if num_props < 0 || (num_props as usize) > Self::MAX_HEADER_PROPERTIES {
                 return Err(WireError::InvalidData);
@@ -4458,10 +4464,10 @@ impl RemoteDocument {
                 return Err(WireError::Underflow);
             }
             for _ in 0..num_props {
-                let tag = buffer.read_i16()? as u16;
-                let item_len = (buffer.read_i16()? as u16) as usize;
-                let data_type = (tag >> 10) & 0x3F;
-                let key = tag & 0x3FF;
+                let tag = buffer.read_i16()? as i32;
+                let _item_len = buffer.read_i16()?;
+                let data_type = tag >> 10;
+                let key = tag & 0x3F;
                 match data_type {
                     0 => {
                         let val = buffer.read_i32()?;
@@ -4480,8 +4486,8 @@ impl RemoteDocument {
                             return Err(WireError::UnsupportedCompression);
                         }
                     }
-                    3 => { buffer.skip_utf8()?; }
-                    _ => { buffer.skip_bytes(item_len)?; }
+                    3 => { buffer.skip_utf8_limited(4000)?; }
+                    _ => {}
                 }
             }
         } else if (0..0x10000).contains(&raw_major) {
@@ -5491,6 +5497,8 @@ export class RemoteDocument {
     doc.patchVersion = buffer.readInt();
     if ((rawMajor & 0xFFFF0000) === 0x048C0000) {
       doc.majorVersion = rawMajor & 0xFFFF;
+      doc.width = 256;
+      doc.height = 256;
       const numProps = buffer.readInt();
       if (numProps < 0 || numProps > RemoteDocument.MAX_HEADER_PROPERTIES) {
         throw new Error("Invalid numProps in header: " + numProps);
@@ -5501,10 +5509,10 @@ export class RemoteDocument {
         );
       }
       for (let i = 0; i < numProps; i++) {
-        const tag = buffer.readShort() & 0xFFFF;
-        const itemLen = buffer.readShort() & 0xFFFF;
-        const dataType = (tag >>> 10) & 0x3F;
-        const key = tag & 0x3FF;
+        const tag = buffer.readShort();
+        buffer.readShort(); // itemLen (read and ignored)
+        const dataType = tag >> 10;
+        const key = tag & 0x3F;
         switch (dataType) {
           case 0: {
             const val = buffer.readInt();
@@ -5525,9 +5533,8 @@ export class RemoteDocument {
             }
             break;
           }
-          case 3: buffer.readUTF8(); break;
+          case 3: buffer.readUTF8(4000); break;
           default:
-            buffer.skipBytes(itemLen);
             break;
         }
       }
@@ -6493,6 +6500,8 @@ public struct RemoteDocument {
         doc.patchVersion = try buffer.readInt()
         if (UInt32(bitPattern: rawMajor) & 0xFFFF0000) == 0x048C0000 {
             doc.majorVersion = rawMajor & 0xFFFF
+            doc.width = 256
+            doc.height = 256
             let numProps = Int(try buffer.readInt())
             guard numProps >= 0 && numProps <= MAX_HEADER_PROPERTIES else {
                 throw NSError(domain: "RemoteDocument", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid header property count: \(numProps)"])
@@ -6501,10 +6510,10 @@ public struct RemoteDocument {
                 throw NSError(domain: "RemoteDocument", code: 3, userInfo: [NSLocalizedDescriptionKey: "Header property count exceeds remaining buffer"])
             }
             for _ in 0..<numProps {
-                let tag = UInt16(bitPattern: try buffer.readShort())
-                let itemLen = Int(UInt16(bitPattern: try buffer.readShort()))
-                let dataType = (tag >> 10) & 0x3F
-                let key = tag & 0x3FF
+                let tag = Int32(try buffer.readShort())
+                _ = try buffer.readShort() // itemLen (read and ignored)
+                let dataType = tag >> 10
+                let key = tag & 0x3F
                 switch dataType {
                 case 0:
                     let val = try buffer.readInt()
@@ -6523,9 +6532,9 @@ public struct RemoteDocument {
                         throw NSError(domain: "RemoteDocument", code: 6, userInfo: [NSLocalizedDescriptionKey: "Compressed RemoteCompose documents are not supported"])
                     }
                 case 3:
-                    _ = try buffer.readUTF8()
+                    _ = try buffer.readUTF8(maxLength: 4000)
                 default:
-                    try buffer.skipBytes(itemLen)
+                    break
                 }
             }
         } else if rawMajor >= 0 && rawMajor < 0x10000 {
@@ -7259,6 +7268,8 @@ class RemoteDocument:
 
         if (raw_major & 0xFFFF0000) == 0x048C0000:
             doc.major_version = raw_major & 0xFFFF
+            doc.width = 256
+            doc.height = 256
             num_props = buffer.read_int()
             if num_props < 0 or num_props > cls.MAX_HEADER_PROPERTIES:
                 raise ValueError(f"Invalid header property count: {num_props}")
@@ -7267,10 +7278,10 @@ class RemoteDocument:
                     f"Header property count {num_props} exceeds remaining buffer ({buffer.remaining()})"
                 )
             for _ in range(num_props):
-                tag = buffer.read_short() & 0xFFFF
-                item_len = buffer.read_short() & 0xFFFF
-                data_type = (tag >> 10) & 0x3F
-                key = tag & 0x3FF
+                tag = buffer.read_short()
+                buffer.read_short()  # item_len (read and ignored)
+                data_type = tag >> 10
+                key = tag & 0x3F
                 if data_type == 0:
                     val = buffer.read_int()
                     if key == 5:
@@ -7290,9 +7301,7 @@ class RemoteDocument:
                     elif key == 31 and val != 0:
                         raise ValueError("Compressed RemoteCompose documents are not supported")
                 elif data_type == 3:
-                    buffer.read_utf8()
-                else:
-                    buffer.skip_bytes(item_len)
+                    buffer.read_utf8(4000)
         elif 0 <= raw_major < 0x10000:
             doc.major_version = raw_major
             doc.width = buffer.read_int()

@@ -326,6 +326,8 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                 line("doc.patchVersion = buffer.readInt();")
                 block("if ((rawMajor & 0xFFFF0000) === 0x048C0000)", close = null) {
                     line("doc.majorVersion = rawMajor & 0xFFFF;")
+                    line("doc.width = 256;")
+                    line("doc.height = 256;")
                     line("const numProps = buffer.readInt();")
                     block("if (numProps < 0 || numProps > RemoteDocument.MAX_HEADER_PROPERTIES)") {
                         line("throw new Error(\"Invalid numProps in header: \" + numProps);")
@@ -338,10 +340,10 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                         }
                     }
                     block("for (let i = 0; i < numProps; i++)") {
-                        line("const tag = buffer.readShort() & 0xFFFF;")
-                        line("const itemLen = buffer.readShort() & 0xFFFF;")
-                        line("const dataType = (tag >>> 10) & 0x3F;")
-                        line("const key = tag & 0x3FF;")
+                        line("const tag = buffer.readShort();")
+                        line("buffer.readShort(); // itemLen (read and ignored)")
+                        line("const dataType = tag >> 10;")
+                        line("const key = tag & 0x3F;")
                         block("switch (dataType)") {
                             block("case 0:") {
                                 line("const val = buffer.readInt();")
@@ -366,10 +368,9 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                                 }
                                 line("break;")
                             }
-                            line("case 3: buffer.readUTF8(); break;")
+                            line("case 3: buffer.readUTF8(4000); break;")
                             line("default:")
                             indent {
-                                line("buffer.skipBytes(itemLen);")
                                 line("break;")
                             }
                         }

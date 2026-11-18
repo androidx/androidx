@@ -540,7 +540,8 @@ class RemoteComposeGeneratorTest {
                 "if num_props < 0 || (num_props as usize) > Self::MAX_HEADER_PROPERTIES"
             )
         )
-        assertTrue(fullCode.contains("let item_len = (buffer.read_i16()? as u16) as usize;"))
+        assertTrue(fullCode.contains("let _item_len = buffer.read_i16()?;"))
+        assertTrue(fullCode.contains("let key = tag & 0x3F;"))
         assertTrue(fullCode.contains("feature = \"profile_widgets\""))
         assertTrue(fullCode.contains("feature = \"profile_baseline\""))
         assertTrue(fullCode.contains("rc_profile_all"))
@@ -792,7 +793,7 @@ class RemoteComposeGeneratorTest {
         assertTrue(
             code.contains("if (numProps < 0 || numProps > RemoteDocument.MAX_HEADER_PROPERTIES)")
         )
-        assertTrue(code.contains("const itemLen = buffer.readShort() & 0xFFFF;"))
+        assertTrue(code.contains("const key = tag & 0x3F;"))
         assertTrue(code.contains("if (_argsCount < 0) {"))
         assertTrue(code.contains("this.checkRemaining(len, \"UTF-8 string\");"))
         assertTrue(code.contains("this.checkRemaining(len, \"buffer\");"))
@@ -818,7 +819,7 @@ class RemoteComposeGeneratorTest {
         assertTrue(code.contains("buffer.writeFloat(radius)"))
         assertTrue(code.contains("try buffer.readFloat()"))
         assertTrue(code.contains("guard numProps >= 0 && numProps <= MAX_HEADER_PROPERTIES else {"))
-        assertTrue(code.contains("let itemLen = Int(UInt16(bitPattern: try buffer.readShort()))"))
+        assertTrue(code.contains("let key = tag & 0x3F"))
         assertTrue(code.contains("guard _argsCount >= 0 else {"))
         assertTrue(code.contains("public mutating func readShort() throws -> Int16"))
         assertTrue(code.contains("public mutating func writeShort(_ value: Int16)"))
@@ -1891,6 +1892,12 @@ class RemoteComposeGeneratorTest {
                         wb.writeByte(static_cast<uint8_t>(OpCode::Header));
                         WireBuffer r(wb.getBytes());
                         assertThrowsRuntime([&]() { RemoteDocument::load(r); });
+
+                        HeaderProperty badProp;
+                        badProp.tag = 5; // key=5, dataType=0 (INT), but intValue is std::nullopt
+                        badProp.itemLen = 4;
+                        WireBuffer propOut;
+                        assertThrowsRuntime([&]() { badProp.write(propOut); });
                     }
 
                     // maxOperations limit enforced (ContainerEnd is 1-byte op)
@@ -2392,7 +2399,7 @@ class RemoteComposeGeneratorTest {
             testScript.writeText(
                 """
                 import struct
-                from remote_compose import OpCode, RemoteDocument, WireBuffer
+                from remote_compose import HeaderProperty, OpCode, RemoteDocument, WireBuffer
 
                 def assert_raises(exc_type, fn):
                     try:
@@ -2461,6 +2468,10 @@ class RemoteComposeGeneratorTest {
                 b = make_v6_header()
                 b.write_byte(OpCode.Header.value)
                 assert_raises(ValueError, lambda: RemoteDocument.load(b.get_bytes()))
+
+                # HeaderProperty.write rejects missing payload when tag dataType requires it
+                bad_prop = HeaderProperty(tag=5, item_len=4)
+                assert_raises(ValueError, lambda: bad_prop.write(WireBuffer()))
 
                 # max_operations enforced
                 b = make_v6_header()
@@ -2639,6 +2650,26 @@ class RemoteComposeGeneratorTest {
         // AddMesh2D strictEnum
         val addMesh = schema.operationsByName["AddMesh2D"]!!
         assertTrue(addMesh.fields.first { it.name == "type" }.strictEnum)
+
+        // Header full schema parity (A7-A10, C4)
+        val headerOp = schema.operationsByName["Header"]!!
+        assertEquals(
+            "majorVersion < 65536",
+            headerOp.fields.first { it.name == "width" }.presentIf,
+        )
+        val headerPropsField = headerOp.fields.first { it.name == "properties" }
+        assertEquals("majorVersion >= 65536", headerPropsField.presentIf)
+        assertEquals(1000, headerPropsField.maxLength)
+        assertEquals(27, headerOp.extensions!!.supportedTags.size)
+        val headerPropStruct = schema.structs["HeaderProperty"]!!
+        assertEquals(
+            "0..5",
+            headerPropStruct.fields
+                .first { it.name == "tag" }
+                .bits!!
+                .first { it.name == "key" }
+                .range,
+        )
 
         // Nested operation payload metadata
         val skip = schema.operationsByName["Skip"]!!
@@ -3505,5 +3536,229 @@ class RemoteComposeGeneratorTest {
             expected,
             actual,
         )
+    }
+
+    @Test
+    fun testHeaderPropertyNullableWriteGuardAndAstHeaderBounds() {
+        val schema = loadSchema()
+        assertTrue(
+            KotlinGenerator(schema)
+                .generateWriterNodes()
+                .contains("requireNotNull(intValue) { \"Missing required field intValue\" }")
+        )
+        val cppSrc = CppGenerator(schema).generateSource()
+        assertTrue(cppSrc.contains("throw std::runtime_error(\"Missing required field intValue\")"))
+        assertTrue(
+            "C++ modern Header must default omitted width/height to 256",
+            cppSrc.contains("doc->width = 256;\n        doc->height = 256;"),
+        )
+        val rustSrc = RustGenerator(schema).generate()
+        assertTrue(rustSrc.contains(".ok_or(WireError::MissingRequiredField(\"intValue\"))?"))
+        assertTrue(
+            "Rust modern Header must default omitted width/height to 256",
+            rustSrc.contains("doc.width = 256;\n            doc.height = 256;"),
+        )
+        assertTrue(
+            "Rust modern Header string skip should use skip_utf8_limited(4000) without allocating",
+            rustSrc.contains("3 => { buffer.skip_utf8_limited(4000)?; }"),
+        )
+        val tsSrc = TypeScriptGenerator(schema).generate()
+        assertTrue(tsSrc.contains("throw new Error(\"Missing required field intValue\")"))
+        assertTrue(
+            "TS modern Header must default omitted width/height to 256",
+            tsSrc.contains("doc.width = 256;") && tsSrc.contains("doc.height = 256;"),
+        )
+        val swiftSrc = SwiftGenerator(schema).generate()
+        assertTrue(
+            swiftSrc.contains(
+                "throw NSError(domain: \"HeaderProperty\", code: 3, userInfo: [NSLocalizedDescriptionKey: \"Missing required field intValue\"])"
+            )
+        )
+        assertTrue(
+            "Swift modern Header must default omitted width/height to 256",
+            swiftSrc.contains("doc.width = 256") && swiftSrc.contains("doc.height = 256"),
+        )
+        val pySrc = PythonGenerator(schema).generate()
+        assertTrue(pySrc.contains("raise ValueError(\"Missing required field intValue\")"))
+        assertTrue(
+            "Python modern Header must default omitted width/height to 256",
+            pySrc.contains("doc.width = 256") && pySrc.contains("doc.height = 256"),
+        )
+
+        // DocumentHeader rejects property keys outside 0..63 and defaults missing dimensions to 256
+        val badHeader = DocumentHeader(1, 2, 0, 256, 256, properties = mapOf(64.toShort() to 1))
+        try {
+            badHeader.write(WireBuffer())
+            fail("Expected IllegalArgumentException for out-of-range header property key 64")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message?.contains("0..63") == true)
+        }
+
+        val validHeader = DocumentHeader(1, 2, 0, 256, 256, properties = mapOf(16.toShort() to 1))
+        val wb = WireBuffer()
+        validHeader.write(wb)
+        wb.setIndex(0)
+        val roundTripped = DocumentHeader.read(wb)
+        assertEquals(256, roundTripped.width)
+        assertEquals(256, roundTripped.height)
+        assertEquals(1, roundTripped.properties[16.toShort()])
+
+        // Modern 256x256 header with omitted width/height and a string property decodes as 256x256
+        // in Python, C++, and Rust, and Rust skip_utf8_limited rejects > 4000-byte header strings.
+        val modern256Wb = WireBuffer()
+        DocumentHeader(1, 2, 0, 256, 256, properties = mapOf(12.toShort() to "hello"))
+            .write(modern256Wb)
+        val modern256Bytes = modern256Wb.cloneBytes()
+        val modern256Hex =
+            modern256Bytes.joinToString(", ") { "0x%02X".format(it.toInt() and 0xFF) }
+
+        val oversizedStrWb = WireBuffer()
+        oversizedStrWb.writeByte(0) // Header
+        oversizedStrWb.writeInt(0x048C0001)
+        oversizedStrWb.writeInt(2)
+        oversizedStrWb.writeInt(0)
+        oversizedStrWb.writeInt(1) // 1 property
+        oversizedStrWb.writeShort((3 shl 10) or 12) // STRING, key 12
+        oversizedStrWb.writeShort(4005)
+        oversizedStrWb.writeUTF8("a".repeat(4001))
+        val oversizedStrHex =
+            oversizedStrWb.cloneBytes().joinToString(", ") { "0x%02X".format(it.toInt() and 0xFF) }
+
+        val python3 = findExecutableOnPath("python3")
+        if (python3 != null) {
+            val tmpDir = Files.createTempDirectory("rc_header_256_py").toFile()
+            try {
+                File(tmpDir, "remote_compose.py").writeText(pySrc)
+                val pyTest = File(tmpDir, "test_hdr.py")
+                pyTest.writeText(
+                    """
+                    from remote_compose import RemoteDocument
+                    doc = RemoteDocument.load(bytes([$modern256Hex]))
+                    assert doc.width == 256 and doc.height == 256, (doc.width, doc.height)
+                    try:
+                        RemoteDocument.load(bytes([$oversizedStrHex]))
+                        raise AssertionError("Expected ValueError for >4000-byte header string")
+                    except ValueError:
+                        pass
+                    """
+                        .trimIndent()
+                )
+                val run =
+                    ProcessBuilder(python3.absolutePath, pyTest.absolutePath)
+                        .redirectErrorStream(true)
+                        .start()
+                val out = run.inputStream.bufferedReader().readText()
+                assertEquals("Python modern 256x256 header test failed:\n$out", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        val cppCompiler =
+            listOfNotNull(findExecutableOnPath("clang++"), findExecutableOnPath("g++"))
+                .firstOrNull {
+                    it.exists() && it.canExecute() && canCompileCpp(it)
+                }
+        if (cppCompiler != null) {
+            val tmpDir = Files.createTempDirectory("rc_header_256_cpp").toFile()
+            try {
+                val cppGen = CppGenerator(schema)
+                File(tmpDir, "WireBuffer.h").writeText(cppGen.generateWireBufferHeader())
+                File(tmpDir, "WireBuffer.cpp").writeText(cppGen.generateWireBufferSource())
+                File(tmpDir, "RemoteComposeOps.h").writeText(cppGen.generateHeader())
+                File(tmpDir, "RemoteComposeOps.cpp").writeText(cppSrc)
+                val driver = File(tmpDir, "main.cpp")
+                driver.writeText(
+                    """
+                    #include <cassert>
+                    #include <stdexcept>
+                    #include <vector>
+                    #include "RemoteComposeOps.h"
+                    using namespace androidx::compose::remote;
+                    int main() {
+                        std::vector<uint8_t> ok = {$modern256Hex};
+                        WireBuffer wb(ok);
+                        auto doc = RemoteDocument::load(wb);
+                        assert(doc->width == 256);
+                        assert(doc->height == 256);
+
+                        std::vector<uint8_t> bad = {$oversizedStrHex};
+                        WireBuffer badWb(bad);
+                        bool threw = false;
+                        try {
+                            RemoteDocument::load(badWb);
+                        } catch (const std::runtime_error&) {
+                            threw = true;
+                        }
+                        assert(threw);
+                        return 0;
+                    }
+                    """
+                        .trimIndent()
+                )
+                val bin = File(tmpDir, "test_hdr")
+                val comp =
+                    ProcessBuilder(
+                            cppCompiler.absolutePath,
+                            "-std=c++17",
+                            "-Wall",
+                            "-Werror",
+                            File(tmpDir, "WireBuffer.cpp").absolutePath,
+                            File(tmpDir, "RemoteComposeOps.cpp").absolutePath,
+                            driver.absolutePath,
+                            "-o",
+                            bin.absolutePath,
+                        )
+                        .redirectErrorStream(true)
+                        .start()
+                val compOut = comp.inputStream.bufferedReader().readText()
+                assertEquals("C++ modern 256x256 compile failed:\n$compOut", 0, comp.waitFor())
+                val run = ProcessBuilder(bin.absolutePath).redirectErrorStream(true).start()
+                val runOut = run.inputStream.bufferedReader().readText()
+                assertEquals("C++ modern 256x256 run failed:\n$runOut", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        val rustc =
+            (listOf(File(System.getProperty("user.home"), ".cargo/bin/rustc")) +
+                    listOfNotNull(findExecutableOnPath("rustc")))
+                .firstOrNull { it.exists() && it.canExecute() }
+        if (rustc != null) {
+            val tmpDir = Files.createTempDirectory("rc_header_256_rust").toFile()
+            try {
+                val mainRs = File(tmpDir, "main.rs")
+                mainRs.writeText(
+                    """
+                    $rustSrc
+                    fn main() {
+                        let ok: [u8; ${modern256Bytes.size}] = [$modern256Hex];
+                        let mut wb = WireBuffer::from_bytes(&ok);
+                        let doc = RemoteDocument::load(&mut wb).expect("256x256 header");
+                        assert_eq!(doc.width, 256);
+                        assert_eq!(doc.height, 256);
+
+                        let bad = [$oversizedStrHex];
+                        let mut bad_wb = WireBuffer::from_bytes(&bad);
+                        assert_eq!(RemoteDocument::load(&mut bad_wb), Err(WireError::InvalidData));
+                    }
+                    """
+                        .trimIndent()
+                )
+                val bin = File(tmpDir, "test_hdr_rust")
+                val comp =
+                    ProcessBuilder(rustc.absolutePath, mainRs.absolutePath, "-o", bin.absolutePath)
+                        .redirectErrorStream(true)
+                        .start()
+                val compOut = comp.inputStream.bufferedReader().readText()
+                assertEquals("Rust modern 256x256 compile failed:\n$compOut", 0, comp.waitFor())
+                val run = ProcessBuilder(bin.absolutePath).redirectErrorStream(true).start()
+                val runOut = run.inputStream.bufferedReader().readText()
+                assertEquals("Rust modern 256x256 run failed:\n$runOut", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
     }
 }

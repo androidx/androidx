@@ -291,6 +291,8 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                     close = null,
                 ) {
                     line("doc.majorVersion = rawMajor & 0xFFFF")
+                    line("doc.width = 256")
+                    line("doc.height = 256")
                     line("let numProps = Int(try buffer.readInt())")
                     block("guard numProps >= 0 && numProps <= MAX_HEADER_PROPERTIES else") {
                         line(
@@ -303,10 +305,10 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                         )
                     }
                     block("for _ in 0..<numProps") {
-                        line("let tag = UInt16(bitPattern: try buffer.readShort())")
-                        line("let itemLen = Int(UInt16(bitPattern: try buffer.readShort()))")
-                        line("let dataType = (tag >> 10) & 0x3F")
-                        line("let key = tag & 0x3FF")
+                        line("let tag = Int32(try buffer.readShort())")
+                        line("_ = try buffer.readShort() // itemLen (read and ignored)")
+                        line("let dataType = tag >> 10")
+                        line("let key = tag & 0x3F")
                         swiftSwitch("dataType") {
                             swiftCase("case 0") {
                                 line("let val = try buffer.readInt()")
@@ -331,8 +333,8 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                                     )
                                 }
                             }
-                            swiftCase("case 3") { line("_ = try buffer.readUTF8()") }
-                            swiftCase("default") { line("try buffer.skipBytes(itemLen)") }
+                            swiftCase("case 3") { line("_ = try buffer.readUTF8(maxLength: 4000)") }
+                            swiftCase("default") { line("break") }
                         }
                     }
                 }

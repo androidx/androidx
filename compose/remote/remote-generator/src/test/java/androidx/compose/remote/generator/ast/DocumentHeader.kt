@@ -38,10 +38,10 @@ class DocumentHeader(
             emptyMap()
         } else {
             val map = LinkedHashMap<Short, Any>()
-            if (!properties.containsKey(DOC_WIDTH)) {
+            if (!properties.containsKey(DOC_WIDTH) && width != DEFAULT_DIMENSION) {
                 map[DOC_WIDTH] = width
             }
-            if (!properties.containsKey(DOC_HEIGHT)) {
+            if (!properties.containsKey(DOC_HEIGHT) && height != DEFAULT_DIMENSION) {
                 map[DOC_HEIGHT] = height
             }
             if (capabilities != 0L && !properties.containsKey(DOC_PROFILES)) {
@@ -68,10 +68,10 @@ class DocumentHeader(
             buffer.writeInt(patchVersion)
 
             val streamProperties = LinkedHashMap<Short, Any>()
-            if (!properties.containsKey(DOC_WIDTH)) {
+            if (!properties.containsKey(DOC_WIDTH) && width != DEFAULT_DIMENSION) {
                 streamProperties[DOC_WIDTH] = width
             }
-            if (!properties.containsKey(DOC_HEIGHT)) {
+            if (!properties.containsKey(DOC_HEIGHT) && height != DEFAULT_DIMENSION) {
                 streamProperties[DOC_HEIGHT] = height
             }
             if (capabilities != 0L && !properties.containsKey(DOC_PROFILES)) {
@@ -87,7 +87,7 @@ class DocumentHeader(
     }
 
     private fun writeProperty(buffer: WireBuffer, key: Short, value: Any) {
-        require(key.toInt() in 0..0x3FF) { "Property key out of range (0..1023): $key" }
+        require(key.toInt() in 0..0x3F) { "Property key out of range (0..63): $key" }
         when (value) {
             is Int -> {
                 val tag = (key.toInt() or (DATA_TYPE_INT shl 10)).toShort()
@@ -155,6 +155,7 @@ class DocumentHeader(
         /** Property tag key for supported profile capabilities. */
         const val DOC_PROFILES: Short = 14
 
+        private const val DEFAULT_DIMENSION = 256
         private const val MAGIC_NUMBER = 0x048C0000
         private const val MAX_HEADER_PROPERTIES = 1000
         private const val DATA_TYPE_INT = 0
@@ -188,23 +189,25 @@ class DocumentHeader(
             val props = LinkedHashMap<Short, Any>()
 
             for (i in 0 until numProps) {
-                val tag = buffer.readShort() and 0xFFFF
+                val tag = buffer.readShort().toShort().toInt()
                 buffer.readShort() // itemLen
-                val dataType = (tag ushr 10) and 0x3F
-                val key = (tag and 0x3FF).toShort()
-                val value: Any =
+                val dataType = tag shr 10
+                val key = (tag and 0x3F).toShort()
+                val value: Any? =
                     when (dataType) {
                         DATA_TYPE_INT -> buffer.readInt()
                         DATA_TYPE_FLOAT -> buffer.readFloat()
                         DATA_TYPE_LONG -> buffer.readLong()
-                        DATA_TYPE_STRING -> buffer.readUTF8(4096)
-                        else -> throw IllegalStateException("Unknown property data type $dataType")
+                        DATA_TYPE_STRING -> buffer.readUTF8(4000)
+                        else -> null
                     }
-                props[key] = value
+                if (value != null) {
+                    props[key] = value
+                }
             }
 
-            val w = (props[DOC_WIDTH] as? Number)?.toInt() ?: 0
-            val h = (props[DOC_HEIGHT] as? Number)?.toInt() ?: 0
+            val w = (props[DOC_WIDTH] as? Number)?.toInt() ?: DEFAULT_DIMENSION
+            val h = (props[DOC_HEIGHT] as? Number)?.toInt() ?: DEFAULT_DIMENSION
             val cap =
                 (props[DOC_PROFILES] as? Number)?.let {
                     if (it is Int) it.toLong() and 0xFFFFFFFFL else it.toLong()

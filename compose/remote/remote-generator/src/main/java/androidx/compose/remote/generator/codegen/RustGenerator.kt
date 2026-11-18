@@ -886,6 +886,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
                 line("doc.patch_version = buffer.read_i32()?;")
                 block("if (raw_major as u32 & 0xFFFF0000) == 0x048C0000", close = null) {
                     line("doc.major_version = raw_major & 0xFFFF;")
+                    line("doc.width = 256;")
+                    line("doc.height = 256;")
                     line("let num_props = buffer.read_i32()?;")
                     block(
                         "if num_props < 0 || (num_props as usize) > Self::MAX_HEADER_PROPERTIES"
@@ -896,10 +898,10 @@ internal class RustGenerator(private val schema: OperationSchema) {
                         line("return Err(WireError::Underflow);")
                     }
                     block("for _ in 0..num_props") {
-                        line("let tag = buffer.read_i16()? as u16;")
-                        line("let item_len = (buffer.read_i16()? as u16) as usize;")
-                        line("let data_type = (tag >> 10) & 0x3F;")
-                        line("let key = tag & 0x3FF;")
+                        line("let tag = buffer.read_i16()? as i32;")
+                        line("let _item_len = buffer.read_i16()?;")
+                        line("let data_type = tag >> 10;")
+                        line("let key = tag & 0x3F;")
                         block("match data_type") {
                             block("0 =>") {
                                 line("let val = buffer.read_i32()?;")
@@ -920,8 +922,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
                                     line("return Err(WireError::UnsupportedCompression);")
                                 }
                             }
-                            line("3 => { buffer.skip_utf8()?; }")
-                            line("_ => { buffer.skip_bytes(item_len)?; }")
+                            line("3 => { buffer.skip_utf8_limited(4000)?; }")
+                            line("_ => {}")
                         }
                     }
                 }
@@ -1152,11 +1154,18 @@ internal class RustGenerator(private val schema: OperationSchema) {
                 }
 
                 pub fn skip_utf8(&mut self) -> Result<(), WireError> {
+                    self.skip_utf8_limited(usize::MAX)
+                }
+
+                pub fn skip_utf8_limited(&mut self, max_len: usize) -> Result<(), WireError> {
                     let len = self.read_i32()?;
                     if len < 0 {
                         return Err(WireError::InvalidData);
                     }
                     let len = len as usize;
+                    if len > max_len {
+                        return Err(WireError::InvalidData);
+                    }
                     if len <= self.remaining() {
                         let slice = &self.data[self.index..self.index + len];
                         std::str::from_utf8(slice).map_err(|_| WireError::InvalidUtf8)?;
