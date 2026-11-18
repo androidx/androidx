@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 
 internal actual fun MultiParagraph.drawMultiParagraph(
     canvas: Canvas,
@@ -55,21 +56,31 @@ internal actual fun MultiParagraph.drawMultiParagraph(
                     width = maxOf(width, it.paragraph.width)
                 }
                 val shader = brush.createShader(Size(width, height))
-                val matrix = Matrix()
-                shader.getLocalMatrix(matrix)
-                paragraphInfoList.fastForEach {
-                    it.paragraph.paint(
-                        canvas = canvas,
-                        brush = ShaderBrush(shader),
-                        alpha = alpha,
-                        shadow = shadow,
-                        textDecoration = decoration,
-                        drawStyle = drawStyle,
-                        blendMode = blendMode,
-                    )
-                    canvas.translate(0f, it.paragraph.height)
-                    matrix.setTranslate(0f, -it.paragraph.height)
-                    shader.setLocalMatrix(matrix)
+                val originalMatrix = Matrix()
+                val isOriginalNonIdentity = shader.getLocalMatrix(originalMatrix)
+                // Avoid allocating an extra matrix if we know we'll be resetting to identity
+                val matrix = if (isOriginalNonIdentity) Matrix(originalMatrix) else originalMatrix
+                try {
+                    paragraphInfoList.fastForEachIndexed { index, info ->
+                        info.paragraph.paint(
+                            canvas = canvas,
+                            brush = ShaderBrush(shader),
+                            alpha = alpha,
+                            shadow = shadow,
+                            textDecoration = decoration,
+                            drawStyle = drawStyle,
+                            blendMode = blendMode,
+                        )
+                        if (index < paragraphInfoList.lastIndex) {
+                            canvas.translate(0f, info.paragraph.height)
+                            // Offset the shader by the total height of the paragraphs drawn so far
+                            matrix.postTranslate(0f, -info.paragraph.height)
+                            shader.setLocalMatrix(matrix)
+                        }
+                    }
+                } finally {
+                    // The shader may be reused, so reset the matrix
+                    shader.setLocalMatrix(if (isOriginalNonIdentity) originalMatrix else null)
                 }
             }
         }

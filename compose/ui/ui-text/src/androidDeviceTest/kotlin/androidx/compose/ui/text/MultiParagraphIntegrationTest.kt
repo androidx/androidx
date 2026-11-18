@@ -15,13 +15,16 @@
  */
 package androidx.compose.ui.text
 
+import android.graphics.Matrix
 import android.graphics.Paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
@@ -1930,6 +1933,8 @@ class MultiParagraphIntegrationTest {
                                     append("Lorem")
                                 }
                                 withStyle(ParagraphStyle()) { append("Ipsum") }
+                                withStyle(ParagraphStyle()) { append("Dolor") }
+                                withStyle(ParagraphStyle()) { append("Magna") }
                             },
                         style = TextStyle(brush = brush, fontSize = fontSize),
                         width = fontSizeInPx * 5,
@@ -1941,7 +1946,9 @@ class MultiParagraphIntegrationTest {
                         text =
                             buildAnnotatedString {
                                 append("Lorem\n")
-                                append("Ipsum")
+                                append("Ipsum\n")
+                                append("Dolor\n")
+                                append("Magna")
                             },
                         style = TextStyle(brush = brush, fontSize = fontSize),
                         width = fontSizeInPx * 5,
@@ -1949,6 +1956,46 @@ class MultiParagraphIntegrationTest {
                     .apply { disableAntialias() }
 
             assertThat(multiParagraph.bitmap(brush)).isEqualToBitmap(multiParagraph2.bitmap(brush))
+        }
+
+    @Test
+    fun multiParagraph_drawingWithShaderBrush_doesNotModifyShader() =
+        with(defaultDensity) {
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx()
+            val multiParagraph =
+                simpleMultiParagraph(
+                        text =
+                            buildAnnotatedString {
+                                withStyle(ParagraphStyle()) { append("Lorem") }
+                                withStyle(ParagraphStyle()) { append("Ipsum") }
+                                withStyle(ParagraphStyle()) { append("Dolor") }
+                            },
+                        style = TextStyle(fontSize = fontSize),
+                        width = fontSizeInPx * 5,
+                    )
+                    .apply { disableAntialias() }
+            // A brush that always returns the same shader instance
+            val shader =
+                LinearGradientShader(
+                    from = Offset.Zero,
+                    to = Offset(0f, multiParagraph.height),
+                    colors = listOf(Color.Blue, Color.Red),
+                )
+            val initialMatrix = Matrix().apply { setScale(0.5f, 1f) }
+            shader.setLocalMatrix(initialMatrix)
+            val brush = ShaderBrush(shader)
+
+            val finalMatrix = Matrix()
+            val bitmap1 = multiParagraph.bitmap(brush)
+            shader.getLocalMatrix(finalMatrix)
+            assertThat(finalMatrix).isEqualTo(initialMatrix)
+
+            val bitmap2 = multiParagraph.bitmap(brush)
+            shader.getLocalMatrix(finalMatrix)
+            assertThat(finalMatrix).isEqualTo(initialMatrix)
+
+            assertThat(bitmap1).isEqualToBitmap(bitmap2)
         }
 
     @Test
