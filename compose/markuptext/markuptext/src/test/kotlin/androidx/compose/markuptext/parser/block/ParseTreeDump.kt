@@ -42,6 +42,20 @@ private fun StringBuilder.appendParseTree(block: ParseBlock, indent: String) {
                 .append(" '")
                 .append(block.getCodeContent())
                 .append("'")
+        is ListParseBlock ->
+            append(" bulletOrDelimiter=")
+                .append(block.marker.bulletOrDelimiter)
+                .append(" start=")
+                .append(block.marker.startNumber)
+                .append(" tight=")
+                .append(block.computeIsTight())
+        is ListItemParseBlock ->
+            append(" bulletOrDelimiter=")
+                .append(block.marker.bulletOrDelimiter)
+                .append(" start=")
+                .append(block.marker.startNumber)
+                .append(" contentIndent=")
+                .append(block.marker.contentIndentColumn)
         else -> {}
     }
     append('\n')

@@ -112,7 +112,7 @@ class RandomIncrementalParsingTest {
          * Container markers of a line's nesting levels. The empty marker leaves only the spacing,
          * an indentation that continues a container or makes indented code.
          */
-        val CONTAINER_MARKERS = listOf("", ">")
+        val CONTAINER_MARKERS = listOf("", ">", "-", "*", "+", "1.", "2)", "10.")
 
         /** Spacing after each container marker, up to indented code and including a tab. */
         val SPACINGS = listOf("", " ", "  ", "   ", "    ", "     ", "\t")

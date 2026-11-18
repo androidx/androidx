@@ -144,7 +144,7 @@ internal class ParseContext {
         // of a few marker  characters, so most text lines fail [mayStartMarkedBlock] can skip all
         // the matchers.
         if (scanner.mayStartMarkedBlock()) {
-            val block = matchMarkedBlockStart()
+            val block = matchMarkedBlockStart(isInterrupting)
             if (block != null) {
                 return block
             }
@@ -176,7 +176,7 @@ internal class ParseContext {
      * Matches a block that starts with a marker character (step 2 of [matchBlockStart]), or returns
      * `null` (consuming nothing) if none matches.
      */
-    private fun matchMarkedBlockStart(): ParseBlock? {
+    private fun matchMarkedBlockStart(isInterrupting: Boolean): ParseBlock? {
         val scanner = currentLine
 
         // 2.1. ATX Heading (# Heading)
@@ -206,7 +206,19 @@ internal class ParseContext {
             return BlockQuoteParseBlock(id = generateBlockId())
         }
 
-        return null
+        // 2.5. List item (-, *, +, or 1. / 1)). The item does not know whether it continues a
+        // list: a list of the same type adopts it, and any other container wraps it in a new list
+        // (see [ListItemParseBlock.prepareForAttach]).
+        val listStartPosition = scanner.position
+        val marker = scanner.matchesListMarker() ?: return null
+        // To interrupt a paragraph, a list item must not be empty and, if ordered, must start at 1.
+        // On a lazy continuation line the paragraph is not a direct child of the container where
+        // the item lands, so any list item is accepted (e.g. a sibling item `2. item`).
+        if (isInterrupting && !isLazyContinuation && !marker.canInterruptParagraph) {
+            scanner.restore(listStartPosition)
+            return null
+        }
+        return ListItemParseBlock(id = generateBlockId(), marker = marker)
     }
 
     /**
@@ -221,8 +233,8 @@ internal class ParseContext {
 
 /**
  * Whether this line may start a block with a marker character: at most [MAX_BLOCK_START_INDENT]
- * leading spaces followed by a character that begins an ATX heading, fenced code block, divider, or
- * block quote. A cheap pre-check before running the full matchers.
+ * leading spaces followed by a character that begins an ATX heading, fenced code block, divider,
+ * block quote, or list marker. A cheap pre-check before running the full matchers.
  */
 private fun LineScanner.mayStartMarkedBlock(): Boolean {
     if (leadingSpaceCount > MAX_BLOCK_START_INDENT) return false
@@ -230,5 +242,7 @@ private fun LineScanner.mayStartMarkedBlock(): Boolean {
     return firstChar == ATX_HEADING_MARKER ||
         firstChar.isFenceChar() ||
         firstChar.isDividerMarker() ||
-        firstChar == BLOCK_QUOTE_MARKER
+        firstChar == BLOCK_QUOTE_MARKER ||
+        firstChar.isBulletListMarker() ||
+        firstChar.isAsciiDigit()
 }

@@ -39,4 +39,8 @@ internal class EmptyLineParseBlock(id: Long, @IntRange(from = 1) lineCount: Int 
 
     /** Every line of this block is blank, including the line that opened it. */
     override fun countTrailingEmptyLines(): Int = lineCount
+
+    /** Blank lines are not content: they separate the blocks around them. */
+    override val consumesTrailingEmptyLines: Boolean
+        get() = false
 }
