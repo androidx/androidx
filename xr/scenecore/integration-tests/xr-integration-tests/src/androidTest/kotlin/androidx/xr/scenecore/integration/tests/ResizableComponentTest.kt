@@ -66,9 +66,8 @@ import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.DEFAULT_MOVE_HANDLE_MARGIN
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.SpatialAlignment
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionScope
 import androidx.xr.testutils.createXrSessionRule
@@ -1717,8 +1716,8 @@ class ResizableComponentTest {
     private fun awaitResizableNode(
         activity: ComponentActivity,
         description: String,
-        selectNode: (SpatialTask) -> SpatialNode?,
-    ): SpatialNode {
+        selectNode: (SnapshotXrSpace) -> SnapshotXrSpace?,
+    ): SnapshotXrSpace {
         // Let pending layout and component transactions submit before polling CPM, so the caller
         // samples its "before" state after the UI has synced.
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
@@ -1788,7 +1787,7 @@ class ResizableComponentTest {
         }
     }
 
-    private fun waitForResizableMainPanelNode(expectedSize: FloatSize2d? = null): SpatialNode {
+    private fun waitForResizableMainPanelNode(expectedSize: FloatSize2d? = null): SnapshotXrSpace {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         return checkNotNull(
             waitForSpatialScene(
@@ -1864,11 +1863,11 @@ class ResizableComponentTest {
     private fun waitForResizablePanelNode(
         panelName: String,
         expectedSize: FloatSize2d? = null,
-        predicate: (SpatialNode) -> Boolean = { true },
-    ): SpatialNode =
+        predicate: (SnapshotXrSpace) -> Boolean = { true },
+    ): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
-                description = "Resizable panel SpatialNode '$panelName' ready",
+                description = "Resizable panel SnapshotXrSpace '$panelName' ready",
                 timeout = SCENE_TIMEOUT,
                 select = { scene ->
                     scene.findTaskByActivity(sessionRule.activity)?.findNode {
@@ -1895,10 +1894,10 @@ class ResizableComponentTest {
             )
         )
 
-    private fun waitForResizableSurfaceNode(): SpatialNode =
+    private fun waitForResizableSurfaceNode(): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
-                description = "Resizable SurfaceEntity parent SpatialNode ready",
+                description = "Resizable SurfaceEntity parent SnapshotXrSpace ready",
                 timeout = SCENE_TIMEOUT,
                 select = { scene ->
                     val task = scene.findTaskByActivity(sessionRule.activity)
@@ -1962,7 +1961,7 @@ class ResizableComponentTest {
         )
     }
 
-    private fun SpatialNode.requestedAlphaOrDefault(defaultAlpha: Float): Float =
+    private fun SnapshotXrSpace.requestedAlphaOrDefault(defaultAlpha: Float): Float =
         properties["requestedAlpha"]?.toFloatOrNull() ?: defaultAlpha
 
     private enum class MoveState {

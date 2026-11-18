@@ -32,8 +32,7 @@ import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.waitForSpatialScene
@@ -417,7 +416,7 @@ class EntityEcsLifecycleAndAlphaTest {
     }
 
     private fun hasComputedAlpha(
-        task: SpatialTask,
+        task: SnapshotXrSpace,
         panelName: String,
         expectedAlpha: Float,
     ): Boolean {
@@ -435,9 +434,11 @@ class EntityEcsLifecycleAndAlphaTest {
             abs(gltfAlpha - expectedAlpha) <= CPM_FLOAT_TOLERANCE
     }
 
-    private fun findVisibleGltfNodeAndSubspace(task: SpatialTask): Pair<SpatialNode, SpatialNode>? {
+    private fun findVisibleGltfNodeAndSubspace(
+        task: SnapshotXrSpace
+    ): Pair<SnapshotXrSpace, SnapshotXrSpace>? {
         val gltfNode =
-            task.activitySpaceRoot
+            (task.activitySpaceRoot ?: task)
                 .findNodes { node ->
                     node.isVisible &&
                         node.name != ACTIVITY_SPACE_NODE_NAME &&

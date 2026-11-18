@@ -19,16 +19,21 @@
 package androidx.xr.testutils.runtime.cpm
 
 import android.app.UiAutomation
+import android.graphics.Rect
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialScene
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector2
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.testutils.SnapshotXrScene
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.SpatialSceneStats
 import androidx.xr.testutils.computeSceneStats
 import java.io.InputStream
 import java.util.regex.Pattern
+import kotlin.math.abs
 
 internal const val SCENE_CAPTURE_TAG = "SpatialSceneHelper"
 internal const val DEFAULT_SCENE_POLL_MAX_WAIT_MS = 3000L
@@ -41,12 +46,12 @@ internal const val UNRESOLVED_TASK_REFRESH_COOLDOWN_MS = 1000L
  *
  * @param uiAutomation The [UiAutomation] instance used to execute dumpsys shell commands.
  * @param maxWaitMs The maximum duration in milliseconds to poll before returning the latest scene.
- * @return The captured [SpatialScene] snapshot.
+ * @return The captured [SnapshotXrScene] snapshot.
  */
 internal fun captureSceneWithPolling(
     uiAutomation: UiAutomation,
     maxWaitMs: Long = DEFAULT_SCENE_POLL_MAX_WAIT_MS,
-): SpatialScene =
+): SnapshotXrScene =
     captureSceneWithPolling(
         maxWaitMs = maxWaitMs,
         shellRunner = { command -> executeSceneShellCommand(command, uiAutomation) },
@@ -62,8 +67,8 @@ internal fun captureSceneWithPolling(
     },
     clockMs: () -> Long = System::currentTimeMillis,
     shellRunner: (String) -> String,
-): SpatialScene {
-    var scene: SpatialScene
+): SnapshotXrScene {
+    var scene: SnapshotXrScene
     var cachedTaskPackageMap: Map<Int, String>? = null
     val lastQueriedAtMs = mutableMapOf<Int, Long>()
     val startTime = clockMs()
@@ -95,7 +100,7 @@ internal fun captureSceneWithPolling(
             } else {
                 currentMap!!
             }
-        scene = SpatialScene(rootNodes = rootNodes, taskPackageMap = resolvedMap, stats = stats)
+        scene = SnapshotXrScene(rootNodes = rootNodes, taskPackageMap = resolvedMap, stats = stats)
         val hasTransition = scene.hasActiveTransition
         val isReady =
             scene.tasks.any { task ->
@@ -109,7 +114,7 @@ internal fun captureSceneWithPolling(
     return scene
 }
 
-private fun extractTaskIdsFromRoots(rootNodes: List<SpatialNode>): List<Int> =
+private fun extractTaskIdsFromRoots(rootNodes: List<SnapshotXrSpace>): List<Int> =
     rootNodes
         .flatMap { root ->
             if (root.isTaskRoot) listOf(root) else root.children.filter { it.isTaskRoot }
@@ -120,15 +125,15 @@ private fun extractTaskIdsFromRoots(rootNodes: List<SpatialNode>): List<Int> =
 
 /**
  * Parses the raw output of `dumpsys spf_cpm` and an optional task-package mapping into a
- * [SpatialScene].
+ * [SnapshotXrScene].
  */
 @VisibleForTesting
 internal fun parseSpatialScene(
     rawDump: String,
     taskPackageMap: Map<Int, String> = emptyMap(),
-): SpatialScene {
+): SnapshotXrScene {
     val rootNodes = parseRootNodes(rawDump)
-    return SpatialScene(
+    return SnapshotXrScene(
         rootNodes = rootNodes,
         taskPackageMap = taskPackageMap,
         stats = parseSceneStats(rawDump, rootNodes),
@@ -142,7 +147,7 @@ internal fun parseSpatialScene(
 @VisibleForTesting
 internal fun parseSceneStats(
     dump: String,
-    rootNodes: List<SpatialNode> = emptyList(),
+    rootNodes: List<SnapshotXrSpace> = emptyList(),
 ): SpatialSceneStats? {
     val livingNodesMatch = LIVING_NODES_PATTERN.matcher(dump)
     val livingNodes =
@@ -150,24 +155,173 @@ internal fun parseSceneStats(
     return computeSceneStats(rootNodes = rootNodes, livingNodes = livingNodes)
 }
 
-/** Parses the raw output of `dumpsys spf_cpm` into a list of [SpatialNode] root entities. */
+/** Parses the raw output of `dumpsys spf_cpm` into a list of [SnapshotXrSpace] root entities. */
 @VisibleForTesting
-internal fun parseRootNodes(dump: String): List<SpatialNode> {
-    val rootNodes = mutableListOf<SpatialNode>()
-    val nodeStack = ArrayDeque<SpatialNode>()
+internal fun parseRootNodes(dump: String): List<SnapshotXrSpace> {
+    val rootNodes = mutableListOf<SnapshotXrSpace>()
+    val nodeStack = ArrayDeque<SnapshotXrSpace>()
 
-    var currentNode: SpatialNode? = null
+    var currentNode: SnapshotXrSpace? = null
     val currentAttributes = mutableMapOf<String, FloatArray>()
     val currentProperties = mutableMapOf<String, String>()
 
     fun flushCurrentNode() {
         val node = currentNode ?: return
+
+        // Extract canonical transforms
+        val posRaw = currentAttributes["ImpNodeWorldPosition"]
+        val position =
+            if (posRaw != null && posRaw.size >= 3) {
+                Vector3(posRaw[0], posRaw[1], posRaw[2])
+            } else {
+                Vector3.Zero
+            }
+
+        val rotRaw = currentAttributes["ImpNodeWorldRotation"]
+        val rotation =
+            if (rotRaw != null && rotRaw.size >= 4) {
+                Quaternion(x = rotRaw[1], y = rotRaw[2], z = rotRaw[3], w = rotRaw[0])
+            } else {
+                Quaternion.Identity
+            }
+
+        val scaleRaw = currentAttributes["ImpNodeWorldScale"]
+        val scale =
+            if (scaleRaw != null && scaleRaw.size >= 3) {
+                Vector3(scaleRaw[0], scaleRaw[1], scaleRaw[2])
+            } else {
+                Vector3.One
+            }
+
+        // Extract canonical bounds & buffers
+        val boundsMetersRaw = currentAttributes["root2DSurfaceBoundsInMeters"]
+        val surfaceBoundsInMeters =
+            if (
+                boundsMetersRaw != null &&
+                    boundsMetersRaw.size >= 2 &&
+                    boundsMetersRaw[0] > 0f &&
+                    boundsMetersRaw[1] > 0f
+            ) {
+                Vector2(boundsMetersRaw[0], boundsMetersRaw[1])
+            } else {
+                null
+            }
+
+        val boundsPixelsRaw = currentAttributes["root2DSurfaceBoundsInPixels"]
+        val touchRaw = currentAttributes["touchableRegion"]
+        val surfaceBoundsInPixels =
+            if (
+                boundsPixelsRaw != null &&
+                    boundsPixelsRaw.size >= 2 &&
+                    boundsPixelsRaw[0] > 0f &&
+                    boundsPixelsRaw[1] > 0f
+            ) {
+                Vector2(boundsPixelsRaw[0], boundsPixelsRaw[1])
+            } else if (touchRaw != null && touchRaw.size >= 4) {
+                val w = abs(touchRaw[2] - touchRaw[0])
+                val h = abs(touchRaw[3] - touchRaw[1])
+                if (w > 0f && h > 0f) Vector2(w, h) else null
+            } else {
+                null
+            }
+
+        val touchableRegion =
+            if (touchRaw != null && touchRaw.size >= 4) {
+                Rect(
+                    touchRaw[0].toInt(),
+                    touchRaw[1].toInt(),
+                    touchRaw[2].toInt(),
+                    touchRaw[3].toInt(),
+                )
+            } else {
+                null
+            }
+
+        val bufferProp = currentProperties["buffer"]
+        val bufferSize =
+            if (bufferProp != null && bufferProp.contains("x") && bufferProp != "null") {
+                val parts = bufferProp.split("x")
+                if (parts.size == 2) {
+                    val w = parts[0].toFloatOrNull()
+                    val h = parts[1].toFloatOrNull()
+                    if (w != null && h != null && w > 0f && h > 0f) Vector2(w, h) else null
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+
+        val ppm =
+            currentProperties["computedPixelsPerMeter"]?.toFloatOrNull()?.takeIf { it > 0f }
+                ?: currentProperties["pixelsPerMeter"]?.toFloatOrNull()?.takeIf { it > 0f }
+
+        val canReceiveInput = currentProperties["canReceiveInput"]?.toBoolean() ?: true
+        val isAndroid2d = currentProperties["isAndroid2d"]?.toBoolean() ?: false
+        val isEmbeddedWindowLeash =
+            currentProperties["isAppSpatialEmbeddedWindowLeash"]?.toBoolean() ?: false
+        val isSysUi = currentProperties["isSysUi"]?.toBoolean() ?: false
+        val hasSubspace = currentProperties["hasSubspace"]?.toBoolean() ?: false
+
+        val reformStr = currentProperties["reformOptions"]
+        val reformBitmask =
+            reformStr?.let {
+                Regex("enable=(\\d+)").find(it)?.groupValues?.getOrNull(1)?.toIntOrNull()
+            } ?: 0
+        val isMovable = (reformBitmask and 1) != 0
+        val isResizable = (reformBitmask and 2) != 0
+
+        val stereoVisibility = currentProperties["stereoVisibility"]
+        val reqVis = currentProperties["requested-vis"]
+        val isVisible = reqVis != "hide" && stereoVisibility != "hidden on both"
+
+        val coordinateSpace =
+            currentProperties["transformUpdateRequest.coordinateSpace"]?.toIntOrNull()
+        val isActive = currentProperties["ImpNodeIsActive"] != "false"
+
+        val sysUiSpecialNode =
+            currentProperties["sysUIMetadata"]?.let {
+                Regex("specialNode=(\\d+)").find(it)?.groupValues?.getOrNull(1)?.toIntOrNull()
+            }
+        val scrimTargetAlpha =
+            currentProperties["sysUIMetadata"]?.let {
+                Regex("targetAlpha=([0-9.+-]+)")
+                    .find(it)
+                    ?.groupValues
+                    ?.getOrNull(1)
+                    ?.toFloatOrNull()
+            } ?: 0f
+
+        val inputId = currentProperties["input-id"]?.toIntOrNull() ?: -1
+
         val finishedNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 header = node.header,
                 name = node.name,
                 id = node.id,
                 depth = node.depth,
+                position = position,
+                rotation = rotation,
+                scale = scale,
+                surfaceBoundsInMeters = surfaceBoundsInMeters,
+                surfaceBoundsInPixels = surfaceBoundsInPixels,
+                touchableRegion = touchableRegion,
+                bufferSize = bufferSize,
+                computedPixelsPerMeter = ppm,
+                inputId = inputId,
+                canReceiveInput = canReceiveInput,
+                isAndroid2d = isAndroid2d,
+                isEmbeddedWindowLeash = isEmbeddedWindowLeash,
+                isSysUi = isSysUi,
+                hasSubspace = hasSubspace,
+                isMovable = isMovable,
+                isResizable = isResizable,
+                stereoVisibility = stereoVisibility,
+                isVisible = isVisible,
+                coordinateSpace = coordinateSpace,
+                isActive = isActive,
+                sysUiSpecialNode = sysUiSpecialNode,
+                scrimTargetAlpha = scrimTargetAlpha,
                 attributes = currentAttributes.toMap(),
                 properties = currentProperties.toMap(),
             )
@@ -226,7 +380,7 @@ internal fun parseRootNodes(dump: String): List<SpatialNode> {
             }
 
             currentNode =
-                SpatialNode(header = trimmed, name = nodeName, id = nodeId, depth = indent)
+                SnapshotXrSpace(header = trimmed, name = nodeName, id = nodeId, depth = indent)
         }
 
         if (currentNode != null) {

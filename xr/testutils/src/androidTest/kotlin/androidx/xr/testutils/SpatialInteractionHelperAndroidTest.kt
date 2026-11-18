@@ -60,8 +60,8 @@ import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 /**
- * On-device instrumentation tests verifying [SpatialInteractionHelper], [SpatialScene], and raycast
- * injection in Android XR Home Space.
+ * On-device instrumentation tests verifying [SpatialInteractionHelper], [SnapshotXrScene], and
+ * raycast injection in Android XR Home Space.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -833,7 +833,7 @@ class SpatialInteractionHelperAndroidTest {
         try {
             composeTestRule.waitForIdle()
 
-            var secondaryScene: SpatialScene? = null
+            var secondaryScene: SnapshotXrScene? = null
             composeTestRule.waitUntil(
                 conditionDescription = "Secondary spatial node to appear in scene",
                 timeoutMillis = 5000L,
@@ -918,7 +918,7 @@ class SpatialInteractionHelperAndroidTest {
             try {
                 composeTestRule.waitForIdle()
 
-                var multiScene: SpatialScene? = null
+                var multiScene: SnapshotXrScene? = null
                 composeTestRule.waitUntil(
                     conditionDescription = "All activity windows to be present in scene",
                     timeoutMillis = 5000L,

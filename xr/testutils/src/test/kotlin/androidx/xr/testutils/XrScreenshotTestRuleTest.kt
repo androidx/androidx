@@ -27,6 +27,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector2
+import androidx.xr.runtime.math.Vector3
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -311,7 +314,7 @@ class XrScreenshotTestRuleTest {
         }
         val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
 
-        val node = SpatialNode(name = "space-transform-spatial-1", id = 10)
+        val node = SnapshotXrSpace(name = "space-transform-spatial-1", id = 10)
         try {
             val result = node.crop(source)
             try {
@@ -338,7 +341,7 @@ class XrScreenshotTestRuleTest {
         }
         val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
 
-        val node = SpatialNode(name = "space-transform-spatial-1", id = 10)
+        val node = SnapshotXrSpace(name = "space-transform-spatial-1", id = 10)
         try {
             val result = node.crop(source, padding = 10)
             try {
@@ -369,34 +372,28 @@ class XrScreenshotTestRuleTest {
         }
         val source = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
 
-        val taskRoot = SpatialNode(name = "space-root-task-1", id = 1)
+        val taskRoot = SnapshotXrSpace(name = "space-root-task-1", id = 1)
         val leftNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "LeftPanel",
                 id = 2,
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(-0.2f, 0f, -1.5f),
-                        "ImpNodeWorldRotation" to floatArrayOf(1f, 0f, 0f, 0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1f, 1f, 1f),
-                        "root2DSurfaceBoundsInMeters" to floatArrayOf(0.2f, 0.2f),
-                    ),
+                position = Vector3(-0.2f, 0f, -1.5f),
+                rotation = Quaternion.Identity,
+                scale = Vector3.One,
+                surfaceBoundsInMeters = Vector2(0.2f, 0.2f),
             )
         val rightNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "RightPanel",
                 id = 3,
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(0.2f, 0f, -1.5f),
-                        "ImpNodeWorldRotation" to floatArrayOf(1f, 0f, 0f, 0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1f, 1f, 1f),
-                        "root2DSurfaceBoundsInMeters" to floatArrayOf(0.2f, 0.2f),
-                    ),
+                position = Vector3(0.2f, 0f, -1.5f),
+                rotation = Quaternion.Identity,
+                scale = Vector3.One,
+                surfaceBoundsInMeters = Vector2(0.2f, 0.2f),
             )
         taskRoot.addChild(leftNode)
         taskRoot.addChild(rightNode)
-        SpatialScene(listOf(taskRoot))
+        SnapshotXrScene(listOf(taskRoot))
 
         try {
             val leftCropped = leftNode.crop(source)
@@ -527,19 +524,16 @@ class XrScreenshotTestRuleTest {
 
         // GLTF node without CPM surface bounds (only transform/scale)
         val gltfNode =
-            SpatialNode(
+            SnapshotXrSpace(
                 name = "GltfModelEntity",
                 id = 10,
-                attributes =
-                    mapOf(
-                        "ImpNodeWorldPosition" to floatArrayOf(0f, 0f, -1.0f),
-                        "ImpNodeWorldRotation" to floatArrayOf(1f, 0f, 0f, 0f),
-                        "ImpNodeWorldScale" to floatArrayOf(1f, 1f, 1f),
-                    ),
+                position = Vector3(0f, 0f, -1.0f),
+                rotation = Quaternion.Identity,
+                scale = Vector3(1f, 1f, 1f),
             )
-        val taskRoot = SpatialNode(name = "space-root-task-1", id = 1)
+        val taskRoot = SnapshotXrSpace(name = "space-root-task-1", id = 1)
         taskRoot.addChild(gltfNode)
-        val scene = SpatialScene(listOf(taskRoot))
+        val scene = SnapshotXrScene(listOf(taskRoot))
 
         try {
             val sceneCropped = scene.crop(source)

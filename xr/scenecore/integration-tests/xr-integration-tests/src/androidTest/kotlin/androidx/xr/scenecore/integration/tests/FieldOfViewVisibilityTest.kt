@@ -38,8 +38,8 @@ import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.SpatialVisibility
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialScene
+import androidx.xr.testutils.SnapshotXrScene
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionRule
 import androidx.xr.testutils.XrSessionScope
@@ -417,7 +417,7 @@ class FieldOfViewVisibilityTest {
         }
     }
 
-    private fun findEnvironmentGeometryNodes(scene: SpatialScene): List<SpatialNode> =
+    private fun findEnvironmentGeometryNodes(scene: SnapshotXrScene): List<SnapshotXrSpace> =
         scene.rootNodes
             .firstNotNullOfOrNull { root -> root.findNode { it.name == ENVIRONMENT_ROOT_NODE } }
             ?.findDescendants { it.name == ENVIRONMENT_GEOMETRY_NODE_NAME }

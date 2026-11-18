@@ -40,8 +40,8 @@ import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.SpatialAlignment
-import androidx.xr.testutils.SpatialNode
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionRule
 import androidx.xr.testutils.createXrSessionRule
@@ -892,7 +892,7 @@ class PanelCoordinateToPoseTest {
     private fun awaitResizablePanelNode(
         activity: ComponentActivity,
         panelName: String,
-    ): SpatialNode =
+    ): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
                 description = "resizable spatial panel '$panelName' with settled extents",
@@ -915,7 +915,7 @@ class PanelCoordinateToPoseTest {
         )
 
     /** Whether this node's `computedAlpha` is above zero, treating a missing value as visible. */
-    private fun SpatialNode.hasVisibleAlpha(): Boolean =
+    private fun SnapshotXrSpace.hasVisibleAlpha(): Boolean =
         properties["computedAlpha"]?.toFloatOrNull()?.let { it > 0f } ?: true
 
     private companion object {

@@ -20,6 +20,7 @@ import android.graphics.Rect
 import androidx.compose.animation.core.LinearEasing
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import java.util.Locale
 import kotlin.math.abs
@@ -559,23 +560,18 @@ class HeadMovementHelperTest {
         assertTrue(device.setprops.isEmpty(), "${device.setprops}")
     }
 
-    /** Creates an unrotated 1m x 0.9m panel [SpatialNode] centered at [position]. */
+    /** Creates an unrotated 1m x 0.9m panel [SnapshotXrSpace] centered at [position]. */
     private fun panelNode(
         position: Vector3,
         surfaceBoundsInPixels: FloatArray? = null,
-    ): SpatialNode =
-        SpatialNode(
+    ): SnapshotXrSpace =
+        SnapshotXrSpace(
             name = "TestPanel",
-            attributes =
-                buildMap {
-                    put("ImpNodeWorldPosition", floatArrayOf(position.x, position.y, position.z))
-                    put("ImpNodeWorldRotation", floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f))
-                    put("ImpNodeWorldScale", floatArrayOf(1.0f, 1.0f, 1.0f))
-                    put("root2DSurfaceBoundsInMeters", floatArrayOf(1.0f, 0.9f))
-                    if (surfaceBoundsInPixels != null) {
-                        put("root2DSurfaceBoundsInPixels", surfaceBoundsInPixels)
-                    }
-                },
+            position = position,
+            rotation = Quaternion.Identity,
+            scale = Vector3.One,
+            surfaceBoundsInMeters = Vector2(1.0f, 0.9f),
+            surfaceBoundsInPixels = surfaceBoundsInPixels?.let { Vector2(it[0], it[1]) },
         )
 
     /**

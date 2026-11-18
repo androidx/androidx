@@ -53,9 +53,8 @@ import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.ResizeEvent
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.SpatialAlignment
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrSessionScope
 import androidx.xr.testutils.createXrSessionRule
@@ -910,7 +909,7 @@ class MovableComponentTest {
      *
      * Must be called from the instrumentation thread.
      */
-    private fun awaitMainPanelNode(): SpatialNode =
+    private fun awaitMainPanelNode(): SnapshotXrSpace =
         awaitSpatialNode(
             description = "movable $MAIN_PANEL_NODE_NAME node",
             selectNode = { task -> task.findNode { it.name == MAIN_PANEL_NODE_NAME } },
@@ -920,15 +919,15 @@ class MovableComponentTest {
     /**
      * Polls the spatial scene until the visible embedded window leash of the spatial panel named
      * [panelName] has known extents and satisfies [predicate] (defaulting to
-     * [SpatialNode.isMovable]), and returns that node.
+     * [SnapshotXrSpace.isMovable]), and returns that node.
      *
      * Must be called from the instrumentation thread.
      */
     private fun awaitPanelNode(
         panelName: String,
         description: String = "movable spatial panel node named '$panelName'",
-        predicate: (SpatialNode) -> Boolean = { it.isMovable },
-    ): SpatialNode =
+        predicate: (SnapshotXrSpace) -> Boolean = { it.isMovable },
+    ): SnapshotXrSpace =
         awaitSpatialNode(
             description = description,
             selectNode = { task ->
@@ -947,9 +946,9 @@ class MovableComponentTest {
      */
     private fun awaitSpatialNode(
         description: String,
-        selectNode: (SpatialTask) -> SpatialNode?,
-        predicate: (SpatialNode) -> Boolean = { true },
-    ): SpatialNode {
+        selectNode: (SnapshotXrSpace) -> SnapshotXrSpace?,
+        predicate: (SnapshotXrSpace) -> Boolean = { true },
+    ): SnapshotXrSpace {
         // Let pending layout and component transactions submit before polling CPM, so the caller
         // samples its "before" state after the UI has synced.
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
@@ -968,7 +967,7 @@ class MovableComponentTest {
         )
     }
 
-    private fun waitForGltfSubspaceNode(): SpatialNode =
+    private fun waitForGltfSubspaceNode(): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
                 description = "visible glTF subspace node",
@@ -984,7 +983,7 @@ class MovableComponentTest {
         )
 
     private fun wakeGltfFootprintIntoIdle(
-        gltfSubspaceNode: SpatialNode,
+        gltfSubspaceNode: SnapshotXrSpace,
         inputListener: RecordingInputEventListener,
     ) {
         waitUntil("glTF initial hover to enter Opening", timeout = MOVE_TIMEOUT) {

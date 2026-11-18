@@ -58,11 +58,10 @@ import androidx.xr.scenecore.ResizeEvent
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.SpatialAlignment
 import androidx.xr.testutils.SpatialDeviceType
-import androidx.xr.testutils.SpatialNode
 import androidx.xr.testutils.SpatialPointerType
-import androidx.xr.testutils.SpatialTask
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
@@ -938,8 +937,8 @@ class InteractableComponentTest {
      */
     private fun waitTaskNode(
         description: String,
-        selectNode: (SpatialTask) -> SpatialNode?,
-    ): SpatialNode {
+        selectNode: (SnapshotXrSpace) -> SnapshotXrSpace?,
+    ): SnapshotXrSpace {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         return checkNotNull(
             waitForSpatialScene(
@@ -959,8 +958,8 @@ class InteractableComponentTest {
      */
     private fun waitVisiblePanelNode(
         panelName: String,
-        predicate: (SpatialNode) -> Boolean = { true },
-    ): SpatialNode =
+        predicate: (SnapshotXrSpace) -> Boolean = { true },
+    ): SnapshotXrSpace =
         waitTaskNode(description = "panel node '$panelName' visible in CPM") { task ->
             task.findNode {
                 it.name == panelName && it.isEmbeddedWindowLeash && it.isVisible && predicate(it)
@@ -971,7 +970,7 @@ class InteractableComponentTest {
      * Polls CPM until a subspace node starting with [subspacePrefix] (`gltf_entity_subspace_*`) is
      * visible and returns its parent entity node.
      */
-    private fun waitVisibleSubspaceEntityNode(subspacePrefix: String): SpatialNode {
+    private fun waitVisibleSubspaceEntityNode(subspacePrefix: String): SnapshotXrSpace {
         return checkNotNull(
             waitForSpatialScene(
                 description = "subspace parent node for '$subspacePrefix' visible in CPM",
@@ -993,7 +992,7 @@ class InteractableComponentTest {
      *
      * Blocks, so it must be called from the instrumentation thread.
      */
-    private fun performDragInteraction(node: SpatialNode) {
+    private fun performDragInteraction(node: SnapshotXrSpace) {
         node.performSpatialInteraction {
             pointAt(offset = DRAG_START_OFFSET)
             press()

@@ -32,11 +32,11 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * Holds attached tree counts, summed buffer pixel area, and optional trailer node count for a
- * [SpatialScene].
+ * [SnapshotXrScene].
  *
- * @property attachedNodes total [SpatialNode] count across [SpatialScene.rootNodes]
+ * @property attachedNodes total [SnapshotXrSpace] count across [SnapshotXrScene.rootNodes]
  * @property bufferPixels total 2D buffer area in pixels (`width * height` summed across
- *   [SpatialNode.bufferSize] in [SpatialScene.rootNodes])
+ *   [SnapshotXrSpace.bufferSize] in [SnapshotXrScene.rootNodes])
  * @property livingNodes total live C++ `Node` instances from the text `dumpsys spf_cpm` trailer
  *   (`Number of living nodes:`), including detached nodes not yet finalized, or `null` when
  *   unavailable (such as binary `--proto` dumps without trailer stats)
@@ -56,13 +56,13 @@ constructor(
  * failed shell dumps from passing leak checks vacuously.
  */
 internal fun computeSceneStats(
-    rootNodes: List<SpatialNode>,
+    rootNodes: List<SnapshotXrSpace>,
     livingNodes: Int? = null,
 ): SpatialSceneStats? {
     var attachedNodes = 0
     var bufferPixels = 0L
-    val visited = Collections.newSetFromMap(IdentityHashMap<SpatialNode, Boolean>())
-    val stack = ArrayDeque<SpatialNode>(rootNodes.size)
+    val visited = Collections.newSetFromMap(IdentityHashMap<SnapshotXrSpace, Boolean>())
+    val stack = ArrayDeque<SnapshotXrSpace>(rootNodes.size)
     for (root in rootNodes) {
         if (visited.add(root)) {
             stack.addLast(root)
@@ -92,23 +92,23 @@ internal fun computeSceneStats(
 }
 
 /**
- * Represents a point-in-time snapshot of the spatial scene graph.
+ * Represents a point-in-time snapshot of the OpenXR spatial compositor scene graph.
  *
- * Provides a structured, queryable model of all root nodes, tasks, window leashes, input targets,
- * and spatial transforms present in the XR compositor.
+ * Provides a structured, queryable model of all root spaces, task spaces, window leashes, input
+ * targets, and spatial transforms present in the XR compositor.
  */
-public class SpatialScene
+public class SnapshotXrScene
 @JvmOverloads
 constructor(
-    /** Top-level root nodes in the spatial scene graph (typically the single `Root` node). */
-    public val rootNodes: List<SpatialNode>,
+    /** Top-level root spaces in the spatial scene graph (typically the single `Root` space). */
+    public val rootNodes: List<SnapshotXrSpace>,
     /** Optional mapping from task IDs to Android package names. */
     public val taskPackageMap: Map<Int, String> = emptyMap(),
     /** Optional compositor node and buffer totals for this scene snapshot. */
     public val stats: SpatialSceneStats? = computeSceneStats(rootNodes),
 ) {
     init {
-        fun attach(n: SpatialNode) {
+        fun attach(n: SnapshotXrSpace) {
             n.scene = this
             for (c in n.children) {
                 attach(c)
@@ -120,53 +120,49 @@ constructor(
     }
 
     /**
-     * Discovers all structured tasks in the scene graph.
+     * Discovers all application task root spaces in the scene graph.
      *
      * In the Android XR CPM (`dumpsys spf_cpm`) architecture, Window Manager creates
      * `space-root-task-<taskId>` containers directly under the compositor `Root` node. Each
-     * container defines the root reference space for an independent Android task. Task roots are
-     * guaranteed to be direct children of the root node (or the root nodes themselves when
-     * evaluating an isolated task subtree) and never nest within other tasks or intermediate
+     * container defines the root reference space (`XrSpace`) for an independent Android task. Task
+     * roots are guaranteed to be direct children of the root node (or the root nodes themselves
+     * when evaluating an isolated task subtree) and never nest within other tasks or intermediate
      * wrapper nodes. Consequently, task discovery only inspects top-level roots and their direct
      * children without recursing down the hierarchy.
      */
-    public val tasks: List<SpatialTask> by lazy {
-        val taskRoots = rootNodes.flatMap { root ->
+    public val tasks: List<SnapshotXrSpace> by lazy {
+        rootNodes.flatMap { root ->
             // In CPM dumpsys, task roots are always direct children of the compositor Root node
             // (or the root itself if scoped to a task subtree). Intermediate wrapper nodes are not
             // used by Window Manager/CPM for task roots, so deeper recursion is unnecessary.
             if (root.isTaskRoot) listOf(root) else root.children.filter { it.isTaskRoot }
         }
-        taskRoots.map { root ->
-            val taskId =
-                root.name.removePrefix("space-root-task-").substringBefore(' ').toIntOrNull() ?: -1
-            val pkg = taskPackageMap[taskId] ?: SpatialTask.extractPackageFromNodes(root)
-            SpatialTask(root, pkg)
-        }
     }
 
-    /** Finds the first task belonging to [packageName], or null if not found. */
-    public fun findTaskByPackageName(packageName: String): SpatialTask? = tasks.firstOrNull {
+    /** Finds the first task root space belonging to [packageName], or null if not found. */
+    public fun findTaskByPackageName(packageName: String): SnapshotXrSpace? = tasks.firstOrNull {
         it.packageName == packageName
     }
 
-    /** Finds all tasks belonging to [packageName]. */
-    public fun findTasksByPackageName(packageName: String): List<SpatialTask> = tasks.filter {
+    /** Finds all task root spaces belonging to [packageName]. */
+    public fun findTasksByPackageName(packageName: String): List<SnapshotXrSpace> = tasks.filter {
         it.packageName == packageName
     }
 
-    /** Finds a task by its [taskId], or null if not found. */
-    public fun findTaskById(taskId: Int): SpatialTask? = tasks.firstOrNull { it.taskId == taskId }
+    /** Finds a task root space by its [taskId], or null if not found. */
+    public fun findTaskById(taskId: Int): SnapshotXrSpace? = tasks.firstOrNull {
+        it.taskId == taskId
+    }
 
-    /** Finds the task associated with the given [activity], or null if not found. */
-    public fun findTaskByActivity(activity: Activity): SpatialTask? =
+    /** Finds the task root space associated with the given [activity], or null if not found. */
+    public fun findTaskByActivity(activity: Activity): SnapshotXrSpace? =
         findTaskById(activity.taskId) ?: findTaskByPackageName(activity.packageName)
 
     /**
-     * The currently active foreground [SpatialTask] in the scene graph, or `null` if no task is
-     * active.
+     * The currently active foreground task root [SnapshotXrSpace] in the scene graph, or `null` if
+     * no task is active.
      */
-    public val activeTask: SpatialTask?
+    public val activeTask: SnapshotXrSpace?
         get() = tasks.firstOrNull { it.isActive }
 
     /**
@@ -191,12 +187,10 @@ constructor(
         val headTransformNodes =
             rootNodes
                 .flatMap { listOf(it) + it.getDescendants() }
-                .filter { it.properties["transformUpdateRequest.coordinateSpace"] == "2" }
+                .filter { it.coordinateSpace == 2 }
         val selected =
-            headTransformNodes.firstOrNull {
-                it.properties["ImpNodeIsActive"] == "true" ||
-                    it.parent?.properties?.get("ImpNodeIsActive") == "true"
-            } ?: headTransformNodes.firstOrNull()
+            headTransformNodes.firstOrNull { it.isNodeActive || it.parent?.isNodeActive == true }
+                ?: headTransformNodes.firstOrNull()
         selected?.let { transformNode ->
             val parent = transformNode.parent
             if (parent != null && parent.name != "Root") parent.pose else transformNode.pose
@@ -249,5 +243,5 @@ constructor(
             uiAutomation = uiAutomation,
         )
 
-    override fun toString(): String = "SpatialScene(tasks=$tasks, rootNodes=${rootNodes.size})"
+    override fun toString(): String = "SnapshotXrScene(tasks=$tasks, rootNodes=${rootNodes.size})"
 }

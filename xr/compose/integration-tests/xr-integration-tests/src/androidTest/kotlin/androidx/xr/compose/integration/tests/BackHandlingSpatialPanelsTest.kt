@@ -82,8 +82,7 @@ import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
@@ -765,7 +764,7 @@ class BackHandlingSpatialPanelsTest {
     }
 
     private fun performInteraction(
-        targetNode: SpatialNode,
+        targetNode: SnapshotXrSpace,
         block: androidx.xr.testutils.SpatialInteractionScope.() -> Unit,
     ) {
         usedSpatialInteraction = true
@@ -782,7 +781,7 @@ class BackHandlingSpatialPanelsTest {
     private fun awaitVisiblePanels(
         expectedCount: Int,
         requireMovable: Boolean = false,
-    ): List<SpatialNode> {
+    ): List<SnapshotXrSpace> {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
         val taskId = composeTestRule.activity.taskId
@@ -807,7 +806,7 @@ class BackHandlingSpatialPanelsTest {
         )
     }
 
-    private fun visiblePanelsForTask(task: SpatialTask): List<SpatialNode> =
+    private fun visiblePanelsForTask(task: SnapshotXrSpace): List<SnapshotXrSpace> =
         task.windowLeashes
             .filter {
                 (it.isEmbeddedWindowLeash || it.isActivityWindowLeash) &&

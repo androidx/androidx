@@ -39,8 +39,7 @@ import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpaceChangeEvent
 import androidx.xr.scenecore.scene
-import androidx.xr.testutils.SpatialNode
-import androidx.xr.testutils.SpatialTask
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.waitForSettledSpatialTask
@@ -550,7 +549,7 @@ class KeyEntityTest {
     private fun waitForNamedEmbeddedAndMainPanel(
         hostActivity: Activity,
         embeddedName: String,
-    ): Pair<SpatialNode, SpatialNode> {
+    ): Pair<SnapshotXrSpace, SnapshotXrSpace> {
         return checkNotNull(
             waitForSpatialScene(
                 description = "Main panel and $embeddedName settled in CPM",
@@ -572,7 +571,7 @@ class KeyEntityTest {
         )
     }
 
-    private fun waitForHomeSpaceTaskNode(hostActivity: Activity): SpatialNode {
+    private fun waitForHomeSpaceTaskNode(hostActivity: Activity): SnapshotXrSpace {
         waitForSpatialScene(
             description = "Activity transitions into Home Space with visible task node",
             timeout = SCENE_TIMEOUT,
@@ -592,7 +591,7 @@ class KeyEntityTest {
         return checkNotNull(resolveTaskWindowNode(settled))
     }
 
-    private fun resolveTaskWindowNode(task: SpatialTask): SpatialNode? =
+    private fun resolveTaskWindowNode(task: SnapshotXrSpace): SnapshotXrSpace? =
         task.taskWindowLeash?.takeIf { it.isVisible && it.worldExtents != null }
             ?: task.topLevelWindowLeashes.firstOrNull { it.isVisible && it.worldExtents != null }
 

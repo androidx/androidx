@@ -69,7 +69,7 @@ public class SpatialInteractionHelperJavaTest {
 
     @Test
     public void spatialNode_constructorsAndPropertiesFromJava() {
-        SpatialNode node = new SpatialNode("Header", "CustomName", 42);
+        SnapshotXrSpace node = new SnapshotXrSpace("Header", "CustomName", 42);
         assertEquals("Header", node.getHeader());
         assertEquals("CustomName", node.getName());
         assertEquals(42, node.getId());

@@ -69,7 +69,7 @@ internal const val HEAD_MOVEMENT_FRAME_INTERVAL_MS: Long = 28L
  * ```
  *
  * All coordinates operate in OpenXR world space (`+X` right, `+Y` up, `-Z` forward), the same space
- * as [SpatialNode.transformPointToWorld].
+ * as [SnapshotXrSpace.transformPointToWorld].
  *
  * Position and orientation are written as separate system properties, and only the values that
  * changed are written. A frame that changes both can briefly expose the new position with the
@@ -219,7 +219,7 @@ public interface HeadMovementScope {
      *
      * Uses the same [offset] and [alignment] conventions as [SpatialInteractionScope.pointAt].
      *
-     * @param targetNode the target [SpatialNode]
+     * @param targetNode the target [SnapshotXrSpace]
      * @param offset translation offset in meters in [targetNode]-local space (default:
      *   [Vector3.Zero])
      * @param alignment normalized alignment within [targetNode]'s half-extents (default:
@@ -227,7 +227,7 @@ public interface HeadMovementScope {
      * @throws IllegalArgumentException if the resolved target point is not finite
      */
     public fun lookAt(
-        targetNode: SpatialNode,
+        targetNode: SnapshotXrSpace,
         offset: Vector3 = Vector3.Zero,
         alignment: SpatialAlignment = SpatialAlignment.Center,
     ) {
@@ -238,10 +238,10 @@ public interface HeadMovementScope {
      * Immediately rotates the simulated head to gaze at the center of a 2D View / UIAutomator
      * [boundsInWindow] on [targetNode] while staying gravity-aligned (zero roll).
      *
-     * @param targetNode the panel or window [SpatialNode] hosting the 2D content
+     * @param targetNode the panel or window [SnapshotXrSpace] hosting the 2D content
      * @param boundsInWindow screen/window pixel bounding rectangle
      */
-    public fun lookAt(targetNode: SpatialNode, boundsInWindow: Rect) {
+    public fun lookAt(targetNode: SnapshotXrSpace, boundsInWindow: Rect) {
         lookAt(targetNode, offset = calculateWindowBoundsOffset(targetNode, boundsInWindow))
     }
 }

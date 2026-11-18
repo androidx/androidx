@@ -178,8 +178,8 @@ class ActivitySpaceScaleAndBoundsTest {
             checkNotNull(captureSpatialScene().findTaskByActivity(sessionRule.activity)) {
                 "Expected Full Space task in captured CPM scene"
             }
-        assertVector3(fsmSnapshotTask.activitySpaceRoot.scale, Vector3.One, CPM_TOLERANCE)
-        assertVector3(settledFsmTask.activitySpaceRoot.scale, Vector3.One, CPM_TOLERANCE)
+        assertVector3(fsmSnapshotTask.scale, Vector3.One, CPM_TOLERANCE)
+        assertVector3(settledFsmTask.scale, Vector3.One, CPM_TOLERANCE)
 
         sessionRule.requestHomeSpace()
         waitForSettledSpatialTask(

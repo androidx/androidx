@@ -48,7 +48,7 @@ import kotlin.time.TimeSource
 @JvmOverloads
 public fun captureSpatialScene(
     uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
-): SpatialScene = captureSceneWithPolling(uiAutomation = uiAutomation)
+): SnapshotXrScene = captureSceneWithPolling(uiAutomation = uiAutomation)
 
 /**
  * Repeatedly captures the spatial scene graph until [until] holds for the value returned by
@@ -62,7 +62,7 @@ public fun captureSpatialScene(
  * @param timeout Maximum duration to poll before throwing an [AssertionError].
  * @param pollInterval Delay between successive scene captures.
  * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
- * @param select Selector that extracts a value from each captured [SpatialScene].
+ * @param select Selector that extracts a value from each captured [SnapshotXrScene].
  * @param until Predicate that determines whether the selected value satisfies the condition.
  * @return The first selected value for which [until] returns `true`.
  * @throws AssertionError if [until] does not hold within [timeout].
@@ -73,7 +73,7 @@ public fun <T> waitForSpatialScene(
     timeout: Duration = 5.seconds,
     pollInterval: Duration = 100.milliseconds,
     uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
-    select: (SpatialScene) -> T,
+    select: (SnapshotXrScene) -> T,
     until: (T) -> Boolean,
 ): T {
     val start = TimeSource.Monotonic.markNow()
@@ -91,21 +91,23 @@ public fun <T> waitForSpatialScene(
 }
 
 /**
- * Repeatedly captures the spatial scene graph until the target [SpatialTask] (for [activity] if
- * provided, or [SpatialScene.activeTask] otherwise) satisfies [SpatialTask.isSettled].
+ * Repeatedly captures the spatial scene graph until the target task [SnapshotXrSpace] (for
+ * [activity] if provided, or [SnapshotXrScene.activeTask] otherwise) satisfies
+ * [SnapshotXrSpace.isSettled].
  *
  * @param activity Optional [Activity] whose spatial task should be awaited. When `null`, awaits the
- *   foreground [SpatialScene.activeTask].
- * @param expectedEmbeddedPanelCount Expected number of visible [SpatialTask.embeddedWindowLeashes]
- *   with valid surface bounds, or `null` to not constrain the embedded panel count.
- * @param expectedMainPanelVisible Expected visibility of [SpatialTask.taskWindowLeash], or `null`
- *   to not constrain the main panel visibility.
+ *   foreground [SnapshotXrScene.activeTask].
+ * @param expectedEmbeddedPanelCount Expected number of visible
+ *   [SnapshotXrSpace.embeddedWindowLeashes] with valid surface bounds, or `null` to not constrain
+ *   the embedded panel count.
+ * @param expectedMainPanelVisible Expected visibility of [SnapshotXrSpace.taskWindowLeash], or
+ *   `null` to not constrain the main panel visibility.
  * @param requireFullSpace Whether the task must have an active Full Space transform
- *   ([SpatialTask.isFullSpace]).
+ *   ([SnapshotXrSpace.isFullSpace]).
  * @param timeout Maximum duration to poll before throwing an [AssertionError].
  * @param pollInterval Delay between successive scene captures.
  * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
- * @return The settled [SpatialTask].
+ * @return The settled task root [SnapshotXrSpace].
  * @throws AssertionError if the task does not settle within [timeout].
  */
 @JvmOverloads
@@ -117,7 +119,7 @@ public fun waitForSettledSpatialTask(
     timeout: Duration = 5.seconds,
     pollInterval: Duration = 100.milliseconds,
     uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
-): SpatialTask {
+): SnapshotXrSpace {
     val targetDesc = activity?.let { "task for $it" } ?: "active spatial task"
     val panelDesc =
         if (expectedEmbeddedPanelCount != null) {
@@ -233,10 +235,10 @@ public fun captureSceneToBitmap(
  * Captures the 3D XR compositor output and automatically crops the screenshot to the rendered
  * content of [node], accounting for its position relative to the user's head pose.
  *
- * Delegates to [SpatialNode.captureToBitmap].
+ * Delegates to [SnapshotXrSpace.captureToBitmap].
  *
- * @param node Target [SpatialNode] (such as [SpatialTask.spatialTransform],
- *   [SpatialTask.activitySpaceRoot], or an individual window leash/panel node) whose rendered
+ * @param node Target [SnapshotXrSpace] (such as [SnapshotXrSpace.spatialTransform],
+ *   [SnapshotXrSpace.activitySpaceRoot], or an individual window leash/panel node) whose rendered
  *   content should be cropped.
  * @param padding Extra padding in pixels to preserve around the cropped content bounds.
  * @param timeout Maximum duration to wait for consecutive frames to stabilize. If frames have not
@@ -248,7 +250,7 @@ public fun captureSceneToBitmap(
  */
 @JvmOverloads
 public fun captureSceneToBitmap(
-    node: SpatialNode,
+    node: SnapshotXrSpace,
     padding: Int = 0,
     timeout: Duration = 5.seconds,
     pollInterval: Duration = 100.milliseconds,
@@ -262,12 +264,12 @@ public fun captureSceneToBitmap(
     )
 
 /**
- * Captures the spatial scene and 3D XR compositor output, resolves the target [SpatialNode] via
+ * Captures the spatial scene and 3D XR compositor output, resolves the target [SnapshotXrSpace] via
  * [nodeSelector], and automatically crops the screenshot to the rendered content of the selected
  * node.
  *
- * @param nodeSelector Selector invoked on the settled [SpatialScene] to identify the target
- *   [SpatialNode] to crop.
+ * @param nodeSelector Selector invoked on the settled [SnapshotXrScene] to identify the target
+ *   [SnapshotXrSpace] to crop.
  * @param padding Extra padding in pixels to preserve around the cropped content bounds.
  * @param timeout Maximum duration to wait for consecutive frames to stabilize.
  * @param pollInterval Delay between successive compositor captures.
@@ -278,7 +280,7 @@ public fun captureSceneToBitmap(
  */
 @JvmOverloads
 public fun captureSceneToBitmap(
-    nodeSelector: (SpatialScene) -> SpatialNode?,
+    nodeSelector: (SnapshotXrScene) -> SnapshotXrSpace?,
     padding: Int = 0,
     timeout: Duration = 5.seconds,
     pollInterval: Duration = 100.milliseconds,
@@ -294,7 +296,7 @@ public fun captureSceneToBitmap(
         )
     val targetNode =
         requireNotNull(nodeSelector(scene)) {
-            "nodeSelector returned null for captured SpatialScene (tasks=${scene.tasks})"
+            "nodeSelector returned null for captured SnapshotXrScene (tasks=${scene.tasks})"
         }
     return targetNode.captureToBitmapInternal(
         padding = padding,

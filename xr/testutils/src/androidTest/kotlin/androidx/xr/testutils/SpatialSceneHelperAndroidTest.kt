@@ -209,7 +209,7 @@ class SpatialSceneHelperAndroidTest {
         val packageName = InstrumentationRegistry.getInstrumentation().targetContext.packageName
         val scene = captureSpatialScene()
         val task = assertNotNull(scene.findTaskByPackageName(packageName))
-        val appRoot = task.activitySpaceRoot
+        val appRoot = assertNotNull(task.activitySpaceRoot)
 
         val descendants = appRoot.getDescendants()
         if (descendants.isNotEmpty()) {
@@ -285,11 +285,11 @@ class SpatialSceneHelperAndroidTest {
         // toString format
         val nodeString = targetNode.toString()
         assertTrue(
-            nodeString.contains("SpatialNode(") &&
+            nodeString.contains("SnapshotXrSpace(") &&
                 nodeString.contains("name='${targetNode.name}'") &&
                 nodeString.contains("id=${targetNode.id}") &&
                 nodeString.contains("depth=${targetNode.depth}"),
-            "SpatialNode.toString() must contain standard node details, got: $nodeString",
+            "SnapshotXrSpace.toString() must contain standard node details, got: $nodeString",
         )
     }
 
@@ -362,7 +362,7 @@ class SpatialSceneHelperAndroidTest {
         try {
             composeTestRule.waitForIdle()
 
-            var scene: SpatialScene? = null
+            var scene: SnapshotXrScene? = null
             composeTestRule.waitUntil(
                 conditionDescription = "Secondary spatial activity node to appear in scene",
                 timeoutMillis = 5000L,
@@ -544,7 +544,7 @@ class SpatialSceneHelperAndroidTest {
         assertNotNull(scene)
         val task = assertNotNull(scene.findTaskByPackageName(context.packageName))
 
-        val appRoot = task.activitySpaceRoot
+        val appRoot = assertNotNull(task.activitySpaceRoot)
         val allAppNodes = task.allNodes
         assertTrue(allAppNodes.size >= 3, "Expected multiple nodes in Row/Column hierarchy")
 
@@ -903,7 +903,8 @@ class SpatialSceneHelperAndroidTest {
         assertTrue(baselineNodes > 0, "Expected positive quiescent livingNodes count")
 
         val scene = captureSpatialScene()
-        val stats = assertNotNull(scene.stats, "Expected SpatialScene.stats from dumpsys spf_cpm")
+        val stats =
+            assertNotNull(scene.stats, "Expected SnapshotXrScene.stats from dumpsys spf_cpm")
         assertTrue(
             stats.attachedNodes > 0,
             "Expected positive attachedNodes, was ${stats.attachedNodes}",
@@ -991,7 +992,7 @@ class SpatialSceneHelperAndroidTest {
         }
         return assertNotNull(
             previous ?: captureSpatialScene().stats?.livingNodes,
-            "Expected non-null SpatialScene.stats.livingNodes before diagnostic checks",
+            "Expected non-null SnapshotXrScene.stats.livingNodes before diagnostic checks",
         )
     }
 

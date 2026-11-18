@@ -81,7 +81,7 @@ import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.DpVolumeOffset
-import androidx.xr.testutils.SpatialNode
+import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.captureSpatialScene
 import kotlinx.coroutines.Dispatchers
@@ -865,8 +865,8 @@ class SpatialLayoutTest {
      * Polls the scene graph until the task of the test activity has [count] visible panel nodes
      * with a size, and returns them. Panels only become visible once Compose has laid them out.
      */
-    private fun awaitScenePanelNodes(count: Int): List<SpatialNode> {
-        var nodes = emptyList<SpatialNode>()
+    private fun awaitScenePanelNodes(count: Int): List<SnapshotXrSpace> {
+        var nodes = emptyList<SnapshotXrSpace>()
         composeTestRule.waitUntil(
             conditionDescription = "$count visible panel nodes in the spatial scene",
             timeoutMillis = 10_000L,
