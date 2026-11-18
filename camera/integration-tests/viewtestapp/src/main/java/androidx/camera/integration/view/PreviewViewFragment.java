@@ -89,8 +89,11 @@ public class PreviewViewFragment extends Fragment {
     PreviewView mPreviewView;
     @SuppressWarnings("WeakerAccess")
     int mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
+    private boolean mIsLensFacingSet;
     private BlurBitmap mBlurBitmap;
     private PreviewView.ScaleType mCurrentScaleType = PreviewView.ScaleType.FILL_CENTER;
+    private PreviewView.ImplementationMode mCurrentImplementationMode =
+            PreviewView.ImplementationMode.COMPATIBLE;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -100,10 +103,14 @@ public class PreviewViewFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     ProcessCameraProvider mCameraProvider;
 
-    private View.OnAttachStateChangeListener mOnAttachStateChangeListener =
+    private final View.OnAttachStateChangeListener mOnAttachStateChangeListener =
             new View.OnAttachStateChangeListener() {
                 @Override
                 public void onViewAttachedToWindow(@NonNull View view) {
+                    view.removeOnAttachStateChangeListener(this);
+                    if (getView() != view) {
+                        return;
+                    }
                     setUiControlsAndBindPreview(view);
                 }
 
@@ -123,6 +130,16 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle bundle = requireActivity().getIntent().getExtras();
+        if (bundle != null) {
+            int scaleTypeId = bundle.getInt(INTENT_EXTRA_SCALE_TYPE, DEFAULT_SCALE_TYPE_ID);
+            mCurrentScaleType = PreviewView.ScaleType.values()[scaleTypeId];
+        }
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Bundle bundle = requireActivity().getIntent().getExtras();
@@ -135,12 +152,10 @@ public class PreviewViewFragment extends Fragment {
                     controller.setVisibility(View.GONE);
                 }
             }
-            int scaleTypeId = bundle.getInt(INTENT_EXTRA_SCALE_TYPE, DEFAULT_SCALE_TYPE_ID);
-            mCurrentScaleType = PreviewView.ScaleType.values()[scaleTypeId];
         }
         mPreviewView = view.findViewById(R.id.preview_view);
         mPreviewView.setScaleType(mCurrentScaleType);
-        mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
+        mPreviewView.setImplementationMode(mCurrentImplementationMode);
         mPreviewView.addOnLayoutChangeListener(
                 (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom)
                         -> {
@@ -153,6 +168,9 @@ public class PreviewViewFragment extends Fragment {
             @Override
             public void onSuccess(@Nullable ProcessCameraProvider cameraProvider) {
                 Preconditions.checkNotNull(cameraProvider);
+                if (getView() != view) {
+                    return;
+                }
                 mCameraProvider = cameraProvider;
                 if (!areFrontOrBackCameraAvailable(cameraProvider)) {
                     return;
@@ -193,7 +211,24 @@ public class PreviewViewFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mBlurBitmap.clear();
+        View rootView = getView();
+        if (rootView != null) {
+            rootView.removeOnAttachStateChangeListener(mOnAttachStateChangeListener);
+        }
+        if (mPreviewView != null) {
+            mCurrentScaleType = mPreviewView.getScaleType();
+            mCurrentImplementationMode = mPreviewView.getImplementationMode();
+        }
+        // View-lifecycle ON_DESTROY (dispatched before onDestroyView()) already unbinds use cases.
+        // Clear view-scoped references so the detached view hierarchy is not retained while in
+        // CREATED and the recreated view's OnLayoutChangeListener cannot re-bind a stale Preview
+        // before setUiControlsAndBindPreview() creates a new one.
+        mPreview = null;
+        mPreviewView = null;
+        if (mBlurBitmap != null) {
+            mBlurBitmap.clear();
+            mBlurBitmap = null;
+        }
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -273,6 +308,9 @@ public class PreviewViewFragment extends Fragment {
 
     @SuppressWarnings("WeakerAccess")
     void setUpCameraLensFacing(final @NonNull ProcessCameraProvider cameraProvider) {
+        if (mIsLensFacingSet) {
+            return;
+        }
         try {
             // Get extra option for setting initial camera direction
             boolean isCameraDirectionValid = false;
@@ -305,6 +343,7 @@ public class PreviewViewFragment extends Fragment {
                     throw new IllegalStateException("Front and back cameras are unavailable.");
                 }
             }
+            mIsLensFacingSet = true;
         } catch (CameraInfoUnavailableException e) {
             Log.e(TAG, "Unable to access camera: " + e.getMessage());
         }
@@ -347,6 +386,9 @@ public class PreviewViewFragment extends Fragment {
         scaleTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (getView() != rootView || mPreviewView == null) {
+                    return;
+                }
                 mCurrentScaleType = PreviewView.ScaleType.values()[position];
                 mPreviewView.setScaleType(mCurrentScaleType);
 
@@ -366,14 +408,16 @@ public class PreviewViewFragment extends Fragment {
 
     @SuppressWarnings("WeakerAccess")
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
-        if (mPreview == null) {
+        if (mPreview == null || mPreviewView == null || getView() == null) {
             return;
         }
         ViewPort viewPort = mPreviewView.getViewPort(mPreview.getTargetRotation());
         if (viewPort == null) {
             return;
         }
-        final Camera camera = cameraProvider.bindToLifecycle(this, getCurrentCameraSelector(),
+        final Camera camera = cameraProvider.bindToLifecycle(
+                getViewLifecycleOwner(),
+                getCurrentCameraSelector(),
                 new UseCaseGroup.Builder().setViewPort(viewPort).addUseCase(mPreview).build());
         setUpFocusAndMetering(camera);
     }

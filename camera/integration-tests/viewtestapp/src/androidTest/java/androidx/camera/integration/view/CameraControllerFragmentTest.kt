@@ -51,7 +51,6 @@ import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
-import androidx.lifecycle.Lifecycle
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -132,7 +131,7 @@ class CameraControllerFragmentTest(
     @After
     fun tearDown() {
         if (::fragmentScenario.isInitialized) {
-            fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
+            fragmentScenario.close()
         }
     }
 

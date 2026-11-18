@@ -86,9 +86,7 @@ class PreviewViewFragmentTest(
 
     @After
     fun tearDown() {
-        if (scenario != null) {
-            scenario!!.moveToState(Lifecycle.State.DESTROYED)
-        }
+        scenario?.close()
     }
 
     @Test

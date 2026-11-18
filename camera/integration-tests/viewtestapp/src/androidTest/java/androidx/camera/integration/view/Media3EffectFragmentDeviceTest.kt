@@ -35,7 +35,6 @@ import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -47,6 +46,7 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.abs
+import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Rule
@@ -93,18 +93,19 @@ class Media3EffectFragmentDeviceTest(
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
                     10000, TimeUnit.MILLISECONDS]
         requireForegroundRule.deferCleanup {
-            try {
-                if (::fragmentScenario.isInitialized) {
-                    fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-                }
-            } finally {
-                if (::cameraProvider.isInitialized) {
-                    cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
-                }
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             }
         }
         fragmentScenario = createFragmentScenario()
         fragment = fragmentScenario.getFragment()
+    }
+
+    @After
+    fun tearDown() {
+        if (::fragmentScenario.isInitialized) {
+            fragmentScenario.close()
+        }
     }
 
     @Test
