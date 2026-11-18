@@ -144,10 +144,12 @@ constructor(
      * mapping.
      *
      * Cancelling a `Deferred` returned from this function does not cancel the corresponding
-     * `Deferred` returned by `block`.
+     * `Deferred` returned by `block`. If the launched sequential coroutine completes abnormally,
+     * all uncompleted `Deferred` elements in the returned list are completed with that
+     * failure/cancellation.
      *
      * @param size Size of the list returned from [block], the list returned via this function will
-     *   also have th same size.
+     *   also have the same size.
      * @return A list of [Deferred] where each element is completed as per the corresponding
      *   [Deferred] in the list returned from [block].
      */
@@ -156,8 +158,15 @@ constructor(
         crossinline block: () -> List<Deferred<T>>,
     ): List<Deferred<T>> {
         val deferredList = List(size) { CompletableDeferred<T>() }
-        sequentialScope.launch {
-            block().forEachIndexed { index, deferred -> deferred.propagateTo(deferredList[index]) }
+        val job = sequentialScope.launch {
+            block().forEachIndexed { index, deferred ->
+                deferred.propagateTo(deferredList[index])
+            }
+        }
+        job.invokeOnCompletion { throwable ->
+            if (throwable != null) {
+                deferredList.forEach { it.completeFailing(throwable) }
+            }
         }
         return deferredList
     }
@@ -237,7 +246,9 @@ constructor(
      * [Deferred] list with one-to-one mapping.
      *
      * Cancelling a [Deferred] returned from this function does not cancel the corresponding
-     * [Deferred] returned by [block].
+     * [Deferred] returned by [block]. If the launched sequential coroutine completes abnormally,
+     * all uncompleted [Deferred] elements in the returned list are completed with that
+     * failure/cancellation.
      *
      * @param size Size of the list returned from [block], the list returned via this function will
      *   also have the same size.
@@ -253,8 +264,16 @@ constructor(
         crossinline block: suspend () -> List<Deferred<T>>,
     ): List<Deferred<T>> {
         val deferredList = List(size) { CompletableDeferred<T>() }
-        sequentialScope.launch(start = start) {
-            block().forEachIndexed { index, deferred -> deferred.propagateTo(deferredList[index]) }
+        val job =
+            sequentialScope.launch(start = start) {
+                block().forEachIndexed { index, deferred ->
+                    deferred.propagateTo(deferredList[index])
+                }
+            }
+        job.invokeOnCompletion { throwable ->
+            if (throwable != null) {
+                deferredList.forEach { it.completeFailing(throwable) }
+            }
         }
         return deferredList
     }

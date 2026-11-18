@@ -24,12 +24,20 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executor
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -38,6 +46,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(sdk = [Config.TARGET_SDK])
@@ -121,6 +130,136 @@ class UseCaseThreadsTest {
 
         assertThat(job.isCancelled).isTrue()
         assertThat(job.isCompleted).isTrue()
+    }
+
+    @Test
+    fun confineDeferredList_propagatesResults() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val threads =
+            UseCaseThreads(
+                CoroutineScope(SupervisorJob() + dispatcher),
+                dispatcher.asExecutor(),
+                dispatcher,
+            )
+        val source1 = CompletableDeferred<Int>()
+        val source2 = CompletableDeferred<Int>()
+
+        val resultList = threads.confineDeferredList(2) { listOf(source1, source2) }
+        advanceUntilIdle()
+        source1.complete(10)
+        source2.complete(20)
+
+        assertThat(resultList[0].await()).isEqualTo(10)
+        assertThat(resultList[1].await()).isEqualTo(20)
+        threads.scope.cancel()
+        threads.sequentialScope.cancel()
+    }
+
+    @Test
+    fun confineDeferredList_cancelsAllSignalsWhenSequentialScopeAlreadyCancelled() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val threads =
+            UseCaseThreads(
+                CoroutineScope(SupervisorJob() + dispatcher),
+                dispatcher.asExecutor(),
+                dispatcher,
+            )
+        threads.sequentialScope.cancel()
+
+        val resultList =
+            threads.confineDeferredList(2) {
+                listOf(CompletableDeferred(1), CompletableDeferred(2))
+            }
+        advanceUntilIdle()
+
+        assertThat(resultList).hasSize(2)
+        assertThat(resultList.all { it.isCancelled }).isTrue()
+        threads.scope.cancel()
+    }
+
+    @Test
+    fun confineDeferredListSuspend_propagatesResults() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val threads =
+            UseCaseThreads(
+                CoroutineScope(SupervisorJob() + dispatcher),
+                dispatcher.asExecutor(),
+                dispatcher,
+            )
+        val gate = CompletableDeferred<Unit>()
+        val source1 = CompletableDeferred<String>()
+        val source2 = CompletableDeferred<String>()
+
+        val resultList =
+            threads.confineDeferredListSuspend(2) {
+                gate.await()
+                listOf(source1, source2)
+            }
+        advanceUntilIdle()
+        assertThat(resultList.none { it.isCompleted }).isTrue()
+
+        gate.complete(Unit)
+        advanceUntilIdle()
+        source1.complete("a")
+        source2.complete("b")
+
+        assertThat(resultList[0].await()).isEqualTo("a")
+        assertThat(resultList[1].await()).isEqualTo("b")
+        threads.scope.cancel()
+        threads.sequentialScope.cancel()
+    }
+
+    @Test
+    fun confineDeferredListSuspend_cancelsAllSignalsWhenCancelledDuringSuspension() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val threads =
+            UseCaseThreads(
+                CoroutineScope(SupervisorJob() + dispatcher),
+                dispatcher.asExecutor(),
+                dispatcher,
+            )
+        val started = CompletableDeferred<Unit>()
+
+        val resultList =
+            threads.confineDeferredListSuspend<Int>(2) {
+                started.complete(Unit)
+                awaitCancellation()
+            }
+        advanceUntilIdle()
+        assertThat(started.isCompleted).isTrue()
+
+        threads.sequentialScope.cancel()
+        advanceUntilIdle()
+
+        assertThat(resultList).hasSize(2)
+        assertThat(resultList.all { it.isCancelled }).isTrue()
+        threads.scope.cancel()
+    }
+
+    @Test
+    fun confineDeferredList_propagatesExceptionWhenBlockThrows() = runTest {
+        val uncaughtExceptions = mutableListOf<Throwable>()
+        val handler = CoroutineExceptionHandler { _, throwable ->
+            uncaughtExceptions.add(throwable)
+        }
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val threads =
+            UseCaseThreads(
+                CoroutineScope(SupervisorJob() + dispatcher + handler),
+                dispatcher.asExecutor(),
+                dispatcher,
+            )
+        val expected = IllegalStateException("capture sequence failure")
+
+        val resultList = threads.confineDeferredList<Int>(2) { throw expected }
+        advanceUntilIdle()
+
+        assertThat(resultList).hasSize(2)
+        assertThat(resultList[0].getCompletionExceptionOrNull()).isSameInstanceAs(expected)
+        assertThat(resultList[1].getCompletionExceptionOrNull()).isSameInstanceAs(expected)
+        assertThat(uncaughtExceptions).containsExactly(expected)
+        threads.scope.cancel()
+        threads.sequentialScope.cancel()
     }
 
     /** An [Executor] that queues tasks until explicitly run by the test thread. */

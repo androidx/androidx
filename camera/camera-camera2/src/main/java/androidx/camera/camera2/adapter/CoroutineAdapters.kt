@@ -92,6 +92,10 @@ public fun <T> Deferred<T>.asVoidListenableFuture(): ListenableFuture<Void> =
 /**
  * Converts a [suspend] function `block` into a [ListenableFuture].
  *
+ * Cancelling the returned [ListenableFuture] does not cancel the underlying coroutine. If the
+ * launched coroutine fails or is cancelled, the returned [ListenableFuture] completes with that
+ * failure or cancellation.
+ *
  * @param block The suspend function to be converted.
  * @return A [ListenableFuture] which is completed with the result of the `block`.
  * @receiver The [CoroutineScope] used to execute the provided `block`.
@@ -99,9 +103,22 @@ public fun <T> Deferred<T>.asVoidListenableFuture(): ListenableFuture<Void> =
 public inline fun <T> CoroutineScope.future(
     crossinline block: suspend () -> T
 ): ListenableFuture<T> {
-    val resolver: CallbackToFutureAdapter.Resolver<T> =
-        CallbackToFutureAdapter.Resolver<T> { completer -> this.launch { completer.set(block()) } }
-    return CallbackToFutureAdapter.getFuture(resolver)
+    val deferred = CompletableDeferred<T>()
+    val job = launch {
+        try {
+            deferred.complete(block())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            deferred.completeExceptionally(e)
+        }
+    }
+    job.invokeOnCompletion { cause ->
+        if (cause != null) {
+            deferred.completeFailing(cause)
+        }
+    }
+    return deferred.asListenableFuture("CoroutineScope.future")
 }
 
 /**
