@@ -39,27 +39,9 @@ class XrResourceLeakRuleTest {
         val scenes =
             ArrayDeque(
                 listOf(
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 40,
-                            bufferPixels = 1024L,
-                            livingNodes = 50,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 44,
-                            bufferPixels = 2048L,
-                            livingNodes = 54,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 40,
-                            bufferPixels = 1024L,
-                            livingNodes = 50,
-                        )
-                    ),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 40, bufferPixels = 1024L)),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 44, bufferPixels = 2048L)),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 40, bufferPixels = 1024L)),
                 )
             )
         var gcCalls = 0
@@ -68,7 +50,6 @@ class XrResourceLeakRuleTest {
             XrResourceLeakRule(
                 maxAttachedNodesDelta = 0,
                 maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
                 settleTimeoutMs = 500L,
                 pollIntervalMs = 100L,
                 sceneProvider = { scenes.removeFirst() },
@@ -92,8 +73,8 @@ class XrResourceLeakRuleTest {
 
     @Test
     fun resourceLeakRule_failsWhenLeakPersistsAfterTimeout() {
-        val baseline = SpatialSceneStats(attachedNodes = 35, bufferPixels = 1000L, livingNodes = 40)
-        val leaked = SpatialSceneStats(attachedNodes = 38, bufferPixels = 9000L, livingNodes = 43)
+        val baseline = SpatialSceneStats(attachedNodes = 35, bufferPixels = 1000L)
+        val leaked = SpatialSceneStats(attachedNodes = 38, bufferPixels = 9000L)
         var callCount = 0
         var gcCalls = 0
         var nowMs = 0L
@@ -101,7 +82,6 @@ class XrResourceLeakRuleTest {
             XrResourceLeakRule(
                 maxAttachedNodesDelta = 1,
                 maxBufferPixelsDelta = 1024L,
-                maxLivingNodesDelta = 1,
                 settleTimeoutMs = 300L,
                 pollIntervalMs = 100L,
                 sceneProvider = {
@@ -128,18 +108,16 @@ class XrResourceLeakRuleTest {
         assertEquals(2, gcCalls)
         assertTrue(error.message!!.contains("attachedNodes 35 -> 38"))
         assertTrue(error.message!!.contains("bufferPixels 1000 -> 9000"))
-        assertTrue(error.message!!.contains("livingNodes 40 -> 43"))
     }
 
     @Test
     fun resourceLeakRule_doesNotMaskTestFailure() {
-        val baseline = SpatialSceneStats(attachedNodes = 35, bufferPixels = 1000L, livingNodes = 40)
+        val baseline = SpatialSceneStats(attachedNodes = 35, bufferPixels = 1000L)
         var calls = 0
         val rule =
             XrResourceLeakRule(
                 maxAttachedNodesDelta = 0,
                 maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
                 settleTimeoutMs = 100L,
                 pollIntervalMs = 50L,
                 sceneProvider = {
@@ -175,62 +153,19 @@ class XrResourceLeakRuleTest {
         val scenes =
             ArrayDeque(
                 listOf(
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 25,
-                            bufferPixels = 1000L,
-                            livingNodes = 30,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 25,
-                            bufferPixels = 1000L,
-                            livingNodes = 30,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 25,
-                            bufferPixels = 1000L,
-                            livingNodes = 30,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 30,
-                            bufferPixels = 1000L,
-                            livingNodes = 35,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 30,
-                            bufferPixels = 1000L,
-                            livingNodes = 35,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 30,
-                            bufferPixels = 1000L,
-                            livingNodes = 35,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 25,
-                            bufferPixels = 1000L,
-                            livingNodes = 30,
-                        )
-                    ),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 25, bufferPixels = 1000L)),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 25, bufferPixels = 1000L)),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 25, bufferPixels = 1000L)),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 30, bufferPixels = 1000L)),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 30, bufferPixels = 1000L)),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 30, bufferPixels = 1000L)),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 25, bufferPixels = 1000L)),
                 )
             )
         val rule =
             XrResourceLeakRule(
                 maxAttachedNodesDelta = 0,
                 maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
                 settleTimeoutMs = 100L,
                 pollIntervalMs = 50L,
                 sceneProvider = { scenes.removeFirst() },
@@ -243,7 +178,6 @@ class XrResourceLeakRuleTest {
 
         val leakError = assertFailsWith<AssertionError> { rule.assertWithinBudget {} }
         assertTrue(leakError.message!!.contains("attachedNodes 25 -> 30"))
-        assertTrue(leakError.message!!.contains("livingNodes 30 -> 35"))
 
         val bodyError =
             assertFailsWith<IllegalStateException> {
@@ -259,7 +193,6 @@ class XrResourceLeakRuleTest {
             XrResourceLeakRule(
                 maxAttachedNodesDelta = 0,
                 maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
                 settleTimeoutMs = 100L,
                 pollIntervalMs = 50L,
                 sceneProvider = { sceneWithStats(null) },
@@ -278,28 +211,15 @@ class XrResourceLeakRuleTest {
         val transientScenes =
             ArrayDeque(
                 listOf(
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 20,
-                            bufferPixels = 512L,
-                            livingNodes = 25,
-                        )
-                    ),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 20, bufferPixels = 512L)),
                     sceneWithStats(null),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 20,
-                            bufferPixels = 512L,
-                            livingNodes = 25,
-                        )
-                    ),
+                    sceneWithStats(SpatialSceneStats(attachedNodes = 20, bufferPixels = 512L)),
                 )
             )
         val transientRule =
             XrResourceLeakRule(
                 maxAttachedNodesDelta = 0,
                 maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
                 settleTimeoutMs = 300L,
                 pollIntervalMs = 50L,
                 sceneProvider = { transientScenes.removeFirst() },
@@ -316,19 +236,12 @@ class XrResourceLeakRuleTest {
             XrResourceLeakRule(
                 maxAttachedNodesDelta = 0,
                 maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
                 settleTimeoutMs = 150L,
                 pollIntervalMs = 50L,
                 sceneProvider = {
                     calls++
                     if (calls == 1) {
-                        sceneWithStats(
-                            SpatialSceneStats(
-                                attachedNodes = 20,
-                                bufferPixels = 512L,
-                                livingNodes = 25,
-                            )
-                        )
+                        sceneWithStats(SpatialSceneStats(attachedNodes = 20, bufferPixels = 512L))
                     } else {
                         sceneWithStats(null)
                     }
@@ -344,181 +257,15 @@ class XrResourceLeakRuleTest {
     }
 
     @Test
-    fun resourceLeakRule_enforcesAttachedNodesAndBufferPixelsWhenLivingNodesNull() {
-        var nowMs = 0L
-        val passingScenes =
-            ArrayDeque(
-                listOf(
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 12,
-                            bufferPixels = 4096L,
-                            livingNodes = null,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 14,
-                            bufferPixels = 8192L,
-                            livingNodes = null,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 12,
-                            bufferPixels = 4096L,
-                            livingNodes = null,
-                        )
-                    ),
-                )
-            )
-        val passingRule =
-            XrResourceLeakRule(
-                maxAttachedNodesDelta = 0,
-                maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
-                settleTimeoutMs = 300L,
-                pollIntervalMs = 50L,
-                sceneProvider = { passingScenes.removeFirst() },
-                gcTrigger = {},
-                sleeper = { nowMs += it },
-                clockMs = { nowMs },
-            )
-        passingRule.assertWithinBudget {}
-        assertTrue(passingScenes.isEmpty())
-
-        var failNowMs = 0L
-        val failingScenes =
-            ArrayDeque(
-                listOf(
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 12,
-                            bufferPixels = 4096L,
-                            livingNodes = null,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 15,
-                            bufferPixels = 16384L,
-                            livingNodes = null,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 15,
-                            bufferPixels = 16384L,
-                            livingNodes = null,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 15,
-                            bufferPixels = 16384L,
-                            livingNodes = null,
-                        )
-                    ),
-                )
-            )
-        val failingRule =
-            XrResourceLeakRule(
-                maxAttachedNodesDelta = 0,
-                maxBufferPixelsDelta = 1024L,
-                maxLivingNodesDelta = 0,
-                settleTimeoutMs = 100L,
-                pollIntervalMs = 50L,
-                sceneProvider = { failingScenes.removeFirst() },
-                gcTrigger = {},
-                sleeper = { failNowMs += it },
-                clockMs = { failNowMs },
-            )
-        val error = assertFailsWith<AssertionError> { failingRule.assertWithinBudget {} }
-        assertTrue(error.message!!.contains("attachedNodes 12 -> 15"))
-        assertTrue(error.message!!.contains("bufferPixels 4096 -> 16384"))
-    }
-
-    @Test
-    fun resourceLeakRule_retriesTransientMissingLivingNodesWhenBaselineHasLivingNodes() {
-        var nowMs = 0L
-        val transientScenes =
-            ArrayDeque(
-                listOf(
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 20,
-                            bufferPixels = 1024L,
-                            livingNodes = 25,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 20,
-                            bufferPixels = 1024L,
-                            livingNodes = null,
-                        )
-                    ),
-                    sceneWithStats(
-                        SpatialSceneStats(
-                            attachedNodes = 20,
-                            bufferPixels = 1024L,
-                            livingNodes = 25,
-                        )
-                    ),
-                )
-            )
-        val transientRule =
-            XrResourceLeakRule(
-                maxAttachedNodesDelta = 0,
-                maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
-                settleTimeoutMs = 300L,
-                pollIntervalMs = 50L,
-                sceneProvider = { transientScenes.removeFirst() },
-                gcTrigger = {},
-                sleeper = { nowMs += it },
-                clockMs = { nowMs },
-            )
-        transientRule.assertWithinBudget {}
-        assertTrue(transientScenes.isEmpty())
-
-        var persistentNowMs = 0L
-        var calls = 0
-        val persistentMissingRule =
-            XrResourceLeakRule(
-                maxAttachedNodesDelta = 0,
-                maxBufferPixelsDelta = 0L,
-                maxLivingNodesDelta = 0,
-                settleTimeoutMs = 150L,
-                pollIntervalMs = 50L,
-                sceneProvider = {
-                    calls++
-                    if (calls == 1) {
-                        sceneWithStats(
-                            SpatialSceneStats(
-                                attachedNodes = 20,
-                                bufferPixels = 1024L,
-                                livingNodes = 25,
-                            )
-                        )
-                    } else {
-                        sceneWithStats(
-                            SpatialSceneStats(
-                                attachedNodes = 20,
-                                bufferPixels = 1024L,
-                                livingNodes = null,
-                            )
-                        )
-                    }
-                },
-                gcTrigger = {},
-                sleeper = { persistentNowMs += it },
-                clockMs = { persistentNowMs },
-            )
-        val timeoutError =
-            assertFailsWith<AssertionError> { persistentMissingRule.assertWithinBudget {} }
-        assertTrue(timeoutError.message!!.contains("missing telemetry"))
-        assertTrue(timeoutError.message!!.contains("livingNodes 25 -> null"))
-        assertTrue(calls >= 3)
+    fun resourceLeakRule_publicConstructor_rejectsNegativeBudgets() {
+        XrResourceLeakRule()
+        assertFailsWith<IllegalArgumentException> {
+            XrResourceLeakRule(maxAttachedNodesDelta = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            XrResourceLeakRule(maxBufferPixelsDelta = -1L)
+        }
+        assertFailsWith<IllegalArgumentException> { XrResourceLeakRule(settleTimeoutMs = -1L) }
+        assertFailsWith<IllegalArgumentException> { XrResourceLeakRule(pollIntervalMs = -1L) }
     }
 }

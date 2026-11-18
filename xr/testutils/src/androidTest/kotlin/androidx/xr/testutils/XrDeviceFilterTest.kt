@@ -91,6 +91,8 @@ class XrDeviceFilterTest {
 
     @XrDeviceTest
     private class PlainXrDeviceTestClass {
+        fun unannotatedMethod() {}
+
         @SuppressLint("WrongConstant")
         @RequiresSpatialApi(FUTURE_SPATIAL_API_VERSION)
         fun futureApiMethod() {}

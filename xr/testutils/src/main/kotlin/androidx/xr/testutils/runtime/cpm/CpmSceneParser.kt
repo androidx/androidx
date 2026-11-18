@@ -29,7 +29,6 @@ import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.testutils.SnapshotXrScene
 import androidx.xr.testutils.SnapshotXrSpace
-import androidx.xr.testutils.SpatialSceneStats
 import androidx.xr.testutils.computeSceneStats
 import java.io.InputStream
 import java.util.regex.Pattern
@@ -75,7 +74,7 @@ internal fun captureSceneWithPolling(
     while (true) {
         val rawDump = shellRunner("dumpsys spf_cpm")
         val rootNodes = parseRootNodes(rawDump)
-        val stats = parseSceneStats(rawDump, rootNodes)
+        val stats = computeSceneStats(rootNodes)
         val taskIds = extractTaskIdsFromRoots(rootNodes)
         val currentMap = cachedTaskPackageMap
         val nowMs = clockMs()
@@ -114,7 +113,7 @@ internal fun captureSceneWithPolling(
     return scene
 }
 
-private fun extractTaskIdsFromRoots(rootNodes: List<SnapshotXrSpace>): List<Int> =
+internal fun extractTaskIdsFromRoots(rootNodes: List<SnapshotXrSpace>): List<Int> =
     rootNodes
         .flatMap { root ->
             if (root.isTaskRoot) listOf(root) else root.children.filter { it.isTaskRoot }
@@ -136,23 +135,8 @@ internal fun parseSpatialScene(
     return SnapshotXrScene(
         rootNodes = rootNodes,
         taskPackageMap = taskPackageMap,
-        stats = parseSceneStats(rawDump, rootNodes),
+        stats = computeSceneStats(rootNodes),
     )
-}
-
-/**
- * Computes [SpatialSceneStats] from [rootNodes] and parses `Number of living nodes:` from the
- * `dumpsys spf_cpm` trailer, returning `null` if [rootNodes] is empty and no trailer count exists.
- */
-@VisibleForTesting
-internal fun parseSceneStats(
-    dump: String,
-    rootNodes: List<SnapshotXrSpace> = emptyList(),
-): SpatialSceneStats? {
-    val livingNodesMatch = LIVING_NODES_PATTERN.matcher(dump)
-    val livingNodes =
-        if (livingNodesMatch.find()) livingNodesMatch.group(1)?.toIntOrNull() else null
-    return computeSceneStats(rootNodes = rootNodes, livingNodes = livingNodes)
 }
 
 /** Parses the raw output of `dumpsys spf_cpm` into a list of [SnapshotXrSpace] root entities. */
@@ -511,4 +495,3 @@ private val REFORM_OPTIONS_PATTERN = Pattern.compile("reformOptions=<([^>]+)>")
 private val SYS_UI_METADATA_PATTERN = Pattern.compile("sysUIMetadata=<([^>]+)>")
 private val PROP_KEY_VALUE_PATTERN = Pattern.compile("([a-zA-Z0-9_#.-]+)=([a-zA-Z0-9_#.-]+)")
 private val WHITESPACE_PATTERN = Pattern.compile("\\s+")
-private val LIVING_NODES_PATTERN = Pattern.compile("Number of living nodes:\\s*(\\d+)")

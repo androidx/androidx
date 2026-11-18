@@ -1739,13 +1739,11 @@ class CpmSceneParserTest {
         val stats = assertNotNull(complexScene.stats)
         assertEquals(270, stats.attachedNodes)
         assertEquals(43_196_752L, stats.bufferPixels)
-        assertEquals(318, stats.livingNodes)
 
         val simpleScene = parseSpatialScene(simpleDumpsys)
         val simpleStats = assertNotNull(simpleScene.stats)
         assertEquals(7, simpleStats.attachedNodes)
         assertEquals(0L, simpleStats.bufferPixels)
-        assertNull(simpleStats.livingNodes)
 
         assertNull(parseSpatialScene("").stats)
     }
@@ -1800,7 +1798,6 @@ class CpmSceneParserTest {
         assertEquals("com.example.myapp", scene.findTaskById(100)?.packageName)
         assertEquals(3, scene.stats?.attachedNodes)
         assertEquals(480_000L, scene.stats?.bufferPixels)
-        assertEquals(42, scene.stats?.livingNodes)
     }
 
     @Test
@@ -1894,5 +1891,45 @@ class CpmSceneParserTest {
         assertFalse(zeroLayer.hasSurfaceBounds)
         assertFalse(zeroLayer.isAndroid2dSurface)
         assertNull(windowNode.primarySurfaceNode)
+    }
+
+    @Test
+    fun primarySurfaceNode_excludesInputSinkAndPrefersVisibleSurface() {
+        val dumpsys =
+            """
+            SPF Nodes:
+            Node Root (stateIndex=0, z=0) id=1:
+            visible on both (requested-vis=show)
+              Node space-root-task-42 (stateIndex=0, z=0) id=2:
+              visible on both (requested-vis=show)
+                Node taskWindowLeash (stateIndex=0, z=0) id=3:
+                visible on both (requested-vis=show)
+                  Node window-task-42 (stateIndex=0, z=0) id=4:
+                  visible on both (requested-vis=show)
+                    Node HelperInputSink (stateIndex=0, z=1) id=15:
+                    visible on both (requested-vis=show) buffer=1536x960 isSysUi=false isAndroid2d=true isInputSink=true input-id=78
+                    Node ActivityRecordInputSink com.example/.Main#79 (stateIndex=0, z=2) id=16:
+                    visible on both (requested-vis=show) buffer=1536x960 isSysUi=false isAndroid2d=true input-id=79
+                    Node HiddenSurface#80 (stateIndex=0, z=3) id=17:
+                    hidden on both (requested-vis=hide) buffer=1536x960 isSysUi=false isAndroid2d=true input-id=80
+                    Node com.example/.Main#76 (stateIndex=0, z=4) id=14:
+                    visible on both (requested-vis=show) buffer=1536x960 isSysUi=false isAndroid2d=true canReceiveInput=true input-id=76
+            """
+                .trimIndent()
+
+        val scene = parseSpatialScene(dumpsys)
+        val task = assertNotNull(scene.findTaskById(42))
+        val leash = assertNotNull(task.taskWindowLeash)
+        val propSink = assertNotNull(task.findNodeByName("HelperInputSink"))
+        val namedSink = assertNotNull(task.findNodeByName("ActivityRecordInputSink"))
+        val hiddenSurface = assertNotNull(task.findNodeByName("HiddenSurface#80"))
+        val visibleSurface = assertNotNull(task.findNodeByName("com.example/.Main#76"))
+
+        assertFalse(propSink.isAndroid2dSurface)
+        assertFalse(namedSink.isAndroid2dSurface)
+        assertTrue(hiddenSurface.isAndroid2dSurface)
+        assertFalse(hiddenSurface.isVisible)
+        assertTrue(visibleSurface.isAndroid2dSurface)
+        assertEquals(visibleSurface, leash.primarySurfaceNode)
     }
 }

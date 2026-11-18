@@ -72,7 +72,7 @@ androidx {
     inceptionYear = "2026"
     description = "Internal test utilities for XR libraries."
     enableRobolectric()
-    deviceTests {
-        enabled = false
-    }
+    additionalDeviceTestTags.add("xr_optin")
 }
+
+apply from: "$rootDir/xr/testutils/xr-device-tests.gradle"

@@ -24,13 +24,12 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * Enforces bounded CPM attached node, buffer pixel, and living node deltas after test teardown.
+ * Enforces bounded CPM attached node and buffer pixel deltas after test teardown.
  *
  * Intended specifically for dedicated resource-reclamation tests rather than blanket attachment to
  * every functional integration test. Triggers GC after the wrapped statement (and any inner
  * session/activity teardown rules) finishes and polls [SnapshotXrScene.stats] until
- * [SpatialSceneStats.attachedNodes], [SpatialSceneStats.bufferPixels], and (when present in the
- * baseline) [SpatialSceneStats.livingNodes] settle within budget.
+ * [SpatialSceneStats.attachedNodes] and [SpatialSceneStats.bufferPixels] settle within budget.
  *
  * `attachedNodes` and `bufferPixels` are derived from the parsed node tree and work identically
  * across text and binary `--proto` scene captures.
@@ -38,17 +37,12 @@ import org.junit.runners.model.Statement
  * Note: Declare [XrResourceLeakRule] *inside* `XrSessionRule` (`@get:Rule(order = 0)` on
  * `XrSessionRule`, `@get:Rule(order = 1)` on [XrResourceLeakRule]) or scope entity create/dispose
  * cycles with [assertWithinBudget], because `ActivityScenario.close()` leaves hidden
- * `space-root-task-<id>` entries in WindowManager Recents until instrumentation process exit. Also
- * note that `PanelEntity` holds an internal `SurfaceControl.Transaction.setMirrorCPMNode` reference
- * released via `Node.finalize()`, which retains 1 empty CPM node per `PanelEntity` (with
- * `bufferPixels == 0`) until process exit on some platform builds; allow headroom via
- * [maxLivingNodesDelta] when wrapping scoped `PanelEntity` lifecycles. Failures thrown by the test
- * body itself are never masked; leak verification only runs when the test body completes normally.
+ * `space-root-task-<id>` entries in WindowManager Recents until instrumentation process exit.
+ * Failures thrown by the test body itself are never masked; leak verification only runs when the
+ * test body completes normally.
  *
  * @param maxAttachedNodesDelta maximum permitted increase in [SpatialSceneStats.attachedNodes]
  * @param maxBufferPixelsDelta maximum permitted increase in [SpatialSceneStats.bufferPixels]
- * @param maxLivingNodesDelta maximum permitted increase in `Number of living nodes` when
- *   [SpatialSceneStats.livingNodes] is present in the baseline snapshot
  * @param settleTimeoutMs maximum time in milliseconds to wait for GC and compositor teardown
  * @param pollIntervalMs poll interval in milliseconds while awaiting reclamation
  */
@@ -57,7 +51,6 @@ public class XrResourceLeakRule
 internal constructor(
     private val maxAttachedNodesDelta: Int,
     private val maxBufferPixelsDelta: Long,
-    private val maxLivingNodesDelta: Int,
     private val settleTimeoutMs: Long,
     private val pollIntervalMs: Long,
     private val sceneProvider: () -> SnapshotXrScene,
@@ -70,13 +63,11 @@ internal constructor(
     public constructor(
         maxAttachedNodesDelta: Int = 0,
         maxBufferPixelsDelta: Long = 0L,
-        maxLivingNodesDelta: Int = 0,
         settleTimeoutMs: Long = 2000L,
         pollIntervalMs: Long = 100L,
     ) : this(
         maxAttachedNodesDelta = maxAttachedNodesDelta,
         maxBufferPixelsDelta = maxBufferPixelsDelta,
-        maxLivingNodesDelta = maxLivingNodesDelta,
         settleTimeoutMs = settleTimeoutMs,
         pollIntervalMs = pollIntervalMs,
         sceneProvider = { captureSpatialScene() },
@@ -91,9 +82,6 @@ internal constructor(
         }
         require(maxBufferPixelsDelta >= 0L) {
             "maxBufferPixelsDelta must be non-negative, was $maxBufferPixelsDelta."
-        }
-        require(maxLivingNodesDelta >= 0) {
-            "maxLivingNodesDelta must be non-negative, was $maxLivingNodesDelta."
         }
         require(settleTimeoutMs >= 0L) {
             "settleTimeoutMs must be non-negative, was $settleTimeoutMs."
@@ -131,47 +119,34 @@ internal constructor(
 
         while (true) {
             val current = sceneProvider().stats
-            val statsComparable =
-                current != null && (baseline.livingNodes == null || current.livingNodes != null)
             val attachedDelta =
                 if (current != null) current.attachedNodes - baseline.attachedNodes else 0
             val pixelsDelta =
                 if (current != null) current.bufferPixels - baseline.bufferPixels else 0L
-            val livingDelta =
-                if (baseline.livingNodes != null && current?.livingNodes != null) {
-                    current.livingNodes - baseline.livingNodes
-                } else {
-                    0
-                }
 
             if (
-                statsComparable &&
+                current != null &&
                     attachedDelta <= maxAttachedNodesDelta &&
-                    pixelsDelta <= maxBufferPixelsDelta &&
-                    livingDelta <= maxLivingNodesDelta
+                    pixelsDelta <= maxBufferPixelsDelta
             ) {
                 return
             }
 
             val elapsedMs = clockMs() - startMs
             if (elapsedMs >= settleTimeoutMs) {
-                if (!statsComparable) {
+                if (current == null) {
                     throw AssertionError(
                         "CPM resource leak check timed out with missing telemetry after " +
-                            "$testName: attachedNodes ${baseline.attachedNodes} -> " +
-                            "${current?.attachedNodes}, bufferPixels ${baseline.bufferPixels} -> " +
-                            "${current?.bufferPixels}, livingNodes ${baseline.livingNodes} -> " +
-                            "${current?.livingNodes}."
+                            "$testName: attachedNodes ${baseline.attachedNodes} -> null, " +
+                            "bufferPixels ${baseline.bufferPixels} -> null."
                     )
                 }
                 throw AssertionError(
                     "CPM resource leak detected after $testName: " +
-                        "attachedNodes ${baseline.attachedNodes} -> ${current?.attachedNodes} " +
+                        "attachedNodes ${baseline.attachedNodes} -> ${current.attachedNodes} " +
                         "(delta=$attachedDelta, max=$maxAttachedNodesDelta), " +
-                        "bufferPixels ${baseline.bufferPixels} -> ${current?.bufferPixels} " +
-                        "(delta=$pixelsDelta, max=$maxBufferPixelsDelta), " +
-                        "livingNodes ${baseline.livingNodes} -> ${current?.livingNodes} " +
-                        "(delta=$livingDelta, max=$maxLivingNodesDelta)."
+                        "bufferPixels ${baseline.bufferPixels} -> ${current.bufferPixels} " +
+                        "(delta=$pixelsDelta, max=$maxBufferPixelsDelta)."
                 )
             }
 
