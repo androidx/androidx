@@ -18,8 +18,6 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.collection.mutableDoubleListOf
-
 @Suppress("TypealiasDefinition")
 public actual typealias SnapshotId = Double
 
@@ -124,22 +122,6 @@ internal actual fun SnapshotIdArray.withIdRemovedAt(index: Int): SnapshotIdArray
         )
     }
     return newArray
-}
-
-internal actual class SnapshotIdArrayBuilder actual constructor(array: SnapshotIdArray?) {
-    private val list = array?.let { mutableDoubleListOf(*array) } ?: mutableDoubleListOf()
-
-    actual fun add(id: SnapshotId) {
-        list.add(id)
-    }
-
-    actual fun toArray(): SnapshotIdArray? {
-        val size = list.size
-        if (size == 0) return null
-        val result = DoubleArray(size)
-        list.forEachIndexed { index, element -> result[index] = element }
-        return result
-    }
 }
 
 internal actual inline fun snapshotIdArrayOf(id: SnapshotId): SnapshotIdArray = doubleArrayOf(id)

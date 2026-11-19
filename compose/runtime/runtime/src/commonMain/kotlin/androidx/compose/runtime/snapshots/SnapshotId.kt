@@ -76,12 +76,6 @@ internal expect fun SnapshotIdArray.withIdInsertedAt(index: Int, id: SnapshotId)
 
 internal expect fun SnapshotIdArray.withIdRemovedAt(index: Int): SnapshotIdArray?
 
-internal expect class SnapshotIdArrayBuilder(array: SnapshotIdArray?) {
-    fun add(id: SnapshotId)
-
-    fun toArray(): SnapshotIdArray?
-}
-
 internal expect fun Int.toSnapshotId(): SnapshotId
 
 internal expect fun Long.toSnapshotId(): SnapshotId
