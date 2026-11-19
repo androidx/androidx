@@ -62,5 +62,5 @@ public object ComposeAnimationCoreFlags {
     // TODO: b/562143106 - Cleanup feature flag
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isNanosecondAnimationSpecEnabled: Boolean = true
+    public var isNanosecondAnimationSpecEnabled: Boolean = false
 }
