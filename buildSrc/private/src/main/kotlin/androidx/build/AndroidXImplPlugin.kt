@@ -1549,20 +1549,11 @@ val Project.androidXExtension: AndroidXExtension
  * [TASK_TIMEOUT_MINUTES].
  */
 internal fun Project.configureTaskTimeouts() {
-    // A set of tasks that sometimes take >60 minutes. b/383874664
-    val slowTasks =
-        setOf(
-            ":compose:ui:ui:compileReleaseAndroidTestKotlinAndroid",
-            ":compose:foundation:foundation:compileReleaseAndroidTestKotlinAndroid",
-            ":compose:foundation:foundation:integration-tests:lazy-tests:compileReleaseAndroidTestKotlin",
-        )
     tasks.configureEach { t ->
         // skip adding a timeout for some tasks that both take a long time and
         // that we can count on the user to monitor
         if (t !is ManagedIdeTask) {
-            t.timeout.set(
-                Duration.ofMinutes(if (t.path in slowTasks) 80L else TASK_TIMEOUT_MINUTES)
-            )
+            t.timeout.set(Duration.ofMinutes(TASK_TIMEOUT_MINUTES))
         }
     }
 }
