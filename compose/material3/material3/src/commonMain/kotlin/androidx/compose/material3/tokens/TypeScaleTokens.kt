@@ -46,7 +46,7 @@ internal object TypeScaleTokens {
         get() = 14.sp
 
     inline val BodyMediumTracking: androidx.compose.ui.unit.TextUnit
-        get() = 0.2.sp
+        get() = 0.25.sp
 
     inline val BodyMediumWeight: androidx.compose.ui.text.font.FontWeight
         get() = TypefaceTokens.WeightRegular
@@ -76,7 +76,7 @@ internal object TypeScaleTokens {
         get() = 57.sp
 
     inline val DisplayLargeTracking: androidx.compose.ui.unit.TextUnit
-        get() = -0.2.sp
+        get() = -0.25.sp
 
     inline val DisplayLargeWeight: androidx.compose.ui.text.font.FontWeight
         get() = TypefaceTokens.WeightRegular
@@ -226,7 +226,7 @@ internal object TypeScaleTokens {
         get() = 16.sp
 
     inline val TitleMediumTracking: androidx.compose.ui.unit.TextUnit
-        get() = 0.2.sp
+        get() = 0.15.sp
 
     inline val TitleMediumWeight: androidx.compose.ui.text.font.FontWeight
         get() = TypefaceTokens.WeightMedium
@@ -257,7 +257,7 @@ internal object TypeScaleTokens {
         get() = 16.sp
 
     inline val BodyLargeEmphasizedTracking: androidx.compose.ui.unit.TextUnit
-        get() = 0.15.sp
+        get() = 0.5.sp
 
     inline val BodyLargeEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
         get() = TypefaceTokens.WeightMedium
@@ -302,7 +302,7 @@ internal object TypeScaleTokens {
         get() = 57.sp
 
     inline val DisplayLargeEmphasizedTracking: androidx.compose.ui.unit.TextUnit
-        get() = 0.sp
+        get() = -0.25.sp
 
     inline val DisplayLargeEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
         get() = TypefaceTokens.WeightMedium
