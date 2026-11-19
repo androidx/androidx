@@ -1287,6 +1287,50 @@ class ComposeViewAdapterTest {
     }
 
     @Test
+    fun expandHorizontal_atMostPassWithDifferentCrossAxisSpec_retainsExpandedWidth() {
+        val expectedWidth = EXPAND_ITEM_WIDTH.toPx() * EXPAND_LONG_LIST_ITEM_COUNT
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandListsPreviewKt",
+            "ExpandLongLazyRowPreview",
+            device = EXPAND_HORIZONTAL_DEVICE,
+        )
+
+        // Run all measure passes in a single UI-thread block so Choreographer cannot interleave an
+        // Activity layout pass at full screen height between the initial 400px expansion and the
+        // follow-up assertions.
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            )
+            assertEquals(expectedWidth, composeViewAdapter.measuredWidth)
+
+            // Simulate ViewRootImpl.measureHierarchy() measuring the adapter with AT_MOST along the
+            // expanded axis and a cutout-inset height before relayoutWindow() restores full bounds.
+            // This transient pass must not invalidate expandedSizePx or recreated state.
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(expectedWidth, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(320, View.MeasureSpec.AT_MOST),
+            )
+            assertEquals(expectedWidth, composeViewAdapter.measuredWidth)
+
+            // Subsequent render() root probe (AT_MOST viewport) and content-root pass (UNSPECIFIED)
+            // must both retain expectedWidth so LayoutLib does not double-expand or re-relayout.
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            )
+            assertEquals(expectedWidth, composeViewAdapter.measuredWidth)
+
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            )
+            assertEquals(expectedWidth, composeViewAdapter.measuredWidth)
+        }
+    }
+
+    @Test
     fun expandVertical_exactlySpecIsHonored() {
         val height =
             measureExpanded(
@@ -1342,6 +1386,54 @@ class ComposeViewAdapterTest {
             composeViewAdapter.measure(
                 narrowerWidthSpec,
                 View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.UNSPECIFIED),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+        }
+    }
+
+    @Test
+    fun expandVertical_atMostPassWithDifferentCrossAxisSpec_retainsExpandedHeight() {
+        val expectedHeight = EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandListsPreviewKt",
+            "ExpandVerticalScrollColumnPreview",
+            device = EXPAND_VERTICAL_DEVICE,
+        )
+
+        // Run all measure passes in a single UI-thread block so Choreographer cannot interleave an
+        // Activity layout pass between the initial expansion and the follow-up assertions.
+        activityTestRule.runOnUiThread {
+            val widthSpec =
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width,
+                    View.MeasureSpec.EXACTLY,
+                )
+            composeViewAdapter.measure(
+                widthSpec,
+                View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.UNSPECIFIED),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+
+            val narrowerWidth = composeViewAdapter.width / 2
+            // Simulate a transient AT_MOST measureHierarchy() pass with a cutout-inset width:
+            // must not drop expandedSizePx.
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(narrowerWidth, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(expectedHeight, View.MeasureSpec.AT_MOST),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+
+            // Subsequent render() root probe (AT_MOST viewport) and content-root pass (UNSPECIFIED)
+            // retain expandedHeight.
+            composeViewAdapter.measure(
+                widthSpec,
+                View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.AT_MOST),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+
+            composeViewAdapter.measure(
+                widthSpec,
+                View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.UNSPECIFIED),
             )
             assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
         }
