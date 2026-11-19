@@ -1046,5 +1046,9 @@ public class DialogFragment extends Fragment
             mDialog = null;
             mDialogCreated = false;
         }
-    }
+        //DialogFragment may leak if Handler posts Runnable tasks that are not cleaned up on dismissal.
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+        }    
+    }         
 }
