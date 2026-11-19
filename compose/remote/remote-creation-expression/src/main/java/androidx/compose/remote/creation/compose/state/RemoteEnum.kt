@@ -31,7 +31,8 @@ import kotlin.reflect.KClass
  * [RemoteEnum] internally stores its state as a [RemoteInt], using the Enum ordinal.
  *
  * Comparing [RemoteEnum] values with `==` checks structural equality (matching constant values or
- * expression DAGs), whereas [MutableRemoteEnum] instances compare by identity; see [RemoteState].
+ * expression DAGs, as well as [enumEntries] and mutability), whereas [MutableRemoteEnum] instances
+ * compare by their underlying mutable variable and [enumEntries]; see [RemoteState].
  *
  * @param T The enum type.
  * @property enumEntries The [EnumEntries] containing all values of the enum.
@@ -125,6 +126,11 @@ private abstract class BaseRemoteEnum<T : Enum<T>>(override val enumEntries: Enu
 
     override val cacheKey: RemoteStateCacheKey
         get() = constantValueOrNull?.let { RemoteConstantCacheKey(it) } ?: intValue.cacheKey
+
+    override fun equals(other: Any?): Boolean =
+        super.equals(other) && other is BaseRemoteEnum<*> && enumEntries == other.enumEntries
+
+    override fun hashCode(): Int = 31 * super.hashCode() + enumEntries.hashCode()
 
     override val asEncoded: RemoteInt
         get() = intValue
@@ -245,8 +251,10 @@ public inline fun <reified T : Enum<T>> RemoteEnum(value: T): RemoteEnum<T> =
 /**
  * A mutable implementation of [RemoteEnum].
  *
- * Distinct [MutableRemoteEnum] instances represent separate mutable variables and compare by
- * identity with `==`.
+ * Two [MutableRemoteEnum] instances are `==` if and only if they have the same [enumEntries] and
+ * reference the same underlying mutable variable (for example, wrapping the same [remoteInt]);
+ * separately created instances (e.g., via `MutableRemoteEnum(initialValue)`) represent distinct
+ * mutable variables and are never `==`.
  *
  * @param T The enum type.
  */

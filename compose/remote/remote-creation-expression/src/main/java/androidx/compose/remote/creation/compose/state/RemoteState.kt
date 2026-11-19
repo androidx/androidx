@@ -39,15 +39,21 @@ import kotlin.reflect.KClass
  * types and constant values match, and dynamic expressions are equal when their types and
  * expression trees match (for example, identical operations over identical operands or named
  * variables with the same domain and name). By contrast, [MutableRemoteState] instances compare by
- * identity (allocated variable instance), so distinct mutable variables are never `==`. Use
- * [RemoteFloat.isEqualTo] (or the equivalent `isEqualTo` method on typed subclasses) when you need
- * a runtime [RemoteBoolean] evaluated on the remote player.
+ * their underlying mutable variable rather than expression equivalence, so separately created
+ * mutable variables are never `==` and a read-only [RemoteState] is never `==` to a
+ * [MutableRemoteState] (even when wrapping the same backing state). Use [RemoteFloat.isEqualTo] (or
+ * the equivalent `isEqualTo` method on typed subclasses) when you need a runtime [RemoteBoolean]
+ * evaluated on the remote player.
+ *
+ * Custom external implementations of [RemoteState] are not supported; implementations must come
+ * from the library's `Remote*` types.
  *
  * In Remote Compose recording mode, a type-specific ID is used to refer to a dynamic state within
  * [RemoteComposeCreationState].
  *
  * @param T The type of the value held by this state.
  */
+// TODO(b/587746359): Support custom implementations of RemoteState.
 @Stable
 public interface RemoteState<T> {
     /**
@@ -209,7 +215,8 @@ public interface RemoteState<T> {
 /**
  * Common base class for all Remote types.
  *
- * Implements structural [equals] and [hashCode] using [equalityType] and [cacheKey].
+ * Implements structural [equals] and [hashCode] using [equalityType], mutability
+ * ([MutableRemoteState]), and [cacheKey].
  */
 internal abstract class BaseRemoteState<T : Any>(initialCacheKey: RemoteStateCacheKey) :
     RemoteState<T>, RemoteStateAccess {
@@ -225,13 +232,19 @@ internal abstract class BaseRemoteState<T : Any>(initialCacheKey: RemoteStateCac
     internal open val equalityType: KClass<*>
         get() = this::class
 
-    final override fun equals(other: Any?): Boolean =
+    override fun equals(other: Any?): Boolean =
         this === other ||
             (other is BaseRemoteState<*> &&
                 equalityType == other.equalityType &&
+                (this is MutableRemoteState<*>) == (other is MutableRemoteState<*>) &&
                 cacheKey == other.cacheKey)
 
-    final override fun hashCode(): Int = 31 * equalityType.hashCode() + cacheKey.hashCode()
+    override fun hashCode(): Int {
+        var result = equalityType.hashCode()
+        result = 31 * result + (this is MutableRemoteState<*>).hashCode()
+        result = 31 * result + cacheKey.hashCode()
+        return result
+    }
 
     override fun toString(): String = cacheKey.toDebugString()
 

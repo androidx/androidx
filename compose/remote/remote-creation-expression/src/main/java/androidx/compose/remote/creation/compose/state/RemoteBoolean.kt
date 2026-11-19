@@ -36,8 +36,9 @@ import kotlin.reflect.KClass
  * at creation time (see [RemoteState]).
  *
  * Comparing [RemoteBoolean] values with `==` checks structural equality (matching constant values
- * or expression DAGs), whereas [MutableRemoteBoolean] instances compare by identity; see
- * [RemoteState]. For runtime equality on the remote player, use [isEqualTo].
+ * or expression DAGs and mutability), whereas [MutableRemoteBoolean] instances compare by their
+ * underlying mutable variable; see [RemoteState]. For runtime equality on the remote player, use
+ * [isEqualTo].
  */
 @Stable
 public sealed interface RemoteBoolean : RemoteState<Boolean> {
@@ -543,8 +544,9 @@ private enum class BooleanOperationKey : RemoteOperation {
 /**
  * A mutable implementation of [RemoteBoolean].
  *
- * Distinct [MutableRemoteBoolean] instances represent separate mutable variables and compare by
- * identity with `==`.
+ * Two [MutableRemoteBoolean] instances are `==` only if they reference the same underlying mutable
+ * variable; separately created instances (e.g., via `MutableRemoteBoolean(initialValue)`) represent
+ * distinct mutable variables and are never `==`.
  */
 @Stable
 public sealed interface MutableRemoteBoolean : RemoteBoolean, MutableRemoteState<Boolean> {

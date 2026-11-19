@@ -33,6 +33,11 @@ class RemoteEnumTest {
         On,
     }
 
+    private enum class Toggle {
+        Off,
+        On,
+    }
+
     @Test
     fun ordinal() {
         val b0 = RemoteEnum(Checked.Off)
@@ -120,6 +125,60 @@ class RemoteEnumTest {
         val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
         val mappedInt = namedEnum.toRemoteInt { if (it == Checked.Off) 10.ri else 20.ri }
         assertThat(mappedInt.toString()).isEqualTo("user:chk == 1 ? 20 : (user:chk == 0 ? 10 : -1)")
+    }
+
+    @Test
+    fun equality_sameEnumType_equal() {
+        val intVar = RemoteInt.createNamedRemoteInt("state", 0)
+        val enum1 = RemoteEnum(intVar, Checked.entries)
+        val enum2 = RemoteEnum(intVar, Checked.entries)
+
+        assertThat(enum1).isEqualTo(enum2)
+        assertThat(enum1.hashCode()).isEqualTo(enum2.hashCode())
+        assertThat(RemoteEnum(Checked.Off)).isEqualTo(RemoteEnum(Checked.Off))
+        assertThat(RemoteEnum(Checked.Off).hashCode()).isEqualTo(RemoteEnum(Checked.Off).hashCode())
+    }
+
+    @Test
+    fun equality_differentEnumTypesOverSameRemoteInt_notEqual() {
+        val intVar = RemoteInt.createNamedRemoteInt("state", 0)
+        val checkedEnum = RemoteEnum(intVar, Checked.entries)
+        val toggleEnum = RemoteEnum(intVar, Toggle.entries)
+
+        assertThat(checkedEnum).isNotEqualTo(toggleEnum)
+        assertThat(toggleEnum).isNotEqualTo(checkedEnum)
+        assertThat(RemoteEnum(Checked.Off)).isNotEqualTo(RemoteEnum(Toggle.Off))
+
+        val mutableInt = MutableRemoteInt(0)
+        val mutableChecked = MutableRemoteEnum(mutableInt, Checked.entries)
+        val mutableToggle = MutableRemoteEnum(mutableInt, Toggle.entries)
+        assertThat(mutableChecked).isNotEqualTo(mutableToggle)
+        assertThat(mutableToggle).isNotEqualTo(mutableChecked)
+    }
+
+    @Test
+    fun equality_readOnlyAndMutableOverSameMutableInt_notEqual() {
+        val mutableInt = MutableRemoteInt(0)
+        val readOnlyEnum = RemoteEnum(mutableInt, Checked.entries)
+        val mutableEnum = MutableRemoteEnum(mutableInt, Checked.entries)
+
+        assertThat(readOnlyEnum).isNotEqualTo(mutableEnum)
+        assertThat(mutableEnum).isNotEqualTo(readOnlyEnum)
+    }
+
+    @Test
+    fun equality_mutableEnum_sameVsDistinctBackingInt() {
+        val mutableInt = MutableRemoteInt(0)
+        val wrapper1 = MutableRemoteEnum(mutableInt, Checked.entries)
+        val wrapper2 = MutableRemoteEnum(mutableInt, Checked.entries)
+
+        assertThat(wrapper1).isEqualTo(wrapper2)
+        assertThat(wrapper1.hashCode()).isEqualTo(wrapper2.hashCode())
+
+        val separate1 = MutableRemoteEnum(Checked.Off)
+        val separate2 = MutableRemoteEnum(Checked.Off)
+        assertThat(separate1).isNotEqualTo(separate2)
+        assertThat(wrapper1).isNotEqualTo(separate1)
     }
 
     private fun makeAndPaintCoreDocument() = context.loadDocument(creationState)
