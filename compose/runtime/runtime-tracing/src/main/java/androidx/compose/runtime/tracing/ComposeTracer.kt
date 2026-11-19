@@ -129,6 +129,7 @@ internal class ComposeTracer : RecompositionTracer.TraceCollector, CompositionTr
 
     override fun isEnabled(): Boolean = isTraceInProgress()
 
+    @Suppress("ListIterator")
     private fun EventMetadata.addStackTrace(stackTrace: List<StackTraceElement>) {
         stackTrace.forEach {
             addCallStackEntry(

@@ -19,6 +19,7 @@ package androidx.compose.runtime.tracing.test
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.tracing.ComposeTracingInitializer
 import androidx.compose.runtime.tracing.RecompositionTracingReceiver
 import androidx.compose.runtime.tracing.RecompositionTracingReceiver.Companion.ACTION_START
@@ -140,6 +141,39 @@ class RecompositionTracingReceiverTest {
 
         // Tracing should now already be in progress.
         assertThat(sendActionBroadcast(ACTION_START)).isEqualTo(RESULT_CODE_ALREADY_IN_PROGRESS)
+    }
+
+    @Test
+    fun startTracing_recordsInitialStateReadOnMainThread() {
+        withRecordingTracer { events ->
+            runOnMainWithRecomposer(
+                beforeStartRecomposer = { RecompositionTracerState.startTracing(context) }
+            ) { recomposer ->
+                val state = mutableIntStateOf(0)
+                recomposer.setContent { state.intValue }
+
+                assertThat(events).containsExactly("State read of $state")
+            }
+        }
+    }
+
+    @Test
+    fun startTracing_recordsFirstStateWriteOnMainThread() {
+        withRecordingTracer { events ->
+            runOnMainWithRecomposer(
+                beforeStartRecomposer = { RecompositionTracerState.startTracing(context) }
+            ) { recomposer ->
+                val state = mutableIntStateOf(0)
+                recomposer.setContent { state.intValue }
+                val initialState = state.toString()
+
+                state.intValue = 1
+
+                assertThat(events)
+                    .containsExactly("State read of $initialState", "State write of $state")
+                    .inOrder()
+            }
+        }
     }
 
     private fun sendActionBroadcast(action: String, initialCode: Int = 0): Int {
