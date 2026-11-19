@@ -349,12 +349,12 @@ applicable. Prioritize clarity and conciseness.
     is present, it supplies internal model-routing/CLI commands and
     programmatic loop runners but **never** relaxes the verification gates,
     zero-priming rules, or convergence exit criteria below):
-    *   **Orchestrator Trigger Scope, Cross-Family Model Routing & Evidence
-        Handoff (`read_file` Reference — Coordinators Only):** When
-        orchestrating verification (Checkpoints 1 & 2, live model-catalog
-        probing, author vs. opposite-family verifier routing, quota-floor
-        stability, user mode notification, and Mode 1–5 raw evidence / draft
-        handoff), read
+    *   **Orchestrator Trigger Scope, 4-Role Model Routing & Evidence Handoff
+        (`read_file` Reference — Coordinators Only):** When orchestrating
+        verification or multi-model delegation (Checkpoints 1 & 2, live
+        model-catalog probing, 4-role `monitor`/`runner`/`architect`/`verifier`
+        routing, fail-closed test-runner delegation, quota-floor stability, user
+        mode notification, and Mode 1–5 raw evidence / draft handoff), read
         `camera/.agents/skills/camerax-code-review/MULTI_MODEL_HARNESS.md` in
         full (read-only leaf verifiers skip `MULTI_MODEL_HARNESS.md`).
     *   **Zero-Priming ("Second-Console") Briefs, Orthogonal Critic Lenses,
