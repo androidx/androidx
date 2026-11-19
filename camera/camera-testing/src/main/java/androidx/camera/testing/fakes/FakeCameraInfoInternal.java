@@ -34,6 +34,7 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUseCaseAdapterProvider;
+import androidx.camera.core.ColorSpace;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
@@ -101,6 +102,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private MutableLiveData<CameraState> mCameraStateMutableLiveData;
 
     private final Set<DynamicRange> mSupportedDynamicRanges = new HashSet<>(DEFAULT_DYNAMIC_RANGES);
+    private final Map<DynamicRange, Set<ColorSpace>> mSupportedColorSpacesMap = new HashMap<>();
     private final Set<Integer> mAvailableCapabilities = new HashSet<>();
     private final Object mExtensionsLock = new Object();
     private final Set<Integer> mSupportedExtensions = new HashSet<>();
@@ -423,6 +425,30 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
             @NonNull Set<DynamicRange> candidateDynamicRanges) {
         return DynamicRanges.findAllPossibleMatches(
                 candidateDynamicRanges, getSupportedDynamicRanges());
+    }
+
+    /**
+     * Sets the supported {@link ColorSpace}s for a fully-specified {@link DynamicRange}.
+     */
+    public void setSupportedColorSpaces(@NonNull DynamicRange dynamicRange,
+            @NonNull Set<ColorSpace> colorSpaces) {
+        mSupportedColorSpacesMap.put(dynamicRange, new HashSet<>(colorSpaces));
+    }
+
+    @Override
+    public @NonNull Set<ColorSpace> getSupportedColorSpaces(@NonNull DynamicRange dynamicRange) {
+        Set<DynamicRange> matchedDynamicRanges = DynamicRanges.findAllPossibleMatches(
+                Collections.singleton(dynamicRange), getSupportedDynamicRanges());
+        Set<ColorSpace> result = new HashSet<>();
+        for (DynamicRange matched : matchedDynamicRanges) {
+            Set<ColorSpace> configured = mSupportedColorSpacesMap.get(matched);
+            if (configured != null) {
+                result.addAll(configured);
+            } else if (SDR.equals(matched)) {
+                result.add(ColorSpace.SRGB);
+            }
+        }
+        return Collections.unmodifiableSet(result);
     }
 
     @Override

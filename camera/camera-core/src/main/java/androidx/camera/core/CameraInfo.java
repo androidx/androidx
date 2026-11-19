@@ -526,6 +526,55 @@ public interface CameraInfo {
     }
 
     /**
+     * Returns the set of {@link ColorSpace}s supported by this camera for the given
+     * {@link DynamicRange}.
+     *
+     * <p>The returned set contains concrete color spaces (such as {@link ColorSpace#SRGB} or
+     * {@link ColorSpace#DISPLAY_P3}) and never includes {@link ColorSpace#UNSPECIFIED}. Note that
+     * camera-level support for a color space does not guarantee support for every combination of
+     * {@link UseCase}s, output formats, or effects; use
+     * {@link #isSessionConfigSupported(SessionConfig)} to verify a complete {@link SessionConfig}
+     * before binding.
+     *
+     * <p>On Android 13 (API 33), HDR color spaces such as {@link ColorSpace#BT2020_HLG} and
+     * {@link ColorSpace#BT2020_PQ} may be supported by the camera as part of configuring a 10-bit
+     * HDR {@link DynamicRange} (for example, {@link DynamicRange#HLG_10_BIT} or
+     * {@link DynamicRange#HDR10_10_BIT}), but cannot be set directly via
+     * {@link SessionConfig.Builder#setColorSpace(ColorSpace)} because explicit session color space
+     * configuration requires Android 14 (API 34) or higher. Accordingly, on API 33 and below, this
+     * method returns at most {@link ColorSpace#SRGB} for SDR-compatible dynamic ranges and an empty
+     * set for HDR dynamic ranges.
+     *
+     * <pre>{@code
+     * Set<ColorSpace> supportedColorSpaces =
+     *         cameraInfo.getSupportedColorSpaces(DynamicRange.SDR);
+     * if (supportedColorSpaces.contains(ColorSpace.DISPLAY_P3)) {
+     *     SessionConfig sessionConfig = new SessionConfig.Builder(preview, imageCapture)
+     *             .setColorSpace(ColorSpace.DISPLAY_P3)
+     *             .build();
+     *     if (cameraInfo.isSessionConfigSupported(sessionConfig)) {
+     *         cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, sessionConfig);
+     *     }
+     * }
+     * }</pre>
+     *
+     * @param dynamicRange The {@link DynamicRange} to query compatible color spaces for.
+     * @return An unmodifiable set of supported {@link ColorSpace}s, or an empty set if no color
+     * spaces are supported for the given {@code dynamicRange}.
+     * @see SessionConfig.Builder#setColorSpace(ColorSpace)
+     * @see #isSessionConfigSupported(SessionConfig)
+     */
+    // TODO: b/561876511 - Make this public
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default @NonNull Set<ColorSpace> getSupportedColorSpaces(
+            @NonNull DynamicRange dynamicRange) {
+        if (DynamicRanges.canResolve(dynamicRange, Collections.singleton(DynamicRange.SDR))) {
+            return Collections.singleton(ColorSpace.SRGB);
+        }
+        return Collections.emptySet();
+    }
+
+    /**
      * Returns a set of physical camera {@link CameraInfo}s.
      *
      * <p>A logical camera is a grouping of two or more physical cameras. See

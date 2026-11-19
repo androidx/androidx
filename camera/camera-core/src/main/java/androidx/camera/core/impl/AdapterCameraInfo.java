@@ -27,6 +27,8 @@ import androidx.camera.common.UnsafeWrapper;
 import androidx.camera.core.CameraIdentifier;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ColorSpace;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.TorchState;
@@ -408,6 +410,17 @@ public class AdapterCameraInfo extends ForwardingCameraInfo implements UnsafeWra
             }
         }
         return super.isPreviewStabilizationSupported();
+    }
+
+    @Override
+    public @NonNull Set<ColorSpace> getSupportedColorSpaces(@NonNull DynamicRange dynamicRange) {
+        if (mSessionProcessor != null) {
+            if (DynamicRanges.canResolve(dynamicRange, Collections.singleton(DynamicRange.SDR))) {
+                return Collections.singleton(ColorSpace.SRGB);
+            }
+            return Collections.emptySet();
+        }
+        return super.getSupportedColorSpaces(dynamicRange);
     }
 
     @Override

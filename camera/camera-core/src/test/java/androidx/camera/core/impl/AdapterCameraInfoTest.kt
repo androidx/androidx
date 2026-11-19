@@ -18,9 +18,12 @@ package androidx.camera.core.impl
 
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ColorSpace
+import androidx.camera.core.DynamicRange
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.fakes.FakeCameraConfig
 import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities
+import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -204,6 +207,69 @@ class AdapterCameraInfoTest {
         assertThrows(IllegalArgumentException::class.java) {
             AdapterCameraInfo(fakeCameraInfo, "invalid_physical_id", FakeCameraConfig())
         }
+    }
+
+    @Test
+    fun getSupportedColorSpaces_withoutSessionProcessor_delegatesToCameraInfo() {
+        val fakeCameraInfo =
+            FakeCameraInfoInternal().apply {
+                supportedDynamicRanges = setOf(DynamicRange.SDR, DynamicRange.HLG_10_BIT)
+                setSupportedColorSpaces(
+                    DynamicRange.SDR,
+                    setOf(ColorSpace.SRGB, ColorSpace.DISPLAY_P3),
+                )
+                setSupportedColorSpaces(DynamicRange.HLG_10_BIT, setOf(ColorSpace.BT2020_HLG))
+            }
+        val adapterCameraInfo = AdapterCameraInfo(fakeCameraInfo, FakeCameraConfig())
+
+        assertThat(adapterCameraInfo.getSupportedColorSpaces(DynamicRange.SDR))
+            .containsExactly(ColorSpace.SRGB, ColorSpace.DISPLAY_P3)
+        assertThat(adapterCameraInfo.getSupportedColorSpaces(DynamicRange.HLG_10_BIT))
+            .containsExactly(ColorSpace.BT2020_HLG)
+        assertThat(adapterCameraInfo.getSupportedColorSpaces(DynamicRange.UNSPECIFIED))
+            .containsExactly(ColorSpace.SRGB, ColorSpace.DISPLAY_P3, ColorSpace.BT2020_HLG)
+        assertThat(adapterCameraInfo.getSupportedColorSpaces(DynamicRange.HDR_UNSPECIFIED_10_BIT))
+            .containsExactly(ColorSpace.BT2020_HLG)
+    }
+
+    @Test
+    fun getSupportedColorSpaces_withSessionProcessor_restrictsToSrgbOnSdrOnly() {
+        val fakeCameraInfo =
+            FakeCameraInfoInternal().apply {
+                supportedDynamicRanges = setOf(DynamicRange.SDR, DynamicRange.HLG_10_BIT)
+                setSupportedColorSpaces(
+                    DynamicRange.SDR,
+                    setOf(ColorSpace.SRGB, ColorSpace.DISPLAY_P3),
+                )
+                setSupportedColorSpaces(DynamicRange.HLG_10_BIT, setOf(ColorSpace.BT2020_HLG))
+            }
+        val extensionConfig = FakeCameraConfig(sessionProcessor = FakeSessionProcessor())
+        val adapterCameraInfo = AdapterCameraInfo(fakeCameraInfo, extensionConfig)
+
+        assertThat(adapterCameraInfo.getSupportedColorSpaces(DynamicRange.SDR))
+            .containsExactly(ColorSpace.SRGB)
+        assertThat(adapterCameraInfo.getSupportedColorSpaces(DynamicRange.HLG_10_BIT)).isEmpty()
+        assertThat(adapterCameraInfo.getSupportedColorSpaces(DynamicRange.UNSPECIFIED))
+            .containsExactly(ColorSpace.SRGB)
+        assertThat(adapterCameraInfo.getSupportedColorSpaces(DynamicRange.HDR_UNSPECIFIED_10_BIT))
+            .isEmpty()
+    }
+
+    @Test
+    fun cameraInfoDefaultGetSupportedColorSpaces_returnsSrgbForSdrResolvableOnly() {
+        val defaultCameraInfo =
+            object : CameraInfo by FakeCameraInfoInternal() {
+                override fun getSupportedColorSpaces(dynamicRange: DynamicRange): Set<ColorSpace> =
+                    super<CameraInfo>.getSupportedColorSpaces(dynamicRange)
+            }
+
+        assertThat(defaultCameraInfo.getSupportedColorSpaces(DynamicRange.SDR))
+            .containsExactly(ColorSpace.SRGB)
+        assertThat(defaultCameraInfo.getSupportedColorSpaces(DynamicRange.UNSPECIFIED))
+            .containsExactly(ColorSpace.SRGB)
+        assertThat(defaultCameraInfo.getSupportedColorSpaces(DynamicRange.HLG_10_BIT)).isEmpty()
+        assertThat(defaultCameraInfo.getSupportedColorSpaces(DynamicRange.HDR_UNSPECIFIED_10_BIT))
+            .isEmpty()
     }
 
     private class FakePhysicalCameraInfo(

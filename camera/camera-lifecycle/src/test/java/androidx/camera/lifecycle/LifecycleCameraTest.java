@@ -35,6 +35,7 @@ import android.view.Surface;
 
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CameraUseCaseAdapterProvider;
+import androidx.camera.core.ColorSpace;
 import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageCapture;
@@ -959,6 +960,7 @@ public class LifecycleCameraTest {
                 /*requiredFeatureGroup=*/ Collections.emptySet(),
                 /*preferredFeatureGroup=*/ Collections.emptyList(),
                 /*isAutoRotationEnabled=*/ false,
+                ColorSpace.UNSPECIFIED,
                 /*isLegacy=*/ false,
                 androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR,
                 /*requireNonEmptyUseCases=*/ true,
