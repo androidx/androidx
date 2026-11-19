@@ -23,6 +23,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.TestPagingSource
 import androidx.paging.assertEvents
+import androidx.paging.loadStates
 import androidx.paging.localLoadStatesOf
 import androidx.recyclerview.widget.DiffUtil
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -123,7 +124,17 @@ class PagingDataAdapterTest {
         loadEvents.clear()
         job.cancel()
 
-        pagingDataAdapter.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
+        pagingDataAdapter.submitData(
+            TestLifecycleOwner().lifecycle,
+            PagingData.empty(
+                sourceLoadStates =
+                    loadStates(
+                        refresh = LoadState.NotLoading(endOfPaginationReached = false),
+                        prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                        append = LoadState.NotLoading(endOfPaginationReached = true),
+                    )
+            ),
+        )
         testScheduler.advanceUntilIdle()
         // Assert that all load state updates are sent, even when differ enters fast path for
         // empty next list.
