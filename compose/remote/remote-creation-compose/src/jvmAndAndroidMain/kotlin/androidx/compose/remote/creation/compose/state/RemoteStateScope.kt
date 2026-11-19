@@ -56,15 +56,15 @@ internal interface InternalRemoteStateScope : RemoteStateScope, RemoteDocumentSc
         get() = (parentScope as InternalRemoteStateScope).densityBehavior
 
     /** Returns the ID for this state within the scope. */
-    val RemoteState<*>.id: Int
+    val RemoteValue<*>.id: Int
         get() = creationState.getId(this)
 
     /** Returns the float ID for this state within the scope. */
-    val RemoteState<*>.floatId: Float
+    val RemoteValue<*>.floatId: Float
         get() = creationState.getFloatId(this)
 
     /** Returns the long ID for this state within the scope. */
-    val RemoteState<*>.longId: Long
+    val RemoteValue<*>.longId: Long
         get() = creationState.getLongId(this)
 }
 
@@ -105,15 +105,15 @@ public val RemoteStateScope.creationState: RemoteComposeCreationState
             ?: (this as InternalRemoteStateScope).parentScope.creationState
 
 /**
- * Allocates the RemoteState in global scope allowing assigning to global state IDs and
+ * Allocates the RemoteValue in global scope allowing assigning to global state IDs and
  * document-level properties.
  *
- * @return this [RemoteState] allocated in global scope
+ * @return this [RemoteValue] allocated in global scope
  */
 @Composable
 @RemoteComposable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T : RemoteState<*>> T.withGlobalScope(): T {
+public fun <T : RemoteValue<*>> T.withGlobalScope(): T {
     with(LocalRemoteComposeCreationState.current) {
         this.document.beginGlobal()
         // Force commit to the document via RemoteStateScope cache

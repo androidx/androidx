@@ -42,7 +42,7 @@ import kotlin.enums.enumEntries
  *
  * @param name A unique name to identify this state within its [domain].
  * @param defaultValue The initial [Boolean] value.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
  * @return A [RemoteBoolean] instance representing the named expression.
  */
 @Composable
@@ -50,7 +50,7 @@ import kotlin.enums.enumEntries
 public fun rememberNamedRemoteBoolean(
     name: String,
     defaultValue: Boolean,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteBoolean {
     return remember(name, domain) { createNamedRemoteBoolean(name, defaultValue, domain) }
 }
@@ -64,7 +64,7 @@ public fun rememberNamedRemoteBoolean(
  *
  * @param name The unique name for this remote string.
  * @param defaultValue The initial [String] value for this remote string.
- * @param domain The domain of the named string (defaults to [RemoteState.Domain.User]).
+ * @param domain The domain of the named string (defaults to [RemoteValue.Domain.User]).
  * @return A [RemoteString] representing the named remote string expression.
  */
 @RemoteComposable
@@ -72,7 +72,7 @@ public fun rememberNamedRemoteBoolean(
 public fun rememberNamedRemoteString(
     name: String,
     defaultValue: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteString {
     return remember(name, domain) { createNamedRemoteString(name, defaultValue, domain) }
 }
@@ -86,7 +86,7 @@ public fun rememberNamedRemoteString(
  *
  * @param name The unique name for this remote long.
  * @param defaultValue The initial long value.
- * @param domain The domain of the named long (defaults to [RemoteState.Domain.User]).
+ * @param domain The domain of the named long (defaults to [RemoteValue.Domain.User]).
  * @return A [RemoteLong] representing the named remote long expression.
  */
 @RemoteComposable
@@ -94,7 +94,7 @@ public fun rememberNamedRemoteString(
 public fun rememberNamedRemoteLong(
     name: String,
     defaultValue: Long,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteLong {
     return remember(name, domain) { createNamedRemoteLong(name, defaultValue, domain) }
 }
@@ -108,7 +108,7 @@ public fun rememberNamedRemoteLong(
  *
  * @param name A unique name to identify this state within its [domain].
  * @param defaultValue The initial [Enum] value.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
  * @return A [RemoteEnum] instance representing the named expression.
  */
 @Composable
@@ -116,7 +116,7 @@ public fun rememberNamedRemoteLong(
 public inline fun <reified T : Enum<T>> rememberNamedRemoteEnum(
     name: String,
     defaultValue: T,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteEnum<T> {
     return rememberNamedRemoteEnum(name, defaultValue, enumEntries(), domain)
 }
@@ -127,7 +127,7 @@ public inline fun <reified T : Enum<T>> rememberNamedRemoteEnum(
  * @param name unique name identifying this state within its [domain]
  * @param defaultValue initial [Enum] value
  * @param enumEntries [EnumEntries] containing all values of [T]
- * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
  * @return a [RemoteEnum] backed by the named state
  */
 @Composable
@@ -136,7 +136,7 @@ public fun <T : Enum<T>> rememberNamedRemoteEnum(
     name: String,
     defaultValue: T,
     enumEntries: EnumEntries<T>,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteEnum<T> {
     return remember(name, domain) {
         RemoteEnum(createNamedRemoteInt(name, defaultValue.ordinal, domain), enumEntries)
@@ -153,7 +153,7 @@ public fun <T : Enum<T>> rememberNamedRemoteEnum(
  * @sample androidx.compose.remote.creation.compose.samples.RemoteTextDynamicFontSizeSample
  * @param name unique name identifying this state within its [domain]
  * @param defaultValue initial [RemoteFloat] constant or expression
- * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
  * @return [RemoteFloat] bound to the named float state
  */
 @Composable
@@ -161,7 +161,7 @@ public fun <T : Enum<T>> rememberNamedRemoteEnum(
 public fun rememberNamedRemoteFloat(
     name: String,
     defaultValue: RemoteFloat,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteFloat {
     return remember(name, domain) { createNamedRemoteFloat(name, defaultValue, domain) }
 }
@@ -175,7 +175,7 @@ public fun rememberNamedRemoteFloat(
  *
  * @param name unique name identifying this state within its [domain]
  * @param defaultValue initial [RemoteColor] constant or expression
- * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
  * @return [RemoteColor] bound to the named color state
  */
 @Composable
@@ -183,7 +183,7 @@ public fun rememberNamedRemoteFloat(
 public fun rememberNamedRemoteColor(
     name: String,
     defaultValue: RemoteColor,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteColor =
     remember(name, domain) { RemoteColor.createNamedRemoteColor(name, defaultValue, domain) }
 
@@ -196,7 +196,7 @@ public fun rememberNamedRemoteColor(
  *
  * @param name unique name identifying this state within its [domain]
  * @param defaultValue initial [RemoteDp] constant or expression
- * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
  * @return [RemoteDp] bound to the named Dp state
  */
 @Composable
@@ -204,7 +204,7 @@ public fun rememberNamedRemoteColor(
 public fun rememberNamedRemoteDp(
     name: String,
     defaultValue: RemoteDp,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteDp {
     return remember(name, domain) { RemoteDp.createNamedRemoteDp(name, domain) { defaultValue } }
 }
@@ -230,7 +230,7 @@ public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
  *
  * @param name unique name identifying this state within its [domain]
  * @param url URL where the bitmap can be fetched
- * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
  * @return [RemoteImageBitmap] bound to the named bitmap state loaded from [url]
  */
 @RemoteComposable
@@ -238,7 +238,7 @@ public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
 public fun rememberNamedRemoteImageBitmap(
     name: String,
     url: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteImageBitmap {
     return remember(name, domain) {
         RemoteImageBitmap.createNamedRemoteImageBitmap(name, url, domain)
@@ -254,7 +254,7 @@ public fun rememberNamedRemoteImageBitmap(
  *
  * @param name A unique name to identify this state within its [domain].
  * @param defaultValue The initial [Int] value.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
  * @return A [RemoteInt] instance representing the named expression.
  */
 @Composable
@@ -262,17 +262,17 @@ public fun rememberNamedRemoteImageBitmap(
 public fun rememberNamedRemoteInt(
     name: String,
     defaultValue: Int,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteInt {
     return remember(name, domain) { createNamedRemoteInt(name, defaultValue, domain) }
 }
 
 // ==============================================================================================
-// RemoteState Hoisting Composables
+// RemoteValue Hoisting Composables
 // ==============================================================================================
 
 internal class RemoteHoistNode : RemoteComposeNode() {
-    var states: Array<out RemoteState<*>> = emptyArray()
+    var states: Array<out RemoteValue<*>> = emptyArray()
 
     override val supportsComponentToken: Boolean
         get() = false
@@ -285,20 +285,20 @@ internal class RemoteHoistNode : RemoteComposeNode() {
 }
 
 /**
- * Explicitly registers one or more [RemoteState] expressions to be hoisted and evaluated at the
+ * Explicitly registers one or more [RemoteValue] expressions to be hoisted and evaluated at the
  * current container level in the document hierarchy.
  *
- * This ensures the operations underlying the given states (such as string formatting or
+ * This ensures the operations underlying the given values (such as string formatting or
  * mathematical operations) are emitted at this container level, so that they are evaluated whenever
  * this container is rendered, rather than being trapped inside a conditionally hidden child
  * container (such as an inactive branch of a
  * [androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout]).
  *
- * @param states The remote state expressions to hoist to the current container scope.
+ * @param values The [RemoteValue] expressions to hoist to the current container scope.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
-public fun Hoist(vararg states: RemoteState<*>) {
-    RemoteComposeNode(factory = ::RemoteHoistNode, update = { set(states) { this.states = it } })
+public fun Hoist(vararg values: RemoteValue<*>) {
+    RemoteComposeNode(factory = ::RemoteHoistNode, update = { set(values) { this.states = it } })
 }

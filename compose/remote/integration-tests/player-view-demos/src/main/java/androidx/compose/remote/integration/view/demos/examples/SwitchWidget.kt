@@ -124,7 +124,7 @@ fun SwitchWidget(value: MutableRemoteEnum<SwitchState>) {
     val modifier =
         RemoteModifier.clickable(
             valueChangeAction(
-                remoteState = value.remoteInt,
+                remoteValue = value.remoteInt,
                 updatedValue = (value.remoteInt + 1) % 2,
             )
         )

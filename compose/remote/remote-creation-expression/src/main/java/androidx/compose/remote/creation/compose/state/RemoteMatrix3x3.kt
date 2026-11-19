@@ -27,10 +27,10 @@ import kotlin.reflect.KClass
  * Represents a 3x3 transformation matrix.
  *
  * Comparing [RemoteMatrix3x3] values with `==` checks structural equality (matching expression
- * DAGs); see [RemoteState].
+ * DAGs); see [RemoteValue].
  */
 @Stable
-public sealed interface RemoteMatrix3x3 : RemoteState<Any> {
+public sealed interface RemoteMatrix3x3 : RemoteValue<Any> {
     /**
      * Creates a new [RemoteMatrix3x3] that represents the multiplication of this matrix by another.
      *
@@ -196,7 +196,7 @@ private val RemoteMatrix3x3.arrayProvider: (creationState: RemoteComposeCreation
 private class RemoteMatrix3x3Impl(
     val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
     cacheKey: RemoteStateCacheKey,
-) : BaseRemoteState<Any>(cacheKey), RemoteMatrix3x3 {
+) : BaseRemoteValue<Any>(cacheKey), RemoteMatrix3x3 {
     override val equalityType: KClass<*>
         get() = RemoteMatrix3x3::class
 
@@ -266,7 +266,7 @@ private enum class MatrixOperationKey(override val precedence: Int = 100) : Remo
             args.formatOp("*", precedence)
     };
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             IDENTITY -> RemoteMatrix3x3.createIdentity()
             ROTATE -> RemoteMatrix3x3.createRotate(args[0] as RemoteFloat)

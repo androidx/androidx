@@ -194,7 +194,7 @@ class RcPlayerSwitchDemoTest {
         var modifier =
             Modifier.clickable(
                 valueChangeAction(
-                    remoteState = value.remoteInt,
+                    remoteValue = value.remoteInt,
                     updatedValue = (value.remoteInt + 1) % 2,
                 )
             )

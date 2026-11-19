@@ -56,16 +56,16 @@ public class RemotePaddingValues(
     )
 
     init {
-        startPadding.value.constantValueOrNull?.let {
+        startPadding.constantValueOrNull?.let {
             require(it >= 0f) { "Start padding must be non negative" }
         }
-        topPadding.value.constantValueOrNull?.let {
+        topPadding.constantValueOrNull?.let {
             require(it >= 0f) { "Top padding must be non negative" }
         }
-        endPadding.value.constantValueOrNull?.let {
+        endPadding.constantValueOrNull?.let {
             require(it >= 0f) { "End padding must be non negative" }
         }
-        bottomPadding.value.constantValueOrNull?.let {
+        bottomPadding.constantValueOrNull?.let {
             require(it >= 0f) { "Bottom padding must be non negative" }
         }
     }
@@ -75,22 +75,21 @@ public class RemotePaddingValues(
 
         // If any of the values is an expression, the paddings are not considered equals.
         if (
-            !startPadding.value.hasConstantValue ||
-                !topPadding.value.hasConstantValue ||
-                !endPadding.value.hasConstantValue ||
-                !bottomPadding.value.hasConstantValue ||
-                !other.startPadding.value.hasConstantValue ||
-                !other.topPadding.value.hasConstantValue ||
-                !other.endPadding.value.hasConstantValue ||
-                !other.bottomPadding.value.hasConstantValue
+            !startPadding.hasConstantValue ||
+                !topPadding.hasConstantValue ||
+                !endPadding.hasConstantValue ||
+                !bottomPadding.hasConstantValue ||
+                !other.startPadding.hasConstantValue ||
+                !other.topPadding.hasConstantValue ||
+                !other.endPadding.hasConstantValue ||
+                !other.bottomPadding.hasConstantValue
         ) {
             return false
         }
-        return startPadding.value.constantValueOrNull ==
-            other.startPadding.value.constantValueOrNull &&
-            topPadding.value.constantValueOrNull == other.topPadding.value.constantValueOrNull &&
-            endPadding.value.constantValueOrNull == other.endPadding.value.constantValueOrNull &&
-            bottomPadding.value.constantValueOrNull == other.bottomPadding.value.constantValueOrNull
+        return startPadding.constantValueOrNull == other.startPadding.constantValueOrNull &&
+            topPadding.constantValueOrNull == other.topPadding.constantValueOrNull &&
+            endPadding.constantValueOrNull == other.endPadding.constantValueOrNull &&
+            bottomPadding.constantValueOrNull == other.bottomPadding.constantValueOrNull
     }
 
     override fun hashCode(): Int =

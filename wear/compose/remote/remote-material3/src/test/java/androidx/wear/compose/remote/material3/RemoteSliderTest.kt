@@ -27,22 +27,14 @@ class RemoteSliderTest {
 
     @Test
     fun defaultValues() {
-        assertThat(RemoteSliderDefaults.Height.value.constantValue).isWithin(0.001f).of(52f)
-        assertThat(RemoteSliderDefaults.ControlSize.value.constantValue).isWithin(0.001f).of(48f)
-        assertThat(RemoteSliderDefaults.BarHeight.value.constantValue).isWithin(0.001f).of(12f)
-        assertThat(RemoteSliderDefaults.SelectedBarHeight.value.constantValue)
-            .isWithin(0.001f)
-            .of(12f)
-        assertThat(RemoteSliderDefaults.UnselectedBarHeight.value.constantValue)
-            .isWithin(0.001f)
-            .of(4f)
-        assertThat(RemoteSliderDefaults.BarSeparatorRadius.value.constantValue)
-            .isWithin(0.001f)
-            .of(2f)
-        assertThat(RemoteSliderDefaults.SegmentBarPadding.value.constantValue)
-            .isWithin(0.001f)
-            .of(4f)
-        assertThat(RemoteSliderDefaults.IconSize.value.constantValue).isWithin(0.001f).of(24f)
+        assertThat(RemoteSliderDefaults.Height.constantValue).isWithin(0.001f).of(52f)
+        assertThat(RemoteSliderDefaults.ControlSize.constantValue).isWithin(0.001f).of(48f)
+        assertThat(RemoteSliderDefaults.BarHeight.constantValue).isWithin(0.001f).of(12f)
+        assertThat(RemoteSliderDefaults.SelectedBarHeight.constantValue).isWithin(0.001f).of(12f)
+        assertThat(RemoteSliderDefaults.UnselectedBarHeight.constantValue).isWithin(0.001f).of(4f)
+        assertThat(RemoteSliderDefaults.BarSeparatorRadius.constantValue).isWithin(0.001f).of(2f)
+        assertThat(RemoteSliderDefaults.SegmentBarPadding.constantValue).isWithin(0.001f).of(4f)
+        assertThat(RemoteSliderDefaults.IconSize.constantValue).isWithin(0.001f).of(24f)
         assertThat(RemoteSliderDefaults.MaxSegmentSteps).isEqualTo(8)
     }
 

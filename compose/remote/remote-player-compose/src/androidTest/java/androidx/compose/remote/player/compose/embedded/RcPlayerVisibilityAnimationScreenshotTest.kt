@@ -130,7 +130,7 @@ class RcPlayerVisibilityAnimationScreenshotTest(private val case: Case) {
                         .background(Color.DarkGray.rc)
                         .clickable(
                             valueChangeAction(
-                                remoteState = shown.remoteInt,
+                                remoteValue = shown.remoteInt,
                                 updatedValue = (shown.remoteInt + 1) % 2,
                             )
                         )

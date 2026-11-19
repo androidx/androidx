@@ -32,13 +32,13 @@ import kotlin.reflect.KClass
  *
  * Comparing [RemoteEnum] values with `==` checks structural equality (matching constant values or
  * expression DAGs, as well as [enumEntries] and mutability), whereas [MutableRemoteEnum] instances
- * compare by their underlying mutable variable and [enumEntries]; see [RemoteState].
+ * compare by their underlying mutable variable and [enumEntries]; see [RemoteValue].
  *
  * @param T The enum type.
  * @property enumEntries The [EnumEntries] containing all values of the enum.
  */
 @Stable
-public sealed interface RemoteEnum<T : Enum<T>> : RemoteState<T> {
+public sealed interface RemoteEnum<T : Enum<T>> : RemoteValue<T> {
     /** All entries of the enum type [T]. */
     public val enumEntries: EnumEntries<T>
 
@@ -92,7 +92,7 @@ public sealed interface RemoteEnum<T : Enum<T>> : RemoteState<T> {
          * Creates a named [RemoteEnum] with an initial value.
          *
          * @param name The unique name for this remote enum.
-         * @param domain The domain of the named enum (defaults to [RemoteState.Domain.User]).
+         * @param domain The domain of the named enum (defaults to [RemoteValue.Domain.User]).
          * @param defaultValue The initial [Enum] value for the named remote enum.
          * @return A [RemoteEnum] representing the named enum.
          */
@@ -100,7 +100,7 @@ public sealed interface RemoteEnum<T : Enum<T>> : RemoteState<T> {
         public inline fun <reified T : Enum<T>> createNamedRemoteEnum(
             name: String,
             defaultValue: T,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteEnum<T> {
             return RemoteEnum(
                 createNamedRemoteInt(
@@ -118,7 +118,7 @@ internal val <T : Enum<T>> RemoteEnum<T>.intValue: RemoteInt
     get() = (this as BaseRemoteEnum<T>).intValue
 
 private abstract class BaseRemoteEnum<T : Enum<T>>(override val enumEntries: EnumEntries<T>) :
-    BaseRemoteState<T>(RemoteStateInstanceKey()), RemoteEnum<T> {
+    BaseRemoteValue<T>(RemoteStateInstanceKey()), RemoteEnum<T> {
     override val equalityType: KClass<*>
         get() = RemoteEnum::class
 
@@ -211,7 +211,7 @@ private enum class EnumOperationKey : RemoteOperation {
         return "${args[0].toOperandString(precedence)}.toRemoteString()"
     }
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             ToString -> {
                 val index =
@@ -259,7 +259,7 @@ public inline fun <reified T : Enum<T>> RemoteEnum(value: T): RemoteEnum<T> =
  * @param T The enum type.
  */
 @Stable
-public sealed interface MutableRemoteEnum<T : Enum<T>> : RemoteEnum<T>, MutableRemoteState<T> {
+public sealed interface MutableRemoteEnum<T : Enum<T>> : RemoteEnum<T>, MutableRemoteValue<T> {
     public val remoteInt: MutableRemoteInt
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

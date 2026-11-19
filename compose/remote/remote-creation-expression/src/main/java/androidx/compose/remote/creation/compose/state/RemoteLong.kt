@@ -30,13 +30,13 @@ import kotlin.reflect.KClass
  *
  * Operations on [RemoteLong] are evaluated dynamically on the remote player at runtime unless all
  * inputs are known constants, in which case constant folding evaluates the result immediately at
- * creation time (see [RemoteState]).
+ * creation time (see [RemoteValue]).
  *
  * Comparing [RemoteLong] values with `==` checks structural equality (matching constant values or
- * expression DAGs), whereas [MutableRemoteLong] instances compare by identity; see [RemoteState].
+ * expression DAGs), whereas [MutableRemoteLong] instances compare by identity; see [RemoteValue].
  */
 @Stable
-public sealed interface RemoteLong : RemoteState<Long> {
+public sealed interface RemoteLong : RemoteValue<Long> {
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Long?
 
     /**
@@ -99,14 +99,14 @@ public sealed interface RemoteLong : RemoteState<Long> {
          *
          * @param name The unique name for this remote long.
          * @param defaultValue The initial [Long] value for the named remote long.
-         * @param domain The domain of the named long (defaults to [RemoteState.Domain.User]).
+         * @param domain The domain of the named long (defaults to [RemoteValue.Domain.User]).
          * @return A [RemoteLong] representing the named long.
          */
         @JvmStatic
         public fun createNamedRemoteLong(
             name: String,
             defaultValue: Long,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteLong {
             return MutableRemoteLongImpl(
                 constantValueOrNull = null,
@@ -135,7 +135,7 @@ public val RemoteLong.high: RemoteInt
     get() = (this as BaseRemoteLong).high
 
 private abstract class BaseRemoteLong(cacheKey: RemoteStateCacheKey) :
-    BaseRemoteState<Long>(cacheKey), RemoteLong {
+    BaseRemoteValue<Long>(cacheKey), RemoteLong {
     override val equalityType: KClass<*>
         get() = RemoteLong::class
 
@@ -251,7 +251,7 @@ private class RemoteLongImpl(
  * identity with `==`.
  */
 @Stable
-public sealed interface MutableRemoteLong : RemoteLong, MutableRemoteState<Long> {
+public sealed interface MutableRemoteLong : RemoteLong, MutableRemoteValue<Long> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
@@ -338,7 +338,7 @@ internal enum class RemoteLongOp(val symbol: String? = null) : RemoteOperation {
         return formatCamelCaseFunction(args)
     }
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             FromLowHigh -> {
                 val low = args[0] as RemoteInt

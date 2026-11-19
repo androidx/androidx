@@ -83,6 +83,6 @@ class RemoteImageBitmapTest {
 
         assertThat(bitmap).isNotNull()
         assertThat(bitmap.cacheKey)
-            .isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "avatar"))
+            .isEqualTo(RemoteNamedCacheKey(RemoteValue.Domain.User, "avatar"))
     }
 }

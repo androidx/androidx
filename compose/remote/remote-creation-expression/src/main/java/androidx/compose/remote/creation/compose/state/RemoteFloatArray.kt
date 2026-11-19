@@ -25,7 +25,7 @@ import kotlin.reflect.KClass
 
 /** Represents an array of floats. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public sealed interface RemoteFloatArray : RemoteState<List<RemoteFloat>> {
+public sealed interface RemoteFloatArray : RemoteValue<List<RemoteFloat>> {
     override val constantValueOrNull: List<RemoteFloat>?
 
     /**
@@ -56,14 +56,14 @@ public sealed interface RemoteFloatArray : RemoteState<List<RemoteFloat>> {
          *
          * @param name The unique name for this remote float array.
          * @param defaultValue The initial [FloatArray] value for the named array.
-         * @param domain The domain of the named array (defaults to [RemoteState.Domain.User]).
+         * @param domain The domain of the named array (defaults to [RemoteValue.Domain.User]).
          * @return A [RemoteFloatArray] representing the named float array.
          */
         @JvmStatic
         public fun createNamedRemoteFloatArray(
             name: String,
             defaultValue: FloatArray,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteFloatArray {
             return RemoteFloatArrayImpl(
                 constantValueOrNull = null,
@@ -113,7 +113,7 @@ private enum class FloatArrayOperationKey : RemoteOperation {
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "arrayOf(${args.joinToDebugString()})"
 
-        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+        override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
             RemoteFloatArray(args.fastMap { it as RemoteFloat })
     },
     Get {
@@ -123,7 +123,7 @@ private enum class FloatArrayOperationKey : RemoteOperation {
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             args.formatArrayAccess(precedence)
 
-        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+        override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
             val array = args[0] as RemoteFloatArray
             return when (val index = args[1]) {
                 is RemoteFloat -> array[index]
@@ -136,7 +136,7 @@ private enum class FloatArrayOperationKey : RemoteOperation {
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "${args[0].toDebugString()}.asIdList()"
 
-        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> = args[0]
+        override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> = args[0]
     },
 }
 
@@ -144,7 +144,7 @@ private class RemoteFloatArrayImpl(
     override val constantValueOrNull: List<RemoteFloat>?,
     cacheKey: RemoteStateCacheKey,
     private val idProvider: ((creationState: RemoteComposeCreationState) -> Int)? = null,
-) : BaseRemoteState<List<RemoteFloat>>(cacheKey), RemoteFloatArray {
+) : BaseRemoteValue<List<RemoteFloat>>(cacheKey), RemoteFloatArray {
     override val equalityType: KClass<*>
         get() = RemoteFloatArray::class
 

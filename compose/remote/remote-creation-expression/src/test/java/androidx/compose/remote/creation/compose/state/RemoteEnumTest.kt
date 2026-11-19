@@ -16,7 +16,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.creation.compose.state.RemoteEnum.Companion.createNamedRemoteEnum
-import androidx.compose.remote.creation.compose.state.RemoteState.Domain
+import androidx.compose.remote.creation.compose.state.RemoteValue.Domain
 import com.google.common.truth.Truth.assertThat
 import kotlin.enums.enumEntries
 import org.junit.Test

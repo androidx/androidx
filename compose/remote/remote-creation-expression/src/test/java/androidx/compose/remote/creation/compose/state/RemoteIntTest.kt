@@ -564,7 +564,7 @@ class RemoteIntTest {
         assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(10))
 
         val named = createNamedRemoteInt("test", 5)
-        assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "test"))
+        assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteValue.Domain.User, "test"))
 
         val op = constant + named
         // flipped because of peephole optimisation

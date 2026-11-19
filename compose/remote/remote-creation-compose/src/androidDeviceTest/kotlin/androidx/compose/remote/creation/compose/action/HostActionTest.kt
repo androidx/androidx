@@ -29,8 +29,8 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
-import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -89,7 +89,7 @@ class HostActionTest {
         runActionTest(value = null, expected = null)
     }
 
-    private fun runActionTest(value: RemoteState<*>?, expected: Any?) {
+    private fun runActionTest(value: RemoteValue<*>?, expected: Any?) {
 
         remoteComposeTestRule.setContent {
             val valueString =

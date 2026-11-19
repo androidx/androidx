@@ -382,7 +382,7 @@ class RemoteStringTest {
         assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey("test"))
 
         val named = createNamedRemoteString("test", "")
-        assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "test"))
+        assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteValue.Domain.User, "test"))
 
         val op = named.substring(0.ri, 2.ri)
         val key = op.cacheKey as RemoteOperationCacheKey

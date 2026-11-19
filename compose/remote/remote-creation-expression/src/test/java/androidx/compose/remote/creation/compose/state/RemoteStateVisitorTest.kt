@@ -25,8 +25,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RemoteStateVisitorTest {
 
-    private fun <S : RemoteState<*>> S.replaceNamedVariables(
-        replacements: Map<out RemoteState<*>, RemoteState<*>>
+    private fun <S : RemoteValue<*>> S.replaceNamedVariables(
+        replacements: Map<out RemoteValue<*>, RemoteValue<*>>
     ): S {
         if (replacements.isEmpty()) return this
 
@@ -232,7 +232,7 @@ class RemoteStateVisitorTest {
             RemoteFloat.createNamedRemoteFloat(
                 name = "custom_var",
                 defaultValue = 10f,
-                domain = RemoteState.Domain.System,
+                domain = RemoteValue.Domain.System,
             )
         val expr = namedFloat + 5f.rf
 
@@ -240,7 +240,7 @@ class RemoteStateVisitorTest {
             RemoteFloat.createNamedRemoteFloat(
                 name = "custom_var",
                 defaultValue = 10f,
-                domain = RemoteState.Domain.System,
+                domain = RemoteValue.Domain.System,
             )
         val replaced = expr.replaceNamedVariables(mapOf(sameNamedFloat to 20f.rf))
         assertThat(replaced.hasConstantValue).isTrue()
@@ -465,7 +465,7 @@ class RemoteStateVisitorTest {
         assertThat(i1).isNotEqualTo(f1)
 
         // Same underlying constant cacheKey (1 vs true, 10f vs 10.rdp) must still be unequal
-        // across distinct RemoteState types.
+        // across distinct RemoteValue types.
         assertThat(true.rb).isNotEqualTo(1.ri)
         assertThat(10.rdp).isNotEqualTo(10f.rf)
 

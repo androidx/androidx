@@ -69,23 +69,23 @@ class RemoteTextUnitTest {
         assertThat(fromRemoteFloatExplicit.type).isEqualTo(RemoteTextUnitType.Sp)
 
         val fromFloatDefault = RemoteTextUnit(floatValue)
-        assertThat(fromFloatDefault.value.constantValue).isEqualTo(floatValue)
+        assertThat(fromFloatDefault.constantValue).isEqualTo(floatValue)
         assertThat(fromFloatDefault.type).isEqualTo(RemoteTextUnitType.Sp)
 
         val fromFloatExplicit = RemoteTextUnit(floatValue, RemoteTextUnitType.Sp)
-        assertThat(fromFloatExplicit.value.constantValue).isEqualTo(floatValue)
+        assertThat(fromFloatExplicit.constantValue).isEqualTo(floatValue)
         assertThat(fromFloatExplicit.type).isEqualTo(RemoteTextUnitType.Sp)
     }
 
     @Test
     fun extensionProperties_createCorrectly() {
-        assertThat(16.rsp.value.constantValue).isEqualTo(16f)
+        assertThat(16.rsp.constantValue).isEqualTo(16f)
         assertThat(16.rsp.type).isEqualTo(RemoteTextUnitType.Sp)
-        assertThat(16.5f.rsp.value.constantValue).isEqualTo(16.5f)
+        assertThat(16.5f.rsp.constantValue).isEqualTo(16.5f)
         assertThat(16.5f.rsp.type).isEqualTo(RemoteTextUnitType.Sp)
-        assertThat(18f.rf.rsp.value.constantValue).isEqualTo(18f)
+        assertThat(18f.rf.rsp.constantValue).isEqualTo(18f)
         assertThat(18f.rf.rsp.type).isEqualTo(RemoteTextUnitType.Sp)
-        assertThat(16.sp.asRemoteTextUnit().value.constantValue).isEqualTo(16f)
+        assertThat(16.sp.asRemoteTextUnit().constantValue).isEqualTo(16f)
         assertThat(16.sp.asRemoteTextUnit().type).isEqualTo(RemoteTextUnitType.Sp)
     }
 

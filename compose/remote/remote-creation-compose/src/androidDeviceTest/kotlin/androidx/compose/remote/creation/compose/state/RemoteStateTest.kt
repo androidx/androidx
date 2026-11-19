@@ -172,7 +172,7 @@ class RemoteStateTest {
                         createNamedRemoteString(
                             name = "s1",
                             defaultValue = "1",
-                            domain = RemoteState.Domain.User,
+                            domain = RemoteValue.Domain.User,
                         )
                     }
                     // Will be committed immediately in a global scope
@@ -180,7 +180,7 @@ class RemoteStateTest {
                         createNamedRemoteString(
                             name = "s2",
                             defaultValue = "2",
-                            domain = RemoteState.Domain.User,
+                            domain = RemoteValue.Domain.User,
                         )
                     }
                         .withGlobalScope()
@@ -236,7 +236,7 @@ class RemoteStateTest {
 
     @RemoteComposable
     @Composable
-    private fun <T : RemoteState<*>> AssertSameSameDifferent(first: T, first2: T, second: T) {
+    private fun <T : RemoteValue<*>> AssertSameSameDifferent(first: T, first2: T, second: T) {
         assertNotSame(first, second)
 
         val creationState = LocalRemoteComposeCreationState.current

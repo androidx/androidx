@@ -21,7 +21,7 @@ import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationCompos
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.withGlobalScope
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
@@ -110,5 +110,5 @@ object BenchDocuments {
 
 @Composable
 @RemoteComposable
-internal fun <T : RemoteState<*>> T.withGlobalScopeIf(enabled: Boolean): T =
+internal fun <T : RemoteValue<*>> T.withGlobalScopeIf(enabled: Boolean): T =
     if (enabled) withGlobalScope() else this

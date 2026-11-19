@@ -56,7 +56,7 @@ fun TestDrawContentDemo() {
                     .border(1.rdp, Color.Companion.Red.rc)
                     .clickable(
                         valueChangeAction(
-                            remoteState = visibility,
+                            remoteValue = visibility,
                             updatedValue = (visibility + 1) % 2,
                         )
                     )

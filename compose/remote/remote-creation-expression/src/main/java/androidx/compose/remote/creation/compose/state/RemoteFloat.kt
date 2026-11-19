@@ -51,14 +51,14 @@ import kotlin.reflect.KClass
  *
  * Operations on [RemoteFloat] are evaluated dynamically on the remote player at runtime unless all
  * inputs are known constants, in which case constant folding evaluates the result immediately at
- * creation time (see [RemoteState]).
+ * creation time (see [RemoteValue]).
  *
  * Comparing [RemoteFloat] values with `==` checks structural equality (matching constant values or
- * expression DAGs), whereas [MutableRemoteFloat] instances compare by identity; see [RemoteState].
+ * expression DAGs), whereas [MutableRemoteFloat] instances compare by identity; see [RemoteValue].
  * For runtime equality on the remote player, use [isEqualTo].
  */
 @Stable
-public sealed interface RemoteFloat : RemoteState<Float> {
+public sealed interface RemoteFloat : RemoteValue<Float> {
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Float?
 
     /**
@@ -337,7 +337,7 @@ public sealed interface RemoteFloat : RemoteState<Float> {
          *
          * @param name The name of the remote float.
          * @param defaultValue The initial value of the remote float.
-         * @param domain The domain of the named float (defaults to [RemoteState.Domain.User]). This
+         * @param domain The domain of the named float (defaults to [RemoteValue.Domain.User]). This
          *   helps avoid name collisions.
          * @return A [RemoteFloat] representing the named float.
          */
@@ -345,7 +345,7 @@ public sealed interface RemoteFloat : RemoteState<Float> {
         public fun createNamedRemoteFloat(
             name: String,
             defaultValue: Float,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteFloat {
             return RemoteFloat(
                 constantValueOrNull = null,
@@ -364,7 +364,7 @@ public sealed interface RemoteFloat : RemoteState<Float> {
          *
          * @param name A unique name to identify this state within its [domain].
          * @param defaultValue The initial [RemoteFloat] value or expression of the named float.
-         * @param domain The domain of the named float (defaults to [RemoteState.Domain.User]). This
+         * @param domain The domain of the named float (defaults to [RemoteValue.Domain.User]). This
          *   helps avoid name collisions.
          * @return A [RemoteFloat] representing the named float.
          */
@@ -372,7 +372,7 @@ public sealed interface RemoteFloat : RemoteState<Float> {
         public fun createNamedRemoteFloat(
             name: String,
             defaultValue: RemoteFloat,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteFloat {
             return RemoteFloat(
                 constantValueOrNull = null,
@@ -494,7 +494,7 @@ internal enum class RemoteFloatOperationKey(
         }
     }
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             Plus -> (args[0] as RemoteFloat) + (args[1] as RemoteFloat)
             Minus -> (args[0] as RemoteFloat) - (args[1] as RemoteFloat)
@@ -594,7 +594,7 @@ internal enum class RemoteFloatOperationKey(
             Anim ->
                 animatedRemoteFloat(
                     args[0] as RemoteFloat,
-                    (args[1] as? FloatArrayRemoteState)?.floatArray
+                    (args[1] as? FloatArrayRemoteValue)?.floatArray
                         ?: (args[1].cacheKey as FloatArrayCacheKey).floatArray,
                 )
             Cubic ->
@@ -706,7 +706,7 @@ private fun RemoteFloat.floatIdForCreationState(creationState: RemoteComposeCrea
 }
 
 internal abstract class BaseRemoteFloat(cacheKey: RemoteStateCacheKey) :
-    BaseRemoteState<Float>(cacheKey), RemoteFloat {
+    BaseRemoteValue<Float>(cacheKey), RemoteFloat {
     override val equalityType: KClass<*>
         get() = RemoteFloat::class
 
@@ -1773,13 +1773,13 @@ public fun yearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
 }
 
 /**
- * A mutable implementation of [RemoteFloat]. It also implements [MutableRemoteState<Float>].
+ * A mutable implementation of [RemoteFloat]. It also implements [MutableRemoteValue<Float>].
  *
  * Distinct [MutableRemoteFloat] instances represent separate mutable variables and compare by
  * identity with `==`.
  */
 @Stable
-public sealed interface MutableRemoteFloat : RemoteFloat, MutableRemoteState<Float> {
+public sealed interface MutableRemoteFloat : RemoteFloat, MutableRemoteValue<Float> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**

@@ -32,13 +32,13 @@ public enum class RemoteTextUnitType {
  * Represents a TextUnit value backed by a [RemoteFloat].
  *
  * Comparing [RemoteTextUnit] values with `==` checks structural equality (matching constant values
- * or expression DAGs); see [RemoteState].
+ * or expression DAGs); see [RemoteValue].
  *
  * @property value The [RemoteFloat] that holds the scalar value.
  * @property type The [RemoteTextUnitType].
  */
 @Stable
-public sealed interface RemoteTextUnit : RemoteState<Float> {
+public sealed interface RemoteTextUnit : RemoteValue<Float> {
     public val value: RemoteFloat
     public val type: RemoteTextUnitType
 
@@ -64,7 +64,7 @@ private class RemoteTextUnitImpl(
     override val value: RemoteFloat,
     override val type: RemoteTextUnitType,
     cacheKey: RemoteStateCacheKey,
-) : BaseRemoteState<Float>(cacheKey), RemoteTextUnit {
+) : BaseRemoteValue<Float>(cacheKey), RemoteTextUnit {
     override val equalityType: KClass<*>
         get() = RemoteTextUnit::class
 

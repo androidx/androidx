@@ -27,8 +27,8 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt
-import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.runtime.Composable
 
 internal class RemoteCustomComponentNode : RemoteComposeNode() {
@@ -85,7 +85,7 @@ public fun RemoteCustomComponent(
 /** An entry representing a single custom property or return binding. */
 internal sealed class CustomPropertyEntry {
     abstract val id: Short
-    open val state: RemoteState<*>?
+    open val state: RemoteValue<*>?
         get() = null
 
     abstract fun toCustomProperty(creationState: RemoteComposeCreationState): CustomProperty

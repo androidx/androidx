@@ -33,56 +33,56 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RemoteStateDomainTest {
 
-    private object HomeDomain : RemoteState.Domain("HOME")
+    private object HomeDomain : RemoteValue.Domain("HOME")
 
     @Test
     fun builtInAndCustomDomains_toStringAndPrefixed() {
-        val home = RemoteState.Domain("HOME")
+        val home = RemoteValue.Domain("HOME")
 
-        assertThat(RemoteState.Domain.User.toString()).isEqualTo("USER")
-        assertThat(RemoteState.Domain.System.toString()).isEqualTo("SYSTEM")
-        assertThat(RemoteState.Domain.None.toString()).isEqualTo("")
+        assertThat(RemoteValue.Domain.User.toString()).isEqualTo("USER")
+        assertThat(RemoteValue.Domain.System.toString()).isEqualTo("SYSTEM")
+        assertThat(RemoteValue.Domain.None.toString()).isEqualTo("")
         assertThat(home.toString()).isEqualTo("HOME")
         assertThat(HomeDomain.toString()).isEqualTo("HOME")
 
-        assertThat(RemoteState.Domain.User.prefixed("shutter.is_open"))
+        assertThat(RemoteValue.Domain.User.prefixed("shutter.is_open"))
             .isEqualTo("USER:shutter.is_open")
-        assertThat(RemoteState.Domain.System.prefixed("heart_rate_bpm"))
+        assertThat(RemoteValue.Domain.System.prefixed("heart_rate_bpm"))
             .isEqualTo("SYSTEM:heart_rate_bpm")
-        assertThat(RemoteState.Domain.None.prefixed("raw_value")).isEqualTo("raw_value")
+        assertThat(RemoteValue.Domain.None.prefixed("raw_value")).isEqualTo("raw_value")
         assertThat(home.prefixed("sun.elevation")).isEqualTo("HOME:sun.elevation")
     }
 
     @Test
     fun domainEqualityAndHashCode() {
-        val home = RemoteState.Domain("HOME")
-        val homeDuplicate = RemoteState.Domain("HOME")
+        val home = RemoteValue.Domain("HOME")
+        val homeDuplicate = RemoteValue.Domain("HOME")
 
-        assertThat(RemoteState.Domain("USER")).isEqualTo(RemoteState.Domain.User)
-        assertThat(RemoteState.Domain("USER").hashCode())
-            .isEqualTo(RemoteState.Domain.User.hashCode())
-        assertThat(RemoteState.Domain("SYSTEM")).isEqualTo(RemoteState.Domain.System)
-        assertThat(RemoteState.Domain(null)).isEqualTo(RemoteState.Domain.None)
-        assertThat(RemoteState.Domain(null).hashCode())
-            .isEqualTo(RemoteState.Domain.None.hashCode())
+        assertThat(RemoteValue.Domain("USER")).isEqualTo(RemoteValue.Domain.User)
+        assertThat(RemoteValue.Domain("USER").hashCode())
+            .isEqualTo(RemoteValue.Domain.User.hashCode())
+        assertThat(RemoteValue.Domain("SYSTEM")).isEqualTo(RemoteValue.Domain.System)
+        assertThat(RemoteValue.Domain(null)).isEqualTo(RemoteValue.Domain.None)
+        assertThat(RemoteValue.Domain(null).hashCode())
+            .isEqualTo(RemoteValue.Domain.None.hashCode())
         assertThat(home).isEqualTo(homeDuplicate)
         assertThat(home).isEqualTo(HomeDomain)
         assertThat(home.hashCode()).isEqualTo(HomeDomain.hashCode())
-        assertThat(home).isNotEqualTo(RemoteState.Domain.User)
-        assertThat(home).isNotEqualTo(RemoteState.Domain.System)
-        assertThat(home).isNotEqualTo(RemoteState.Domain.None)
+        assertThat(home).isNotEqualTo(RemoteValue.Domain.User)
+        assertThat(home).isNotEqualTo(RemoteValue.Domain.System)
+        assertThat(home).isNotEqualTo(RemoteValue.Domain.None)
     }
 
     @Test
     fun invalidDomainNamespace_throwsIllegalArgumentException() {
-        assertFailsWith<IllegalArgumentException> { RemoteState.Domain("") }
-        assertFailsWith<IllegalArgumentException> { RemoteState.Domain("HOME:SUB") }
-        assertFailsWith<IllegalArgumentException> { RemoteState.Domain(":HOME") }
+        assertFailsWith<IllegalArgumentException> { RemoteValue.Domain("") }
+        assertFailsWith<IllegalArgumentException> { RemoteValue.Domain("HOME:SUB") }
+        assertFailsWith<IllegalArgumentException> { RemoteValue.Domain(":HOME") }
     }
 
     @Test
     fun namedStatesAcrossDomains_writeDistinctQualifiedVariables() {
-        val home = RemoteState.Domain("HOME")
+        val home = RemoteValue.Domain("HOME")
         val creationState =
             RemoteComposeCreationState().apply {
                 document = RemoteComposeWriter(RcPlatformServices.None)
@@ -100,7 +100,7 @@ class RemoteStateDomainTest {
             RemoteFloat.createNamedRemoteFloat(
                 "temperature",
                 20.0f,
-                domain = RemoteState.Domain.None,
+                domain = RemoteValue.Domain.None,
             )
         val sunAboveHorizon =
             RemoteBoolean.createNamedRemoteBoolean("sun.above_horizon", true, domain = home)
@@ -108,7 +108,7 @@ class RemoteStateDomainTest {
             RemoteInt.createNamedRemoteInt(
                 "heart_rate_bpm",
                 72,
-                domain = RemoteState.Domain.System,
+                domain = RemoteValue.Domain.System,
             )
         val roomLabel = RemoteString.createNamedRemoteString("room.label", "Living Room")
 
