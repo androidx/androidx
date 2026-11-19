@@ -32,8 +32,8 @@ plugins {
 dependencies {
 
     implementation(project(":compose:integration-tests:demos:common"))
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:material3:material3"))
+    implementation("androidx.compose.runtime:runtime:1.13.0")
+    implementation("androidx.compose.material3:material3:1.5.0")
     implementation(project(":navigation3:navigation3-runtime"))
     implementation(project(":navigation3:navigation3-ui"))
     implementation(project(":navigation3:navigation3-ui:navigation3-ui-samples"))

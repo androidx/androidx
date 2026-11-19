@@ -41,8 +41,8 @@ dependencies {
     implementation("androidx.startup:startup-runtime:1.1.0")
 
     // Compose dependencies
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:foundation:foundation"))
+    implementation("androidx.compose.runtime:runtime:1.13.0")
+    implementation("androidx.compose.foundation:foundation:1.13.0")
     implementation("androidx.compose.material3:material3:1.2.1")
 
     implementation(project(":window:window-java"))

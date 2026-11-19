@@ -30,8 +30,8 @@ plugins {
 
 dependencies {
     api(project(":compose:foundation:foundation"))
-    api("androidx.compose.ui:ui:1.13.0-rc01")
-    api("androidx.compose.runtime:runtime:1.13.0-rc01")
+    api("androidx.compose.ui:ui:1.13.0")
+    api("androidx.compose.runtime:runtime:1.13.0")
     api("androidx.annotation:annotation:1.9.1")
     // Older versions of lifecycle-runtime lint checks use a deleted lint API
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
