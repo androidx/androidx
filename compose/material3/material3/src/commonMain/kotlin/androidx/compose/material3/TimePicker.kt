@@ -2510,7 +2510,13 @@ private fun ClockDisplayNumbers(
         // Always display the TimeSelectors from left to right.
         LocalLayoutDirection provides LayoutDirection.Ltr,
     ) {
-        Row {
+        Row(
+            modifier =
+                Modifier.semantics {
+                    isTraversalGroup = true
+                    selectableGroup()
+                }
+        ) {
             TimeSelector(
                 modifier =
                     Modifier.size(
