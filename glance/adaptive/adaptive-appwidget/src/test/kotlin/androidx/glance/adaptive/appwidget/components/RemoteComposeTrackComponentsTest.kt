@@ -31,7 +31,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.AndroidSystemColorMap
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.adaptive.appwidget.components.badge.Content
 import androidx.glance.adaptive.appwidget.components.graph.Content
@@ -258,38 +260,61 @@ class RemoteComposeTrackComponentsTest {
 
     @Test
     fun palette_matchesRemoteViewsColorResources() = runTest {
-        val paletteEntries =
-            linkedMapOf(
-                "glance_adaptive_appwidget_remoteviews_primary" to RemoteComposePalette.primary,
-                "glance_adaptive_appwidget_remoteviews_secondary_container" to
-                    RemoteComposePalette.secondaryContainer,
-                "glance_adaptive_appwidget_remoteviews_tertiary" to RemoteComposePalette.tertiary,
-                "glance_adaptive_appwidget_remoteviews_on_surface_variant" to
-                    RemoteComposePalette.onSurfaceVariant,
-                "glance_adaptive_appwidget_remoteviews_widget_background" to
-                    RemoteComposePalette.widgetBackground,
-                "glance_adaptive_appwidget_remoteviews_primary_container" to
-                    RemoteComposePalette.primaryContainer,
-                "glance_adaptive_appwidget_remoteviews_on_primary_container" to
-                    RemoteComposePalette.onPrimaryContainer,
-                "glance_adaptive_appwidget_remoteviews_on_secondary_container" to
-                    RemoteComposePalette.onSecondaryContainer,
-                "glance_adaptive_appwidget_remoteviews_surface_container_highest" to
-                    RemoteComposePalette.surfaceContainerHighest,
-            )
-
-        val lightFallbacks = readXmlColors("src/main/res/values/remoteviews_colors.xml")
-        val darkFallbacks = readXmlColors("src/main/res/values-night/remoteviews_colors.xml")
+        val paletteEntries = paletteEntries()
         val lightDynamic = readXmlColors("src/main/res/values-v31/remoteviews_colors.xml")
         val darkDynamic = readXmlColors("src/main/res/values-night-v31/remoteviews_colors.xml")
 
-        assertThat(paletteEntries.keys).containsExactlyElementsIn(lightFallbacks.keys)
+        assertThat(paletteEntries.keys).containsExactlyElementsIn(lightDynamic.keys)
+        assertThat(paletteEntries.keys).containsExactlyElementsIn(darkDynamic.keys)
 
         for ((resName, remoteColor) in paletteEntries) {
             val rendered =
                 captureAndRender(context, widthDp = 16, heightDp = 16) {
                     RemoteBox(
-                        modifier = RemoteModifier.size(16.rdp).registerDynamicColor(remoteColor)
+                        modifier = RemoteModifier.size(16.rdp).registerDynamicColor(remoteColor())
+                    )
+                }
+            val themeOp: ColorTheme = checkNotNull(rendered.document.themedColors).single()
+            val expectedLightSysRes =
+                android.R.color::class
+                    .java
+                    .getField(lightDynamic.getValue(resName).removePrefix("@android:color/"))
+                    .getInt(null)
+            val expectedDarkSysRes =
+                android.R.color::class
+                    .java
+                    .getField(darkDynamic.getValue(resName).removePrefix("@android:color/"))
+                    .getInt(null)
+            assertWithMessage("$resName lightColorRes")
+                .that(AndroidSystemColorMap.getResourceId(themeOp.mLightModeIndex.toInt()))
+                .isEqualTo(expectedLightSysRes)
+            assertWithMessage("$resName darkColorRes")
+                .that(AndroidSystemColorMap.getResourceId(themeOp.mDarkModeIndex.toInt()))
+                .isEqualTo(expectedDarkSysRes)
+            assertWithMessage("$resName dynamic lightFallback")
+                .that(themeOp.mLightModeFallback)
+                .isEqualTo(context.getColor(expectedLightSysRes))
+            assertWithMessage("$resName dynamic darkFallback")
+                .that(themeOp.mDarkModeFallback)
+                .isEqualTo(context.getColor(expectedDarkSysRes))
+        }
+    }
+
+    @Test
+    @Config(sdk = [30], qualifiers = "xhdpi")
+    fun palette_belowApi31_usesStaticRemoteViewsColorFallbacks() = runTest {
+        val paletteEntries = paletteEntries()
+        val lightFallbacks = readXmlColors("src/main/res/values/remoteviews_colors.xml")
+        val darkFallbacks = readXmlColors("src/main/res/values-night/remoteviews_colors.xml")
+
+        assertThat(paletteEntries.keys).containsExactlyElementsIn(lightFallbacks.keys)
+        assertThat(paletteEntries.keys).containsExactlyElementsIn(darkFallbacks.keys)
+
+        for ((resName, remoteColor) in paletteEntries) {
+            val rendered =
+                captureAndRender(context, widthDp = 16, heightDp = 16) {
+                    RemoteBox(
+                        modifier = RemoteModifier.size(16.rdp).registerDynamicColor(remoteColor())
                     )
                 }
             val themeOp: ColorTheme = checkNotNull(rendered.document.themedColors).single()
@@ -307,24 +332,42 @@ class RemoteComposeTrackComponentsTest {
                         darkFallbacks.getValue(resName).substring(1).toLong(16).toInt()
                     )
                 )
-            val expectedLightSysRes =
-                android.R.color::class
-                    .java
-                    .getField(lightDynamic.getValue(resName).removePrefix("@android:color/"))
-                    .getInt(null)
-            val expectedDarkSysRes =
-                android.R.color::class
-                    .java
-                    .getField(darkDynamic.getValue(resName).removePrefix("@android:color/"))
-                    .getInt(null)
-            assertWithMessage("$resName lightColorRes")
-                .that(AndroidSystemColorMap.getResourceId(themeOp.mLightModeIndex.toInt()))
-                .isEqualTo(expectedLightSysRes)
-            assertWithMessage("$resName darkColorRes")
-                .that(AndroidSystemColorMap.getResourceId(themeOp.mDarkModeIndex.toInt()))
-                .isEqualTo(expectedDarkSysRes)
         }
     }
+
+    private fun paletteEntries(): LinkedHashMap<String, @Composable () -> RemoteColor> =
+        linkedMapOf(
+            "glance_adaptive_appwidget_remoteviews_primary" to { RemoteComposePalette.primary },
+            "glance_adaptive_appwidget_remoteviews_secondary_container" to
+                {
+                    RemoteComposePalette.secondaryContainer
+                },
+            "glance_adaptive_appwidget_remoteviews_tertiary" to { RemoteComposePalette.tertiary },
+            "glance_adaptive_appwidget_remoteviews_on_surface_variant" to
+                {
+                    RemoteComposePalette.onSurfaceVariant
+                },
+            "glance_adaptive_appwidget_remoteviews_widget_background" to
+                {
+                    RemoteComposePalette.widgetBackground
+                },
+            "glance_adaptive_appwidget_remoteviews_primary_container" to
+                {
+                    RemoteComposePalette.primaryContainer
+                },
+            "glance_adaptive_appwidget_remoteviews_on_primary_container" to
+                {
+                    RemoteComposePalette.onPrimaryContainer
+                },
+            "glance_adaptive_appwidget_remoteviews_on_secondary_container" to
+                {
+                    RemoteComposePalette.onSecondaryContainer
+                },
+            "glance_adaptive_appwidget_remoteviews_surface_container_highest" to
+                {
+                    RemoteComposePalette.surfaceContainerHighest
+                },
+        )
 
     private fun readXmlColors(path: String): Map<String, String> {
         val file = File(path)

@@ -78,6 +78,7 @@ private const val BADGE_DOT_GAP_DP = 1.4f
 internal fun Badge.Content() {
     val fontScale = LocalResources.current.configuration.fontScale
     val resolvedOutline = outlineColor?.let { Color(it).rc } ?: RemoteComposePalette.tertiary
+    val widgetBackground = RemoteComposePalette.widgetBackground
     RemoteRow(verticalAlignment = RemoteAlignment.CenterVertically) {
         if (dotColors.isNotEmpty()) {
             StatusDot(
@@ -88,7 +89,7 @@ internal fun Badge.Content() {
         RemoteBox(
             modifier =
                 RemoteModifier.registerDynamicColor(resolvedOutline)
-                    .registerDynamicColor(RemoteComposePalette.widgetBackground)
+                    .registerDynamicColor(widgetBackground)
                     .drawWithContent {
                         val inset = BADGE_OUTLINE_WIDTH_DP.rdp.toPx()
                         val outerRadius = height / 2f.rf
@@ -102,7 +103,7 @@ internal fun Badge.Content() {
                         val innerHeight = max(height - inset * 2f.rf, 0f.rf)
                         val innerRadius = innerHeight / 2f.rf
                         drawRoundRect(
-                            paint = RemotePaint { color = RemoteComposePalette.widgetBackground },
+                            paint = RemotePaint { color = widgetBackground },
                             topLeft = RemoteOffset(inset, inset),
                             size = RemoteSize(innerWidth, innerHeight),
                             cornerRadius = RemoteOffset(innerRadius, innerRadius),
