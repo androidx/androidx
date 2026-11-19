@@ -170,8 +170,9 @@ public final class AudioSource {
      *                           Audio attribution is only available on API 31+. Setting this on
      *                           lower API levels or if the context does not contain an
      *                           attribution source, setting this context will have no effect.
-     *                           This context will not be retained beyond the scope of the
-     *                           constructor.
+     *                           The persistent application context may be retained until
+     *                           {@link #release()} is called; the provided context itself will not
+     *                           be retained beyond the scope of the constructor.
      * @param audioProcessors    The ordered list of audio processors.
      * @param audioStreamFactory The audio stream factory.
      * @throws UnsupportedOperationException if the combination of sample rate, channel count,

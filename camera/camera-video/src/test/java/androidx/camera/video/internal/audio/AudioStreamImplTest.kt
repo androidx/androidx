@@ -16,6 +16,9 @@
 
 package androidx.camera.video.internal.audio
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioRecord
@@ -23,8 +26,11 @@ import android.media.AudioRecordingConfiguration
 import android.media.MediaRecorder
 import android.os.Build
 import androidx.camera.core.impl.Quirks
+import androidx.camera.core.impl.utils.ContextUtil
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.video.internal.compat.quirk.AudioTimestampFramePositionIncorrectQuirk
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.util.concurrent.Executor
@@ -33,6 +39,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
@@ -44,7 +51,14 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(sdk = [Config.ALL_SDKS], shadows = [AudioStreamImplTest.ShadowAudioRecord::class])
+@Config(
+    sdk = [Config.ALL_SDKS],
+    shadows =
+        [
+            AudioStreamImplTest.ShadowAudioRecord::class,
+            AudioStreamImplTest.ShadowAudioRecordBuilder::class,
+        ],
+)
 class AudioStreamImplTest {
 
     companion object {
@@ -256,7 +270,87 @@ class AudioStreamImplTest {
         assertThat(notifiedStates).containsExactly(true)
     }
 
-    private fun createAudioStream(quirks: Quirks): AudioStreamImpl =
+    @Config(minSdk = 31)
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun stopWithAudioTimestampQuirk_preservesAttributionContextAndClearsOnRelease() {
+        val attributionContext =
+            ApplicationProvider.getApplicationContext<Context>()
+                .createAttributionContext("test_tag")
+        useAudioStreamWithAudioTimestampQuirk(attributionContext)
+        val initialAudioRecord = getCurrentAudioRecord()
+        assertThat(shadowAudioRecord(initialAudioRecord).attributionContext?.attributionTag)
+            .isEqualTo("test_tag")
+
+        audioStream.start()
+        audioStream.stop()
+
+        val recreatedAudioRecord = getCurrentAudioRecord()
+        assertThat(recreatedAudioRecord).isNotSameInstanceAs(initialAudioRecord)
+        assertThat(shadowAudioRecord(recreatedAudioRecord).attributionContext?.attributionTag)
+            .isEqualTo("test_tag")
+
+        audioStream.release()
+
+        assertThat(ReflectionHelpers.getField<Context?>(audioStream, "mAttributionContext"))
+            .isNull()
+    }
+
+    @Config(minSdk = 31)
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun stopWithAudioTimestampQuirk_withActivityContext_retainsPersistentApplicationContextOnly() {
+        Robolectric.buildActivity(Activity::class.java).use { controller ->
+            val activity = controller.get()
+            val activityAttributionContext =
+                object : ContextWrapper(activity) {
+                    override fun getAttributionTag(): String = "activity_tag"
+                }
+            useAudioStreamWithAudioTimestampQuirk(activityAttributionContext)
+
+            val retainedContext =
+                ReflectionHelpers.getField<Context?>(audioStream, "mAttributionContext")
+            assertThat(retainedContext)
+                .isSameInstanceAs(
+                    ContextUtil.getPersistentApplicationContext(activityAttributionContext)
+                )
+            assertThat(retainedContext).isNotSameInstanceAs(activityAttributionContext)
+            assertThat(retainedContext).isNotSameInstanceAs(activity)
+
+            audioStream.start()
+            audioStream.stop()
+
+            val recreatedAudioRecord = getCurrentAudioRecord()
+            assertThat(shadowAudioRecord(recreatedAudioRecord).attributionContext?.attributionTag)
+                .isEqualTo("activity_tag")
+
+            audioStream.release()
+
+            assertThat(ReflectionHelpers.getField<Context?>(audioStream, "mAttributionContext"))
+                .isNull()
+        }
+    }
+
+    @Config(minSdk = 31)
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun createWithoutAudioTimestampQuirk_doesNotRetainAttributionContext() {
+        val attributionContext =
+            ApplicationProvider.getApplicationContext<Context>()
+                .createAttributionContext("test_tag")
+        audioStream.release()
+        audioStream = createAudioStream(Quirks(emptyList()), attributionContext)
+
+        assertThat(shadowAudioRecord(getCurrentAudioRecord()).attributionContext)
+            .isSameInstanceAs(attributionContext)
+        assertThat(ReflectionHelpers.getField<Context?>(audioStream, "mAttributionContext"))
+            .isNull()
+    }
+
+    private fun createAudioStream(
+        quirks: Quirks,
+        attributionContext: Context? = null,
+    ): AudioStreamImpl =
         AudioStreamImpl(
             AudioSettings.builder()
                 .setAudioSource(AUDIO_SOURCE)
@@ -265,14 +359,18 @@ class AudioStreamImplTest {
                 .setChannelCount(CHANNEL_COUNT)
                 .setAudioFormat(AUDIO_FORMAT)
                 .build(),
-            /*attributionContext=*/ null,
+            attributionContext,
             quirks,
         )
 
     /** Replaces [audioStream] with one created with [AudioTimestampFramePositionIncorrectQuirk]. */
-    private fun useAudioStreamWithAudioTimestampQuirk() {
+    private fun useAudioStreamWithAudioTimestampQuirk(attributionContext: Context? = null) {
         audioStream.release()
-        audioStream = createAudioStream(Quirks(listOf(AudioTimestampFramePositionIncorrectQuirk())))
+        audioStream =
+            createAudioStream(
+                Quirks(listOf(AudioTimestampFramePositionIncorrectQuirk())),
+                attributionContext,
+            )
     }
 
     private fun getCurrentAudioRecord(): AudioRecord =
@@ -295,6 +393,9 @@ class AudioStreamImplTest {
 
         /** The registered recording callbacks. */
         val registeredCallbacks = mutableSetOf<AudioManager.AudioRecordingCallback>()
+
+        /** The attribution context passed via [AudioRecord.Builder.setContext]. */
+        var attributionContext: Context? = null
 
         /** Optional hook invoked during [AudioRecord.startRecording]. */
         var onStartRecording: (() -> Unit)? = null
@@ -340,6 +441,35 @@ class AudioStreamImplTest {
         @Implementation
         fun release() {
             isReleased = true
+        }
+    }
+
+    @Implements(AudioRecord.Builder::class)
+    class ShadowAudioRecordBuilder {
+        @RealObject private lateinit var realBuilder: AudioRecord.Builder
+        private var context: Context? = null
+
+        @Implementation(minSdk = 31)
+        fun setContext(context: Context): AudioRecord.Builder {
+            this.context = context
+            return Shadow.directlyOn(
+                realBuilder,
+                AudioRecord.Builder::class.java,
+                "setContext",
+                ReflectionHelpers.ClassParameter.from(Context::class.java, context),
+            )
+        }
+
+        @Implementation
+        fun build(): AudioRecord {
+            val audioRecord =
+                Shadow.directlyOn<AudioRecord, AudioRecord.Builder>(
+                    realBuilder,
+                    AudioRecord.Builder::class.java,
+                    "build",
+                )
+            Shadow.extract<ShadowAudioRecord>(audioRecord).attributionContext = context
+            return audioRecord
         }
     }
 }
