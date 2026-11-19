@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.ripple
 
+import androidx.collection.MutableObjectList
 import androidx.collection.mutableObjectListOf
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -55,7 +56,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.util.fastAny
 import kotlin.math.ceil
 import kotlinx.coroutines.launch
 
@@ -241,10 +241,11 @@ internal abstract class RippleNode(
         resolveRippleNodeConfiguration()
 
         coroutineScope.launch {
-            val interactions: MutableList<Interaction> = mutableListOf()
-            var currentInteraction: Interaction? = null
+            val interactions = MutableObjectList<Interaction>(0)
+            var currentStateLayerInteraction: Interaction? = null
 
             var isFocused = false
+            var hasFocusRingAnimation = false
 
             interactionSource.interactions.collect { interaction ->
                 val wasFocused = isFocused
@@ -270,7 +271,7 @@ internal abstract class RippleNode(
                     }
                     is FocusInteraction.Unfocus -> {
                         interactions.remove(interaction.focus)
-                        if (!interactions.fastAny { it is FocusInteraction.Focus }) {
+                        if (!interactions.any { it is FocusInteraction.Focus }) {
                             isFocused = false
                         }
                     }
@@ -286,77 +287,64 @@ internal abstract class RippleNode(
                     else -> return@collect
                 }
 
-                // The most recent interaction is the one we want to show
-                val newInteraction = interactions.lastOrNull()
-
                 val config = resolveRippleNodeConfiguration()
-                if (currentInteraction != newInteraction) {
-                    if (newInteraction != null) {
-                        val targetAlpha =
-                            when (newInteraction) {
-                                is HoverInteraction.Enter -> {
-                                    when (config.hoverConfiguration) {
-                                        is RippleNodeConfiguration.HoverConfiguration.Opacity ->
-                                            config.hoverConfiguration.alpha
-                                        is RippleNodeConfiguration.HoverConfiguration.None -> 0f
-                                        else -> 0f
-                                    }
-                                }
-                                is FocusInteraction.Focus -> {
-                                    when (config.focusConfiguration) {
-                                        is RippleNodeConfiguration.FocusConfiguration.Opacity ->
-                                            config.focusConfiguration.alpha
-                                        is RippleNodeConfiguration.FocusConfiguration.InsetRing,
-                                        is RippleNodeConfiguration.FocusConfiguration.None -> 0f
-                                        else -> 0f
-                                    }
-                                }
-                                is DragInteraction.Start -> {
-                                    when (config.dragConfiguration) {
-                                        is RippleNodeConfiguration.DragConfiguration.Opacity ->
-                                            config.dragConfiguration.alpha
-                                        is RippleNodeConfiguration.DragConfiguration.None -> 0f
-                                        else -> 0f
-                                    }
-                                }
-                                else -> 0f
-                            }
+
+                // The most recent interaction with an opacity state layer is the one we want to
+                // show
+                var newStateLayerInteraction: Interaction? = null
+                var targetAlpha = 0f
+                for (i in interactions.lastIndex downTo 0) {
+                    val candidate = interactions[i]
+                    val candidateAlpha = stateLayerAlphaFor(candidate, config)
+                    if (!candidateAlpha.isNaN()) {
+                        newStateLayerInteraction = candidate
+                        targetAlpha = candidateAlpha
+                        break
+                    }
+                }
+
+                if (currentStateLayerInteraction != newStateLayerInteraction) {
+                    if (newStateLayerInteraction != null) {
                         val incomingAnimationSpec =
-                            incomingStateLayerAnimationSpecFor(newInteraction)
+                            incomingStateLayerAnimationSpecFor(newStateLayerInteraction)
 
                         launch { animatedAlpha.animateTo(targetAlpha, incomingAnimationSpec) }
                     } else {
                         val outgoingAnimationSpec =
-                            outgoingStateLayerAnimationSpecFor(currentInteraction)
+                            outgoingStateLayerAnimationSpecFor(currentStateLayerInteraction)
 
                         launch { animatedAlpha.animateTo(0f, outgoingAnimationSpec) }
                     }
 
-                    if (interaction is FocusInteraction) {
-                        when (config.focusConfiguration) {
-                            is RippleNodeConfiguration.FocusConfiguration.InsetRing -> {
-                                // Only launch the focus ring animation if the state changed
-                                if (wasFocused != isFocused) {
-                                    val targetValue = if (isFocused) 1f else 0f
-                                    launch {
-                                        animatedFocusRingInterpolation.animateTo(
-                                            targetValue,
-                                            if (isFocused) {
-                                                config.focusConfiguration.focusingAnimationSpec
-                                            } else {
-                                                config.focusConfiguration.unfocusingAnimationSpec
-                                            },
-                                        )
-                                    }
+                    currentStateLayerInteraction = newStateLayerInteraction
+                }
+
+                if (interaction is FocusInteraction) {
+                    when (val focusConfiguration = config.focusConfiguration) {
+                        is RippleNodeConfiguration.FocusConfiguration.InsetRing -> {
+                            // Only launch the focus ring animation if the state changed
+                            if (wasFocused != isFocused) {
+                                val targetValue = if (isFocused) 1f else 0f
+                                hasFocusRingAnimation = true
+                                launch {
+                                    animatedFocusRingInterpolation.animateTo(
+                                        targetValue,
+                                        if (isFocused) {
+                                            focusConfiguration.focusingAnimationSpec
+                                        } else {
+                                            focusConfiguration.unfocusingAnimationSpec
+                                        },
+                                    )
                                 }
                             }
-                            else -> {
+                        }
+                        else -> {
+                            if (hasFocusRingAnimation) {
+                                hasFocusRingAnimation = false
                                 launch { animatedFocusRingInterpolation.snapTo(0f) }
                             }
                         }
                     }
-
-                    currentInteraction = newInteraction
                 }
             }
         }
@@ -546,6 +534,41 @@ internal fun BorderRenderer.drawInsetBorder(
         }
         drawLayer(layer)
     }
+
+/**
+ * @return the target state layer alpha for [interaction] under [configuration], or [Float.NaN] if
+ *   [interaction] is not represented by the opacity state layer.
+ */
+private fun stateLayerAlphaFor(
+    interaction: Interaction,
+    configuration: RippleNodeConfiguration,
+): Float {
+    return when (interaction) {
+        is HoverInteraction.Enter -> {
+            when (val hoverConfiguration = configuration.hoverConfiguration) {
+                is RippleNodeConfiguration.HoverConfiguration.Opacity -> hoverConfiguration.alpha
+                is RippleNodeConfiguration.HoverConfiguration.None -> Float.NaN
+                else -> Float.NaN
+            }
+        }
+        is FocusInteraction.Focus -> {
+            when (val focusConfiguration = configuration.focusConfiguration) {
+                is RippleNodeConfiguration.FocusConfiguration.Opacity -> focusConfiguration.alpha
+                is RippleNodeConfiguration.FocusConfiguration.InsetRing,
+                is RippleNodeConfiguration.FocusConfiguration.None -> Float.NaN
+                else -> Float.NaN
+            }
+        }
+        is DragInteraction.Start -> {
+            when (val dragConfiguration = configuration.dragConfiguration) {
+                is RippleNodeConfiguration.DragConfiguration.Opacity -> dragConfiguration.alpha
+                is RippleNodeConfiguration.DragConfiguration.None -> Float.NaN
+                else -> Float.NaN
+            }
+        }
+        else -> Float.NaN
+    }
+}
 
 /**
  * @return the [AnimationSpec] used when transitioning to [interaction], either from a previous
