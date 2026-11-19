@@ -57,6 +57,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.UnplacedAwareModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
@@ -300,11 +301,15 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     ViewTreeObserver.OnGlobalFocusChangeListener,
     WebSurfaceChromium.EventListener {
 
+    override val shouldAutoInvalidate: Boolean
+        get() = false
+
     private var webSurface: WebSurfaceChromium? = null
     private var size = IntSize.Zero
     private var holder: HeadlessViewHolder? = null
     private var pinnedHandle: PinnableContainer.PinnedHandle? = null
     private var attachedViewTreeObserver: ViewTreeObserver? = null
+    private var isPlaced: Boolean = false
 
     /** Prevents reentrant focus synchronization between Compose and the underlying View tree. */
     private var isUpdatingFocus: Boolean = false
@@ -354,10 +359,32 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     /** Connects our drags to nested scroll parents. */
     private val nestedScrollHandover = delegate(NestedScrollHandoverNode())
 
+    init {
+        // Delegate rather than implementing UnplacedAwareModifierNode directly on WebSurfaceNode
+        // so NodeCoordinator.onUnplaced() (dispatchToDelegates = false) also reaches
+        // focusTargetNode.
+        delegate(
+            object : Modifier.Node(), UnplacedAwareModifierNode {
+                override val shouldAutoInvalidate: Boolean
+                    get() = false
+
+                override fun onUnplaced() {
+                    isPlaced = false
+                    if (this@WebSurfaceNode.isAttached) {
+                        requireView().removeCallbacks(invalidateOnAnimation)
+                    }
+                }
+            }
+        )
+    }
+
     private val invalidateOnAnimation = Runnable { onInvalidate(insideVSync = true) }
 
     override fun onInvalidate(insideVSync: Boolean) {
-        if (!isAttached) return
+        // Unplaced nodes (e.g. reused prefetched lazy items or layouts that skip placement) have
+        // no layer of their own, so invalidateDraw() would walk up and re-record an ancestor layer
+        // every frame.
+        if (!isAttached || !isPlaced) return
         val hostView = requireView()
         if (!hostView.isAttachedToWindow) return
         hostView.removeCallbacks(invalidateOnAnimation)
@@ -478,7 +505,9 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         if (focusTargetNode.focusState.isFocused) bridge.requestFocus()
         createSurface()
         runUpdate()
-        invalidateDraw()
+        if (isPlaced) {
+            invalidateDraw()
+        }
     }
 
     fun onBridgeDetached() {
@@ -494,6 +523,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         newBridgeUpdate: (T) -> Unit,
         newBridgeRelease: (T) -> Unit,
     ) {
+        val bridgeUpdateChanged = newState.bridgeUpdate !== newBridgeUpdate
         newState.bridgeFactory = newBridgeFactory
         newState.bridgeUpdate = newBridgeUpdate
         newState.bridgeRelease = newBridgeRelease
@@ -508,12 +538,12 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
                 onBridgeAttached(currentBridge)
             } else {
                 onBridgeDetached()
+                if (isPlaced) {
+                    invalidateDraw()
+                }
             }
-        } else {
+        } else if (bridgeUpdateChanged) {
             runUpdate()
-            if (isAttached) {
-                invalidateDraw()
-            }
         }
     }
 
@@ -527,6 +557,11 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
             installHostAccessibilityDelegate(host)
             // Add ahead of AndroidViewsHandler so FOCUS_AFTER_DESCENDANTS checks holders first.
             holder = HeadlessViewHolder(host.context, this).also { host.addView(it, 0) }
+        }
+        // In-place LayoutNode reuse (e.g. ReusableContent) detaches and re-attaches without
+        // unplacing or re-dispatching onGloballyPositioned, so size and position the new holder.
+        if (isPlaced) {
+            syncHolderBounds(requireLayoutCoordinates())
         }
         state.bridge?.let { onBridgeAttached(it) }
     }
@@ -566,6 +601,11 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        isPlaced = true
+        syncHolderBounds(coordinates)
+    }
+
+    private fun syncHolderBounds(coordinates: LayoutCoordinates) {
         // This runs on every layout pass that moves the surface, e.g. each frame of a parent
         // scroll. Resizing the page is expensive (Chromium relayouts and draws a new frame), so
         // only do it when the size actually changed; moving just updates the View's position.
