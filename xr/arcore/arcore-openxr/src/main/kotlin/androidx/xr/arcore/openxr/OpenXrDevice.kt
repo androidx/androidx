@@ -45,5 +45,9 @@ internal class OpenXrDevice() : ArDevice, Updatable {
         trackingState = deviceState.trackingState
     }
 
+    internal fun resetTrackingState() {
+        trackingState = TrackingState.STOPPED
+    }
+
     private external fun nativeGetDeviceState(monotonicTimeNs: Long): DeviceState
 }

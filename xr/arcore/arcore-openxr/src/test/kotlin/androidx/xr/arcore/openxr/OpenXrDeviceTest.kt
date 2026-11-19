@@ -18,32 +18,17 @@ package androidx.xr.arcore.openxr
 
 import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.Implementation
-import org.robolectric.annotation.Implements
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.TARGET_SDK], shadows = [OpenXrDeviceTest.ShadowOpenXrDevice::class])
+@Config(sdk = [Config.TARGET_SDK], shadows = [ShadowOpenXrDevice::class])
 public class OpenXrDeviceTest {
-
-    @Implements(OpenXrDevice::class)
-    public class ShadowOpenXrDevice {
-        public companion object {
-            internal var mockedDeviceState: DeviceState = DeviceState(TrackingState.PAUSED, null)
-
-            @Implementation
-            @JvmStatic
-            @JvmName("nativeGetDeviceState")
-            internal fun nativeGetDeviceState(monotonicTimeNs: Long): DeviceState {
-                return mockedDeviceState
-            }
-        }
-    }
 
     private lateinit var underTest: OpenXrDevice
 
@@ -95,5 +80,19 @@ public class OpenXrDeviceTest {
 
         assertThat(underTest.trackingState).isEqualTo(TrackingState.PAUSED)
         assertThat(underTest.devicePose).isEqualTo(initialPose)
+    }
+
+    @Test
+    fun resetTrackingState_setsStateToStoppedAndKeepsDevicePose() {
+        val trackedPose = Pose(Vector3(1f, 2f, 3f))
+        ShadowOpenXrDevice.mockedDeviceState = DeviceState(TrackingState.TRACKING, trackedPose)
+        underTest.update(0L)
+        check(underTest.trackingState == TrackingState.TRACKING)
+        check(underTest.devicePose == trackedPose)
+
+        underTest.resetTrackingState()
+
+        assertThat(underTest.trackingState).isEqualTo(TrackingState.STOPPED)
+        assertThat(underTest.devicePose).isEqualTo(trackedPose)
     }
 }

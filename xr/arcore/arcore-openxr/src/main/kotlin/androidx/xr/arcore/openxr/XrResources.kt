@@ -115,5 +115,6 @@ internal class XrResources(timeSource: OpenXrTimeSource) {
         _annotationConfigs.clear()
         _trackablesMap.clear()
         _updatables.clear()
+        arDevice.resetTrackingState()
     }
 }

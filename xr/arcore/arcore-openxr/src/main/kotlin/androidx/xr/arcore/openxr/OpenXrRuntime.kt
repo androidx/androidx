@@ -350,6 +350,7 @@ internal class OpenXrRuntime(
                 perceptionManager.xrResources.removeUpdatable(
                     perceptionManager.xrResources.arDevice
                 )
+                perceptionManager.xrResources.arDevice.resetTrackingState()
             }
         }
 

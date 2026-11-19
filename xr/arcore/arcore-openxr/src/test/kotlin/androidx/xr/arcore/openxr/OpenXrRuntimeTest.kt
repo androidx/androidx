@@ -18,10 +18,14 @@ package androidx.xr.arcore.openxr
 
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.arcore.runtime.TrackingState
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.manifest.HAND_TRACKING
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,9 +38,11 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
+import org.robolectric.annotation.Config as RobolectricConfig
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
+@RobolectricConfig(shadows = [ShadowOpenXrDevice::class])
 class OpenXrRuntimeTest {
 
     private lateinit var underTest: OpenXrRuntime
@@ -110,6 +116,29 @@ class OpenXrRuntimeTest {
     }
 
     @Test
+    fun configure_deviceTrackingDisabled_removesDeviceFromUpdatablesAndStopsTracking() {
+        val trackedPose = Pose(Vector3(1f, 2f, 3f))
+        ShadowOpenXrDevice.mockedDeviceState = DeviceState(TrackingState.TRACKING, trackedPose)
+        underTest.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build())
+        perceptionManager.xrResources.arDevice.update(0L)
+        check(
+            perceptionManager.xrResources.updatables.contains(
+                perceptionManager.xrResources.arDevice
+            )
+        )
+        check(perceptionManager.xrResources.arDevice.trackingState == TrackingState.TRACKING)
+        check(perceptionManager.xrResources.arDevice.devicePose == trackedPose)
+
+        underTest.configure(Config.Builder().setDeviceTracking(DeviceTrackingMode.DISABLED).build())
+
+        assertThat(perceptionManager.xrResources.updatables)
+            .doesNotContain(perceptionManager.xrResources.arDevice)
+        assertThat(perceptionManager.xrResources.arDevice.trackingState)
+            .isEqualTo(TrackingState.STOPPED)
+        assertThat(perceptionManager.xrResources.arDevice.devicePose).isEqualTo(trackedPose)
+    }
+
+    @Test
     fun prepareForUpdate_delaysForExpectedTimeBetweenFrames() = runTest {
         var firstIterationComplete = false
         var secondIterationComplete = false
@@ -136,14 +165,22 @@ class OpenXrRuntimeTest {
 
     @Test
     fun destroy_clearsPerceptionManagerBeforeNativeDeInit() {
+        val trackedPose = Pose(Vector3(1f, 2f, 3f))
+        ShadowOpenXrDevice.mockedDeviceState = DeviceState(TrackingState.TRACKING, trackedPose)
+        perceptionManager.xrResources.arDevice.update(0L)
         perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.leftHand)
         check(!perceptionManager.isPerceptionManagerCleared)
         check(perceptionManager.xrResources.updatables.isNotEmpty())
+        check(perceptionManager.xrResources.arDevice.trackingState == TrackingState.TRACKING)
+        check(perceptionManager.xrResources.arDevice.devicePose == trackedPose)
 
         // nativeDeInit() is not linked in host tests, so reaching it throws UnsatisfiedLinkError.
         // Asserting the throw confirms native teardown was reached after clear() had already run.
         assertFailsWith<UnsatisfiedLinkError> { underTest.destroy() }
         assertThat(perceptionManager.isPerceptionManagerCleared).isTrue()
         assertThat(perceptionManager.xrResources.updatables).isEmpty()
+        assertThat(perceptionManager.xrResources.arDevice.trackingState)
+            .isEqualTo(TrackingState.STOPPED)
+        assertThat(perceptionManager.xrResources.arDevice.devicePose).isEqualTo(trackedPose)
     }
 }
