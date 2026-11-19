@@ -94,6 +94,9 @@ abstract class ClangLinkerParameters {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NAME_ONLY)
     abstract val sources: ConfigurableFileCollection
+
+    /** Identifies the toolchain, e.g. `ndk-30.0.16248370`. Changing it rebuilds outputs. */
+    @get:Input abstract val toolchainVersion: Property<String>
 }
 
 private abstract class ClangLinkerWorker : WorkAction<ClangLinkerWorker.Params> {

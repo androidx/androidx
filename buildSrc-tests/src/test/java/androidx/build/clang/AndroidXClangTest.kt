@@ -60,6 +60,49 @@ class AndroidXClangTest : BaseClangTest() {
     }
 
     @Test
+    fun toolchainVersionIsAnInputOfAllTasks() {
+        val multiTargetNativeCompilation =
+            clangExtension.createNativeCompilation(
+                archiveName = "mylib",
+                outputKind = LinkerOutputKind.DYNAMIC_LIBRARY,
+            ) {
+                it.configureEachTarget { it.sources.from(tmpFolder.newFolder()) }
+            }
+        multiTargetNativeCompilation.configureTargets(
+            listOf(NativeTarget.LINUX_X64, NativeTarget.ANDROID_X64)
+        )
+        // trigger configuration
+        multiTargetNativeCompilation.targetProvider(NativeTarget.LINUX_X64).get()
+        multiTargetNativeCompilation.targetProvider(NativeTarget.ANDROID_X64).get()
+
+        // Android targets use the NDK; other targets use Kotlin/Native.
+        val expectedToolchainVersions =
+            mapOf(
+                NativeTarget.ANDROID_X64.name to "ndk-${projectSetup.props.ndkVersion}",
+                NativeTarget.LINUX_X64.name to "kotlin-native-${projectSetup.props.kgpVersion}",
+            )
+        assertThat(
+                project.tasks.withType(ClangCompileTask::class.java).associate {
+                    it.clangParameters.target.get() to it.clangParameters.toolchainVersion.get()
+                }
+            )
+            .isEqualTo(expectedToolchainVersions)
+        assertThat(
+                project.tasks.withType(ClangArchiveTask::class.java).associate {
+                    it.llvmArchiveParameters.target.get() to
+                        it.llvmArchiveParameters.toolchainVersion.get()
+                }
+            )
+            .isEqualTo(expectedToolchainVersions)
+        assertThat(
+                project.tasks.withType(ClangLinkerTask::class.java).associate {
+                    it.clangParameters.target.get() to it.clangParameters.toolchainVersion.get()
+                }
+            )
+            .isEqualTo(expectedToolchainVersions)
+    }
+
+    @Test
     fun configureTargets() {
         val commonSourceFolders =
             tmpFolder.newFolder("src").also {
@@ -273,7 +316,7 @@ class AndroidXClangTest : BaseClangTest() {
         val testProject = ProjectBuilder.builder().withProjectDir(projectSetup.rootDir).build()
         val extension = testProject.rootProject.property("ext") as ExtraPropertiesExtension
         extension.set("supportRootFolder", mockSupportRoot)
-        extension.set("androidx.ndkVersion", "27.0.12077973")
+        extension.set("androidx.ndkVersion", "30.0.16248370")
 
         assertThrows<IllegalStateException> { testProject.getNdkDirectory() }
             .hasMessageThat()

@@ -42,7 +42,7 @@ class SdkResourceGeneratorTest {
         extension.set("prebuiltsRoot", project.projectDir.resolve("relative/prebuilts"))
         extension.set("androidx.compileSdk", 33)
         extension.set("outDir", project.layout.buildDirectory.dir("out").get().asFile)
-        extension.set("androidx.ndkVersion", "27.0.12077973")
+        extension.set("androidx.ndkVersion", "30.0.16248370")
 
         val taskProvider =
             SdkResourceGenerator.registerSdkResourceGeneratorTask(
