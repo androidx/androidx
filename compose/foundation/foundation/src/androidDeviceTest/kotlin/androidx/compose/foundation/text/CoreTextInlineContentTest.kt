@@ -175,6 +175,47 @@ class CoreTextInlineContentTest {
         expectInlineContentPosition(left = fontSize * 6, right = fontSize * 2)
     }
 
+    @Test
+    fun inlineContent_toggleFromEmptyToNonEmpty_rendersInlineContent() {
+        val inlineTextContent =
+            InlineTextContent(
+                placeholder =
+                    Placeholder(fontSize.sp, fontSize.sp, PlaceholderVerticalAlign.AboveBaseline)
+            ) {
+                Box(modifier = Modifier.fillMaxSize().testTag("box"))
+            }
+        var inlineContent by mutableStateOf<Map<String, InlineTextContent>>(emptyMap())
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(density = 1f, fontScale = 1f)) {
+                BasicText(
+                    text =
+                        buildAnnotatedString {
+                            append("aaa")
+                            appendInlineContent("box")
+                            append("bbb")
+                        },
+                    modifier = Modifier.testTag("text"),
+                    style = textStyle,
+                    inlineContent = inlineContent,
+                    maxLines = 1,
+                )
+            }
+        }
+
+        rule.onNodeWithTag("box", useUnmergedTree = true).assertDoesNotExist()
+
+        inlineContent = mapOf("box" to inlineTextContent)
+        rule.waitForIdle()
+
+        expectInlineContentPosition(left = fontSize * 3, right = fontSize * 3)
+
+        inlineContent = emptyMap()
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("box", useUnmergedTree = true).assertDoesNotExist()
+    }
+
     @Composable
     private fun TestContent(
         predicate: String,
