@@ -101,6 +101,25 @@ class ScreenshotTestRuleSubclassTest {
         assertThat(path).isEqualTo("golden_id.png")
     }
 
+    @Test
+    fun getDeviceModel_override_appliesToGoldenPathAndOutputFile() {
+        val rule =
+            PathExposingRule(
+                config = ScreenshotTestRuleConfig("repo", "module/dir"),
+                customDeviceModel = "xr_projected",
+            )
+
+        var path: String? = null
+        var outputFileName: String? = null
+        rule.evaluate {
+            path = rule.goldenPath("golden_id")
+            outputFileName = rule.getPathOnDeviceFor(OutputFileType.IMAGE_ACTUAL, "golden_id").name
+        }
+
+        assertThat(path).isEqualTo("module/dir/golden_id_xr_projected.png")
+        assertThat(outputFileName).contains("_xr_projected_")
+    }
+
     private fun ScreenshotTestRule.evaluate(block: () -> Unit) {
         apply(
                 object : Statement() {
@@ -111,8 +130,13 @@ class ScreenshotTestRuleSubclassTest {
             .evaluate()
     }
 
-    private class PathExposingRule(config: ScreenshotTestRuleConfig) : ScreenshotTestRule(config) {
+    private class PathExposingRule(
+        config: ScreenshotTestRuleConfig,
+        private val customDeviceModel: String? = null,
+    ) : ScreenshotTestRule(config) {
         override fun assumeSupportedDevice() {}
+
+        override fun getDeviceModel(): String = customDeviceModel ?: super.getDeviceModel()
 
         fun goldenPath(goldenIdentifier: String): String = resolveGoldenPathInRepo(goldenIdentifier)
     }

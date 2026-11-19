@@ -409,7 +409,14 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
         return file
     }
 
-    private fun getDeviceModel(): String {
+    /**
+     * Returns the normalized device identifier appended to golden filenames
+     * (`<goldenIdentifier>_<deviceId>.png`) and output artifact filenames.
+     *
+     * By default this normalizes [Build.MODEL]. Subclasses that render onto a host-independent
+     * virtual display or maintain goldens under a custom device identifier can override this.
+     */
+    protected open fun getDeviceModel(): String {
         var model = Build.MODEL.lowercase()
         model = model.replace("sdk_gphone64_", "emulator")
         arrayOf("phone", "x86_64", "x86", "x64", "gms", "arm64").forEach {
