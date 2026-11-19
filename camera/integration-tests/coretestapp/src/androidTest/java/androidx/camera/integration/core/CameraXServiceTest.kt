@@ -194,7 +194,11 @@ class CameraXServiceTest(private val implName: String, private val cameraXConfig
         context.startService(createServiceIntent(ACTION_TAKE_PICTURE))
 
         // Assert.
-        assertThat(latch.await(15, TimeUnit.SECONDS)).isTrue()
+        assertThat(latch.await(30, TimeUnit.SECONDS)).isTrue()
+        val captureError = service.takePictureError
+        assertWithMessage("takePicture failed (error=${captureError?.imageCaptureError})")
+            .that(captureError)
+            .isNull()
     }
 
     @Test

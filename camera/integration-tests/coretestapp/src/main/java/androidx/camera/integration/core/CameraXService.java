@@ -139,7 +139,8 @@ public class CameraXService extends LifecycleService {
 
     private @Nullable Consumer<Collection<UseCase>> mOnUseCaseBoundCallback;
     private @Nullable CountDownLatch mAnalysisFrameLatch;
-    private @Nullable CountDownLatch mTakePictureLatch;
+    private volatile @Nullable CountDownLatch mTakePictureLatch;
+    private volatile @Nullable ImageCaptureException mTakePictureError;
     private volatile @Nullable CountDownLatch mRecordVideoLatch;
     private volatile @Nullable CountDownLatch mRecordVideoStatusLatch;
     private volatile int mRecordVideoError = ERROR_NONE;
@@ -379,9 +380,7 @@ public class CameraXService extends LifecycleService {
                         Log.d(TAG, msg);
                         Toast.makeText(CameraXService.this, msg, Toast.LENGTH_LONG).show();
                         mSavedMediaUri.add(outputFileResults.getSavedUri());
-                        if (mTakePictureLatch != null) {
-                            mTakePictureLatch.countDown();
-                        }
+                        releaseTakePictureLatch();
                     }
 
                     @Override
@@ -389,6 +388,8 @@ public class CameraXService extends LifecycleService {
                         String msg = "Failed to save image by " + exception.getImageCaptureError();
                         Log.e(TAG, msg, exception);
                         Toast.makeText(CameraXService.this, msg, Toast.LENGTH_SHORT).show();
+                        mTakePictureError = exception;
+                        releaseTakePictureLatch();
                     }
                 });
     }
@@ -569,8 +570,29 @@ public class CameraXService extends LifecycleService {
 
     @VisibleForTesting
     @NonNull CountDownLatch acquireTakePictureCountDownLatch() {
-        mTakePictureLatch = new CountDownLatch(1);
-        return mTakePictureLatch;
+        mTakePictureError = null;
+        CountDownLatch latch = new CountDownLatch(1);
+        mTakePictureLatch = latch;
+        return latch;
+    }
+
+    private void releaseTakePictureLatch() {
+        CountDownLatch latch = mTakePictureLatch;
+        if (latch != null) {
+            latch.countDown();
+        }
+    }
+
+    /**
+     * Returns the {@link ImageCaptureException} of the last failed picture capture, or
+     * {@code null} if the capture succeeded.
+     *
+     * <p>Only valid after the latch returned by {@link #acquireTakePictureCountDownLatch()} has
+     * been released.
+     */
+    @VisibleForTesting
+    @Nullable ImageCaptureException getTakePictureError() {
+        return mTakePictureError;
     }
 
     @VisibleForTesting
