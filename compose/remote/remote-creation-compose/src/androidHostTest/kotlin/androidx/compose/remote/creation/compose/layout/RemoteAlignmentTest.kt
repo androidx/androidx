@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
-import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,14 +24,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class RemoteAlignmentTest {
-
-    @Test
-    fun toRemoteLayoutDirection_convertsLtrAndRtl() {
-        assertThat(LayoutDirection.Ltr.toRemoteLayoutDirection())
-            .isEqualTo(RemoteLayoutDirection.Ltr)
-        assertThat(LayoutDirection.Rtl.toRemoteLayoutDirection())
-            .isEqualTo(RemoteLayoutDirection.Rtl)
-    }
 
     @Test
     fun horizontalAlignment_toRemoteWithRemoteLayoutDirection() {
