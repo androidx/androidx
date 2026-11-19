@@ -1134,6 +1134,7 @@ class FragmentTransitionSeekingTest {
             executePendingTransactions()
 
             assertThat(fragment2ReturnCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            waitForExecution()
 
             assertThat(fragment2.isAdded).isFalse()
             assertThat(fm1.findFragmentByTag("1")).isNotNull()
@@ -1223,6 +1224,7 @@ class FragmentTransitionSeekingTest {
             // so we wouldn't actually have run the animation until the back press was completed.
             assertThat(fragment2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
             assertThat(fragment3EnterCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            waitForExecution()
 
             // Make sure that fragment 2 does not have a view
             assertThat(fragment2.view).isNull()
