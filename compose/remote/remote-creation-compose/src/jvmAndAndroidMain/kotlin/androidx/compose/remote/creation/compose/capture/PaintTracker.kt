@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.isIdentity
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
@@ -89,7 +90,7 @@ internal class PaintTracker {
             colorVal = constantValue
             colorIsId = false
         } else {
-            colorVal = targetRemoteColor.getIdForCreationState(creationState)
+            colorVal = creationState.getId(targetRemoteColor)
             colorIsId = true
         }
 
@@ -112,7 +113,7 @@ internal class PaintTracker {
 
         strokeWidth =
             updateFloatIfChanged(
-                newPaint.strokeWidth.getFloatIdForCreationState(creationState),
+                creationState.getFloatId(newPaint.strokeWidth),
                 strokeWidth,
             ) {
                 paintBundle.setStrokeWidth(it)
@@ -138,7 +139,7 @@ internal class PaintTracker {
 
         textSize =
             updateFloatIfChanged(
-                newPaint.textSize.getFloatIdForCreationState(creationState),
+                creationState.getFloatId(newPaint.textSize),
                 textSize,
             ) {
                 paintBundle.setTextSize(it)
@@ -228,9 +229,7 @@ internal class PaintTracker {
                 val remoteMatrix3x3 = targetShader.remoteMatrix3x3
                 when {
                     !remoteMatrix3x3.isIdentity -> {
-                        paintBundle.setShaderMatrix(
-                            remoteMatrix3x3.getFloatIdForCreationState(creationState)
-                        )
+                        paintBundle.setShaderMatrix(creationState.getFloatId(remoteMatrix3x3))
                         usingShaderMatrix = true
                     }
                     usingShaderMatrix -> {
@@ -275,8 +274,7 @@ internal class PaintTracker {
         val size = settings?.size ?: return Pair(null, null)
 
         val fontAxisNames = Array(size) { settings[it].axisName }
-        val fontAxisValues =
-            FloatArray(size) { settings[it].value.getFloatIdForCreationState(creationState) }
+        val fontAxisValues = FloatArray(size) { creationState.getFloatId(settings[it].value) }
 
         return Pair(fontAxisNames, fontAxisValues)
     }

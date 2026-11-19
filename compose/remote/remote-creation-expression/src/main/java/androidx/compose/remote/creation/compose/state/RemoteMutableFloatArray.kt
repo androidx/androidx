@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.runtime.annotation.RememberInComposition
+import kotlin.reflect.KClass
 
 /**
  * Represents a mutable array of floats.
@@ -29,12 +30,52 @@ import androidx.compose.runtime.annotation.RememberInComposition
  * @property size The size of the array
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteMutableFloatArray
-/** Constructs a [RemoteMutableFloatArray] with [size] elements which are initialized to 0 */
-@RememberInComposition
-constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteStateArrayKey(size)) {
+public sealed interface RemoteMutableFloatArray : RemoteState<List<RemoteFloat>> {
+    public val size: Int
 
-    public override val constantValueOrNull: List<RemoteFloat>? = null
+    /**
+     * Array access operator for [RemoteMutableFloatArray] with an [Int] index. Performs a
+     * dereference operation on a remote float array.
+     */
+    public operator fun get(v: Int): RemoteFloat
+
+    /**
+     * Array access operator for [RemoteMutableFloatArray] with a [RemoteInt] index. Performs a
+     * dereference operation on a remote float array.
+     */
+    public operator fun get(v: RemoteInt): RemoteFloat
+
+    public operator fun set(index: Int, v: RemoteFloat)
+
+    public operator fun set(index: RemoteInt, v: RemoteFloat)
+}
+
+private enum class MutableFloatArrayOperationKey : RemoteOperation {
+    Create {
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+            "mutableFloatArrayOf(${args.joinToDebugString()})"
+
+        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+            RemoteMutableFloatArray(args.size)
+    },
+    Get {
+        override val precedence: Int
+            get() = 100
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+            args.formatArrayAccess(precedence)
+
+        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+            (args[0] as RemoteMutableFloatArray)[args[1] as RemoteInt]
+    },
+}
+
+private class RemoteMutableFloatArrayImpl(override val size: Int) :
+    BaseRemoteState<List<RemoteFloat>>(RemoteStateArrayKey(size)), RemoteMutableFloatArray {
+    override val equalityType: KClass<*>
+        get() = RemoteMutableFloatArray::class
+
+    override val constantValueOrNull: List<RemoteFloat>? = null
 
     private class PendingSet(val index: RemoteInt, val value: RemoteFloat, val generation: Int)
 
@@ -42,47 +83,19 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
     private val constantValueCache =
         MutableIntObjectMap<RemoteFloat>().apply {
             val zero = RemoteFloat(0f)
-            for (i in 0 until this@RemoteMutableFloatArray.size) {
+            for (i in 0 until this@RemoteMutableFloatArrayImpl.size) {
                 this[i] = zero
             }
         }
     private var generation = 0
 
-    internal enum class OperationKey : RemoteOperation {
-        Create {
-            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
-                "mutableFloatArrayOf(${args.joinToDebugString()})"
-
-            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
-                RemoteMutableFloatArray(args.size)
-        },
-        Get {
-            override val precedence: Int
-                get() = 100
-
-            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
-                args.formatArrayAccess(precedence)
-
-            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
-                (args[0] as RemoteMutableFloatArray)[args[1] as RemoteInt]
-        },
-    }
-
-    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return Utils.idFromNan(creationState.document.addDynamicFloatArray(size.toFloat()))
     }
 
-    /**
-     * Array access operator for [RemoteMutableFloatArray] with an [Int] index. Performs a
-     * dereference operation on a remote float array.
-     */
-    public operator fun get(v: Int): RemoteFloat = get(RemoteInt(v))
+    override fun get(v: Int): RemoteFloat = get(RemoteInt(v))
 
-    /**
-     * Array access operator for [RemoteMutableFloatArray] with a [RemoteInt] index. Performs a
-     * dereference operation on a remote float array.
-     */
-    public operator fun get(v: RemoteInt): RemoteFloat {
+    override fun get(v: RemoteInt): RemoteFloat {
         if (v.hasConstantValue) {
             constantValueCache[v.constantValue]?.let {
                 return it
@@ -94,7 +107,7 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
             constantValueOrNull = null,
             cacheKey =
                 RemoteOperationCacheKey.create(
-                    OperationKey.Get,
+                    MutableFloatArrayOperationKey.Get,
                     this,
                     v,
                     RemoteConstantCacheKey(currentGeneration),
@@ -105,19 +118,19 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
             floatArrayOf(
                 creationState.document.floatExpression(
                     *arrayForCreationState(creationState),
-                    v.getFloatIdForCreationState(creationState),
+                    creationState.getFloatId(v),
                     AnimatedFloatExpression.A_DEREF,
                 )
             )
         }
     }
 
-    public operator fun set(index: Int, v: RemoteFloat) {
+    override fun set(index: Int, v: RemoteFloat) {
         constantValueCache[index] = v
         pendingSetList.add(PendingSet(RemoteInt(index), v, generation++))
     }
 
-    public operator fun set(index: RemoteInt, v: RemoteFloat) {
+    override fun set(index: RemoteInt, v: RemoteFloat) {
         if (index.hasConstantValue) {
             constantValueCache[index.constantValue] = v
         } else {
@@ -135,9 +148,9 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
             if (element.generation <= upTo) {
                 iterator.remove()
                 creationState.document.setArrayValue(
-                    getIdForCreationState(creationState),
-                    element.index.getFloatIdForCreationState(creationState),
-                    element.value.getFloatIdForCreationState(creationState),
+                    getId(creationState),
+                    creationState.getFloatId(element.index),
+                    creationState.getFloatId(element.value),
                 )
             }
         }
@@ -145,7 +158,13 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
 
     private fun arrayForCreationState(creationState: RemoteComposeCreationState): FloatArray {
         return creationState.getOrPutFloatArray(cacheKey) {
-            floatArrayOf(getFloatIdForCreationState(creationState))
+            floatArrayOf(getFloatId(creationState))
         }
     }
 }
+
+/** Constructs a [RemoteMutableFloatArray] with [size] elements which are initialized to 0 */
+@RememberInComposition
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteMutableFloatArray(size: Int): RemoteMutableFloatArray =
+    RemoteMutableFloatArrayImpl(size)

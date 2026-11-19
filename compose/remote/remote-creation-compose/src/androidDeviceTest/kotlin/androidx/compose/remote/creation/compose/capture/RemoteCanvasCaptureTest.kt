@@ -291,8 +291,8 @@ class RemoteCanvasCaptureTest {
     fun conditionalColorAttribute_true() {
         val flag = createNamedRemoteBoolean("flag", true)
         val hues = createConditionalHues(flag)
-        val hueId1 = hues.hue1.getIdForCreationState(creationState)
-        val hueId2 = hues.hue2.getIdForCreationState(creationState)
+        val hueId1 = creationState.getId(hues.hue1)
+        val hueId2 = creationState.getId(hues.hue2)
         remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
 
         val document = constructDocument()
@@ -306,7 +306,7 @@ class RemoteCanvasCaptureTest {
     fun conditionalColorAttribute_false() {
         val flag = createNamedRemoteBoolean("flag", false)
         val hues = createConditionalHues(flag)
-        val hueId2 = hues.hue2.getIdForCreationState(creationState)
+        val hueId2 = creationState.getId(hues.hue2)
         remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
 
         val document = constructDocument()

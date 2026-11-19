@@ -44,7 +44,7 @@ internal class RemoteImageShader(
 ) : RemoteShader() {
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
         paintBundle.setTextureShader(
-            bitmap.getIdForCreationState(creationState),
+            creationState.getId(bitmap),
             tileModeX.value.toShort(),
             tileModeY.value.toShort(),
             Rc.Texture.FILTER_DEFAULT,

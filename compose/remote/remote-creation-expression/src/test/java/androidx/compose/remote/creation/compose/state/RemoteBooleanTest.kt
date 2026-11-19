@@ -33,7 +33,7 @@ class RemoteBooleanTest {
     fun stringSelect_true() {
         val bool = RemoteBoolean(true)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("true")
@@ -43,7 +43,7 @@ class RemoteBooleanTest {
     fun stringSelect_false() {
         val bool = RemoteBoolean(false)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("false")
@@ -53,7 +53,7 @@ class RemoteBooleanTest {
     fun floatSelect_true() {
         val bool = RemoteBoolean(true)
         val result = bool.select(RemoteFloat(10f), RemoteFloat(20f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isEqualTo(10f)
@@ -65,7 +65,7 @@ class RemoteBooleanTest {
     fun floatSelect_false() {
         val bool = RemoteBoolean(false)
         val result = bool.select(RemoteFloat(10f), RemoteFloat(20f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isEqualTo(20f)
@@ -77,7 +77,7 @@ class RemoteBooleanTest {
     fun intSelect_true() {
         val bool = RemoteBoolean(true)
         val result = bool.select(RemoteInt(10), RemoteInt(20))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(10)
@@ -89,7 +89,7 @@ class RemoteBooleanTest {
     fun intSelect_false() {
         val bool = RemoteBoolean(false)
         val result = bool.select(RemoteInt(10), RemoteInt(20))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(20)
@@ -101,7 +101,7 @@ class RemoteBooleanTest {
     fun booleanSelect_true() {
         val bool = RemoteBoolean(true)
         val result = bool.select(RemoteBoolean(false), RemoteBoolean(true))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(0)
@@ -111,7 +111,7 @@ class RemoteBooleanTest {
     fun booleanSelect_false() {
         val bool = RemoteBoolean(false)
         val result = bool.select(RemoteBoolean(false), RemoteBoolean(true))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(1)
@@ -124,7 +124,7 @@ class RemoteBooleanTest {
 
         assertThat(result).isSameInstanceAs(flag)
 
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
         assertThat(context.getInteger(resultId)).isEqualTo(0)
 
@@ -139,7 +139,7 @@ class RemoteBooleanTest {
 
         assertThat(result.cacheKey).isEqualTo((!flag).cacheKey)
 
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
         assertThat(context.getInteger(resultId)).isEqualTo(1)
 
@@ -192,7 +192,7 @@ class RemoteBooleanTest {
         val v2 = RemoteInt(10)
         val bool = v1.isEqualTo(v2)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("true")
@@ -207,8 +207,8 @@ class RemoteBooleanTest {
         val bool2 = v3.isEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("false")
@@ -221,7 +221,7 @@ class RemoteBooleanTest {
         val v2 = RemoteInt(10)
         val bool = v1.isNotEqualTo(v2)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("false")
@@ -236,8 +236,8 @@ class RemoteBooleanTest {
         val bool2 = v3.isNotEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("true")
@@ -250,7 +250,7 @@ class RemoteBooleanTest {
         val v2 = RemoteInt(20)
         val bool = v1.isLessThan(v2)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("true")
@@ -264,8 +264,8 @@ class RemoteBooleanTest {
         val bool2 = v2.isLessThan(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("false")
@@ -280,8 +280,8 @@ class RemoteBooleanTest {
         val bool2 = v2.isLessThanOrEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("true")
@@ -294,7 +294,7 @@ class RemoteBooleanTest {
         val v2 = RemoteInt(20)
         val bool = v2.isLessThanOrEqualTo(v1)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("false")
@@ -306,7 +306,7 @@ class RemoteBooleanTest {
         val v2 = RemoteInt(10)
         val bool = v1.isGreaterThan(v2)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("true")
@@ -320,8 +320,8 @@ class RemoteBooleanTest {
         val bool2 = v2.isGreaterThan(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("false")
@@ -336,8 +336,8 @@ class RemoteBooleanTest {
         val bool2 = v2.isGreaterThanOrEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("true")
@@ -350,7 +350,7 @@ class RemoteBooleanTest {
         val v2 = RemoteInt(10)
         val bool = v2.isGreaterThanOrEqualTo(v1)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("false")
@@ -362,7 +362,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(10f)
         val bool = v1.isEqualTo(v2)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("true")
@@ -377,8 +377,8 @@ class RemoteBooleanTest {
         val bool2 = v3.isEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("false")
@@ -391,7 +391,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(10f)
         val bool = v1.isNotEqualTo(v2)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("false")
@@ -406,8 +406,8 @@ class RemoteBooleanTest {
         val bool2 = v3.isNotEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("true")
@@ -420,7 +420,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(20f)
         val bool = v1.isLessThan(v2)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("true")
@@ -434,8 +434,8 @@ class RemoteBooleanTest {
         val bool2 = v2.isLessThan(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("false")
@@ -450,8 +450,8 @@ class RemoteBooleanTest {
         val bool2 = v2.isLessThanOrEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("true")
@@ -464,7 +464,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(20f)
         val bool = v2.isLessThanOrEqualTo(v1)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("false")
@@ -476,7 +476,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(10f)
         val bool = v1.isGreaterThan(v2)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("true")
@@ -490,8 +490,8 @@ class RemoteBooleanTest {
         val bool2 = v2.isGreaterThan(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("false")
@@ -506,8 +506,8 @@ class RemoteBooleanTest {
         val bool2 = v2.isGreaterThanOrEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
-        val str1Id = str1.getIdForCreationState(creationState)
-        val str2Id = str2.getIdForCreationState(creationState)
+        val str1Id = creationState.getId(str1)
+        val str2Id = creationState.getId(str2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(str1Id)).isEqualTo("true")
@@ -520,7 +520,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(10f)
         val bool = v2.isGreaterThanOrEqualTo(v1)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(strId)).isEqualTo("false")
@@ -532,7 +532,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(10f)
         val bool = v1.isGreaterThanOrEqualTo(v2)
         val color = bool.select(COLOR_RED, COLOR_GREEN)
-        val colorId = color.getIdForCreationState(creationState)
+        val colorId = creationState.getId(color)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(colorId)).isEqualTo(COLOR_RED)
@@ -544,7 +544,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(20f)
         val bool = v1.isGreaterThanOrEqualTo(v2)
         val color = bool.select(COLOR_RED, COLOR_GREEN)
-        val colorId = color.getIdForCreationState(creationState)
+        val colorId = creationState.getId(color)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(colorId)).isEqualTo(COLOR_GREEN)
@@ -556,7 +556,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(10f)
         val bool = v1.isGreaterThanOrEqualTo(v2)
         val color = bool.select(RemoteColor(COLOR_RED), RemoteColor(COLOR_GREEN))
-        val colorId = color.getIdForCreationState(creationState)
+        val colorId = creationState.getId(color)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(colorId)).isEqualTo(COLOR_RED)
@@ -568,7 +568,7 @@ class RemoteBooleanTest {
         val v2 = RemoteFloat(20f)
         val bool = v1.isGreaterThanOrEqualTo(v2)
         val color = bool.select(RemoteColor(COLOR_RED), RemoteColor(COLOR_GREEN))
-        val colorId = color.getIdForCreationState(creationState)
+        val colorId = creationState.getId(color)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(colorId)).isEqualTo(COLOR_GREEN)
@@ -584,10 +584,10 @@ class RemoteBooleanTest {
         val result01 = b01.select(RemoteString("true"), RemoteString("false"))
         val result10 = b10.select(RemoteString("true"), RemoteString("false"))
         val result11 = b11.select(RemoteString("true"), RemoteString("false"))
-        val result00Id = result00.getIdForCreationState(creationState)
-        val result01Id = result01.getIdForCreationState(creationState)
-        val result10Id = result10.getIdForCreationState(creationState)
-        val result11Id = result11.getIdForCreationState(creationState)
+        val result00Id = creationState.getId(result00)
+        val result01Id = creationState.getId(result01)
+        val result10Id = creationState.getId(result10)
+        val result11Id = creationState.getId(result11)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(result00Id)).isEqualTo("false")
@@ -606,10 +606,10 @@ class RemoteBooleanTest {
         val result01 = b01.select(RemoteString("true"), RemoteString("false"))
         val result10 = b10.select(RemoteString("true"), RemoteString("false"))
         val result11 = b11.select(RemoteString("true"), RemoteString("false"))
-        val result00Id = result00.getIdForCreationState(creationState)
-        val result01Id = result01.getIdForCreationState(creationState)
-        val result10Id = result10.getIdForCreationState(creationState)
-        val result11Id = result11.getIdForCreationState(creationState)
+        val result00Id = creationState.getId(result00)
+        val result01Id = creationState.getId(result01)
+        val result10Id = creationState.getId(result10)
+        val result11Id = creationState.getId(result11)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(result00Id)).isEqualTo("false")
@@ -628,10 +628,10 @@ class RemoteBooleanTest {
         val result01 = b01.select(RemoteString("true"), RemoteString("false"))
         val result10 = b10.select(RemoteString("true"), RemoteString("false"))
         val result11 = b11.select(RemoteString("true"), RemoteString("false"))
-        val result00Id = result00.getIdForCreationState(creationState)
-        val result01Id = result01.getIdForCreationState(creationState)
-        val result10Id = result10.getIdForCreationState(creationState)
-        val result11Id = result11.getIdForCreationState(creationState)
+        val result00Id = creationState.getId(result00)
+        val result01Id = creationState.getId(result01)
+        val result10Id = creationState.getId(result10)
+        val result11Id = creationState.getId(result11)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(result00Id)).isEqualTo("false")
@@ -650,10 +650,10 @@ class RemoteBooleanTest {
         val result01 = b01.select(RemoteString("true"), RemoteString("false"))
         val result10 = b10.select(RemoteString("true"), RemoteString("false"))
         val result11 = b11.select(RemoteString("true"), RemoteString("false"))
-        val result00Id = result00.getIdForCreationState(creationState)
-        val result01Id = result01.getIdForCreationState(creationState)
-        val result10Id = result10.getIdForCreationState(creationState)
-        val result11Id = result11.getIdForCreationState(creationState)
+        val result00Id = creationState.getId(result00)
+        val result01Id = creationState.getId(result01)
+        val result10Id = creationState.getId(result10)
+        val result11Id = creationState.getId(result11)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(result00Id)).isEqualTo("true")
@@ -672,10 +672,10 @@ class RemoteBooleanTest {
         val result01 = b01.select(RemoteString("true"), RemoteString("false"))
         val result10 = b10.select(RemoteString("true"), RemoteString("false"))
         val result11 = b11.select(RemoteString("true"), RemoteString("false"))
-        val result00Id = result00.getIdForCreationState(creationState)
-        val result01Id = result01.getIdForCreationState(creationState)
-        val result10Id = result10.getIdForCreationState(creationState)
-        val result11Id = result11.getIdForCreationState(creationState)
+        val result00Id = creationState.getId(result00)
+        val result01Id = creationState.getId(result01)
+        val result10Id = creationState.getId(result10)
+        val result11Id = creationState.getId(result11)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(result00Id)).isEqualTo("false")
@@ -690,8 +690,8 @@ class RemoteBooleanTest {
         val b1 = !RemoteBoolean(true)
         val result0 = b0.select(RemoteString("true"), RemoteString("false"))
         val result1 = b1.select(RemoteString("true"), RemoteString("false"))
-        val result0Id = result0.getIdForCreationState(creationState)
-        val result2Id = result1.getIdForCreationState(creationState)
+        val result0Id = creationState.getId(result0)
+        val result2Id = creationState.getId(result1)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(result0Id)).isEqualTo("true")
@@ -704,8 +704,8 @@ class RemoteBooleanTest {
         val b1 = RemoteBoolean(false)
         val i0 = b0.toRemoteInt()
         val i1 = b1.toRemoteInt()
-        val i0Id = i0.getIdForCreationState(creationState)
-        val i1Id = i1.getIdForCreationState(creationState)
+        val i0Id = creationState.getId(i0)
+        val i1Id = creationState.getId(i1)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(i0Id)).isEqualTo(1)
@@ -739,7 +739,7 @@ class RemoteBooleanTest {
         val finalArray = result.arrayProvider(creationState)
         assertThat(finalArray.size < 20).isTrue()
 
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
         val expected = (50 * 51) / 2f
         assertThat(context.getFloat(resultId)).isEqualTo(expected)
@@ -785,61 +785,61 @@ class RemoteBooleanTest {
     @Test
     fun mutableRemoteBoolean_smokeTest() {
         val mutableBool = MutableRemoteBoolean(true)
-        val resultId = mutableBool.getIdForCreationState(creationState)
+        val resultId = creationState.getId(mutableBool)
         assertThat(resultId).isGreaterThan(0)
     }
 
     @Test
-    fun toDebugString_logicalAnd() {
+    fun toString_logicalAnd() {
         val b = createNamedRemoteBoolean("b", true)
         val expr = b and RemoteBoolean(false)
-        assertThat(expr.toDebugString()).isEqualTo("user:b and 0")
+        assertThat(expr.toString()).isEqualTo("user:b and 0")
     }
 
     @Test
-    fun toDebugString_logicalOr() {
+    fun toString_logicalOr() {
         val b = createNamedRemoteBoolean("b", true)
         val expr = b or RemoteBoolean(false)
-        assertThat(expr.toDebugString()).isEqualTo("user:b or 0")
+        assertThat(expr.toString()).isEqualTo("user:b or 0")
     }
 
     @Test
-    fun toDebugString_logicalXor() {
+    fun toString_logicalXor() {
         val b = createNamedRemoteBoolean("b", true)
         val expr = b xor RemoteBoolean(false)
-        assertThat(expr.toDebugString()).isEqualTo("user:b xor 0")
+        assertThat(expr.toString()).isEqualTo("user:b xor 0")
     }
 
     @Test
-    fun toDebugString_select() {
+    fun toString_select() {
         val b = createNamedRemoteBoolean("b", true)
         val selectStr = b.select(RemoteString("yes"), RemoteString("no"))
-        assertThat(selectStr.toDebugString()).isEqualTo("""user:b ? "yes" : "no"""")
+        assertThat(selectStr.toString()).isEqualTo("""user:b ? "yes" : "no"""")
 
         val selectInt = b.select(RemoteInt(10), RemoteInt(20))
-        assertThat(selectInt.toDebugString()).isEqualTo("user:b ? 10 : 20")
+        assertThat(selectInt.toString()).isEqualTo("user:b ? 10 : 20")
     }
 
     @Test
-    fun toDebugString_not() {
+    fun toString_not() {
         val b = createNamedRemoteBoolean("b", true)
         // Note not() is implemented as xor 1.
-        assertThat((!b).toDebugString()).isEqualTo("user:b xor 1")
+        assertThat((!b).toString()).isEqualTo("user:b xor 1")
     }
 
     @Test
-    fun toDebugString_contextVariable() {
+    fun toString_contextVariable() {
         val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val boolExpr = continuousSecFloat.toRemoteInt().isGreaterThan(0.ri)
-        assertThat(boolExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteInt() > 0")
+        assertThat(boolExpr.toString()).isEqualTo("context:continuous_sec.toRemoteInt() > 0")
     }
 
     @Test
-    fun toDebugString_constant() {
+    fun toString_constant() {
         val bTrue = RemoteBoolean(true)
         val bFalse = RemoteBoolean(false)
-        assertThat(bTrue.toDebugString()).isEqualTo("true")
-        assertThat(bFalse.toDebugString()).isEqualTo("false")
+        assertThat(bTrue.toString()).isEqualTo("true")
+        assertThat(bFalse.toString()).isEqualTo("false")
     }
 
     @Test
@@ -852,7 +852,7 @@ class RemoteBooleanTest {
         assertThat(expr.constantValueOrNull).isEqualTo(0f)
         assertThat(expr.hasConstantValue).isTrue()
 
-        val exprId = expr.getIdForCreationState(creationState)
+        val exprId = creationState.getId(expr)
         makeAndPaintCoreDocument()
         assertThat(context.getFloat(exprId)).isEqualTo(0f)
 
@@ -870,7 +870,7 @@ class RemoteBooleanTest {
         assertThat(expr.constantValueOrNull).isNull()
         assertThat(expr.hasConstantValue).isFalse()
 
-        val exprId = expr.getIdForCreationState(creationState)
+        val exprId = creationState.getId(expr)
         makeAndPaintCoreDocument()
         // Default value: interactive_state is false, so select(255, 0) is 0
         // (0 / 255) * (0 / 255) = 0

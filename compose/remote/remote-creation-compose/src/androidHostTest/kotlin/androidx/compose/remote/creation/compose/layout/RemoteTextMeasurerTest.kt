@@ -244,16 +244,16 @@ class RemoteTextMeasurerTest {
         val monospaceWidth =
             measurer.measureMonospaceWidth(text = "HeadlessMeasure".rs, style = style)
 
-        assertThat(layout.size.width.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(layout.size.height.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(layout.baseline.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(fontMetrics.ascent.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(fontMetrics.descent.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(paintBounds.left.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(paintBounds.top.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(paintBounds.right.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(paintBounds.bottom.getFloatIdForCreationState(creationState).isNaN()).isTrue()
-        assertThat(monospaceWidth.getFloatIdForCreationState(creationState).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(layout.size.width).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(layout.size.height).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(layout.baseline).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(fontMetrics.ascent).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(fontMetrics.descent).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(paintBounds.left).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(paintBounds.top).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(paintBounds.right).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(paintBounds.bottom).isNaN()).isTrue()
+        assertThat(creationState.getFloatId(monospaceWidth).isNaN()).isTrue()
         assertThat(creationState.document.bufferSize()).isGreaterThan(0)
     }
 

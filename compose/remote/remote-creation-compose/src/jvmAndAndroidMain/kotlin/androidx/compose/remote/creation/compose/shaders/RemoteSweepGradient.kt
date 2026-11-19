@@ -121,18 +121,17 @@ internal class RemoteSweepShader(
                     constantValue
                 } else {
                     mask = mask or (1 shl i)
-                    color.getIdForCreationState(creationState)
+                    creationState.getId(color)
                 }
             }
-        val positionsArray =
-            positions?.fastMap { it.getFloatIdForCreationState(creationState) }?.toFloatArray()
+        val positionsArray = positions?.fastMap { creationState.getFloatId(it) }?.toFloatArray()
 
         paintBundle.setSweepGradient(
             colorsArray,
             mask,
             positionsArray,
-            centerX.getFloatIdForCreationState(creationState),
-            centerY.getFloatIdForCreationState(creationState),
+            creationState.getFloatId(centerX),
+            creationState.getFloatId(centerY),
         )
     }
 }

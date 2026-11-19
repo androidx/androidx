@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteComponentCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -141,7 +142,7 @@ class RemoteComponentTest {
                                 modifier = RemoteModifier.size(12.rdp),
                             )
                             val comp = remoteComponent()
-                            capturedWidth = comp.width.getFloatIdForCreationState(expState)
+                            capturedWidth = expState.getFloatId(comp.width)
                             remoteCanvas.drawRect(0f.rf, 0f.rf, comp.width, comp.height, null)
                         }
                     }
@@ -191,12 +192,9 @@ class RemoteComponentTest {
                                         override fun RemoteStateScope.toRemoteAction():
                                             CreationAction {
                                             val comp = remoteComponent()
-                                            modifierWidthNan =
-                                                comp.width.getFloatIdForCreationState(creationState)
+                                            modifierWidthNan = creationState.getFloatId(comp.width)
                                             modifierHeightNan =
-                                                comp.height.getFloatIdForCreationState(
-                                                    creationState
-                                                )
+                                                creationState.getFloatId(comp.height)
                                             return hostAction("w".rs, comp.width).run {
                                                 toRemoteAction()
                                             }
@@ -205,8 +203,8 @@ class RemoteComponentTest {
                                 )
                         onDraw = {
                             val comp = remoteComponent()
-                            drawWidthNan = comp.width.getFloatIdForCreationState(creationState)
-                            drawHeightNan = comp.height.getFloatIdForCreationState(creationState)
+                            drawWidthNan = creationState.getFloatId(comp.width)
+                            drawHeightNan = creationState.getFloatId(comp.height)
                             remoteCanvas.drawRect(0f.rf, 0f.rf, comp.width, comp.height, null)
                         }
                     }

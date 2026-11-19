@@ -130,9 +130,9 @@ class RemoteStateTest {
 
                 val state = LocalRemoteComposeCreationState.current
 
-                valId = valString.getIdForCreationState(state)
-                namedId1 = namedString1.getIdForCreationState(state)
-                namedId2 = namedString2.getIdForCreationState(state)
+                valId = state.getId(valString)
+                namedId1 = state.getId(namedString1)
+                namedId2 = state.getId(namedString2)
             }
         }
 

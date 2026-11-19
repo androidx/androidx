@@ -107,8 +107,8 @@ class RemoteIntTest {
         val b1 = RemoteInt(10).isEqualTo(RemoteInt(20))
         val result0 = b0.select(RemoteInt(1), RemoteInt(0))
         val result1 = b1.select(RemoteInt(1), RemoteInt(0))
-        val result0Id = result0.getIdForCreationState(creationState)
-        val result1Id = result1.getIdForCreationState(creationState)
+        val result0Id = creationState.getId(result0)
+        val result1Id = creationState.getId(result1)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(result0Id)).isEqualTo(1)
@@ -121,8 +121,8 @@ class RemoteIntTest {
         val b1 = RemoteInt(10).isNotEqualTo(RemoteInt(20))
         val result0 = b0.select(RemoteInt(1), RemoteInt(0))
         val result1 = b1.select(RemoteInt(1), RemoteInt(0))
-        val result0Id = result0.getIdForCreationState(creationState)
-        val result1Id = result1.getIdForCreationState(creationState)
+        val result0Id = creationState.getId(result0)
+        val result1Id = creationState.getId(result1)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(result0Id)).isEqualTo(0)
@@ -137,9 +137,9 @@ class RemoteIntTest {
         val result0 = b0.select(RemoteInt(1), RemoteInt(0))
         val result1 = b1.select(RemoteInt(1), RemoteInt(0))
         val result2 = b2.select(RemoteInt(1), RemoteInt(0))
-        val result0Id = result0.getIdForCreationState(creationState)
-        val result1Id = result1.getIdForCreationState(creationState)
-        val result2Id = result2.getIdForCreationState(creationState)
+        val result0Id = creationState.getId(result0)
+        val result1Id = creationState.getId(result1)
+        val result2Id = creationState.getId(result2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(result0Id)).isEqualTo(1)
@@ -155,9 +155,9 @@ class RemoteIntTest {
         val result0 = b0.select(RemoteInt(1), RemoteInt(0))
         val result1 = b1.select(RemoteInt(1), RemoteInt(0))
         val result2 = b2.select(RemoteInt(1), RemoteInt(0))
-        val result0Id = result0.getIdForCreationState(creationState)
-        val result1Id = result1.getIdForCreationState(creationState)
-        val result2Id = result2.getIdForCreationState(creationState)
+        val result0Id = creationState.getId(result0)
+        val result1Id = creationState.getId(result1)
+        val result2Id = creationState.getId(result2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(result0Id)).isEqualTo(1)
@@ -173,9 +173,9 @@ class RemoteIntTest {
         val result0 = b0.select(RemoteInt(1), RemoteInt(0))
         val result1 = b1.select(RemoteInt(1), RemoteInt(0))
         val result2 = b2.select(RemoteInt(1), RemoteInt(0))
-        val result0Id = result0.getIdForCreationState(creationState)
-        val result1Id = result1.getIdForCreationState(creationState)
-        val result2Id = result2.getIdForCreationState(creationState)
+        val result0Id = creationState.getId(result0)
+        val result1Id = creationState.getId(result1)
+        val result2Id = creationState.getId(result2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(result0Id)).isEqualTo(1)
@@ -191,9 +191,9 @@ class RemoteIntTest {
         val result0 = b0.select(RemoteInt(1), RemoteInt(0))
         val result1 = b1.select(RemoteInt(1), RemoteInt(0))
         val result2 = b2.select(RemoteInt(1), RemoteInt(0))
-        val result0Id = result0.getIdForCreationState(creationState)
-        val result1Id = result1.getIdForCreationState(creationState)
-        val result2Id = result2.getIdForCreationState(creationState)
+        val result0Id = creationState.getId(result0)
+        val result1Id = creationState.getId(result1)
+        val result2Id = creationState.getId(result2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(result0Id)).isEqualTo(1)
@@ -205,7 +205,7 @@ class RemoteIntTest {
     fun toRemoteString() {
         val sum = RemoteInt(100) + 20
         val sumString = sum.toRemoteString()
-        val sumStringId = sumString.getIdForCreationState(creationState)
+        val sumStringId = creationState.getId(sumString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(sumStringId)).isEqualTo("120")
@@ -215,7 +215,7 @@ class RemoteIntTest {
     fun remoteFloat_toRemoteInt_toRemoteString() {
         val n3_99 = createNamedRemoteFloat("n3_99", 3.99f)
         val str = n3_99.toRemoteInt().toRemoteString()
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
 
         makeAndPaintCoreDocument()
 
@@ -225,7 +225,7 @@ class RemoteIntTest {
     @Test
     fun selectIfLt_less() {
         val result = selectIfLt(RemoteInt(1), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(100)
@@ -234,7 +234,7 @@ class RemoteIntTest {
     @Test
     fun selectIfLt_equal() {
         val result = selectIfLt(RemoteInt(2), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(200)
@@ -243,7 +243,7 @@ class RemoteIntTest {
     @Test
     fun selectIfLt_greater() {
         val result = selectIfLt(RemoteInt(3), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(200)
@@ -252,7 +252,7 @@ class RemoteIntTest {
     @Test
     fun selectIfLe_less() {
         val result = selectIfLe(RemoteInt(1), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(100)
@@ -261,7 +261,7 @@ class RemoteIntTest {
     @Test
     fun selectIfLe_equal() {
         val result = selectIfLe(RemoteInt(2), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(100)
@@ -270,7 +270,7 @@ class RemoteIntTest {
     @Test
     fun selectIfLe_greater() {
         val result = selectIfLe(RemoteInt(2), RemoteInt(1), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(200)
@@ -279,7 +279,7 @@ class RemoteIntTest {
     @Test
     fun selectIfGt_less() {
         val result = selectIfGt(RemoteInt(1), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(200)
@@ -288,7 +288,7 @@ class RemoteIntTest {
     @Test
     fun selectIfGt_equal() {
         val result = selectIfGt(RemoteInt(2), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(200)
@@ -297,7 +297,7 @@ class RemoteIntTest {
     @Test
     fun selectIfGt_greater() {
         val result = selectIfGt(RemoteInt(3), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(100)
@@ -306,7 +306,7 @@ class RemoteIntTest {
     @Test
     fun selectIfGe_less() {
         val result = selectIfGe(RemoteInt(1), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(200)
@@ -315,7 +315,7 @@ class RemoteIntTest {
     @Test
     fun selectIfGe_equal() {
         val result = selectIfGe(RemoteInt(2), RemoteInt(2), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(100)
@@ -324,7 +324,7 @@ class RemoteIntTest {
     @Test
     fun selectIfGe_greater() {
         val result = selectIfGe(RemoteInt(2), RemoteInt(1), RemoteInt(100), RemoteInt(200))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(100)
@@ -333,7 +333,7 @@ class RemoteIntTest {
     @Test
     fun shl() {
         val result = RemoteInt(2) shl RemoteInt(4)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(2 shl 4)
@@ -342,7 +342,7 @@ class RemoteIntTest {
     @Test
     fun shr() {
         val result = RemoteInt(1024) shr RemoteInt(3)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(1024 shr 3)
@@ -351,7 +351,7 @@ class RemoteIntTest {
     @Test
     fun or() {
         val result = RemoteInt(1024) or RemoteInt(512)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(1024 or 512)
@@ -360,7 +360,7 @@ class RemoteIntTest {
     @Test
     fun xor() {
         val result = RemoteInt(1234) xor RemoteInt(5432)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(1234 xor 5432)
@@ -369,7 +369,7 @@ class RemoteIntTest {
     @Test
     fun copySign() {
         val result = copySign(RemoteInt(12345), RemoteInt(-10))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(-12345)
@@ -378,7 +378,7 @@ class RemoteIntTest {
     @Test
     fun unaryMinus() {
         val result = RemoteInt(100) + -RemoteInt(10)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(90)
@@ -387,7 +387,7 @@ class RemoteIntTest {
     @Test
     fun inv() {
         val result = RemoteInt(3).inv()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(3.inv())
@@ -397,8 +397,8 @@ class RemoteIntTest {
     fun absoluteValue() {
         val result1 = RemoteInt(100).absoluteValue
         val result2 = RemoteInt(-100).absoluteValue
-        val resultId1 = result1.getIdForCreationState(creationState)
-        val resultId2 = result2.getIdForCreationState(creationState)
+        val resultId1 = creationState.getId(result1)
+        val resultId2 = creationState.getId(result2)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId1)).isEqualTo(100)
@@ -408,7 +408,7 @@ class RemoteIntTest {
     @Test
     fun min() {
         val result = min(RemoteInt(20), RemoteInt(10))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(10)
@@ -417,7 +417,7 @@ class RemoteIntTest {
     @Test
     fun max() {
         val result = max(RemoteInt(20), RemoteInt(10))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(20)
@@ -429,7 +429,7 @@ class RemoteIntTest {
         val upperBound = RemoteInt(100)
         val value = RemoteInt(5)
         val result = clamp(lowerBound, upperBound, value)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(10)
@@ -441,7 +441,7 @@ class RemoteIntTest {
         val upperBound = RemoteInt(100)
         val value = RemoteInt(25)
         val result = clamp(lowerBound, upperBound, value)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(25)
@@ -453,7 +453,7 @@ class RemoteIntTest {
         val upperBound = RemoteInt(100)
         val value = RemoteInt(500)
         val result = clamp(lowerBound, upperBound, value)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(100)
@@ -505,7 +505,7 @@ class RemoteIntTest {
     fun namedRemoteInt_initialValue() {
         val namedRemoteInt = createNamedRemoteInt("testInt", 100)
         val result = namedRemoteInt * RemoteInt(10)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -516,7 +516,7 @@ class RemoteIntTest {
     fun namedRemoteInt_overriddenValue() {
         val namedRemoteInt = createNamedRemoteInt("testInt", 100)
         val result = namedRemoteInt * RemoteInt(10)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndUpdateCoreDocument { context.setNamedIntegerOverride("USER:testInt", 20) }
 
@@ -528,7 +528,7 @@ class RemoteIntTest {
         val namedRemoteInt = createNamedRemoteInt("testInt", 100)
         val plusOne = namedRemoteInt + RemoteInt(1)
         val result = plusOne * plusOne
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndUpdateCoreDocument { context.setNamedIntegerOverride("USER:testInt", 19) }
 
@@ -576,7 +576,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_plus() {
         val expr = (time + 10) + 1
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -591,7 +591,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_minus() {
         val expr = (time - 10) - 1
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -606,7 +606,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_minus2() {
         val expr = (time + 10) - 1
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -621,7 +621,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_times() {
         val expr = (time * 10) * 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -636,7 +636,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_div() {
         val expr = (time / 10) / 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -651,7 +651,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_div2() {
         val expr = (time * 10) / 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -666,7 +666,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_complex() {
         val expr = (time + 10) - 5 + 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -681,7 +681,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_negative() {
         val expr = (time * 10) + 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -697,7 +697,7 @@ class RemoteIntTest {
     fun peepholeOptimization_select_div() {
         val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
         val expr = myBool.select(10.ri, 20.ri) / 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -713,7 +713,7 @@ class RemoteIntTest {
     fun peepholeOptimization_select_rem() {
         val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
         val expr = myBool.select(10.ri, 20.ri) % 3
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -729,7 +729,7 @@ class RemoteIntTest {
     fun peepholeOptimization_select_times() {
         val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
         val expr = myBool.select(10.ri, 20.ri) * 3
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -745,7 +745,7 @@ class RemoteIntTest {
     fun peepholeOptimization_select_plus() {
         val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
         val expr = myBool.select(10.ri, 20.ri) + 5
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -761,7 +761,7 @@ class RemoteIntTest {
     fun peepholeOptimization_select_minus() {
         val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
         val expr = myBool.select(10.ri, 20.ri) - 5
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -777,7 +777,7 @@ class RemoteIntTest {
     fun peepholeOptimization_select_chained() {
         val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
         val expr = (myBool.select(10.ri, 20.ri) + 10) * 2 / 4
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -794,7 +794,7 @@ class RemoteIntTest {
         val x = RemoteInt.createNamedRemoteInt("x", 5)
         val y = RemoteInt.createNamedRemoteInt("y", 10)
         val expr = selectIfLt(x, y, 100.ri, 200.ri) / 10
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -812,7 +812,7 @@ class RemoteIntTest {
     fun peepholeOptimization_selectIfGt_times() {
         val x = RemoteInt.createNamedRemoteInt("x", 5)
         val expr = selectIfGt(x, 10.ri, 10.ri, 20.ri) * 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -828,7 +828,7 @@ class RemoteIntTest {
     fun peepholeOptimization_selectIfLe_plus() {
         val x = RemoteInt.createNamedRemoteInt("x", 5)
         val expr = selectIfLe(x, 10.ri, 10.ri, 20.ri) + 5
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -844,7 +844,7 @@ class RemoteIntTest {
     fun peepholeOptimization_selectIfGe_minus() {
         val x = RemoteInt.createNamedRemoteInt("x", 5)
         val expr = selectIfGe(x, 10.ri, 10.ri, 20.ri) - 5
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -861,7 +861,7 @@ class RemoteIntTest {
         val x = RemoteInt.createNamedRemoteInt("x", 5)
         val y = RemoteInt.createNamedRemoteInt("y", 10)
         val expr = (x.isLessThan(y)).select(10.ri, 20.ri) * 3
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -887,15 +887,15 @@ class RemoteIntTest {
                 longArrayOf(
                     10L,
                     20L,
-                    0x100000000L + x.getIdForCreationState(creationState),
+                    0x100000000L + creationState.getId(x),
                     0x100000000L + IntegerExpressionEvaluator.I_SUB,
-                    0x100000000L + y.getIdForCreationState(creationState),
+                    0x100000000L + creationState.getId(y),
                     0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
                 )
             }
 
         val expr = rawSelect * 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
         val ops = getOperationsStrings()
         assertThat(ops)
             .containsExactly(
@@ -914,7 +914,7 @@ class RemoteIntTest {
         val y = RemoteInt.createNamedRemoteInt("y", 10)
         val mult = x * y
         val divExpr = mult / 0
-        divExpr.getIdForCreationState(creationState)
+        creationState.getId(divExpr)
         val ops = getOperationsStrings()
         assertThat(ops)
             .containsExactly(
@@ -931,7 +931,7 @@ class RemoteIntTest {
     fun peepholeOptimization_select_divByZero_doesNotCrashDuringPeepHole() {
         val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
         val expr = myBool.select(10.ri, 20.ri) / 0
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
         val ops = getOperationsStrings()
         assertThat(ops)
             .containsExactly(
@@ -946,7 +946,7 @@ class RemoteIntTest {
     fun peepholeOptimization_select_remByZero_doesNotCrashDuringPeepHole() {
         val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
         val expr = myBool.select(10.ri, 20.ri) % 0
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
         val ops = getOperationsStrings()
         assertThat(ops)
             .containsExactly(
@@ -963,7 +963,7 @@ class RemoteIntTest {
         val y = RemoteInt.createNamedRemoteInt("y", 10)
         val mult = x * y
         val divExpr = mult / 2
-        divExpr.getIdForCreationState(creationState)
+        creationState.getId(divExpr)
         val ops = getOperationsStrings()
         assertThat(ops)
             .containsExactly(
@@ -982,7 +982,7 @@ class RemoteIntTest {
         // (19 / 10) * 2 = 1 * 2 = 2.
         // If incorrectly folded to x / (10 / 2) = 19 / 5 = 3.
         val expr = (x / 10) * 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -1000,7 +1000,7 @@ class RemoteIntTest {
         // 2_000_000_000L * 3L = 6_000_000_000L >= 0x100000000L.
         // Truncated to 32-bit int: 1_705_032_704.
         val expr = (x * 2_000_000_000) * 3
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -1018,7 +1018,7 @@ class RemoteIntTest {
         // 2_000_000_000L * 3L = 6_000_000_000L >= 0x100000000L -> 1_705_032_704
         // 1_000_000_000L * 3L = 3_000_000_000L -> -1_294_967_296
         val expr = myBool.select(2_000_000_000.ri, 1_000_000_000.ri) * 3
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -1033,7 +1033,7 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_zeroDiv() {
         val expr = RemoteInt(0) / time
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops).containsExactly("IntegerExpression[43] = (0)").inOrder()
@@ -1042,49 +1042,46 @@ class RemoteIntTest {
     @Test
     fun peepholeOptimization_trimToIdentity_plusMinus() {
         val expr = (time + 10) - 10
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
             .containsExactly("VariableName[43] = \"USER:time\" type=4", "IntegerConstant[43] = 100")
             .inOrder()
-        assertThat(expr.getIdForCreationState(creationState))
-            .isEqualTo(time.getIdForCreationState(creationState))
+        assertThat(creationState.getId(expr)).isEqualTo(creationState.getId(time))
     }
 
     @Test
     fun peepholeOptimization_trimToIdentity_minusPlus() {
         val expr = (time - 10) + 10
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
             .containsExactly("VariableName[43] = \"USER:time\" type=4", "IntegerConstant[43] = 100")
             .inOrder()
-        assertThat(expr.getIdForCreationState(creationState))
-            .isEqualTo(time.getIdForCreationState(creationState))
+        assertThat(creationState.getId(expr)).isEqualTo(creationState.getId(time))
     }
 
     @Test
     fun peepholeOptimization_trimToIdentity_timesDiv() {
         val expr = (time * 2) / 2
-        expr.getIdForCreationState(creationState)
+        creationState.getId(expr)
 
         val ops = getOperationsStrings()
         assertThat(ops)
             .containsExactly("VariableName[43] = \"USER:time\" type=4", "IntegerConstant[43] = 100")
             .inOrder()
-        assertThat(expr.getIdForCreationState(creationState))
-            .isEqualTo(time.getIdForCreationState(creationState))
+        assertThat(creationState.getId(expr)).isEqualTo(creationState.getId(time))
     }
 
     @Test
     fun mutableRemoteInt_applyExpression() {
-        val timeId = time.getIdForCreationState(creationState)
+        val timeId = creationState.getId(time)
         val mutableTime = MutableRemoteInt.createMutableForId(timeId.toLong())
 
         val expr = (mutableTime + 2) / 2
-        val exprId = expr.getIdForCreationState(creationState)
+        val exprId = creationState.getId(expr)
 
         makeAndPaintCoreDocument()
 
@@ -1098,7 +1095,7 @@ class RemoteIntTest {
 
         // Write 'a' to document first to ensure it's in the document and hasBeenWrittenToDoc
         // returns true
-        a.getIdForCreationState(creationState)
+        creationState.getId(a)
         assertThat(a.hasBeenWrittenToDoc(creationState)).isTrue()
 
         // Now 'b' should reference 'a' instead of inlining it
@@ -1107,7 +1104,7 @@ class RemoteIntTest {
         // Expected bArray: [ID_A, 789, ADD] -> size 3
         // If inlined: [TIME, 123, ADD, 456, MUL, 789, ADD] -> size 7
         assertThat(bArray.size).isEqualTo(3)
-        assertThat(bArray[0]).isEqualTo(a.getLongIdForCreationState(creationState))
+        assertThat(bArray[0]).isEqualTo(creationState.getLongId(a))
     }
 
     @Test
@@ -1125,7 +1122,7 @@ class RemoteIntTest {
     @Test
     fun mutableRemoteInt_smokeTest() {
         val mutableInt = MutableRemoteInt(10)
-        val resultId = mutableInt.getIdForCreationState(creationState)
+        val resultId = creationState.getId(mutableInt)
         assertThat(resultId).isGreaterThan(0)
     }
 
@@ -1154,74 +1151,68 @@ class RemoteIntTest {
         context.loadDocument(creationState, runAfterInit)
 
     @Test
-    fun toDebugString_arithmetic() {
+    fun toString_arithmetic() {
         val x = createNamedRemoteInt("x", 0)
         val expr = -x * 3 + 2
-        assertThat(expr.toDebugString()).isEqualTo("-user:x * 3 + 2")
+        assertThat(expr.toString()).isEqualTo("-user:x * 3 + 2")
     }
 
     @Test
-    fun toDebugString_conversions() {
+    fun toString_conversions() {
         val x = createNamedRemoteInt("x", 0)
-        assertThat(x.toRemoteString().toDebugString())
+        assertThat(x.toRemoteString().toString())
             .isEqualTo("user:x.toRemoteFloat().toRemoteString()")
-        assertThat(x.toRemoteFloat().toDebugString()).isEqualTo("user:x.toRemoteFloat()")
+        assertThat(x.toRemoteFloat().toString()).isEqualTo("user:x.toRemoteFloat()")
     }
 
     @Test
-    fun toDebugString_nestedConditional() {
+    fun toString_nestedConditional() {
         val x = createNamedRemoteInt("x", 0)
         val y = createNamedRemoteInt("y", 10)
         val nestedSelect =
             x.isEqualTo(0.ri).select(100.ri, y.isEqualTo(20.ri).select(200.ri, 300.ri))
-        assertThat(nestedSelect.toDebugString())
+        assertThat(nestedSelect.toString())
             .isEqualTo("user:x == 0 ? 100 : (user:y == 20 ? 200 : 300)")
     }
 
     @Test
-    fun toDebugString_bitwiseAnd() {
+    fun toString_bitwiseAnd() {
         val i = createNamedRemoteInt("i", 10)
         val expr = i and RemoteInt(0)
-        assertThat(expr.toDebugString()).isEqualTo("user:i and 0")
+        assertThat(expr.toString()).isEqualTo("user:i and 0")
     }
 
     @Test
-    fun toDebugString_contextVariable() {
+    fun toString_contextVariable() {
         val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val intExpr = continuousSecFloat.toRemoteInt()
-        assertThat(intExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteInt()")
+        assertThat(intExpr.toString()).isEqualTo("context:continuous_sec.toRemoteInt()")
 
-        assertThat(RemoteTimeVariables.secondOfHour.toDebugString())
-            .isEqualTo("context:time_in_sec")
-        assertThat(RemoteTimeVariables.minuteOfDay.toDebugString()).isEqualTo("context:time_in_min")
-        assertThat(RemoteTimeVariables.hourOfDay.toDebugString()).isEqualTo("context:time_in_hr")
-        assertThat(RemoteTimeVariables.month.toDebugString()).isEqualTo("context:calendar_month")
-        assertThat(RemoteTimeVariables.dayOfMonth.toDebugString()).isEqualTo("context:day_of_month")
-        assertThat(RemoteTimeVariables.dayOfWeek.toDebugString()).isEqualTo("context:week_day")
-        assertThat(RemoteTimeVariables.dayOfYear.toDebugString()).isEqualTo("context:day_of_year")
-        assertThat(RemoteTimeVariables.year.toDebugString()).isEqualTo("context:year")
-        assertThat(RemoteTimeVariables.utcOffsetSeconds.toDebugString())
+        assertThat(RemoteTimeVariables.secondOfHour.toString()).isEqualTo("context:time_in_sec")
+        assertThat(RemoteTimeVariables.minuteOfDay.toString()).isEqualTo("context:time_in_min")
+        assertThat(RemoteTimeVariables.hourOfDay.toString()).isEqualTo("context:time_in_hr")
+        assertThat(RemoteTimeVariables.month.toString()).isEqualTo("context:calendar_month")
+        assertThat(RemoteTimeVariables.dayOfMonth.toString()).isEqualTo("context:day_of_month")
+        assertThat(RemoteTimeVariables.dayOfWeek.toString()).isEqualTo("context:week_day")
+        assertThat(RemoteTimeVariables.dayOfYear.toString()).isEqualTo("context:day_of_year")
+        assertThat(RemoteTimeVariables.year.toString()).isEqualTo("context:year")
+        assertThat(RemoteTimeVariables.utcOffsetSeconds.toString())
             .isEqualTo("context:offset_to_utc")
-        assertThat(RemoteTimeVariables.epochSecond.toDebugString())
-            .isEqualTo("context:epoch_second")
+        assertThat(RemoteTimeVariables.epochSecond.toString()).isEqualTo("context:epoch_second")
     }
 
     @Test
     fun companionContextVariables() {
-        val secondOfHourId =
-            (RemoteTimeVariables.secondOfHour + 1).getIdForCreationState(creationState)
-        val minuteOfDayId =
-            (RemoteTimeVariables.minuteOfDay + 1).getIdForCreationState(creationState)
-        val hourOfDayId = (RemoteTimeVariables.hourOfDay + 1).getIdForCreationState(creationState)
-        val monthId = (RemoteTimeVariables.month + 1).getIdForCreationState(creationState)
-        val dayOfMonthId = (RemoteTimeVariables.dayOfMonth + 1).getIdForCreationState(creationState)
-        val dayOfWeekId = (RemoteTimeVariables.dayOfWeek + 1).getIdForCreationState(creationState)
-        val dayOfYearId = (RemoteTimeVariables.dayOfYear + 1).getIdForCreationState(creationState)
-        val yearId = (RemoteTimeVariables.year + 1).getIdForCreationState(creationState)
-        val utcOffsetSecondsId =
-            (RemoteTimeVariables.utcOffsetSeconds + 1).getIdForCreationState(creationState)
-        val epochSecondId =
-            (RemoteTimeVariables.epochSecond + 1).getIdForCreationState(creationState)
+        val secondOfHourId = creationState.getId((RemoteTimeVariables.secondOfHour + 1))
+        val minuteOfDayId = creationState.getId((RemoteTimeVariables.minuteOfDay + 1))
+        val hourOfDayId = creationState.getId((RemoteTimeVariables.hourOfDay + 1))
+        val monthId = creationState.getId((RemoteTimeVariables.month + 1))
+        val dayOfMonthId = creationState.getId((RemoteTimeVariables.dayOfMonth + 1))
+        val dayOfWeekId = creationState.getId((RemoteTimeVariables.dayOfWeek + 1))
+        val dayOfYearId = creationState.getId((RemoteTimeVariables.dayOfYear + 1))
+        val yearId = creationState.getId((RemoteTimeVariables.year + 1))
+        val utcOffsetSecondsId = creationState.getId((RemoteTimeVariables.utcOffsetSeconds + 1))
+        val epochSecondId = creationState.getId((RemoteTimeVariables.epochSecond + 1))
 
         makeAndUpdateCoreDocument {
             // Mirror TimeVariables.updateTime: calendar fields are loaded as floats (and mirrored
@@ -1251,8 +1242,8 @@ class RemoteIntTest {
     }
 
     @Test
-    fun toDebugString_constant() {
+    fun toString_constant() {
         val ri = RemoteInt(42)
-        assertThat(ri.toDebugString()).isEqualTo("42")
+        assertThat(ri.toString()).isEqualTo("42")
     }
 }

@@ -86,13 +86,13 @@ class RemoteFloatTest {
     fun testTextFromFloat(expected: String, value: RemoteFloat, formatter: DecimalFormat) {
         val constantFloatString = value.toRemoteString(formatter)
 
-        val constantStringId = constantFloatString.getIdForCreationState(creationState)
+        val constantStringId = creationState.getId(constantFloatString)
 
         // ensure we have an id to look up
         val variableFloat = value.createReference()
-        val variableFloatId = variableFloat.getIdForCreationState(creationState)
+        val variableFloatId = creationState.getId(variableFloat)
         val variableFloatString = variableFloat.toRemoteString(formatter)
-        val variableStringId = variableFloatString.getIdForCreationState(creationState)
+        val variableStringId = creationState.getId(variableFloatString)
 
         makeAndPaintCoreDocument()
 
@@ -143,25 +143,25 @@ class RemoteFloatTest {
             createNamedRemoteFloat("n5_123_fixed", 5.123f).toRemoteString(formatFixed)
 
         // Get IDs
-        val c5_0_id = c5_0.getIdForCreationState(creationState)
-        val c5_1_id = c5_1.getIdForCreationState(creationState)
-        val c5_12_id = c5_12.getIdForCreationState(creationState)
-        val c5_123_id = c5_123.getIdForCreationState(creationState)
-        val c5_1234_id = c5_1234.getIdForCreationState(creationState)
+        val c5_0_id = creationState.getId(c5_0)
+        val c5_1_id = creationState.getId(c5_1)
+        val c5_12_id = creationState.getId(c5_12)
+        val c5_123_id = creationState.getId(c5_123)
+        val c5_1234_id = creationState.getId(c5_1234)
 
-        val n5_0_id = n5_0.getIdForCreationState(creationState)
-        val n5_1_id = n5_1.getIdForCreationState(creationState)
-        val n5_12_id = n5_12.getIdForCreationState(creationState)
-        val n5_123_id = n5_123.getIdForCreationState(creationState)
-        val n5_1234_id = n5_1234.getIdForCreationState(creationState)
+        val n5_0_id = creationState.getId(n5_0)
+        val n5_1_id = creationState.getId(n5_1)
+        val n5_12_id = creationState.getId(n5_12)
+        val n5_123_id = creationState.getId(n5_123)
+        val n5_1234_id = creationState.getId(n5_1234)
 
-        val c5_0_fixed_id = c5_0_fixed.getIdForCreationState(creationState)
-        val c5_1_fixed_id = c5_1_fixed.getIdForCreationState(creationState)
-        val c5_123_fixed_id = c5_123_fixed.getIdForCreationState(creationState)
+        val c5_0_fixed_id = creationState.getId(c5_0_fixed)
+        val c5_1_fixed_id = creationState.getId(c5_1_fixed)
+        val c5_123_fixed_id = creationState.getId(c5_123_fixed)
 
-        val n5_0_fixed_id = n5_0_fixed.getIdForCreationState(creationState)
-        val n5_1_fixed_id = n5_1_fixed.getIdForCreationState(creationState)
-        val n5_123_fixed_id = n5_123_fixed.getIdForCreationState(creationState)
+        val n5_0_fixed_id = creationState.getId(n5_0_fixed)
+        val n5_1_fixed_id = creationState.getId(n5_1_fixed)
+        val n5_123_fixed_id = creationState.getId(n5_123_fixed)
 
         makeAndPaintCoreDocument()
 
@@ -194,7 +194,7 @@ class RemoteFloatTest {
 
         // Simulate a value that should be 9.0 but has a tiny precision error (9.000001)
         val n9_error = createNamedRemoteFloat("n9_error", 9.000001f).toRemoteString(formatOptional)
-        val n9_error_id = n9_error.getIdForCreationState(creationState)
+        val n9_error_id = creationState.getId(n9_error)
 
         makeAndPaintCoreDocument()
 
@@ -208,7 +208,7 @@ class RemoteFloatTest {
         // Value close to 10.0
         val n9_999999 =
             createNamedRemoteFloat("n9_999999", 9.999999f).toRemoteString(formatOptional)
-        val n9_999999_id = n9_999999.getIdForCreationState(creationState)
+        val n9_999999_id = creationState.getId(n9_999999)
 
         makeAndPaintCoreDocument()
 

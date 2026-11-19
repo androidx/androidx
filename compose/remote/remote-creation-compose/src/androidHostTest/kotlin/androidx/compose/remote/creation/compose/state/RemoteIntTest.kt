@@ -51,7 +51,7 @@ class RemoteIntTest {
     fun toRemoteString_decimalFormat() {
         val sum = RemoteInt(100) + 20
         val sumString = sum.toRemoteString(DecimalFormat("##0"))
-        val sumStringId = sumString.getIdForCreationState(creationState)
+        val sumStringId = creationState.getId(sumString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(sumStringId)).isEqualTo("120")
@@ -62,7 +62,7 @@ class RemoteIntTest {
         val formatOptional = DecimalFormat("0.######") // min 0, max 6
         val x = createNamedRemoteInt("x", 5)
         val str = x.toRemoteString(formatOptional)
-        str.getIdForCreationState(creationState)
+        creationState.getId(str)
 
         val ops = getOperationsStrings()
         assertThat(ops)
@@ -79,7 +79,7 @@ class RemoteIntTest {
         val formatOptional = DecimalFormat("0.######")
         val n3_99 = createNamedRemoteFloat("n3_99", 3.99f)
         val str = n3_99.toRemoteInt().toRemoteString(formatOptional)
-        val strId = str.getIdForCreationState(creationState)
+        val strId = creationState.getId(str)
 
         makeAndPaintCoreDocument()
 

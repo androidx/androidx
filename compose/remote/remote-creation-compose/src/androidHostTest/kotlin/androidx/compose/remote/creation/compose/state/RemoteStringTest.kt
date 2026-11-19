@@ -46,7 +46,7 @@ class RemoteStringTest {
     fun toRemoteStringWithPostfix() {
         val percentage = RemoteFloat(45.5f)
         val percentageString = percentage.toRemoteString(DecimalFormat("#0.0")) + RemoteString("%")
-        val percentageStringId = percentageString.getIdForCreationState(creationState)
+        val percentageStringId = creationState.getId(percentageString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(percentageStringId)).isEqualTo("45.5%")
@@ -62,7 +62,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("#0")),
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -78,7 +78,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("###0")),
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("12K")
@@ -94,7 +94,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("###0")),
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("12K")
@@ -110,7 +110,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("####")),
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -126,7 +126,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("####")),
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("12K")
@@ -142,7 +142,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("####")),
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("12K")
@@ -158,7 +158,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("###0")),
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -174,7 +174,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("###0")),
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -190,7 +190,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("###0")),
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("10K")
@@ -206,7 +206,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("####")),
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -222,7 +222,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("####")),
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -238,7 +238,7 @@ class RemoteStringTest {
                 v.toRemoteString(DecimalFormat("####")),
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("10K")
@@ -254,7 +254,7 @@ class RemoteStringTest {
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("###0")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -270,7 +270,7 @@ class RemoteStringTest {
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("###0")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -286,7 +286,7 @@ class RemoteStringTest {
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("###0")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("12K")
@@ -302,7 +302,7 @@ class RemoteStringTest {
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("####")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -318,7 +318,7 @@ class RemoteStringTest {
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("####")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -334,7 +334,7 @@ class RemoteStringTest {
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("####")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("12K")
@@ -350,7 +350,7 @@ class RemoteStringTest {
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("###0")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -366,7 +366,7 @@ class RemoteStringTest {
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("###0")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -382,7 +382,7 @@ class RemoteStringTest {
                 (v / 1000f).toRemoteString(DecimalFormat("#0")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("###0")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("10K")
@@ -398,7 +398,7 @@ class RemoteStringTest {
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("####")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("1234")
@@ -414,7 +414,7 @@ class RemoteStringTest {
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("####")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("10K")
@@ -430,7 +430,7 @@ class RemoteStringTest {
                 (v / 1000).toRemoteString(DecimalFormat("##")) + RemoteString("K"),
                 v.toRemoteString(DecimalFormat("####")),
             )
-        val conditionalStringId = conditionalString.getIdForCreationState(creationState)
+        val conditionalStringId = creationState.getId(conditionalString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(conditionalStringId)).isEqualTo("10K")
@@ -451,12 +451,12 @@ class RemoteStringTest {
         val percentage = RemoteFloat(45.5f)
         val source = percentage.toRemoteString(DecimalFormat("#0.0")) + RemoteString("%")
         val result = source.uppercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         val doc = makeAndPaintCoreDocument()
 
         assertThat(context.getText(resultId)).isEqualTo("45.5%")
-        assertThat(resultId).isEqualTo(source.getIdForCreationState(creationState))
+        assertThat(resultId).isEqualTo(creationState.getId(source))
         assertThat(doc.operations.filterIsInstance<TextTransform>()).isEmpty()
     }
 
@@ -465,12 +465,12 @@ class RemoteStringTest {
         val percentage = RemoteFloat(45.5f)
         val source = percentage.toRemoteString(DecimalFormat("#0.0")) + RemoteString("%")
         val result = source.lowercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         val doc = makeAndPaintCoreDocument()
 
         assertThat(context.getText(resultId)).isEqualTo("45.5%")
-        assertThat(resultId).isEqualTo(source.getIdForCreationState(creationState))
+        assertThat(resultId).isEqualTo(creationState.getId(source))
         assertThat(doc.operations.filterIsInstance<TextTransform>()).isEmpty()
     }
 
@@ -484,11 +484,11 @@ class RemoteStringTest {
         val rs4 = rf.toRemoteString(DecimalFormat("#0.00")) // Different 'after'
         val rs5 = rf.toRemoteString(DecimalFormat("#0.##;(#0.##)")) // Different 'flags'
 
-        val id1 = rs1.getIdForCreationState(creationState)
-        val id2 = rs2.getIdForCreationState(creationState)
-        val id3 = rs3.getIdForCreationState(creationState)
-        val id4 = rs4.getIdForCreationState(creationState)
-        val id5 = rs5.getIdForCreationState(creationState)
+        val id1 = creationState.getId(rs1)
+        val id2 = creationState.getId(rs2)
+        val id3 = creationState.getId(rs3)
+        val id4 = creationState.getId(rs4)
+        val id5 = creationState.getId(rs5)
 
         assertThat(id1).isEqualTo(id2)
         assertThat(id1).isNotEqualTo(id3)
@@ -506,10 +506,10 @@ class RemoteStringTest {
         val rs3 = ri.toRemoteString(DecimalFormat("00")) // Different 'before'
         val rs4 = ri.toRemoteString(DecimalFormat("#;(#)")) // Different 'flags'
 
-        val id1 = rs1.getIdForCreationState(creationState)
-        val id2 = rs2.getIdForCreationState(creationState)
-        val id3 = rs3.getIdForCreationState(creationState)
-        val id4 = rs4.getIdForCreationState(creationState)
+        val id1 = creationState.getId(rs1)
+        val id2 = creationState.getId(rs2)
+        val id3 = creationState.getId(rs3)
+        val id4 = creationState.getId(rs4)
 
         assertThat(id1).isEqualTo(id2)
         assertThat(id1).isNotEqualTo(id3)
@@ -524,8 +524,8 @@ class RemoteStringTest {
         val rs1 = rf1.toRemoteString(DecimalFormat("###0"))
         val rs2 = rf2.toRemoteString(DecimalFormat("###0"))
 
-        val id1 = rs1.getIdForCreationState(creationState)
-        val id2 = rs2.getIdForCreationState(creationState)
+        val id1 = creationState.getId(rs1)
+        val id2 = creationState.getId(rs2)
 
         assertThat(id1).isNotEqualTo(id2)
     }
@@ -538,8 +538,8 @@ class RemoteStringTest {
         val rs1 = ri1.toRemoteString(DecimalFormat("#"))
         val rs2 = ri2.toRemoteString(DecimalFormat("#"))
 
-        val id1 = rs1.getIdForCreationState(creationState)
-        val id2 = rs2.getIdForCreationState(creationState)
+        val id1 = creationState.getId(rs1)
+        val id2 = creationState.getId(rs2)
 
         assertThat(id1).isNotEqualTo(id2)
     }

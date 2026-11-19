@@ -25,8 +25,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RemoteStateVisitorTest {
 
-    private fun <S : BaseRemoteState<*>> S.replaceNamedVariables(
-        replacements: Map<out BaseRemoteState<*>, BaseRemoteState<*>>
+    private fun <S : RemoteState<*>> S.replaceNamedVariables(
+        replacements: Map<out RemoteState<*>, RemoteState<*>>
     ): S {
         if (replacements.isEmpty()) return this
 
@@ -50,7 +50,7 @@ class RemoteStateVisitorTest {
 
         return transform { node ->
             for ((target, replacement) in unwrappedReplacements) {
-                if (node.isStructurallyEqual(target)) {
+                if (node == target) {
                     return@transform replacement
                 }
             }
@@ -331,7 +331,7 @@ class RemoteStateVisitorTest {
         val replaced = animated.replaceNamedVariables(mapOf(namedInput to 5f.rf))
         assertThat(replaced).isInstanceOf(RemoteFloat::class.java)
         val key = replaced.cacheKey as RemoteOperationCacheKey
-        assertThat(key.op).isEqualTo(RemoteFloat.OperationKey.Anim)
+        assertThat(key.op).isEqualTo(RemoteFloatOperationKey.Anim)
         assertThat(key.args[0]).isEqualTo(RemoteConstantCacheKey(5f))
         assertThat(key.args[1]).isEqualTo(FloatArrayCacheKey(animSpec))
     }
@@ -445,38 +445,56 @@ class RemoteStateVisitorTest {
     }
 
     @Test
-    fun testIsStructurallyEqual_constants() {
+    fun testEquality_constants() {
         val f1 = 5f.rf
         val f2 = 5f.rf
         val f3 = 10f.rf
 
-        assertThat(f1.isStructurallyEqual(f2)).isTrue()
-        assertThat(f1.isStructurallyEqual(f3)).isFalse()
-        assertThat(f1.isStructurallyEqual(f1)).isTrue()
-        assertThat(f1.isStructurallyEqual(null)).isFalse()
+        assertThat(f1).isEqualTo(f2)
+        assertThat(f1.hashCode()).isEqualTo(f2.hashCode())
+        assertThat(f1).isNotEqualTo(f3)
+        assertThat(f1).isEqualTo(f1)
+        assertThat(f1).isNotEqualTo(null)
 
         val i1 = 5.ri
         val i2 = 5.ri
         val i3 = 10.ri
-        assertThat(i1.isStructurallyEqual(i2)).isTrue()
-        assertThat(i1.isStructurallyEqual(i3)).isFalse()
-        assertThat(i1.isStructurallyEqual(f1)).isFalse()
+        assertThat(i1).isEqualTo(i2)
+        assertThat(i1.hashCode()).isEqualTo(i2.hashCode())
+        assertThat(i1).isNotEqualTo(i3)
+        assertThat(i1).isNotEqualTo(f1)
+
+        // Same underlying constant cacheKey (1 vs true, 10f vs 10.rdp) must still be unequal
+        // across distinct RemoteState types.
+        assertThat(true.rb).isNotEqualTo(1.ri)
+        assertThat(10.rdp).isNotEqualTo(10f.rf)
+
+        val dp1 = 10.rdp
+        val dp2 = 10.rdp
+        assertThat(dp1).isEqualTo(dp2)
+        assertThat(dp1.hashCode()).isEqualTo(dp2.hashCode())
+
+        val mutable1 = MutableRemoteFloat(1f)
+        val mutable2 = MutableRemoteFloat(1f)
+        assertThat(mutable1).isNotEqualTo(mutable2)
 
         val s1 = "hello".rs
         val s2 = "hello".rs
         val s3 = "world".rs
-        assertThat(s1.isStructurallyEqual(s2)).isTrue()
-        assertThat(s1.isStructurallyEqual(s3)).isFalse()
+        assertThat(s1).isEqualTo(s2)
+        assertThat(s1.hashCode()).isEqualTo(s2.hashCode())
+        assertThat(s1).isNotEqualTo(s3)
 
         val b1 = true.rb
         val b2 = true.rb
         val b3 = false.rb
-        assertThat(b1.isStructurallyEqual(b2)).isTrue()
-        assertThat(b1.isStructurallyEqual(b3)).isFalse()
+        assertThat(b1).isEqualTo(b2)
+        assertThat(b1.hashCode()).isEqualTo(b2.hashCode())
+        assertThat(b1).isNotEqualTo(b3)
     }
 
     @Test
-    fun testIsStructurallyEqual_dynamicExpressions() {
+    fun testEquality_dynamicExpressions() {
         val a = RemoteFloat.createNamedRemoteFloat("a", 1f)
         val b = RemoteFloat.createNamedRemoteFloat("b", 2f)
         val c = RemoteFloat.createNamedRemoteFloat("c", 3f)
@@ -486,14 +504,15 @@ class RemoteStateVisitorTest {
         val expr3 = (a + c) * 10f.rf
         val expr4 = (a + b) * 20f.rf
 
-        assertThat(expr1.isStructurallyEqual(expr2)).isTrue()
-        assertThat(expr1.isStructurallyEqual(expr3)).isFalse()
-        assertThat(expr1.isStructurallyEqual(expr4)).isFalse()
+        assertThat(expr1).isEqualTo(expr2)
+        assertThat(expr1.hashCode()).isEqualTo(expr2.hashCode())
+        assertThat(expr1).isNotEqualTo(expr3)
+        assertThat(expr1).isNotEqualTo(expr4)
 
         // Constant vs dynamic
         val constExpr = 30f.rf
-        assertThat(expr1.isStructurallyEqual(constExpr)).isFalse()
-        assertThat(constExpr.isStructurallyEqual(expr1)).isFalse()
+        assertThat(expr1).isNotEqualTo(constExpr)
+        assertThat(constExpr).isNotEqualTo(expr1)
     }
 
     @Test
@@ -511,7 +530,7 @@ class RemoteStateVisitorTest {
         val selectedDynamic = cond.select(b1, b2)
         val replacedDynamic = selectedDynamic.replaceNamedVariables(mapOf(cond to false.rb))
         assertThat(replacedDynamic.hasConstantValue).isFalse()
-        assertThat(replacedDynamic.isStructurallyEqual(b2)).isTrue()
+        assertThat(replacedDynamic).isEqualTo(b2)
     }
 
     @Test
@@ -718,12 +737,9 @@ class RemoteStateVisitorTest {
 
         val replaced = clamped.replaceNamedVariables(mapOf(value to otherValue))
         assertThat(replaced.hasConstantValue).isFalse()
-        assertThat(
-                replaced.isStructurallyEqual(clamp(value = otherValue, min = 10f.rf, max = 20f.rf))
-            )
-            .isTrue()
+        assertThat(replaced).isEqualTo(clamp(value = otherValue, min = 10f.rf, max = 20f.rf))
         val key = replaced.cacheKey as RemoteOperationCacheKey
-        assertThat(key.op).isEqualTo(RemoteFloat.OperationKey.Clamp)
+        assertThat(key.op).isEqualTo(RemoteFloatOperationKey.Clamp)
         assertThat(key.args[0]).isEqualTo(RemoteConstantCacheKey(10f))
         assertThat(key.args[1]).isEqualTo(RemoteConstantCacheKey(20f))
         assertThat(key.args[2]).isEqualTo(otherValue.cacheKey)

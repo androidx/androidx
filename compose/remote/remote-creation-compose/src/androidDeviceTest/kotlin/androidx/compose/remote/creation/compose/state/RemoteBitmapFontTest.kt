@@ -109,8 +109,8 @@ class RemoteBitmapFontTest {
 
         for (i in -4 until 5) {
             creationState.document.drawBitmapFontTextRun(
-                text.getIdForCreationState(creationState),
-                bitmapFont.getIdForCreationState(creationState),
+                creationState.getId(text),
+                creationState.getId(bitmapFont),
                 0,
                 -1,
                 10f,
@@ -134,8 +134,8 @@ class RemoteBitmapFontTest {
             createBitmapFont(text.constantValue.map { it.toString() }.toSet(), font, 40.0f)
 
         creationState.document.drawBitmapFontTextRunOnPath(
-            text.getIdForCreationState(creationState),
-            bitmapFont.getIdForCreationState(creationState),
+            creationState.getId(text),
+            creationState.getId(bitmapFont),
             createSpiralPath(200f, 200f, 160f, 20f, 3f),
             0,
             -1,
@@ -144,8 +144,8 @@ class RemoteBitmapFontTest {
         )
 
         creationState.document.drawBitmapFontTextRunOnPath(
-            text.getIdForCreationState(creationState),
-            bitmapFont.getIdForCreationState(creationState),
+            creationState.getId(text),
+            creationState.getId(bitmapFont),
             createSpiralPath(600f, 200f, 160f, 20f, 3f),
             0,
             -1,
@@ -154,8 +154,8 @@ class RemoteBitmapFontTest {
         )
 
         creationState.document.drawBitmapFontTextRunOnPath(
-            text.getIdForCreationState(creationState),
-            bitmapFont.getIdForCreationState(creationState),
+            creationState.getId(text),
+            creationState.getId(bitmapFont),
             createSpiralPath(200f, 600f, 180f, 20f, 3f),
             0,
             -1,
@@ -164,8 +164,8 @@ class RemoteBitmapFontTest {
         )
 
         creationState.document.drawBitmapFontTextRunOnPath(
-            text.getIdForCreationState(creationState),
-            bitmapFont.getIdForCreationState(creationState),
+            creationState.getId(text),
+            creationState.getId(bitmapFont),
             createSpiralPath(600f, 600f, 180f, 20f, 3f),
             0,
             -1,

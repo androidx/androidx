@@ -300,7 +300,7 @@ class CaptureRemoteDocumentTest {
         fun createAndRegister() {
             val str = RemoteString("TestConstant")
             weakRef = WeakReference(str)
-            str.getIdForCreationState(creationState)
+            creationState.getId(str)
         }
 
         createAndRegister()

@@ -279,9 +279,7 @@ internal class RemoteHoistNode : RemoteComposeNode() {
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         for (state in states) {
-            if (state is BaseRemoteState<*>) {
-                state.getIdForCreationState(creationState)
-            }
+            creationState.getId(state)
         }
     }
 }

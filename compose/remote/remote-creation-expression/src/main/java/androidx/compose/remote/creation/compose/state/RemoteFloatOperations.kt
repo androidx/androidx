@@ -106,11 +106,11 @@ private fun easeOutElastic(x: RemoteFloat): RemoteFloat {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun max(a: RemoteFloat, b: Float): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Max) { a, b -> max(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Max) { a, b -> max(a, b) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun max(a: Float, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Max) { a, b -> max(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Max) { a, b -> max(a, b) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the greater of [a] and [b].
@@ -122,15 +122,15 @@ public fun max(a: Float, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the larger of [a] and [b].
  */
 public fun max(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Max) { a, b -> max(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Max) { a, b -> max(a, b) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun min(a: RemoteFloat, b: Float): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Min) { a, b -> min(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Min) { a, b -> min(a, b) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun min(a: Float, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Min) { a, b -> min(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Min) { a, b -> min(a, b) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the smaller of [a] and [b].
@@ -142,15 +142,15 @@ public fun min(a: Float, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the smaller of [a] and [b].
  */
 public fun min(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Min) { a, b -> min(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Min) { a, b -> min(a, b) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun pow(a: RemoteFloat, b: Float): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Pow) { a, b -> a.pow(b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Pow) { a, b -> a.pow(b) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun pow(a: Float, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Pow) { a, b -> a.pow(b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Pow) { a, b -> a.pow(b) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to [a] raised to the power of [b].
@@ -160,7 +160,7 @@ public fun pow(a: Float, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing [a] raised to the power of [b].
  */
 public fun pow(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Pow) { a, b -> a.pow(b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Pow) { a, b -> a.pow(b) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the positive square root of [a].
@@ -169,7 +169,7 @@ public fun pow(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the positive square root of [a].
  */
 public fun sqrt(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Sqrt) { a -> sqrt(a) }
+    a.unaryOp(RemoteFloatOperationKey.Sqrt) { a -> sqrt(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the absolute value of [a].
@@ -177,8 +177,7 @@ public fun sqrt(a: RemoteFloat): RemoteFloat =
  * @param a The [RemoteFloat] whose absolute value is computed.
  * @return A [RemoteFloat] representing the absolute value of [a].
  */
-public fun abs(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Abs) { a -> abs(a) }
+public fun abs(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Abs) { a -> abs(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the sign of [a].
@@ -188,15 +187,15 @@ public fun abs(a: RemoteFloat): RemoteFloat =
  *   zero.
  */
 public fun sign(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Sign) { a -> sign(a) }
+    a.unaryOp(RemoteFloatOperationKey.Sign) { a -> sign(a) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: RemoteFloat, b: Float): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.CopySign) { a, b -> a.withSign(b) }
+    binaryOp(a, b, RemoteFloatOperationKey.CopySign) { a, b -> a.withSign(b) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: Float, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.CopySign) { a, b -> a.withSign(b) }
+    binaryOp(a, b, RemoteFloatOperationKey.CopySign) { a, b -> a.withSign(b) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the magnitude of [a] with the sign of [b].
@@ -206,7 +205,7 @@ public fun copySign(a: Float, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] with the magnitude of [a] and the sign of [b].
  */
 public fun copySign(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.CopySign) { a, b -> a.withSign(b) }
+    binaryOp(a, b, RemoteFloatOperationKey.CopySign) { a, b -> a.withSign(b) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to Euler's number `e` raised to the power of [a].
@@ -214,8 +213,7 @@ public fun copySign(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
  * @param a The exponent to raise `e` to.
  * @return A [RemoteFloat] representing `exp(a)`.
  */
-public fun exp(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Exp) { a -> exp(a) }
+public fun exp(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Exp) { a -> exp(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the smallest mathematical integer greater than or equal
@@ -225,7 +223,7 @@ public fun exp(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing `ceil(a)`.
  */
 public fun ceil(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Ceil) { a -> ceil(a) }
+    a.unaryOp(RemoteFloatOperationKey.Ceil) { a -> ceil(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the largest mathematical integer less than or equal to
@@ -235,7 +233,7 @@ public fun ceil(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing `floor(a)`.
  */
 public fun floor(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Floor) { a -> floor(a) }
+    a.unaryOp(RemoteFloatOperationKey.Floor) { a -> floor(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the base-10 logarithm of [a].
@@ -244,7 +242,7 @@ public fun floor(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing `log10(a)`.
  */
 public fun log(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Log) { a -> log10(a) }
+    a.unaryOp(RemoteFloatOperationKey.Log) { a -> log10(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the natural logarithm (base `e`) of [a].
@@ -252,7 +250,7 @@ public fun log(a: RemoteFloat): RemoteFloat =
  * @param a The value whose natural logarithm is computed.
  * @return A [RemoteFloat] representing `ln(a)`.
  */
-public fun ln(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloat.OperationKey.Ln) { a -> ln(a) }
+public fun ln(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Ln) { a -> ln(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to [a] rounded to the nearest integer (rounding half up).
@@ -265,7 +263,7 @@ public fun round(a: RemoteFloat): RemoteFloat =
     // round-half-up)
     // rather than kotlin.math.round (round-half-to-even), keeping constant folding in sync with
     // wire evaluation while remaining platform-agnostic for KMP.
-    a.unaryOp(RemoteFloat.OperationKey.Round) { a -> floor(a + 0.5f) }
+    a.unaryOp(RemoteFloatOperationKey.Round) { a -> floor(a + 0.5f) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the sine of [a].
@@ -273,8 +271,7 @@ public fun round(a: RemoteFloat): RemoteFloat =
  * @param a The angle in radians.
  * @return A [RemoteFloat] representing `sin(a)`.
  */
-public fun sin(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Sin) { a -> sin(a) }
+public fun sin(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Sin) { a -> sin(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the cosine of [a].
@@ -282,8 +279,7 @@ public fun sin(a: RemoteFloat): RemoteFloat =
  * @param a The angle in radians.
  * @return A [RemoteFloat] representing `cos(a)`.
  */
-public fun cos(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Cos) { a -> cos(a) }
+public fun cos(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Cos) { a -> cos(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the trigonometric tangent of [a].
@@ -291,8 +287,7 @@ public fun cos(a: RemoteFloat): RemoteFloat =
  * @param a The angle in radians.
  * @return A [RemoteFloat] representing `tan(a)`.
  */
-public fun tan(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Tan) { a -> tan(a) }
+public fun tan(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Tan) { a -> tan(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the arc sine of [a].
@@ -301,7 +296,7 @@ public fun tan(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the arc sine of [a] in radians.
  */
 public fun asin(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Asin) { a -> asin(a) }
+    a.unaryOp(RemoteFloatOperationKey.Asin) { a -> asin(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the arc cosine of [a].
@@ -310,7 +305,7 @@ public fun asin(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the arc cosine of [a] in radians.
  */
 public fun acos(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Acos) { a -> acos(a) }
+    a.unaryOp(RemoteFloatOperationKey.Acos) { a -> acos(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the arc tangent of [a].
@@ -319,15 +314,15 @@ public fun acos(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the arc tangent of [a] in radians, in `[-pi/2, pi/2]`.
  */
 public fun atan(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Atan) { a -> atan(a) }
+    a.unaryOp(RemoteFloatOperationKey.Atan) { a -> atan(a) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun atan2(a: RemoteFloat, b: Float): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Atan2) { a, b -> atan2(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Atan2) { a, b -> atan2(a, b) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun atan2(a: Float, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Atan2) { a, b -> atan2(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Atan2) { a, b -> atan2(a, b) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the angle `theta` from the conversion of rectangular
@@ -338,7 +333,7 @@ public fun atan2(a: Float, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing `atan2(a, b)` in radians.
  */
 public fun atan2(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
-    binaryOp(a, b, RemoteFloat.OperationKey.Atan2) { a, b -> atan2(a, b) }
+    binaryOp(a, b, RemoteFloatOperationKey.Atan2) { a, b -> atan2(a, b) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the cube root of [a].
@@ -347,7 +342,7 @@ public fun atan2(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing `cbrt(a)`.
  */
 public fun cbrt(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.Cbrt) { a -> cbrt(a) }
+    a.unaryOp(RemoteFloatOperationKey.Cbrt) { a -> cbrt(a) }
 
 /**
  * Returns a [RemoteFloat] that converts [a] from radians to degrees.
@@ -356,7 +351,7 @@ public fun cbrt(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing [a] in degrees.
  */
 public fun toDeg(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.ToDeg) { a -> a * FP_TO_RAD }
+    a.unaryOp(RemoteFloatOperationKey.ToDeg) { a -> a * FP_TO_RAD }
 
 /**
  * Returns a [RemoteFloat] that converts [a] from degrees to radians.
@@ -365,7 +360,7 @@ public fun toDeg(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing [a] in radians.
  */
 public fun toRad(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloat.OperationKey.ToRad) { a -> a * FP_TO_DEG }
+    a.unaryOp(RemoteFloatOperationKey.ToRad) { a -> a * FP_TO_DEG }
 
 /**
  * Returns a [RemoteFloat] that linearly interpolates between [from] and [to] by [tween] (`from +
@@ -386,7 +381,7 @@ public fun lerp(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat): RemoteF
 
     return RemoteFloat(
         constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Lerp, from, to, tween),
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloatOperationKey.Lerp, from, to, tween),
     ) { creationState ->
         combineToFloatArray(creationState, arrayOf(from, to, tween), AnimatedFloatExpression.LERP)
     }
@@ -408,7 +403,7 @@ public fun lerp(from: Float, to: Float, tween: RemoteFloat): RemoteFloat {
 
     return RemoteFloat(
         constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Lerp, from, to, tween),
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloatOperationKey.Lerp, from, to, tween),
         arrayProvider = { creationState ->
             floatArrayOf(
                 from,
@@ -438,7 +433,7 @@ public fun mad(a: RemoteFloat, b: RemoteFloat, c: RemoteFloat): RemoteFloat {
 
     return RemoteFloat(
         constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Mad, a, b, c),
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloatOperationKey.Mad, a, b, c),
         arrayProvider = { creationState ->
             floatArrayOf(
                 *(toArray(a, creationState)),
@@ -473,7 +468,7 @@ public fun clamp(value: RemoteFloat, min: RemoteFloat, max: RemoteFloat): Remote
     }
     return RemoteFloat(
         constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Clamp, min, max, value),
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloatOperationKey.Clamp, min, max, value),
     ) { creationState ->
         combineToFloatArray(creationState, arrayOf(min, max, value), AnimatedFloatExpression.CLAMP)
     }
@@ -493,7 +488,7 @@ public fun clamp(value: RemoteFloat, min: Float, max: Float): RemoteFloat {
 
     return RemoteFloat(
         constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Clamp, min, max, value),
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloatOperationKey.Clamp, min, max, value),
         arrayProvider = { creationState ->
             floatArrayOf(
                 min,
@@ -541,7 +536,7 @@ public fun cubicEasing(
         constantValueOrNull = null,
         cacheKey =
             RemoteOperationCacheKey.create(
-                RemoteFloat.OperationKey.Cubic,
+                RemoteFloatOperationKey.Cubic,
                 x1,
                 y1,
                 x2,
@@ -588,14 +583,14 @@ public fun evalSpline(
         constantValueOrNull = null,
         cacheKey =
             RemoteOperationCacheKey.create(
-                if (loop) RemoteFloat.OperationKey.SplineLoop else RemoteFloat.OperationKey.Spline,
+                if (loop) RemoteFloatOperationKey.SplineLoop else RemoteFloatOperationKey.Spline,
                 controlPoints,
                 progress,
             ),
     ) { creationState ->
         floatArrayOf(
-            controlPoints.getFloatIdForCreationState(creationState),
-            progress.getFloatIdForCreationState(creationState),
+            creationState.getFloatId(controlPoints),
+            creationState.getFloatId(progress),
             if (loop) AnimatedFloatExpression.A_SPLINE_LOOP else AnimatedFloatExpression.A_SPLINE,
         )
     }
@@ -695,7 +690,7 @@ public fun animateRemoteFloat(
 public fun rand(): RemoteFloat {
     return RemoteFloat(
         constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Rand),
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloatOperationKey.Rand),
         arrayProvider = { _ ->
             floatArrayOf(AnimatedFloatExpression.RAND)
         },
@@ -713,7 +708,7 @@ public fun rand(): RemoteFloat {
 public fun randRange(from: RemoteFloat, to: RemoteFloat): RemoteFloat {
     return RemoteFloat(
         constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(RemoteFloat.OperationKey.RandInRange, from, to),
+        cacheKey = RemoteOperationCacheKey.create(RemoteFloatOperationKey.RandInRange, from, to),
         arrayProvider = { creationState ->
             floatArrayOf(
                 *(toArray(from, creationState)),

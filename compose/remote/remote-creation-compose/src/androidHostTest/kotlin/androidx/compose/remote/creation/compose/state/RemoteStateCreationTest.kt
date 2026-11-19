@@ -106,7 +106,7 @@ class RemoteStateCreationTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 val namedLong = remember { createNamedRemoteLong("testLong", 42L) }
-                namedLong.getIdForCreationState(LocalRemoteComposeCreationState.current)
+                LocalRemoteComposeCreationState.current.getId(namedLong)
             }
 
         // No way to test this currently
@@ -143,8 +143,8 @@ class RemoteStateCreationTest {
 
                     val selectedFloat = namedFloat + 1f.rf
                     val selectedInt = namedInt + 1.ri
-                    selectedFloat.getIdForCreationState(LocalRemoteComposeCreationState.current)
-                    selectedInt.getIdForCreationState(LocalRemoteComposeCreationState.current)
+                    LocalRemoteComposeCreationState.current.getId(selectedFloat)
+                    LocalRemoteComposeCreationState.current.getId(selectedInt)
                 }
             }
         assertThat(exception).hasMessageThat().contains("Duplicate named variable: USER:shared")
@@ -372,9 +372,9 @@ class RemoteStateCreationTest {
                     )
                 }
 
-                id1 = bitmap1.getIdForCreationState(creationState)
-                id2 = bitmap2.getIdForCreationState(creationState)
-                id3 = bitmap3.getIdForCreationState(creationState)
+                id1 = creationState.getId(bitmap1)
+                id2 = creationState.getId(bitmap2)
+                id3 = creationState.getId(bitmap3)
             }
 
         assertThat(id1).isNotEqualTo(-1)
@@ -418,9 +418,9 @@ class RemoteStateCreationTest {
                 val bitmap2 = remember { RemoteImageBitmap(url = "url1") }
                 val bitmap3 = remember { RemoteImageBitmap(url = "url2") }
 
-                id1 = bitmap1.getIdForCreationState(creationState)
-                id2 = bitmap2.getIdForCreationState(creationState)
-                id3 = bitmap3.getIdForCreationState(creationState)
+                id1 = creationState.getId(bitmap1)
+                id2 = creationState.getId(bitmap2)
+                id3 = creationState.getId(bitmap3)
             }
 
         assertThat(id1).isNotEqualTo(-1)
@@ -448,13 +448,13 @@ class RemoteStateCreationTest {
     fun creation_invoke_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            RemoteInt(42).getIdForCreationState(state)
-            RemoteFloat(42f).getIdForCreationState(state)
-            RemoteLong(42L).getIdForCreationState(state)
-            RemoteBoolean(true).getIdForCreationState(state)
-            RemoteString("hello").getIdForCreationState(state)
-            RemoteColor.Red.getIdForCreationState(state)
-            10.rdp.getIdForCreationState(state)
+            state.getId(RemoteInt(42))
+            state.getId(RemoteFloat(42f))
+            state.getId(RemoteLong(42L))
+            state.getId(RemoteBoolean(true))
+            state.getId(RemoteString("hello"))
+            state.getId(RemoteColor.Red)
+            state.getId(10.rdp)
         }
     }
 
@@ -462,26 +462,26 @@ class RemoteStateCreationTest {
     fun creation_createForId_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            val iId = RemoteInt(1).getIdForCreationState(state) + 0x100000000L
-            RemoteInt.createForId(iId).getIdForCreationState(state)
+            val iId = state.getId(RemoteInt(1)) + 0x100000000L
+            state.getId(RemoteInt.createForId(iId))
 
-            val fId = RemoteFloat(1f).getFloatIdForCreationState(state)
-            RemoteFloat.createForId(fId).getIdForCreationState(state)
+            val fId = state.getFloatId(RemoteFloat(1f))
+            state.getId(RemoteFloat.createForId(fId))
 
-            val lId = RemoteLong(1L).getIdForCreationState(state)
-            RemoteLong.createForId(lId).getIdForCreationState(state)
+            val lId = state.getId(RemoteLong(1L))
+            state.getId(RemoteLong.createForId(lId))
 
-            val bId = RemoteBoolean(true).getIdForCreationState(state)
-            RemoteBoolean.createForId(bId).getIdForCreationState(state)
+            val bId = state.getId(RemoteBoolean(true))
+            state.getId(RemoteBoolean.createForId(bId))
 
-            val sId = RemoteString("h").getIdForCreationState(state)
-            RemoteString.createForId(sId).getIdForCreationState(state)
+            val sId = state.getId(RemoteString("h"))
+            state.getId(RemoteString.createForId(sId))
 
-            val cId = RemoteColor.Red.getIdForCreationState(state)
-            RemoteColor.createForId(cId).getIdForCreationState(state)
+            val cId = state.getId(RemoteColor.Red)
+            state.getId(RemoteColor.createForId(cId))
 
             val dpRef = RemoteFloat(10f)
-            RemoteDp.createForId(dpRef).getIdForCreationState(state)
+            state.getId(RemoteDp.createForId(dpRef))
         }
     }
 
@@ -489,14 +489,13 @@ class RemoteStateCreationTest {
     fun creation_createNamedRemoteX_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            createNamedRemoteInt("i", defaultValue = 1).getIdForCreationState(state)
-            createNamedRemoteFloat("f", defaultValue = 1f).getIdForCreationState(state)
-            createNamedRemoteLong("l", defaultValue = 1L).getIdForCreationState(state)
-            createNamedRemoteBoolean("b", defaultValue = true).getIdForCreationState(state)
-            createNamedRemoteString("s", defaultValue = "h").getIdForCreationState(state)
-            RemoteColor.createNamedRemoteColor("c", defaultValue = RemoteColor.Red)
-                .getIdForCreationState(state)
-            createNamedRemoteDp("d", defaultValue = 1f).getIdForCreationState(state)
+            state.getId(createNamedRemoteInt("i", defaultValue = 1))
+            state.getId(createNamedRemoteFloat("f", defaultValue = 1f))
+            state.getId(createNamedRemoteLong("l", defaultValue = 1L))
+            state.getId(createNamedRemoteBoolean("b", defaultValue = true))
+            state.getId(createNamedRemoteString("s", defaultValue = "h"))
+            state.getId(RemoteColor.createNamedRemoteColor("c", defaultValue = RemoteColor.Red))
+            state.getId(createNamedRemoteDp("d", defaultValue = 1f))
         }
     }
 
@@ -504,11 +503,11 @@ class RemoteStateCreationTest {
     fun creation_mutableCreate_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            remember { MutableRemoteInt(1) }.getIdForCreationState(state)
-            remember { MutableRemoteFloat(1f) }.getIdForCreationState(state)
-            remember { MutableRemoteLong(1L) }.getIdForCreationState(state)
-            remember { MutableRemoteBoolean(true) }.getIdForCreationState(state)
-            remember { MutableRemoteString("h") }.getIdForCreationState(state)
+            state.getId(remember { MutableRemoteInt(1) })
+            state.getId(remember { MutableRemoteFloat(1f) })
+            state.getId(remember { MutableRemoteLong(1L) })
+            state.getId(remember { MutableRemoteBoolean(true) })
+            state.getId(remember { MutableRemoteString("h") })
             // Color and Dp do not have MutableRemoteX.create versions.
         }
     }
@@ -519,15 +518,15 @@ class RemoteStateCreationTest {
             val state = LocalRemoteComposeCreationState.current
 
             // Taking expression values
-            rememberNamedRemoteFloat("f", 1f.rf).getIdForCreationState(state)
-            rememberNamedRemoteColor("c", RemoteColor.Red).getIdForCreationState(state)
-            rememberNamedRemoteDp("d", 1.rdp).getIdForCreationState(state)
+            state.getId(rememberNamedRemoteFloat("f", 1f.rf))
+            state.getId(rememberNamedRemoteColor("c", RemoteColor.Red))
+            state.getId(rememberNamedRemoteDp("d", 1.rdp))
 
             // Taking primitive values
-            rememberNamedRemoteLong("l", 1L).getIdForCreationState(state)
-            rememberNamedRemoteInt("i", 1).getIdForCreationState(state)
-            rememberNamedRemoteString("s", "h").getIdForCreationState(state)
-            rememberNamedRemoteBoolean("b", true).getIdForCreationState(state)
+            state.getId(rememberNamedRemoteLong("l", 1L))
+            state.getId(rememberNamedRemoteInt("i", 1))
+            state.getId(rememberNamedRemoteString("s", "h"))
+            state.getId(rememberNamedRemoteBoolean("b", true))
         }
     }
 
@@ -552,8 +551,8 @@ class RemoteStateCreationTest {
                 val intA = remember { createNamedRemoteInt("cachedInt", 10) }
                 val intB = remember { createNamedRemoteInt("cachedInt", 20) }
 
-                val idA = intA.getIdForCreationState(state)
-                val idB = intB.getIdForCreationState(state)
+                val idA = state.getId(intA)
+                val idB = state.getId(intB)
 
                 assertThat(idA).isEqualTo(idB)
             }
@@ -581,9 +580,9 @@ class RemoteStateCreationTest {
                     createNamedRemoteFloatArray("otherArray", defaultData1)
                 }
 
-                id1 = array1.getIdForCreationState(creationState)
-                id2 = array2.getIdForCreationState(creationState)
-                id3 = array3.getIdForCreationState(creationState)
+                id1 = creationState.getId(array1)
+                id2 = creationState.getId(array2)
+                id3 = creationState.getId(array3)
             }
 
         assertThat(id1).isNotEqualTo(-1)

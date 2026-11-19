@@ -35,7 +35,7 @@ internal class RemoteImageNode : RemoteComposeNode() {
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val bitmapId =
-            remoteBitmap?.getIdForCreationState(creationState)
+            remoteBitmap?.let { creationState.getId(it) }
                 ?: image?.let { creationState.document.addBitmap(it) }
                 ?: 0
         val scope = overriddenScope(remoteCanvas)
@@ -43,7 +43,7 @@ internal class RemoteImageNode : RemoteComposeNode() {
             scope.toRecordingModifier(modifier),
             bitmapId,
             contentScale.value,
-            alpha.getFloatIdForCreationState(creationState),
+            creationState.getFloatId(alpha),
         )
     }
 }

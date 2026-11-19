@@ -120,7 +120,7 @@ class RemoteTimeDefaultsTest {
                     )
                 val creationState = LocalRemoteComposeCreationState.current
                 RemoteCanvas(RemoteModifier.fillMaxSize()) {
-                    timeTextId = timeString.getIdForCreationState(creationState)
+                    timeTextId = creationState.getId(timeString)
                 }
             }
 

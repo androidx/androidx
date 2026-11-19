@@ -380,10 +380,7 @@ class RcPlayerAncestorGestureTest {
                     }
             ) {
                 val doc = remoteComposeCreationState.document
-                val outputId =
-                    Utils.idFromNan(
-                        touchValue.getFloatIdForCreationState(remoteComposeCreationState)
-                    )
+                val outputId = Utils.idFromNan(remoteComposeCreationState.getFloatId(touchValue))
                 doc.buffer.addTouchExpression(
                     outputId,
                     0f,

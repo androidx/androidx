@@ -219,7 +219,7 @@ class RemoteStateTest {
                 val creationState = LocalRemoteComposeCreationState.current
 
                 // 1. Get the ID allocated for actions (e.g., valueChange)
-                val actionId = mutableFloat.getIdForCreationState(creationState)
+                val actionId = creationState.getId(mutableFloat)
 
                 // 2. Get the ID allocated for expressions (e.g., arithmetic operations)
                 val expressionArray = mutableFloat.arrayForCreationState(creationState)
@@ -236,14 +236,14 @@ class RemoteStateTest {
 
     @RemoteComposable
     @Composable
-    private fun <T : BaseRemoteState<*>> AssertSameSameDifferent(first: T, first2: T, second: T) {
+    private fun <T : RemoteState<*>> AssertSameSameDifferent(first: T, first2: T, second: T) {
         assertNotSame(first, second)
 
         val creationState = LocalRemoteComposeCreationState.current
-        val firstId = first.getIdForCreationState(creationState)
-        val firstId2 = first.getIdForCreationState(creationState)
-        val first2Id1 = first2.getIdForCreationState(creationState)
-        val secondId = second.getIdForCreationState(creationState)
+        val firstId = creationState.getId(first)
+        val firstId2 = creationState.getId(first)
+        val first2Id1 = creationState.getId(first2)
+        val secondId = creationState.getId(second)
 
         assertEquals(firstId, firstId2)
         assertEquals(firstId, first2Id1)

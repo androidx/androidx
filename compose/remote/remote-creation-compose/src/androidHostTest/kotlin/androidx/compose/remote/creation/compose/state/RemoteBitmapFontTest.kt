@@ -87,7 +87,7 @@ class RemoteBitmapFontTest {
     @Test
     fun measureWidth() {
         val result = bitmapFont.measureWidth(RemoteString("ab c"), RemoteFloat(0f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         // Width is the sum of:
@@ -101,7 +101,7 @@ class RemoteBitmapFontTest {
     @Test
     fun measureWidthPositiveGlyphSpacing() {
         val result = bitmapFont.measureWidth(RemoteString("abc"), RemoteFloat(5f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         // Width is the sum of:
@@ -116,7 +116,7 @@ class RemoteBitmapFontTest {
     @Test
     fun measureWidthNegativeGlyphSpacing() {
         val result = bitmapFont.measureWidth(RemoteString("abc"), RemoteFloat(-5f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         // Width is the sum of:
@@ -131,7 +131,7 @@ class RemoteBitmapFontTest {
     @Test
     fun measureHeight() {
         val result = bitmapFont.measureHeight(RemoteString("ab c"))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         // Height is the max of:
@@ -171,7 +171,7 @@ class RemoteBitmapFontTest {
                 mapOf("ab" to (-2).toShort()),
             )
         val result = kerningFont.measureWidth(RemoteString("ab"), RemoteFloat(0f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         // a: 1 + 10 + 1 = 12
@@ -184,7 +184,7 @@ class RemoteBitmapFontTest {
     @Test
     fun measureEmptyString() {
         val result = bitmapFont.measureWidth(RemoteString(""), RemoteFloat(0f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(resultId)).isEqualTo(0)
@@ -193,7 +193,7 @@ class RemoteBitmapFontTest {
     @Test
     fun measureUnmatchedGlyphs() {
         val result = bitmapFont.measureWidth(RemoteString("z"), RemoteFloat(0f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         // "z" is not in the font, so it's ignored.
@@ -206,7 +206,7 @@ class RemoteBitmapFontTest {
         val nonConstantString = createNamedRemoteString("testWidth", "abc")
 
         val result = bitmapFont.measureWidth(nonConstantString, RemoteFloat(0f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         // "abc" width: 14 + 60 + 38 = 112
@@ -252,7 +252,7 @@ class RemoteBitmapFontTest {
             )
 
         val result = greedyFont.measureWidth(RemoteString("abc"), RemoteFloat(0f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         // If it's truly greedy, it should match "abc" (width 30)
@@ -295,10 +295,7 @@ class RemoteBitmapFontTest {
         assertThat(remoteFont.measureHeight(RemoteString("a b")).constantValue).isEqualTo(34f)
 
         val nonConstantText = createNamedRemoteString("remoteGlyphText", "a b")
-        val widthId =
-            remoteFont
-                .measureWidth(nonConstantText, RemoteFloat(0f))
-                .getIdForCreationState(creationState)
+        val widthId = creationState.getId(remoteFont.measureWidth(nonConstantText, RemoteFloat(0f)))
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(widthId)).isEqualTo(16 + 15 + 24)
@@ -306,7 +303,8 @@ class RemoteBitmapFontTest {
         limitsRule.setEnableImageUrls(true)
         val urlState = createTestCreationState(profiles = PROFILE_ANDROIDX)
         val urlFontId =
-            RemoteBitmapFont(
+            urlState.getId(
+                RemoteBitmapFont(
                     listOf(
                         RemoteBitmapFont.Glyph(
                             chars = "u",
@@ -320,7 +318,7 @@ class RemoteBitmapFontTest {
                         )
                     )
                 )
-                .getIdForCreationState(urlState)
+            )
         assertThat(urlFontId).isGreaterThan(0)
         CoreDocument().apply {
             val buffer = urlState.document.buffer
@@ -359,13 +357,14 @@ class RemoteBitmapFontTest {
                 emptyMap(),
             )
         val actualFontId =
-            RemoteBitmapFont(
+            actualState.getId(
+                RemoteBitmapFont(
                     listOf(
                         RemoteBitmapFont.Glyph("a", remoteImage, 1, 2, 3, 4, 10, 20),
                         RemoteBitmapFont.Glyph(" ", null, 20, 0, 0, 0, 0, 0),
                     )
                 )
-                .getIdForCreationState(actualState)
+            )
 
         assertThat(actualFontId).isEqualTo(expectedFontId)
         assertThat(actualState.document.buffer.buffer.cloneBytes())

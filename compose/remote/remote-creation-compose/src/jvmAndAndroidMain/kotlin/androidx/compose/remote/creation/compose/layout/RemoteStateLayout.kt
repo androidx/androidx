@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteEnum
 import androidx.compose.remote.creation.compose.state.RemoteInt
+import androidx.compose.remote.creation.compose.state.intValue
 import androidx.compose.remote.creation.compose.util.fastForEach
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -44,7 +45,7 @@ internal class RemoteStateLayoutNode : RemoteComposeNode() {
 
         creationState.document.startStateLayout(
             recordingModifier,
-            currentState.getIdForCreationState(creationState),
+            creationState.getId(currentState),
         )
 
         renderChildren(creationState, remoteCanvas)

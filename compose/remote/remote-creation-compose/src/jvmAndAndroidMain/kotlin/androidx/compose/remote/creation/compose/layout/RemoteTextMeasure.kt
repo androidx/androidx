@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
@@ -315,7 +316,7 @@ public class RemoteTextMeasurer(
         val resolvedStyle = style.fontStyle ?: this.style.fontStyle
 
         return RemoteFloat {
-            val textSizePxId = textSize.getFloatIdForCreationState(this)
+            val textSizePxId = getFloatId(textSize)
             document.rcPaint
                 .setTextSize(textSizePxId)
                 .setTypeface(
@@ -327,7 +328,7 @@ public class RemoteTextMeasurer(
 
             RemoteFloat(
                 document.textAttribute(
-                    text.getIdForCreationState(this),
+                    getId(text),
                     attributeType,
                 )
             )
@@ -363,9 +364,9 @@ public class RemoteSingleLineTextBounds(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteSingleLineTextBounds) return false
-        return size.width.isStructurallyEqual(other.size.width) &&
-            size.height.isStructurallyEqual(other.size.height) &&
-            baseline.isStructurallyEqual(other.baseline)
+        return size.width == other.size.width &&
+            size.height == other.size.height &&
+            baseline == other.baseline
     }
 
     override fun hashCode(): Int {
@@ -406,8 +407,7 @@ public class RemoteFontMetrics(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteFontMetrics) return false
-        return ascent.isStructurallyEqual(other.ascent) &&
-            descent.isStructurallyEqual(other.descent)
+        return ascent == other.ascent && descent == other.descent
     }
 
     override fun hashCode(): Int {
@@ -473,10 +473,10 @@ public class RemotePaintBounds(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemotePaintBounds) return false
-        return left.isStructurallyEqual(other.left) &&
-            top.isStructurallyEqual(other.top) &&
-            right.isStructurallyEqual(other.right) &&
-            bottom.isStructurallyEqual(other.bottom)
+        return left == other.left &&
+            top == other.top &&
+            right == other.right &&
+            bottom == other.bottom
     }
 
     override fun hashCode(): Int {

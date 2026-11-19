@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.arrayForCreationState
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.isLiteral
 
@@ -43,8 +44,8 @@ internal class ValueChangeAction<T>(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction =
         with(this as InternalRemoteStateScope) {
-            val actualMutable = remoteValue.asEncodedMutable
-            val actualValue = updatedValue.asEncoded
+            val actualMutable = creationState.asEncodedMutable(remoteValue)
+            val actualValue = creationState.asEncoded(updatedValue)
 
             if (actualMutable is MutableRemoteInt) {
                 actualValue as RemoteInt

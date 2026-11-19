@@ -22,10 +22,13 @@ import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
+import androidx.compose.remote.creation.compose.state.MutableRemoteState
 import androidx.compose.remote.creation.compose.state.RemoteNamedCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
+import androidx.compose.remote.creation.compose.state.requireRemoteStateAccess
 
 /** Provider for resolving a layout component's [RemoteComponentToken] during rendering. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -336,6 +339,49 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
         }
         return id
     }
+
+    /**
+     * Returns a new or cached id for [state] within this [RemoteComposeCreationState].
+     *
+     * @param state The [RemoteState] for which the ID will be generated.
+     * @return The ID of [state] for this [RemoteComposeCreationState].
+     */
+    // Avoid JVM signature clash with InternalRemoteStateScope's RemoteState.id extension getter.
+    @JvmName("getCreationStateId")
+    public fun getId(state: RemoteState<*>): Int = state.requireRemoteStateAccess().getId(this)
+
+    /**
+     * Returns a new or cached long id for [state] within this [RemoteComposeCreationState].
+     *
+     * @param state The [RemoteState] for which the ID will be generated.
+     * @return The ID of [state] for this [RemoteComposeCreationState] as a long.
+     */
+    // Avoid JVM signature clash with InternalRemoteStateScope's RemoteState.longId extension
+    // getter.
+    @JvmName("getCreationStateLongId")
+    public fun getLongId(state: RemoteState<*>): Long =
+        state.requireRemoteStateAccess().getLongId(this)
+
+    /**
+     * Returns a new or cached NaN-encoded float id for [state] within this
+     * [RemoteComposeCreationState].
+     *
+     * @param state The [RemoteState] for which the ID will be generated.
+     * @return The ID of [state] encoded in a Float NaN for this [RemoteComposeCreationState].
+     */
+    // Avoid JVM signature clash with InternalRemoteStateScope's RemoteState.floatId extension
+    // getter.
+    @JvmName("getCreationStateFloatId")
+    public fun getFloatId(state: RemoteState<*>): Float =
+        state.requireRemoteStateAccess().getFloatId(this)
+
+    /** Returns the underlying encoded [RemoteState] representation for [state]. */
+    public fun asEncoded(state: RemoteState<*>): RemoteState<*> =
+        state.requireRemoteStateAccess().asEncoded
+
+    /** Returns the underlying encoded [MutableRemoteState] representation for [state]. */
+    public fun asEncodedMutable(state: MutableRemoteState<*>): MutableRemoteState<*> =
+        state.requireRemoteStateAccess().asEncodedMutable
 }
 
 /**

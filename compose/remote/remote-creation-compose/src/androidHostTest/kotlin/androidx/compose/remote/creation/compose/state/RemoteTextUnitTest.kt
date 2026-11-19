@@ -98,8 +98,8 @@ class RemoteTextUnitTest {
                 val dynamicTextUnit = (baseSize * 2f).rsp
                 val staticTextUnit = 28.rsp
                 Pair(
-                    dynamicTextUnit.toPx().getIdForCreationState(it),
-                    staticTextUnit.toPx().getIdForCreationState(it),
+                    it.getId(dynamicTextUnit.toPx()),
+                    it.getId(staticTextUnit.toPx()),
                 )
             }
 
@@ -119,8 +119,8 @@ class RemoteTextUnitTest {
                 val remoteTextUnit = intValue.rsp
                 val remoteFloatPx = remoteTextUnit.toPx()
 
-                val resultId = remoteTextUnit.value.getIdForCreationState(it)
-                val resultPxId = remoteFloatPx.getIdForCreationState(it)
+                val resultId = it.getId(remoteTextUnit.value)
+                val resultPxId = it.getId(remoteFloatPx)
                 Pair(resultId, resultPxId)
             }
 
@@ -146,8 +146,8 @@ class RemoteTextUnitTest {
                 val scalable = 12.rsp // font-scale dependent
 
                 Pair(
-                    nonScalable.toPx().getIdForCreationState(it),
-                    scalable.toPx().getIdForCreationState(it),
+                    it.getId(nonScalable.toPx()),
+                    it.getId(scalable.toPx()),
                 )
             }
 

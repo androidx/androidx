@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.text
 
 import androidx.annotation.IntRange
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -39,7 +40,7 @@ public class RemoteFontWeight(public val weight: RemoteFloat) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteFontWeight) return false
-        return weight.isStructurallyEqual(other.weight)
+        return weight == other.weight
     }
 
     override fun hashCode(): Int = weight.cacheKey.hashCode()

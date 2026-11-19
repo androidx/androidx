@@ -19,97 +19,109 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import kotlin.reflect.KClass
 
 /** Represents an array of remote strings. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteStringArray
-internal constructor(
-    public override val constantValueOrNull: List<RemoteString>?,
-    cacheKey: RemoteStateCacheKey,
-) : BaseRemoteState<List<RemoteString>>(cacheKey) {
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(
-        constantValueOrNull: List<RemoteString>?
-    ) : this(
-        constantValueOrNull,
-        constantValueOrNull?.let { values ->
-            RemoteOperationCacheKey.create(OperationKey.Create, *values.toTypedArray())
-        } ?: RemoteStateInstanceKey(),
-    )
-
-    internal enum class OperationKey : RemoteOperation {
-        Create {
-            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
-                "arrayOf(${args.joinToDebugString()})"
-
-            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
-                RemoteStringArray(args.fastMap { it as RemoteString })
-        },
-        Get {
-            override val precedence: Int
-                get() = 100
-
-            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
-                args.formatArrayAccess(precedence)
-
-            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
-                (args[0] as RemoteStringArray)[args[1] as RemoteInt]
-        },
-    }
-
-    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        // If this instance represents an existing allocated ID (e.g. a formal parameter in a
-        // pattern definition), return that ID directly instead of writing to the document.
-        if (cacheKey is RemoteStateIdKey) {
-            return (cacheKey as RemoteStateIdKey).id
-        }
-        val ids =
-            constantValueOrNull!!.fastMap { it.getIdForCreationState(creationState) }.toIntArray()
-        val nanId = creationState.document.addStringList(*ids)
-        return Utils.idFromNan(nanId)
-    }
+public sealed interface RemoteStringArray : RemoteState<List<RemoteString>> {
+    override val constantValueOrNull: List<RemoteString>?
 
     /** Array access operator for [RemoteStringArray] with an [Int] index. */
-    public operator fun get(v: Int): RemoteString = constantValueOrNull?.get(v) ?: get(RemoteInt(v))
+    public operator fun get(v: Int): RemoteString
 
     /** Array access operator for [RemoteStringArray] with a [RemoteInt] index. */
-    public operator fun get(v: RemoteInt): RemoteString {
+    public operator fun get(v: RemoteInt): RemoteString
+
+    public companion object {
+        /** Creates a [RemoteStringArray] referencing a remote ID. */
+        public fun createForId(id: Int): RemoteStringArray =
+            RemoteStringArrayImpl(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id))
+    }
+}
+
+private enum class StringArrayOperationKey : RemoteOperation {
+    Create {
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+            "arrayOf(${args.joinToDebugString()})"
+
+        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+            RemoteStringArray(args.fastMap { it as RemoteString })
+    },
+    Get {
+        override val precedence: Int
+            get() = 100
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+            args.formatArrayAccess(precedence)
+
+        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+            (args[0] as RemoteStringArray)[args[1] as RemoteInt]
+    },
+}
+
+private class RemoteStringArrayImpl(
+    override val constantValueOrNull: List<RemoteString>?,
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteState<List<RemoteString>>(cacheKey), RemoteStringArray {
+    override val equalityType: KClass<*>
+        get() = RemoteStringArray::class
+
+    override fun get(v: Int): RemoteString = constantValueOrNull?.get(v) ?: get(RemoteInt(v))
+
+    override fun get(v: RemoteInt): RemoteString {
         val constArray = constantValueOrNull
         val constIndex = v.constantValueOrNull
         if (constArray != null && constIndex != null) {
             return constArray[constIndex]
         }
-        return MutableRemoteString(
+        return RemoteString(
             constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
+            cacheKey = RemoteOperationCacheKey.create(StringArrayOperationKey.Get, this, v),
             lazyRemoteString = StringArrayDerefImpl(this, v),
         )
     }
 
-    public companion object {
-        /** Creates a [RemoteStringArray] referencing a remote ID. */
-        public fun createForId(id: Int): RemoteStringArray =
-            RemoteStringArray(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id))
+    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        // If this instance represents an existing allocated ID (e.g. a formal parameter in a
+        // pattern definition), return that ID directly instead of writing to the document.
+        if (cacheKey is RemoteStateIdKey) {
+            return cacheKey.id
+        }
+        val ids = constantValueOrNull!!.fastMap { creationState.getId(it) }.toIntArray()
+        val nanId = creationState.document.addStringList(*ids)
+        return Utils.idFromNan(nanId)
     }
 }
+
+/** Creates a [RemoteStringArray] backed by [constantValueOrNull]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteStringArray(constantValueOrNull: List<RemoteString>?): RemoteStringArray =
+    RemoteStringArrayImpl(
+        constantValueOrNull,
+        constantValueOrNull?.let { values ->
+            RemoteOperationCacheKey.create(
+                StringArrayOperationKey.Create,
+                *values.toTypedArray(),
+            )
+        } ?: RemoteStateInstanceKey(),
+    )
 
 private class StringArrayDerefImpl(val array: RemoteStringArray, val index: RemoteInt) :
     LazyRemoteString {
     override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-        val arrayId = Utils.asNan(array.getIdForCreationState(creationState))
-        val indexId = index.getIdForCreationState(creationState)
+        val arrayId = Utils.asNan(creationState.getId(array))
+        val indexId = creationState.getId(index)
         return creationState.document.textLookup(arrayId, indexId)
     }
 
     override fun computeRequiredCodePointSet(
         creationState: RemoteComposeCreationState
     ): Set<String>? {
-        val constIndex = index.constantValueOrNull
-        if (constIndex != null && array.constantValueOrNull != null) {
-            return array.constantValueOrNull[constIndex].computeRequiredCodePointSet(creationState)
-        }
         val strings = array.constantValueOrNull ?: return null
+        val constIndex = index.constantValueOrNull
+        if (constIndex != null) {
+            return strings[constIndex].computeRequiredCodePointSet(creationState)
+        }
         return buildSet {
             strings.fastForEach {
                 val codePointSet = it.computeRequiredCodePointSet(creationState) ?: return null

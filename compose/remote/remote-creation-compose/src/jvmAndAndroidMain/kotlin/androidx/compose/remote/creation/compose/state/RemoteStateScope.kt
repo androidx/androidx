@@ -57,15 +57,15 @@ internal interface InternalRemoteStateScope : RemoteStateScope, RemoteDocumentSc
 
     /** Returns the ID for this state within the scope. */
     val RemoteState<*>.id: Int
-        get() = (this as BaseRemoteState<*>).getIdForCreationState(creationState)
+        get() = creationState.getId(this)
 
     /** Returns the float ID for this state within the scope. */
     val RemoteState<*>.floatId: Float
-        get() = (this as BaseRemoteState<*>).getFloatIdForCreationState(creationState)
+        get() = creationState.getFloatId(this)
 
     /** Returns the long ID for this state within the scope. */
     val RemoteState<*>.longId: Long
-        get() = (this as BaseRemoteState<*>).getLongIdForCreationState(creationState)
+        get() = creationState.getLongId(this)
 }
 
 /** The [RemoteComposeWriter] associated with the document being drawn into. */

@@ -21,8 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.state.RemoteColor.OperationKey
 import androidx.compose.runtime.Stable
+import kotlin.reflect.KClass
 
 private const val WhiteArgb = 0xFFFFFFFF.toInt()
 private const val TransparentArgb = 0x00000000
@@ -42,129 +42,60 @@ private const val RgbMask: Int = 0x00FFFFFF
  * - Bits 16-23: Red component (0-255).
  * - Bits 8-15: Green component (0-255).
  * - Bits 0-7: Blue component (0-255).
+ *
+ * Comparing [RemoteColor] values with `==` checks structural equality (matching constant values or
+ * expression DAGs); see [RemoteState].
  */
 @Stable
-public open class RemoteColor
-internal constructor(
-    // Backing with Long was considered to support wide color gamuts and color spaces (similar to
-    // Compose UI Color or Android ColorLong), but handling color spaces would be difficult
-    // outside of Android in platform-agnostic JVM targets, so 32-bit packed ARGB Int was chosen
-    // instead.
+public sealed interface RemoteColor : RemoteState<Int> {
     /** Constant 32-bit ARGB [ColorInt] value of this color, or `null` if dynamic. */
-    @get:ColorInt @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?,
-    cacheKey: RemoteStateCacheKey,
-    red: RemoteFloat?,
-    green: RemoteFloat?,
-    blue: RemoteFloat?,
-    alpha: RemoteFloat?,
-    private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
-) : BaseRemoteState<Int>(cacheKey) {
+    @get:ColorInt @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?
 
     /**
      * Constant 32-bit ARGB [ColorInt] value of this color.
      *
      * @throws IllegalStateException if this color is dynamic.
      */
-    @get:ColorInt
-    @get:Suppress("AutoBoxing")
-    public override val constantValue: Int
-        get() = super.constantValue
+    @get:ColorInt @get:Suppress("AutoBoxing") public override val constantValue: Int
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toDebugString(): String {
-        val col = constantValueOrNull
-        if (col != null) {
-            return col.toUInt().toString(16).uppercase()
-        }
-        return super.toDebugString()
-    }
+    /**
+     * Returns a [RemoteFloat] that evaluates to the alpha of this [RemoteColor] in the range
+     * [0..1].
+     */
+    public val alpha: RemoteFloat
 
-    internal val configuredRed: RemoteFloat? = red
-    internal val configuredGreen: RemoteFloat? = green
-    internal val configuredBlue: RemoteFloat? = blue
-    internal val configuredAlpha: RemoteFloat? = alpha
+    /**
+     * Returns a [RemoteFloat] that evaluates to the red of this [RemoteColor] in the range [0..1].
+     */
+    public val red: RemoteFloat
 
-    internal enum class OperationKey : RemoteOperation {
-        FromHSV,
-        FromAHSV,
-        FromArgb,
-        Component,
-        Multiply,
-        Tween,
-        TweenInt;
+    /**
+     * Returns a [RemoteFloat] that evaluates to the green of this [RemoteColor] in the range
+     * [0..1].
+     */
+    public val green: RemoteFloat
 
-        override fun toDebugString(args: List<RemoteStateCacheKey>): String =
-            when (this) {
-                Multiply -> args.formatOp("*", 3)
-                else -> formatCamelCaseFunction(args)
-            }
+    /**
+     * Returns a [RemoteFloat] that evaluates to the blue of this [RemoteColor] in the range [0..1].
+     */
+    public val blue: RemoteFloat
 
-        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
-            return when (this) {
-                FromArgb ->
-                    RemoteColor(
-                        red = args[0] as RemoteFloat,
-                        green = args[1] as RemoteFloat,
-                        blue = args[2] as RemoteFloat,
-                        alpha = args[3] as RemoteFloat,
-                    )
-                FromHSV ->
-                    hsv(args[0] as RemoteFloat, args[1] as RemoteFloat, args[2] as RemoteFloat)
-                FromAHSV ->
-                    fromAHSV(
-                        asConstantInt(args[0], default = 255),
-                        args[1] as RemoteFloat,
-                        args[2] as RemoteFloat,
-                        args[3] as RemoteFloat,
-                    )
-                Multiply -> asRemoteColor(args[0]) * asRemoteColor(args[1])
-                Tween ->
-                    lerp(asRemoteColor(args[0]), asRemoteColor(args[1]), args[2] as RemoteFloat)
-                TweenInt -> {
-                    val from = args[0]
-                    val to = args[1]
-                    val t = args[2] as RemoteFloat
-                    val fromInt = (from.constantValueOrNull as? Number)?.toInt()
-                    val toInt = (to.constantValueOrNull as? Number)?.toInt()
-                    if (fromInt != null && toInt != null) {
-                        lerp(fromInt, toInt, t)
-                    } else {
-                        lerp(asRemoteColor(from), asRemoteColor(to), t)
-                    }
-                }
-                Component -> {
-                    val color = asRemoteColor(args[0])
-                    when (val component = asConstantInt(args[1]).toShort()) {
-                        ColorAttribute.COLOR_ALPHA -> color.alpha
-                        ColorAttribute.COLOR_RED -> color.red
-                        ColorAttribute.COLOR_GREEN -> color.green
-                        ColorAttribute.COLOR_BLUE -> color.blue
-                        ColorAttribute.COLOR_HUE -> color.hue
-                        ColorAttribute.COLOR_SATURATION -> color.saturation
-                        ColorAttribute.COLOR_BRIGHTNESS -> color.brightness
-                        else -> throw IllegalArgumentException("Unknown component: $component")
-                    }
-                }
-            }
-        }
-    }
+    /**
+     * Returns a [RemoteFloat] that evaluates to the hue of this [RemoteColor] in the range [0..1].
+     */
+    public val hue: RemoteFloat
 
-    internal constructor(
-        cacheKey: RemoteStateCacheKey,
-        idProvider: (creationState: RemoteComposeCreationState) -> Int,
-    ) : this(
-        constantValueOrNull = null,
-        cacheKey = cacheKey,
-        red = null,
-        green = null,
-        blue = null,
-        alpha = null,
-        idProvider = idProvider,
-    )
+    /**
+     * Returns a [RemoteFloat] that evaluates to the saturation of this [RemoteColor] in the range
+     * [0..1].
+     */
+    public val saturation: RemoteFloat
 
-    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        return idProvider(creationState)
-    }
+    /**
+     * Returns a [RemoteFloat] that evaluates to the brightness of this [RemoteColor] in the range
+     * [0..1].
+     */
+    public val brightness: RemoteFloat
 
     /**
      * Computes the pairwise product of this [RemoteColor] with [other].
@@ -173,25 +104,7 @@ internal constructor(
      * @return The result of multiplying [RemoteColor] by [other].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun times(other: RemoteColor): RemoteColor {
-        val thisConst = this.constantValueOrNull
-        val otherConst = other.constantValueOrNull
-        return when {
-            thisConst == WhiteArgb -> other
-            otherConst == WhiteArgb -> this
-            thisConst == TransparentArgb -> this
-            otherConst == TransparentArgb -> other
-            thisConst == BlackArgb && other.alpha.constantValueOrNull == 1f -> this
-            otherConst == BlackArgb && this.alpha.constantValueOrNull == 1f -> other
-            else ->
-                rgb(
-                    red = red * other.red,
-                    green = green * other.green,
-                    blue = blue * other.blue,
-                    alpha = alpha * other.alpha,
-                )
-        }
-    }
+    public operator fun times(other: RemoteColor): RemoteColor
 
     /**
      * Creates a copy of this [RemoteColor] with the ability to override individual ARGB components.
@@ -209,101 +122,7 @@ internal constructor(
         red: RemoteFloat? = null,
         green: RemoteFloat? = null,
         blue: RemoteFloat? = null,
-    ): RemoteColor {
-        if (alpha == null && red == null && green == null && blue == null) {
-            return this
-        }
-
-        return rgb(
-            red = red ?: this.red,
-            green = green ?: this.green,
-            blue = blue ?: this.blue,
-            alpha = alpha ?: this.alpha,
-        )
-    }
-
-    /**
-     * Returns a [RemoteFloat] that evaluates a color component of this [RemoteColor] in the range
-     * [0..1].
-     */
-    private fun colorComponent(component: Short): RemoteFloat {
-        val key = RemoteOperationCacheKey.create(OperationKey.Component, this, component)
-        return RemoteFloat(
-            constantValueOrNull =
-                when (component) {
-                    ColorAttribute.COLOR_ALPHA -> constantValueOrNull?.let(::extractAlphaFloat)
-                    ColorAttribute.COLOR_RED -> constantValueOrNull?.let(::extractRedFloat)
-                    ColorAttribute.COLOR_GREEN -> constantValueOrNull?.let(::extractGreenFloat)
-                    ColorAttribute.COLOR_BLUE -> constantValueOrNull?.let(::extractBlueFloat)
-                    ColorAttribute.COLOR_HUE -> constantValueOrNull?.let { Utils.getHue(it) }
-                    ColorAttribute.COLOR_SATURATION ->
-                        constantValueOrNull?.let { Utils.getSaturation(it) }
-                    ColorAttribute.COLOR_BRIGHTNESS ->
-                        constantValueOrNull?.let { Utils.getBrightness(it) }
-                    else -> throw IllegalArgumentException("Unsupported $component")
-                },
-            cacheKey = key,
-        ) { creationState ->
-            floatArrayOf(
-                creationState.document.getColorAttribute(
-                    creationState.getOrPutVariableId(cacheKey) { idProvider(creationState) },
-                    component,
-                )
-            )
-        }
-    }
-
-    /**
-     * Returns a [RemoteFloat] that evaluates to the alpha of this [RemoteColor] in the range
-     * [0..1].
-     */
-    public val alpha: RemoteFloat
-        get() = configuredAlpha ?: colorComponent(ColorAttribute.COLOR_ALPHA)
-
-    /**
-     * Returns a [RemoteFloat] that evaluates to the red of this [RemoteColor] in the range [0..1].
-     */
-    public val red: RemoteFloat
-        get() = configuredRed ?: colorComponent(ColorAttribute.COLOR_RED)
-
-    /**
-     * Returns a [RemoteFloat] that evaluates to the green of this [RemoteColor] in the range
-     * [0..1].
-     */
-    public val green: RemoteFloat
-        get() = configuredGreen ?: colorComponent(ColorAttribute.COLOR_GREEN)
-
-    /**
-     * Returns a [RemoteFloat] that evaluates to the blue of this [RemoteColor] in the range [0..1].
-     */
-    public val blue: RemoteFloat
-        get() = configuredBlue ?: colorComponent(ColorAttribute.COLOR_BLUE)
-
-    /**
-     * Returns a [RemoteFloat] that evaluates to the hue of this [RemoteColor] in the range [0..1].
-     */
-    public val hue: RemoteFloat
-        get() =
-            constantValueOrNull?.let { Utils.getHue(it).rf }
-                ?: colorComponent(ColorAttribute.COLOR_HUE)
-
-    /**
-     * Returns a [RemoteFloat] that evaluates to the saturation of this [RemoteColor] in the range
-     * [0..1].
-     */
-    public val saturation: RemoteFloat
-        get() =
-            constantValueOrNull?.let { Utils.getSaturation(it).rf }
-                ?: colorComponent(ColorAttribute.COLOR_SATURATION)
-
-    /**
-     * Returns a [RemoteFloat] that evaluates to the brightness of this [RemoteColor] in the range
-     * [0..1].
-     */
-    public val brightness: RemoteFloat
-        get() =
-            constantValueOrNull?.let { Utils.getBrightness(it).rf }
-                ?: colorComponent(ColorAttribute.COLOR_BRIGHTNESS)
+    ): RemoteColor
 
     public companion object {
         /** Black color (`0xFF000000`). */
@@ -350,7 +169,7 @@ internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createForId(id: Int): RemoteColor =
-            RemoteColor(idProvider = { id }, cacheKey = RemoteStateIdKey(id))
+            RemoteColorImpl(idProvider = { id }, cacheKey = RemoteStateIdKey(id))
 
         /**
          * Creates a named [RemoteColor] with an initial value.
@@ -368,13 +187,13 @@ internal constructor(
             @ColorInt defaultValue: Int,
             domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteColor {
-            return RemoteColor(
+            return RemoteColorImpl(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
-                red = null,
-                green = null,
-                blue = null,
-                alpha = null,
+                configuredRed = null,
+                configuredGreen = null,
+                configuredBlue = null,
+                configuredAlpha = null,
                 idProvider = { creationState ->
                     creationState.document.addNamedColor(
                         domain.prefixed(name),
@@ -400,19 +219,19 @@ internal constructor(
             defaultValue: RemoteColor,
             domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteColor {
-            return RemoteColor(
+            return RemoteColorImpl(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
-                red = null,
-                green = null,
-                blue = null,
-                alpha = null,
+                configuredRed = null,
+                configuredGreen = null,
+                configuredBlue = null,
+                configuredAlpha = null,
                 idProvider = { creationState ->
                     val constValue = defaultValue.constantValueOrNull
                     if (constValue != null) {
                         creationState.document.addNamedColor(domain.prefixed(name), constValue)
                     } else {
-                        val baseId = defaultValue.getIdForCreationState(creationState).toShort()
+                        val baseId = creationState.getId(defaultValue).toShort()
                         val colorId =
                             creationState.document.addColorExpression(baseId, baseId, 0f).toInt()
                         creationState.document.setColorName(colorId, domain.prefixed(name))
@@ -454,10 +273,10 @@ internal constructor(
             val fixedAlpha = floatComponentToByte(alpha.constantValueOrNull ?: 1f)
 
             val colorWithConstantAlpha =
-                RemoteColor(
+                RemoteColorImpl(
                     cacheKey =
                         RemoteOperationCacheKey.create(
-                            OperationKey.FromHSV,
+                            ColorOperationKey.FromHSV,
                             hue,
                             saturation,
                             value,
@@ -465,7 +284,7 @@ internal constructor(
                     idProvider = { creationState ->
                         creationState.getOrPutVariableId(
                             RemoteOperationCacheKey.create(
-                                OperationKey.FromHSV,
+                                ColorOperationKey.FromHSV,
                                 hue,
                                 saturation,
                                 value,
@@ -474,9 +293,9 @@ internal constructor(
                             creationState.document
                                 .addColorExpression(
                                     fixedAlpha,
-                                    hue.getFloatIdForCreationState(creationState),
-                                    saturation.getFloatIdForCreationState(creationState),
-                                    value.getFloatIdForCreationState(creationState),
+                                    creationState.getFloatId(hue),
+                                    creationState.getFloatId(saturation),
+                                    creationState.getFloatId(value),
                                 )
                                 .toInt()
                         }
@@ -516,10 +335,10 @@ internal constructor(
                 return RemoteColor(argb)
             }
 
-            return RemoteColor(
+            return RemoteColorImpl(
                 cacheKey =
                     RemoteOperationCacheKey.create(
-                        OperationKey.FromAHSV,
+                        ColorOperationKey.FromAHSV,
                         alpha,
                         hue,
                         saturation,
@@ -528,7 +347,7 @@ internal constructor(
                 idProvider = { creationState ->
                     creationState.getOrPutVariableId(
                         RemoteOperationCacheKey.create(
-                            OperationKey.FromAHSV,
+                            ColorOperationKey.FromAHSV,
                             alpha,
                             hue,
                             saturation,
@@ -538,9 +357,9 @@ internal constructor(
                         creationState.document
                             .addColorExpression(
                                 alpha.toFloat() / 255f,
-                                hue.getFloatIdForCreationState(creationState),
-                                saturation.getFloatIdForCreationState(creationState),
-                                value.getFloatIdForCreationState(creationState),
+                                creationState.getFloatId(hue),
+                                creationState.getFloatId(saturation),
+                                creationState.getFloatId(value),
                             )
                             .toInt()
                     }
@@ -600,7 +419,7 @@ internal constructor(
                     lightFallback = lightFallback,
                     darkFallback = darkFallback,
                 )
-            return RemoteColor(
+            return RemoteColorImpl(
                 cacheKey = cacheKey,
                 idProvider = { creationState ->
                     creationState.getOrPutVariableId(cacheKey) {
@@ -620,6 +439,216 @@ internal constructor(
     }
 }
 
+private class RemoteColorImpl(
+    // Backing with Long was considered to support wide color gamuts and color spaces (similar to
+    // Compose UI Color or Android ColorLong), but handling color spaces would be difficult
+    // outside of Android in platform-agnostic JVM targets, so 32-bit packed ARGB Int was chosen
+    // instead.
+    override val constantValueOrNull: Int?,
+    cacheKey: RemoteStateCacheKey,
+    private val configuredRed: RemoteFloat?,
+    private val configuredGreen: RemoteFloat?,
+    private val configuredBlue: RemoteFloat?,
+    private val configuredAlpha: RemoteFloat?,
+    private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
+) : BaseRemoteState<Int>(cacheKey), RemoteColor {
+    override val equalityType: KClass<*>
+        get() = RemoteColor::class
+
+    constructor(
+        cacheKey: RemoteStateCacheKey,
+        idProvider: (creationState: RemoteComposeCreationState) -> Int,
+    ) : this(
+        constantValueOrNull = null,
+        cacheKey = cacheKey,
+        configuredRed = null,
+        configuredGreen = null,
+        configuredBlue = null,
+        configuredAlpha = null,
+        idProvider = idProvider,
+    )
+
+    override val constantValue: Int
+        get() = checkNotNull(constantValueOrNull) { "No constant value for this state" }
+
+    override fun times(other: RemoteColor): RemoteColor {
+        val thisConst = this.constantValueOrNull
+        val otherConst = other.constantValueOrNull
+        return when {
+            thisConst == WhiteArgb -> other
+            otherConst == WhiteArgb -> this
+            thisConst == TransparentArgb -> this
+            otherConst == TransparentArgb -> other
+            thisConst == BlackArgb && other.alpha.constantValueOrNull == 1f -> this
+            otherConst == BlackArgb && this.alpha.constantValueOrNull == 1f -> other
+            else ->
+                RemoteColor.rgb(
+                    red = red * other.red,
+                    green = green * other.green,
+                    blue = blue * other.blue,
+                    alpha = alpha * other.alpha,
+                )
+        }
+    }
+
+    override fun copy(
+        alpha: RemoteFloat?,
+        red: RemoteFloat?,
+        green: RemoteFloat?,
+        blue: RemoteFloat?,
+    ): RemoteColor {
+        if (alpha == null && red == null && green == null && blue == null) {
+            return this
+        }
+
+        return RemoteColor.rgb(
+            red = red ?: this.red,
+            green = green ?: this.green,
+            blue = blue ?: this.blue,
+            alpha = alpha ?: this.alpha,
+        )
+    }
+
+    override fun toString(): String {
+        val col = constantValueOrNull
+        if (col != null) {
+            return col.toUInt().toString(16).uppercase()
+        }
+        return cacheKey.toDebugString()
+    }
+
+    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        return idProvider(creationState)
+    }
+
+    private fun colorComponent(component: Short): RemoteFloat {
+        val key = RemoteOperationCacheKey.create(ColorOperationKey.Component, this, component)
+        return RemoteFloat(
+            constantValueOrNull =
+                when (component) {
+                    ColorAttribute.COLOR_ALPHA -> constantValueOrNull?.let(::extractAlphaFloat)
+                    ColorAttribute.COLOR_RED -> constantValueOrNull?.let(::extractRedFloat)
+                    ColorAttribute.COLOR_GREEN -> constantValueOrNull?.let(::extractGreenFloat)
+                    ColorAttribute.COLOR_BLUE -> constantValueOrNull?.let(::extractBlueFloat)
+                    ColorAttribute.COLOR_HUE -> constantValueOrNull?.let { Utils.getHue(it) }
+                    ColorAttribute.COLOR_SATURATION ->
+                        constantValueOrNull?.let { Utils.getSaturation(it) }
+                    ColorAttribute.COLOR_BRIGHTNESS ->
+                        constantValueOrNull?.let { Utils.getBrightness(it) }
+                    else -> throw IllegalArgumentException("Unsupported $component")
+                },
+            cacheKey = key,
+        ) { creationState ->
+            floatArrayOf(
+                creationState.document.getColorAttribute(
+                    creationState.getOrPutVariableId(cacheKey) { idProvider(creationState) },
+                    component,
+                )
+            )
+        }
+    }
+
+    override val alpha: RemoteFloat
+        get() = configuredAlpha ?: colorComponent(ColorAttribute.COLOR_ALPHA)
+
+    override val red: RemoteFloat
+        get() = configuredRed ?: colorComponent(ColorAttribute.COLOR_RED)
+
+    override val green: RemoteFloat
+        get() = configuredGreen ?: colorComponent(ColorAttribute.COLOR_GREEN)
+
+    override val blue: RemoteFloat
+        get() = configuredBlue ?: colorComponent(ColorAttribute.COLOR_BLUE)
+
+    override val hue: RemoteFloat
+        get() =
+            constantValueOrNull?.let { Utils.getHue(it).rf }
+                ?: colorComponent(ColorAttribute.COLOR_HUE)
+
+    override val saturation: RemoteFloat
+        get() =
+            constantValueOrNull?.let { Utils.getSaturation(it).rf }
+                ?: colorComponent(ColorAttribute.COLOR_SATURATION)
+
+    override val brightness: RemoteFloat
+        get() =
+            constantValueOrNull?.let { Utils.getBrightness(it).rf }
+                ?: colorComponent(ColorAttribute.COLOR_BRIGHTNESS)
+}
+
+private enum class ColorOperationKey : RemoteOperation {
+    FromHSV,
+    FromAHSV,
+    FromArgb,
+    Component,
+    Multiply,
+    Tween,
+    TweenInt;
+
+    override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+        when (this) {
+            Multiply -> args.formatOp("*", 3)
+            else -> formatCamelCaseFunction(args)
+        }
+
+    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+        return when (this) {
+            FromArgb ->
+                RemoteColor(
+                    red = args[0] as RemoteFloat,
+                    green = args[1] as RemoteFloat,
+                    blue = args[2] as RemoteFloat,
+                    alpha = args[3] as RemoteFloat,
+                )
+            FromHSV ->
+                RemoteColor.hsv(
+                    args[0] as RemoteFloat,
+                    args[1] as RemoteFloat,
+                    args[2] as RemoteFloat,
+                )
+            FromAHSV ->
+                RemoteColor.fromAHSV(
+                    asConstantInt(args[0], default = 255),
+                    args[1] as RemoteFloat,
+                    args[2] as RemoteFloat,
+                    args[3] as RemoteFloat,
+                )
+            Multiply -> asRemoteColor(args[0]) * asRemoteColor(args[1])
+            Tween -> lerp(asRemoteColor(args[0]), asRemoteColor(args[1]), args[2] as RemoteFloat)
+            TweenInt -> {
+                val from = args[0]
+                val to = args[1]
+                val t = args[2] as RemoteFloat
+                val fromInt = (from.constantValueOrNull as? Number)?.toInt()
+                val toInt = (to.constantValueOrNull as? Number)?.toInt()
+                if (fromInt != null && toInt != null) {
+                    lerp(fromInt, toInt, t)
+                } else {
+                    lerp(asRemoteColor(from), asRemoteColor(to), t)
+                }
+            }
+            Component -> {
+                val color = asRemoteColor(args[0])
+                when (val component = asConstantInt(args[1]).toShort()) {
+                    ColorAttribute.COLOR_ALPHA -> color.alpha
+                    ColorAttribute.COLOR_RED -> color.red
+                    ColorAttribute.COLOR_GREEN -> color.green
+                    ColorAttribute.COLOR_BLUE -> color.blue
+                    ColorAttribute.COLOR_HUE -> color.hue
+                    ColorAttribute.COLOR_SATURATION -> color.saturation
+                    ColorAttribute.COLOR_BRIGHTNESS -> color.brightness
+                    else -> throw IllegalArgumentException("Unknown component: $component")
+                }
+            }
+        }
+    }
+}
+
+internal fun RemoteColor(
+    cacheKey: RemoteStateCacheKey,
+    idProvider: (creationState: RemoteComposeCreationState) -> Int,
+): RemoteColor = RemoteColorImpl(cacheKey, idProvider)
+
 /**
  * Creates a [RemoteColor] from a packed ARGB integer [color] value.
  *
@@ -627,12 +656,12 @@ internal constructor(
  * @return A [RemoteColor] representing the constant ARGB color.
  */
 public fun RemoteColor(@ColorInt color: Int): RemoteColor =
-    RemoteColor(
+    RemoteColorImpl(
         constantValueOrNull = color,
-        red = extractRedFloat(color).rf,
-        green = extractGreenFloat(color).rf,
-        blue = extractBlueFloat(color).rf,
-        alpha = extractAlphaFloat(color).rf,
+        configuredRed = extractRedFloat(color).rf,
+        configuredGreen = extractGreenFloat(color).rf,
+        configuredBlue = extractBlueFloat(color).rf,
+        configuredAlpha = extractAlphaFloat(color).rf,
         cacheKey = RemoteColorConstantCacheKey(color),
         idProvider = { creationState -> creationState.document.addColor(color) },
     )
@@ -656,22 +685,23 @@ public fun RemoteColor(
     if (constantColor != null) {
         return RemoteColor(constantColor)
     }
-    val cacheKey = RemoteOperationCacheKey.create(OperationKey.FromArgb, red, green, blue, alpha)
-    return RemoteColor(
+    val cacheKey =
+        RemoteOperationCacheKey.create(ColorOperationKey.FromArgb, red, green, blue, alpha)
+    return RemoteColorImpl(
         constantValueOrNull = null,
-        red = red,
-        green = green,
-        blue = blue,
-        alpha = alpha,
+        configuredRed = red,
+        configuredGreen = green,
+        configuredBlue = blue,
+        configuredAlpha = alpha,
         cacheKey = cacheKey,
         idProvider = { creationState ->
             creationState.getOrPutVariableId(cacheKey) {
                 creationState.document
                     .addColorExpression(
-                        alpha.getFloatIdForCreationState(creationState),
-                        red.getFloatIdForCreationState(creationState),
-                        green.getFloatIdForCreationState(creationState),
-                        blue.getFloatIdForCreationState(creationState),
+                        creationState.getFloatId(alpha),
+                        creationState.getFloatId(red),
+                        creationState.getFloatId(green),
+                        creationState.getFloatId(blue),
                     )
                     .toInt()
             }
@@ -696,17 +726,17 @@ public fun lerp(@ColorInt from: Int, @ColorInt to: Int, fraction: RemoteFloat): 
         return RemoteColor(Utils.interpolateColor(from, to, it))
     }
 
-    return RemoteColor(
-        cacheKey = RemoteOperationCacheKey.create(OperationKey.TweenInt, from, to, fraction),
+    return RemoteColorImpl(
+        cacheKey = RemoteOperationCacheKey.create(ColorOperationKey.TweenInt, from, to, fraction),
         idProvider = { creationState ->
             creationState.getOrPutVariableId(
-                RemoteOperationCacheKey.create(OperationKey.TweenInt, from, to, fraction)
+                RemoteOperationCacheKey.create(ColorOperationKey.TweenInt, from, to, fraction)
             ) {
                 creationState.document
                     .addColorExpression(
                         from,
                         to,
-                        Utils.asNan(fraction.getIdForCreationState(creationState)),
+                        Utils.asNan(creationState.getId(fraction)),
                     )
                     .toInt()
             }
@@ -734,17 +764,17 @@ public fun lerp(from: RemoteColor, to: RemoteColor, fraction: RemoteFloat): Remo
         return lerp(constFrom, constTo, fraction)
     }
 
-    return RemoteColor(
-        cacheKey = RemoteOperationCacheKey.create(OperationKey.Tween, from, to, fraction),
+    return RemoteColorImpl(
+        cacheKey = RemoteOperationCacheKey.create(ColorOperationKey.Tween, from, to, fraction),
         idProvider = { creationState ->
             creationState.getOrPutVariableId(
-                RemoteOperationCacheKey.create(OperationKey.Tween, from, to, fraction)
+                RemoteOperationCacheKey.create(ColorOperationKey.Tween, from, to, fraction)
             ) {
                 creationState.document
                     .addColorExpression(
-                        from.getIdForCreationState(creationState).toShort(),
-                        to.getIdForCreationState(creationState).toShort(),
-                        Utils.asNan(fraction.getIdForCreationState(creationState)),
+                        creationState.getId(from).toShort(),
+                        creationState.getId(to).toShort(),
+                        Utils.asNan(creationState.getId(fraction)),
                     )
                     .toInt()
             }
@@ -930,7 +960,7 @@ private fun constantColorOrNull(
     }
 }
 
-private fun asRemoteColor(arg: BaseRemoteState<*>): RemoteColor =
+private fun asRemoteColor(arg: RemoteState<*>): RemoteColor =
     when (arg) {
         is RemoteColor -> arg
         is RemoteInt ->
@@ -941,7 +971,7 @@ private fun asRemoteColor(arg: BaseRemoteState<*>): RemoteColor =
         else -> throw IllegalArgumentException("Expected RemoteColor or RemoteInt, but found $arg")
     }
 
-private fun asConstantInt(arg: BaseRemoteState<*>, default: Int = 0): Int =
+private fun asConstantInt(arg: RemoteState<*>, default: Int = 0): Int =
     (arg.constantValueOrNull as? Number)?.toInt() ?: default
 
 /**
@@ -955,11 +985,11 @@ internal class RemoteStateThemeColorKey(
     @ColorInt internal val lightFallback: Int,
     @ColorInt internal val darkFallback: Int,
 ) : BaseRemoteStateCacheKey() {
-    private var state: BaseRemoteState<*>? = null
+    private var state: RemoteState<*>? = null
 
-    override fun getState(): BaseRemoteState<*>? = state
+    override fun getState(): RemoteState<*>? = state
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         this.state = state
     }
 

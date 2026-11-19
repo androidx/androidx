@@ -46,7 +46,12 @@ public class RemoteBitmapFont
 constructor(
     glyphs: List<Glyph>,
     @Suppress("PrimitiveInCollection") public val kerningTable: Map<String, Short> = emptyMap(),
-) : BaseRemoteState<Any>(RemoteStateInstanceKey()) {
+) : RemoteState<Any>, RemoteStateAccess {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override val cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey()
+
+    override fun toString(): String = cacheKey.toDebugString()
+
     public val glyphs: List<Glyph> =
         if (glyphs.size <= 1) {
             glyphs
@@ -95,14 +100,14 @@ constructor(
         get() = null
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun getIdForCreationState(creationState: RemoteComposeCreationState): Int {
+    public override fun getId(creationState: RemoteComposeCreationState): Int {
         return creationState.getOrPutVariableId(cacheKey) {
             creationState.document.addBitmapFont(
                 Array<BitmapFontData.Glyph>(glyphs.size) { index ->
                     val glyph = glyphs[index]
                     BitmapFontData.Glyph(
                         glyph.chars,
-                        glyph.bitmap?.getIdForCreationState(creationState) ?: -1,
+                        glyph.bitmap?.let { creationState.getId(it) } ?: -1,
                         glyph.marginLeft,
                         glyph.marginTop,
                         glyph.marginRight,
@@ -187,10 +192,10 @@ constructor(
         ) {
             RemoteFloat(
                 document.bitmapTextMeasure(
-                    text.getIdForCreationState(this),
-                    getIdForCreationState(this),
+                    this.getId(text),
+                    this@RemoteBitmapFont.getId(this),
                     BitmapTextMeasure.MEASURE_WIDTH,
-                    glyphSpacing.getFloatIdForCreationState(this),
+                    this.getFloatId(glyphSpacing),
                 )
             )
         }
@@ -212,8 +217,8 @@ constructor(
         ) {
             RemoteFloat(
                 document.bitmapTextMeasure(
-                    text.getIdForCreationState(this),
-                    getIdForCreationState(this),
+                    this.getId(text),
+                    this@RemoteBitmapFont.getId(this),
                     BitmapTextMeasure.MEASURE_HEIGHT,
                     0f,
                 )

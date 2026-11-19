@@ -2064,9 +2064,7 @@ class RcPlayerInteractivityTest {
                     RemoteCanvas(modifier = RemoteModifier.size(150.rdp, 300.rdp)) {
                         val doc = remoteComposeCreationState.document
                         val outputId =
-                            Utils.idFromNan(
-                                touchYFloat.getFloatIdForCreationState(remoteComposeCreationState)
-                            )
+                            Utils.idFromNan(remoteComposeCreationState.getFloatId(touchYFloat))
                         doc.buffer.addTouchExpression(
                             outputId,
                             0f,
@@ -2119,11 +2117,7 @@ class RcPlayerInteractivityTest {
                     ) {
                         val doc = remoteComposeCreationState.document
                         val outputId =
-                            Utils.idFromNan(
-                                selectedFraction.getFloatIdForCreationState(
-                                    remoteComposeCreationState
-                                )
-                            )
+                            Utils.idFromNan(remoteComposeCreationState.getFloatId(selectedFraction))
                         val rootX = doc.addComponentRootXValue()
                         val width = doc.addComponentWidthValue()
                         doc.buffer.addTouchExpression(
@@ -2220,9 +2214,7 @@ class RcPlayerInteractivityTest {
                 ) {
                     val doc = remoteComposeCreationState.document
                     val outputId =
-                        Utils.idFromNan(
-                            touchValue.getFloatIdForCreationState(remoteComposeCreationState)
-                        )
+                        Utils.idFromNan(remoteComposeCreationState.getFloatId(touchValue))
                     val rootY = doc.addComponentRootYValue()
                     val height = doc.addComponentHeightValue()
                     // Delta mode (STOP_INSTANTLY): starts at defValue = 10f, adds delta of
@@ -2303,9 +2295,7 @@ class RcPlayerInteractivityTest {
                                     val doc = remoteComposeCreationState.document
                                     val outputId =
                                         Utils.idFromNan(
-                                            touchFraction.getFloatIdForCreationState(
-                                                remoteComposeCreationState
-                                            )
+                                            remoteComposeCreationState.getFloatId(touchFraction)
                                         )
                                     val rootX = doc.addComponentRootXValue()
                                     val width = doc.addComponentWidthValue()
@@ -2382,9 +2372,8 @@ class RcPlayerInteractivityTest {
                         val component = remoteComponent()
                         touchFraction = remember {
                             RemoteFloat {
-                                val rootX =
-                                    component.positionInRoot.x.getFloatIdForCreationState(this)
-                                val width = component.width.getFloatIdForCreationState(this)
+                                val rootX = this.getFloatId(component.positionInRoot.x)
+                                val width = this.getFloatId(component.width)
                                 val touchId =
                                     document.addTouch(
                                         -1f,
@@ -2456,9 +2445,8 @@ class RcPlayerInteractivityTest {
                         val component = remoteComponent()
                         touchFraction = remember {
                             RemoteFloat {
-                                val rootX =
-                                    component.positionInRoot.x.getFloatIdForCreationState(this)
-                                val width = component.width.getFloatIdForCreationState(this)
+                                val rootX = this.getFloatId(component.positionInRoot.x)
+                                val width = this.getFloatId(component.width)
                                 val touchId =
                                     document.addTouch(
                                         -1f,
@@ -2541,9 +2529,7 @@ class RcPlayerInteractivityTest {
                             val doc = remoteComposeCreationState.document
                             val outputId =
                                 Utils.idFromNan(
-                                    touchFraction.getFloatIdForCreationState(
-                                        remoteComposeCreationState
-                                    )
+                                    remoteComposeCreationState.getFloatId(touchFraction)
                                 )
                             val rootX = doc.addComponentRootXValue()
                             val width = doc.addComponentWidthValue()
@@ -2628,9 +2614,7 @@ class RcPlayerInteractivityTest {
                     ) {
                         val doc = remoteComposeCreationState.document
                         val outputId =
-                            Utils.idFromNan(
-                                touchFraction.getFloatIdForCreationState(remoteComposeCreationState)
-                            )
+                            Utils.idFromNan(remoteComposeCreationState.getFloatId(touchFraction))
                         val rootX = doc.addComponentRootXValue()
                         val width = doc.addComponentWidthValue()
                         doc.buffer.addTouchExpression(
@@ -2765,9 +2749,7 @@ class RcPlayerInteractivityTest {
                 ) {
                     val doc = remoteComposeCreationState.document
                     val outputId =
-                        Utils.idFromNan(
-                            touchFraction.getFloatIdForCreationState(remoteComposeCreationState)
-                        )
+                        Utils.idFromNan(remoteComposeCreationState.getFloatId(touchFraction))
                     val width = doc.addComponentWidthValue()
                     doc.buffer.addTouchExpression(
                         outputId,
@@ -2869,9 +2851,7 @@ class RcPlayerInteractivityTest {
                         ) {
                             val doc = remoteComposeCreationState.document
                             val id =
-                                Utils.idFromNan(
-                                    canvasVal.getFloatIdForCreationState(remoteComposeCreationState)
-                                )
+                                Utils.idFromNan(remoteComposeCreationState.getFloatId(canvasVal))
                             doc.buffer.addTouchExpression(
                                 id,
                                 0f,
@@ -2893,8 +2873,8 @@ class RcPlayerInteractivityTest {
                                         val doc = remoteComposeCreationState.document
                                         val id =
                                             Utils.idFromNan(
-                                                drawContentVal.getFloatIdForCreationState(
-                                                    remoteComposeCreationState
+                                                remoteComposeCreationState.getFloatId(
+                                                    drawContentVal
                                                 )
                                             )
                                         doc.buffer.addTouchExpression(
@@ -3120,9 +3100,7 @@ class RcPlayerInteractivityTest {
                 ) {
                     val doc = remoteComposeCreationState.document
                     val outputId =
-                        Utils.idFromNan(
-                            sliderFraction.getFloatIdForCreationState(remoteComposeCreationState)
-                        )
+                        Utils.idFromNan(remoteComposeCreationState.getFloatId(sliderFraction))
                     val width = doc.addComponentWidthValue()
                     doc.buffer.addTouchExpression(
                         outputId,
