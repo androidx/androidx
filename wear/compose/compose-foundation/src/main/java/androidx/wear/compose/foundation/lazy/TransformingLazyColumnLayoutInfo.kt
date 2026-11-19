@@ -128,6 +128,19 @@ public sealed interface TransformingLazyColumnVisibleItemInfo {
 
     /** The content type of the item which was passed to the item() or items() function. */
     public val contentType: Any?
+
+    /**
+     * Snap segment threshold in pixels requested via
+     * [TransformingLazyColumnItemScope.snapSegmentThreshold] for the measured size of this item, or
+     * `0` if unset or if the modifier returned a non-positive value (in which case snapping
+     * behaviors use their own default).
+     *
+     * Returns the raw non-negative requested value without clamping to viewport bounds. Snapping
+     * behaviors may apply their own bounds; see [TransformingLazyColumnDefaults.snapFlingBehavior]
+     * and [androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults.snapBehavior] for how
+     * the default snapping behaviors interpret it.
+     */
+    public val snapSegmentThreshold: Int
 }
 
 /** Holds the layout information for a [TransformingLazyColumn]. */

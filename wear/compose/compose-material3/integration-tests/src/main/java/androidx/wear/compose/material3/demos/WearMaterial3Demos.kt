@@ -353,6 +353,9 @@ val WearMaterial3Demos =
                         ComposableDemo("Snapping behavior") {
                             TransformingLazyColumnSnappingDemo()
                         },
+                        ComposableDemo("Custom snap fling behavior") {
+                            TransformingLazyColumnCustomSnapFlingBehaviorDemo()
+                        },
                         ComposableDemo("First Layout Item") {
                             TransformingLazyColumnFirstLayoutItemProviderSample()
                         },

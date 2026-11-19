@@ -104,22 +104,29 @@ internal data class TransformingLazyColumnMeasuredItem(
     val minimumBottomContentPadding: Dp? =
         (placeable?.parentData as? TransformingLazyColumnParentData)?.minimumBottomContentPadding
 
+    internal val snapSegmentThresholdProvider: ((Int, Int) -> Int)? =
+        (placeable?.parentData as? TransformingLazyColumnParentData)?.snapSegmentThreshold
+
+    private val measuredWidth: Int = placeable?.width ?: 0
+
     /**
-     * The snap segment threshold that the item requests for its measured size, or null. Computed
-     * when the item is measured, so that a state read by the lambda measures the list again. Not
-     * computed when segment snapping is disabled, as item based snapping does not use it.
+     * The snap segment threshold that the item requests for its measured size, or 0 if none was
+     * specified or a non-positive value was returned. Evaluated lazily on read rather than during
+     * measurement so that snapshot reads inside the lambda do not invalidate measure. Not evaluated
+     * when segment snapping is disabled, as item based snapping does not use it.
      */
     @OptIn(ExperimentalWearFoundationApi::class)
-    val snapSegmentThresholdPx: Int? =
-        if (WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled) {
-            placeable?.let { p ->
-                (p.parentData as? TransformingLazyColumnParentData)
-                    ?.snapSegmentThreshold
-                    ?.invoke(p.width, p.height)
+    override val snapSegmentThreshold: Int
+        get() =
+            if (WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled) {
+                placeable?.let {
+                    snapSegmentThresholdProvider
+                        ?.invoke(measuredWidth, measuredHeight)
+                        ?.coerceAtLeast(0)
+                } ?: 0
+            } else {
+                0
             }
-        } else {
-            null
-        }
 
     private var lastMeasuredTransformedHeight = placeable?.height ?: 0
 

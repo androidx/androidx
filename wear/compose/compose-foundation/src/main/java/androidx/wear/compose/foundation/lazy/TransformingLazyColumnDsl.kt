@@ -156,14 +156,23 @@ public sealed interface TransformingLazyColumnItemScope {
      * visible, including when keeping a tall item whole, parts of the item are never fully visible
      * when snapped.
      *
+     * The requested threshold is available as
+     * [TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold] for custom snapping behaviors,
+     * such as a custom [androidx.compose.foundation.gestures.FlingBehavior] or
+     * [androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior].
+     *
      * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnSnapSegmentThresholdSample
-     * @param threshold A callback that returns the threshold height in pixels, given the measured
-     *   (untransformed) width and height of the item in pixels. A positive value less than
-     *   `measuredHeight` is coerced to between 20% and 100% of the viewport height; a value at
-     *   least `measuredHeight` keeps the item whole with a single snap point at its center; a
-     *   non-positive value uses the default threshold, the same as not applying this modifier.
-     *   Called when the item is measured, so reading snapshot state inside this lambda causes the
-     *   list to remeasure when that state changes.
+     * @param threshold callback that returns the threshold height in pixels, given the measured
+     *   (untransformed) width and height of the item in pixels. A value at least `measuredHeight`
+     *   requests keeping the item whole with a single snap point at its center; a non-positive
+     *   value uses the default threshold (normalized to `0` on
+     *   [TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold]), the same as not applying
+     *   this modifier. Snapping behaviors may apply their own bounds when interpreting positive
+     *   values; see [TransformingLazyColumnDefaults.snapFlingBehavior] and
+     *   [androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults.snapBehavior]. Evaluated
+     *   when [TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold] is read (for example by
+     *   snapping behaviors) rather than during measurement, so reading snapshot state inside this
+     *   lambda does not invalidate measure or cancel an in-progress fling.
      */
     public fun Modifier.snapSegmentThreshold(
         threshold: (measuredWidth: Int, measuredHeight: Int) -> Int

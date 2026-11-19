@@ -37,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -2309,12 +2310,14 @@ class TransformingLazyColumnTest {
 
     @Test
     fun snapSegmentThreshold_changed_updatesSegments() {
+        lateinit var state: TransformingLazyColumnState
         lateinit var snapPoints: TransformingLazyColumnSnapPointsProvider
         var threshold by mutableStateOf(100)
         var itemCompositions = 0
+        var thresholdCalls = 0
         val itemHeight = with(rule.density) { 300.toDp() }
         rule.setContent {
-            val state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 1)
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 1)
             snapPoints = rememberTransformingLazyColumnSnapPoints(state, snapOffsetPx = 0)
             TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
                 item { Box(Modifier.fillMaxWidth().height(200.dp)) }
@@ -2322,6 +2325,7 @@ class TransformingLazyColumnTest {
                     itemCompositions++
                     Box(
                         Modifier.fillMaxWidth().height(itemHeight).snapSegmentThreshold { _, _ ->
+                            thresholdCalls++
                             threshold
                         }
                     )
@@ -2329,14 +2333,23 @@ class TransformingLazyColumnTest {
                 items(10) { Box(Modifier.fillMaxWidth().height(200.dp)) }
             }
         }
+        lateinit var layoutBefore: TransformingLazyColumnLayoutInfo
         rule.runOnIdle {
-            assertThat(snapPoints.current().points.count { it.key.itemIndex == 1 }).isEqualTo(3)
+            // Not invoked during measure before snap points or snapSegmentThreshold are read.
+            assertThat(thresholdCalls).isEqualTo(0)
+            layoutBefore = state.layoutInfo
+            val initialPoints = snapPoints.current()
+            assertThat(initialPoints.points.count { it.key.itemIndex == 1 }).isEqualTo(3)
+            assertThat(snapPoints.current()).isSameInstanceAs(initialPoints)
             assertThat(itemCompositions).isEqualTo(1)
         }
 
         threshold = 1000
 
         rule.runOnIdle {
+            // Updating snapshot state read by the lambda updates snap points without recomposing
+            // the item or remeasuring the list.
+            assertThat(state.layoutInfo).isSameInstanceAs(layoutBefore)
             assertThat(snapPoints.current().points.count { it.key.itemIndex == 1 }).isEqualTo(1)
             assertThat(itemCompositions).isEqualTo(1)
         }
@@ -2383,9 +2396,11 @@ class TransformingLazyColumnTest {
     @Test
     fun snapSegmentThreshold_segmentsDisabled_lambdaNotInvoked() {
         WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled = false
+        lateinit var state: TransformingLazyColumnState
         var thresholdCalls = 0
         rule.setContent {
-            TransformingLazyColumn(modifier = Modifier.size(200.dp)) {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
                 items(5) {
                     Box(
                         Modifier.fillMaxWidth().height(300.dp).snapSegmentThreshold { _, _ ->
@@ -2396,7 +2411,149 @@ class TransformingLazyColumnTest {
                 }
             }
         }
-        rule.runOnIdle { assertThat(thresholdCalls).isEqualTo(0) }
+        rule.runOnIdle {
+            assertThat(thresholdCalls).isEqualTo(0)
+            assertThat(state.layoutInfo.visibleItems).isNotEmpty()
+            state.layoutInfo.visibleItems.forEach {
+                assertThat(it.snapSegmentThreshold).isEqualTo(0)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun visibleItemInfo_snapSegmentThreshold_populatedPerItem() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        val itemWidthPx = 80
+        val itemHeightPx = 40
+        val listHeightPx = 400
+        val itemWidth = with(rule.density) { itemWidthPx.toDp() }
+        val itemHeight = with(rule.density) { itemHeightPx.toDp() }
+        val listHeight = with(rule.density) { listHeightPx.toDp() }
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                state = state,
+                verticalArrangement = Arrangement.Top,
+                modifier = Modifier.width(itemWidth).height(listHeight),
+            ) {
+                // Item 0: no modifier -> 0 (default threshold)
+                item { Box(Modifier.size(itemWidth, itemHeight)) }
+                // Item 1: fixed positive threshold within 20%-100% of viewport
+                item {
+                    Box(Modifier.size(itemWidth, itemHeight).snapSegmentThreshold { _, _ -> 100 })
+                }
+                // Item 2: threshold derived from measured width and height
+                item {
+                    Box(
+                        Modifier.size(itemWidth, itemHeight).snapSegmentThreshold { width, height ->
+                            width + height
+                        }
+                    )
+                }
+                // Item 3: keep whole (returns measuredHeight)
+                item {
+                    Box(
+                        Modifier.size(itemWidth, itemHeight).snapSegmentThreshold { _, height ->
+                            height
+                        }
+                    )
+                }
+                // Item 4: below both 20% of viewport and measuredHeight (uncoerced raw value)
+                item {
+                    Box(Modifier.size(itemWidth, itemHeight).snapSegmentThreshold { _, _ -> 10 })
+                }
+                // Item 5: above viewport height (uncoerced raw value)
+                item {
+                    Box(Modifier.size(itemWidth, itemHeight).snapSegmentThreshold { _, _ -> 500 })
+                }
+                // Item 6: negative value normalized to 0
+                item {
+                    Box(Modifier.size(itemWidth, itemHeight).snapSegmentThreshold { _, _ -> -10 })
+                }
+                // Item 7: explicit zero
+                item {
+                    Box(Modifier.size(itemWidth, itemHeight).snapSegmentThreshold { _, _ -> 0 })
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            val visibleItemsByIndex = state.layoutInfo.visibleItems.associateBy { it.index }
+            assertThat(visibleItemsByIndex.keys).containsAtLeast(0, 1, 2, 3, 4, 5, 6, 7)
+            assertThat(visibleItemsByIndex.getValue(0).snapSegmentThreshold).isEqualTo(0)
+            assertThat(visibleItemsByIndex.getValue(1).snapSegmentThreshold).isEqualTo(100)
+            assertThat(visibleItemsByIndex.getValue(2).snapSegmentThreshold)
+                .isEqualTo(itemWidthPx + itemHeightPx)
+            assertThat(visibleItemsByIndex.getValue(3).snapSegmentThreshold)
+                .isEqualTo(visibleItemsByIndex.getValue(3).measuredHeight)
+            assertThat(visibleItemsByIndex.getValue(4).snapSegmentThreshold).isEqualTo(10)
+            assertThat(visibleItemsByIndex.getValue(5).snapSegmentThreshold).isEqualTo(500)
+            assertThat(visibleItemsByIndex.getValue(6).snapSegmentThreshold).isEqualTo(0)
+            assertThat(visibleItemsByIndex.getValue(7).snapSegmentThreshold).isEqualTo(0)
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun visibleItemInfo_snapSegmentThreshold_updatesOnStateAndModifierChange() {
+        assumeTrue(WearComposeFoundationFlags.isTransformingLazyColumnSnapSegmentsEnabled)
+        lateinit var state: TransformingLazyColumnState
+        var threshold by mutableIntStateOf(120)
+        var applyModifier by mutableStateOf(true)
+        var useAlternateLambda by mutableStateOf(false)
+        val itemHeight = with(rule.density) { 100.toDp() }
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(state = state, modifier = Modifier.size(200.dp)) {
+                item {
+                    val thresholdModifier =
+                        when {
+                            !applyModifier -> Modifier
+                            useAlternateLambda ->
+                                Modifier.snapSegmentThreshold { _, height -> height }
+                            else -> Modifier.snapSegmentThreshold { _, _ -> threshold }
+                        }
+                    Box(Modifier.fillMaxWidth().height(itemHeight).then(thresholdModifier))
+                }
+            }
+        }
+
+        lateinit var layoutBefore: TransformingLazyColumnLayoutInfo
+        rule.runOnIdle {
+            layoutBefore = state.layoutInfo
+            assertThat(layoutBefore.visibleItems.first().snapSegmentThreshold).isEqualTo(120)
+        }
+
+        threshold = 240
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo).isSameInstanceAs(layoutBefore)
+            assertThat(state.layoutInfo.visibleItems.first().snapSegmentThreshold).isEqualTo(240)
+        }
+
+        threshold = -5
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo).isSameInstanceAs(layoutBefore)
+            assertThat(state.layoutInfo.visibleItems.first().snapSegmentThreshold).isEqualTo(0)
+        }
+
+        useAlternateLambda = true
+
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first()
+            assertThat(item.snapSegmentThreshold).isEqualTo(item.measuredHeight)
+        }
+
+        applyModifier = false
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.visibleItems.first().snapSegmentThreshold).isEqualTo(0)
+        }
     }
 
     @OptIn(ExperimentalTestApi::class)

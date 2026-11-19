@@ -135,7 +135,7 @@ class TransformingLazyColumnSnapPointsTest {
             1,
             snapSegmentCount(
                 measuredHeightPx = 5000,
-                requestedThresholdPx = null,
+                requestedThresholdPx = 0,
                 defaultThresholdPx = 300,
                 viewportHeightPx = 0,
             ),
@@ -592,7 +592,7 @@ class TransformingLazyColumnSnapPointsTest {
     /** Segment count in a viewport of 500 px, with a default threshold of 300 px. */
     private fun count(
         measuredHeightPx: Int,
-        requestedThresholdPx: Int? = null,
+        requestedThresholdPx: Int = 0,
         defaultThresholdPx: Int = 300,
     ) =
         snapSegmentCount(

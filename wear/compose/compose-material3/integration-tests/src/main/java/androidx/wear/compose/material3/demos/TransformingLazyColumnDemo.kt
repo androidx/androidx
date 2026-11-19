@@ -18,6 +18,8 @@ package androidx.wear.compose.material3.demos
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,16 +44,21 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnVisibleItemInfo
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.itemsIndexed
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
@@ -62,6 +69,7 @@ import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ListHeaderDefaults
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
@@ -70,6 +78,8 @@ import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import kotlin.math.abs
+import kotlin.math.sign
 import kotlinx.coroutines.launch
 
 @Composable
@@ -661,6 +671,253 @@ fun TransformingLazyColumnAnimateScrollToItemDemo() {
             }
         }
     }
+}
+
+/**
+ * Demo showing a custom [FlingBehavior] that honors each item's
+ * [TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold] and snaps directly to the target
+ * segment center rather than scrolling smoothly.
+ */
+@Composable
+fun TransformingLazyColumnCustomSnapFlingBehaviorDemo() {
+    val state = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+    val density = LocalDensity.current
+    val isScreenRound = LocalConfiguration.current.isScreenRound
+    val halfScreenHeightPx = LocalWindowInfo.current.containerSize.height / 2
+    val minFlingVelocityPx = with(density) { 400.dp.toPx() }
+    val customSnapFlingBehavior =
+        remember(state, minFlingVelocityPx, isScreenRound) {
+            DirectSegmentSnapFlingBehavior(state, minFlingVelocityPx, isScreenRound)
+        }
+
+    AppScaffold {
+        ScreenScaffold(state) { contentPadding ->
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = contentPadding,
+                flingBehavior = customSnapFlingBehavior,
+                // Note: Rotary uses the default smooth behavior here because the demo focuses on
+                // illustrating a custom touch FlingBehavior; a production list using custom segment
+                // thresholds should pair matching touch and rotary snap behaviors.
+                rotaryScrollableBehavior = RotaryScrollableDefaults.behavior(state),
+            ) {
+                item {
+                    ListHeader(
+                        transformation = SurfaceTransformation(transformationSpec),
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                    ListHeaderDefaults.minimumTopListContentPadding,
+                                    ListHeaderDefaults.minimumBottomListContentPadding,
+                                )
+                                .transformedHeight(this, transformationSpec),
+                    ) {
+                        Text("Direct Segment Snap")
+                    }
+                }
+                item {
+                    NotificationCard(
+                        notification =
+                            NotificationItem(
+                                "Half screen",
+                                "This tall card sets Modifier.snapSegmentThreshold to half of the " +
+                                    "screen height, so the custom FlingBehavior steps through it " +
+                                    "directly in smaller segments rather than scrolling smoothly. " +
+                                    "Flick up or down to jump immediately between segments. " +
+                                    "Each segment center aligns with the center of the viewport.",
+                            ),
+                        transformationSpec = transformationSpec,
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                    CardDefaults.minimumVerticalListContentPadding
+                                )
+                                .snapSegmentThreshold { _, _ -> halfScreenHeightPx },
+                    )
+                }
+                item {
+                    NotificationCard(
+                        notification =
+                            NotificationItem(
+                                "Kept whole",
+                                "This card returns measuredHeight from " +
+                                    "Modifier.snapSegmentThreshold, so the custom FlingBehavior " +
+                                    "treats it as a single snap point centered on the card.",
+                            ),
+                        transformationSpec = transformationSpec,
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                    CardDefaults.minimumVerticalListContentPadding
+                                )
+                                .snapSegmentThreshold { _, measuredHeight -> measuredHeight },
+                    )
+                }
+                item {
+                    NotificationCard(
+                        notification =
+                            NotificationItem(
+                                "Default threshold",
+                                "This tall card does not apply Modifier.snapSegmentThreshold, so " +
+                                    "TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold " +
+                                    "is 0 and the custom FlingBehavior uses its own default " +
+                                    "threshold to divide the card into segments. Flick up or down " +
+                                    "to jump directly from one segment center to the next.",
+                            ),
+                        transformationSpec = transformationSpec,
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                CardDefaults.minimumVerticalListContentPadding
+                            ),
+                    )
+                }
+                items(NotificationItem.all.take(6)) { notification ->
+                    NotificationCard(
+                        notification = notification,
+                        transformationSpec = transformationSpec,
+                        modifier =
+                            Modifier.minimumVerticalContentPadding(
+                                CardDefaults.minimumVerticalListContentPadding
+                            ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Custom [FlingBehavior] that snaps directly to the target segment center without smooth scrolling,
+ * reading each item's [TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold].
+ */
+private class DirectSegmentSnapFlingBehavior(
+    private val state: TransformingLazyColumnState,
+    private val minFlingVelocityPx: Float,
+    private val isScreenRound: Boolean,
+) : FlingBehavior {
+    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+        if (initialVelocity.isNaN()) return Float.NaN
+        val layoutInfo = state.layoutInfo
+        val visibleItems = layoutInfo.visibleItems
+        val viewportHeight = layoutInfo.viewportSize.height
+        if (visibleItems.isEmpty() || viewportHeight <= 0) return initialVelocity
+        if (!state.canScrollForward && !state.canScrollBackward) return initialVelocity
+
+        val viewportCenter = viewportHeight / 2f
+        val snapPoints = buildSnapPoints(visibleItems, viewportHeight)
+        if (snapPoints.isEmpty()) return initialVelocity
+
+        val direction =
+            if (abs(initialVelocity) >= minFlingVelocityPx) initialVelocity.sign.toInt() else 0
+        var target =
+            if (direction != 0) {
+                snapPoints
+                    .filter { (it.position - viewportCenter) * direction > 1f }
+                    .minByOrNull { abs(it.position - viewportCenter) }
+            } else {
+                snapPoints.minByOrNull { abs(it.position - viewportCenter) }
+            }
+
+        // If an item kept whole fills the viewport, no snap point is laid out ahead in the fling
+        // direction yet. Scroll past its edge to reveal the adjacent item, then snap to it.
+        if (target == null && direction != 0) {
+            val edgeItem = if (direction > 0) visibleItems.last() else visibleItems.first()
+            val hasMoreItems =
+                if (direction > 0) {
+                    edgeItem.index < layoutInfo.totalItemsCount - 1
+                } else {
+                    edgeItem.index > 0
+                }
+            if (hasMoreItems) {
+                val revealDelta =
+                    if (direction > 0) {
+                        edgeItem.offset + edgeItem.transformedHeight - viewportCenter + 1f
+                    } else {
+                        edgeItem.offset - viewportCenter - 1f
+                    }
+                scrollBy(revealDelta)
+                val updatedPoints = buildSnapPoints(state.layoutInfo.visibleItems, viewportHeight)
+                target =
+                    if (direction > 0) {
+                        updatedPoints.firstOrNull { it.itemIndex > edgeItem.index }
+                    } else {
+                        updatedPoints.lastOrNull { it.itemIndex < edgeItem.index }
+                    } ?: updatedPoints.minByOrNull { abs(it.position - viewportCenter) }
+            } else {
+                // Already past all snap points at this end of the list. If resting on the edge
+                // snap point, leave velocity unconsumed for overscroll and nested scrolling.
+                val edgePoint = snapPoints.minByOrNull { abs(it.position - viewportCenter) }
+                if (edgePoint == null || abs(edgePoint.position - viewportCenter) <= 1f) {
+                    return initialVelocity
+                }
+                target = edgePoint
+            }
+        }
+
+        val snapTarget = target ?: return initialVelocity
+
+        // Jump directly to the target segment center without smooth scrolling. Because
+        // TransformingLazyColumn transforms item heights as items move toward the center, apply
+        // a few synchronous corrections so the target segment settles on the viewport center.
+        repeat(4) {
+            val currentLayout = state.layoutInfo
+            val currentItem =
+                currentLayout.visibleItems.firstOrNull { it.index == snapTarget.itemIndex }
+                    ?: return 0f
+            val count = segmentCountFor(currentItem, currentLayout.viewportSize.height)
+            val segmentIndex = snapTarget.segmentIndex.coerceIn(0, count - 1)
+            val segmentCenter =
+                currentItem.offset + (segmentIndex + 0.5f) * currentItem.transformedHeight / count
+            val delta = segmentCenter - currentLayout.viewportSize.height / 2f
+            if (abs(delta) <= 1f) return 0f
+            val consumed = scrollBy(delta)
+            if (abs(consumed) < 0.5f) {
+                return if (initialVelocity * delta > 0f) initialVelocity else 0f
+            }
+        }
+        return 0f
+    }
+
+    private fun buildSnapPoints(
+        visibleItems: List<TransformingLazyColumnVisibleItemInfo>,
+        viewportHeight: Int,
+    ): List<SegmentSnapPoint> = buildList {
+        visibleItems.forEach { item ->
+            if (item.measuredHeight <= 0 || item.transformedHeight <= 0) return@forEach
+            val count = segmentCountFor(item, viewportHeight)
+            val segmentHeight = item.transformedHeight.toFloat() / count
+            for (segmentIndex in 0 until count) {
+                add(
+                    SegmentSnapPoint(
+                        itemIndex = item.index,
+                        segmentIndex = segmentIndex,
+                        position = item.offset + (segmentIndex + 0.5f) * segmentHeight,
+                    )
+                )
+            }
+        }
+    }
+
+    private fun segmentCountFor(
+        item: TransformingLazyColumnVisibleItemInfo,
+        viewportHeight: Int,
+    ): Int {
+        val requested = item.snapSegmentThreshold
+        if (requested > 0 && requested >= item.measuredHeight) return 1
+        val minThreshold = (viewportHeight * 0.2f).toInt().coerceAtLeast(1)
+        val defaultThreshold =
+            if (isScreenRound) (viewportHeight * 0.65f).toInt().coerceAtLeast(1) else viewportHeight
+        val effectiveThreshold =
+            (if (requested > 0) requested else defaultThreshold).coerceIn(
+                minThreshold,
+                viewportHeight.coerceAtLeast(minThreshold),
+            )
+        return maxOf(1, (item.measuredHeight + effectiveThreshold - 1) / effectiveThreshold)
+    }
+
+    private class SegmentSnapPoint(
+        val itemIndex: Int,
+        val segmentIndex: Int,
+        val position: Float,
+    )
 }
 
 private const val ArrowUp = "\u2191"
