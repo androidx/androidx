@@ -210,15 +210,16 @@ or reticle on a blank canvas), `compareBitmaps` re-scores those non-uniform wind
 
 ---
 
-### Stage 4: Per-Channel RGB SSIM (`computeChannelSsim`)
+### Stage 4: Per-Channel RGB SSIM (`populateChannelStats` & `computeChannelSsim`)
 
 Inside each active window (`N = effWinW * effWinH` samples in `[0.0, 1.0]`), `XrSsimMatcher`
 evaluates SSIM (Wang et al., 2004) over dynamic range `L = 1.0` independently on Red, Green, and
 Blue:
 
 #### Step 4a: Near-black single-channel short-circuit
-If `chMax <= 0.01` across both `expected` and `given` for that specific channel, `computeChannelSsim`
-returns `1.0` for that channel.
+If `chMax <= 0.01` across both `expected` and `given` for that specific channel, `populateChannelStats`
+marks `ChannelWindowStats.isInactive = true` (zeroing its mean, variance, and covariance) and
+`computeChannelSsim` returns `1.0` for that channel.
 - *Why*: On a pure-red panel (`RGB = (220, 0, 0)`) over black, Blue is `~0.000` in both images while
   the window itself is active (`R > 0.01`). Without this check, 1-bit `1/255` P3->sRGB quantization
   noise in Blue (`var ~ 1e-6`, `cov ~ 0`) would yield spurious low Blue SSIM even though the Blue
@@ -237,12 +238,13 @@ varB   = invDoF * sum((B[i] - meanB)^2)
 cov    = invDoF * sum((A[i] - meanA) * (B[i] - meanB))
 ```
 
-#### Step 4c: Stability Constants & Single-Pass SSIM Equation
+#### Step 4c: Stability Constants & Cross-Channel Co-Aligned Contrast Stabilization
 With normalized range `L = 1.0`, dimensionless constants `K1 = 0.01` and `K2 = 0.06` give:
 
 ```text
 C1 = (K1 * L)^2 = 0.01^2 = 0.0001   (1e-4, stabilizes near-zero means)
 C2 = (K2 * L)^2 = 0.06^2 = 0.0036   (3.6e-3, stabilizes near-zero variances)
+C3 = C2 / 2.0   = 0.0018            (1.8e-3, stabilizes structure correlation)
 ```
 
 Why `K2 = 0.06` instead of Wang et al.'s canonical grayscale `K2 = 0.03` (`C2 = 9e-4`)? Because
@@ -255,21 +257,46 @@ even at `corr = 1.0`). When `C2` is smaller than that jitter (`9e-4`), the contr
 setting `K2 = 0.06` (`C2 = 3.6e-3`) anchors the variance floor above benign sub-4% noise while
 still dropping steeply on real `>= 16/255` contrast defects, missing thin geometry, or `2 px` shifts.
 
-SSIM combines three perceptual comparisons (setting `C3 = C2 / 2`):
+After computing `(meanA, meanB, varA, varB, cov)` across all three RGB channels for candidate shift
+`s`, `XrSsimMatcher` stabilizes only the contrast variance floor on low-baseline-variance spectator
+channels that exhibit genuine positive structural alignment (`cov > 1e-8` and Pearson correlation
+`cov / (sigmaA * sigmaB) >= 0.25`, rejecting IEEE-754 rounding noise on flat surfaces and
+uncorrelated noise), bounding the cross-channel covariance at `0.04` (`maxBoost = 0.03`) and
+attenuating by `(C2 / (C2 + varA))^2` so channels with strong baseline contrast keep tight
+sensitivity to single-channel contrast washout:
 
 ```text
+maxPosCov  = min(0.04, max(0.0, covR, covG, covB))
+coAligned  = (cov > 1e-8) && (cov >= 0.25 * sigmaA * sigmaB)
+specWeight = C2 / (C2 + varA)
+channelC2  = coAligned ? (C2 + 0.75 * maxPosCov * specWeight^2) : C2
+
 Luminance:  l(A, B) = (2 * meanA * meanB + C1) / (meanA^2 + meanB^2 + C1)
-Contrast:   c(A, B) = (2 * sigmaA * sigmaB + C2) / (varA + varB + C2)
-Structure:  s(A, B) = (cov + C2 / 2) / (sigmaA * sigmaB + C2 / 2)
+Contrast:   c(A, B) = (2 * sigmaA * sigmaB + channelC2) / (varA + varB + channelC2)
+Structure:  s(A, B) = (cov + C3) / (sigmaA * sigmaB + C3)      // C3 = C2 / 2.0 untouched!
+
+SSIM(A, B) = l(A, B) * c(A, B) * s(A, B)
 ```
 
-Because `c(A, B) * s(A, B)` algebraically cancels `(sigmaA * sigmaB + C2 / 2)`, the product
-simplifies without square roots to:
-
-```text
-SSIM(A, B) = ((2 * meanA * meanB + C1) * (2 * cov + C2))
-           / ((meanA^2 + meanB^2 + C1) * (varA + varB + C2))
-```
+Why decouple `channelC2` from `C3`, bound `maxPosCov`, and attenuate by `(C2 / (C2 + varA))^2`?
+When a colored 3D object sits over a non-black UI panel (for example, a diffuse green cylinder with
+`Blue ≈ 75/255` over a `#444444` = `68/255` panel), its spectator channel has near-zero baseline
+variance (`sigmaA_B ≈ 0.007`, `varA_B ≈ 5e-5 << C2`, `specWeight^2 ≈ 0.97`) without hitting the
+`chMax <= 0.01` black-canvas fast path. A 1–2 px white IBL specular glint caused by per-device
+optical FOV calibration (`~0.39°` between physical glasses units) adds a correlated highlight across
+R, G, and B, inflating `sigmaB_B` (`~0.034`) and collapsing isolated single-channel contrast
+`c_B(A, B)` even though the geometry is structurally aligned (`cov_G` positive and strong,
+`cov_B > 0`). Applying bounded, variance-attenuated `channelC2` only when `coAligned` holds while
+keeping `C3 = C2 / 2.0` untouched prevents false `p2` failures on co-aligned specular glints
+without relaxing:
+- **Single-channel contrast washout alongside a strong colored edge** (`varA >> C2` drives
+  `specWeight^2 -> 0`, preserving sensitivity even when another channel has `cov = 0.25`),
+- **Missing or spurious monochrome / low-contrast features** (including inside the same `32x32`
+  window as a high-contrast colored edge: `varB == 0` or `varA == 0` gives `cov == 0`, so
+  `channelC2 == C2`, preserving exact single-channel Wang et al. SSIM),
+- **Spatial layout shifts (`>= 2 px`)** (penalized directly by unrelaxed `s(A, B)`), or
+- **Color swaps and material desaturation** (penalized by negative/zero `cov` in `s(A, B)` and
+  mean shifts in `l(A, B)`).
 
 #### Physical Intuition Across Failure Modes
 - **Identical window** (`meanA == meanB`, `varA == varB == cov`): numerator equals denominator ->
@@ -279,8 +306,9 @@ SSIM(A, B) = ((2 * meanA * meanB + C1) * (2 * cov + C2))
 - **Uniform lighting attenuation (`0.72x` brightness)**: Even on a flat panel (`var = 0`),
   `meanB = 0.72 * meanA` yields `l(A, B) ≈ (2 * 0.72) / (1 + 0.72^2) = 0.948 < 0.95` (and lower in
   darker areas due to `C1`), reliably catching IBL or shader exposure drops.
-- **Corrupted texture / inverted contrast** (`cov <= 0`): `2 * cov + C2` drops sharply toward `0`
-  (or negative when anti-correlated) even if average brightness `meanA == meanB` is unchanged.
+- **Corrupted texture / inverted contrast** (`cov <= 0`): `s(A, B) = (cov + C3) / (sigmaA * sigmaB + C3)`
+  drops sharply toward `0` (or negative when anti-correlated) even if average brightness
+  `meanA == meanB` is unchanged.
 - **Subpixel AA fringe** (`L = 1.0` with `C2 = 3.6e-3` instead of `MSSIMMatcher`'s `5.8e-5`): small
   `~1e-3` quantization variance differences along curves do not blow up the denominator.
 
