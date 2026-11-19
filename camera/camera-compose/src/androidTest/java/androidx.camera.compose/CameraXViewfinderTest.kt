@@ -35,8 +35,10 @@ import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.extensions.ExtensionMode
@@ -50,6 +52,7 @@ import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
+import androidx.camera.viewfinder.core.FocusState
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -83,6 +86,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -465,34 +469,47 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
 
     @Test
     fun cameraxViewfinder_tapToFocus_triggersCallback() = runViewfinderTest {
-        var isTapped = false
-        var tappedOffset = Offset.Zero
+        val events = CopyOnWriteArrayList<Pair<Offset, Int>>()
         composeTest.setContent {
             val currentSurfaceRequest: SurfaceRequest? by surfaceRequests.collectAsState()
             currentSurfaceRequest?.let { surfaceRequest ->
                 CameraXViewfinder(
                     surfaceRequest = surfaceRequest,
                     isTapToFocusEnabled = true,
-                    onTapToFocus = { offset, _ ->
-                        isTapped = true
-                        tappedOffset = offset
-                    },
+                    autoCancelDurationMillis = 8000L,
+                    onTapToFocus = { offset, state -> events.add(offset to state) },
                     modifier = Modifier.testTag(CAMERAX_VIEWFINDER_TEST_TAG),
                 )
             }
         }
 
-        startCamera()
+        val camera = startCamera()
         surfaceRequests.filterNotNull().first()
         composeTest.awaitIdle()
+        ensureCameraIsStreaming()
 
+        var expectedOffset = Offset.Zero
         composeTest.onNodeWithTag(CAMERAX_VIEWFINDER_TEST_TAG).performTouchInput {
-            click(Offset(100f, 100f))
+            expectedOffset = center
+            click(center)
         }
 
-        composeTest.awaitIdle()
-        assertThat(isTapped).isTrue()
-        assertThat(tappedOffset).isEqualTo(Offset(100f, 100f))
+        composeTest.waitUntil(timeoutMillis = 10_000) { events.size >= 2 }
+
+        assertThat(events.first()).isEqualTo(expectedOffset to FocusState.STARTED)
+        assertThat(events.map { it.first }).containsExactly(expectedOffset, expectedOffset)
+
+        val probeAction =
+            FocusMeteringAction.Builder(
+                    SurfaceOrientedMeteringPointFactory(1f, 1f).createPoint(0.5f, 0.5f)
+                )
+                .build()
+        if (camera.cameraInfo.isFocusMeteringSupported(probeAction)) {
+            assertThat(events.last().second)
+                .isIn(listOf(FocusState.FOCUSED, FocusState.NOT_FOCUSED))
+        } else {
+            assertThat(events.last().second).isEqualTo(FocusState.FAILED)
+        }
     }
 
     @Test
