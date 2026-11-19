@@ -521,6 +521,305 @@ class XrSsimMatcherTest {
         }
     }
 
+    @Test
+    fun compareBitmaps_iblSpecularGlintOnIsoMatchedSpectatorChannelOverDarkGreyPanel_matches() {
+        val w = 267
+        val h = 279
+        val expected = renderCenteredGizmoOnDarkGreyPanel(w, h)
+        val withSpecularGlint = renderCenteredGizmoOnDarkGreyPanel(w, h, specularGlint = true)
+
+        val result = matcher.compareBitmaps(expected, withSpecularGlint, w, h)
+        assertTrue(
+            result.matches,
+            "Expected 1-2px white IBL specular glint on green shaft over #444444 panel to match: " +
+                result.comparisonStatistics,
+        )
+        assertNull(result.diff)
+        val (mean, p2) = parseMeanAndP2(result.comparisonStatistics)
+        assertTrue(mean >= 0.950, "Expected mean >= 0.950: ${result.comparisonStatistics}")
+        assertTrue(p2 >= 0.900, "Expected p2 >= 0.900: ${result.comparisonStatistics}")
+    }
+
+    @Test
+    fun compareBitmaps_missingLowContrastThinGreyDividerLineOnDarkGreyPanel_fails() {
+        val w = 267
+        val h = 279
+        val basePanel = IntArray(w * h) { Color.BLACK }
+        for (y in 16 until (h - 16)) {
+            for (x in 16 until (w - 16)) {
+                basePanel[y * w + x] = Color.rgb(68, 68, 68)
+            }
+        }
+        // Keep panel actively foreground-populated in lower half while top half tests the thin
+        // line.
+        for (y in 180 until 230) {
+            for (x in 40 until 220) {
+                basePanel[y * w + x] = Color.rgb(60, 140, 220)
+            }
+        }
+        // Add a low-contrast (+30/255 -> 98/255) 4px vertical grey divider line on #444444
+        // (68/255).
+        // When missing in `basePanel`, cov == 0 across all channels (maxPosCov == 0), so contrast
+        // stabilization grants zero relaxation.
+        val withDividerLine = basePanel.copyOf()
+        for (y in 50 until 138) {
+            for (x in 130 until 134) {
+                withDividerLine[y * w + x] = Color.rgb(98, 98, 98)
+            }
+        }
+
+        val result = matcher.compareBitmaps(withDividerLine, basePanel, w, h)
+        assertFalse(
+            result.matches,
+            "Expected missing 4px +30/255 grey divider line on #444444 to fail: " +
+                result.comparisonStatistics,
+        )
+        val (_, p2) = parseMeanAndP2(result.comparisonStatistics)
+        assertTrue(p2 < 0.900, "Expected p2 < 0.900: ${result.comparisonStatistics}")
+        result.diff?.recycle()
+    }
+
+    @Test
+    fun compareBitmaps_missingAndSpuriousLowContrastFeaturesNearColoredEdge_fails() {
+        val w = 267
+        val h = 279
+        val basePanel = IntArray(w * h) { Color.BLACK }
+        for (y in 16 until (h - 16)) {
+            for (x in 16 until (w - 16)) {
+                basePanel[y * w + x] = Color.rgb(68, 68, 68)
+            }
+        }
+        // Place a high-contrast green edge across the exact same 32x32 windows as the test features
+        // so maxPosCov (covG) is large while the missing/spurious channel has cov == 0.
+        for (y in 50 until 138) {
+            for (x in 112 until 126) {
+                basePanel[y * w + x] = Color.rgb(68, 220, 68)
+            }
+        }
+
+        val withGreyDivider = basePanel.copyOf()
+        for (y in 50 until 138) {
+            for (x in 130 until 134) {
+                withGreyDivider[y * w + x] = Color.rgb(98, 98, 98)
+            }
+        }
+
+        val withBlueStripe = basePanel.copyOf()
+        for (y in 50 until 138) {
+            for (x in 130 until 134) {
+                withBlueStripe[y * w + x] = Color.rgb(68, 68, 108)
+            }
+        }
+
+        for ((label, exp, act) in
+            listOf(
+                Triple("missing +30/255 grey divider near green edge", withGreyDivider, basePanel),
+                Triple("spurious +30/255 grey divider near green edge", basePanel, withGreyDivider),
+                Triple("missing +40/255 blue stripe near green edge", withBlueStripe, basePanel),
+                Triple("spurious +40/255 blue stripe near green edge", basePanel, withBlueStripe),
+            )) {
+            val result = matcher.compareBitmaps(exp, act, w, h)
+            assertFalse(
+                result.matches,
+                "Expected $label to fail: ${result.comparisonStatistics}",
+            )
+            val (_, p2) = parseMeanAndP2(result.comparisonStatistics)
+            assertTrue(p2 < 0.900, "Expected $label p2 < 0.900: ${result.comparisonStatistics}")
+            result.diff?.recycle()
+        }
+    }
+
+    @Test
+    fun compareBitmaps_singleChannelContrastWashoutAlongsideStrongGreenEdge_fails() {
+        val w = 240
+        val h = 240
+        val expected = IntArray(w * h)
+        val washedOut = IntArray(w * h)
+        // Left half vs right half split with a 0 -> 255 Green edge (covG ~ 0.25) and a co-located
+        // 76/255 Blue edge (0.25 -> 0.55) whose contrast washes out by 2/3 (0.35 -> 0.45) at
+        // identical mean (meanA_B == meanB_B == 0.40, r = 1.0).
+        for (y in 0 until h) {
+            for (x in 0 until w) {
+                val isRight = x >= w / 2
+                expected[y * w + x] = if (isRight) Color.rgb(64, 255, 140) else Color.rgb(64, 0, 64)
+                washedOut[y * w + x] =
+                    if (isRight) Color.rgb(64, 255, 115) else Color.rgb(64, 0, 89)
+            }
+        }
+
+        val result = matcher.compareBitmaps(expected, washedOut, w, h)
+        assertFalse(
+            result.matches,
+            "Expected mean-preserving Blue contrast washout alongside 0->255 Green edge to fail: " +
+                result.comparisonStatistics,
+        )
+        val (_, p2) = parseMeanAndP2(result.comparisonStatistics)
+        assertTrue(p2 < 0.900, "Expected p2 < 0.900: ${result.comparisonStatistics}")
+        result.diff?.recycle()
+    }
+
+    @Test
+    fun compareBitmaps_centeredShaftTwoPixelShift_fails() {
+        val w = 267
+        val h = 279
+        val expected = renderCenteredGizmoOnDarkGreyPanel(w, h)
+        val shifted2px = renderCenteredGizmoOnDarkGreyPanel(w, h, shaftShiftX = 2)
+
+        val result = matcher.compareBitmaps(expected, shifted2px, w, h)
+        assertFalse(
+            result.matches,
+            "Expected +2px shift on centered 3D shaft to fail: ${result.comparisonStatistics}",
+        )
+        val (_, p2) = parseMeanAndP2(result.comparisonStatistics)
+        assertTrue(p2 < 0.900, "Expected p2 < 0.900: ${result.comparisonStatistics}")
+        result.diff?.recycle()
+    }
+
+    @Test
+    fun compareBitmaps_sixteenPixelBadgeDefect_fails() {
+        val w = 240
+        val h = 240
+        val expected = IntArray(w * h)
+        for (y in 0 until h) {
+            for (x in 0 until w) {
+                expected[y * w + x] = Color.rgb(70 + (x * 60) / w, 80 + (y * 60) / h, 110)
+            }
+        }
+        for (y in 40 until 56) {
+            for (x in 40 until 56) {
+                expected[y * w + x] = Color.rgb(220, 220, 230)
+            }
+        }
+        val dimmedBadge = expected.copyOf()
+        for (y in 40 until 56) {
+            for (x in 40 until 56) {
+                dimmedBadge[y * w + x] = Color.rgb(95, 100, 120)
+            }
+        }
+
+        val meanOnlyResult =
+            XrSsimMatcher(minPercentileThreshold = 0.0).compareBitmaps(expected, dimmedBadge, w, h)
+        assertTrue(
+            meanOnlyResult.matches,
+            "Expected mean-only check to pass on 16x16 badge defect: " +
+                meanOnlyResult.comparisonStatistics,
+        )
+
+        val result = matcher.compareBitmaps(expected, dimmedBadge, w, h)
+        assertFalse(
+            result.matches,
+            "Expected 16x16 badge defect to fail p2 floor: ${result.comparisonStatistics}",
+        )
+        val (_, p2) = parseMeanAndP2(result.comparisonStatistics)
+        assertTrue(p2 < 0.900, "Expected p2 < 0.900: ${result.comparisonStatistics}")
+        result.diff?.recycle()
+    }
+
+    @Test
+    fun compareBitmaps_greenBlueSwapAndMaterialDesaturation_fails() {
+        val w = 267
+        val h = 279
+        val expected = renderCenteredGizmoOnDarkGreyPanel(w, h)
+        val greenBlueSwapped =
+            IntArray(expected.size) { i ->
+                val p = expected[i]
+                (p and 0xFFFF0000.toInt()) or ((p and 0xFF) shl 8) or ((p shr 8) and 0xFF)
+            }
+        val desaturatedWhiteArrow = renderCenteredGizmoOnDarkGreyPanel(w, h, arrowMode = "white")
+        val yellowShiftedArrow = renderCenteredGizmoOnDarkGreyPanel(w, h, arrowMode = "yellow")
+
+        for ((label, candidate) in
+            listOf(
+                "G<->B channel swap" to greenBlueSwapped,
+                "Green->White desaturation" to desaturatedWhiteArrow,
+                "Green->Yellow hue shift" to yellowShiftedArrow,
+            )) {
+            val result = matcher.compareBitmaps(expected, candidate, w, h)
+            assertFalse(
+                result.matches,
+                "Expected $label to fail: ${result.comparisonStatistics}",
+            )
+            val (_, p2) = parseMeanAndP2(result.comparisonStatistics)
+            assertTrue(p2 < 0.900, "Expected $label p2 < 0.900: ${result.comparisonStatistics}")
+            result.diff?.recycle()
+        }
+    }
+
+    private fun parseMeanAndP2(stats: String): Pair<Double, Double> {
+        val match =
+            Regex("""Actual mean: ([0-9.]+), p\d+: ([0-9.]+)""").find(stats)
+                ?: error("Unexpected comparisonStatistics format: $stats")
+        return match.groupValues[1].toDouble() to match.groupValues[2].toDouble()
+    }
+
+    private fun renderCenteredGizmoOnDarkGreyPanel(
+        w: Int,
+        h: Int,
+        specularGlint: Boolean = false,
+        shaftShiftX: Int = 0,
+        arrowMode: String = "green",
+    ): IntArray {
+        val pixels = IntArray(w * h) { Color.BLACK }
+        for (y in 16 until (h - 16)) {
+            for (x in 16 until (w - 16)) {
+                pixels[y * w + x] = Color.rgb(68, 68, 68)
+            }
+        }
+        // +X red horizontal shaft
+        for (y in 146 until 152) {
+            for (x in (131 + shaftShiftX) until (226 + shaftShiftX)) {
+                pixels[y * w + x] = Color.rgb(195, 65, 58)
+            }
+        }
+        // +Z blue origin sphere
+        for (y in 138 until 161) {
+            for (x in (97 + shaftShiftX) until (120 + shaftShiftX)) {
+                val dx = x - (108 + shaftShiftX)
+                val dy = y - 149
+                if (dx * dx + dy * dy <= 100) {
+                    pixels[y * w + x] = Color.rgb(110, 130, 195)
+                }
+            }
+        }
+        // +Y vertical green cylinder shaft (88px tall; diffuse Blue ~ 75 iso-matches #444444 = 68)
+        for (y in 58 until 146) {
+            for (dx in -2..2) {
+                val x = 131 + shaftShiftX + dx
+                var r = if (abs(dx) <= 1) 98 else 84
+                var g = if (abs(dx) <= 1) 163 else 138
+                var b = if (abs(dx) <= 1) 75 else 72
+                when {
+                    arrowMode == "white" -> {
+                        r = g
+                        b = g
+                    }
+                    arrowMode == "yellow" -> {
+                        r = g
+                    }
+                    specularGlint && (dx == -2 || dx == -1) -> {
+                        val scale = if (dx == -2) 1.0 else 0.5
+                        r = (r + (49 * scale).toInt()).coerceIn(0, 255)
+                        g = (g + (23 * scale).toInt()).coerceIn(0, 255)
+                        b = (b + (60 * scale).toInt()).coerceIn(0, 255)
+                    }
+                }
+                pixels[y * w + x] = Color.rgb(r, g, b)
+            }
+        }
+        // +Y cone tip
+        for (y in 40 until 58) {
+            val halfW = (y - 40) / 2 + 1
+            for (dx in -halfW..halfW) {
+                val x = 131 + shaftShiftX + dx
+                val r = if (arrowMode == "white" || arrowMode == "yellow") 170 else 102
+                val g = 170
+                val b = if (arrowMode == "white") 170 else 76
+                pixels[y * w + x] = Color.rgb(r, g, b)
+            }
+        }
+        return pixels
+    }
+
     private fun renderSoftCircleScene(w: Int, h: Int, shiftX: Float, shiftY: Float): IntArray {
         val pixels = IntArray(w * h) { Color.BLACK }
         val cx = w / 2f + shiftX
