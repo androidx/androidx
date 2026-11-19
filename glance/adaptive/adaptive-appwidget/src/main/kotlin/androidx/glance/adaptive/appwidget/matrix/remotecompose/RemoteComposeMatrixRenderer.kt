@@ -189,41 +189,47 @@ private fun MatrixCard(taps: RemoteComposeActions, card: ResolvedMatrixCard) {
             card.secondary != null ||
             card.trailing != null
 
-    RemoteColumn(
-        modifier =
-            RemoteModifier.fillMaxSize()
-                .clip(RemoteRoundedCornerShape(cornerRadius.asRdp()))
-                .background(RemoteComposePalette.widgetBackground)
-                .padding(card.padding.asRdp()),
-        verticalArrangement = RemoteArrangement.Center,
-        horizontalAlignment = RemoteAlignment.CenterHorizontally,
-    ) {
-        if (hasHeader) {
-            Header(taps, card)
-        }
-
-        val hero = card.hero
-        val hasActions = card.actions.isNotEmpty()
-        if (hero != null) {
-            // The gaps either side of the hero are its padding, so it still absorbs all the slack.
-            RemoteBox(
-                modifier =
-                    RemoteModifier.weight(1f.rf)
-                        .fillMaxWidth()
-                        .padding(
-                            top = if (hasHeader) card.slotSpacing.asRdp() else 0.rdp,
-                            bottom = if (hasActions) card.slotSpacing.asRdp() else 0.rdp,
-                        ),
-                contentAlignment = RemoteAlignment.Center,
-            ) {
-                hero.Content(card.tiers)
+    // Wrap in a container so widgetBackground's ColorTheme is emitted inside a LayoutComponent
+    // rather than directly under RootLayoutComponent, where RemoteCompose players skip dirty
+    // ColorThemes on light-mode cold start.
+    RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteColumn(
+            modifier =
+                RemoteModifier.fillMaxSize()
+                    .clip(RemoteRoundedCornerShape(cornerRadius.asRdp()))
+                    .background(RemoteComposePalette.widgetBackground)
+                    .padding(card.padding.asRdp()),
+            verticalArrangement = RemoteArrangement.Center,
+            horizontalAlignment = RemoteAlignment.CenterHorizontally,
+        ) {
+            if (hasHeader) {
+                Header(taps, card)
             }
-        } else if (hasActions) {
-            RemoteBox(modifier = RemoteModifier.weight(1f.rf).fillMaxWidth())
-        }
 
-        if (hasActions) {
-            ActionRow(taps, card.actions)
+            val hero = card.hero
+            val hasActions = card.actions.isNotEmpty()
+            if (hero != null) {
+                // The gaps either side of the hero are its padding, so it still absorbs all the
+                // slack.
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.weight(1f.rf)
+                            .fillMaxWidth()
+                            .padding(
+                                top = if (hasHeader) card.slotSpacing.asRdp() else 0.rdp,
+                                bottom = if (hasActions) card.slotSpacing.asRdp() else 0.rdp,
+                            ),
+                    contentAlignment = RemoteAlignment.Center,
+                ) {
+                    hero.Content(card.tiers)
+                }
+            } else if (hasActions) {
+                RemoteBox(modifier = RemoteModifier.weight(1f.rf).fillMaxWidth())
+            }
+
+            if (hasActions) {
+                ActionRow(taps, card.actions)
+            }
         }
     }
 }

@@ -20,6 +20,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import androidx.collection.floatListOf
+import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,6 +56,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @Suppress("RestrictedApiAndroidX")
 @Config(sdk = [37], qualifiers = "xhdpi")
@@ -90,7 +92,7 @@ class RemoteComposeMatrixRendererTest {
         assertThat(rendered.texts())
             .containsAtLeast("11,056", "Steps", "7 Day Avg", "13,843", "55%", "1,982 Cal", "Z2")
 
-        val cardColumn = rendered.firstLayoutChild()
+        val cardColumn = rendered.cardColumn()
         assertThat(cardColumn.width).isWithin(1f).of(348.dpToPx(context))
         assertThat(cardColumn.height).isWithin(1f).of(264.dpToPx(context))
 
@@ -123,7 +125,7 @@ class RemoteComposeMatrixRendererTest {
             )
 
         val rendered = render(twoActionsWithNullFirst, Dimensions(260, 140))
-        val cardChildren = rendered.firstLayoutChild().layoutChildren()
+        val cardChildren = rendered.cardColumn().layoutChildren()
         // Header + weighted spacer + action row = 3 children.
         assertThat(cardChildren).hasSize(3)
         val header = cardChildren[0]
@@ -143,7 +145,7 @@ class RemoteComposeMatrixRendererTest {
                 ),
                 Dimensions(176, 132),
             )
-        val singleRow = singleAction.firstLayoutChild().layoutChildren().last()
+        val singleRow = singleAction.cardColumn().layoutChildren().last()
         val centeredItem = singleRow.layoutChildren().single()
         assertThat(centeredItem.x).isGreaterThan(0f)
         assertThat(centeredItem.x + centeredItem.width).isLessThan(singleRow.width)
@@ -160,12 +162,12 @@ class RemoteComposeMatrixRendererTest {
                 Dimensions(176, 120),
             )
         // Content box is 120 - 32 = 88 dp tall; 56 dp header centers at y = 16 dp inside it.
-        val header = headerOnly.firstLayoutChild().layoutChildren().single()
+        val header = headerOnly.cardColumn().layoutChildren().single()
         assertThat(header.y).isWithin(1f).of(16.dpToPx(context))
         assertThat(header.y + header.height).isWithin(1f).of((88 - 16).dpToPx(context))
 
         val empty = render(MatrixCardContent(), Dimensions(176, 88))
-        assertThat(empty.firstLayoutChild().layoutChildren()).isEmpty()
+        assertThat(empty.cardColumn().layoutChildren()).isEmpty()
     }
 
     @Test
@@ -185,7 +187,7 @@ class RemoteComposeMatrixRendererTest {
                 ),
                 Dimensions(88, 176),
             )
-        val headerChildren = stacked.firstLayoutChild().layoutChildren().single().layoutChildren()
+        val headerChildren = stacked.cardColumn().layoutChildren().single().layoutChildren()
         // Leading + 8dp spacer + primary + 8dp spacer + secondary = 5 children; trailing dropped.
         assertThat(headerChildren).hasSize(5)
         assertThat(headerChildren[2].y).isGreaterThan(headerChildren[0].y)
@@ -198,7 +200,7 @@ class RemoteComposeMatrixRendererTest {
                 Dimensions(88, 132),
             )
         val missingPrimaryChildren =
-            missingPrimary.firstLayoutChild().layoutChildren().single().layoutChildren()
+            missingPrimary.cardColumn().layoutChildren().single().layoutChildren()
         // Primary placeholder + 8dp spacer + secondary = 3 children.
         assertThat(missingPrimaryChildren).hasSize(3)
         assertThat(missingPrimaryChildren.last().y).isGreaterThan(0f)
@@ -248,7 +250,7 @@ class RemoteComposeMatrixRendererTest {
 
         // Compact header stacks secondary below primary inside the weighted header text column,
         // and draws the trailing pill button at 64x56dp on the right.
-        val headerRow = unnamed.firstLayoutChild().layoutChildren().first()
+        val headerRow = unnamed.cardColumn().layoutChildren().first()
         val headerChildren = headerRow.layoutChildren()
         val textColumn = headerChildren[2]
         assertThat(textColumn.layoutChildren()).hasSize(2)
@@ -276,7 +278,7 @@ class RemoteComposeMatrixRendererTest {
                 MatrixCardContent(hero = Graph(values = floatListOf(0.5f, 1.0f))),
                 Dimensions(176, 132),
             )
-        val cardChildren = heroOnly.firstLayoutChild().layoutChildren()
+        val cardChildren = heroOnly.cardColumn().layoutChildren()
         val heroBox = cardChildren.single()
         assertThat(heroBox.y).isWithin(1f).of(0f)
         assertThat(heroBox.height).isWithin(1f).of((132 - 32).dpToPx(context))
@@ -357,6 +359,19 @@ class RemoteComposeMatrixRendererTest {
         }
     }
 
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun card_coldStartLightMode_resolvesDynamicWidgetBackground() = runTest {
+        val rendered = render(MatrixCardContent(), Dimensions(176, 88))
+        val theme = checkNotNull(rendered.document.themedColors).single()
+        val expectedBackground = context.getColor(android.R.color.system_accent2_50)
+        assertThat(expectedBackground).isNotEqualTo(theme.mLightModeFallback)
+        val centerPixel =
+            rendered.bitmap.getPixel(rendered.bitmap.width / 2, rendered.bitmap.height / 2)
+        assertThat(centerPixel).isEqualTo(expectedBackground)
+        assertThat(rendered.root.list.filterIsInstance<ColorTheme>()).isEmpty()
+    }
+
     private suspend fun render(
         content: MatrixContent,
         dimensions: Dimensions,
@@ -381,6 +396,8 @@ class RemoteComposeMatrixRendererTest {
             content = rcOutput.content,
         )
     }
+
+    private fun RenderedDocument.cardColumn() = firstLayoutChild().layoutChildren().single()
 
     private object DummyTemplate : GlanceAdaptiveTemplate(templateId = 0)
 
