@@ -99,6 +99,7 @@ public class BaseStats {
             CALL_TYPE_INITIALIZE_TRIVIAL,
             CALL_TYPE_INITIALIZE_PENDING,
             INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB,
+            CALL_TYPE_GLOBAL_GET_DOCUMENT_CHANGES,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CallType {
@@ -173,6 +174,8 @@ public class BaseStats {
     public static final int CALL_TYPE_INITIALIZE_PENDING = 54;
     // Represents internal background task to handle expired documents.
     public static final int INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB = 55;
+    // Represents the offline observers getDocumentChanges API of GlobalSearchSession.
+    public static final int CALL_TYPE_GLOBAL_GET_DOCUMENT_CHANGES = 56;
 
     // These strings are for the subset of call types that correspond to an AppSearchManager API
     public static final String CALL_TYPE_STRING_INITIALIZE = "initialize";
@@ -231,6 +234,8 @@ public class BaseStats {
     public static final String CALL_TYPE_STRING_INITIALIZE_PENDING = "initializePending";
     public static final String INTERNAL_CALL_TYPE_STRING_HANDLE_EXPIRED_DOCUMENTS_JOB =
             "handleExpiredDocumentsJob";
+    public static final String CALL_TYPE_STRING_GLOBAL_GET_DOCUMENT_CHANGES =
+            "globalGetDocumentChanges";
 
     // Enabled features bitmask with all features disabled.
     public static final long NO_FEATURES_ENABLED_BITMASK = 0;
