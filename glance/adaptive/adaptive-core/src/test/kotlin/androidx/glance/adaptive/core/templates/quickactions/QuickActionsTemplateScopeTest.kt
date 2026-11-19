@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.templates
+package androidx.glance.adaptive.core.templates.quickactions
 
 import android.app.Activity
 import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
@@ -23,15 +23,17 @@ import androidx.glance.adaptive.core.slots.Icon
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.TemplateText
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.TemplateIcon
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
 
-class DashboardTemplateScopeTest {
+class QuickActionsTemplateScopeTest {
 
     @Test
-    fun dashboardTemplate_fullDsl_populatesAllSlotsAndComponents() {
-        val template = dashboardTemplate {
+    fun quickActionsTemplate_fullDsl_populatesAllSlotsAndComponents() {
+        val template = quickActionsTemplate {
             leading { icon(APP_ICON) }
             primary { text("Start a workout") }
             secondary { text("Fitbit") }
@@ -47,8 +49,8 @@ class DashboardTemplateScopeTest {
         }
 
         assertThat(template).isInstanceOf(GlanceAdaptiveTemplate::class.java)
-        assertThat(template.templateId).isEqualTo(DashboardTemplate.TEMPLATE_ID)
-        assertThat(DashboardTemplate.TEMPLATE_ID).isEqualTo(2)
+        assertThat(template.templateId).isEqualTo(QuickActionsTemplate.TEMPLATE_ID)
+        assertThat(QuickActionsTemplate.TEMPLATE_ID).isEqualTo(2)
 
         assertThat(template.hasHeader).isTrue()
         assertThat(template.leading).isEqualTo(Icon(icon = 100))
@@ -66,8 +68,8 @@ class DashboardTemplateScopeTest {
     }
 
     @Test
-    fun dashboardTemplate_actionsOnly_hasNoHeader() {
-        val template = dashboardTemplate { actions { action(RUN_ICON, "Run") { onClick(RUN) } } }
+    fun quickActionsTemplate_actionsOnly_hasNoHeader() {
+        val template = quickActionsTemplate { actions { action(RUN_ICON, "Run") { onClick(RUN) } } }
 
         assertThat(template.hasHeader).isFalse()
         assertThat(template.leading).isNull()
@@ -78,28 +80,28 @@ class DashboardTemplateScopeTest {
     }
 
     @Test
-    fun dashboardTemplate_withoutActions_reportsTheMissingActions() {
-        val error = assertFailsWith<IllegalArgumentException> { dashboardTemplate {} }
+    fun quickActionsTemplate_withoutActions_reportsTheMissingActions() {
+        val error = assertFailsWith<IllegalArgumentException> { quickActionsTemplate {} }
 
-        assertThat(error.message).contains("DashboardTemplate needs")
+        assertThat(error.message).contains("QuickActionsTemplate needs")
         assertThat(error.message).contains("1 to 8 actions")
         assertThat(error.message).doesNotContain("header")
     }
 
     @Test
-    fun dashboardTemplate_moreThanEightActions_throwsIllegalArgumentException() {
+    fun quickActionsTemplate_moreThanEightActions_throwsIllegalArgumentException() {
         val error =
             assertFailsWith<IllegalArgumentException> {
-                dashboardTemplate { actions { repeat(9) { action(RUN_ICON, "Workout $it") } } }
+                quickActionsTemplate { actions { repeat(9) { action(RUN_ICON, "Workout $it") } } }
             }
 
         assertThat(error.message).contains("1 to 8 actions")
     }
 
     @Test
-    fun dashboardTemplate_eightActions_succeeds() {
-        val template = dashboardTemplate {
-            actions { repeat(DashboardTemplate.MAX_ACTIONS) { action(RUN_ICON, "Workout $it") } }
+    fun quickActionsTemplate_eightActions_succeeds() {
+        val template = quickActionsTemplate {
+            actions { repeat(QuickActionsTemplate.MAX_ACTIONS) { action(RUN_ICON, "Workout $it") } }
         }
 
         assertThat(template.actions).hasSize(8)
@@ -110,7 +112,7 @@ class DashboardTemplateScopeTest {
         // Any header slot needs both the icon and the title.
         val subtitleOnly =
             assertFailsWith<IllegalArgumentException> {
-                dashboardTemplate {
+                quickActionsTemplate {
                     secondary { text("Fitbit") }
                     actions { action(RUN_ICON, "Run") }
                 }
@@ -120,7 +122,7 @@ class DashboardTemplateScopeTest {
 
         val trailingOnly =
             assertFailsWith<IllegalArgumentException> {
-                dashboardTemplate {
+                quickActionsTemplate {
                     trailing { iconButton(ADD_ICON, "Log activity") }
                     actions { action(RUN_ICON, "Run") }
                 }
@@ -129,7 +131,7 @@ class DashboardTemplateScopeTest {
 
         val titleOnly =
             assertFailsWith<IllegalArgumentException> {
-                dashboardTemplate {
+                quickActionsTemplate {
                     primary { text("Quick notes") }
                     actions { action(RUN_ICON, "New note") }
                 }
@@ -139,7 +141,7 @@ class DashboardTemplateScopeTest {
 
         val iconOnly =
             assertFailsWith<IllegalArgumentException> {
-                dashboardTemplate {
+                quickActionsTemplate {
                     leading { icon(APP_ICON) }
                     actions { action(RUN_ICON, "New note") }
                 }
@@ -147,7 +149,7 @@ class DashboardTemplateScopeTest {
         assertThat(iconOnly.message).contains("a header title")
         assertThat(iconOnly.message).doesNotContain("a header icon")
 
-        val minimal = dashboardTemplate {
+        val minimal = quickActionsTemplate {
             leading { icon(APP_ICON) }
             primary { text("Quick notes") }
             actions { action(RUN_ICON, "New note") }
@@ -159,7 +161,7 @@ class DashboardTemplateScopeTest {
 
     @Test
     fun action_subtitle_isCarriedWithItsOwnSensitiveReplacement() {
-        val template = dashboardTemplate {
+        val template = quickActionsTemplate {
             actions {
                 action(RUN_ICON, "Garage Door") {
                     subtitle("Open")
@@ -187,10 +189,10 @@ class DashboardTemplateScopeTest {
     @Test
     fun action_subtitle_rejectsBlankOrDuplicate() {
         assertFailsWith<IllegalArgumentException> {
-            dashboardTemplate { actions { action(RUN_ICON, "Garage Door") { subtitle(" ") } } }
+            quickActionsTemplate { actions { action(RUN_ICON, "Garage Door") { subtitle(" ") } } }
         }
         assertFailsWith<IllegalStateException> {
-            dashboardTemplate {
+            quickActionsTemplate {
                 actions {
                     action(RUN_ICON, "Garage Door") {
                         subtitle("Open")
@@ -204,10 +206,10 @@ class DashboardTemplateScopeTest {
     @Test
     fun labels_areRequired() {
         assertFailsWith<IllegalArgumentException> {
-            dashboardTemplate { actions { action(RUN_ICON, " ") } }
+            quickActionsTemplate { actions { action(RUN_ICON, " ") } }
         }
         assertFailsWith<IllegalArgumentException> {
-            dashboardTemplate {
+            quickActionsTemplate {
                 leading { icon(APP_ICON) }
                 primary { text("Start a workout") }
                 trailing { iconButton(ADD_ICON, "") }
@@ -218,23 +220,23 @@ class DashboardTemplateScopeTest {
 
     @Test
     fun slotBlocks_emptyBlocks_throwExpectedExceptions() {
-        assertFailsWith<IllegalStateException> { dashboardTemplate { leading {} } }
-        assertFailsWith<IllegalStateException> { dashboardTemplate { primary {} } }
-        assertFailsWith<IllegalStateException> { dashboardTemplate { secondary {} } }
-        assertFailsWith<IllegalStateException> { dashboardTemplate { trailing {} } }
-        assertFailsWith<IllegalArgumentException> { dashboardTemplate { actions {} } }
+        assertFailsWith<IllegalStateException> { quickActionsTemplate { leading {} } }
+        assertFailsWith<IllegalStateException> { quickActionsTemplate { primary {} } }
+        assertFailsWith<IllegalStateException> { quickActionsTemplate { secondary {} } }
+        assertFailsWith<IllegalStateException> { quickActionsTemplate { trailing {} } }
+        assertFailsWith<IllegalArgumentException> { quickActionsTemplate { actions {} } }
     }
 
     @Test
     fun slotBlocks_duplicateSlotOrComponentCalls_throwIllegalStateException() {
         assertFailsWith<IllegalStateException> {
-            dashboardTemplate {
+            quickActionsTemplate {
                 actions { action(RUN_ICON, "Run") }
                 actions { action(RUN_ICON, "Walk") }
             }
         }
         assertFailsWith<IllegalStateException> {
-            dashboardTemplate {
+            quickActionsTemplate {
                 leading {
                     icon(APP_ICON)
                     icon(APP_ICON)
@@ -242,7 +244,7 @@ class DashboardTemplateScopeTest {
             }
         }
         assertFailsWith<IllegalStateException> {
-            dashboardTemplate {
+            quickActionsTemplate {
                 trailing {
                     iconButton(ADD_ICON, "Log activity")
                     iconButton(ADD_ICON, "Log activity")
@@ -250,7 +252,7 @@ class DashboardTemplateScopeTest {
             }
         }
         assertFailsWith<IllegalStateException> {
-            dashboardTemplate {
+            quickActionsTemplate {
                 actions {
                     action(RUN_ICON, "Run") {
                         onClick(RUN)
@@ -263,7 +265,7 @@ class DashboardTemplateScopeTest {
 
     @Test
     fun equalsAndHashCode_compareAllSlots() {
-        fun sample(title: String) = dashboardTemplate {
+        fun sample(title: String) = quickActionsTemplate {
             leading { icon(APP_ICON) }
             primary { text(title) }
             actions { action(RUN_ICON, "Run") { onClick(RUN) } }

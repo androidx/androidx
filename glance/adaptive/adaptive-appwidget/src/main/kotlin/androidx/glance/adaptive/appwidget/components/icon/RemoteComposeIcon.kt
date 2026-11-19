@@ -41,7 +41,7 @@ import androidx.glance.adaptive.core.slots.Icon
  * [Icon.buildRemoteViews].
  *
  * When [Icon.contained] is `true`, the glyph is drawn in a filled circle [size] across, tinted with
- * [RemoteComposePalette.onSecondaryContainer], as the design draws the dashboard header's brand
+ * [RemoteComposePalette.onSecondaryContainer], as the design draws the Quick Actions header's brand
  * icon. When `false`, the icon is the glyph alone, tinted with [RemoteComposePalette.primary].
  *
  * @param size Edge length the matrix gives the icon.

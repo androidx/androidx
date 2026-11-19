@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <!--
-  One cell of an icon grid, as the design draws a dashboard action: a filled tile with its glyph at
+  One cell of an icon grid, as the design draws a quick action: a filled tile with its glyph at
   the top start, and beneath it its label and optional subtitle when the grid shows labels. The
   label wraps to two lines and the subtitle is drawn at half opacity; the builder trims both to the
   lines the row has room for. The cells of a row share its width equally, and the gap after each

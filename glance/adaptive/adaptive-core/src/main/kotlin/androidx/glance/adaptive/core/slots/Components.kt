@@ -318,8 +318,8 @@ public class ContainedRing(
  * @property icon Drawable resource of the glyph.
  * @property contentDescription What the glyph shows, for accessibility services, or `null` when it
  *   is decorative.
- * @property contained Whether the glyph sits inside a filled circle, as a dashboard header's brand
- *   icon does, rather than drawing as a bare glyph.
+ * @property contained Whether the glyph sits inside a filled circle, as a Quick Actions header's
+ *   brand icon does, rather than drawing as a bare glyph.
  * @throws IllegalArgumentException if [icon] is `0`, or [contentDescription] is blank.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

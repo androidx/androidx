@@ -96,8 +96,8 @@ public class ClickableScope internal constructor() {
 }
 
 /**
- * Configures a dashboard action: what it does when tapped, how it is named on locked surfaces, and
- * an optional second line beneath its label.
+ * Configures a quick action: what it does when tapped, how it is named on locked surfaces, and an
+ * optional second line beneath its label.
  */
 @GlanceAdaptiveTemplateDsl
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

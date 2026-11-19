@@ -29,8 +29,8 @@ import androidx.glance.adaptive.core.slots.Icon
  * Draws the icon for the leading slot, [size] across.
  *
  * When [Icon.contained] is `true`, the glyph is drawn in a filled circle [size] across, tinted with
- * `onSecondaryContainer`, as the design draws the dashboard header's brand icon. When `false`, the
- * icon is the glyph alone, tinted with the primary color.
+ * `onSecondaryContainer`, as the design draws the Quick Actions header's brand icon. When `false`,
+ * the icon is the glyph alone, tinted with the primary color.
  *
  * The glyph cannot be sized before API 31, so it wraps its drawable and is capped (see
  * [setMaxSize]), and a circle is padded out around it: its drawable must be declared at least as

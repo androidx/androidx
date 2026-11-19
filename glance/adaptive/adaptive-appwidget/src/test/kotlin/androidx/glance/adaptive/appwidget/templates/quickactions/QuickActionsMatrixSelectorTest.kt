@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.templates.dashboard
+package androidx.glance.adaptive.appwidget.templates.quickactions
 
 import android.net.Uri
 import androidx.compose.ui.unit.dp
@@ -33,7 +33,7 @@ import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconGrid
 import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.TemplateText
-import androidx.glance.adaptive.core.templates.DashboardTemplate
+import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,10 +42,10 @@ import org.robolectric.annotation.Config
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
-class DashboardMatrixSelectorTest {
+class QuickActionsMatrixSelectorTest {
 
     private val workouts =
-        DashboardTemplate(
+        QuickActionsTemplate(
             leading = Icon(APP_ICON),
             primary = TemplateText("Start a workout"),
             secondary = TemplateText("Fitbit"),
@@ -53,7 +53,7 @@ class DashboardMatrixSelectorTest {
             actions = List(MAX_ACTIONS) { item(it) },
         )
 
-    private val contacts = DashboardTemplate(actions = List(MAX_ACTIONS) { item(it) })
+    private val contacts = QuickActionsTemplate(actions = List(MAX_ACTIONS) { item(it) })
 
     @Test
     fun headerCard_followsTheDensityMatrix() {
@@ -147,7 +147,7 @@ class DashboardMatrixSelectorTest {
 
         // The columns follow the width tier, header or not.
         val one = workouts.withActions(listOf(item(0)))
-        val oneWithoutHeader = DashboardTemplate(actions = listOf(item(0)))
+        val oneWithoutHeader = QuickActionsTemplate(actions = listOf(item(0)))
         for ((width, columns) in listOf(WidthTier.W2 to 2, WidthTier.W3 to 3, WidthTier.W4 to 4)) {
             assertThat((card(width, HeightTier.H3, one).hero as IconGrid).columns)
                 .isEqualTo(columns)
@@ -304,7 +304,7 @@ class DashboardMatrixSelectorTest {
     @Test
     fun mini_headerWithoutActionRunsTheFirstShortcut() {
         val template =
-            DashboardTemplate(
+            QuickActionsTemplate(
                 leading = Icon(APP_ICON),
                 primary = TemplateText("Start a workout"),
                 actions = listOf(item(0)),
@@ -318,11 +318,11 @@ class DashboardMatrixSelectorTest {
     @Test
     fun mini_bulbKeepsTheSensitiveReplacementOfWhatDescribesIt() {
         val contact = IconTile(icon = 1, label = "Mom", sensitiveReplacement = "Contact")
-        assertThat(bulb(DashboardTemplate(actions = listOf(contact))).sensitiveReplacement)
+        assertThat(bulb(QuickActionsTemplate(actions = listOf(contact))).sensitiveReplacement)
             .isEqualTo("Contact")
 
         val titled =
-            DashboardTemplate(
+            QuickActionsTemplate(
                 leading = Icon(APP_ICON),
                 primary = TemplateText("Mom", sensitiveReplacement = "Contact"),
                 actions = listOf(item(0)),
@@ -340,7 +340,7 @@ class DashboardMatrixSelectorTest {
         assertThat(card(WidthTier.W2, HeightTier.H3, twoWithTrailing).hasDroppedSlots).isTrue()
         // Without a trailing button, 4 actions fit in one row at W4xH3 without dropping anything.
         val fourWithoutTrailing =
-            DashboardTemplate(
+            QuickActionsTemplate(
                 actions = List(4) { item(it) },
                 leading = Icon(APP_ICON),
                 primary = TemplateText("Start a workout"),
@@ -356,7 +356,8 @@ class DashboardMatrixSelectorTest {
         // Narrow column: drops leading/trailing when there is a header; without a header, 1 action
         // fits at W1xH1 without dropping.
         assertThat(card(WidthTier.W1, HeightTier.H4).hasDroppedSlots).isTrue()
-        val singleContact = DashboardTemplate(actions = listOf(IconTile(icon = 1, label = "Mom")))
+        val singleContact =
+            QuickActionsTemplate(actions = listOf(IconTile(icon = 1, label = "Mom")))
         assertThat(card(WidthTier.W1, HeightTier.H1, singleContact).hasDroppedSlots).isFalse()
 
         // Mini bulb and strip: a single action without a subtitle or header drops nothing; a
@@ -413,30 +414,31 @@ class DashboardMatrixSelectorTest {
     }
 
     /** This template's header with [actions] instead of its own. */
-    private fun DashboardTemplate.withActions(actions: List<IconTile>) =
-        DashboardTemplate(actions, leading, primary, secondary, trailing)
+    private fun QuickActionsTemplate.withActions(actions: List<IconTile>) =
+        QuickActionsTemplate(actions, leading, primary, secondary, trailing)
 
-    private fun bulb(template: DashboardTemplate): IconButton =
+    private fun bulb(template: QuickActionsTemplate): IconButton =
         (select(Dimensions(56, 56), AppWidgetSurface.MOBILE_LOCK_SCREEN, template)
                 as MatrixBulbContent)
             .component as IconButton
 
-    private fun strip(template: DashboardTemplate): MatrixCardContent =
+    private fun strip(template: QuickActionsTemplate): MatrixCardContent =
         select(Dimensions(168, 28), AppWidgetSurface.MOBILE_LOCK_SCREEN, template)
             as MatrixCardContent
 
     private fun card(
         width: WidthTier,
         height: HeightTier,
-        template: DashboardTemplate = workouts,
+        template: QuickActionsTemplate = workouts,
     ): MatrixCardContent =
         select(nominalDimensions(width, height), template = template) as MatrixCardContent
 
     private fun select(
         dimensions: Dimensions,
         surface: AppWidgetSurface = AppWidgetSurface.MOBILE_HOME_SCREEN,
-        template: DashboardTemplate = workouts,
-    ): MatrixContent = DashboardMatrixSelector.select(template, surface.withDimensions(dimensions))
+        template: QuickActionsTemplate = workouts,
+    ): MatrixContent =
+        QuickActionsMatrixSelector.select(template, surface.withDimensions(dimensions))
 
     private companion object {
         const val MAX_ACTIONS = 8

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.templates.dashboard
+package androidx.glance.adaptive.appwidget.templates.quickactions
 
 import androidx.glance.adaptive.appwidget.templates.AppWidgetTemplateRegistration
 import androidx.glance.adaptive.appwidget.templates.matrixTemplateRegistration
-import androidx.glance.adaptive.core.templates.DashboardTemplate
+import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
 
-/** Creates the built-in [AppWidgetTemplateRegistration] for [DashboardTemplate]. */
-internal fun dashboardRegistration(): AppWidgetTemplateRegistration<DashboardTemplate> =
-    matrixTemplateRegistration(DashboardMatrixSelector)
+/** Creates the built-in [AppWidgetTemplateRegistration] for [QuickActionsTemplate]. */
+internal fun quickActionsRegistration(): AppWidgetTemplateRegistration<QuickActionsTemplate> =
+    matrixTemplateRegistration(QuickActionsMatrixSelector)

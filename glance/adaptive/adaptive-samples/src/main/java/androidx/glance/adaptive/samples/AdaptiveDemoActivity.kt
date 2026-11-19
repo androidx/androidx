@@ -52,25 +52,29 @@ import kotlinx.coroutines.launch
  *
  * Lists the widgets in [DemoWidgets], publishes their picker previews through
  * [GlanceAdaptiveWidgetManager.setPreview], and pins the one that is tapped through
- * [GlanceAdaptiveWidgetManager.requestPin]. Opened from a Dashboard demo widget, it shows which
+ * [GlanceAdaptiveWidgetManager.requestPin]. Opened from a Quick Actions demo widget, it shows which
  * tile or button was tapped.
  */
 class AdaptiveDemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        showDashboardAction(intent)
+        showQuickAction(intent)
         setContent { MaterialTheme { DemoScreen() } }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        showDashboardAction(intent)
+        showQuickAction(intent)
     }
 
-    /** Shows the Dashboard tile or button that [intent] was started from, if any. */
-    private fun showDashboardAction(intent: Intent) {
-        val label = intent.getStringExtra(DashboardSample.EXTRA_DASHBOARD_ACTION) ?: return
-        Toast.makeText(this, getString(R.string.dashboard_action_tapped, label), Toast.LENGTH_SHORT)
+    /** Shows the Quick Actions tile or button that [intent] was started from, if any. */
+    private fun showQuickAction(intent: Intent) {
+        val label = intent.getStringExtra(QuickActionsSample.EXTRA_QUICK_ACTION) ?: return
+        Toast.makeText(
+                this,
+                getString(R.string.quick_actions_action_tapped, label),
+                Toast.LENGTH_SHORT,
+            )
             .show()
     }
 }
@@ -122,14 +126,14 @@ private val DemoWidgets =
                 },
         ),
         DemoWidget(
-            label = R.string.dashboard_workouts_widget_name,
-            widgetName = WorkoutsDashboardWidgetReceiver.WIDGET_NAME,
-            previewData = WorkoutsDashboardWidgetReceiver.SampleData,
+            label = R.string.quick_actions_workouts_widget_name,
+            widgetName = WorkoutsQuickActionsWidgetReceiver.WIDGET_NAME,
+            previewData = WorkoutsQuickActionsWidgetReceiver.SampleData,
         ),
         DemoWidget(
-            label = R.string.dashboard_contacts_widget_name,
-            widgetName = ContactsDashboardWidgetReceiver.WIDGET_NAME,
-            previewData = ContactsDashboardWidgetReceiver.SampleData,
+            label = R.string.quick_actions_contacts_widget_name,
+            widgetName = ContactsQuickActionsWidgetReceiver.WIDGET_NAME,
+            previewData = ContactsQuickActionsWidgetReceiver.SampleData,
         ),
     )
 

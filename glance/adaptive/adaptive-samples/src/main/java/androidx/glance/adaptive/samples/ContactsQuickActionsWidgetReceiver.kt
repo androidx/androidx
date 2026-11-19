@@ -19,16 +19,16 @@ package androidx.glance.adaptive.samples
 import android.content.Context
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver
-import androidx.glance.adaptive.core.templates.DashboardTemplate
 import androidx.glance.adaptive.core.templates.TemplateIcon
-import androidx.glance.adaptive.core.templates.dashboardTemplate
+import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
+import androidx.glance.adaptive.core.templates.quickactions.quickActionsTemplate
 
 /**
- * Receiver for the Contacts Dashboard demo widget: eight favorite contacts and no header, so the
- * tiles take the whole widget. Contacts are drawn with a person glyph; photos on tiles wait for the
- * design to settle.
+ * Receiver for the Contacts Quick Actions demo widget: eight favorite contacts and no header, so
+ * the tiles take the whole widget. Contacts are drawn with a person glyph; photos on tiles wait for
+ * the design to settle.
  */
-class ContactsDashboardWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
+class ContactsQuickActionsWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
     override val widgetName: String = WIDGET_NAME
 
     override suspend fun onUpdate(context: Context) {
@@ -37,15 +37,15 @@ class ContactsDashboardWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
     }
 
     internal companion object {
-        const val WIDGET_NAME = "dashboard_contacts_widget"
+        const val WIDGET_NAME = "quick_actions_contacts_widget"
 
         /** Eight favorite contacts, redacted on the lock screen, with no header. */
-        val SampleData: DashboardTemplate = dashboardTemplate {
+        val SampleData: QuickActionsTemplate = quickActionsTemplate {
             actions {
                 favoriteContacts().forEach { name ->
-                    action(TemplateIcon.fromResource(R.drawable.dashboard_glyph_person), name) {
+                    action(TemplateIcon.fromResource(R.drawable.quick_actions_glyph_person), name) {
                         sensitive("Contact")
-                        onClick(DashboardSample.action(name))
+                        onClick(QuickActionsSample.action(name))
                     }
                 }
             }

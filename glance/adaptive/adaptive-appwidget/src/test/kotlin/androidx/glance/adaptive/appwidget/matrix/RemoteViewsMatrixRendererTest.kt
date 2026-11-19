@@ -416,7 +416,7 @@ class RemoteViewsMatrixRendererTest {
 
     @Test
     fun actions_equalActionsShareAPendingIntentAndDifferentOnesDoNot() {
-        val actions = RemoteViewsActions(context, widgetName = "dashboard")
+        val actions = RemoteViewsActions(context, widgetName = "quick_actions")
 
         val run = actions.pendingIntentFor(RUN)
         assertThat(run).isNotNull()
@@ -431,7 +431,9 @@ class RemoteViewsMatrixRendererTest {
     fun actions_callbackRunsOnlyWithTheNameOfItsWidget() {
         val callback = GlanceAdaptiveAction.CallbackAction<NoOpCallback>()
 
-        assertThat(RemoteViewsActions(context, widgetName = "dashboard").pendingIntentFor(callback))
+        assertThat(
+                RemoteViewsActions(context, widgetName = "quick_actions").pendingIntentFor(callback)
+            )
             .isNotNull()
         // Without the widget's name, a callback cannot be delivered, so the view ignores taps.
         assertThat(RemoteViewsActions(context, widgetName = null).pendingIntentFor(callback))
@@ -669,7 +671,7 @@ class RemoteViewsMatrixRendererTest {
                 IconButton(GLYPH, "Run", GlanceAdaptiveAction.CallbackAction<NoOpCallback>())
             )
         val output =
-            RemoteViewsMatrixRenderer.forWidget("dashboard").render(template, content, surface)
+            RemoteViewsMatrixRenderer.forWidget("quick_actions").render(template, content, surface)
                 as RemoteViewsRenderOutput
         val view = output.provider(context).apply(context, FrameLayout(context))
 
@@ -678,7 +680,7 @@ class RemoteViewsMatrixRendererTest {
             .performClick()
 
         val broadcast = shadowOf(context as Application).broadcastIntents.last()
-        assertThat(broadcast.getStringExtra(EXTRA_WIDGET_NAME)).isEqualTo("dashboard")
+        assertThat(broadcast.getStringExtra(EXTRA_WIDGET_NAME)).isEqualTo("quick_actions")
     }
 
     @Test
