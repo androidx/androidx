@@ -85,8 +85,8 @@ class RemoteDpTest {
             initialise {
                 val remoteFloat = RemoteFloat(floatValue)
                 val remoteFloatDp = RemoteDp(remoteFloat)
-                val resultId = remoteFloat.getIdForCreationState(it)
-                val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
+                val resultId = it.getId(remoteFloat)
+                val resultDpId = it.getId(remoteFloatDp.value)
                 Pair(resultId, resultDpId)
             }
         assertThat(context.getFloat(resultId)).isEqualTo(floatValue)
@@ -102,8 +102,8 @@ class RemoteDpTest {
                 val remoteFloat = RemoteFloat(floatValue)
                 val remoteFloatDp = RemoteDp(remoteFloat)
 
-                val resultId = remoteFloat.getIdForCreationState(it)
-                val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
+                val resultId = it.getId(remoteFloat)
+                val resultDpId = it.getId(remoteFloatDp.value)
                 Pair(resultId, resultDpId)
             }
 
@@ -120,9 +120,9 @@ class RemoteDpTest {
                 val remoteFloatPx = remoteFloatDp.toPx(it.remoteDensity)
                 val remoteFloatPx2 = remoteFloatDp.toPx()
 
-                val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
-                val resultPxId = remoteFloatPx.getIdForCreationState(it)
-                val resultPxId2 = remoteFloatPx2.getIdForCreationState(it)
+                val resultDpId = it.getId(remoteFloatDp.value)
+                val resultPxId = it.getId(remoteFloatPx)
+                val resultPxId2 = it.getId(remoteFloatPx2)
                 Triple(resultDpId, resultPxId, resultPxId2)
             }
 
@@ -140,8 +140,8 @@ class RemoteDpTest {
                 val remoteFloatPx = pxValue.rf
                 val remoteFloatDp = remoteFloatPx.toRemoteDp()
 
-                val resultPxId = remoteFloatPx.getIdForCreationState(it)
-                val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
+                val resultPxId = it.getId(remoteFloatPx)
+                val resultDpId = it.getId(remoteFloatDp.value)
                 Pair(resultPxId, resultDpId)
             }
 
@@ -154,9 +154,9 @@ class RemoteDpTest {
         val (widthDpId, heightDpId, fontSizeDpId) =
             initialise {
                 Triple(
-                    RemoteConfiguration.windowWidth.value.getIdForCreationState(it),
-                    RemoteConfiguration.windowHeight.value.getIdForCreationState(it),
-                    RemoteConfiguration.fontSize.value.getIdForCreationState(it),
+                    it.getId(RemoteConfiguration.windowWidth.value),
+                    it.getId(RemoteConfiguration.windowHeight.value),
+                    it.getId(RemoteConfiguration.fontSize.value),
                 )
             }
 
@@ -190,7 +190,7 @@ class RemoteDpTest {
         val resultDpId = initialise {
             val remoteFloatPx = pxValue.rf
             val remoteFloatDp = remoteFloatPx.toRemoteDp()
-            remoteFloatDp.getFloatIdForCreationState(it)
+            it.getFloatId(remoteFloatDp)
         }
 
         assertThat(resultDpId).isEqualTo(pxValue)
@@ -205,8 +205,8 @@ class RemoteDpTest {
                 val remoteFloatDp = RemoteDp(floatValue.rf)
                 val remoteFloatPx = remoteFloatDp.toPx(it.remoteDensity)
 
-                val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
-                val resultPxId = remoteFloatPx.getIdForCreationState(it)
+                val resultDpId = it.getId(remoteFloatDp.value)
+                val resultPxId = it.getId(remoteFloatPx)
                 Pair(resultDpId, resultPxId)
             }
 
@@ -227,12 +227,12 @@ class RemoteDpTest {
         val remoteDp = remoteFloat.asRemoteDp()
 
         assertThat(remoteDp.cacheKey).isNotEqualTo(remoteFloat.cacheKey)
-        assertThat(remoteDp.isStructurallyEqual(remoteFloat)).isFalse()
+        assertThat(remoteDp).isNotEqualTo(remoteFloat)
 
         val (floatId, dpPxId) =
             initialise {
-                val fId = remoteFloat.getIdForCreationState(it)
-                val dId = remoteDp.getIdForCreationState(it)
+                val fId = it.getId(remoteFloat)
+                val dId = it.getId(remoteDp)
                 Pair(fId, dId)
             }
 
@@ -248,8 +248,8 @@ class RemoteDpTest {
 
         val (dpPxId, floatId) =
             initialise {
-                val dId = remoteDp.getIdForCreationState(it)
-                val fId = remoteFloat.getIdForCreationState(it)
+                val dId = it.getId(remoteDp)
+                val fId = it.getId(remoteFloat)
                 Pair(dId, fId)
             }
 
@@ -267,8 +267,8 @@ class RemoteDpTest {
 
         val (floatId, dpPxId) =
             initialise {
-                val fId = remoteFloat.getIdForCreationState(it)
-                val dId = remoteDp.getIdForCreationState(it)
+                val fId = it.getId(remoteFloat)
+                val dId = it.getId(remoteDp)
                 Pair(fId, dId)
             }
 
@@ -283,12 +283,12 @@ class RemoteDpTest {
         val expr = RemoteDp(remoteFloat * 2f)
 
         val transformed = expr.transform { null }
-        assertThat(transformed.isStructurallyEqual(expr)).isTrue()
+        assertThat(transformed).isEqualTo(expr)
 
         val (floatId, dpPxId) =
             initialise {
-                val fId = remoteFloat.getIdForCreationState(it)
-                val dId = transformed.getIdForCreationState(it)
+                val fId = it.getId(remoteFloat)
+                val dId = it.getId(transformed)
                 Pair(fId, dId)
             }
 
@@ -297,22 +297,22 @@ class RemoteDpTest {
     }
 
     @Test
-    fun toDebugString_constant() {
+    fun toString_constant() {
         val dp = 10.5f.rdp
-        assertThat(dp.toDebugString()).isEqualTo("10.5.dp")
+        assertThat(dp.toString()).isEqualTo("10.5.dp")
     }
 
     @Test
-    fun toDebugString_toDp() {
+    fun toString_toDp() {
         val dpExpr = createNamedRemoteFloat("pxVal", 0f).toRemoteDp()
-        assertThat(dpExpr.toDebugString()).isEqualTo("user:pxVal.toDp()")
+        assertThat(dpExpr.toString()).isEqualTo("user:pxVal.toDp()")
     }
 
     @Test
-    fun toDebugString_contextVariable() {
+    fun toString_contextVariable() {
         val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val dpExpr = continuousSecFloat.toRemoteDp()
-        assertThat(dpExpr.toDebugString()).isEqualTo("context:continuous_sec.toDp()")
+        assertThat(dpExpr.toString()).isEqualTo("context:continuous_sec.toDp()")
     }
 
     @Test
@@ -321,7 +321,7 @@ class RemoteDpTest {
             val dp1 = 10.rdp
             val dp2 = 5.rdp
             val result = dp1 + dp2
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(15f)
     }
@@ -332,7 +332,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 5f)
             val result = dp1 + dp2
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(15f)
     }
@@ -343,7 +343,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 5f)
             val result = dp1 - dp2
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(5f)
     }
@@ -353,7 +353,7 @@ class RemoteDpTest {
         val resultId = initialise {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val result = -dp1
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(-10f)
     }
@@ -363,7 +363,7 @@ class RemoteDpTest {
         val resultId = initialise {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val result = dp1 / 2f
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(5f)
     }
@@ -374,7 +374,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 2f)
             val result = dp1 / dp2
-            result.getIdForCreationState(it)
+            it.getId(result)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(5f)
     }
@@ -384,7 +384,7 @@ class RemoteDpTest {
         val resultId = initialise {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val result = dp1 * 2f
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(20f)
     }
@@ -395,7 +395,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 5f)
             val result = min(dp1, dp2)
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(5f)
     }
@@ -406,7 +406,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 5f)
             val result = max(dp1, dp2)
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(10f)
     }
@@ -417,7 +417,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 5f)
             val dp2 = createNamedRemoteDp("dp2", 10f)
             val result = dp1.isLessThan(dp2)
-            result.getIdForCreationState(it)
+            it.getId(result)
         }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
     }
@@ -428,7 +428,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 5f)
             val result = dp1.isLessThan(dp2)
-            result.getIdForCreationState(it)
+            it.getId(result)
         }
         assertThat(context.getInteger(resultId)).isEqualTo(0)
     }
@@ -439,7 +439,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 5f)
             val dp2 = createNamedRemoteDp("dp2", 5f)
             val result = dp1.isLessThanOrEqualTo(dp2)
-            result.getIdForCreationState(it)
+            it.getId(result)
         }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
     }
@@ -450,7 +450,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 5f)
             val result = dp1.isGreaterThan(dp2)
-            result.getIdForCreationState(it)
+            it.getId(result)
         }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
     }
@@ -461,7 +461,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 10f)
             val result = dp1.isGreaterThanOrEqualTo(dp2)
-            result.getIdForCreationState(it)
+            it.getId(result)
         }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
     }
@@ -472,7 +472,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 10f)
             val result = dp1.isEqualTo(dp2)
-            result.getIdForCreationState(it)
+            it.getId(result)
         }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
     }
@@ -483,7 +483,7 @@ class RemoteDpTest {
             val dp1 = createNamedRemoteDp("dp1", 10f)
             val dp2 = createNamedRemoteDp("dp2", 5f)
             val result = dp1.isNotEqualTo(dp2)
-            result.getIdForCreationState(it)
+            it.getId(result)
         }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
     }
@@ -498,10 +498,10 @@ class RemoteDpTest {
                 val namedDpFromFloat = createNamedRemoteDp("testDp2", 48f)
                 val namedPx = namedDp.toPx()
 
-                val literalDpId = dpValue.value.getIdForCreationState(it)
-                val namedDpId = namedDp.value.getIdForCreationState(it)
-                val namedDpFromFloatId = namedDpFromFloat.value.getIdForCreationState(it)
-                val namedPxId = namedPx.getIdForCreationState(it)
+                val literalDpId = it.getId(dpValue.value)
+                val namedDpId = it.getId(namedDp.value)
+                val namedDpFromFloatId = it.getId(namedDpFromFloat.value)
+                val namedPxId = it.getId(namedPx)
                 listOf(literalDpId, namedDpId, namedDpFromFloatId, namedPxId)
             }
 
@@ -517,8 +517,8 @@ class RemoteDpTest {
             initialise { creationState ->
                 val namedDp = createNamedRemoteDp("hostDp") { 48.rdp }
                 val namedPx = namedDp.toPx(RemoteDensity.Host)
-                val namedDpId = namedDp.value.getIdForCreationState(creationState)
-                val namedPxId = namedPx.getIdForCreationState(creationState)
+                val namedDpId = creationState.getId(namedDp.value)
+                val namedPxId = creationState.getId(namedPx)
                 Pair(namedDpId, namedPxId)
             }
 
@@ -531,7 +531,7 @@ class RemoteDpTest {
         val resultId = initialise {
             val base = createNamedRemoteDp("base", 20f)
             val derived = createNamedRemoteDp("derived") { base + 10.rdp }
-            derived.value.getIdForCreationState(it)
+            it.getId(derived.value)
         }
 
         assertThat(context.getFloat(resultId)).isEqualTo(30f)

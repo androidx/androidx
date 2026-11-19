@@ -32,7 +32,7 @@ class RemoteLongTest {
     @Test
     fun namedRemoteLong_initialValue() {
         val namedRemoteLong = createNamedRemoteLong("testLong", 100L)
-        val longId = namedRemoteLong.getIdForCreationState(creationState)
+        val longId = creationState.getId(namedRemoteLong)
 
         makeAndPaintCoreDocument()
 
@@ -42,7 +42,7 @@ class RemoteLongTest {
     @Test
     fun namedRemoteLong_setValue() {
         val namedRemoteLong = createNamedRemoteLong("testLong", 100L)
-        val longId = namedRemoteLong.getIdForCreationState(creationState)
+        val longId = creationState.getId(namedRemoteLong)
 
         makeAndUpdateCoreDocument { context.setNamedLong("USER:testLong", 20) }
 
@@ -63,12 +63,12 @@ class RemoteLongTest {
         val diff = long1 - long2
         val prod = long1 * long2
 
-        val sumLowId = sum.low.getIdForCreationState(creationState)
-        val sumHighId = sum.high.getIdForCreationState(creationState)
-        val diffLowId = diff.low.getIdForCreationState(creationState)
-        val diffHighId = diff.high.getIdForCreationState(creationState)
-        val prodLowId = prod.low.getIdForCreationState(creationState)
-        val prodHighId = prod.high.getIdForCreationState(creationState)
+        val sumLowId = creationState.getId(sum.low)
+        val sumHighId = creationState.getId(sum.high)
+        val diffLowId = creationState.getId(diff.low)
+        val diffHighId = creationState.getId(diff.high)
+        val prodLowId = creationState.getId(prod.low)
+        val prodHighId = creationState.getId(prod.high)
 
         val val1 = 0x123456789ABCDEFL
         val val2 = 0x11111111111111L
@@ -249,7 +249,7 @@ class RemoteLongTest {
     @Test
     fun mutableRemoteLong_smokeTest() {
         val mutableLong = MutableRemoteLong(100L)
-        val resultId = mutableLong.getIdForCreationState(creationState)
+        val resultId = creationState.getId(mutableLong)
         makeAndPaintCoreDocument()
 
         assertThat(context.getLong(resultId)).isEqualTo(100L)
@@ -281,30 +281,30 @@ class RemoteLongTest {
         }
 
     @Test
-    fun toDebugString_constant() {
+    fun toString_constant() {
         val rl = RemoteLong(123456789L)
-        assertThat(rl.toDebugString()).isEqualTo("123456789")
+        assertThat(rl.toString()).isEqualTo("123456789")
     }
 
     @Test
-    fun toDebugString_variable() {
+    fun toString_variable() {
         val rl = createNamedRemoteLong("testLong", 100L)
-        assertThat(rl.toDebugString()).isEqualTo("user:testLong")
+        assertThat(rl.toString()).isEqualTo("user:testLong")
     }
 
     @Test
-    fun toDebugString_arithmetic() {
+    fun toString_arithmetic() {
         val l1 = createNamedRemoteLong("l1", 1000L)
         val l2 = createNamedRemoteLong("l2", 2000L)
-        assertThat((l1 + l2).toDebugString()).isEqualTo("user:l1 + user:l2")
-        assertThat((l1 * l2).toDebugString()).isEqualTo("user:l1 * user:l2")
+        assertThat((l1 + l2).toString()).isEqualTo("user:l1 + user:l2")
+        assertThat((l1 * l2).toString()).isEqualTo("user:l1 * user:l2")
     }
 
     @Test
-    fun toDebugString_contextVariable() {
+    fun toString_contextVariable() {
         val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val longExpr = RemoteLong.fromLowHigh(continuousSecFloat.toRemoteInt(), 0.ri)
-        assertThat(longExpr.toDebugString())
+        assertThat(longExpr.toString())
             .isEqualTo("fromLowHigh(context:continuous_sec.toRemoteInt(), 0)")
     }
 }

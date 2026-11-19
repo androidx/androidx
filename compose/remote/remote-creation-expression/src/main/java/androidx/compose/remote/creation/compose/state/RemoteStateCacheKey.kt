@@ -25,9 +25,10 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.runtime.Immutable
 import java.lang.ref.WeakReference
+import kotlin.reflect.KClass
 
 /**
- * Represents a key used for caching [BaseRemoteState] instances or expressions in
+ * Represents a key used for caching [RemoteState] instances or expressions in
  * [androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState].
  *
  * Caching based on these keys prevents redundant operations and document writes when the same
@@ -109,7 +110,7 @@ internal fun Enum<*>.formatCamelCaseFunction(args: List<RemoteStateCacheKey>): S
     "${name.replaceFirstChar { it.lowercase() }}(${args.joinToDebugString()})"
 
 /**
- * Interface implemented by remote operation keys (e.g. `RemoteFloat.OperationKey`) to define
+ * Interface implemented by remote operation keys (e.g. [RemoteFloatOperationKey]) to define
  * precedence, custom AST debug formatting (e.g. `user:a + user:b`), and AST node reconstruction.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -121,12 +122,12 @@ public interface RemoteOperation {
     public fun toDebugString(args: List<RemoteStateCacheKey>): String
 
     /**
-     * Reconstructs the [BaseRemoteState] operation using the new [args].
+     * Reconstructs the [RemoteState] operation using the new [args].
      *
-     * @param args The transformed argument list of [BaseRemoteState] instances.
-     * @return The reconstructed [BaseRemoteState] instance.
+     * @param args The transformed argument list of [RemoteState] instances.
+     * @return The reconstructed [RemoteState] instance.
      */
-    public fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
+    public fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
         throw UnsupportedOperationException("Reconstruction is not supported for $this")
 }
 
@@ -163,17 +164,17 @@ public abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
     private var _hashCode: Int = 0
 
     /**
-     * Associated BaseRemoteState instance, used for common sub-expression elimination and DAG
+     * Associated [RemoteState] instance, used for common sub-expression elimination and DAG
      * traversal. Default implementation returns null. Note to save memory this deliberately doesn't
      * have a backing field because not all sub-classes need it.
      */
-    public open fun getState(): BaseRemoteState<*>? = null
+    public open fun getState(): RemoteState<*>? = null
 
     /**
-     * Associates this key with a BaseRemoteState instance. Default implementation is a no-op to
-     * avoid allocating backing fields on keys that do not retain state.
+     * Associates this key with a [RemoteState] instance. Default implementation is a no-op to avoid
+     * allocating backing fields on keys that do not retain state.
      */
-    public open fun setState(state: BaseRemoteState<*>?) {}
+    public open fun setState(state: RemoteState<*>?) {}
 
     final override fun hashCode(): Int {
         if (_hashCode == 0) {
@@ -191,11 +192,11 @@ public abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
 /** A fallback cache key based on the identity of this key instance. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteStateInstanceKey : BaseRemoteStateCacheKey() {
-    private var state: BaseRemoteState<*>? = null
+    private var state: RemoteState<*>? = null
 
-    override fun getState(): BaseRemoteState<*>? = state
+    override fun getState(): RemoteState<*>? = state
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         this.state = state
     }
 
@@ -207,11 +208,11 @@ public class RemoteStateInstanceKey : BaseRemoteStateCacheKey() {
 }
 
 internal class RemoteStateArrayKey(internal val size: Int) : BaseRemoteStateCacheKey() {
-    private var state: BaseRemoteState<*>? = null
+    private var state: RemoteState<*>? = null
 
-    override fun getState(): BaseRemoteState<*>? = state
+    override fun getState(): RemoteState<*>? = state
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         this.state = state
     }
 
@@ -225,11 +226,11 @@ internal class RemoteStateArrayKey(internal val size: Int) : BaseRemoteStateCach
 /** A cache key for constant values (primitive types, strings, etc.). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteConstantCacheKey(public val value: Any?) : BaseRemoteStateCacheKey() {
-    private var stateRef: WeakReference<BaseRemoteState<*>>? = null
+    private var stateRef: WeakReference<RemoteState<*>>? = null
 
-    override fun getState(): BaseRemoteState<*>? = stateRef?.get()
+    override fun getState(): RemoteState<*>? = stateRef?.get()
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         stateRef = if (state != null) WeakReference(state) else null
     }
 
@@ -272,11 +273,11 @@ public class RemoteConstantCacheKey(public val value: Any?) : BaseRemoteStateCac
 /** A cache key for constant color values, identified by their packed ARGB integer value. */
 internal class RemoteColorConstantCacheKey(@ColorInt internal val color: Int) :
     BaseRemoteStateCacheKey() {
-    private var state: BaseRemoteState<*>? = null
+    private var state: RemoteState<*>? = null
 
-    override fun getState(): BaseRemoteState<*>? = state
+    override fun getState(): RemoteState<*>? = state
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         this.state = state
     }
 
@@ -300,11 +301,11 @@ public class RemoteNamedCacheKey(
     public val domain: RemoteState.Domain,
     public val name: String,
 ) : BaseRemoteStateCacheKey() {
-    private var state: BaseRemoteState<*>? = null
+    private var state: RemoteState<*>? = null
 
-    override fun getState(): BaseRemoteState<*>? = state
+    override fun getState(): RemoteState<*>? = state
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         this.state = state
     }
 
@@ -329,11 +330,11 @@ public class RemoteNamedCacheKey(
 
 /** A cache key for variable by id. */
 internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey() {
-    private var state: BaseRemoteState<*>? = null
+    private var state: RemoteState<*>? = null
 
-    override fun getState(): BaseRemoteState<*>? = state
+    override fun getState(): RemoteState<*>? = state
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         this.state = state
     }
 
@@ -393,6 +394,9 @@ internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey(
 /** A synthetic state wrapper for literal [FloatArray] arguments in operations. */
 internal class FloatArrayRemoteState(internal val floatArray: FloatArray, key: FloatArrayCacheKey) :
     BaseRemoteState<FloatArray>(key) {
+    override val equalityType: KClass<*>
+        get() = FloatArrayRemoteState::class
+
     override val constantValueOrNull: FloatArray
         get() = floatArray
 
@@ -434,11 +438,11 @@ internal constructor(
 
     internal constructor(token: RemoteComponentToken, type: String) : this(-1, type, token)
 
-    private var state: BaseRemoteState<*>? = null
+    private var state: RemoteState<*>? = null
 
-    override fun getState(): BaseRemoteState<*>? = state
+    override fun getState(): RemoteState<*>? = state
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         this.state = state
     }
 
@@ -481,11 +485,11 @@ public class RemoteOperationCacheKey(
     public val op: Enum<*>,
     override val args: List<RemoteStateCacheKey>,
 ) : BaseRemoteStateCacheKey() {
-    private var state: BaseRemoteState<*>? = null
+    private var state: RemoteState<*>? = null
 
-    override fun getState(): BaseRemoteState<*>? = state
+    override fun getState(): RemoteState<*>? = state
 
-    override fun setState(state: BaseRemoteState<*>?) {
+    override fun setState(state: RemoteState<*>?) {
         this.state = state
     }
 
@@ -556,9 +560,7 @@ internal fun toCacheKeyList(args: Array<out Any?>): List<RemoteStateCacheKey> {
 /** The cache key for this remote state within the RemoteComposeCreationState. */
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val RemoteState<*>.cacheKey: RemoteStateCacheKey
-    get() =
-        if (this is BaseRemoteState<*>) cacheKey
-        else throw IllegalArgumentException("Not a BaseRemoteState")
+    get() = requireRemoteStateAccess().cacheKey
 
 /** The canonical domain identifier for user-defined state in the RemoteCompose wire protocol. */
 internal const val USER_DOMAIN: String = "USER"

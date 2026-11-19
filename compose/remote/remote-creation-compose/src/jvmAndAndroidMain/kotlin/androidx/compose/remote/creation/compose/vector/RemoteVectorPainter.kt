@@ -123,7 +123,7 @@ internal fun createColorFilter(
     tintColor: RemoteColor,
     tintBlendMode: RemoteBlendMode,
 ): RemoteColorFilter? =
-    if (tintColor.isStructurallyEqual(RemoteColor.Transparent)) {
+    if (tintColor == RemoteColor.Transparent) {
         null
     } else {
         RemoteBlendModeColorFilter(tintColor, tintBlendMode)

@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.text
 
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.runtime.Immutable
 
 /** Font variation settings for variable fonts, with axis values as [RemoteFloat]s. */
@@ -47,7 +48,7 @@ public object RemoteFontVariation {
             if (constantValue != null && otherConstantValue != null) {
                 return constantValue == otherConstantValue
             }
-            return value.isStructurallyEqual(other.value)
+            return value == other.value
         }
 
         override fun hashCode(): Int {

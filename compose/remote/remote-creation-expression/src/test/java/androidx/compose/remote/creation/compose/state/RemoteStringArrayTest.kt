@@ -33,7 +33,7 @@ class RemoteStringArrayTest {
         val remoteStringArray = RemoteStringArray(listOf("A".rs, "B".rs, "C".rs))
 
         val result = remoteStringArray[1]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -46,7 +46,7 @@ class RemoteStringArrayTest {
             RemoteStringArray(listOf("A".rs, createNamedRemoteString("test", "B"), "C".rs))
 
         val result = remoteStringArray[1]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -59,7 +59,7 @@ class RemoteStringArrayTest {
         val index = 1.ri
 
         val result = remoteStringArray[index]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -72,7 +72,7 @@ class RemoteStringArrayTest {
         val index = 1f.rf
 
         val result = remoteStringArray[index.toRemoteInt()]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -80,16 +80,16 @@ class RemoteStringArrayTest {
     }
 
     @Test
-    fun toDebugString_create() {
+    fun toString_create() {
         val arr = RemoteStringArray(listOf("A".rs, "B".rs))
-        assertThat(arr.toDebugString()).isEqualTo("""arrayOf("A", "B")""")
+        assertThat(arr.toString()).isEqualTo("""arrayOf("A", "B")""")
     }
 
     @Test
-    fun toDebugString_get() {
+    fun toString_get() {
         val arr = RemoteStringArray(listOf("A".rs, "B".rs))
         val idx = createNamedRemoteInt("idx", 1)
-        assertThat(arr[idx].toDebugString()).isEqualTo("""arrayOf("A", "B")[user:idx]""")
+        assertThat(arr[idx].toString()).isEqualTo("""arrayOf("A", "B")[user:idx]""")
     }
 
     private fun makeAndPaintCoreDocument() = context.loadDocument(creationState)

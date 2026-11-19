@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathScope

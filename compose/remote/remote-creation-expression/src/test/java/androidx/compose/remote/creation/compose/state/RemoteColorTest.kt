@@ -50,7 +50,7 @@ class RemoteColorTest {
         val s = 0.5f.rf
         val v = 0.25f.rf
         val result = RemoteColor.hsv(hue = h, saturation = s, value = v)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         val expectedColorInt = argb(255, 48, 32, 64)
@@ -67,12 +67,12 @@ class RemoteColorTest {
         val s = 0.5f.rf.createReference()
         val v = 0.25f.rf.createReference()
         val result = RemoteColor.hsv(hue = h, saturation = s, value = v)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
-        val alphaId = result.alpha.getIdForCreationState(creationState)
-        val redId = result.red.getIdForCreationState(creationState)
-        val greenId = result.green.getIdForCreationState(creationState)
-        val blueId = result.blue.getIdForCreationState(creationState)
+        val alphaId = creationState.getId(result.alpha)
+        val redId = creationState.getId(result.red)
+        val greenId = creationState.getId(result.green)
+        val blueId = creationState.getId(result.blue)
 
         makeAndPaintCoreDocument()
 
@@ -90,7 +90,7 @@ class RemoteColorTest {
         val s = 0.5f.rf
         val v = 0.25f.rf
         val result = RemoteColor.fromAHSV(alpha = 127, hue = h, saturation = s, value = v)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         val expectedColorInt = argb(127, 48, 32, 64)
@@ -108,7 +108,7 @@ class RemoteColorTest {
         val g = 0.5f.rf
         val b = 0.25f.rf
         val result = RemoteColor.rgb(red = r, green = g, blue = b, alpha = a)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(argb(255, 191, 128, 64))
@@ -121,7 +121,7 @@ class RemoteColorTest {
     @Test
     fun red() {
         val result = referenceColor.red
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isWithin(1f / 255f).of(0.25f)
@@ -130,7 +130,7 @@ class RemoteColorTest {
     @Test
     fun green() {
         val result = referenceColor.green
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isWithin(1f / 255f).of(0.5f)
@@ -139,7 +139,7 @@ class RemoteColorTest {
     @Test
     fun blue() {
         val result = referenceColor.blue
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isWithin(1f / 255f).of(0.75f)
@@ -148,7 +148,7 @@ class RemoteColorTest {
     @Test
     fun alpha() {
         val result = referenceColor.alpha
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isWithin(1f / 255f).of(0.1f)
@@ -157,7 +157,7 @@ class RemoteColorTest {
     @Test
     fun hue() {
         val result = referenceHsvColor.hue
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isWithin(1f / 255f).of(0.75f)
@@ -166,7 +166,7 @@ class RemoteColorTest {
     @Test
     fun saturation() {
         val result = referenceHsvColor.saturation
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isWithin(1f / 255f).of(0.5f)
@@ -175,7 +175,7 @@ class RemoteColorTest {
     @Test
     fun brightness() {
         val result = referenceHsvColor.brightness
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isWithin(1f / 255f).of(0.25f)
@@ -186,7 +186,7 @@ class RemoteColorTest {
         val red = RemoteColor(COLOR_RED)
         val green = RemoteColor(COLOR_GREEN)
         val result = lerp(red, green, RemoteFloat(0f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(COLOR_RED)
@@ -206,10 +206,10 @@ class RemoteColorTest {
         val green = RemoteColor(COLOR_GREEN)
 
         val result0 = lerp(green, red, RemoteFloat(0.26f))
-        result0.getIdForCreationState(creationState)
+        creationState.getId(result0)
 
         val result = lerp(red, green, RemoteFloat(0.25f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -222,7 +222,7 @@ class RemoteColorTest {
         val red = RemoteColor(COLOR_RED)
         val green = RemoteColor(COLOR_GREEN)
         val result = lerp(red, green, RemoteFloat(0.25f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(argb(255, 223, 135, 0))
@@ -233,7 +233,7 @@ class RemoteColorTest {
         val red = RemoteColor(COLOR_RED)
         val green = RemoteColor(COLOR_GREEN)
         val result = lerp(red, green, RemoteFloat(0.75f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(argb(255, 135, 223, 0))
@@ -244,7 +244,7 @@ class RemoteColorTest {
         val red = RemoteColor(COLOR_RED)
         val green = RemoteColor(COLOR_GREEN)
         val result = lerp(red, green, RemoteFloat(1f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(COLOR_GREEN)
@@ -253,7 +253,7 @@ class RemoteColorTest {
     @Test
     fun tweenColorInt() {
         val result = lerp(COLOR_RED, COLOR_GREEN, RemoteFloat(0.25f))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(argb(255, 223, 135, 0))
@@ -276,7 +276,7 @@ class RemoteColorTest {
                 alpha = RemoteFloat(0.8f),
             )
         val result = a * b
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(argb(204, 153, 102, 51))
@@ -293,10 +293,10 @@ class RemoteColorTest {
         val aRed = a.copy(red = 0f.rf)
         val aGreen = a.copy(green = 0f.rf)
         val aBlue = a.copy(blue = 0f.rf)
-        val resultIdAlpha = aAlpha.getIdForCreationState(creationState)
-        val resultIdRed = aRed.getIdForCreationState(creationState)
-        val resultIdGreen = aGreen.getIdForCreationState(creationState)
-        val resultIdBlue = aBlue.getIdForCreationState(creationState)
+        val resultIdAlpha = creationState.getId(aAlpha)
+        val resultIdRed = creationState.getId(aRed)
+        val resultIdGreen = creationState.getId(aGreen)
+        val resultIdBlue = creationState.getId(aBlue)
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultIdAlpha)).isEqualTo(argb(0, 255, 255, 255))
@@ -444,9 +444,9 @@ class RemoteColorTest {
         val red2 = createNamedRemoteColor("red", COLOR_RED)
         val green = createNamedRemoteColor("green", COLOR_GREEN)
 
-        val redId = red.getIdForCreationState(creationState)
-        val red2Id = red2.getIdForCreationState(creationState)
-        val greenId = green.getIdForCreationState(creationState)
+        val redId = creationState.getId(red)
+        val red2Id = creationState.getId(red2)
+        val greenId = creationState.getId(green)
 
         assertThat(redId).isEqualTo(red2Id)
         assertThat(redId).isNotEqualTo(greenId)
@@ -469,31 +469,31 @@ class RemoteColorTest {
     }
 
     @Test
-    fun toDebugString_variable() {
+    fun toString_variable() {
         val c = createNamedRemoteColor("col", COLOR_RED)
-        assertThat(c.toDebugString()).isEqualTo("user:col")
+        assertThat(c.toString()).isEqualTo("user:col")
     }
 
     @Test
-    fun toDebugString_fromHSV() {
+    fun toString_fromHSV() {
         val x = createNamedRemoteFloat("h", 0.5f)
         val y = createNamedRemoteFloat("s", 0.2f)
         val z = createNamedRemoteFloat("v", 0.1f)
         val hsv = RemoteColor.hsv(hue = x, saturation = y, value = z)
-        assertThat(hsv.toDebugString()).isEqualTo("fromHSV(user:h, user:s, user:v)")
+        assertThat(hsv.toString()).isEqualTo("fromHSV(user:h, user:s, user:v)")
     }
 
     @Test
-    fun toDebugString_contextVariable() {
+    fun toString_contextVariable() {
         val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val colorExpr = RemoteColor.hsv(continuousSecFloat, 1f.rf, 1f.rf)
-        assertThat(colorExpr.toDebugString()).isEqualTo("fromHSV(context:continuous_sec, 1.0, 1.0)")
+        assertThat(colorExpr.toString()).isEqualTo("fromHSV(context:continuous_sec, 1.0, 1.0)")
     }
 
     @Test
-    fun toDebugString_constant() {
+    fun toString_constant() {
         val color = RemoteColor(COLOR_RED)
-        assertThat(color.toDebugString()).isEqualTo("FFFF0000")
+        assertThat(color.toString()).isEqualTo("FFFF0000")
     }
 
     @Test

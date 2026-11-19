@@ -39,8 +39,8 @@ class RemoteEnumTest {
         val b1 = RemoteEnum(Checked.On)
         val i0 = b0.ordinal
         val i1 = b1.ordinal
-        val i0Id = i0.getIdForCreationState(creationState)
-        val i1Id = i1.getIdForCreationState(creationState)
+        val i0Id = creationState.getId(i0)
+        val i1Id = creationState.getId(i1)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(i0Id)).isEqualTo(0)
@@ -53,8 +53,8 @@ class RemoteEnumTest {
         val b1 = RemoteEnum(Checked.On)
         val i0 = b0.toRemoteInt { 10.ri }
         val i1 = b1.toRemoteInt { 20.ri }
-        val i0Id = i0.getIdForCreationState(creationState)
-        val i1Id = i1.getIdForCreationState(creationState)
+        val i0Id = creationState.getId(i0)
+        val i1Id = creationState.getId(i1)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(i0Id)).isEqualTo(10)
@@ -67,8 +67,8 @@ class RemoteEnumTest {
         val b1 = RemoteEnum(Checked.On)
         val i0 = b0.toRemoteString { it.name.rs }
         val i1 = b1.toRemoteString()
-        val i0Id = i0.getIdForCreationState(creationState)
-        val i1Id = i1.getIdForCreationState(creationState)
+        val i0Id = creationState.getId(i0)
+        val i1Id = creationState.getId(i1)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(i0Id)).isEqualTo("Off")
@@ -93,35 +93,33 @@ class RemoteEnumTest {
     }
 
     @Test
-    fun toDebugString_constant() {
+    fun toString_constant() {
         val constEnum = RemoteEnum(Checked.Off)
-        assertThat(constEnum.toDebugString()).isEqualTo("Off")
+        assertThat(constEnum.toString()).isEqualTo("Off")
     }
 
     @Test
-    fun toDebugString_namedVariable() {
+    fun toString_namedVariable() {
         val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
-        assertThat(namedEnum.toDebugString()).isEqualTo("user:chk")
-        assertThat(namedEnum.toRemoteString().toDebugString())
-            .isEqualTo("user:chk.toRemoteString()")
+        assertThat(namedEnum.toString()).isEqualTo("user:chk")
+        assertThat(namedEnum.toRemoteString().toString()).isEqualTo("user:chk.toRemoteString()")
     }
 
     @Test
-    fun toDebugString_equality() {
+    fun toString_equality() {
         val constEnum = RemoteEnum(Checked.Off)
         val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
         val eq = namedEnum.ordinal.isEqualTo(constEnum.ordinal)
-        assertThat(eq.toDebugString()).isEqualTo("user:chk == 0")
-        assertThat(namedEnum.ordinal.isEqualTo(Checked.Off.ordinal.ri).toDebugString())
+        assertThat(eq.toString()).isEqualTo("user:chk == 0")
+        assertThat(namedEnum.ordinal.isEqualTo(Checked.Off.ordinal.ri).toString())
             .isEqualTo("user:chk == 0")
     }
 
     @Test
-    fun toDebugString_mapping() {
+    fun toString_mapping() {
         val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
         val mappedInt = namedEnum.toRemoteInt { if (it == Checked.Off) 10.ri else 20.ri }
-        assertThat(mappedInt.toDebugString())
-            .isEqualTo("user:chk == 1 ? 20 : (user:chk == 0 ? 10 : -1)")
+        assertThat(mappedInt.toString()).isEqualTo("user:chk == 1 ? 20 : (user:chk == 0 ? 10 : -1)")
     }
 
     private fun makeAndPaintCoreDocument() = context.loadDocument(creationState)

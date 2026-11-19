@@ -23,11 +23,12 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.CustomPropertyEntry
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
-import androidx.compose.remote.creation.compose.state.BaseRemoteState
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
 
@@ -53,8 +54,8 @@ internal sealed class PendingOp {
 
         override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
             writer.addMatrixTranslate(
-                dx.getFloatIdForCreationState(creationState),
-                dy.getFloatIdForCreationState(creationState),
+                creationState.getFloatId(dx),
+                creationState.getFloatId(dy),
             )
         }
     }
@@ -71,10 +72,10 @@ internal sealed class PendingOp {
 
         override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
             writer.addMatrixScale(
-                sx.getFloatIdForCreationState(creationState),
-                sy.getFloatIdForCreationState(creationState),
-                px?.getFloatIdForCreationState(creationState) ?: Float.NaN,
-                py?.getFloatIdForCreationState(creationState) ?: Float.NaN,
+                creationState.getFloatId(sx),
+                creationState.getFloatId(sy),
+                px?.let { creationState.getFloatId(it) } ?: Float.NaN,
+                py?.let { creationState.getFloatId(it) } ?: Float.NaN,
             )
         }
     }
@@ -86,9 +87,9 @@ internal sealed class PendingOp {
 
         override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
             writer.addMatrixRotate(
-                angle.getFloatIdForCreationState(creationState),
-                px?.getFloatIdForCreationState(creationState) ?: Float.NaN,
-                py?.getFloatIdForCreationState(creationState) ?: Float.NaN,
+                creationState.getFloatId(angle),
+                px?.let { creationState.getFloatId(it) } ?: Float.NaN,
+                py?.let { creationState.getFloatId(it) } ?: Float.NaN,
             )
         }
     }
@@ -100,8 +101,8 @@ internal sealed class PendingOp {
 
         override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
             writer.addMatrixSkew(
-                sx.getFloatIdForCreationState(creationState),
-                sy.getFloatIdForCreationState(creationState),
+                creationState.getFloatId(sx),
+                creationState.getFloatId(sy),
             )
         }
     }
@@ -439,9 +440,9 @@ internal sealed class CanvasOp {
     }
 
     /** Represents an expression evaluation (hoisted variable assignment). */
-    class Expression(val key: RemoteOperationCacheKey, val state: BaseRemoteState<*>) : CanvasOp() {
+    class Expression(val key: RemoteOperationCacheKey, val state: RemoteState<*>) : CanvasOp() {
         override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
-            state.getIdForCreationState(creationState)
+            creationState.getId(state)
         }
 
         // Variable/expression definition only; does not draw pixels directly.
@@ -487,7 +488,7 @@ internal sealed class CanvasOp {
         // Conditional block can be pruned if its child span emits no wire commands when executed.
         override fun shouldPrune(buffer: CanvasOperationBuffer) = !childSpan.emitsWireCommands()
 
-        override fun toString(): String = "DrawConditionally(${condition.toDebugString()})"
+        override fun toString(): String = "DrawConditionally($condition)"
     }
 
     /**
@@ -781,7 +782,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     internal var insertPoint = spanTreeRoot
     private val operationMap = HashMap<RemoteStateCacheKey, SpanOp>()
     private val usageMap = LinkedHashMap<RemoteStateCacheKey, ArrayList<SpanOp>>()
-    private val expressionMap = LinkedHashMap<RemoteStateCacheKey, BaseRemoteState<*>>()
+    private val expressionMap = LinkedHashMap<RemoteStateCacheKey, RemoteState<*>>()
     private var globalSaveCounter: Int = 0
     internal var initialSpanSaveCount: Int = 0
     internal var currentSaveRestoreNode: CanvasOp.SaveRestore? = null
@@ -937,7 +938,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
      */
     public fun addRoots(op: SpanOp, vararg states: Any?) {
         for (state in states) {
-            if (state is BaseRemoteState<*>) {
+            if (state is RemoteState<*>) {
                 expressionMap[state.cacheKey] = state
                 usageMap.getOrPut(state.cacheKey) { ArrayList() }.add(op)
             }
@@ -1477,7 +1478,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         val idealSpan = keyToIdealSpan[key] ?: return
 
         val state = expressionMap[key] ?: key.getState()
-        if (state is BaseRemoteState<*>) {
+        if (state is RemoteState<*>) {
             // Recurse on children first!
             for (i in 0 until key.args.size) {
                 val arg = key.args[i]

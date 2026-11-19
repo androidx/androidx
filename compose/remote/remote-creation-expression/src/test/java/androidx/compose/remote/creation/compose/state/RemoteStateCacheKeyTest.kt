@@ -87,12 +87,12 @@ class RemoteStateCacheKeyTest {
 
     @Test
     fun remoteOperationCacheKey_Equality() {
-        val op = RemoteFloat.OperationKey.Plus
+        val op = RemoteFloatOperationKey.Plus
         val key1 = RemoteOperationCacheKey.create(op, 10f.rf, 5f.rf)
         val key1Dup = RemoteOperationCacheKey.create(op, 10f.rf, 5f.rf)
         val key2 = RemoteOperationCacheKey.create(op, 10f.rf, 6f.rf)
         val keyDifferentOp =
-            RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Minus, 10f.rf, 5f.rf)
+            RemoteOperationCacheKey.create(RemoteFloatOperationKey.Minus, 10f.rf, 5f.rf)
 
         assertThat(key1).isEqualTo(key1Dup)
         assertThat(key1.hashCode()).isEqualTo(key1Dup.hashCode())
@@ -103,7 +103,7 @@ class RemoteStateCacheKeyTest {
 
     @Test
     fun remoteOperationCacheKey_EqualityWithDifferentStateInstances() {
-        val op = RemoteFloat.OperationKey.Plus
+        val op = RemoteFloatOperationKey.Plus
         // Create two different RemoteFloat instances with the same constant value
         // They will have the same RemoteConstantCacheKey
         val state1 = RemoteFloat(10f)
@@ -129,8 +129,8 @@ class RemoteStateCacheKeyTest {
 
     @Test
     fun crossTypeCollisions_ToString() {
-        val intOp = RemoteInt.OperationKey.ToRemoteString
-        val floatOp = RemoteFloat.OperationKey.ToRemoteString
+        val intOp = RemoteIntOperationKey.ToRemoteString
+        val floatOp = RemoteFloatOperationKey.ToRemoteString
 
         val intKey = RemoteOperationCacheKey.create(intOp, 10.ri)
         val floatKey = RemoteOperationCacheKey.create(floatOp, 10f.rf)
@@ -141,8 +141,8 @@ class RemoteStateCacheKeyTest {
 
     @Test
     fun crossTypeCollisions_Plus() {
-        val intOp = RemoteInt.OperationKey.Add
-        val floatOp = RemoteFloat.OperationKey.Plus
+        val intOp = RemoteIntOperationKey.Add
+        val floatOp = RemoteFloatOperationKey.Plus
 
         val intKey = RemoteOperationCacheKey.create(intOp, 10.ri, 5.ri)
         val floatKey = RemoteOperationCacheKey.create(floatOp, 10f.rf, 5f.rf)
@@ -273,7 +273,7 @@ class RemoteStateCacheKeyTest {
                 RemoteNamedCacheKey(RemoteState.Domain.User, "test"),
                 RemoteStateIdKey(123),
                 RemoteComponentCacheKey(1, "width"),
-                RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Plus, 1f.rf, 2f.rf),
+                RemoteOperationCacheKey.create(RemoteFloatOperationKey.Plus, 1f.rf, 2f.rf),
                 FloatArrayCacheKey(floatArrayOf(1f)),
             )
 
@@ -304,7 +304,7 @@ class RemoteStateCacheKeyTest {
      */
     @Test
     fun remoteOperationCacheKey_HashCode_IsDeterministic() {
-        val op = RemoteFloat.OperationKey.Plus
+        val op = RemoteFloatOperationKey.Plus
         val key = RemoteOperationCacheKey.create(op, 10f.rf, 5f.rf)
         val expectedOpHash = op.declaringJavaClass.name.hashCode() + op.name.hashCode()
         val expectedHash =
@@ -317,7 +317,7 @@ class RemoteStateCacheKeyTest {
      */
     @Test
     fun remoteConstantCacheKey_Enum_HashCode_IsDeterministic() {
-        val op = RemoteFloat.OperationKey.Plus
+        val op = RemoteFloatOperationKey.Plus
         val key = RemoteConstantCacheKey(op)
         val expectedHash =
             (op.declaringJavaClass.name.hashCode() + op.name.hashCode()).let {

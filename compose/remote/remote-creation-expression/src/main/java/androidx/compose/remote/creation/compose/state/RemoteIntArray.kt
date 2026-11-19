@@ -19,72 +19,71 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import kotlin.reflect.KClass
 
 /** Represents an array of remote integers. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteIntArray
-internal constructor(
-    public override val constantValueOrNull: List<RemoteInt>?,
-    cacheKey: RemoteStateCacheKey,
-) : BaseRemoteState<List<RemoteInt>>(cacheKey) {
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(
-        constantValueOrNull: List<RemoteInt>?
-    ) : this(
-        constantValueOrNull,
-        constantValueOrNull?.let { values ->
-            RemoteOperationCacheKey.create(OperationKey.Create, *values.toTypedArray())
-        } ?: RemoteStateInstanceKey(),
-    )
-
-    public constructor(vararg values: Int) : this(values.map { RemoteInt(it) })
-
-    internal enum class OperationKey : RemoteOperation {
-        Create {
-            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
-                "arrayOf(${args.joinToDebugString()})"
-
-            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
-                RemoteIntArray(args.fastMap { it as RemoteInt })
-        },
-        Get {
-            override val precedence: Int
-                get() = 100
-
-            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
-                args.formatArrayAccess(precedence)
-
-            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
-                val array = args[0] as RemoteIntArray
-                return when (val index = args[1]) {
-                    is RemoteInt -> array[index]
-                    is RemoteFloat -> array[index]
-                    else -> throw IllegalArgumentException("Unsupported index type: $index")
-                }
-            }
-        },
-    }
-
-    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        // If this instance represents an existing allocated ID (e.g. a formal parameter in a
-        // pattern definition), return that ID directly instead of writing to the document.
-        if (cacheKey is RemoteStateIdKey) {
-            return (cacheKey as RemoteStateIdKey).id
-        }
-        val values =
-            constantValueOrNull!!.fastMap { it.getIdForCreationState(creationState) }.toIntArray()
-        return Utils.idFromNan(creationState.document.addList(values))
-    }
+public sealed interface RemoteIntArray : RemoteState<List<RemoteInt>> {
+    override val constantValueOrNull: List<RemoteInt>?
 
     /** Array access operator for [RemoteIntArray] with an [Int] index. */
-    public operator fun get(v: Int): RemoteInt = constantValueOrNull?.get(v) ?: get(RemoteInt(v))
+    public operator fun get(v: Int): RemoteInt
 
     /**
      * Array access operator for [RemoteIntArray] with a [RemoteInt] index. Performs an ID lookup on
      * a remote integer array.
      */
-    public operator fun get(v: RemoteInt): RemoteInt {
+    public operator fun get(v: RemoteInt): RemoteInt
+
+    /**
+     * Array access operator for [RemoteIntArray] with a [RemoteFloat] index. Performs an ID lookup
+     * on a remote integer array.
+     */
+    public operator fun get(v: RemoteFloat): RemoteInt
+
+    public companion object {
+        /** Creates a [RemoteIntArray] referencing a remote ID. */
+        public fun createForId(id: Int): RemoteIntArray =
+            RemoteIntArrayImpl(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id))
+    }
+}
+
+private enum class IntArrayOperationKey : RemoteOperation {
+    Create {
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+            "arrayOf(${args.joinToDebugString()})"
+
+        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+            RemoteIntArray(args.fastMap { it as RemoteInt })
+    },
+    Get {
+        override val precedence: Int
+            get() = 100
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+            args.formatArrayAccess(precedence)
+
+        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+            val array = args[0] as RemoteIntArray
+            return when (val index = args[1]) {
+                is RemoteInt -> array[index]
+                is RemoteFloat -> array[index]
+                else -> throw IllegalArgumentException("Unsupported index type: $index")
+            }
+        }
+    },
+}
+
+private class RemoteIntArrayImpl(
+    override val constantValueOrNull: List<RemoteInt>?,
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteState<List<RemoteInt>>(cacheKey), RemoteIntArray {
+    override val equalityType: KClass<*>
+        get() = RemoteIntArray::class
+
+    override fun get(v: Int): RemoteInt = constantValueOrNull?.get(v) ?: get(RemoteInt(v))
+
+    override fun get(v: RemoteInt): RemoteInt {
         val constArray = constantValueOrNull
         val constIndex = v.constantValueOrNull
         if (constArray != null && constIndex != null) {
@@ -92,23 +91,19 @@ internal constructor(
         }
         return RemoteInt(
             constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
+            cacheKey = RemoteOperationCacheKey.create(IntArrayOperationKey.Get, this, v),
         ) { creationState ->
-            val arrayId = getIdForCreationState(creationState)
+            val arrayId = getId(creationState)
             val resultId =
                 creationState.document.idLookup(
                     Utils.asNan(arrayId),
-                    v.getFloatIdForCreationState(creationState),
+                    creationState.getFloatId(v),
                 )
             longArrayOf(resultId.toLong() + 0x100000000L)
         }
     }
 
-    /**
-     * Array access operator for [RemoteIntArray] with a [RemoteFloat] index. Performs an ID lookup
-     * on a remote integer array.
-     */
-    public operator fun get(v: RemoteFloat): RemoteInt {
+    override fun get(v: RemoteFloat): RemoteInt {
         val constArray = constantValueOrNull
         val constIndex = v.constantValueOrNull
         if (constArray != null && constIndex != null) {
@@ -116,21 +111,40 @@ internal constructor(
         }
         return RemoteInt(
             constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
+            cacheKey = RemoteOperationCacheKey.create(IntArrayOperationKey.Get, this, v),
         ) { creationState ->
-            val arrayId = getIdForCreationState(creationState)
+            val arrayId = getId(creationState)
             val resultId =
                 creationState.document.idLookup(
                     Utils.asNan(arrayId),
-                    v.getFloatIdForCreationState(creationState),
+                    creationState.getFloatId(v),
                 )
             longArrayOf(resultId.toLong() + 0x100000000L)
         }
     }
 
-    public companion object {
-        /** Creates a [RemoteIntArray] referencing a remote ID. */
-        public fun createForId(id: Int): RemoteIntArray =
-            RemoteIntArray(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id))
+    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        // If this instance represents an existing allocated ID (e.g. a formal parameter in a
+        // pattern definition), return that ID directly instead of writing to the document.
+        if (cacheKey is RemoteStateIdKey) {
+            return cacheKey.id
+        }
+        val values = constantValueOrNull!!.fastMap { creationState.getId(it) }.toIntArray()
+        return Utils.idFromNan(creationState.document.addList(values))
     }
 }
+
+/** Creates a [RemoteIntArray] backed by [constantValueOrNull]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteIntArray(constantValueOrNull: List<RemoteInt>?): RemoteIntArray =
+    RemoteIntArrayImpl(
+        constantValueOrNull,
+        constantValueOrNull?.let { values ->
+            RemoteOperationCacheKey.create(IntArrayOperationKey.Create, *values.toTypedArray())
+        } ?: RemoteStateInstanceKey(),
+    )
+
+/** Creates a [RemoteIntArray] from constant [Int] [values]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteIntArray(vararg values: Int): RemoteIntArray =
+    RemoteIntArray(values.map { RemoteInt(it) })

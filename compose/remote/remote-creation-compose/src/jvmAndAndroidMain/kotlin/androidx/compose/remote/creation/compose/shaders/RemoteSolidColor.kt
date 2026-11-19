@@ -20,6 +20,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
@@ -44,7 +45,7 @@ internal class RemoteSolidColor(val color: RemoteColor) : RemoteBrush() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteSolidColor) return false
-        return color.isStructurallyEqual(other.color)
+        return color == other.color
     }
 
     override fun hashCode(): Int = color.cacheKey.hashCode()

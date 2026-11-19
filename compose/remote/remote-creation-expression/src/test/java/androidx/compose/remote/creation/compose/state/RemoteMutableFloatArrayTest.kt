@@ -44,7 +44,7 @@ class RemoteMutableFloatArrayTest {
 
         remoteFloatArray[2] = 1234.rf
         val result = remoteFloatArray[2]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -57,10 +57,10 @@ class RemoteMutableFloatArrayTest {
 
         remoteFloatArray[2] = 1234.rf
         val result1 = remoteFloatArray[2]
-        val resultId1 = result1.getIdForCreationState(creationState)
+        val resultId1 = creationState.getId(result1)
         remoteFloatArray[2] = 5678.rf
         val result2 = remoteFloatArray[2]
-        val resultId2 = result2.getIdForCreationState(creationState)
+        val resultId2 = creationState.getId(result2)
 
         makeAndPaintCoreDocument()
 
@@ -75,7 +75,7 @@ class RemoteMutableFloatArrayTest {
 
         remoteFloatArray[index] = 1234.rf
         val result = remoteFloatArray[2]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -89,10 +89,10 @@ class RemoteMutableFloatArrayTest {
 
         remoteFloatArray[index] = 1234.rf
         val result1 = remoteFloatArray[2]
-        val resultId1 = result1.getIdForCreationState(creationState)
+        val resultId1 = creationState.getId(result1)
         remoteFloatArray[index] = 5678.rf
         val result2 = remoteFloatArray[2]
-        val resultId2 = result2.getIdForCreationState(creationState)
+        val resultId2 = creationState.getId(result2)
 
         makeAndPaintCoreDocument()
 
@@ -125,12 +125,12 @@ class RemoteMutableFloatArrayTest {
 
         remoteFloatArray[index] = 1234.rf
         val result1 = remoteFloatArray[2]
-        val resultId1 = result1.getIdForCreationState(creationState)
-        val resultFloatId1 = result1.getFloatIdForCreationState(creationState)
+        val resultId1 = creationState.getId(result1)
+        val resultFloatId1 = creationState.getFloatId(result1)
         remoteFloatArray[index] = 5678.rf
         val result2 = remoteFloatArray[2]
-        val resultId2 = result2.getIdForCreationState(creationState)
-        val resultFloatId2 = result2.getFloatIdForCreationState(creationState)
+        val resultId2 = creationState.getId(result2)
+        val resultFloatId2 = creationState.getFloatId(result2)
         creationState.document.translate(resultFloatId1, resultFloatId2)
         creationState.document.endConditionalOperations()
 
@@ -202,17 +202,17 @@ class RemoteMutableFloatArrayTest {
     }
 
     @Test
-    fun toDebugString_stateArray() {
+    fun toString_stateArray() {
         val remoteFloatArray = RemoteMutableFloatArray(4)
-        assertThat(remoteFloatArray.toDebugString()).isEqualTo("mutableFloatArray(size=4)")
+        assertThat(remoteFloatArray.toString()).isEqualTo("mutableFloatArray(size=4)")
     }
 
     @Test
-    fun toDebugString_indexing() {
+    fun toString_indexing() {
         val remoteFloatArray = RemoteMutableFloatArray(4)
         val dynIdx = createNamedRemoteInt("i", 1)
         val result = remoteFloatArray[dynIdx]
-        assertThat(result.toDebugString()).isEqualTo("mutableFloatArray(size=4)[user:i]")
+        assertThat(result.toString()).isEqualTo("mutableFloatArray(size=4)[user:i]")
     }
 
     private fun makeAndPaintCoreDocument(cs: RemoteComposeCreationState = creationState) =

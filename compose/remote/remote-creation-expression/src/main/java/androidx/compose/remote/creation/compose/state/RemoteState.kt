@@ -16,9 +16,9 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.runtime.Stable
+import kotlin.reflect.KClass
 
 /**
  * A read-only Remote Compose state value.
@@ -33,6 +33,15 @@ import androidx.compose.runtime.Stable
  * expressions that are evaluated dynamically on the remote player at runtime as inputs change.
  * However, if all input operands have a known constant value ([hasConstantValue] is `true`),
  * constant folding evaluates the result immediately at creation time into a constant [RemoteState].
+ *
+ * **Structural equality (`==`):** Comparing two read-only [RemoteState] values with `==` ([equals])
+ * checks structural equality rather than reference identity: constant states are equal when their
+ * types and constant values match, and dynamic expressions are equal when their types and
+ * expression trees match (for example, identical operations over identical operands or named
+ * variables with the same domain and name). By contrast, [MutableRemoteState] instances compare by
+ * identity (allocated variable instance), so distinct mutable variables are never `==`. Use
+ * [RemoteFloat.isEqualTo] (or the equivalent `isEqualTo` method on typed subclasses) when you need
+ * a runtime [RemoteBoolean] evaluated on the remote player.
  *
  * In Remote Compose recording mode, a type-specific ID is used to refer to a dynamic state within
  * [RemoteComposeCreationState].
@@ -60,15 +69,6 @@ public interface RemoteState<T> {
 
     /** The constant value held by this state, or `null` if the state is dynamic. */
     public val constantValueOrNull: T?
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val asEncoded: RemoteState<*>
-        get() = this
-
-    /** Returns the expression as a human-readable string. */
-    @Suppress("HiddenAbstractMethodInInterface")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun toDebugString(): String
 
     /**
      * The [Domain] namespaces named [RemoteState] variables so document-specific, host-defined, and
@@ -206,12 +206,14 @@ public interface RemoteState<T> {
     }
 }
 
-/** Common base class for all Remote types. */
-public abstract class BaseRemoteState<T : Any>
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open val cacheKey: RemoteStateCacheKey = initialCacheKey
+/**
+ * Common base class for all Remote types.
+ *
+ * Implements structural [equals] and [hashCode] using [equalityType] and [cacheKey].
+ */
+internal abstract class BaseRemoteState<T : Any>(initialCacheKey: RemoteStateCacheKey) :
+    RemoteState<T>, RemoteStateAccess {
+    override val cacheKey: RemoteStateCacheKey = initialCacheKey
 
     init {
         // Register with BaseRemoteStateCacheKey.
@@ -220,29 +222,18 @@ public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toDebugString(): String = cacheKey.toDebugString()
+    internal open val equalityType: KClass<*>
+        get() = this::class
 
-    /** The constant value or null if there isn't one. */
-    public abstract override val constantValueOrNull: T?
+    final override fun equals(other: Any?): Boolean =
+        this === other ||
+            (other is BaseRemoteState<*> &&
+                equalityType == other.equalityType &&
+                cacheKey == other.cacheKey)
 
-    /**
-     * Returns `true` if this [BaseRemoteState] is structurally equal to [other].
-     *
-     * Two remote states are structurally equal if:
-     * - They are the same instance (`this === other`).
-     * - Both evaluate to constant values and those constant values are equal.
-     * - Both are dynamic and have equal [cacheKey]s representing identical AST DAGs.
-     *
-     * @param other The other [BaseRemoteState] to compare with.
-     * @return `true` if structurally equal, `false` otherwise.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun isStructurallyEqual(other: BaseRemoteState<*>?): Boolean {
-        if (this === other) return true
-        if (other == null) return false
-        return cacheKey == other.cacheKey
-    }
+    final override fun hashCode(): Int = 31 * equalityType.hashCode() + cacheKey.hashCode()
+
+    override fun toString(): String = cacheKey.toDebugString()
 
     /**
      * Traverses this [BaseRemoteState] expression DAG using the provided [visitor].
@@ -250,7 +241,7 @@ public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
      * @param visitor The visitor that inspects each node.
      * @return The result of visiting this node.
      */
-    internal open fun <R> accept(visitor: RemoteStateVisitor<R>): R =
+    open fun <R> accept(visitor: RemoteStateVisitor<R>): R =
         cacheKey.accept(visitor, mutableMapOf())
 
     /**
@@ -260,7 +251,7 @@ public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
      * @param visitor The visitor that inspects each node.
      * @return The result of visiting this node.
      */
-    internal open fun <R> accept(
+    open fun <R> accept(
         memo: MutableMap<RemoteStateCacheKey, R>,
         visitor: RemoteStateVisitor<R>,
     ): R = cacheKey.accept(visitor, memo)
@@ -271,27 +262,9 @@ public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
      * @param creationState The [RemoteComposeCreationState] for which the ID will be generated.
      * @return The ID of this remote value, for the given [creationState].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun getIdForCreationState(creationState: RemoteComposeCreationState): Int {
+    override fun getId(creationState: RemoteComposeCreationState): Int {
         return creationState.getOrPutVariableId(cacheKey) { writeToDocument(creationState) }
     }
-
-    /**
-     * @param creationState The [RemoteComposeCreationState] for which the ID will be generated.
-     * @return The ID of this remote value, for the given [creationState] as a long.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun getLongIdForCreationState(creationState: RemoteComposeCreationState): Long {
-        return getIdForCreationState(creationState).toLong() + 0x100000000L
-    }
-
-    /**
-     * @param creationState The [RemoteComposeCreationState] for which the ID will be generated.
-     * @return The ID of this remote value encoded in a Float NaN, for the given [creationState].
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float =
-        Utils.asNan(getIdForCreationState(creationState))
 
     /**
      * Writes the Remote Value to the [creationState] and returns the allocated ID.
@@ -299,9 +272,9 @@ public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
      * @param creationState The [RemoteComposeCreationState] to write to.
      * @return The ID allocated by the [androidx.compose.remote.creation.RemoteComposeWriter].
      */
-    internal open fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+    open fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         throw UnsupportedOperationException(
-            "${this::class.simpleName} must override writeToDocument or getIdForCreationState"
+            "${this::class.simpleName} must override writeToDocument or getId"
         )
     }
 }
@@ -314,9 +287,4 @@ public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
  *
  * @param T The type of the value held by this state.
  */
-@Stable
-public interface MutableRemoteState<T> : RemoteState<T> {
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val asEncodedMutable: MutableRemoteState<*>
-        get() = this
-}
+@Stable public interface MutableRemoteState<T> : RemoteState<T>

@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComponent
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -294,10 +295,10 @@ class RemoteExpressionJvmTest {
             }
         val constantColor = 0xFFFF0000.toInt().rc
         val namedColor = RemoteColor.createNamedRemoteColor("primary", constantColor)
-        val id = namedColor.getIdForCreationState(creationState)
+        val id = creationState.getId(namedColor)
 
         val directNamedColor = RemoteColor.createNamedRemoteColor("primary_int", 0xFFFF0000.toInt())
-        val directId = directNamedColor.getIdForCreationState(creationState)
+        val directId = creationState.getId(directNamedColor)
 
         assertThat(namedColor.constantValueOrNull).isNull()
         assertThat(directNamedColor.constantValueOrNull).isNull()
@@ -328,8 +329,8 @@ class RemoteExpressionJvmTest {
         val namedColor1 = RemoteColor.createNamedRemoteColor("color1", dynamicExpr)
         val namedColor2 = RemoteColor.createNamedRemoteColor("color2", dynamicExpr)
 
-        val id1 = namedColor1.getIdForCreationState(creationState)
-        val id2 = namedColor2.getIdForCreationState(creationState)
+        val id1 = creationState.getId(namedColor1)
+        val id2 = creationState.getId(namedColor2)
 
         assertThat(id1).isNotEqualTo(id2)
 
@@ -387,7 +388,7 @@ class RemoteExpressionJvmTest {
 
         val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val longExpr = RemoteLong.fromLowHigh(continuousSecFloat.toRemoteInt(), 0.ri)
-        assertThat(longExpr.toDebugString())
+        assertThat(longExpr.toString())
             .isEqualTo("fromLowHigh(context:continuous_sec.toRemoteInt(), 0)")
     }
 
@@ -397,5 +398,35 @@ class RemoteExpressionJvmTest {
         assertThat(RemoteOffset.Zero.y.constantValue).isEqualTo(0f)
         assertThat(RemoteOffset.Infinite.x.constantValue).isEqualTo(Float.POSITIVE_INFINITY)
         assertThat(RemoteOffset.Infinite.y.constantValue).isEqualTo(Float.POSITIVE_INFINITY)
+    }
+
+    @Test
+    fun testUnsupportedRemoteState_throwsIllegalArgumentException() {
+        val state = RemoteComposeCreationState()
+        val unsupported =
+            object : RemoteState<Float> {
+                override val constantValueOrNull: Float? = null
+            }
+        val unsupportedMutable =
+            object : MutableRemoteState<Float> {
+                override val constantValueOrNull: Float? = null
+            }
+
+        assertThrows(IllegalArgumentException::class.java) { unsupported.cacheKey }
+        assertThrows(IllegalArgumentException::class.java) { state.asEncoded(unsupported) }
+        assertThrows(IllegalArgumentException::class.java) {
+            state.asEncodedMutable(unsupportedMutable)
+        }
+        assertThat(1f.rf == unsupported).isFalse()
+        assertThat(unsupported == 1f.rf).isFalse()
+        assertThrows(IllegalArgumentException::class.java) {
+            state.getId(unsupported)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            state.getLongId(unsupported)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            state.getFloatId(unsupported)
+        }
     }
 }

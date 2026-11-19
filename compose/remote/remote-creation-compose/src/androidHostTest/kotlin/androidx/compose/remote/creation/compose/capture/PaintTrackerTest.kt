@@ -928,9 +928,7 @@ class PaintTrackerTest {
             val paint = androidPaint.asRemotePaint()
             val colorFilter = paint.colorFilter as RemoteBlendModeColorFilter
 
-            assertWithMessage("$androidBlendMode")
-                .that(colorFilter.color.isStructurallyEqual(filterColor.rc))
-                .isTrue()
+            assertWithMessage("$androidBlendMode").that(colorFilter.color).isEqualTo(filterColor.rc)
             assertWithMessage("$androidBlendMode")
                 .that(colorFilter.blendMode)
                 .isEqualTo(remoteBlendMode)

@@ -31,7 +31,7 @@ class RemoteIntArrayTest {
         val remoteIntArray = RemoteIntArray(10, 20, 30)
 
         val result = remoteIntArray[1]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -44,7 +44,7 @@ class RemoteIntArrayTest {
             RemoteIntArray(listOf(10.ri, RemoteInt.createNamedRemoteInt("test", 20), 30.ri))
 
         val result = remoteIntArray[1]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -57,7 +57,7 @@ class RemoteIntArrayTest {
         val index = 1.ri
 
         val result = remoteIntArray[index]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -70,7 +70,7 @@ class RemoteIntArrayTest {
         val index = 1f.rf
 
         val result = remoteIntArray[index]
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -78,20 +78,20 @@ class RemoteIntArrayTest {
     }
 
     @Test
-    fun toDebugString_creation() {
+    fun toString_creation() {
         val remoteIntArray = RemoteIntArray(1, 2, 3)
-        assertThat(remoteIntArray.toDebugString()).isEqualTo("arrayOf(1, 2, 3)")
+        assertThat(remoteIntArray.toString()).isEqualTo("arrayOf(1, 2, 3)")
     }
 
     @Test
-    fun toDebugString_indexing() {
+    fun toString_indexing() {
         val remoteIntArray = RemoteIntArray(1, 2, 3)
         val idx = RemoteInt.createNamedRemoteInt("idx", 1)
         val result = remoteIntArray[idx]
-        assertThat(result.toDebugString()).isEqualTo("arrayOf(1, 2, 3)[user:idx]")
+        assertThat(result.toString()).isEqualTo("arrayOf(1, 2, 3)[user:idx]")
 
         val floatIdx = RemoteFloat.createNamedRemoteFloat("f", 1f)
-        assertThat(remoteIntArray[floatIdx].toDebugString()).isEqualTo("arrayOf(1, 2, 3)[user:f]")
+        assertThat(remoteIntArray[floatIdx].toString()).isEqualTo("arrayOf(1, 2, 3)[user:f]")
     }
 
     private fun makeAndPaintCoreDocument() = context.loadDocument(creationState)

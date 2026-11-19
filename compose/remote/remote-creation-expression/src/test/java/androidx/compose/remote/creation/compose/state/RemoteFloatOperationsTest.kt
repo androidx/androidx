@@ -29,181 +29,181 @@ import org.junit.runners.JUnit4
 class RemoteFloatOperationsTest {
 
     @Test
-    fun toDebugString_max() {
+    fun toString_max() {
         val a = createNamedRemoteFloat("a", 10f)
         val b = createNamedRemoteFloat("b", 20f)
-        assertThat(max(a, b).toDebugString()).isEqualTo("max(user:a, user:b)")
+        assertThat(max(a, b).toString()).isEqualTo("max(user:a, user:b)")
     }
 
     @Test
-    fun toDebugString_min() {
+    fun toString_min() {
         val a = createNamedRemoteFloat("a", 10f)
         val b = createNamedRemoteFloat("b", 20f)
-        assertThat(min(a, b).toDebugString()).isEqualTo("min(user:a, user:b)")
+        assertThat(min(a, b).toString()).isEqualTo("min(user:a, user:b)")
     }
 
     @Test
-    fun toDebugString_pow() {
+    fun toString_pow() {
         val a = createNamedRemoteFloat("a", 2f)
         val b = createNamedRemoteFloat("b", 3f)
-        assertThat(pow(a, b).toDebugString()).isEqualTo("pow(user:a, user:b)")
+        assertThat(pow(a, b).toString()).isEqualTo("pow(user:a, user:b)")
     }
 
     @Test
-    fun toDebugString_sqrt() {
+    fun toString_sqrt() {
         val a = createNamedRemoteFloat("a", 16f)
-        assertThat(sqrt(a).toDebugString()).isEqualTo("sqrt(user:a)")
+        assertThat(sqrt(a).toString()).isEqualTo("sqrt(user:a)")
     }
 
     @Test
-    fun toDebugString_abs() {
+    fun toString_abs() {
         val a = createNamedRemoteFloat("a", -10f)
-        assertThat(abs(a).toDebugString()).isEqualTo("abs(user:a)")
+        assertThat(abs(a).toString()).isEqualTo("abs(user:a)")
     }
 
     @Test
-    fun toDebugString_sign() {
+    fun toString_sign() {
         val a = createNamedRemoteFloat("a", -10f)
-        assertThat(sign(a).toDebugString()).isEqualTo("sign(user:a)")
+        assertThat(sign(a).toString()).isEqualTo("sign(user:a)")
     }
 
     @Test
-    fun toDebugString_copySign() {
+    fun toString_copySign() {
         val a = createNamedRemoteFloat("a", 10f)
         val b = createNamedRemoteFloat("b", -1f)
-        assertThat(copySign(a, b).toDebugString()).isEqualTo("copySign(user:a, user:b)")
+        assertThat(copySign(a, b).toString()).isEqualTo("copySign(user:a, user:b)")
     }
 
     @Test
-    fun toDebugString_exp() {
+    fun toString_exp() {
         val a = createNamedRemoteFloat("a", 2f)
-        assertThat(exp(a).toDebugString()).isEqualTo("exp(user:a)")
+        assertThat(exp(a).toString()).isEqualTo("exp(user:a)")
     }
 
     @Test
-    fun toDebugString_ceil() {
+    fun toString_ceil() {
         val a = createNamedRemoteFloat("a", 2.3f)
-        assertThat(ceil(a).toDebugString()).isEqualTo("ceil(user:a)")
+        assertThat(ceil(a).toString()).isEqualTo("ceil(user:a)")
     }
 
     @Test
-    fun toDebugString_floor() {
+    fun toString_floor() {
         val a = createNamedRemoteFloat("a", 2.7f)
-        assertThat(floor(a).toDebugString()).isEqualTo("floor(user:a)")
+        assertThat(floor(a).toString()).isEqualTo("floor(user:a)")
     }
 
     @Test
-    fun toDebugString_log() {
+    fun toString_log() {
         val a = createNamedRemoteFloat("a", 100f)
-        assertThat(log(a).toDebugString()).isEqualTo("log(user:a)")
+        assertThat(log(a).toString()).isEqualTo("log(user:a)")
     }
 
     @Test
-    fun toDebugString_ln() {
+    fun toString_ln() {
         val a = createNamedRemoteFloat("a", 10f)
-        assertThat(ln(a).toDebugString()).isEqualTo("ln(user:a)")
+        assertThat(ln(a).toString()).isEqualTo("ln(user:a)")
     }
 
     @Test
-    fun toDebugString_round() {
+    fun toString_round() {
         val a = createNamedRemoteFloat("a", 2.5f)
-        assertThat(round(a).toDebugString()).isEqualTo("round(user:a)")
+        assertThat(round(a).toString()).isEqualTo("round(user:a)")
     }
 
     @Test
-    fun toDebugString_sin() {
+    fun toString_sin() {
         val a = createNamedRemoteFloat("a", 1f)
-        assertThat(sin(a).toDebugString()).isEqualTo("sin(user:a)")
+        assertThat(sin(a).toString()).isEqualTo("sin(user:a)")
     }
 
     @Test
-    fun toDebugString_cos() {
+    fun toString_cos() {
         val a = createNamedRemoteFloat("a", 1f)
-        assertThat(cos(a).toDebugString()).isEqualTo("cos(user:a)")
+        assertThat(cos(a).toString()).isEqualTo("cos(user:a)")
     }
 
     @Test
-    fun toDebugString_tan() {
+    fun toString_tan() {
         val a = createNamedRemoteFloat("a", 1f)
-        assertThat(tan(a).toDebugString()).isEqualTo("tan(user:a)")
+        assertThat(tan(a).toString()).isEqualTo("tan(user:a)")
     }
 
     @Test
-    fun toDebugString_asin() {
+    fun toString_asin() {
         val a = createNamedRemoteFloat("a", 0.5f)
-        assertThat(asin(a).toDebugString()).isEqualTo("asin(user:a)")
+        assertThat(asin(a).toString()).isEqualTo("asin(user:a)")
     }
 
     @Test
-    fun toDebugString_acos() {
+    fun toString_acos() {
         val a = createNamedRemoteFloat("a", 0.5f)
-        assertThat(acos(a).toDebugString()).isEqualTo("acos(user:a)")
+        assertThat(acos(a).toString()).isEqualTo("acos(user:a)")
     }
 
     @Test
-    fun toDebugString_atan() {
+    fun toString_atan() {
         val a = createNamedRemoteFloat("a", 0.5f)
-        assertThat(atan(a).toDebugString()).isEqualTo("atan(user:a)")
+        assertThat(atan(a).toString()).isEqualTo("atan(user:a)")
     }
 
     @Test
-    fun toDebugString_atan2() {
+    fun toString_atan2() {
         val a = createNamedRemoteFloat("a", 1f)
         val b = createNamedRemoteFloat("b", 2f)
-        assertThat(atan2(a, b).toDebugString()).isEqualTo("atan2(user:a, user:b)")
+        assertThat(atan2(a, b).toString()).isEqualTo("atan2(user:a, user:b)")
     }
 
     @Test
-    fun toDebugString_cbrt() {
+    fun toString_cbrt() {
         val a = createNamedRemoteFloat("a", 8f)
-        assertThat(cbrt(a).toDebugString()).isEqualTo("cbrt(user:a)")
+        assertThat(cbrt(a).toString()).isEqualTo("cbrt(user:a)")
     }
 
     @Test
-    fun toDebugString_toDeg() {
+    fun toString_toDeg() {
         val a = createNamedRemoteFloat("a", 1f)
-        assertThat(toDeg(a).toDebugString()).isEqualTo("toDeg(user:a)")
+        assertThat(toDeg(a).toString()).isEqualTo("toDeg(user:a)")
     }
 
     @Test
-    fun toDebugString_toRad() {
+    fun toString_toRad() {
         val a = createNamedRemoteFloat("a", 90f)
-        assertThat(toRad(a).toDebugString()).isEqualTo("toRad(user:a)")
+        assertThat(toRad(a).toString()).isEqualTo("toRad(user:a)")
     }
 
     @Test
-    fun toDebugString_lerp() {
+    fun toString_lerp() {
         val from = createNamedRemoteFloat("from", 0f)
         val to = createNamedRemoteFloat("to", 100f)
         val tween = createNamedRemoteFloat("tween", 0.5f)
-        assertThat(lerp(from, to, tween).toDebugString())
+        assertThat(lerp(from, to, tween).toString())
             .isEqualTo("lerp(user:from, user:to, user:tween)")
     }
 
     @Test
-    fun toDebugString_mad() {
+    fun toString_mad() {
         val a = createNamedRemoteFloat("a", 2f)
         val b = createNamedRemoteFloat("b", 3f)
         val c = createNamedRemoteFloat("c", 4f)
-        assertThat(mad(a, b, c).toDebugString()).isEqualTo("mad(user:a, user:b, user:c)")
+        assertThat(mad(a, b, c).toString()).isEqualTo("mad(user:a, user:b, user:c)")
     }
 
     @Test
-    fun toDebugString_clamp() {
+    fun toString_clamp() {
         val value = createNamedRemoteFloat("val", 15f)
         val min = createNamedRemoteFloat("min", 10f)
         val max = createNamedRemoteFloat("max", 20f)
-        assertThat(clamp(value, min, max).toDebugString())
+        assertThat(clamp(value, min, max).toString())
             .isEqualTo("clamp(user:min, user:max, user:val)")
     }
 
     @Test
-    fun toDebugString_interpolate() {
+    fun toString_interpolate() {
         val p = createNamedRemoteFloat("p", 0.5f)
         val start = createNamedRemoteFloat("start", 100f)
         val end = createNamedRemoteFloat("end", 200f)
         val interpLinear = interpolateRemoteFloat(p, start, end, CUBIC_LINEAR)
-        assertThat(interpLinear.toDebugString())
+        assertThat(interpLinear.toString())
             .isEqualTo("user:start + (user:end - user:start) * user:p")
     }
 
@@ -218,51 +218,51 @@ class RemoteFloatOperationsTest {
     }
 
     @Test
-    fun toDebugString_animation() {
+    fun toString_animation() {
         val rf = createNamedRemoteFloat("val", 10f)
         val animated = animateRemoteFloat(rf, duration = 2f, type = CUBIC_DECELERATE)
-        assertThat(animated.toDebugString()).isEqualTo("animate(user:val)")
+        assertThat(animated.toString()).isEqualTo("animate(user:val)")
     }
 
     @Test
-    fun toDebugString_cubicEasing() {
+    fun toString_cubicEasing() {
         val x1 = createNamedRemoteFloat("x1", 0.1f)
         val y1 = createNamedRemoteFloat("y1", 0.2f)
         val x2 = createNamedRemoteFloat("x2", 0.8f)
         val y2 = createNamedRemoteFloat("y2", 0.9f)
         val p = createNamedRemoteFloat("p", 0.5f)
         val cubic = cubicEasing(x1, y1, x2, y2, p)
-        assertThat(cubic.toDebugString())
+        assertThat(cubic.toString())
             .isEqualTo("cubicEasing(user:x1, user:y1, user:x2, user:y2, user:p)")
     }
 
     @Test
-    fun toDebugString_evalSpline_nonLooping() {
+    fun toString_evalSpline_nonLooping() {
         val pts = RemoteFloatArray(listOf(0f.rf, 0.5f.rf, 1f.rf))
         val p = createNamedRemoteFloat("p", 0.5f)
         val spline = evalSpline(pts, loop = false, p)
-        assertThat(spline.toDebugString()).isEqualTo("evalSpline(arrayOf(0.0, 0.5, 1.0), user:p)")
+        assertThat(spline.toString()).isEqualTo("evalSpline(arrayOf(0.0, 0.5, 1.0), user:p)")
     }
 
     @Test
-    fun toDebugString_evalSpline_looping() {
+    fun toString_evalSpline_looping() {
         val pts = RemoteFloatArray(listOf(0f.rf, 0.5f.rf, 1f.rf))
         val p = createNamedRemoteFloat("p", 0.5f)
         val splineLoop = evalSpline(pts, loop = true, p)
-        assertThat(splineLoop.toDebugString())
+        assertThat(splineLoop.toString())
             .isEqualTo("evalSpline(arrayOf(0.0, 0.5, 1.0), user:p, loop=true)")
     }
 
     @Test
-    fun toDebugString_rand() {
-        assertThat(rand().toDebugString()).isEqualTo("rand()")
+    fun toString_rand() {
+        assertThat(rand().toString()).isEqualTo("rand()")
     }
 
     @Test
-    fun toDebugString_randRange() {
+    fun toString_randRange() {
         val a = RemoteFloat.createNamedRemoteFloat("a", 10f)
         val b = RemoteFloat.createNamedRemoteFloat("b", 20f)
-        assertThat(randRange(a, b).toDebugString()).isEqualTo("randInRange(user:a, user:b)")
+        assertThat(randRange(a, b).toString()).isEqualTo("randInRange(user:a, user:b)")
     }
 
     @Test
@@ -275,7 +275,7 @@ class RemoteFloatOperationsTest {
         creationState.document.floatExpression(seed, AnimatedFloatExpression.RAND_SEED, 0f)
 
         val r = rand()
-        val resultId = r.getIdForCreationState(creationState)
+        val resultId = creationState.getId(r)
 
         CoreDocument().apply {
             val buffer = creationState.document.buffer
@@ -300,7 +300,7 @@ class RemoteFloatOperationsTest {
         creationState.document.floatExpression(seed, AnimatedFloatExpression.RAND_SEED, 0f)
 
         val r = randRange(from.rf, to.rf)
-        val resultId = r.getIdForCreationState(creationState)
+        val resultId = creationState.getId(r)
 
         CoreDocument().apply {
             val buffer = creationState.document.buffer

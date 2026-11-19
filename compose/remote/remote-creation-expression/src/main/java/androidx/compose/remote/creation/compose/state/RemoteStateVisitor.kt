@@ -17,12 +17,13 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 
 /**
- * Traverses a [BaseRemoteState] expression DAG to inspect, collect, or rewrite nodes.
+ * Traverses a [RemoteState] expression DAG to inspect, collect, or rewrite nodes.
  *
  * Implementations process nodes bottom-up (post-order). Shared sub-expressions in the DAG are
- * visited once per traversal via the memoization map in [BaseRemoteState.accept].
+ * visited once per traversal via the memoization map in [RemoteStateCacheKey.accept].
  *
  * @param R The return type produced by visiting each node.
  */
@@ -31,30 +32,30 @@ internal fun interface RemoteStateVisitor<R> {
      * Visits a [RemoteStateCacheKey] node in the AST DAG.
      *
      * @param key The cache key being visited.
-     * @param state The associated [BaseRemoteState], or `null` if not yet instantiated.
+     * @param state The associated [RemoteState], or `null` if not yet instantiated.
      * @param visitedArgs The results from visiting each child argument in
      *   [RemoteStateCacheKey.args] (empty for leaf nodes).
      * @return The result of visiting this node.
      */
-    fun visit(key: RemoteStateCacheKey, state: BaseRemoteState<*>?, visitedArgs: List<R>): R
+    fun visit(key: RemoteStateCacheKey, state: RemoteState<*>?, visitedArgs: List<R>): R
 }
 
 /**
- * Transforms this [BaseRemoteState] expression DAG bottom-up.
+ * Transforms this [RemoteState] expression DAG bottom-up.
  *
  * Wrappers ([RemoteBoolean], [RemoteDp], [RemoteEnum]) are automatically unwrapped and re-wrapped.
  * If [transform] returns `null` for a node, default transformation behavior is applied (preserving
  * unchanged nodes, reconstructing operations with transformed arguments, resolving constants,
  * etc.).
  *
- * @param transform A lambda that inspects each [BaseRemoteState] node in the AST DAG and returns a
- *   replacement [BaseRemoteState], or `null` to preserve the node or use default reconstruction.
- * @return The transformed [BaseRemoteState] instance.
+ * @param transform A lambda that inspects each [RemoteState] node in the AST DAG and returns a
+ *   replacement [RemoteState], or `null` to preserve the node or use default reconstruction.
+ * @return The transformed [RemoteState] instance.
  */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <S : BaseRemoteState<*>> S.transform(
-    transform: (state: BaseRemoteState<*>) -> BaseRemoteState<*>?
+public fun <S : RemoteState<*>> S.transform(
+    transform: (state: RemoteState<*>) -> RemoteState<*>?
 ): S {
     if (hasConstantValue) {
         val replaced = transform(this)
@@ -75,7 +76,7 @@ public fun <S : BaseRemoteState<*>> S.transform(
             if (newInt === intValue) this else RemoteEnum(newInt, enumEntries)
         }
         else -> {
-            accept<BaseRemoteState<*>> { key, state, visitedArgs ->
+            accept<RemoteState<*>> { key, state, visitedArgs ->
                 val node =
                     state
                         ?: when (key) {
@@ -125,7 +126,7 @@ public fun <S : BaseRemoteState<*>> S.transform(
 
 private fun hasArgsChanged(
     original: List<RemoteStateCacheKey>,
-    visited: List<BaseRemoteState<*>>,
+    visited: List<RemoteState<*>>,
 ): Boolean {
     for (i in 0 until original.size) {
         if (visited[i].cacheKey != original[i]) return true
@@ -133,8 +134,8 @@ private fun hasArgsChanged(
     return false
 }
 
-/** Resolves or creates a [BaseRemoteState] corresponding to the given [RemoteConstantCacheKey]. */
-internal fun resolveConstantState(key: RemoteConstantCacheKey): BaseRemoteState<*> {
+/** Resolves or creates a [RemoteState] corresponding to the given [RemoteConstantCacheKey]. */
+internal fun resolveConstantState(key: RemoteConstantCacheKey): RemoteState<*> {
     return when (val v = key.value) {
         is Float -> RemoteFloat(v)
         is Int -> RemoteInt(v)
@@ -147,3 +148,9 @@ internal fun resolveConstantState(key: RemoteConstantCacheKey): BaseRemoteState<
         else -> throw IllegalArgumentException("Unsupported constant type: ${v.javaClass}")
     }
 }
+
+internal fun <R> RemoteState<*>.accept(visitor: RemoteStateVisitor<R>): R =
+    (this as BaseRemoteState<*>).accept(visitor)
+
+internal fun RemoteState<*>.writeToDocument(creationState: RemoteComposeCreationState): Int =
+    (this as BaseRemoteState<*>).writeToDocument(creationState)

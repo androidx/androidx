@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
-import androidx.compose.remote.creation.compose.state.BaseRemoteState
 import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
@@ -45,9 +44,11 @@ import androidx.compose.remote.creation.compose.state.RemoteIntArray
 import androidx.compose.remote.creation.compose.state.RemoteLong
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
+import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
+import androidx.compose.remote.creation.compose.state.getIdListForCreationState
 
 /**
  * A remote canvas providing overloads for remote types and avoiding platform types in its public
@@ -607,8 +608,8 @@ public class RemoteCanvas(
         val op =
             recordRenderingOp(paint) {
                 document.drawBitmapFontTextRun(
-                    text.getIdForCreationState(creationState),
-                    bitmapFont.getIdForCreationState(creationState),
+                    creationState.getId(text),
+                    creationState.getId(bitmapFont),
                     start,
                     end,
                     x.floatId,
@@ -803,10 +804,10 @@ public class RemoteCanvas(
             buffer.recordRenderingOp(
                 CanvasOp.Clip { writer ->
                     writer.clipRect(
-                        left.getFloatIdForCreationState(creationState),
-                        top.getFloatIdForCreationState(creationState),
-                        right.getFloatIdForCreationState(creationState),
-                        bottom.getFloatIdForCreationState(creationState),
+                        creationState.getFloatId(left),
+                        creationState.getFloatId(top),
+                        creationState.getFloatId(right),
+                        creationState.getFloatId(bottom),
                     )
                 }
             )
@@ -950,7 +951,7 @@ public class RemoteCanvas(
         buffer.addRoots(op, until)
     }
 
-    private fun generateFormalArg(id: Int, actualArg: Any?): BaseRemoteState<*> {
+    private fun generateFormalArg(id: Int, actualArg: Any?): RemoteState<*> {
         return when (actualArg) {
             is RemoteFloat -> RemoteFloat(Utils.asNan(id))
             is RemoteInt -> RemoteInt.createForId(id.toLong() + 0x100000000L)
@@ -972,14 +973,14 @@ public class RemoteCanvas(
      * @param creationState creation state associated with the document being written
      * @return document ID for the pattern argument
      */
-    private fun BaseRemoteState<*>.getPatternArgId(creationState: RemoteComposeCreationState): Int {
+    private fun RemoteState<*>.getPatternArgId(creationState: RemoteComposeCreationState): Int {
         // RemoteFloatArray defaults to a primitive float array (DataListFloat) for spline and
         // dereference efficiency, but PatternForEach requires variable IDs (DataListIds) to remap
         // elements during pattern expansion.
         return if (this is RemoteFloatArray) {
             getIdListForCreationState(creationState)
         } else {
-            getIdForCreationState(creationState)
+            creationState.getId(this)
         }
     }
 
@@ -1036,7 +1037,7 @@ public class RemoteCanvas(
      * @return a [RemotePattern1] that inflates the recorded pattern
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T1 : BaseRemoteState<*>> definePattern(action: (T1) -> Unit): RemotePattern1<T1> {
+    public fun <T1 : RemoteState<*>> definePattern(action: (T1) -> Unit): RemotePattern1<T1> {
         var patternId = -1
         return RemotePattern1 { arg1, modifier ->
             if (patternId == -1) {
@@ -1078,7 +1079,7 @@ public class RemoteCanvas(
      * @return a [RemotePattern2] that inflates the recorded pattern
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T1 : BaseRemoteState<*>, T2 : BaseRemoteState<*>> definePattern(
+    public fun <T1 : RemoteState<*>, T2 : RemoteState<*>> definePattern(
         action: (T1, T2) -> Unit
     ): RemotePattern2<T1, T2> {
         var patternId = -1
@@ -1128,9 +1129,9 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : BaseRemoteState<*>,
-        T2 : BaseRemoteState<*>,
-        T3 : BaseRemoteState<*>,
+        T1 : RemoteState<*>,
+        T2 : RemoteState<*>,
+        T3 : RemoteState<*>,
     > definePattern(action: (T1, T2, T3) -> Unit): RemotePattern3<T1, T2, T3> {
         var patternId = -1
         return RemotePattern3 { arg1, arg2, arg3, modifier ->
@@ -1182,10 +1183,10 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : BaseRemoteState<*>,
-        T2 : BaseRemoteState<*>,
-        T3 : BaseRemoteState<*>,
-        T4 : BaseRemoteState<*>,
+        T1 : RemoteState<*>,
+        T2 : RemoteState<*>,
+        T3 : RemoteState<*>,
+        T4 : RemoteState<*>,
     > definePattern(action: (T1, T2, T3, T4) -> Unit): RemotePattern4<T1, T2, T3, T4> {
         var patternId = -1
         return RemotePattern4 { arg1, arg2, arg3, arg4, modifier ->
@@ -1242,11 +1243,11 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : BaseRemoteState<*>,
-        T2 : BaseRemoteState<*>,
-        T3 : BaseRemoteState<*>,
-        T4 : BaseRemoteState<*>,
-        T5 : BaseRemoteState<*>,
+        T1 : RemoteState<*>,
+        T2 : RemoteState<*>,
+        T3 : RemoteState<*>,
+        T4 : RemoteState<*>,
+        T5 : RemoteState<*>,
     > definePattern(action: (T1, T2, T3, T4, T5) -> Unit): RemotePattern5<T1, T2, T3, T4, T5> {
         var patternId = -1
         return RemotePattern5 { arg1, arg2, arg3, arg4, arg5, modifier ->
@@ -1306,12 +1307,12 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : BaseRemoteState<*>,
-        T2 : BaseRemoteState<*>,
-        T3 : BaseRemoteState<*>,
-        T4 : BaseRemoteState<*>,
-        T5 : BaseRemoteState<*>,
-        T6 : BaseRemoteState<*>,
+        T1 : RemoteState<*>,
+        T2 : RemoteState<*>,
+        T3 : RemoteState<*>,
+        T4 : RemoteState<*>,
+        T5 : RemoteState<*>,
+        T6 : RemoteState<*>,
     > definePattern(
         action: (T1, T2, T3, T4, T5, T6) -> Unit
     ): RemotePattern6<T1, T2, T3, T4, T5, T6> {
@@ -1372,7 +1373,7 @@ public class RemoteCanvas(
      * @param action drawing commands to record for each element
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T : BaseRemoteState<*>> forEach(items: List<T>, action: (T) -> Unit) {
+    public fun <T : RemoteState<*>> forEach(items: List<T>, action: (T) -> Unit) {
         if (items.isEmpty()) return
         val localItemId = document.nextId()
         val formal = generateFormalArg(localItemId, items.first()) as T
@@ -1383,7 +1384,7 @@ public class RemoteCanvas(
                 CanvasOp.Draw { writer ->
                     val ids = IntArray(items.size)
                     for (i in items.indices) {
-                        ids[i] = items[i].getIdForCreationState(creationState)
+                        ids[i] = creationState.getId(items[i])
                     }
                     val collectionId = writer.addDataListIds(ids)
                     writer.buffer.addPatternForEach(collectionId, localItemId)
@@ -1434,7 +1435,7 @@ public class RemoteCanvas(
         val op =
             buffer.recordRenderingOp(
                 CanvasOp.Draw { writer ->
-                    val collectionId = array.getIdForCreationState(creationState)
+                    val collectionId = creationState.getId(array)
                     writer.buffer.addPatternForEach(collectionId, localItemId)
                     childSpan.record(writer, creationState)
                     writer.buffer.endPatternForEach()
@@ -1457,7 +1458,7 @@ public class RemoteCanvas(
         val op =
             buffer.recordRenderingOp(
                 CanvasOp.Draw { writer ->
-                    val collectionId = array.getIdForCreationState(creationState)
+                    val collectionId = creationState.getId(array)
                     writer.buffer.addPatternForEach(collectionId, localItemId)
                     childSpan.record(writer, creationState)
                     writer.buffer.endPatternForEach()
@@ -1476,7 +1477,7 @@ public class RemoteCanvas(
      * @param action drawing commands to record for each pair
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T1 : BaseRemoteState<*>, T2 : BaseRemoteState<*>> forEach(
+    public fun <T1 : RemoteState<*>, T2 : RemoteState<*>> forEach(
         items1: List<T1>,
         items2: List<T2>,
         action: (T1, T2) -> Unit,
@@ -1509,8 +1510,8 @@ public class RemoteCanvas(
                         tupleIds[i] =
                             writer.addDataListIds(
                                 intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
+                                    creationState.getId(items1[i]),
+                                    creationState.getId(items2[i]),
                                 )
                             )
                     }
@@ -1536,9 +1537,9 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : BaseRemoteState<*>,
-        T2 : BaseRemoteState<*>,
-        T3 : BaseRemoteState<*>,
+        T1 : RemoteState<*>,
+        T2 : RemoteState<*>,
+        T3 : RemoteState<*>,
     > forEach(
         items1: List<T1>,
         items2: List<T2>,
@@ -1576,9 +1577,9 @@ public class RemoteCanvas(
                         tupleIds[i] =
                             writer.addDataListIds(
                                 intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                    items3[i].getIdForCreationState(creationState),
+                                    creationState.getId(items1[i]),
+                                    creationState.getId(items2[i]),
+                                    creationState.getId(items3[i]),
                                 )
                             )
                     }
@@ -1607,10 +1608,10 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : BaseRemoteState<*>,
-        T2 : BaseRemoteState<*>,
-        T3 : BaseRemoteState<*>,
-        T4 : BaseRemoteState<*>,
+        T1 : RemoteState<*>,
+        T2 : RemoteState<*>,
+        T3 : RemoteState<*>,
+        T4 : RemoteState<*>,
     > forEach(
         items1: List<T1>,
         items2: List<T2>,
@@ -1652,10 +1653,10 @@ public class RemoteCanvas(
                         tupleIds[i] =
                             writer.addDataListIds(
                                 intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                    items3[i].getIdForCreationState(creationState),
-                                    items4[i].getIdForCreationState(creationState),
+                                    creationState.getId(items1[i]),
+                                    creationState.getId(items2[i]),
+                                    creationState.getId(items3[i]),
+                                    creationState.getId(items4[i]),
                                 )
                             )
                     }
@@ -1686,11 +1687,11 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : BaseRemoteState<*>,
-        T2 : BaseRemoteState<*>,
-        T3 : BaseRemoteState<*>,
-        T4 : BaseRemoteState<*>,
-        T5 : BaseRemoteState<*>,
+        T1 : RemoteState<*>,
+        T2 : RemoteState<*>,
+        T3 : RemoteState<*>,
+        T4 : RemoteState<*>,
+        T5 : RemoteState<*>,
     > forEach(
         items1: List<T1>,
         items2: List<T2>,
@@ -1736,11 +1737,11 @@ public class RemoteCanvas(
                         tupleIds[i] =
                             writer.addDataListIds(
                                 intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                    items3[i].getIdForCreationState(creationState),
-                                    items4[i].getIdForCreationState(creationState),
-                                    items5[i].getIdForCreationState(creationState),
+                                    creationState.getId(items1[i]),
+                                    creationState.getId(items2[i]),
+                                    creationState.getId(items3[i]),
+                                    creationState.getId(items4[i]),
+                                    creationState.getId(items5[i]),
                                 )
                             )
                     }
@@ -1772,12 +1773,12 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : BaseRemoteState<*>,
-        T2 : BaseRemoteState<*>,
-        T3 : BaseRemoteState<*>,
-        T4 : BaseRemoteState<*>,
-        T5 : BaseRemoteState<*>,
-        T6 : BaseRemoteState<*>,
+        T1 : RemoteState<*>,
+        T2 : RemoteState<*>,
+        T3 : RemoteState<*>,
+        T4 : RemoteState<*>,
+        T5 : RemoteState<*>,
+        T6 : RemoteState<*>,
     > forEach(
         items1: List<T1>,
         items2: List<T2>,
@@ -1828,12 +1829,12 @@ public class RemoteCanvas(
                         tupleIds[i] =
                             writer.addDataListIds(
                                 intArrayOf(
-                                    items1[i].getIdForCreationState(creationState),
-                                    items2[i].getIdForCreationState(creationState),
-                                    items3[i].getIdForCreationState(creationState),
-                                    items4[i].getIdForCreationState(creationState),
-                                    items5[i].getIdForCreationState(creationState),
-                                    items6[i].getIdForCreationState(creationState),
+                                    creationState.getId(items1[i]),
+                                    creationState.getId(items2[i]),
+                                    creationState.getId(items3[i]),
+                                    creationState.getId(items4[i]),
+                                    creationState.getId(items5[i]),
+                                    creationState.getId(items6[i]),
                                 )
                             )
                     }
@@ -1886,7 +1887,7 @@ public fun interface RemotePattern0 : (RemoteModifier?) -> Unit {
  * Call to inflate the recorded template with the provided argument.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern1<T1 : BaseRemoteState<*>> : (T1, RemoteModifier?) -> Unit {
+public fun interface RemotePattern1<T1 : RemoteState<*>> : (T1, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1): Unit = invoke(arg1, null)
 
     public override operator fun invoke(arg1: T1, modifier: RemoteModifier?)
@@ -1898,7 +1899,7 @@ public fun interface RemotePattern1<T1 : BaseRemoteState<*>> : (T1, RemoteModifi
  * Call to inflate the recorded template with the provided arguments.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern2<T1 : BaseRemoteState<*>, T2 : BaseRemoteState<*>> :
+public fun interface RemotePattern2<T1 : RemoteState<*>, T2 : RemoteState<*>> :
     (T1, T2, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2): Unit = invoke(arg1, arg2, null)
 
@@ -1912,9 +1913,9 @@ public fun interface RemotePattern2<T1 : BaseRemoteState<*>, T2 : BaseRemoteStat
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemotePattern3<
-    T1 : BaseRemoteState<*>,
-    T2 : BaseRemoteState<*>,
-    T3 : BaseRemoteState<*>,
+    T1 : RemoteState<*>,
+    T2 : RemoteState<*>,
+    T3 : RemoteState<*>,
 > : (T1, T2, T3, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2, arg3: T3): Unit = invoke(arg1, arg2, arg3, null)
 
@@ -1928,10 +1929,10 @@ public fun interface RemotePattern3<
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemotePattern4<
-    T1 : BaseRemoteState<*>,
-    T2 : BaseRemoteState<*>,
-    T3 : BaseRemoteState<*>,
-    T4 : BaseRemoteState<*>,
+    T1 : RemoteState<*>,
+    T2 : RemoteState<*>,
+    T3 : RemoteState<*>,
+    T4 : RemoteState<*>,
 > : (T1, T2, T3, T4, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4): Unit =
         invoke(arg1, arg2, arg3, arg4, null)
@@ -1952,11 +1953,11 @@ public fun interface RemotePattern4<
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemotePattern5<
-    T1 : BaseRemoteState<*>,
-    T2 : BaseRemoteState<*>,
-    T3 : BaseRemoteState<*>,
-    T4 : BaseRemoteState<*>,
-    T5 : BaseRemoteState<*>,
+    T1 : RemoteState<*>,
+    T2 : RemoteState<*>,
+    T3 : RemoteState<*>,
+    T4 : RemoteState<*>,
+    T5 : RemoteState<*>,
 > : (T1, T2, T3, T4, T5, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5): Unit =
         invoke(arg1, arg2, arg3, arg4, arg5, null)
@@ -1978,12 +1979,12 @@ public fun interface RemotePattern5<
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemotePattern6<
-    T1 : BaseRemoteState<*>,
-    T2 : BaseRemoteState<*>,
-    T3 : BaseRemoteState<*>,
-    T4 : BaseRemoteState<*>,
-    T5 : BaseRemoteState<*>,
-    T6 : BaseRemoteState<*>,
+    T1 : RemoteState<*>,
+    T2 : RemoteState<*>,
+    T3 : RemoteState<*>,
+    T4 : RemoteState<*>,
+    T5 : RemoteState<*>,
+    T6 : RemoteState<*>,
 > : (T1, T2, T3, T4, T5, T6, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, arg6: T6): Unit =
         invoke(arg1, arg2, arg3, arg4, arg5, arg6, null)

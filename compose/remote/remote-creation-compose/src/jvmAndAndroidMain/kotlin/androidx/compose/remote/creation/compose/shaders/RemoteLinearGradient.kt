@@ -282,20 +282,19 @@ public class RemoteLinearShader(
                     constantValue
                 } else {
                     mask = mask or (1 shl i)
-                    color.getIdForCreationState(creationState)
+                    creationState.getId(color)
                 }
             }
-        val positionsArray =
-            positions?.fastMap { it.getFloatIdForCreationState(creationState) }?.toFloatArray()
+        val positionsArray = positions?.fastMap { creationState.getFloatId(it) }?.toFloatArray()
 
         paintBundle.setLinearGradient(
             colorsArray,
             mask,
             positionsArray,
-            x0.getFloatIdForCreationState(creationState),
-            y0.getFloatIdForCreationState(creationState),
-            x1.getFloatIdForCreationState(creationState),
-            y1.getFloatIdForCreationState(creationState),
+            creationState.getFloatId(x0),
+            creationState.getFloatId(y0),
+            creationState.getFloatId(x1),
+            creationState.getFloatId(y1),
             tileMode.value,
         )
     }

@@ -49,7 +49,7 @@ public class RemoteBlendModeColorFilter(
         if (constantColor != null) {
             paintBundle.setColorFilter(constantColor, blendMode.value)
         } else {
-            val colorId = color.getIdForCreationState(creationState)
+            val colorId = creationState.getId(color)
             paintBundle.setColorFilterId(colorId, blendMode.value)
         }
     }

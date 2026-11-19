@@ -121,7 +121,7 @@ class RemotePaintTest {
     fun remoteColorBlackByDefaultMatchesColorBlackRcTest() {
         val color = RemotePaint().color
 
-        assertThat(color.isStructurallyEqual(RemoteColor.Black)).isTrue()
+        assertThat(color).isEqualTo(RemoteColor.Black)
         assertThat(color).isSameInstanceAs(RemoteColor.Black)
     }
 

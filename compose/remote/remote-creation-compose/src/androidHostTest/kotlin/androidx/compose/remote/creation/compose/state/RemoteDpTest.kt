@@ -47,7 +47,7 @@ class RemoteDpTest {
 
         val resultDpId = remoteComposeTestRule.initialise {
             val remoteFloatDp = dp.asRdp()
-            remoteFloatDp.getIdForCreationState(it)
+            it.getId(remoteFloatDp)
         }
 
         assertThat(context.getFloat(resultDpId)).isEqualTo(px)
@@ -71,7 +71,7 @@ class RemoteDpTest {
             val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10f)
             val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5f)
             val result = dp1 + dp2
-            result.value.getIdForCreationState(it)
+            it.getId(result.value)
         }
         assertThat(context.getFloat(resultId)).isEqualTo(15f)
     }
@@ -82,7 +82,7 @@ class RemoteDpTest {
         val dpVal = namedDp + 5.rdp
 
         val replaced = dpVal.transform { node ->
-            if (node.isStructurallyEqual(namedDp.value)) 20f.rf else null
+            if (node == namedDp.value) 20f.rf else null
         }
         assertThat(replaced.hasConstantValue).isTrue()
         assertThat(replaced.asConstantDp()).isEqualTo(25.dp)

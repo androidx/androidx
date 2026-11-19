@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.runtime.Stable
+import kotlin.reflect.KClass
 
 /**
  * Represents a density-independent pixel (Dp) value.
@@ -30,54 +31,18 @@ import androidx.compose.runtime.Stable
  * expression. Operations on [RemoteDp] are evaluated dynamically on the remote player at runtime
  * unless all inputs are known constants, in which case constant folding evaluates the result
  * immediately at creation time (see [RemoteState]).
+ *
+ * Comparing [RemoteDp] values with `==` checks structural equality (matching constant values or
+ * expression DAGs); see [RemoteState]. For runtime equality on the remote player, use [isEqualTo].
  */
 @Stable
-public class RemoteDp
-internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val value: RemoteFloat,
-    cacheKey: RemoteStateCacheKey,
-) : BaseRemoteState<Float>(cacheKey) {
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun toDebugString(): String {
-        val valKey = value.cacheKey
-        if (valKey is RemoteOperationCacheKey && valKey.op == OperationKey.ToDp) {
-            return "${valKey.args[0].toOperandString(100)}.toDp()"
-        }
-        return "${valKey.toOperandString(100)}.dp"
-    }
-
-    internal enum class OperationKey : RemoteOperation {
-        Dp,
-        ToPx,
-        ToDp;
-
-        override fun toDebugString(args: List<RemoteStateCacheKey>): String {
-            return when (this) {
-                Dp -> "${args[0].toOperandString(100)}.dp"
-                ToPx -> "${args[0].toOperandString(100)}.toPx()"
-                ToDp -> "${args[0].toOperandString(100)}.toDp()"
-            }
-        }
-
-        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
-            return when (this) {
-                Dp -> RemoteDp(args[0] as RemoteFloat)
-                ToPx -> RemoteDp(args[0] as RemoteFloat).toPx()
-                ToDp -> (args[0] as RemoteFloat).toRemoteDp().value
-            }
-        }
-    }
-
+public sealed interface RemoteDp : RemoteState<Float> {
     // AutoBoxing is acceptable here because constantValueOrNull is not expected to be on a
     // hot path, and it follows the pattern for all RemoteState subclasses.
-    @get:Suppress("AutoBoxing")
-    override val constantValueOrNull: Float?
-        get() = value.constantValueOrNull
+    @get:Suppress("AutoBoxing") override val constantValueOrNull: Float?
 
-    internal override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        return toPx(creationState.remoteDensity).writeToDocument(creationState)
-    }
+    /** The underlying [RemoteFloat] value in Dp. */
+    public val value: RemoteFloat
 
     /**
      * Converts this [RemoteDp] to pixels by multiplying the current float value by [density].
@@ -85,29 +50,14 @@ internal constructor(
      * @param density The [RemoteDensity] used to convert Dp to pixels.
      * @return A [RemoteFloat] representing this value in pixels.
      */
-    public fun toPx(density: RemoteDensity): RemoteFloat {
-        return density.density * value
-    }
+    public fun toPx(density: RemoteDensity): RemoteFloat
 
     /**
      * Converts this [RemoteDp] to a [RemoteFloat] pixel value using the current [RemoteDensity].
      *
      * @return A [RemoteFloat] representing this value in pixels.
      */
-    public fun toPx(): RemoteFloat {
-        return RemoteFloat(
-            constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(OperationKey.ToPx, value),
-        ) { creationState ->
-            val density = creationState.remoteDensity
-            (value * density.density).arrayForCreationState(creationState)
-        }
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float {
-        return toPx(creationState.remoteDensity).getFloatIdForCreationState(creationState)
-    }
+    public fun toPx(): RemoteFloat
 
     /**
      * Returns a new [RemoteDp] that evaluates to this [RemoteDp] plus [other].
@@ -115,7 +65,7 @@ internal constructor(
      * @param other The [RemoteDp] to add to this value.
      * @return A [RemoteDp] representing `this + other`.
      */
-    public operator fun plus(other: RemoteDp): RemoteDp = RemoteDp(this.value + other.value)
+    public operator fun plus(other: RemoteDp): RemoteDp
 
     /**
      * Returns a new [RemoteDp] that evaluates to this [RemoteDp] minus [other].
@@ -123,14 +73,14 @@ internal constructor(
      * @param other The [RemoteDp] to subtract from this value.
      * @return A [RemoteDp] representing `this - other`.
      */
-    public operator fun minus(other: RemoteDp): RemoteDp = RemoteDp(this.value - other.value)
+    public operator fun minus(other: RemoteDp): RemoteDp
 
     /**
      * Returns a new [RemoteDp] that evaluates to the negation of this [RemoteDp].
      *
      * @return A [RemoteDp] representing `-this`.
      */
-    public operator fun unaryMinus(): RemoteDp = RemoteDp(-this.value)
+    public operator fun unaryMinus(): RemoteDp
 
     /**
      * Divides this [RemoteDp] by a scalar [Float].
@@ -138,7 +88,7 @@ internal constructor(
      * @param other The scalar divisor.
      * @return A [RemoteDp] representing `this / other`.
      */
-    public operator fun div(other: Float): RemoteDp = RemoteDp(this.value / other)
+    public operator fun div(other: Float): RemoteDp
 
     /**
      * Divides this [RemoteDp] by a scalar [Int].
@@ -146,7 +96,7 @@ internal constructor(
      * @param other The scalar divisor.
      * @return A [RemoteDp] representing `this / other`.
      */
-    public operator fun div(other: Int): RemoteDp = RemoteDp(this.value / other.toFloat())
+    public operator fun div(other: Int): RemoteDp
 
     /**
      * Divides this [RemoteDp] by a [RemoteFloat].
@@ -154,7 +104,7 @@ internal constructor(
      * @param other The [RemoteFloat] divisor.
      * @return A [RemoteDp] representing `this / other`.
      */
-    public operator fun div(other: RemoteFloat): RemoteDp = RemoteDp(this.value / other)
+    public operator fun div(other: RemoteFloat): RemoteDp
 
     /**
      * Divides this [RemoteDp] by a [RemoteInt].
@@ -162,8 +112,7 @@ internal constructor(
      * @param other The [RemoteInt] divisor.
      * @return A [RemoteDp] representing `this / other`.
      */
-    public operator fun div(other: RemoteInt): RemoteDp =
-        RemoteDp(this.value / other.toRemoteFloat())
+    public operator fun div(other: RemoteInt): RemoteDp
 
     /**
      * Divides this [RemoteDp] by another [RemoteDp] to produce a unitless [RemoteFloat] ratio.
@@ -171,7 +120,7 @@ internal constructor(
      * @param other The [RemoteDp] divisor.
      * @return A [RemoteFloat] representing the ratio `this / other`.
      */
-    public operator fun div(other: RemoteDp): RemoteFloat = this.value / other.value
+    public operator fun div(other: RemoteDp): RemoteFloat
 
     /**
      * Multiplies this [RemoteDp] by a scalar [Float].
@@ -179,7 +128,7 @@ internal constructor(
      * @param other The scalar multiplier.
      * @return A [RemoteDp] representing `this * other`.
      */
-    public operator fun times(other: Float): RemoteDp = RemoteDp(this.value * other)
+    public operator fun times(other: Float): RemoteDp
 
     /**
      * Multiplies this [RemoteDp] by a scalar [Int].
@@ -187,7 +136,7 @@ internal constructor(
      * @param other The scalar multiplier.
      * @return A [RemoteDp] representing `this * other`.
      */
-    public operator fun times(other: Int): RemoteDp = RemoteDp(this.value * other.toFloat())
+    public operator fun times(other: Int): RemoteDp
 
     /**
      * Multiplies this [RemoteDp] by a [RemoteFloat].
@@ -195,7 +144,7 @@ internal constructor(
      * @param other The [RemoteFloat] multiplier.
      * @return A [RemoteDp] representing `this * other`.
      */
-    public operator fun times(other: RemoteFloat): RemoteDp = RemoteDp(this.value * other)
+    public operator fun times(other: RemoteFloat): RemoteDp
 
     /**
      * Multiplies this [RemoteDp] by a [RemoteInt].
@@ -203,8 +152,7 @@ internal constructor(
      * @param other The [RemoteInt] multiplier.
      * @return A [RemoteDp] representing `this * other`.
      */
-    public operator fun times(other: RemoteInt): RemoteDp =
-        RemoteDp(this.value * other.toRemoteFloat())
+    public operator fun times(other: RemoteInt): RemoteDp
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
@@ -213,7 +161,7 @@ internal constructor(
      * @param other The [RemoteDp] to compare with.
      * @return A [RemoteBoolean] representing `this < other`.
      */
-    public fun isLessThan(other: RemoteDp): RemoteBoolean = this.value.isLessThan(other.value)
+    public fun isLessThan(other: RemoteDp): RemoteBoolean
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
@@ -222,8 +170,7 @@ internal constructor(
      * @param other The [RemoteDp] to compare with.
      * @return A [RemoteBoolean] representing `this <= other`.
      */
-    public fun isLessThanOrEqualTo(other: RemoteDp): RemoteBoolean =
-        this.value.isLessThanOrEqualTo(other.value)
+    public fun isLessThanOrEqualTo(other: RemoteDp): RemoteBoolean
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
@@ -232,7 +179,7 @@ internal constructor(
      * @param other The [RemoteDp] to compare with.
      * @return A [RemoteBoolean] representing `this > other`.
      */
-    public fun isGreaterThan(other: RemoteDp): RemoteBoolean = this.value.isGreaterThan(other.value)
+    public fun isGreaterThan(other: RemoteDp): RemoteBoolean
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
@@ -241,8 +188,7 @@ internal constructor(
      * @param other The [RemoteDp] to compare with.
      * @return A [RemoteBoolean] representing `this >= other`.
      */
-    public fun isGreaterThanOrEqualTo(other: RemoteDp): RemoteBoolean =
-        this.value.isGreaterThanOrEqualTo(other.value)
+    public fun isGreaterThanOrEqualTo(other: RemoteDp): RemoteBoolean
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
@@ -251,7 +197,7 @@ internal constructor(
      * @param other The [RemoteDp] to compare with.
      * @return A [RemoteBoolean] representing `this == other`.
      */
-    public fun isEqualTo(other: RemoteDp): RemoteBoolean = this.value.isEqualTo(other.value)
+    public fun isEqualTo(other: RemoteDp): RemoteBoolean
 
     /**
      * Returns a [RemoteBoolean] that evaluates to `true` if the evaluated value of this [RemoteDp]
@@ -260,7 +206,7 @@ internal constructor(
      * @param other The [RemoteDp] to compare with.
      * @return A [RemoteBoolean] representing `this != other`.
      */
-    public fun isNotEqualTo(other: RemoteDp): RemoteBoolean = this.value.isNotEqualTo(other.value)
+    public fun isNotEqualTo(other: RemoteDp): RemoteBoolean
 
     public companion object {
         /**
@@ -321,6 +267,103 @@ internal constructor(
     }
 }
 
+private class RemoteDpImpl(override val value: RemoteFloat, cacheKey: RemoteStateCacheKey) :
+    BaseRemoteState<Float>(cacheKey), RemoteDp {
+    override val equalityType: KClass<*>
+        get() = RemoteDp::class
+
+    override val constantValueOrNull: Float?
+        get() = value.constantValueOrNull
+
+    override fun toPx(density: RemoteDensity): RemoteFloat = density.density * value
+
+    override fun toPx(): RemoteFloat {
+        return RemoteFloat(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(DpOperationKey.ToPx, value),
+        ) { creationState ->
+            val density = creationState.remoteDensity
+            (value * density.density).arrayForCreationState(creationState)
+        }
+    }
+
+    override fun plus(other: RemoteDp): RemoteDp = RemoteDp(value + other.value)
+
+    override fun minus(other: RemoteDp): RemoteDp = RemoteDp(value - other.value)
+
+    override fun unaryMinus(): RemoteDp = RemoteDp(-value)
+
+    override fun div(other: Float): RemoteDp = RemoteDp(value / other)
+
+    override fun div(other: Int): RemoteDp = RemoteDp(value / other.toFloat())
+
+    override fun div(other: RemoteFloat): RemoteDp = RemoteDp(value / other)
+
+    override fun div(other: RemoteInt): RemoteDp = RemoteDp(value / other.toRemoteFloat())
+
+    override fun div(other: RemoteDp): RemoteFloat = value / other.value
+
+    override fun times(other: Float): RemoteDp = RemoteDp(value * other)
+
+    override fun times(other: Int): RemoteDp = RemoteDp(value * other.toFloat())
+
+    override fun times(other: RemoteFloat): RemoteDp = RemoteDp(value * other)
+
+    override fun times(other: RemoteInt): RemoteDp = RemoteDp(value * other.toRemoteFloat())
+
+    override fun isLessThan(other: RemoteDp): RemoteBoolean = value.isLessThan(other.value)
+
+    override fun isLessThanOrEqualTo(other: RemoteDp): RemoteBoolean =
+        value.isLessThanOrEqualTo(other.value)
+
+    override fun isGreaterThan(other: RemoteDp): RemoteBoolean = value.isGreaterThan(other.value)
+
+    override fun isGreaterThanOrEqualTo(other: RemoteDp): RemoteBoolean =
+        value.isGreaterThanOrEqualTo(other.value)
+
+    override fun isEqualTo(other: RemoteDp): RemoteBoolean = value.isEqualTo(other.value)
+
+    override fun isNotEqualTo(other: RemoteDp): RemoteBoolean = value.isNotEqualTo(other.value)
+
+    override fun toString(): String {
+        val valKey = value.cacheKey
+        if (valKey is RemoteOperationCacheKey && valKey.op == DpOperationKey.ToDp) {
+            return "${valKey.args[0].toOperandString(100)}.toDp()"
+        }
+        return "${valKey.toOperandString(100)}.dp"
+    }
+
+    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        return toPx(creationState.remoteDensity).writeToDocument(creationState)
+    }
+
+    override fun getFloatId(creationState: RemoteComposeCreationState): Float {
+        return creationState.getFloatId(toPx(creationState.remoteDensity))
+    }
+}
+
+private enum class DpOperationKey : RemoteOperation {
+    Dp,
+    ToPx,
+    ToDp;
+
+    override fun toDebugString(args: List<RemoteStateCacheKey>): String {
+        return when (this) {
+            Dp -> "${args[0].toOperandString(100)}.dp"
+            ToPx -> "${args[0].toOperandString(100)}.toPx()"
+            ToDp -> "${args[0].toOperandString(100)}.toDp()"
+        }
+    }
+
+    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+        return when (this) {
+            Dp -> RemoteDp(args[0] as RemoteFloat)
+            ToPx -> RemoteDp(args[0] as RemoteFloat).toPx()
+            ToDp -> (args[0] as RemoteFloat).toRemoteDp().value
+        }
+    }
+}
+
 /**
  * Creates a [RemoteDp] from a [RemoteFloat].
  *
@@ -328,7 +371,7 @@ internal constructor(
  * @return A [RemoteDp] wrapping the given [RemoteFloat].
  */
 public fun RemoteDp(value: RemoteFloat): RemoteDp =
-    RemoteDp(value, RemoteOperationCacheKey.create(RemoteDp.OperationKey.Dp, value))
+    RemoteDpImpl(value, RemoteOperationCacheKey.create(DpOperationKey.Dp, value))
 
 /**
  * Creates a [RemoteDp] with a literal [Float] value.
@@ -399,7 +442,7 @@ public fun RemoteFloat.toRemoteDp(): RemoteDp {
     return RemoteDp(
         RemoteFloat(
             constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(RemoteDp.OperationKey.ToDp, this),
+            cacheKey = RemoteOperationCacheKey.create(DpOperationKey.ToDp, this),
         ) { creationState ->
             val density = creationState.remoteDensity
             (this / density.density).arrayForCreationState(creationState)

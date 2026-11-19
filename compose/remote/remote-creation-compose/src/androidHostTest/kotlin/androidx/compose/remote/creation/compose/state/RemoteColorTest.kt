@@ -127,9 +127,9 @@ class RemoteColorTest {
         val dynamicNamed1 = RemoteColor.createNamedRemoteColor("dynColor1", dynamicBase)
         val dynamicNamed2 = RemoteColor.createNamedRemoteColor("dynColor2", dynamicBase)
 
-        val constId = constNamed.getIdForCreationState(creationState)
-        val dyn1Id = dynamicNamed1.getIdForCreationState(creationState)
-        val dyn2Id = dynamicNamed2.getIdForCreationState(creationState)
+        val constId = creationState.getId(constNamed)
+        val dyn1Id = creationState.getId(dynamicNamed1)
+        val dyn2Id = creationState.getId(dynamicNamed2)
 
         val doc = makeAndPaintCoreDocument()
 

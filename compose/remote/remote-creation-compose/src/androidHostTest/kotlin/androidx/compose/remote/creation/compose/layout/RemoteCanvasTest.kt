@@ -69,6 +69,8 @@ import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
+import androidx.compose.remote.creation.compose.state.arrayForCreationState
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -1164,7 +1166,7 @@ class RemoteCanvasTest {
     @Test
     fun testCustomComponent_booleanReturn_playerExecution() {
         val boolState = MutableRemoteBoolean(false)
-        val expectedBoolId = boolState.getIdForCreationState(creationState)
+        val expectedBoolId = creationState.getId(boolState)
 
         remoteCanvas.custom("testBooleanReturn") {
             bindReturn(1, boolState)
@@ -1439,8 +1441,8 @@ class RemoteCanvasTest {
 
         remoteCanvas.flush()
 
-        val id1 = sub1.getIdForCreationState(creationState)
-        val id2 = sub2.getIdForCreationState(creationState)
+        val id1 = creationState.getId(sub1)
+        val id2 = creationState.getId(sub2)
 
         assertThat(id1).isNotEqualTo(-1)
         assertThat(id2).isNotEqualTo(-1)
@@ -1708,7 +1710,7 @@ class RemoteCanvasTest {
 
             canvas.flush()
 
-            val bitmapId = offscreenBitmap.getIdForCreationState(canvas.creationState)
+            val bitmapId = canvas.creationState.getId(offscreenBitmap)
             val expectedOptimizedOps =
                 listOf(
                     "addMatrixSave",
@@ -1770,9 +1772,9 @@ class RemoteCanvasTest {
             canvas.flush()
             canvas.document.encodeToByteArray()
 
-            val bitmap42Id = remoteBitmap42.getIdForCreationState(canvas.creationState)
-            val bitmap43Id = remoteBitmap43.getIdForCreationState(canvas.creationState)
-            val sourceId = sourceBitmap.getIdForCreationState(canvas.creationState)
+            val bitmap42Id = canvas.creationState.getId(remoteBitmap42)
+            val bitmap43Id = canvas.creationState.getId(remoteBitmap43)
+            val sourceId = canvas.creationState.getId(sourceBitmap)
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -3208,7 +3210,7 @@ class RemoteCanvasTest {
         val condition = createNamedRemoteBoolean("myCond", true)
         val span = CanvasOperationBuffer.Span(null, 0)
         val op = CanvasOp.DrawConditionally(condition, span) { _, _ -> }
-        assertThat(op.toString()).isEqualTo("DrawConditionally(${condition.toDebugString()})")
+        assertThat(op.toString()).isEqualTo("DrawConditionally($condition)")
     }
 
     @Test
@@ -3298,8 +3300,8 @@ class RemoteCanvasTest {
             canvas.flush()
             canvas.document.encodeToByteArray()
 
-            val pxIdVal = Utils.idFromNan(varPx.getFloatIdForCreationState(canvas.creationState))
-            val pyIdVal = Utils.idFromNan(varPy.getFloatIdForCreationState(canvas.creationState))
+            val pxIdVal = Utils.idFromNan(canvas.creationState.getFloatId(varPx))
+            val pyIdVal = Utils.idFromNan(canvas.creationState.getFloatId(varPy))
 
             // It should NOT discard the pivot.
             assertThat(buffer.calls)

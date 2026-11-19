@@ -21,9 +21,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Companion.DefaultContainerSize
 import androidx.compose.runtime.Composable
@@ -90,7 +88,7 @@ class CollapsibleUI(
         contentUnderTest(RemoteModifier.size(DefaultContainerSize).background(RemoteColor.Red)) {
             CustomBox(
                 'A',
-                modifier = RemoteModifier.size(RemoteDp(DefaultContainerSize.value + 10.rf)),
+                modifier = RemoteModifier.size(DefaultContainerSize + 10.rdp),
             )
         }
     }

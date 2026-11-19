@@ -218,19 +218,18 @@ internal class RemoteTextNode : RemoteComposeNode() {
         val size = settings?.size ?: return Pair(null, null)
 
         val fontAxisNames = Array(size) { settings[it].axisName }
-        val fontAxisValues =
-            FloatArray(size) { settings[it].value.getFloatIdForCreationState(creationState) }
+        val fontAxisValues = FloatArray(size) { creationState.getFloatId(settings[it].value) }
 
         return Pair(fontAxisNames, fontAxisValues)
     }
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val textIdValue = text.getIdForCreationState(creationState)
+        val textIdValue = creationState.getId(text)
 
         val colorInt = color.constantValueOrNull ?: BlackArgb
         val colorId =
             if (!color.hasConstantValue) {
-                color.getIdForCreationState(creationState)
+                creationState.getId(color)
             } else {
                 -1
             }
@@ -239,10 +238,10 @@ internal class RemoteTextNode : RemoteComposeNode() {
         val (fontAxisNames, fontAxisValues) =
             extractFontSettings(combinedSettings?.settings, creationState)
 
-        val fontSizePxId = fontSize.toPx(remoteDensity).getFloatIdForCreationState(creationState)
+        val fontSizePxId = creationState.getFloatId(fontSize.toPx(remoteDensity))
 
-        val letterSpacingId = letterSpacing.getFloatIdForCreationState(creationState)
-        val lineHeightMultiplyId = lineHeightMultiply.getFloatIdForCreationState(creationState)
+        val letterSpacingId = creationState.getFloatId(letterSpacing)
+        val lineHeightMultiplyId = creationState.getFloatId(lineHeightMultiply)
 
         val scope = overriddenScope(remoteCanvas)
         val resolvedTextAlign =
@@ -262,7 +261,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
                 else -> textAlign
             }
 
-        val unadjustedFontWeight = fontWeight.getFloatIdForCreationState(creationState)
+        val unadjustedFontWeight = creationState.getFloatId(fontWeight)
         val adjustedFontWeight =
             if (unadjustedFontWeight.isNaN()) {
                 // If it's a variable, we currently don't support host-side adjustment.

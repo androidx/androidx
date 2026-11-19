@@ -44,7 +44,7 @@ class RemoteStringTest {
     fun toRemoteStringWithPostfix() {
         val percentage = RemoteFloat(45.5f)
         val percentageString = percentage.toRemoteStringOptions(2, 1, 0) + RemoteString("%")
-        val percentageStringId = percentageString.getIdForCreationState(creationState)
+        val percentageStringId = creationState.getId(percentageString)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(percentageStringId)).isEqualTo("45.5%")
@@ -54,7 +54,7 @@ class RemoteStringTest {
     fun lengthConstString() {
         val str = RemoteString("12345")
         val len = str.length
-        val lenId = len.getIdForCreationState(creationState)
+        val lenId = creationState.getId(len)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(lenId)).isEqualTo(5)
@@ -64,7 +64,7 @@ class RemoteStringTest {
     fun lengthDynamicString() {
         val str = RemoteString("12345") + RemoteString("678")
         val len = str.length
-        val lenId = len.getIdForCreationState(creationState)
+        val lenId = creationState.getId(len)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(lenId)).isEqualTo(8)
@@ -78,8 +78,8 @@ class RemoteStringTest {
         val isBEmpty = b.isEmpty
         val isAEmptyStr = isAEmpty.select(RemoteString("true"), RemoteString("false"))
         val isBEmptyStr = isBEmpty.select(RemoteString("true"), RemoteString("false"))
-        val isAEmptyStrId = isAEmptyStr.getIdForCreationState(creationState)
-        val isBEmptyStrId = isBEmptyStr.getIdForCreationState(creationState)
+        val isAEmptyStrId = creationState.getId(isAEmptyStr)
+        val isBEmptyStrId = creationState.getId(isBEmptyStr)
 
         makeAndPaintCoreDocument()
 
@@ -95,8 +95,8 @@ class RemoteStringTest {
         val isBNotEmpty = b.isNotEmpty
         val isANotEmptyStr = isANotEmpty.select(RemoteString("true"), RemoteString("false"))
         val isBNotEmptyStr = isBNotEmpty.select(RemoteString("true"), RemoteString("false"))
-        val isANotEmptyStrId = isANotEmptyStr.getIdForCreationState(creationState)
-        val isBNotEmptyStrId = isBNotEmptyStr.getIdForCreationState(creationState)
+        val isANotEmptyStrId = creationState.getId(isANotEmptyStr)
+        val isBNotEmptyStrId = creationState.getId(isBNotEmptyStr)
 
         makeAndPaintCoreDocument()
 
@@ -138,7 +138,7 @@ class RemoteStringTest {
     fun namedRemoteString_initialValue() {
         val namedRemoteString = createNamedRemoteString("testString", "initial")
         val result = namedRemoteString + RemoteString("!")
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -149,7 +149,7 @@ class RemoteStringTest {
     fun namedRemoteString_overriddenValue() {
         val namedRemoteString = createNamedRemoteString("testString", "initial")
         val result = namedRemoteString + RemoteString("!")
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndUpdateCoreDocument { context.setNamedStringOverride("USER:testString", "override") }
 
@@ -160,7 +160,7 @@ class RemoteStringTest {
     fun substring() {
         val s = RemoteString("Hello world")
         val result = s.substring(6)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -171,7 +171,7 @@ class RemoteStringTest {
     fun substringWithEnd() {
         val s = RemoteString("Hello world")
         val result = s.substring(1, 5)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -182,7 +182,7 @@ class RemoteStringTest {
     fun dynamicSubstring() {
         val s = RemoteString("Hello world")
         val result = s.substring(s.length - 4)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -193,7 +193,7 @@ class RemoteStringTest {
     fun uppercase() {
         val s = RemoteString("Hello world")
         val result = s.uppercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -205,12 +205,12 @@ class RemoteStringTest {
         val percentage = RemoteFloat(45.5f)
         val source = percentage.toRemoteStringOptions(2, 1, 0) + RemoteString("%")
         val result = source.uppercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         val doc = makeAndPaintCoreDocument()
 
         assertThat(context.getText(resultId)).isEqualTo("45.5%")
-        assertThat(resultId).isEqualTo(source.getIdForCreationState(creationState))
+        assertThat(resultId).isEqualTo(creationState.getId(source))
         assertThat(doc.operations.filterIsInstance<TextTransform>()).isEmpty()
     }
 
@@ -219,7 +219,7 @@ class RemoteStringTest {
         val s =
             selectIfLt(namedRemoteFloat, RemoteFloat(0f), RemoteString("abc"), RemoteString("def"))
         val result = s.uppercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         val doc = makeAndUpdateCoreDocument {}
 
@@ -233,12 +233,12 @@ class RemoteStringTest {
             selectIfLt(namedRemoteFloat, RemoteFloat(0f), RemoteString("abc"), RemoteString("def"))
         val upper1 = s.uppercase()
         val upper2 = upper1.uppercase()
-        val resultId = upper2.getIdForCreationState(creationState)
+        val resultId = creationState.getId(upper2)
 
         val doc = makeAndUpdateCoreDocument {}
 
         assertThat(context.getText(resultId)).isEqualTo("DEF")
-        assertThat(resultId).isEqualTo(upper1.getIdForCreationState(creationState))
+        assertThat(resultId).isEqualTo(creationState.getId(upper1))
         assertThat(doc.operations.filterIsInstance<TextTransform>()).hasSize(1)
     }
 
@@ -246,7 +246,7 @@ class RemoteStringTest {
     fun uppercase_namedString_emitsTextTransform() {
         val named = RemoteString.createNamedRemoteString("str", "123%")
         val upper = named.uppercase()
-        upper.getIdForCreationState(creationState)
+        creationState.getId(upper)
 
         val doc = makeAndUpdateCoreDocument {}
 
@@ -263,12 +263,12 @@ class RemoteStringTest {
                 RemoteString("مرحبا"),
             )
         val result = s.uppercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         val doc = makeAndUpdateCoreDocument {}
 
         assertThat(context.getText(resultId)).isEqualTo("مرحبا")
-        assertThat(resultId).isEqualTo(s.getIdForCreationState(creationState))
+        assertThat(resultId).isEqualTo(creationState.getId(s))
         assertThat(doc.operations.filterIsInstance<TextTransform>()).isEmpty()
     }
 
@@ -276,7 +276,7 @@ class RemoteStringTest {
     fun lowercase() {
         val s = RemoteString("Hello world")
         val result = s.lowercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -288,12 +288,12 @@ class RemoteStringTest {
         val percentage = RemoteFloat(45.5f)
         val source = percentage.toRemoteStringOptions(2, 1, 0) + RemoteString("%")
         val result = source.lowercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         val doc = makeAndPaintCoreDocument()
 
         assertThat(context.getText(resultId)).isEqualTo("45.5%")
-        assertThat(resultId).isEqualTo(source.getIdForCreationState(creationState))
+        assertThat(resultId).isEqualTo(creationState.getId(source))
         assertThat(doc.operations.filterIsInstance<TextTransform>()).isEmpty()
     }
 
@@ -302,7 +302,7 @@ class RemoteStringTest {
         val s =
             selectIfLt(namedRemoteFloat, RemoteFloat(0f), RemoteString("ABC"), RemoteString("DEF"))
         val result = s.lowercase()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         val doc = makeAndUpdateCoreDocument {}
 
@@ -316,12 +316,12 @@ class RemoteStringTest {
             selectIfLt(namedRemoteFloat, RemoteFloat(0f), RemoteString("ABC"), RemoteString("DEF"))
         val lower1 = s.lowercase()
         val lower2 = lower1.lowercase()
-        val resultId = lower2.getIdForCreationState(creationState)
+        val resultId = creationState.getId(lower2)
 
         val doc = makeAndUpdateCoreDocument {}
 
         assertThat(context.getText(resultId)).isEqualTo("def")
-        assertThat(resultId).isEqualTo(lower1.getIdForCreationState(creationState))
+        assertThat(resultId).isEqualTo(creationState.getId(lower1))
         assertThat(doc.operations.filterIsInstance<TextTransform>()).hasSize(1)
     }
 
@@ -329,7 +329,7 @@ class RemoteStringTest {
     fun trim() {
         val s = RemoteString(" Hello world ")
         val result = s.trim()
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -342,7 +342,7 @@ class RemoteStringTest {
         val start = s.length - 6
         val end = s.length - 2
         val result = s.substring(start, end)
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -353,7 +353,7 @@ class RemoteStringTest {
     fun dynamicSubstringWithEnd2() {
         val s = RemoteString("Hello world")
         val result = s.substring(0, RemoteInt(5))
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
 
         makeAndPaintCoreDocument()
 
@@ -370,7 +370,7 @@ class RemoteStringTest {
     fun operatorPlusString() {
         val str = "12345".rs + "678"
         val len = str.length
-        val lenId = len.getIdForCreationState(creationState)
+        val lenId = creationState.getId(len)
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(lenId)).isEqualTo(8)
@@ -394,7 +394,7 @@ class RemoteStringTest {
     fun mutableRemoteString_smokeTest() {
         val mutableStr = MutableRemoteString("test")
         val result = mutableStr + RemoteString("!")
-        val resultId = result.getIdForCreationState(creationState)
+        val resultId = creationState.getId(result)
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(resultId)).isEqualTo("test!")
@@ -563,31 +563,31 @@ class RemoteStringTest {
     }
 
     @Test
-    fun toDebugString_concatenation() {
+    fun toString_concatenation() {
         val s = createNamedRemoteString("s", "hi")
         val expr = s + RemoteString(" there")
-        assertThat(expr.toDebugString()).isEqualTo("""user:s + " there"""")
+        assertThat(expr.toString()).isEqualTo("""user:s + " there"""")
     }
 
     @Test
-    fun toDebugString_select() {
+    fun toString_select() {
         val x = createNamedRemoteFloat("x", 1f)
         val y = createNamedRemoteFloat("y", 2f)
         val sel = selectIfLt(x, y, RemoteString("A"), RemoteString("B"))
-        assertThat(sel.toDebugString()).isEqualTo("""user:x < user:y ? "A" : "B"""")
+        assertThat(sel.toString()).isEqualTo("""user:x < user:y ? "A" : "B"""")
     }
 
     @Test
-    fun toDebugString_contextVariable() {
+    fun toString_contextVariable() {
         val continuousSecFloat = RemoteTimeVariables.continuousSeconds
         val strExpr = continuousSecFloat.toRemoteString()
-        assertThat(strExpr.toDebugString()).isEqualTo("context:continuous_sec.toRemoteString()")
+        assertThat(strExpr.toString()).isEqualTo("context:continuous_sec.toRemoteString()")
     }
 
     @Test
-    fun toDebugString_constant() {
+    fun toString_constant() {
         val rs = RemoteString("hello")
-        assertThat(rs.toDebugString()).isEqualTo("\"hello\"")
+        assertThat(rs.toString()).isEqualTo("\"hello\"")
     }
 
     private fun makeAndPaintCoreDocument() = context.loadDocument(creationState)
