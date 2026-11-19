@@ -595,13 +595,23 @@ constructor(
 
                 if (torchOnRequired) {
                     debug { "CapturePipeline#torchApplyCapture: Setting torch" }
-                    torchControl
-                        .setTorchAsync(
-                            TorchMode.USED_AS_FLASH,
-                            session = session.takeIf { !useCaseCameraContext.isGraphClosed },
-                        )
-                        .join()
-                    debug { "CapturePipeline#torchApplyCapture: Setting torch done" }
+                    // Bound the wait since the torch-on 3A result may never complete, e.g. when the
+                    // HAL stops delivering FLASH_MODE_TORCH confirmation frames.
+                    val torchResult =
+                        with3ATimeoutOrNull(timeLimitNs) {
+                            torchControl
+                                .setTorchAsync(
+                                    TorchMode.USED_AS_FLASH,
+                                    session =
+                                        session.takeIf { !useCaseCameraContext.isGraphClosed },
+                                )
+                                .join()
+                        }
+                    if (torchResult == null) {
+                        debug { "CapturePipeline#torchApplyCapture: Setting torch timed out" }
+                    } else {
+                        debug { "CapturePipeline#torchApplyCapture: Setting torch done" }
+                    }
                 }
 
                 if (triggerAePreCapture) {
