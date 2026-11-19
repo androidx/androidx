@@ -202,6 +202,7 @@ public class EncoderImpl implements Encoder {
     @NonNull
     private final Rational mCaptureToEncodeFrameRateRatio;
     private final boolean mCodecStopAsFlushWorkaroundEnabled;
+    private final boolean mResumeInputSurfaceOnStart;
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     @GuardedBy("mLock")
@@ -262,6 +263,7 @@ public class EncoderImpl implements Encoder {
             mEncoderInfo = audioEncoderInfo;
             mCaptureToEncodeFrameRateRatio = new Rational(audioEncoderConfig.getCaptureSampleRate(),
                     audioEncoderConfig.getEncodeSampleRate());
+            mResumeInputSurfaceOnStart = false;
         } else if (encoderConfig instanceof VideoEncoderConfig) {
             VideoEncoderConfig videoEncoderConfig = (VideoEncoderConfig) encoderConfig;
             mTag = "VideoEncoder";
@@ -274,6 +276,15 @@ public class EncoderImpl implements Encoder {
             mCaptureToEncodeFrameRateRatio = new Rational(videoEncoderConfig.getCaptureFrameRate(),
                     videoEncoderConfig.getEncodeFrameRate());
             isHighSpeedCapture = videoEncoderConfig.isHighSpeedCapture();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Connect the persistent input surface suspended so frames rendered while the
+                // encoder is configured are dropped instead of held and submitted during
+                // MediaCodec.start() (b/579234725).
+                mMediaFormat.setInteger(MediaFormat.KEY_CREATE_INPUT_SURFACE_SUSPENDED, 1);
+                mResumeInputSurfaceOnStart = true;
+            } else {
+                mResumeInputSurfaceOnStart = false;
+            }
         } else {
             throw new InvalidConfigException("Unknown encoder config type");
         }
@@ -411,6 +422,9 @@ public class EncoderImpl implements Encoder {
                         mStartStopTimeRangeUs = Range.create(startTriggerTimeUs, NO_LIMIT_LONG);
                         Logger.d(mTag, "mMediaCodec.start()");
                         mMediaCodec.start();
+                        if (mResumeInputSurfaceOnStart) {
+                            setMediaCodecPaused(false);
+                        }
                     } catch (MediaCodec.CodecException e) {
                         handleEncodeError(e);
                         return;
