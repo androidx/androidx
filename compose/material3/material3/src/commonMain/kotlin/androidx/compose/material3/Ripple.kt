@@ -405,12 +405,16 @@ public class RippleThemeConfiguration(public val focus: Focus) {
          * An inset ring focus indication. This is drawn using two strokes, an outer stroke and an
          * inner stroke. The inner stroke is drawn first, followed by the outer stroke.
          *
+         * Negative inset values are not supported and are treated as `0.dp` (no inset).
+         *
          * As this describes the overall ripple theme, and the inset ring colors are use-site
          * specific, the colors are configured in [RippleConfiguration.Focus.InsetRing] instead.
          *
-         * @param outerStrokeInset the amount the outer stroke is inset
+         * @param outerStrokeInset the amount the outer stroke is inset. Must not be negative;
+         *   negative values are treated as `0.dp`
          * @param outerStrokeWidth the width of the outer stroke
-         * @param innerStrokeInset the amount the inner stroke is inset
+         * @param innerStrokeInset the amount the inner stroke is inset. Must not be negative;
+         *   negative values are treated as `0.dp`
          * @param innerStrokeWidth the width of the inner stroke
          */
         public class InsetRing(
