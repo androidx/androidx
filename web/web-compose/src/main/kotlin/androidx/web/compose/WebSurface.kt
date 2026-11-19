@@ -27,7 +27,7 @@ import androidx.annotation.RequiresFeature
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.retain.RetainObserver
 import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -96,13 +96,23 @@ import kotlin.math.hypot
     enforcement = "androidx.web.WebFeature#isFeatureSupported",
 )
 public fun retainWebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
-    val webContent = retain { WebContent(block) }
-    RetainedEffect(webContent) {
-        onRetire {
-            webContent.close()
-        }
+    return retain { RetainedWebContent(WebContent(block)) }.content
+}
+
+private class RetainedWebContent(val content: WebContent) : RetainObserver {
+    override fun onRetained() {}
+
+    override fun onEnteredComposition() {}
+
+    override fun onExitedComposition() {}
+
+    override fun onRetired() {
+        content.close()
     }
-    return webContent
+
+    override fun onUnused() {
+        content.close()
+    }
 }
 
 /**

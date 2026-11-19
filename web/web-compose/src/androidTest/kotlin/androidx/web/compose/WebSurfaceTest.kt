@@ -77,6 +77,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
@@ -2129,6 +2131,35 @@ class WebSurfaceTest {
 
         bridge.evaluateJs("document.body.style.background = 'rgb(0,0,255)'")
         waitForPixelToBe(centerX, centerY) { it == Color.BLUE }
+    }
+
+    @Test
+    fun testRetainWebContentClosesOnCancelledPrecomposition() {
+        val subcomposeState = SubcomposeLayoutState()
+        var precomposedContent: WebContent? = null
+
+        composeTestRule.setContent {
+            SubcomposeLayout(state = subcomposeState) { layout(0, 0) {} }
+        }
+
+        composeTestRule.runOnIdle {
+            val paused =
+                subcomposeState.createPausedPrecomposition(Unit) {
+                    precomposedContent = retainWebContent()
+                }
+            while (!paused.isComplete) {
+                paused.resume { false }
+            }
+            paused.cancel()
+            val abandoned = checkNotNull(precomposedContent)
+            try {
+                assertThrows(IllegalStateException::class.java) {
+                    abandoned.attach(composeTestRule.activity, ::WebViewBridge)
+                }
+            } finally {
+                abandoned.close()
+            }
+        }
     }
 
     private fun obtainDragEvent(action: Int, x: Float, y: Float): DragEvent {
