@@ -29,7 +29,7 @@ public object WebFeature {
     public annotation class WebFeatures
 
     /** Feature for [WebContent]. */
-    public const val WEB_CONTENT: String = Features.WEB_CONTENT
+    public const val WEB_CONTENT: String = "WEB_CONTENT"
 
     /** Feature for WebSurface. */
     public const val WEB_SURFACE: String = Features.WEB_SURFACE
@@ -55,7 +55,12 @@ public object WebFeature {
      */
     @JvmStatic
     public fun isFeatureSupported(@WebFeatures feature: String): Boolean {
-        return Features.containsFeature(supportedFeatures, feature)
+        val internalFeature =
+            when (feature) {
+                WEB_CONTENT -> Features.WEB_CONTENT_V2
+                else -> feature
+            }
+        return Features.containsFeature(supportedFeatures, internalFeature)
     }
 
     internal fun checkSupported(@WebFeatures feature: String) {
