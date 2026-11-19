@@ -28,7 +28,9 @@ import kotlinx.coroutines.SupervisorJob
 /** Internal state for [androidx.compose.runtime.tooling.RecompositionTracer]. */
 internal object RecompositionTracerState {
     private val lock = Any()
-    private val tracingContext = Dispatchers.Main + SupervisorJob()
+    // Use Dispatchers.Unconfined so newly started Recomposer instances are observed synchronously
+    // before initial composition runs.
+    private val tracingContext = Dispatchers.Unconfined + SupervisorJob()
     private var tracingHandle: CancellationHandle? = null
 
     /**
