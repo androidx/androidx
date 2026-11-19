@@ -17,9 +17,9 @@
 
 package androidx.compose.remote.integration.view.demos.examples
 
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -33,8 +33,8 @@ fun NotificationListLayout(
     RemoteColumn(modifier = modifier) {
         RemoteText(text = RemoteString("Remote Notifications (Dynamic Size):"))
 
-        val possibleSizes = IntArray(notificationList.items.size + 1) { it }
-        RemoteStateLayout(notificationList.size, *possibleSizes) { currentSize ->
+        RemoteAllStatesLayout(notificationList.size, notificationList.items.size + 1) { currentSize
+            ->
             RemoteColumn {
                 notificationList.items.forEachIndexed { index, item ->
                     if (index < currentSize) {

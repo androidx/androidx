@@ -32,8 +32,8 @@ import org.junit.runners.Parameterized
 /**
  * Parameterized state update and state-layout benchmarks:
  * - S1: 1/8/32 named values × 16/100/1000 ms on one document (`embedded` vs `view`)
- * - S2a: 4-state [RemoteStateLayout] on one document
- * - S2b: 50-card feed where each card has a 3-state [RemoteStateLayout]
+ * - S2a: 4-state [RemoteAllStatesLayout] on one document
+ * - S2b: 50-card feed where each card has a 3-state [RemoteAllStatesLayout]
  */
 @LargeTest
 @RunWith(Parameterized::class)

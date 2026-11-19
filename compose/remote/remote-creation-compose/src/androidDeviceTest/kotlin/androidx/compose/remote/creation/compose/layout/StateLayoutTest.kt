@@ -122,7 +122,7 @@ class StateLayoutTest {
         currentState: RemoteEnum<LayoutState> = remember { MutableRemoteEnum(LayoutState.First) },
         content: @Composable @RemoteComposable (LayoutState) -> Unit,
     ) {
-        RemoteStateLayout(
+        RemoteAllStatesLayout(
             currentState = currentState,
             modifier = RemoteModifier.fillMaxSize().background(RemoteColor.LightGray),
         ) { layoutState ->

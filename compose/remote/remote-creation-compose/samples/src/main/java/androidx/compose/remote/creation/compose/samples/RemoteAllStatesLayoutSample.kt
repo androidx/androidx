@@ -18,7 +18,7 @@ package androidx.compose.remote.creation.compose.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.valueChangeAction
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -42,9 +42,9 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
-fun RemoteStateLayoutBooleanSample() {
+fun RemoteAllStatesLayoutBooleanSample() {
     val state = remember { MutableRemoteBoolean(true) }
-    RemoteStateLayout(
+    RemoteAllStatesLayout(
         currentState = state,
         modifier = RemoteModifier.clickable(valueChangeAction(state, !state)).padding(8.rdp),
     ) { isTrue ->
@@ -60,9 +60,9 @@ fun RemoteStateLayoutBooleanSample() {
 @Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
-fun RemoteStateLayoutIntSample() {
+fun RemoteAllStatesLayoutIntSample() {
     val state = remember { MutableRemoteInt(0) }
-    RemoteStateLayout(currentState = state, 0, 1, 2) { index ->
+    RemoteAllStatesLayout(currentState = state, stateCount = 3) { index ->
         when (index) {
             0 ->
                 RemoteText(
@@ -99,9 +99,9 @@ enum class SampleState {
 @Preview
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
-fun RemoteStateLayoutEnumSample() {
+fun RemoteAllStatesLayoutEnumSample() {
     val state = remember { MutableRemoteEnum(SampleState.Loading) }
-    RemoteStateLayout(currentState = state) { screen ->
+    RemoteAllStatesLayout(currentState = state) { screen ->
         when (screen) {
             SampleState.Loading ->
                 RemoteText(
@@ -130,6 +130,72 @@ fun RemoteStateLayoutEnumSample() {
                     modifier =
                         RemoteModifier.clickable(
                                 valueChangeAction(state, RemoteEnum(SampleState.Loading))
+                            )
+                            .padding(8.rdp),
+                )
+        }
+    }
+}
+
+enum class DownloadStatus {
+    Queued,
+    Connecting,
+    Downloading,
+    Verifying,
+    Completed,
+    FailedNetwork,
+    FailedDisk,
+    Cancelled,
+}
+
+@Sampled
+@Preview
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteAllStatesLayoutReducedDomainSample() {
+    val status = remember { MutableRemoteEnum(DownloadStatus.Queued) }
+    // Collapse the 8 enum entries into 3 distinct UI states so only 3 subtrees are emitted.
+    val uiState = status.toRemoteInt {
+        when (it) {
+            DownloadStatus.Queued,
+            DownloadStatus.Connecting,
+            DownloadStatus.Downloading,
+            DownloadStatus.Verifying -> 0.ri
+            DownloadStatus.Completed -> 1.ri
+            DownloadStatus.FailedNetwork,
+            DownloadStatus.FailedDisk,
+            DownloadStatus.Cancelled -> 2.ri
+        }
+    }
+    RemoteAllStatesLayout(currentState = uiState, stateCount = 3) { stateIndex ->
+        when (stateIndex) {
+            0 ->
+                RemoteText(
+                    "In progress (tap to complete)".rs,
+                    color = Color.Gray.rc,
+                    modifier =
+                        RemoteModifier.clickable(
+                                valueChangeAction(status, RemoteEnum(DownloadStatus.Completed))
+                            )
+                            .padding(8.rdp),
+                )
+            1 ->
+                RemoteText(
+                    "Completed (tap to fail)".rs,
+                    color = Color.Green.rc,
+                    modifier =
+                        RemoteModifier.clickable(
+                                valueChangeAction(status, RemoteEnum(DownloadStatus.FailedNetwork))
+                            )
+                            .padding(8.rdp),
+                )
+            else ->
+                RemoteText(
+                    "Failed (tap to retry)".rs,
+                    color = Color.Red.rc,
+                    modifier =
+                        RemoteModifier.clickable(
+                                valueChangeAction(status, RemoteEnum(DownloadStatus.Queued))
                             )
                             .padding(8.rdp),
                 )

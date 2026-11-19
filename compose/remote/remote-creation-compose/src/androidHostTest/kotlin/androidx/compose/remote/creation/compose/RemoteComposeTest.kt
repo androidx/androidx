@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInf
 import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
@@ -31,11 +32,11 @@ import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.MutableRemoteEnum
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
@@ -163,13 +164,49 @@ class RemoteComposeTest {
         val document =
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 val checked = remember { MutableRemoteEnum(ToggleState.On) }
-                RemoteStateLayout(currentState = checked) { state ->
+                RemoteAllStatesLayout(currentState = checked) { state ->
                     RemoteText(text = "State $state".rs)
                 }
             }
 
         assertNotNull(document)
         assertTrue(document.bytes.isNotEmpty())
+    }
+
+    @Test
+    fun testAllStatesLayoutInt() = runTest {
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
+        val emittedStates = mutableListOf<Int>()
+        val document =
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
+                val stateIndex = remember { MutableRemoteInt(1) }
+                RemoteAllStatesLayout(currentState = stateIndex, stateCount = 3) { state ->
+                    emittedStates.add(state)
+                    RemoteText(text = "State $state".rs)
+                }
+            }
+
+        assertNotNull(document)
+        assertTrue(document.bytes.isNotEmpty())
+        assertTrue(emittedStates == listOf(0, 1, 2))
+    }
+
+    @Test
+    fun testAllStatesLayoutIntRejectsNonPositiveStateCount() = runTest {
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
+        var thrown: IllegalArgumentException? = null
+        try {
+            captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
+                val stateIndex = remember { MutableRemoteInt(0) }
+                RemoteAllStatesLayout(currentState = stateIndex, stateCount = 0) { state ->
+                    RemoteText(text = "State $state".rs)
+                }
+            }
+        } catch (e: IllegalArgumentException) {
+            thrown = e
+        }
+
+        assertNotNull(thrown)
     }
 
     private enum class ToggleState {

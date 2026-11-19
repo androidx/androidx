@@ -37,12 +37,12 @@ import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.animationSpec
@@ -127,7 +127,7 @@ fun RemoteStateLayoutSimpleDemo(onDocument: (CoreDocument) -> Unit = {}) {
         ) {
             val remoteState = remember(stateId) { createNamedRemoteInt(stateId, states[0]) }
 
-            RemoteStateLayout(currentState = remoteState, states = states) { state ->
+            RemoteAllStatesLayout(currentState = remoteState, stateCount = states.size) { state ->
                 val color =
                     when (state) {
                         0 -> Color.Red
@@ -167,7 +167,7 @@ private fun RemoteStateLayoutCardExpansion() {
                 .padding(16.rdp),
         contentAlignment = RemoteAlignment.Center,
     ) {
-        RemoteStateLayout(currentState = isExpanded) { expanded ->
+        RemoteAllStatesLayout(currentState = isExpanded) { expanded ->
             if (!expanded) {
                 // State 0: Compact Card
                 RemoteRow(
@@ -328,7 +328,7 @@ private fun RemoteStateLayoutMediaPlayer() {
                 .padding(16.rdp),
         contentAlignment = RemoteAlignment.Center,
     ) {
-        RemoteStateLayout(currentState = isFullScreen) { full ->
+        RemoteAllStatesLayout(currentState = isFullScreen) { full ->
             if (!full) {
                 // Mini Player
                 RemoteRow(
@@ -543,7 +543,7 @@ private fun RemoteStateLayoutMorphGrid() {
                     .padding(16.rdp),
             contentAlignment = RemoteAlignment.Center,
         ) {
-            RemoteStateLayout(currentState = morphState, 0, 1, 2) { state ->
+            RemoteAllStatesLayout(currentState = morphState, stateCount = 3) { state ->
                 when (state) {
                     0 -> {
                         // 2x2 Grid Layout
@@ -753,11 +753,9 @@ private fun RemoteStateLayoutModifierTransitions() {
                     .padding(16.rdp),
             contentAlignment = RemoteAlignment.Center,
         ) {
-            RemoteStateLayout(
+            RemoteAllStatesLayout(
                 currentState = styleState,
-                0,
-                1,
-                2,
+                stateCount = 3,
                 modifier =
                     RemoteModifier.animationSpec(motionSpec = remoteTween(durationMillis = 500)),
             ) { state ->
@@ -988,7 +986,7 @@ private fun RemoteStateLayoutTabContent() {
                     .background(Color(0xFF262938).rc)
                     .padding(3.rdp)
         ) {
-            RemoteStateLayout(currentState = activeTab, 0, 1, 2) { tab ->
+            RemoteAllStatesLayout(currentState = activeTab, stateCount = 3) { tab ->
                 val indicatorStart =
                     when (tab) {
                         0 -> 0.rdp
@@ -1055,7 +1053,7 @@ private fun RemoteStateLayoutTabContent() {
                     .padding(12.rdp),
             contentAlignment = RemoteAlignment.Center,
         ) {
-            RemoteStateLayout(currentState = activeTab, 0, 1, 2) { tab ->
+            RemoteAllStatesLayout(currentState = activeTab, stateCount = 3) { tab ->
                 when (tab) {
                     0 -> {
                         // Pane 0: Overview
@@ -1218,7 +1216,7 @@ private fun RemoteStateLayoutStepperInterruption() {
                         .background(Color(0xFF2C3048).rc)
             )
 
-            RemoteStateLayout(currentState = step, 0, 1, 2, 3) { currentStep ->
+            RemoteAllStatesLayout(currentState = step, stateCount = 4) { currentStep ->
                 val pillOffset =
                     when (currentStep) {
                         0 -> 0.rdp
@@ -1255,7 +1253,7 @@ private fun RemoteStateLayoutStepperInterruption() {
                     .padding(12.rdp),
             contentAlignment = RemoteAlignment.Center,
         ) {
-            RemoteStateLayout(currentState = step, 0, 1, 2, 3) { s ->
+            RemoteAllStatesLayout(currentState = step, stateCount = 4) { s ->
                 val title =
                     when (s) {
                         0 -> "Step 1: Review Cart"
@@ -1361,7 +1359,7 @@ private fun RemoteStateLayoutNestedDashboard() {
         }
 
         // Outer StateLayout
-        RemoteStateLayout(currentState = outerExpanded) { expanded ->
+        RemoteAllStatesLayout(currentState = outerExpanded) { expanded ->
             if (!expanded) {
                 // Outer State 0: Compact Row Layout
                 RemoteRow(
@@ -1443,7 +1441,7 @@ private fun NestedStatusWidget(innerStatus: MutableRemoteInt) {
                 onClick = valueChangeAction(innerStatus, (innerStatus + 1) % 3)
             )
     ) {
-        RemoteStateLayout(currentState = innerStatus, 0, 1, 2) { st ->
+        RemoteAllStatesLayout(currentState = innerStatus, stateCount = 3) { st ->
             val color =
                 when (st) {
                     0 -> Color(0xFF00B894)

@@ -22,10 +22,10 @@ import androidx.activity.compose.ReportDrawn
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
 /**
  * Target activity for parameterized state benchmarks:
  * - `mode = "s1"`: [valueCount] (1/8/32) named strings, updating `v0` every [intervalMs] ms.
- * - `mode = "s2a"`: 4-state [RemoteStateLayout], cycling `stateIndex` every [intervalMs] ms.
+ * - `mode = "s2a"`: 4-state [RemoteAllStatesLayout], cycling `stateIndex` every [intervalMs] ms.
  */
 class RemoteStateBenchActivity : ComponentActivity() {
     private var updateJob: Job? = null
@@ -192,12 +192,9 @@ class RemoteStateBenchActivity : ComponentActivity() {
                                         contentDescription = STATE_BENCH_CONTENT_DESCRIPTION.rs
                                     },
                         ) {
-                            RemoteStateLayout(
+                            RemoteAllStatesLayout(
                                 currentState = stateIndex,
-                                0,
-                                1,
-                                2,
-                                3,
+                                stateCount = 4,
                                 modifier = RemoteModifier.fillMaxWidth().height(200.rdp),
                             ) { index ->
                                 val (bg, fg, label) =

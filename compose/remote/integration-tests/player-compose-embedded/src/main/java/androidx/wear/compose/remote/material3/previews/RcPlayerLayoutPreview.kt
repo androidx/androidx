@@ -20,13 +20,13 @@ package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.alpha
@@ -265,7 +265,7 @@ private fun RcStateLayoutSharedElementPreview(
                         .clickable(onClick = valueChangeAction(isExpanded, !isExpanded))
                         .padding(12.rdp)
             ) {
-                RemoteStateLayout(currentState = isExpanded) { expanded ->
+                RemoteAllStatesLayout(currentState = isExpanded) { expanded ->
                     if (!expanded) {
                         RemoteRow(
                             verticalAlignment = RemoteAlignment.CenterVertically,

@@ -24,11 +24,11 @@ import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.creation.compose.action.valueChangeAction
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition
 import androidx.compose.remote.creation.compose.modifier.RemoteExitTransition
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -416,7 +416,7 @@ class RcPlayerAnimationTest {
                             .size(20.rdp)
                             .clickable(onClick = valueChangeAction(checked, !checked))
                 )
-                RemoteStateLayout(currentState = checked) { state ->
+                RemoteAllStatesLayout(currentState = checked) { state ->
                     if (!state) {
                         RemoteBox(
                             modifier =
@@ -496,7 +496,7 @@ class RcPlayerAnimationTest {
                             .size(20.rdp)
                             .clickable(onClick = valueChangeAction(stateIndex, RemoteInt(1)))
                 )
-                RemoteStateLayout(currentState = stateIndex, 0, 1) { state ->
+                RemoteAllStatesLayout(currentState = stateIndex, stateCount = 2) { state ->
                     if (state == 0) {
                         RemoteRow {
                             RemoteBox(modifier = RemoteModifier.width(100.rdp).height(40.rdp))
@@ -581,7 +581,7 @@ class RcPlayerAnimationTest {
                             .size(20.rdp)
                             .clickable(onClick = valueChangeAction(state, !state))
                 )
-                RemoteStateLayout(currentState = state) { isState1 ->
+                RemoteAllStatesLayout(currentState = state) { isState1 ->
                     if (!isState1) {
                         RemoteRow {
                             RemoteBox(
@@ -699,7 +699,7 @@ class RcPlayerAnimationTest {
                             .size(20.rdp)
                             .clickable(onClick = valueChangeAction(state, !state))
                 )
-                RemoteStateLayout(currentState = state) { isState1 ->
+                RemoteAllStatesLayout(currentState = state) { isState1 ->
                     if (!isState1) {
                         RemoteBox(
                             modifier =
@@ -850,7 +850,7 @@ class RcPlayerAnimationTest {
                             .size(20.rdp)
                             .clickable(onClick = valueChangeAction(checked, !checked))
                 )
-                RemoteStateLayout(currentState = checked) { state ->
+                RemoteAllStatesLayout(currentState = checked) { state ->
                     if (!state) {
                         RemoteBox(
                             modifier =
@@ -1020,7 +1020,7 @@ class RcPlayerAnimationTest {
                                 .size(20.rdp)
                                 .clickable(onClick = valueChangeAction(checked, !checked))
                     )
-                    RemoteStateLayout(currentState = checked) { state ->
+                    RemoteAllStatesLayout(currentState = checked) { state ->
                         if (!state) {
                             RemoteBox(
                                 modifier =
