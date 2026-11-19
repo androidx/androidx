@@ -43,6 +43,7 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
+    testImplementation(libs.guava)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)

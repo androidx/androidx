@@ -25,7 +25,6 @@ import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
-import java.lang.reflect.Modifier
 
 /**
  * Creates a [GlanceAdaptiveWidgetManager] instance to work with the AppWidget framework on mobile
@@ -236,9 +235,6 @@ internal fun <T : GlanceAdaptiveTemplate> GlanceAdaptiveWidgetManager.registerRe
     val delegate = delegate
     check(delegate is GlanceAdaptiveAppWidgetDelegate) {
         "registerRenderer requires a GlanceAdaptiveWidgetManager backed by an AppWidget delegate"
-    }
-    require(!templateClass.isInterface && !Modifier.isAbstract(templateClass.modifiers)) {
-        "registerRenderer requires a concrete template class, but got: ${templateClass.name}"
     }
     AppWidgetTemplateRegistry.register(
         widgetName = widgetName,
