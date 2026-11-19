@@ -16,14 +16,17 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import android.util.Log as AndroidLog
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
@@ -40,6 +43,7 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
@@ -60,10 +64,12 @@ internal class Controller3ASubmit3ATest {
     @After
     fun teardown() {
         graphTestContext.close()
+        ShadowLog.clear()
     }
 
     @Test
     fun testSubmit3AFailsImmediatelyWithoutRepeatingRequest() = runTest {
+        ShadowLog.clear()
         val graphProcessor2 = FakeGraphProcessor()
         val graphState3A2 = GraphState3A()
         val controller3A =
@@ -75,6 +81,8 @@ internal class Controller3ASubmit3ATest {
             )
         val result = controller3A.submit3A(afMode = AfMode.OFF)
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        val warnLogs = ShadowLog.getLogsForTag(Log.TAG).filter { it.type == AndroidLog.WARN }
+        assertThat(warnLogs).hasSize(1)
     }
 
     @Test
@@ -247,5 +255,87 @@ internal class Controller3ASubmit3ATest {
         val result = deferred.await()
         assertThat(result.frameMetadata).isNull()
         assertThat(result.status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+    }
+
+    @Test
+    fun testSubmit3AFailsImmediatelyWithUnsupportedAeMode() = runTest {
+        val result = controller3A.submit3A(aeMode = AeMode.ON_EXTERNAL_FLASH)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+    }
+
+    @Test
+    fun testSubmit3AFailsImmediatelyWithUnsupportedAfMode() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        val result = controller.submit3A(afMode = AfMode.CONTINUOUS_PICTURE)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+    }
+
+    @Test
+    fun testSubmit3AFailsImmediatelyWithUnsupportedAwbMode() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_AUTO)
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        val result = controller.submit3A(awbMode = AwbMode.CLOUDY_DAYLIGHT)
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+    }
+
+    @Test
+    fun testSubmit3ALogsWarningsForAllUnsupportedModes() = runTest {
+        val controller =
+            Controller3A(
+                graphProcessor,
+                FakeCameraMetadata.fromTemplate(
+                    HighEndDeviceTemplate,
+                    characteristicsOverrides =
+                        mapOf(
+                            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF),
+                            CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES to
+                                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_AUTO),
+                        ),
+                ),
+                graphState3A,
+                listener3A,
+            )
+        ShadowLog.clear()
+
+        val result =
+            controller.submit3A(
+                aeMode = AeMode.ON_EXTERNAL_FLASH,
+                afMode = AfMode.CONTINUOUS_PICTURE,
+                awbMode = AwbMode.CLOUDY_DAYLIGHT,
+            )
+
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        val warnMessages =
+            ShadowLog.getLogsForTag(Log.TAG).filter { it.type == AndroidLog.WARN }.map { it.msg }
+        assertThat(warnMessages).hasSize(3)
+        assertThat(warnMessages.any { it.contains("aeMode") }).isTrue()
+        assertThat(warnMessages.any { it.contains("afMode") }).isTrue()
+        assertThat(warnMessages.any { it.contains("awbMode") }).isTrue()
     }
 }

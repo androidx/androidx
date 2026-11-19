@@ -77,6 +77,10 @@ public interface CameraControls3A {
      *       AF will be unlocked. If `false` (default), all existing AE, AF, and AWB locks are
      *       released regardless of their prior state.
      *
+     * If any of the requested modes ([aeMode], [afMode], [awbMode], [controlMode], or [flashMode])
+     * is not supported by the camera device, the returned [Deferred] completes immediately with
+     * [Result3A.Status.SUBMIT_FAILED] and the current 3A state is left unchanged.
+     *
      * @return A [Deferred] of [Result3A] value which will contain the frame number at which the
      *   capture result has all the needed applied parameters. It may be canceled with a
      *   [CancellationException] if a newer request is submitted before completion.
@@ -127,6 +131,10 @@ public interface CameraControls3A {
 
     /**
      * Applies the given 3A parameters to the camera device but for only one frame.
+     *
+     * If any of the requested modes ([aeMode], [afMode], or [awbMode]) is not supported by the
+     * camera device, the returned [Deferred] completes immediately with
+     * [Result3A.Status.SUBMIT_FAILED].
      *
      * @return the CameraFrameNumber for which these parameters were applied.
      */

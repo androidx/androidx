@@ -407,6 +407,10 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
          * value is passed for a parameter, that parameter is ignored, and the current value for
          * that parameter continues to be applied.
          *
+         * If any of the requested modes ([aeMode], [afMode], [awbMode], or [afTriggerStartAeMode])
+         * is not supported by the camera device, the returned [Deferred] completes immediately with
+         * [Result3A.Status.SUBMIT_FAILED] and the current 3A state is left unchanged.
+         *
          * @param afTriggerStartAeMode the AeMode value that should override current AeMode for
          *   AF_TRIGGER_START request, this value should not be retained for following requests
          * @param convergedCondition an optional function can be used to identify if the result
@@ -629,6 +633,10 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      * This given 3A parameters are applied before the lock is obtained. If 'null' value is passed
      * for a parameter, that parameter is ignored, and the current value for that parameter
      * continues to be applied.
+     *
+     * If any of the requested modes ([aeMode], [afMode], [awbMode], or [afTriggerStartAeMode]) is
+     * not supported by the camera device, the returned [Deferred] completes immediately with
+     * [Result3A.Status.SUBMIT_FAILED] and the current 3A state is left unchanged.
      *
      * @param afTriggerStartAeMode the AeMode value that should override current AeMode for
      *   AF_TRIGGER_START request, this value should not be retained for following requests
