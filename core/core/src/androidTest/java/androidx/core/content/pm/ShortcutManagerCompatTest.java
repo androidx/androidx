@@ -500,6 +500,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     @SmallTest
     @Test
     public void testShortcutInfoListenerServiceDiscovery() {
+        mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.CINNAMON_BUN;
         ShortcutManagerCompat.setShortcutInfoChangeListeners(null);
         // Initialize the listener.
         ShortcutManagerCompat.removeAllDynamicShortcuts(mContext);
@@ -508,6 +509,21 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                 ShortcutManagerCompat.getShortcutInfoChangeListeners();
         assertEquals(1, listeners.size());
         assertTrue(listeners.get(0) instanceof TestShortcutInfoChangeListener);
+    }
+
+    @SmallTest
+    @Test
+    public void testShortcutInfoListenerServiceDiscovery_skippedAfterCinnamonBun() {
+        int originalTargetSdk = mContext.getApplicationInfo().targetSdkVersion;
+        try {
+            mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.CINNAMON_BUN + 1;
+            ShortcutManagerCompat.setShortcutInfoChangeListeners(null);
+            ShortcutManagerCompat.removeAllDynamicShortcuts(mContext);
+
+            assertEquals(null, ShortcutManagerCompat.getShortcutInfoChangeListeners());
+        } finally {
+            mContext.getApplicationInfo().targetSdkVersion = originalTargetSdk;
+        }
     }
 
     @SmallTest

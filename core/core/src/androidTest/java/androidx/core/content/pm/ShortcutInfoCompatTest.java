@@ -59,6 +59,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("deprecation")
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ShortcutInfoCompatTest {
