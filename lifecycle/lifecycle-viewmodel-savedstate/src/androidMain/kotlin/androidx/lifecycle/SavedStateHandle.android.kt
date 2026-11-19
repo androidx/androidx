@@ -27,7 +27,6 @@ import androidx.lifecycle.internal.isAcceptableType
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
-import androidx.savedstate.SavedStateValue
 import androidx.savedstate.read
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,7 +56,7 @@ public actual class SavedStateHandle {
         // LiveDataSavedStateValue into the container immediately. To preserve the behavior where
         // contains returns false until a value is set on the LiveData, we check whether the
         // underlying LiveData is initialized.
-        val savedStateValue = impl.container.getSavedStateValue<Any?, SavedStateValue<Any?>>(key)
+        val savedStateValue = impl.container.get<Any?>(key)
         return savedStateValue !is LiveDataSavedStateValue<*> ||
             savedStateValue.liveData.isInitialized
     }
@@ -124,7 +123,7 @@ public actual class SavedStateHandle {
         hasInitialValue: Boolean,
         initialValue: T,
     ): MutableLiveData<T> {
-        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        val existing = impl.container.get<T>(key)
         require(existing !is StateFlowSavedStateValue<*>) {
             createMutuallyExclusiveErrorMessage(key)
         }
@@ -135,7 +134,7 @@ public actual class SavedStateHandle {
                 is SimpleSavedStateValue<T> -> {
                     val liveData = MutableLiveData(existing.value)
                     LiveDataSavedStateValue(liveData).also {
-                        impl.container.putSavedStateValue(key, it)
+                        impl.container[key] = it
                     }
                 }
                 null -> {
@@ -146,7 +145,7 @@ public actual class SavedStateHandle {
                             MutableLiveData()
                         }
                     LiveDataSavedStateValue(liveData).also {
-                        impl.container.putSavedStateValue(key, it)
+                        impl.container[key] = it
                     }
                 }
                 else -> throw IllegalArgumentException(createMutuallyExclusiveErrorMessage(key))
@@ -156,7 +155,7 @@ public actual class SavedStateHandle {
 
     @MainThread
     public actual fun <T> getStateFlow(key: String, initialValue: T): StateFlow<T> {
-        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        val existing = impl.container.get<T>(key)
         require(existing !is LiveDataSavedStateValue<*>) {
             createMutuallyExclusiveErrorMessage(key)
         }
@@ -165,7 +164,7 @@ public actual class SavedStateHandle {
 
     @MainThread
     public actual fun <T> getMutableStateFlow(key: String, initialValue: T): MutableStateFlow<T> {
-        val existing = impl.container.getSavedStateValue<T, SavedStateValue<T>>(key)
+        val existing = impl.container.get<T>(key)
         require(existing !is LiveDataSavedStateValue<*>) {
             createMutuallyExclusiveErrorMessage(key)
         }
@@ -181,7 +180,7 @@ public actual class SavedStateHandle {
         require(validateValue(value)) {
             "Can't put value with type ${value!!::class.java} into saved state"
         }
-        val existing = impl.container.getSavedStateValue<T?, SavedStateValue<T?>>(key)
+        val existing = impl.container.get<T?>(key)
         if (existing is LiveDataSavedStateValue<T?>) {
             existing.value = value
         } else {

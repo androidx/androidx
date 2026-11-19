@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
+@file:JvmName("SavedStateValueKt")
+
 package androidx.savedstate
 
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import androidx.savedstate.SavedStateRegistry.SavedStateRestorer
+import kotlin.jvm.JvmName
+import kotlin.reflect.KProperty
 
 /**
  * Interface representing a saved state component holding a [value].
@@ -31,3 +35,11 @@ public interface SavedStateValue<T> : SavedStateProvider, SavedStateRestorer {
     /** The current value held by this saved state component. */
     public val value: T
 }
+
+/**
+ * Delegates read-only properties (`val x by savedStateValue`) directly to [SavedStateValue.value].
+ */
+public operator fun <T> SavedStateValue<T>?.getValue(
+    thisRef: Any?,
+    property: KProperty<*>,
+): T? = this?.value
