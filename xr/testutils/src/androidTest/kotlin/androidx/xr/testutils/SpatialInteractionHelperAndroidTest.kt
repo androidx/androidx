@@ -871,17 +871,14 @@ class SpatialInteractionHelperAndroidTest {
             // Perform spatial select on secondary activity window while in center
             composeTestRule.waitForIdle()
 
-            composeTestRule.waitUntil(
-                conditionDescription = "SecondarySpatialTestActivity to receive click",
-                timeoutMillis = 10000L,
+            selectActivityUntilClicked(
+                activityName = "SecondarySpatialTestActivity",
+                initialNode = secondaryNode,
+                description = "SecondarySpatialTestActivity to receive click",
             ) {
-                var clicked = false
-                secondaryScenario.onActivity { activity -> clicked = activity.clickCount > 0 }
-                if (!clicked) {
-                    secondaryNode.performSpatialInteraction { select() }
-                    secondaryScenario.onActivity { activity -> clicked = activity.clickCount > 0 }
-                }
-                clicked
+                var count = 0
+                secondaryScenario.onActivity { activity -> count = activity.clickCount }
+                count
             }
 
             val secondaryWindowNode =
@@ -972,25 +969,53 @@ class SpatialInteractionHelperAndroidTest {
                 assertTrue(currentTertiaryNode.canReceiveInput)
                 composeTestRule.waitForIdle()
 
-                composeTestRule.waitUntil(
-                    conditionDescription = "TertiarySpatialTestActivity to receive click",
-                    timeoutMillis = 10000L,
+                selectActivityUntilClicked(
+                    activityName = "TertiarySpatialTestActivity",
+                    initialNode = currentTertiaryNode,
+                    description = "TertiarySpatialTestActivity to receive click",
                 ) {
-                    var clicked = false
-                    tertiaryScenario.onActivity { activity -> clicked = activity.clickCount > 0 }
-                    if (!clicked) {
-                        currentTertiaryNode.performSpatialInteraction { select() }
-                        tertiaryScenario.onActivity { activity ->
-                            clicked = activity.clickCount > 0
-                        }
-                    }
-                    clicked
+                    var count = 0
+                    tertiaryScenario.onActivity { activity -> count = activity.clickCount }
+                    count
                 }
             } finally {
                 tertiaryScenario.close()
             }
         } finally {
             secondaryScenario.close()
+        }
+    }
+
+    private fun selectActivityUntilClicked(
+        activityName: String,
+        initialNode: SnapshotXrSpace,
+        description: String,
+        timeoutMillis: Long = 10000L,
+        readClickCount: () -> Int,
+    ) {
+        var attempts = 0
+        composeTestRule.waitUntil(
+            conditionDescription = description,
+            timeoutMillis = timeoutMillis,
+        ) {
+            var clicked = readClickCount() > 0
+            if (!clicked) {
+                val targetNode =
+                    if (attempts++ == 0) {
+                        initialNode
+                    } else {
+                        captureSpatialScene()
+                            .tasks
+                            .firstOrNull { it.findNodesByName(activityName).isNotEmpty() }
+                            ?.let { task ->
+                                task.taskWindowLeash
+                                    ?: task.findNodesByName(activityName).firstOrNull()
+                            } ?: initialNode
+                    }
+                targetNode.performSpatialInteraction { select() }
+                clicked = readClickCount() > 0
+            }
+            clicked
         }
     }
 
@@ -1094,8 +1119,15 @@ class SpatialInteractionHelperAndroidTest {
 
         // Use node.performSpatialInteraction extension
         targetNode.performSpatialInteraction {
-            // Select center
+            // Select center and verify the click arrives before dragging.
             select()
+            composeTestRule.waitUntil(
+                conditionDescription = "Select in scope did not trigger Compose click",
+                timeoutMillis = 5000L,
+            ) {
+                clicked
+            }
+            assertTrue(clicked, "Expected select() in scope to trigger Compose click before drag")
 
             // Press and move across center
             pointAt(
