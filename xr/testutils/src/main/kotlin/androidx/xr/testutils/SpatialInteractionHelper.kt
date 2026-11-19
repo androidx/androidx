@@ -266,7 +266,8 @@ public interface SpatialInteractionScope {
 
     /**
      * Current position of the pointer source (controller, hand, or eye origin) in [node]-local
-     * space.
+     * space. Defaults to [DEFAULT_RAY_DISTANCE] (`2.0m`) in front of [node]'s center along its
+     * forward `+Z` normal until [moveOriginTo], [moveOriginBy], or [pointAt] is called.
      */
     public val currentOrigin: Vector3
 
@@ -604,7 +605,7 @@ internal class SpatialInteractionScopeImpl(
     private val uiAutomation: UiAutomation? = null,
 ) : SpatialInteractionScope, AutoCloseable {
 
-    override var currentOrigin: Vector3 = Vector3.Zero
+    override var currentOrigin: Vector3 = defaultOriginForTarget(node, calculateAlignedPoint(node))
         private set
 
     override var currentTarget: Vector3 = Vector3.Zero
@@ -615,6 +616,15 @@ internal class SpatialInteractionScopeImpl(
 
     override var isPressed: Boolean = false
         private set
+
+    private fun defaultOriginForTarget(
+        targetNode: SnapshotXrSpace,
+        targetWorldPoint: Vector3,
+    ): Vector3 {
+        val normal = (targetNode.rotation * Vector3(0f, 0f, 1f)).toNormalized()
+        val originWorldPoint = targetWorldPoint + (normal * DEFAULT_RAY_DISTANCE)
+        return node.transformPointFromWorld(originWorldPoint)
+    }
 
     override fun moveOriginTo(position: Vector3) {
         currentOrigin = position
@@ -630,9 +640,7 @@ internal class SpatialInteractionScopeImpl(
         val targetWorldPoint = calculateAlignedPoint(targetNode, alignment, offset)
         currentTarget = node.transformPointFromWorld(targetWorldPoint)
         if (!hasExplicitOrigin) {
-            val normal = (targetNode.rotation * Vector3(0f, 0f, 1f)).toNormalized()
-            val originWorldPoint = targetWorldPoint + (normal * DEFAULT_RAY_DISTANCE)
-            currentOrigin = node.transformPointFromWorld(originWorldPoint)
+            currentOrigin = defaultOriginForTarget(targetNode, targetWorldPoint)
         }
         hasTarget = true
         dispatchCurrentState()
@@ -700,7 +708,8 @@ internal class SpatialInteractionScopeImpl(
         }
     }
 
-    private val currentRay: Ray
+    @get:VisibleForTesting
+    internal val currentRay: Ray
         get() {
             val worldOrigin = currentWorldOrigin
             val worldTarget = currentWorldTarget

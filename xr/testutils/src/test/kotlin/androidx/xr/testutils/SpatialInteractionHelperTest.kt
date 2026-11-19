@@ -673,4 +673,100 @@ class SpatialInteractionHelperTest {
         }
         assertTrue(thrown != null && thrown.message!!.contains("test panel"))
     }
+
+    @Test
+    fun spatialInteractionScopeImpl_defaultOriginStartsInFrontOfNodeCenter() {
+        val node =
+            SnapshotXrSpace(
+                name = "HomeSpaceWindow",
+                position = Vector3(0f, 0f, -1.75f),
+                rotation = Quaternion.Identity,
+                scale = Vector3.One,
+            )
+
+        val scope =
+            SpatialInteractionScopeImpl(
+                deviceType = SpatialDeviceType.Controller,
+                pointerType = SpatialPointerType.Left,
+                node = node,
+            )
+
+        assertEquals(0.0f, scope.currentOrigin.x, 1e-4f)
+        assertEquals(0.0f, scope.currentOrigin.y, 1e-4f)
+        assertEquals(DEFAULT_RAY_DISTANCE, scope.currentOrigin.z, 1e-4f)
+
+        assertEquals(0.0f, scope.currentWorldOrigin.x, 1e-4f)
+        assertEquals(0.0f, scope.currentWorldOrigin.y, 1e-4f)
+        assertEquals(0.25f, scope.currentWorldOrigin.z, 1e-4f)
+
+        assertEquals(Vector3.Zero, scope.currentTarget)
+        assertEquals(0.0f, scope.currentWorldTarget.x, 1e-4f)
+        assertEquals(0.0f, scope.currentWorldTarget.y, 1e-4f)
+        assertEquals(-1.75f, scope.currentWorldTarget.z, 1e-4f)
+
+        val ray = scope.currentRay
+        val rayEnd = ray.origin + ray.direction
+        assertEquals(0.0f, ray.origin.x, 1e-4f)
+        assertEquals(0.0f, ray.origin.y, 1e-4f)
+        assertEquals(0.25f, ray.origin.z, 1e-4f)
+        assertEquals(0.0f, rayEnd.x, 1e-4f)
+        assertEquals(0.0f, rayEnd.y, 1e-4f)
+        assertEquals(-3.75f, rayEnd.z, 1e-4f)
+
+        val pointAtScope =
+            SpatialInteractionScopeImpl(
+                deviceType = SpatialDeviceType.Controller,
+                pointerType = SpatialPointerType.Left,
+                node = node,
+            )
+        pointAtScope.pointAt()
+        val pointAtRay = pointAtScope.currentRay
+        val pointAtEnd = pointAtRay.origin + pointAtRay.direction
+        assertEquals(pointAtRay.origin.x, ray.origin.x, 1e-4f)
+        assertEquals(pointAtRay.origin.y, ray.origin.y, 1e-4f)
+        assertEquals(pointAtRay.origin.z, ray.origin.z, 1e-4f)
+        assertEquals(pointAtEnd.x, rayEnd.x, 1e-4f)
+        assertEquals(pointAtEnd.y, rayEnd.y, 1e-4f)
+        assertEquals(pointAtEnd.z, rayEnd.z, 1e-4f)
+    }
+
+    @Test
+    fun spatialInteractionScopeImpl_defaultOriginRespectsRotationAndScale() {
+        val rotatedScaledNode =
+            SnapshotXrSpace(
+                name = "RotatedScaledWindow",
+                position = Vector3(1.0f, 1.5f, -2.0f),
+                rotation = Quaternion(x = 0.0f, y = 0.7071068f, z = 0.0f, w = 0.7071068f),
+                scale = Vector3(0.5f, 0.5f, 0.5f),
+            )
+
+        val scope =
+            SpatialInteractionScopeImpl(
+                deviceType = SpatialDeviceType.Controller,
+                pointerType = SpatialPointerType.Left,
+                node = rotatedScaledNode,
+            )
+
+        // With 90-deg +Y rotation and 0.5x scale, local +Z = 4.0 maps to world +X = +2.0m.
+        assertEquals(0.0f, scope.currentOrigin.x, 1e-4f)
+        assertEquals(0.0f, scope.currentOrigin.y, 1e-4f)
+        assertEquals(4.0f, scope.currentOrigin.z, 1e-4f)
+
+        assertEquals(3.0f, scope.currentWorldOrigin.x, 1e-4f)
+        assertEquals(1.5f, scope.currentWorldOrigin.y, 1e-4f)
+        assertEquals(-2.0f, scope.currentWorldOrigin.z, 1e-4f)
+
+        val rayEnd = scope.currentRay.origin + scope.currentRay.direction
+        assertEquals(-1.0f, rayEnd.x, 1e-4f)
+        assertEquals(1.5f, rayEnd.y, 1e-4f)
+        assertEquals(-2.0f, rayEnd.z, 1e-4f)
+
+        scope.moveOriginTo(Vector3(0f, 0f, 1f))
+        assertEquals(0.0f, scope.currentOrigin.x, 1e-4f)
+        assertEquals(0.0f, scope.currentOrigin.y, 1e-4f)
+        assertEquals(1.0f, scope.currentOrigin.z, 1e-4f)
+        assertEquals(1.5f, scope.currentWorldOrigin.x, 1e-4f)
+        assertEquals(1.5f, scope.currentWorldOrigin.y, 1e-4f)
+        assertEquals(-2.0f, scope.currentWorldOrigin.z, 1e-4f)
+    }
 }
