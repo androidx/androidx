@@ -1562,4 +1562,301 @@ class AlignmentLineTest {
             assertEquals(15, lastBaseline)
         }
     }
+
+    /**
+     * Checks that moving a child via a `Modifier.layout`'s placement block updates the parent's
+     * alignment-line readings when state changes.
+     */
+    @Test
+    fun readingAlignmentOfChildWithDynamicModifierOffset_invalidatesOnStateChange() {
+        var dynamicOffset by mutableIntStateOf(10)
+        var modifierPlacementCount = 0
+        var firstBaseline = -1
+        var lastBaseline = -1
+        rule.setContent {
+            Layout(
+                content = {
+                    Layout(
+                        modifier =
+                            Modifier.layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) {
+                                    if (coordinates != null) {
+                                        modifierPlacementCount++
+                                    }
+                                    placeable.place(0, dynamicOffset)
+                                }
+                            }
+                    ) { _, _ ->
+                        layout(50, 50, mapOf(FirstBaseline to 0, LastBaseline to 10)) {}
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                firstBaseline = placeable[FirstBaseline]
+                lastBaseline = placeable[LastBaseline]
+                layout(100, 100) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(10, firstBaseline)
+            assertEquals(20, lastBaseline)
+            assertEquals(1, modifierPlacementCount)
+            dynamicOffset = 30
+        }
+
+        rule.runOnIdle {
+            assertEquals(30, firstBaseline)
+            assertEquals(40, lastBaseline)
+        }
+    }
+
+    /**
+     * Checks that moving a child via a `Modifier.layout`'s placement block updates the parent's
+     * alignment-line readings in both lookahead and main passes when state changes.
+     */
+    @Test
+    fun readingAlignmentOfChildWithDynamicModifierOffsetInLookahead_invalidatesOnStateChange() {
+        var dynamicOffset by mutableIntStateOf(10)
+        var lookaheadFirstBaseline = -1
+        var mainFirstBaseline = -1
+        rule.setContent {
+            LookaheadScope {
+                Layout(
+                    content = {
+                        Layout(
+                            modifier =
+                                Modifier.layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.place(0, dynamicOffset)
+                                    }
+                                }
+                        ) { _, _ ->
+                            layout(50, 50, mapOf(FirstBaseline to 0)) {}
+                        }
+                    }
+                ) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    if (isLookingAhead) {
+                        lookaheadFirstBaseline = placeable[FirstBaseline]
+                    } else {
+                        mainFirstBaseline = placeable[FirstBaseline]
+                    }
+                    layout(100, 100) { placeable.place(0, 0) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(10, lookaheadFirstBaseline)
+            assertEquals(10, mainFirstBaseline)
+            dynamicOffset = 35
+        }
+
+        rule.runOnIdle {
+            assertEquals(35, lookaheadFirstBaseline)
+            assertEquals(35, mainFirstBaseline)
+        }
+    }
+
+    /**
+     * Checks that when a child re-measures and produces a new `MeasureResult` with unchanged
+     * alignment-line values, the parent is not unnecessarily re-measured in lookahead or main pass.
+     */
+    @Test
+    fun alignmentLinesUnchangedNewMeasureResultInLookahead_doesNotRemeasureParent() {
+        var childTrigger by mutableIntStateOf(0)
+        var baselineValue by mutableIntStateOf(15)
+        var lookaheadParentMeasureCount = 0
+        var mainParentMeasureCount = 0
+        var lookaheadReadBaseline = -1
+        var mainReadBaseline = -1
+        rule.setContent {
+            LookaheadScope {
+                Layout(
+                    content = {
+                        Layout { _, _ ->
+                            @Suppress("UNUSED_VARIABLE") val t = childTrigger
+                            layout(50, 50, mapOf(FirstBaseline to baselineValue)) {}
+                        }
+                    }
+                ) { measurables, constraints ->
+                    if (isLookingAhead) {
+                        lookaheadParentMeasureCount++
+                    } else {
+                        mainParentMeasureCount++
+                    }
+                    val placeable = measurables.first().measure(constraints)
+                    if (isLookingAhead) {
+                        lookaheadReadBaseline = placeable[FirstBaseline]
+                    } else {
+                        mainReadBaseline = placeable[FirstBaseline]
+                    }
+                    layout(100, 100) { placeable.place(0, 0) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, lookaheadParentMeasureCount)
+            assertEquals(1, mainParentMeasureCount)
+            assertEquals(15, lookaheadReadBaseline)
+            assertEquals(15, mainReadBaseline)
+            childTrigger = 1
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, lookaheadParentMeasureCount)
+            assertEquals(1, mainParentMeasureCount)
+            baselineValue = 25
+            childTrigger = 2
+        }
+
+        rule.runOnIdle {
+            assertEquals(2, lookaheadParentMeasureCount)
+            assertEquals(2, mainParentMeasureCount)
+            assertEquals(25, lookaheadReadBaseline)
+            assertEquals(25, mainReadBaseline)
+        }
+    }
+
+    /**
+     * Checks that adding or removing an alignment-line key on a child re-measures the parent in
+     * both lookahead and main passes.
+     */
+    @Test
+    fun alignmentLinesKeyAddedAndRemovedInLookahead_remeasuresParent() {
+        var provideLine by mutableStateOf(false)
+        var lookaheadReadBaseline = -1
+        var mainReadBaseline = -1
+        rule.setContent {
+            LookaheadScope {
+                Layout(
+                    content = {
+                        Layout { _, _ ->
+                            val lines: Map<AlignmentLine, Int> =
+                                if (provideLine) mapOf(FirstBaseline to 12) else emptyMap()
+                            layout(50, 50, lines) {}
+                        }
+                    }
+                ) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    if (isLookingAhead) {
+                        lookaheadReadBaseline = placeable[FirstBaseline]
+                    } else {
+                        mainReadBaseline = placeable[FirstBaseline]
+                    }
+                    layout(100, 100) { placeable.place(0, 0) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(AlignmentLine.Unspecified, lookaheadReadBaseline)
+            assertEquals(AlignmentLine.Unspecified, mainReadBaseline)
+            provideLine = true
+        }
+
+        rule.runOnIdle {
+            assertEquals(12, lookaheadReadBaseline)
+            assertEquals(12, mainReadBaseline)
+            provideLine = false
+        }
+
+        rule.runOnIdle {
+            assertEquals(AlignmentLine.Unspecified, lookaheadReadBaseline)
+            assertEquals(AlignmentLine.Unspecified, mainReadBaseline)
+        }
+    }
+
+    /**
+     * Checks that reading `placeable[FirstBaseline]` inside a `Modifier.layout`'s placement block
+     * invalidates and updates in both lookahead and main passes when the baseline changes.
+     */
+    @Test
+    fun readingAlignmentInModifierDuringLayoutInLookahead_invalidatesOnStateChange() {
+        var baselineValue by mutableIntStateOf(10)
+        var lookaheadModifierRead = -1
+        var mainModifierRead = -1
+        rule.setContent {
+            LookaheadScope {
+                Layout(
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                val line = placeable[FirstBaseline]
+                                if (isLookingAhead) {
+                                    lookaheadModifierRead = line
+                                } else {
+                                    mainModifierRead = line
+                                }
+                                placeable.place(0, 0)
+                            }
+                        }
+                ) { _, _ ->
+                    layout(50, 50, mapOf(FirstBaseline to baselineValue)) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(10, lookaheadModifierRead)
+            assertEquals(10, mainModifierRead)
+            baselineValue = 22
+        }
+
+        rule.runOnIdle {
+            assertEquals(22, lookaheadModifierRead)
+            assertEquals(22, mainModifierRead)
+        }
+    }
+
+    /**
+     * Checks that when a `HorizontalRuler` shifts a grandchild's placement inside a child's
+     * placement block, the parent that read `child[FirstBaseline]` during measure is invalidated
+     * and re-reads the updated baseline.
+     */
+    @Test
+    fun readingAlignmentWhenPlacementMovesGrandchildViaRulerInLookahead() {
+        val ruler = HorizontalRuler()
+        var lookaheadBaseline = -1
+        var mainBaseline = -1
+        rule.setContent {
+            LookaheadScope {
+                Layout(
+                    content = {
+                        Layout(
+                            content = {
+                                Layout { _, _ ->
+                                    layout(10, 10, mapOf(FirstBaseline to 0)) {}
+                                }
+                            }
+                        ) { measurables, constraints ->
+                            val grandchild = measurables.first().measure(constraints)
+                            layout(50, 50) {
+                                val y = ruler.current(0f).roundToInt()
+                                grandchild.place(0, y)
+                            }
+                        }
+                    }
+                ) { measurables, constraints ->
+                    val child = measurables.first().measure(constraints)
+                    if (isLookingAhead) {
+                        lookaheadBaseline = child[FirstBaseline]
+                    } else {
+                        mainBaseline = child[FirstBaseline]
+                    }
+                    layout(100, 100, rulers = { ruler provides 25f }) { child.place(0, 5) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(20, lookaheadBaseline)
+            assertEquals(20, mainBaseline)
+        }
+    }
 }

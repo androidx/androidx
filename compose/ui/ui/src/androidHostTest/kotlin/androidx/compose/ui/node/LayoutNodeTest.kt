@@ -19,7 +19,9 @@ package androidx.compose.ui.node
 
 import androidx.collection.IntObjectMap
 import androidx.collection.intObjectMapOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.retain.RetainedValuesStore
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -56,6 +58,8 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.RootMeasurePolicy.measure
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
@@ -2343,6 +2347,673 @@ class LayoutNodeTest {
 
         root.onDeactivate()
 
+        assertFalse(delegate.hasPendingMeasureOrLayout)
+    }
+
+    private fun createDelegateOwner(root: LayoutNode): Pair<MockOwner, MeasureAndLayoutDelegate> {
+        val delegate = MeasureAndLayoutDelegate(root)
+        val owner =
+            object : MockOwner() {
+                override fun onRequestMeasure(
+                    layoutNode: LayoutNode,
+                    affectsLookahead: Boolean,
+                    forceRequest: Boolean,
+                    scheduleMeasureAndLayout: Boolean,
+                ) {
+                    if (affectsLookahead) {
+                        delegate.requestLookaheadRemeasure(layoutNode, forceRequest)
+                    } else {
+                        delegate.requestRemeasure(layoutNode, forceRequest)
+                    }
+                }
+
+                override fun onRequestRelayout(
+                    layoutNode: LayoutNode,
+                    affectsLookahead: Boolean,
+                    forceRequest: Boolean,
+                ) {
+                    if (affectsLookahead) {
+                        delegate.requestLookaheadRelayout(layoutNode, forceRequest)
+                    } else {
+                        delegate.requestRelayout(layoutNode, forceRequest)
+                    }
+                }
+
+                override fun forceMeasureTheSubtree(
+                    layoutNode: LayoutNode,
+                    affectsLookahead: Boolean,
+                ) {
+                    delegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
+                }
+
+                override fun measureAndLayout(sendPointerUpdate: Boolean) {
+                    delegate.measureAndLayout()
+                }
+
+                override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
+                    delegate.measureAndLayout(layoutNode, constraints)
+                }
+
+                override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
+                    delegate.onNodeDeactivated(layoutNode)
+                }
+            }
+        root.attach(owner)
+        delegate.updateRootConstraints(Constraints.fixed(200, 200))
+        return owner to delegate
+    }
+
+    private fun fixedSizePolicy(
+        width: Int = 50,
+        height: Int = 50,
+        onMeasure: (MeasureScope.(List<Measurable>, Constraints) -> Unit)? = null,
+    ) =
+        object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints,
+            ): MeasureResult {
+                onMeasure?.invoke(this, measurables, constraints)
+                val placeables = measurables.map { it.measure(constraints) }
+                return layout(width, height) { placeables.forEach { it.place(0, 0) } }
+            }
+        }
+
+    private fun wrappingPolicy(
+        onMeasure: (MeasureScope.(List<Measurable>, Constraints) -> Unit)? = null
+    ) =
+        object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints,
+            ): MeasureResult {
+                onMeasure?.invoke(this, measurables, constraints)
+                val placeables = measurables.map { it.measure(constraints) }
+                val w = placeables.maxOfOrNull { it.width } ?: 0
+                val h = placeables.maxOfOrNull { it.height } ?: 0
+                return layout(w, h) { placeables.forEach { it.place(0, 0) } }
+            }
+        }
+
+    /**
+     * Checks that `MeasureAndLayoutDelegate.forceMeasureTheSubtree` measures dirty nodes inside
+     * `branchA` without re-measuring a clean sibling subtree (`branchB`).
+     */
+    @Test
+    fun forceMeasureTheSubtree_measuresPendingGrandchildAndSkipsCleanSiblingSubtree() {
+        var leafAMeasureCount = 0
+        var leafBMeasureCount = 0
+        var forceMeasureBranchA = false
+        lateinit var branchA: LayoutNode
+        val root = LayoutNode()
+        root.measurePolicy =
+            object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints,
+                ): MeasureResult {
+                    if (forceMeasureBranchA) {
+                        (root.owner as? MockOwner)?.let { _ -> }
+                    }
+                    val placeables = measurables.map { it.measure(constraints) }
+                    return layout(
+                        placeables.maxOfOrNull { it.width } ?: 0,
+                        placeables.maxOfOrNull { it.height } ?: 0,
+                    ) {
+                        placeables.forEach { it.place(0, 0) }
+                    }
+                }
+            }
+        branchA = LayoutNode().apply { measurePolicy = wrappingPolicy() }
+        val branchB = LayoutNode().apply { measurePolicy = wrappingPolicy() }
+        val leafA =
+            LayoutNode().apply {
+                measurePolicy = fixedSizePolicy { _, _ -> leafAMeasureCount++ }
+            }
+        val leafB =
+            LayoutNode().apply {
+                measurePolicy = fixedSizePolicy { _, _ -> leafBMeasureCount++ }
+            }
+        branchA.insertAt(0, leafA)
+        branchB.insertAt(0, leafB)
+        root.insertAt(0, branchA)
+        root.insertAt(1, branchB)
+
+        val (_, delegate) = createDelegateOwner(root)
+        root.measurePolicy =
+            object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints,
+                ): MeasureResult {
+                    if (forceMeasureBranchA) {
+                        delegate.forceMeasureTheSubtree(branchA, affectsLookahead = false)
+                        assertEquals(2, leafAMeasureCount)
+                        assertEquals(1, leafBMeasureCount)
+                    }
+                    val placeables = measurables.map { it.measure(constraints) }
+                    return layout(
+                        placeables.maxOfOrNull { it.width } ?: 0,
+                        placeables.maxOfOrNull { it.height } ?: 0,
+                    ) {
+                        placeables.forEach { it.place(0, 0) }
+                    }
+                }
+            }
+        delegate.measureAndLayout()
+        assertEquals(1, leafAMeasureCount)
+        assertEquals(1, leafBMeasureCount)
+
+        forceMeasureBranchA = true
+        leafA.requestRemeasure()
+        root.requestRemeasure()
+        delegate.measureAndLayout()
+        assertEquals(2, leafAMeasureCount)
+        assertEquals(1, leafBMeasureCount)
+    }
+
+    /**
+     * Checks that after reparenting a child from `branchA` to `branchB`, `forceMeasureTheSubtree`
+     * stops measuring it under `branchA` and measures it under `branchB`.
+     */
+    @Test
+    fun forceMeasureTheSubtree_updatesAfterReparentingPendingSubtree() {
+        var childMeasureCount = 0
+        var runForceMeasure = false
+        val root = LayoutNode()
+        val branchA = LayoutNode().apply { measurePolicy = wrappingPolicy() }
+        val branchB = LayoutNode().apply { measurePolicy = wrappingPolicy() }
+        val child =
+            LayoutNode().apply {
+                measurePolicy = fixedSizePolicy { _, _ -> childMeasureCount++ }
+            }
+        branchA.insertAt(0, child)
+        root.insertAt(0, branchA)
+        root.insertAt(1, branchB)
+
+        val (_, delegate) = createDelegateOwner(root)
+        root.measurePolicy =
+            object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints,
+                ): MeasureResult {
+                    if (runForceMeasure) {
+                        // Force-measuring branchA should no longer measure the removed child.
+                        delegate.forceMeasureTheSubtree(branchA, affectsLookahead = false)
+                        assertEquals(2, childMeasureCount)
+
+                        // Force-measuring branchB should measure the reparented pending child.
+                        delegate.forceMeasureTheSubtree(branchB, affectsLookahead = false)
+                        assertEquals(3, childMeasureCount)
+                    }
+                    val placeables = measurables.map { it.measure(constraints) }
+                    return layout(
+                        placeables.maxOfOrNull { it.width } ?: 0,
+                        placeables.maxOfOrNull { it.height } ?: 0,
+                    ) {
+                        placeables.forEach { it.place(0, 0) }
+                    }
+                }
+            }
+        delegate.measureAndLayout()
+        assertEquals(1, childMeasureCount)
+
+        branchA.removeAt(0, 1)
+        branchB.insertAt(0, child)
+        delegate.measureAndLayout()
+        assertEquals(2, childMeasureCount)
+
+        child.requestRemeasure()
+        runForceMeasure = true
+        root.requestRemeasure()
+        delegate.measureAndLayout()
+        assertEquals(3, childMeasureCount)
+    }
+
+    /**
+     * Checks that calling `requestRemeasure()` during a node's own placement block postpones the
+     * re-measure until the current pass finishes and executes it before `measureAndLayout()` ends.
+     */
+    @Test
+    fun requestRemeasureDuringPlacement_isPostponedAndExecutedAfterPass() {
+        var measureCount = 0
+        var requestedDuringPlacement = false
+        val root = LayoutNode().apply { measurePolicy = wrappingPolicy() }
+        lateinit var child: LayoutNode
+        child =
+            LayoutNode().apply {
+                measurePolicy =
+                    object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints,
+                        ): MeasureResult {
+                            measureCount++
+                            return layout(50, 50) {
+                                if (!requestedDuringPlacement) {
+                                    requestedDuringPlacement = true
+                                    child.requestRemeasure()
+                                }
+                            }
+                        }
+                    }
+            }
+        root.insertAt(0, child)
+
+        val (_, delegate) = createDelegateOwner(root)
+        delegate.measureAndLayout()
+
+        assertTrue(requestedDuringPlacement)
+        assertEquals(2, measureCount)
+        assertFalse(delegate.hasPendingMeasureOrLayout)
+    }
+
+    /**
+     * Checks that calling `requestLookaheadRemeasure()` during lookahead placement postpones the
+     * lookahead re-measure and completes it before `measureAndLayout()` returns.
+     */
+    @Test
+    fun requestLookaheadRemeasureDuringLayout_isPostponedAndExecuted() {
+        var lookaheadMeasureCount = 0
+        var requestedDuringLookaheadLayout = false
+        val root =
+            LayoutNode().apply {
+                isVirtualLookaheadRoot = true
+                measurePolicy = wrappingPolicy()
+            }
+        lateinit var child: LayoutNode
+        child =
+            LayoutNode().apply {
+                measurePolicy =
+                    object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints,
+                        ): MeasureResult {
+                            if (isLookingAhead) {
+                                lookaheadMeasureCount++
+                            }
+                            return layout(50, 50) {
+                                if (isLookingAhead && !requestedDuringLookaheadLayout) {
+                                    requestedDuringLookaheadLayout = true
+                                    child.requestLookaheadRemeasure()
+                                }
+                            }
+                        }
+                    }
+            }
+        root.insertAt(0, child)
+
+        val (_, delegate) = createDelegateOwner(root)
+        delegate.measureAndLayout()
+
+        assertTrue(requestedDuringLookaheadLayout)
+        assertEquals(2, lookaheadMeasureCount)
+        assertFalse(delegate.hasPendingMeasureOrLayout)
+    }
+
+    /**
+     * Checks that snapshot state reads in lookahead `measure` and main `measure` are tracked
+     * separately: changing main-only state does not re-run lookahead measure.
+     */
+    @Test
+    fun ownerSnapshotObserver_separateStateReadsInLookaheadAndMainMeasure() {
+        val lookaheadState = mutableIntStateOf(0)
+        val mainState = mutableIntStateOf(0)
+        var lookaheadMeasureCount = 0
+        var mainMeasureCount = 0
+
+        val root =
+            LayoutNode().apply {
+                isVirtualLookaheadRoot = true
+                measurePolicy = wrappingPolicy()
+            }
+        val child =
+            LayoutNode().apply {
+                measurePolicy =
+                    object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints,
+                        ): MeasureResult {
+                            if (isLookingAhead) {
+                                lookaheadMeasureCount++
+                                return layout(50 + lookaheadState.intValue, 50) {}
+                            } else {
+                                mainMeasureCount++
+                                return layout(50 + mainState.intValue, 50) {}
+                            }
+                        }
+                    }
+            }
+        root.insertAt(0, child)
+
+        val (owner, delegate) = createDelegateOwner(root)
+        owner.snapshotObserver.startObserving()
+        try {
+            delegate.measureAndLayout()
+            assertEquals(1, lookaheadMeasureCount)
+            assertEquals(1, mainMeasureCount)
+
+            Snapshot.withMutableSnapshot { mainState.intValue++ }
+            delegate.measureAndLayout()
+            assertEquals(1, lookaheadMeasureCount)
+            assertEquals(2, mainMeasureCount)
+
+            Snapshot.withMutableSnapshot { lookaheadState.intValue++ }
+            delegate.measureAndLayout()
+            assertEquals(2, lookaheadMeasureCount)
+            assertEquals(3, mainMeasureCount)
+        } finally {
+            owner.snapshotObserver.stopObserving()
+        }
+    }
+
+    /**
+     * Checks that snapshot state reads in lookahead placement and main placement are tracked
+     * separately and only re-run placement without re-measuring.
+     */
+    @Test
+    fun ownerSnapshotObserver_separateStateReadsInLookaheadAndMainPlacement() {
+        val lookaheadOffsetState = mutableIntStateOf(0)
+        val mainOffsetState = mutableIntStateOf(0)
+        var lookaheadMeasureCount = 0
+        var mainMeasureCount = 0
+        var lookaheadPlaceCount = 0
+        var mainPlaceCount = 0
+
+        val root =
+            LayoutNode().apply {
+                isVirtualLookaheadRoot = true
+                measurePolicy = wrappingPolicy()
+            }
+        val grandchild = LayoutNode().apply { measurePolicy = fixedSizePolicy(10, 10) }
+        val child =
+            LayoutNode().apply {
+                measurePolicy =
+                    object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints,
+                        ): MeasureResult {
+                            if (isLookingAhead) {
+                                lookaheadMeasureCount++
+                            } else {
+                                mainMeasureCount++
+                            }
+                            val p = measurables.first().measure(constraints)
+                            return layout(50, 50) {
+                                if (isLookingAhead) {
+                                    lookaheadPlaceCount++
+                                    p.place(lookaheadOffsetState.intValue, 0)
+                                } else {
+                                    mainPlaceCount++
+                                    p.place(mainOffsetState.intValue, 0)
+                                }
+                            }
+                        }
+                    }
+            }
+        child.insertAt(0, grandchild)
+        root.insertAt(0, child)
+
+        val (owner, delegate) = createDelegateOwner(root)
+        owner.snapshotObserver.startObserving()
+        try {
+            delegate.measureAndLayout()
+            assertEquals(1, lookaheadMeasureCount)
+            assertEquals(1, mainMeasureCount)
+            assertEquals(1, lookaheadPlaceCount)
+            assertEquals(1, mainPlaceCount)
+
+            Snapshot.withMutableSnapshot { mainOffsetState.intValue = 10 }
+            delegate.measureAndLayout()
+            assertEquals(1, lookaheadMeasureCount)
+            assertEquals(1, mainMeasureCount)
+            assertEquals(1, lookaheadPlaceCount)
+            assertEquals(2, mainPlaceCount)
+
+            Snapshot.withMutableSnapshot { lookaheadOffsetState.intValue = 15 }
+            delegate.measureAndLayout()
+            assertEquals(1, lookaheadMeasureCount)
+            assertEquals(1, mainMeasureCount)
+            assertEquals(2, lookaheadPlaceCount)
+            assertEquals(3, mainPlaceCount)
+        } finally {
+            owner.snapshotObserver.stopObserving()
+        }
+    }
+
+    /**
+     * Checks that changing state read in a `Modifier.layout`'s lookahead or main placement block
+     * only re-runs that pass's modifier placement without re-measuring the modifier.
+     */
+    @Test
+    fun ownerSnapshotObserver_layoutModifierPlacementStateReadInvalidatesOnlyLayout() {
+        val lookaheadOffsetState = mutableIntStateOf(0)
+        val mainOffsetState = mutableIntStateOf(0)
+        var lookaheadModifierMeasureCount = 0
+        var mainModifierMeasureCount = 0
+        var lookaheadModifierPlaceCount = 0
+        var mainModifierPlaceCount = 0
+
+        val root =
+            LayoutNode().apply {
+                isVirtualLookaheadRoot = true
+                measurePolicy = wrappingPolicy()
+            }
+        val child =
+            LayoutNode().apply {
+                modifier = Modifier.layout { measurable, constraints ->
+                    if (isLookingAhead) {
+                        lookaheadModifierMeasureCount++
+                    } else {
+                        mainModifierMeasureCount++
+                    }
+                    val p = measurable.measure(constraints)
+                    layout(p.width, p.height) {
+                        if (isLookingAhead) {
+                            lookaheadModifierPlaceCount++
+                            p.place(lookaheadOffsetState.intValue, 0)
+                        } else {
+                            mainModifierPlaceCount++
+                            p.place(mainOffsetState.intValue, 0)
+                        }
+                    }
+                }
+                measurePolicy = fixedSizePolicy(40, 40)
+            }
+        root.insertAt(0, child)
+
+        val (owner, delegate) = createDelegateOwner(root)
+        owner.snapshotObserver.startObserving()
+        try {
+            delegate.measureAndLayout()
+            assertEquals(1, lookaheadModifierMeasureCount)
+            assertEquals(1, mainModifierMeasureCount)
+            assertEquals(1, lookaheadModifierPlaceCount)
+            assertEquals(1, mainModifierPlaceCount)
+
+            Snapshot.withMutableSnapshot { mainOffsetState.intValue = 5 }
+            delegate.measureAndLayout()
+            assertEquals(1, lookaheadModifierMeasureCount)
+            assertEquals(1, mainModifierMeasureCount)
+            assertEquals(1, lookaheadModifierPlaceCount)
+            assertEquals(2, mainModifierPlaceCount)
+
+            Snapshot.withMutableSnapshot { lookaheadOffsetState.intValue = 8 }
+            delegate.measureAndLayout()
+            assertEquals(1, lookaheadModifierMeasureCount)
+            assertEquals(1, mainModifierMeasureCount)
+            assertEquals(2, lookaheadModifierPlaceCount)
+            assertEquals(3, mainModifierPlaceCount)
+        } finally {
+            owner.snapshotObserver.stopObserving()
+        }
+    }
+
+    /**
+     * Checks that `onPlaced` fires on every placement (even without a size change), whereas
+     * `onSizeChanged` only fires when the node's measured size actually changes.
+     */
+    @Test
+    fun onPlacedAndOnSizeChanged_calledOnRealPlacementAndSizeChange() {
+        var onPlacedCount = 0
+        var onSizeChangedCount = 0
+        var lastSize = IntSize.Zero
+        var childWidth = 50
+        var childHeight = 50
+
+        val root = LayoutNode().apply { measurePolicy = wrappingPolicy() }
+        val child =
+            LayoutNode().apply {
+                modifier =
+                    Modifier.onPlaced { onPlacedCount++ }
+                        .onSizeChanged {
+                            onSizeChangedCount++
+                            lastSize = it
+                        }
+                measurePolicy =
+                    object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints,
+                        ): MeasureResult = layout(childWidth, childHeight) {}
+                    }
+            }
+        root.insertAt(0, child)
+
+        val (_, delegate) = createDelegateOwner(root)
+        delegate.measureAndLayout()
+        assertEquals(1, onPlacedCount)
+        assertEquals(1, onSizeChangedCount)
+        assertEquals(IntSize(50, 50), lastSize)
+
+        // Relayout only: onPlaced fires, onSizeChanged does not.
+        child.requestRelayout()
+        delegate.measureAndLayout()
+        assertEquals(2, onPlacedCount)
+        assertEquals(1, onSizeChangedCount)
+
+        // Size change: both fire.
+        childWidth = 80
+        childHeight = 60
+        child.requestRemeasure()
+        delegate.measureAndLayout()
+        assertEquals(3, onPlacedCount)
+        assertEquals(2, onSizeChangedCount)
+        assertEquals(IntSize(80, 60), lastSize)
+    }
+
+    /**
+     * Checks that changing only the main-pass constraints passed to a child does not re-run the
+     * child's lookahead measure pass.
+     */
+    @Test
+    fun lookaheadPass_notRerunWhenOnlyMainConstraintsChange() {
+        var mainChildMaxWidth = 100
+        var childLookaheadMeasureCount = 0
+        var childMainMeasureCount = 0
+
+        val root =
+            LayoutNode().apply {
+                isVirtualLookaheadRoot = true
+                measurePolicy = wrappingPolicy()
+            }
+        val child =
+            LayoutNode().apply {
+                measurePolicy =
+                    object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints,
+                        ): MeasureResult {
+                            if (isLookingAhead) {
+                                childLookaheadMeasureCount++
+                            } else {
+                                childMainMeasureCount++
+                            }
+                            return layout(constraints.maxWidth.coerceAtMost(150), 50) {}
+                        }
+                    }
+            }
+        val parent =
+            LayoutNode().apply {
+                measurePolicy =
+                    object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints,
+                        ): MeasureResult {
+                            val childConstraints =
+                                if (isLookingAhead) {
+                                    Constraints.fixed(100, 50)
+                                } else {
+                                    Constraints.fixed(mainChildMaxWidth, 50)
+                                }
+                            val p = measurables.first().measure(childConstraints)
+                            return layout(p.width, p.height) { p.place(0, 0) }
+                        }
+                    }
+            }
+        parent.insertAt(0, child)
+        root.insertAt(0, parent)
+
+        val (_, delegate) = createDelegateOwner(root)
+        delegate.measureAndLayout()
+        assertEquals(1, childLookaheadMeasureCount)
+        assertEquals(1, childMainMeasureCount)
+
+        mainChildMaxWidth = 120
+        parent.requestRemeasure()
+        delegate.measureAndLayout()
+        assertEquals(1, childLookaheadMeasureCount)
+        assertEquals(2, childMainMeasureCount)
+    }
+
+    /**
+     * Checks that `requestRelayout()` on an unplaced node does not schedule relayout work, while
+     * calling it after the node is placed schedules relayout normally.
+     */
+    @Test
+    fun requestRelayoutOnUnplacedNode_doesNotScheduleRelayout() {
+        var placeChild = false
+        val root =
+            LayoutNode().apply {
+                measurePolicy =
+                    object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
+                        override fun MeasureScope.measure(
+                            measurables: List<Measurable>,
+                            constraints: Constraints,
+                        ): MeasureResult {
+                            val p = measurables.first().measure(constraints)
+                            return layout(100, 100) {
+                                if (placeChild) {
+                                    p.place(0, 0)
+                                }
+                            }
+                        }
+                    }
+            }
+        val child = LayoutNode().apply { measurePolicy = fixedSizePolicy(40, 40) }
+        root.insertAt(0, child)
+
+        val (_, delegate) = createDelegateOwner(root)
+        delegate.measureAndLayout()
+        assertFalse(child.isPlaced)
+
+        child.requestRelayout()
+        assertFalse(delegate.hasPendingMeasureOrLayout)
+
+        placeChild = true
+        root.requestRelayout()
+        delegate.measureAndLayout()
+        assertTrue(child.isPlaced)
+
+        child.requestRelayout()
+        assertTrue(delegate.hasPendingMeasureOrLayout)
+        delegate.measureAndLayout()
         assertFalse(delegate.hasPendingMeasureOrLayout)
     }
 

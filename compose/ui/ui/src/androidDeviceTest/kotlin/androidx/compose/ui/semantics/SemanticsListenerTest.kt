@@ -28,6 +28,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -441,8 +442,300 @@ class SemanticsListenerTest {
         }
     }
 
+    /**
+     * Checks that removing a node with semantics from composition notifies listeners with the old
+     * semantics and `null` for the new semantics.
+     */
+    @Test
+    fun removingNodeFromComposition_notifiesWithNullNewSemantics() {
+        // Arrange.
+        val events = mutableListOf<Event<String>>()
+        var show by mutableStateOf(true)
+        val text = AnnotatedString("text")
+        rule.setTestContent(
+            onSemanticsChange = { info, prev ->
+                events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
+            }
+        ) {
+            if (show) {
+                Box(modifier = Modifier.semantics { this.text = text }.testTag("item"))
+            }
+        }
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
+
+        // Act.
+        rule.runOnIdle { show = false }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "text", newSemantics = null))
+        }
+    }
+
+    /**
+     * Checks that removing a plain node without any `semantics` modifier does not trigger semantics
+     * listener notifications.
+     */
+    @Test
+    fun removingNodeWithoutSemantics_doesNotNotifyListeners() {
+        // Arrange.
+        val events = mutableListOf<Event<String>>()
+        var show by mutableStateOf(true)
+        rule.setTestContent(
+            onSemanticsChange = { info, prev ->
+                events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
+            }
+        ) {
+            if (show) {
+                Box(modifier = Modifier.size(100.dp))
+            }
+        }
+
+        // Act.
+        rule.runOnIdle { show = false }
+
+        // Assert.
+        rule.runOnIdle { assertThat(events).isEmpty() }
+    }
+
+    /**
+     * Checks that adding and removing `Modifier.clearAndSetSemantics` on an existing node notifies
+     * listeners with the new and old semantics.
+     */
+    @Test
+    fun addingAndRemovingClearAndSetSemantics() {
+        // Arrange.
+        val events = mutableListOf<Event<String>>()
+        var clear by mutableStateOf(false)
+        val text = AnnotatedString("cleared")
+        rule.setTestContent(
+            onSemanticsChange = { info, prev ->
+                events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
+            }
+        ) {
+            Box(
+                modifier =
+                    Modifier.size(100.dp)
+                        .then(
+                            if (clear) Modifier.clearAndSetSemantics { this.text = text }
+                            else Modifier
+                        )
+                        .testTag("item")
+            )
+        }
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
+
+        // Act & Assert: add clearAndSetSemantics.
+        rule.runOnIdle { clear = true }
+        rule.runOnIdle {
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = null, newSemantics = "cleared"))
+            events.clear()
+        }
+
+        // Act & Assert: remove clearAndSetSemantics.
+        rule.runOnIdle { clear = false }
+        rule.runOnIdle {
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "cleared", newSemantics = null))
+        }
+    }
+
+    /**
+     * Checks that removing one of two `semantics` modifiers on a node notifies listeners, and
+     * removing the remaining one notifies listeners again.
+     */
+    @Test
+    fun addingAndRemovingSecondSemanticsModifier() {
+        // Arrange.
+        val events = mutableListOf<Event<Pair<String?, String?>>>()
+        var hasSecond by mutableStateOf(true)
+        var hasFirst by mutableStateOf(true)
+        rule.setTestContent(
+            onSemanticsChange = { info, prev ->
+                events.add(
+                    Event(
+                        info.semanticsId,
+                        Pair(prev?.Text, prev?.ContentDescription),
+                        Pair(
+                            info.semanticsConfiguration?.Text,
+                            info.semanticsConfiguration?.ContentDescription,
+                        ),
+                    )
+                )
+            }
+        ) {
+            Box(
+                modifier =
+                    Modifier.size(100.dp)
+                        .then(
+                            if (hasFirst) Modifier.semantics { contentDescription = "first" }
+                            else Modifier
+                        )
+                        .then(
+                            if (hasSecond) Modifier.semantics { text = AnnotatedString("second") }
+                            else Modifier
+                        )
+                        .testTag("item")
+            )
+        }
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
+
+        // Act & Assert: remove second modifier while first remains.
+        rule.runOnIdle { hasSecond = false }
+        rule.runOnIdle {
+            assertThat(events)
+                .isExactly(
+                    Event(
+                        semanticsId,
+                        prevSemantics = Pair("second", "first"),
+                        newSemantics = Pair(null, "first"),
+                    )
+                )
+            events.clear()
+        }
+
+        // Act & Assert: remove last remaining semantics modifier.
+        rule.runOnIdle { hasFirst = false }
+        rule.runOnIdle {
+            assertThat(events)
+                .isExactly(
+                    Event(
+                        semanticsId,
+                        prevSemantics = Pair(null, "first"),
+                        newSemantics = Pair(null, null),
+                    )
+                )
+        }
+    }
+
+    /**
+     * Checks that calling `invalidateSemantics()` inside `applySemantics()` does not cause an
+     * infinite loop or duplicate events, and subsequent invalidations still notify normally.
+     */
+    @Test
+    fun invalidateSemanticsDuringApplySemantics_isIgnored() {
+        // Arrange.
+        val events = mutableListOf<Event<String>>()
+        var value = "text1"
+        val modifierNode =
+            object : SemanticsModifierNode, Modifier.Node() {
+                override fun SemanticsPropertyReceiver.applySemantics() {
+                    text = AnnotatedString(value)
+                    invalidateSemantics()
+                }
+            }
+        rule.setTestContent(
+            onSemanticsChange = { info, prev ->
+                events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
+            }
+        ) {
+            Box(modifier = Modifier.elementFor(modifierNode).testTag("item"))
+        }
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
+
+        // Act.
+        rule.runOnIdle {
+            value = "text2"
+            modifierNode.invalidateSemantics()
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
+        }
+    }
+
+    /**
+     * Checks that attaching and detaching a deprecated `SemanticsModifier` still notifies semantics
+     * listeners.
+     */
+    @Test
+    fun legacySemanticsModifier_attachAndDetach_notifiesListeners() {
+        // Arrange.
+        val events = mutableListOf<Int>()
+        var attachLegacy by mutableStateOf(false)
+        val legacyModifier =
+            @Suppress("DEPRECATION")
+            object : SemanticsModifier {
+                override val semanticsConfiguration: SemanticsConfiguration =
+                    SemanticsConfiguration().apply { text = AnnotatedString("legacy") }
+            }
+        rule.setTestContent(onSemanticsChange = { info, _ -> events.add(info.semanticsId) }) {
+            Box(
+                modifier =
+                    Modifier.size(100.dp)
+                        .testTag("item")
+                        .then(if (attachLegacy) legacyModifier else Modifier)
+            )
+        }
+        val semanticsId = rule.onNodeWithTag("item").semanticsId()
+
+        // Act & Assert: attach legacy SemanticsModifier.
+        rule.runOnIdle { attachLegacy = true }
+        rule.runOnIdle {
+            assertThat(events).contains(semanticsId)
+            events.clear()
+        }
+
+        // Act & Assert: detach legacy SemanticsModifier.
+        rule.runOnIdle { attachLegacy = false }
+        rule.runOnIdle { assertThat(events).contains(semanticsId) }
+    }
+
+    /**
+     * Checks that after a node is deactivated into a `ReusableContentHost` reuse pool and
+     * reactivated, subsequent semantics changes on that node still notify listeners.
+     */
+    @Test
+    fun reusableContentHost_deactivateAndReuse_notifiesListeners() {
+        // Arrange.
+        val events = mutableListOf<Event<String>>()
+        var active by mutableStateOf(true)
+        var text by mutableStateOf("text1")
+        rule.setTestContent(
+            onSemanticsChange = { info, prev ->
+                events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
+            }
+        ) {
+            ReusableContentHost(active = active) {
+                Box(
+                    modifier =
+                        Modifier.size(100.dp)
+                            .semantics { this.text = AnnotatedString(text) }
+                            .testTag("item")
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        // Act & Assert: deactivate into reuse pool, then reactivate and update semantics.
+        rule.runOnIdle { active = false }
+        rule.runOnIdle {
+            assertThat(events).isEmpty()
+            active = true
+        }
+        rule.runOnIdle {
+            val reactivatedId = rule.onNodeWithTag("item").semanticsId()
+            assertThat(events)
+                .contains(Event(reactivatedId, prevSemantics = null, newSemantics = "text1"))
+            events.clear()
+            text = "text2"
+        }
+
+        rule.runOnIdle {
+            val reactivatedId = rule.onNodeWithTag("item").semanticsId()
+            assertThat(events).isExactly(Event(reactivatedId, "text1", "text2"))
+        }
+    }
+
     private val SemanticsConfiguration.Text
         get() = getOrNull(SemanticsProperties.Text)?.fastJoinToString()
+
+    private val SemanticsConfiguration.ContentDescription
+        get() = getOrNull(SemanticsProperties.ContentDescription)?.fastJoinToString()
 
     private val SemanticsConfiguration.EditableText
         get() = getOrNull(SemanticsProperties.EditableText)?.toString()

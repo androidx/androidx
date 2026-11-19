@@ -17,6 +17,7 @@
 package androidx.compose.ui.semantics
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,6 +31,9 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutInfo
@@ -51,6 +55,7 @@ import androidx.compose.ui.unit.offset
 import androidx.compose.ui.zIndex
 import androidx.core.view.ViewCompat
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.min
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -537,6 +542,332 @@ class SemanticsHostApiTest {
             assertThat(roleFake.className?.toString()).isEqualTo("android.view.View")
         }
     }
+
+    /**
+     * Checks synthetic fake `SemanticsNode` properties (for `Role` and `contentDescription`) and
+     * verifies their `layoutInfo` is lazily created, cached, and leaves `parent` intact.
+     */
+    @Test
+    fun fakeNodes_propertiesAndLazyLayoutInfo() {
+        setContent {
+            Box(Modifier.alpha(0.5f), size = 30) {
+                Box(
+                    Modifier.testTag("btn")
+                        .pointerInput(Unit) {}
+                        .semantics(mergeDescendants = true) {
+                            role = Role.Button
+                            contentDescription = "cd"
+                        },
+                    size = 20,
+                ) {
+                    Box(Modifier.testTag("child").semantics { stateDescription = "s" }, size = 10)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            val btn = node("btn")
+            val children = mutableListOf<SemanticsNode>()
+            btn.collectAccessibilityChildren(children)
+            val cdFake = children.first { it.id == btn.id + ContentDescriptionFakeNodeIdOffset }
+            val roleFake = children.first { it.id == btn.id + RoleFakeNodeIdOffset }
+
+            for (fake in listOf(cdFake, roleFake)) {
+                assertThat(fake.isFake).isTrue()
+                assertThat(fake.root).isNull()
+                assertThat(fake.computeEffectiveAlpha()).isEqualTo(1f)
+                assertThat(fake.parent?.id).isEqualTo(btn.id)
+
+                val firstLayoutInfo = fake.layoutInfo
+                assertThat(firstLayoutInfo.semanticsId).isEqualTo(fake.id)
+                assertThat(firstLayoutInfo.isPlaced).isFalse()
+                assertThat(firstLayoutInfo.zIndex).isEqualTo(0f)
+                assertThat(firstLayoutInfo.placeOrder).isEqualTo(LayoutInfo.NotPlacedPlaceOrder)
+                assertThat(fake.layoutInfo).isSameInstanceAs(firstLayoutInfo)
+                // Parent remains intact after layoutInfo is accessed.
+                assertThat(fake.parent?.id).isEqualTo(btn.id)
+
+                assertThat(fake.children).isEmpty()
+                assertThat(fake.replacedChildren).isEmpty()
+                assertThat(fake.hasAccessibilityChild()).isFalse()
+
+                val mergedCopy = fake.copyWithMergingEnabled()
+                assertThat(mergedCopy.id).isEqualTo(fake.id)
+                assertThat(mergedCopy.mergingEnabled).isTrue()
+            }
+
+            assertThat(cdFake.isImportantForAccessibility).isTrue()
+            assertThat(roleFake.isImportantForAccessibility).isTrue()
+        }
+    }
+
+    /**
+     * Checks that `getAllUncoveredSemanticsNodesToMap` includes fake nodes on visible merging
+     * buttons as well as nodes inside `hideFromAccessibility()` subtrees.
+     */
+    @Test
+    fun uncoveredSemanticsNodes_includesFakeNodesAndHiddenSubtree() {
+        setContent {
+            Box(
+                Modifier.testTag("btn").semantics(mergeDescendants = true) {
+                    role = Role.Button
+                    contentDescription = "cd"
+                },
+                size = 20,
+            ) {
+                Box(Modifier.testTag("child").semantics { stateDescription = "s" }, size = 10)
+            }
+            Box(
+                Modifier.testTag("hiddenBtn").semantics(mergeDescendants = true) {
+                    hideFromAccessibility()
+                    role = Role.Button
+                    contentDescription = "hidden"
+                },
+                size = 20,
+            ) {
+                Box(
+                    Modifier.testTag("hiddenChild").semantics { stateDescription = "hs" },
+                    size = 10,
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            val btn = node("btn")
+            val hiddenBtn = node("hiddenBtn")
+            val hiddenChild = node("hiddenChild")
+
+            val hiddenFlags = mutableMapOf<Int, Boolean>()
+            semanticsOwner.forEachUncoveredSemanticsNode {
+                node,
+                _,
+                _,
+                _,
+                _,
+                isInMergingHiddenSubtree ->
+                hiddenFlags[node.id] = isInMergingHiddenSubtree
+            }
+
+            assertThat(hiddenFlags[btn.id]).isFalse()
+            assertThat(hiddenFlags[btn.id + ContentDescriptionFakeNodeIdOffset]).isFalse()
+            assertThat(hiddenFlags[btn.id + RoleFakeNodeIdOffset]).isFalse()
+            assertThat(hiddenFlags[hiddenBtn.id]).isTrue()
+            assertThat(hiddenFlags[hiddenChild.id]).isTrue()
+            assertThat(hiddenFlags[hiddenBtn.id + ContentDescriptionFakeNodeIdOffset]).isTrue()
+            assertThat(hiddenFlags[hiddenBtn.id + RoleFakeNodeIdOffset]).isTrue()
+
+            val map = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(-1) { false }
+            assertThat(map.containsKey(btn.id + ContentDescriptionFakeNodeIdOffset)).isTrue()
+            assertThat(map.containsKey(btn.id + RoleFakeNodeIdOffset)).isTrue()
+            assertThat(map.containsKey(hiddenBtn.id + ContentDescriptionFakeNodeIdOffset)).isTrue()
+        }
+    }
+
+    /**
+     * Checks how merged semantics traversal handles `zIndex` ordering, non-semantics wrapper
+     * containers, `clearAndSetSemantics`, nested `mergeDescendants`, and `LinkTestMarker`.
+     */
+    @Test
+    fun mergedTreeTraversal_zOrder_nonSemanticsContainers_clearingAndNestedMerging() {
+        setContent {
+            Box(
+                Modifier.testTag("merging").semantics(mergeDescendants = true) {
+                    contentDescription = "p"
+                },
+                size = 50,
+            ) {
+                Box(Modifier.zIndex(2f), size = 10) {
+                    Box(Modifier.testTag("secondByZ").semantics { contentDescription = "z2" })
+                }
+                Box(Modifier.zIndex(1f), size = 10) {
+                    Box(Modifier.testTag("firstByZ").semantics { contentDescription = "z1" })
+                }
+                Box(
+                    Modifier.testTag("nestedMerging").semantics(mergeDescendants = true) {
+                        contentDescription = "nested"
+                    }
+                ) {
+                    Box(Modifier.testTag("nestedChild").semantics { stateDescription = "ns" })
+                }
+                Box(Modifier.testTag("cleared").clearAndSetSemantics { contentDescription = "c" }) {
+                    Box(Modifier.testTag("clearedChild").semantics { stateDescription = "cs" })
+                }
+                Box(
+                    Modifier.testTag("link").semantics(mergeDescendants = true) {
+                        this[SemanticsProperties.LinkTestMarker] = Unit
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            val merging = node("merging")
+            assertThat(merging.getMergedOrNull(SemanticsProperties.ContentDescription))
+                .containsExactly("p", "c", "z1", "z2")
+                .inOrder()
+            assertThat(merging.mergedConfig.getOrNull(SemanticsProperties.ContentDescription))
+                .containsExactly("p", "c", "z1", "z2")
+                .inOrder()
+
+            val mergedNode = merging.copyWithMergingEnabled()
+            val a11yChildren = mutableListOf<Int>()
+            mergedNode.forEachAccessibilityChild { a11yChildren += it.id }
+            assertThat(a11yChildren).containsExactly(node("nestedMerging").id)
+
+            assertThat(mergedNode.replacedChildren.map { it.id })
+                .containsExactly(node("nestedMerging").id, node("link").id)
+
+            val allMerged = semanticsOwner.getAllSemanticsNodes(mergingEnabled = true)
+            assertThat(allMerged.map { it.id }.distinct().size).isEqualTo(allMerged.size)
+            assertThat(allMerged.map { it.id }).contains(node("nestedMerging").id)
+            assertThat(allMerged.map { it.id }).doesNotContain(node("nestedChild").id)
+            assertThat(allMerged.map { it.id }).doesNotContain(node("clearedChild").id)
+
+            val allUnmerged = semanticsOwner.getAllSemanticsNodes(mergingEnabled = false)
+            assertThat(allUnmerged.map { it.id }.distinct().size).isEqualTo(allUnmerged.size)
+            assertThat(allUnmerged.map { it.id })
+                .containsAtLeast(
+                    node("firstByZ").id,
+                    node("secondByZ").id,
+                    node("nestedChild").id,
+                    node("clearedChild").id,
+                )
+        }
+    }
+
+    /**
+     * Checks that deactivated nodes in `ReusableContentHost` are excluded by
+     * `getAllSemanticsNodes(..., skipDeactivatedNodes = true)` and included when `false`.
+     */
+    @Test
+    fun reusableContentHost_deactivatedNodes_excludedFromSemanticsAndIncludedWhenRequested() {
+        var active by mutableStateOf(true)
+        setContent {
+            ReusableContentHost(active = active) {
+                Box(Modifier.testTag("slotA").semantics { contentDescription = "slotA" })
+            }
+        }
+
+        val initialId = rule.runOnIdle { node("slotA").id }
+
+        // Deactivate slotA (retained in reuse pool).
+        rule.runOnIdle { active = false }
+
+        rule.runOnIdle {
+            val activeIds =
+                semanticsOwner
+                    .getAllSemanticsNodes(mergingEnabled = false, skipDeactivatedNodes = true)
+                    .map { it.id }
+            val allIdsIncludingDeactivated =
+                semanticsOwner
+                    .getAllSemanticsNodes(mergingEnabled = false, skipDeactivatedNodes = false)
+                    .map { it.id }
+            assertThat(activeIds).doesNotContain(initialId)
+            assertThat(allIdsIncludingDeactivated).contains(initialId)
+            assertThat(semanticsOwner[initialId]?.layoutInfo?.isDeactivated).isTrue()
+        }
+
+        // Reactivate the slot.
+        rule.runOnIdle { active = true }
+
+        rule.runOnIdle {
+            val reactivated = node("slotA")
+            val activeIds =
+                semanticsOwner
+                    .getAllSemanticsNodes(mergingEnabled = false, skipDeactivatedNodes = true)
+                    .map { it.id }
+            assertThat(activeIds).contains(reactivated.id)
+            assertThat(reactivated.layoutInfo.isDeactivated).isFalse()
+        }
+    }
+
+    /**
+     * Checks that when a `LayoutNode` has multiple `semantics` modifiers separated by padding,
+     * bounds and alignment lines use the merging modifier if present, otherwise the outermost one.
+     */
+    @Test
+    fun boundsResolution_multipleSemanticsModifiers_prefersMergingForBoundsAndAlignmentLines() {
+        val customLine = HorizontalAlignmentLine(::min)
+        setContent {
+            // Total size = 22x22: outer pad(2) -> 18x18 (offset 2), inner pad(4) -> 10x10 (offset
+            // 6).
+            AlignmentLineBox(
+                line = customLine,
+                linePos = 7,
+                modifier =
+                    Modifier.pad(2)
+                        .semantics { contentDescription = "outer" }
+                        .pad(4)
+                        .semantics(mergeDescendants = true) { stateDescription = "inner" }
+                        .testTag("mergingMulti"),
+                size = 10,
+            )
+            AlignmentLineBox(
+                line = customLine,
+                linePos = 7,
+                modifier =
+                    Modifier.pad(2)
+                        .semantics { contentDescription = "outer" }
+                        .pad(4)
+                        .semantics { stateDescription = "inner" }
+                        .testTag("nonMergingMulti"),
+                size = 10,
+            )
+        }
+
+        rule.runOnIdle {
+            val mergingMulti = node("mergingMulti")
+            assertThat(mergingMulti.boundsInRoot).isEqualTo(Rect(6f, 6f, 16f, 16f))
+            assertThat(mergingMulti.touchBoundsInRoot).isEqualTo(Rect(6f, 6f, 16f, 16f))
+            assertThat(mergingMulti.getAlignmentLinePosition(customLine)).isEqualTo(7)
+
+            val nonMergingMulti = node("nonMergingMulti")
+            assertThat(nonMergingMulti.boundsInRoot).isEqualTo(Rect(2f, 2f, 20f, 20f))
+            assertThat(nonMergingMulti.touchBoundsInRoot).isEqualTo(Rect(2f, 2f, 20f, 20f))
+        }
+    }
+
+    /**
+     * Checks that `forEachSemanticsAncestor` walks past intermediate nodes without semantics to
+     * find a scrollable ancestor (`verticalScrollAxisRange`).
+     */
+    @Test
+    fun scrollableParent_resolvedAcrossNonSemanticsAncestors() {
+        setContent {
+            Box(
+                Modifier.testTag("scroller").semantics {
+                    verticalScrollAxisRange = ScrollAxisRange(value = { 0f }, maxValue = { 100f })
+                },
+                size = 20,
+            ) {
+                Box(Modifier, size = 20) {
+                    Box(
+                        Modifier.testTag("item").semantics { contentDescription = "item" },
+                        size = 20,
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            val scrollerId = node("scroller").id
+            val item = node("item")
+            val found = item.forEachSemanticsAncestor { _, config ->
+                config.getOrNull(SemanticsProperties.VerticalScrollAxisRange) != null
+            }
+            assertThat(found?.semanticsId).isEqualTo(scrollerId)
+        }
+    }
+}
+
+@Composable
+private fun AlignmentLineBox(
+    line: AlignmentLine,
+    linePos: Int,
+    modifier: Modifier = Modifier,
+    size: Int = 10,
+) {
+    Layout(modifier = modifier) { _, _ -> layout(size, size, mapOf(line to linePos)) {} }
 }
 
 private val ExtraKey =
