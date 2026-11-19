@@ -34,7 +34,7 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.headless.HeadlessLifecycleOwner
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.layout.toRemoteLayoutDirection
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.profile.Profile
@@ -513,3 +513,9 @@ internal object AndroidCaptureTracer : CaptureTracer {
             block()
         }
 }
+
+private fun LayoutDirection.toRemoteLayoutDirection(): RemoteLayoutDirection =
+    when (this) {
+        LayoutDirection.Ltr -> RemoteLayoutDirection.Ltr
+        LayoutDirection.Rtl -> RemoteLayoutDirection.Rtl
+    }
