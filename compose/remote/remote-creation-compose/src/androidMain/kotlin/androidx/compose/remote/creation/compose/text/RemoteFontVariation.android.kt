@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-@file:JvmName("RemoteFontVariationKt")
-@file:JvmMultifileClass
-
 package androidx.compose.remote.creation.compose.text
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
@@ -35,8 +31,7 @@ import androidx.compose.ui.unit.Density
  *   axis value is written to the document, and then throws an [IllegalArgumentException].
  * @return the converted [RemoteFontVariation.Settings]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun FontVariation.Settings.toRemoteFontVariationSettings(
+internal fun FontVariation.Settings.toRemoteFontVariationSettings(
     density: Density? = null
 ): RemoteFontVariation.Settings =
     RemoteFontVariation.Settings(
