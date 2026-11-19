@@ -656,7 +656,6 @@ val Components =
         ToggleButtons,
         Tooltips,
         TopAppBar,
-        // TODO(b/449779924): Re-add Transitions after the 2.6.0 catalog release is signed.
-        //  It's hidden because MaterialTransitions is only in material3 1.6.0-alpha.
+        Transitions,
         Typography,
     )
