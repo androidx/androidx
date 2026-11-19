@@ -299,8 +299,8 @@ inline_ignores_regex = re.compile(
 def remove_inline_ignores(line):
     return re.sub(inline_ignores_regex, "", line)
 
-# Normalizes some filepaths to more easily simplify/skip some messages
-def normalize_paths(lines):
+# Maps the build's real paths, read from the log, to placeholders such as $OUT_DIR
+def get_path_replacements(lines):
     # get OUT_DIR, DIST_DIR, and the path of the root of the checkout
     out_dir = None
     dist_dir = None
@@ -341,13 +341,66 @@ def normalize_paths(lines):
     if checkout_dir is not None:
         remove_paths[checkout_dir + "/frameworks/support"] = "$SUPPORT"
         remove_paths[checkout_dir] = "$CHECKOUT"
+    return remove_paths
+
+# Replaces the real paths in the line with their placeholders
+def normalize_line(line, remove_paths):
+    for path in remove_paths:
+        if path in line:
+            replacement = remove_paths[path]
+            line = line.replace(path + "/", replacement + "/")
+            line = line.replace(path, replacement)
+    return line
+
+# Normalizes some filepaths to more easily simplify/skip some messages
+def normalize_paths(lines):
+    remove_paths = get_path_replacements(lines)
+    return [normalize_line(line, remove_paths) for line in lines]
+
+# Gradle sometimes cuts a line of task output in two (b/337056047). It ends the line early,
+# prints output from other tasks, then prints the "> Task" header again and the rest of the line.
+# Neither piece matches the exemption for the whole message, so --validate fails.
+#
+# This puts the pieces back together. When a task's header comes back, we append the first line
+# after it to the task's last line. We keep the joined line only if an exemption matches it but
+# matches neither piece alone. That way an exemption ending in ".*" can't hide a new message that
+# happens to follow an exempt line.
+#
+# We never join output from different tasks, and we don't handle lines cut into three or more
+# pieces. Paths are normalized after joining because the cut can fall inside a path.
+def rejoin_split_lines(lines, exemptions_matcher, remove_paths):
+    def exemptions(line):
+        return exemptions_matcher.get_matching_regexes(line.strip(), expect_match=True)
     result = []
-    for line in lines:
-        for path in remove_paths:
-            if path in line:
-                replacement = remove_paths[path]
-                line = line.replace(path + "/", replacement + "/")
-                line = line.replace(path, replacement)
+    # For each task, the position in result and the raw text of its last nonblank line
+    last_line_by_task = {}
+    task = None
+    # True until we see the first nonblank line after a task's header comes back
+    resumed = False
+    for raw in lines:
+        line = normalize_line(raw, remove_paths)
+        name = extract_task_name(line)
+        if name is not None or line.startswith("> Configure project "):
+            task = name.split()[0] if name else None  # ignore suffixes like UP-TO-DATE
+            resumed = task in last_line_by_task
+        elif task is not None and line.strip() != "":
+            if resumed:
+                resumed = False
+                index, previous_raw = last_line_by_task[task]
+                joined_raw = previous_raw.rstrip("\r\n") + raw
+                joined = normalize_line(joined_raw, remove_paths)
+                previous_exemptions = exemptions(result[index])
+                current_exemptions = exemptions(line)
+                if not (previous_exemptions and current_exemptions) and any(
+                        e not in previous_exemptions and e not in current_exemptions
+                        for e in exemptions(joined)):
+                    result[index] = joined
+                    # Forget the task's last line so nothing more gets appended to the joined line.
+                    # We can't tell a third piece from a new message the task prints later, and
+                    # joining a new message could hide it.
+                    del last_line_by_task[task]
+                    continue
+            last_line_by_task[task] = (len(result), raw)
         result.append(line)
     return result
 
@@ -512,13 +565,12 @@ def main():
 
     # read each file
     log_paths = arguments.log_path
-    all_lines = []
+    log_lines = []
     for log_path in log_paths:
         lines = readlines(log_path)
         lines = [remove_control_characters(line) for line in lines]
         lines = [remove_inline_ignores(line) for line in lines]
-        lines = normalize_paths(lines)
-        all_lines += lines
+        log_lines.append(lines)
     # load configuration
     if arguments.override_exemptions_path:
         deterministic_exemptions_path = arguments.override_exemptions_path
@@ -530,7 +582,10 @@ def main():
     flake_exemption_regexes = readlines(flake_exemptions_path)
     deterministic_exemption_regexes = readlines(deterministic_exemptions_path)
     exemption_regexes = flake_exemption_regexes + deterministic_exemption_regexes
-    # load configuration
+    exemptions_matcher = build_exemptions_matcher(exemption_regexes)
+    all_lines = []
+    for lines in log_lines:
+        all_lines += rejoin_split_lines(lines, exemptions_matcher, get_path_replacements(lines))
     # remove lines we're not interested in
     update = arguments.update or arguments.gc
     validate = update or arguments.validate
