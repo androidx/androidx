@@ -48,9 +48,9 @@ class CollectProgressDetector : Detector(), SourceCodeScanner {
             val backLambda =
                 computeKotlinArgumentMapping(node, method)
                     .orEmpty()
+                    .asSequence()
                     .filter { (_, parameter) -> parameter.name == "onBack" }
-                    .keys
-                    .filterIsInstance<ULambdaExpression>()
+                    .mapNotNull { (key, _) -> key as? ULambdaExpression }
                     .firstOrNull() ?: return
 
             // If the parameter is not referenced, immediately trigger the warning
