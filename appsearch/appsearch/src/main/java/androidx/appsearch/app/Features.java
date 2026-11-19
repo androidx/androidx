@@ -419,6 +419,16 @@ public interface Features {
             "SET_SCHEMA_REQUEST_MANAGED_PROFILE_CALENDAR_AND_SCREENSHOTS_ACCESS";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@code ReadOnlyGlobalSearchSession#getDocumentChangesAsync}.
+     */
+    // TODO: unhide the API once offline observers are ready.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalAppSearchApi
+    String GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES =
+            "GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

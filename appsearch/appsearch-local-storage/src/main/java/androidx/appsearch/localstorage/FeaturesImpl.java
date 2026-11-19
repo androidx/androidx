@@ -119,6 +119,10 @@ public class FeaturesImpl implements Features {
                 // TODO(b/384947619): Enable this once the feature is rolled out to Nextfood in
                 //   platform.
                 return false;
+            case Features.GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES:
+                // TODO: Enable this (together with Flags#enableOfflineObservers) once offline
+                //   observers are ready.
+                return false;
             case Features.INDEXER_MOBILE_APPLICATIONS:
                 // The Apps Indexer is only available on platform storage and some versions of
                 // GMSCore AppSearch. It can't be ran by local storage because local storage
