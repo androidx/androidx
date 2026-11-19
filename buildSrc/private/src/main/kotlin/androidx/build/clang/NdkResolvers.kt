@@ -20,33 +20,14 @@ import androidx.build.OperatingSystem
 import androidx.build.defaultAndroidConfig
 import androidx.build.getSdkPath
 import java.io.File
-import java.util.Properties
 import org.gradle.api.Project
 
-/** Resolves the NDK directory. */
-internal fun Project.getNdkDirectory(): File? {
-    // Versioned NDK directory (sdkmanager install location, e.g. playground)
+/** Returns the NDK installed at `<sdk>/ndk/<androidx.ndkVersion>`. */
+internal fun Project.getNdkDirectory(): File {
     val ndkVersion = defaultAndroidConfig.ndkVersion
-    val versionedNdkDir = getSdkPath().resolve("ndk/$ndkVersion")
-    if (versionedNdkDir.exists()) {
-        return versionedNdkDir
-    }
-    // Bundled directory (repo checkout and prebuilts directory).
-    val ndkBundleDir = getSdkPath().resolve("ndk-bundle")
-    if (ndkBundleDir.exists()) {
-        val sourcePropertiesFile = ndkBundleDir.resolve("source.properties")
-        if (sourcePropertiesFile.exists()) {
-            val properties =
-                Properties().apply { sourcePropertiesFile.inputStream().use { load(it) } }
-            val actualNdkVersion = properties.getProperty("Pkg.Revision")
-            check(actualNdkVersion == ndkVersion) {
-                "The NDK version in $sourcePropertiesFile ($actualNdkVersion) " +
-                    "does not match the expected NDK version in gradle.properties ($ndkVersion)."
-            }
-        }
-        return ndkBundleDir
-    }
-    return null
+    val ndkDir = getSdkPath().resolve("ndk/$ndkVersion")
+    check(ndkDir.resolve("source.properties").isFile) { "NDK $ndkVersion not found at $ndkDir" }
+    return ndkDir
 }
 
 /** Gets the NDK clang executable. */
