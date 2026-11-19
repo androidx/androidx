@@ -20,7 +20,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.math.Pose
-import org.junit.Assume
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -47,7 +46,7 @@ internal const val PROP_PERSIST_FAKE_HEAD_TRACKING: String = "persist.cpm.fake_h
  * ```
  *
  * For every test it guards, the rule:
- * * Skips the test via [Assume.assumeTrue] when CPM fake head tracking is not enabled.
+ * * Fails the test with [IllegalStateException] when CPM fake head tracking is not enabled.
  * * Resets the simulated head pose to [Pose.Identity] before the test body and again afterwards, so
  *   pose overrides never leak across tests.
  *
@@ -67,8 +66,8 @@ internal const val PROP_PERSIST_FAKE_HEAD_TRACKING: String = "persist.cpm.fake_h
  *
  * When pairing this rule with a rule that launches an activity (such as `ActivityScenarioRule` or
  * `createAndroidComposeRule`), give it a lower `order` (for example `@get:Rule(order = 0)`) so that
- * unconfigured devices skip before the activity launches and the activity starts at the identity
- * head pose.
+ * unconfigured devices fail fast before the activity launches and the activity starts at the
+ * identity head pose.
  *
  * @param settleDelayMs milliseconds to wait after each standalone pose change, completed
  *   [HeadMovementScope.animate], and head pose reset (default: [DEFAULT_HEAD_SETTLE_DELAY_MS])
@@ -142,7 +141,7 @@ internal constructor(
         object : Statement() {
             override fun evaluate() {
                 val status = checkFakeHeadTrackingStatus(shellExecutor)
-                Assume.assumeTrue(status.diagnosticMessage, status.isEnabled)
+                check(status.isEnabled) { status.diagnosticMessage }
 
                 try {
                     resetHeadMovementInternal(settleDelayMs, shellExecutor, sleeper)
@@ -215,7 +214,7 @@ internal fun checkFakeHeadTrackingStatus(
         return FakeHeadTrackingStatus(
             isEnabled = false,
             diagnosticMessage =
-                "Skipping test guarded by FakeHeadTrackingRule: '$PROP_FAKE_HEAD_TRACKING' is " +
+                "Cannot run test guarded by FakeHeadTrackingRule: '$PROP_FAKE_HEAD_TRACKING' is " +
                     "not enabled (cpm='$fht', persist='$pfht'). Apply " +
                     "'xr/testutils/xr-device-tests.gradle' in this test module's build.gradle " +
                     "so Gradle 'connectedAndroidTest' enables fake head tracking automatically, " +

@@ -56,7 +56,6 @@ import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -425,10 +424,7 @@ class PanelCoordinateToPoseTest {
 
     @Test
     fun panelCoordinate_activityPanel_matchesExtentsAndRecomputesAfterResize() {
-        assumeTrue(
-            "Requires SpatialCapability.EMBED_ACTIVITY",
-            scene.spatialCapabilities.contains(SpatialCapability.EMBED_ACTIVITY),
-        )
+        assertThat(scene.spatialCapabilities).contains(SpatialCapability.EMBED_ACTIVITY)
 
         scene.mainPanelEntity.setEnabled(false)
         val activityPanel = sessionRule.onMainThread {
