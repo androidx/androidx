@@ -110,9 +110,8 @@ import org.intellij.lang.annotations.Language
  *   scrollable content, [DrawCurvedToEdgeDefaults.StaticContentMaxSweepAngle] may be used instead.
  * @param angularDirection Specify the direction of the content. Default is clockwise (so that text
  *   appears the correct way up while at the top of the container).
- * @param anchor The angle at which the content is laid out relative to, in degrees. An angle of 0
+ * @param anchor The angle relative to which the content is laid out, in degrees. An angle of 0
  *   corresponds to the right (3 o'clock on a watch), 90 degrees is bottom (6 o'clock), and so on.
- *   Default is 270 degrees (top of the container).
  * @param anchorType Specify how the content is drawn with respect to the anchor. Default is to
  *   center the content on the anchor.
  */
@@ -120,7 +119,7 @@ import org.intellij.lang.annotations.Language
 public fun Modifier.drawCurvedToEdge(
     maxSweepAngle: Float = DrawCurvedToEdgeDefaults.ScrollableContentMaxSweepAngle,
     angularDirection: AngularDirection = AngularDirection.Clockwise,
-    anchor: Float = 270f,
+    anchor: Float = DrawCurvedToEdgeDefaults.Anchor,
     anchorType: AnchorType = AnchorType.Center,
 ): Modifier =
     this then
@@ -144,6 +143,12 @@ public object DrawCurvedToEdgeDefaults {
      * scrollable content.
      */
     public val StaticContentMaxSweepAngle: Float = 120f
+
+    /**
+     * The recommended angle relative to which the content is laid out, in degrees. 270 degrees
+     * equates to the top of the container.
+     */
+    public val Anchor: Float = 270f
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)

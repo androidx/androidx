@@ -727,8 +727,10 @@ package androidx.wear.compose.material3 {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class DrawCurvedToEdgeDefaults {
+    method @InaccessibleFromKotlin public float getAnchor();
     method @InaccessibleFromKotlin public float getScrollableContentMaxSweepAngle();
     method @InaccessibleFromKotlin public float getStaticContentMaxSweepAngle();
+    property public float Anchor;
     property public float ScrollableContentMaxSweepAngle;
     property public float StaticContentMaxSweepAngle;
     field public static final androidx.wear.compose.material3.DrawCurvedToEdgeDefaults INSTANCE;
