@@ -915,6 +915,135 @@ class SieveCacheTest {
         }
     }
 
+    @Test
+    fun visitedBitPreservedAcrossResizeStorage() {
+        val evictedEntries = mutableListOf<Int>()
+        val cache =
+            SieveCache<Int, Int>(
+                maxSize = 20,
+                initialCapacity = 6,
+                onEntryRemoved = { _, old, _, evicted -> if (evicted) evictedEntries.add(old) },
+            )
+        assertEquals(7, cache.capacity)
+
+        for (i in 0..5) {
+            cache[i] = i
+        }
+
+        // Mark the two oldest entries (0 and 1) as visited before triggering resizeStorage().
+        assertEquals(0, cache[0])
+        assertEquals(1, cache[1])
+
+        // Exceeds growthLimit for capacity 7, growing internal storage to 15 via resizeStorage().
+        cache[6] = 6
+        assertEquals(15, cache.capacity)
+
+        // SIEVE eviction must spare visited entries 0 and 1 (clearing their visited bits) and
+        // evict the oldest unvisited entries 2 and 3 instead.
+        cache.trimToSize(5)
+        assertContentEquals(listOf(2, 3), evictedEntries)
+        assertTrue(0 in cache)
+        assertTrue(1 in cache)
+        assertFalse(2 in cache)
+        assertFalse(3 in cache)
+    }
+
+    @Test
+    fun visitedBitPreservedAcrossDropDeletes() {
+        val evictedEntries = mutableListOf<String>()
+        val cache =
+            SieveCache<String, String>(
+                maxSize = 2048,
+                initialCapacity = 10, // Normalized capacity 15 (> GroupWidth = 8), growthLimit 14
+                onEntryRemoved = { _, old, _, evicted -> if (evicted) evictedEntries.add(old) },
+            )
+        assertEquals(15, cache.capacity)
+
+        cache["Hello"] = "World"
+        cache["Bonjour"] = "Monde"
+        cache["Hallo"] = "Welt"
+        cache["Konnichiwa"] = "Sekai"
+        cache["Ciao"] = "Mondo"
+        cache["Annyeong"] = "Sesang"
+        for (i in 0..7) {
+            cache[i.toString()] = i.toString()
+        }
+
+        // Leave 6 Deleted tombstones so growthLimit remains 0 while count drops to 8.
+        for (i in 0..5) {
+            cache.remove(i.toString())
+        }
+
+        // Mark the two oldest surviving entries ("Hello" and "Bonjour") as visited.
+        assertEquals("World", cache["Hello"])
+        assertEquals("Monde", cache["Bonjour"])
+
+        // Trigger adjustStorage() -> dropDeletes() without growing capacity beyond 15.
+        cache["Foo"] = "Bar"
+        cache["Baz"] = "Qux"
+        cache["Quux"] = "Corge"
+        assertEquals(15, cache.capacity)
+
+        // SIEVE eviction must spare visited "Hello" and "Bonjour" and evict "Hallo" and
+        // "Konnichiwa" instead.
+        cache.trimToSize(cache.count - 2)
+        assertContentEquals(listOf("Welt", "Sekai"), evictedEntries)
+        assertTrue("Hello" in cache)
+        assertTrue("Bonjour" in cache)
+        assertFalse("Hallo" in cache)
+        assertFalse("Konnichiwa" in cache)
+    }
+
+    @Test
+    fun createLinksPreservesMetadataAndLinks() {
+        val intMapping = IntArray(8)
+        intMapping[1] = 11
+        intMapping[2] = 13
+
+        val longMapping = LongArray(8) { InvalidMapping }
+        longMapping[1] = createMapping(src = 5, dst = 11)
+        longMapping[2] = createMapping(src = 6, dst = 13)
+
+        assertEquals(
+            EmptyNode,
+            createLinks(EmptyNode, NodeInvalidLink, NodeInvalidLink, intMapping),
+        )
+        assertEquals(
+            EmptyNode,
+            createLinks(EmptyNode, NodeInvalidLink, NodeInvalidLink, longMapping),
+        )
+
+        val visitedNode = setLinkToPrevious(createLinkToNext(2), 1) or NodeVisitedBit
+        val remappedInt = createLinks(visitedNode, 1, 2, intMapping)
+        assertEquals(1, remappedInt.visited)
+        assertEquals(NodeVisitedBit, remappedInt and NodeMetaMask)
+        assertEquals(11, remappedInt.previousNode)
+        assertEquals(13, remappedInt.nextNode)
+
+        val remappedLong = createLinks(visitedNode, 1, 2, longMapping)
+        assertEquals(1, remappedLong.visited)
+        assertEquals(NodeVisitedBit, remappedLong and NodeMetaMask)
+        assertEquals(11, remappedLong.previousNode)
+        assertEquals(13, remappedLong.nextNode)
+
+        val allMetaNode = setLinkToPrevious(createLinkToNext(2), 1) or NodeMetaMask
+        val headRemappedInt = createLinks(allMetaNode, NodeInvalidLink, 2, intMapping)
+        assertEquals(NodeMetaMask, headRemappedInt and NodeMetaMask)
+        assertEquals(NodeInvalidLink, headRemappedInt.previousNode)
+        assertEquals(13, headRemappedInt.nextNode)
+
+        val tailRemappedLong = createLinks(allMetaNode, 1, NodeInvalidLink, longMapping)
+        assertEquals(NodeMetaMask, tailRemappedLong and NodeMetaMask)
+        assertEquals(11, tailRemappedLong.previousNode)
+        assertEquals(NodeInvalidLink, tailRemappedLong.nextNode)
+
+        val unvisitedNode = setLinkToPrevious(createLinkToNext(2), 1)
+        val unvisitedRemappedInt = createLinks(unvisitedNode, 1, 2, intMapping)
+        assertEquals(0, unvisitedRemappedInt.visited)
+        assertEquals(11, unvisitedRemappedInt.previousNode)
+        assertEquals(13, unvisitedRemappedInt.nextNode)
+    }
+
     private class BadHashKey(val name: String) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
