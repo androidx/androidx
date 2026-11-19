@@ -17,7 +17,6 @@
 package androidx.camera.camera2.adapter
 
 import androidx.annotation.GuardedBy
-import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.internal.CameraCompatibilityFilter.isBackwardCompatible
@@ -31,7 +30,6 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.InitializationException
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT
-import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode
 import androidx.camera.core.impl.CameraRepository
@@ -39,33 +37,28 @@ import androidx.camera.core.impl.CameraUpdateException
 import androidx.camera.core.impl.InternalCameraPresenceListener
 
 public class CameraCoordinatorAdapter(
-    private var cameraPipe: CameraPipe?,
+    @GuardedBy("lock") private var cameraPipe: CameraPipe?,
     private val cameraDevices: CameraDevices,
 ) : CameraCoordinator, InternalCameraPresenceListener {
 
     private val lock = Any()
 
-    @GuardedBy("lock") @VisibleForTesting public var cameraRepository: CameraRepository? = null
+    @GuardedBy("lock") private var cameraRepository: CameraRepository? = null
+
+    @GuardedBy("lock") private var concurrentCameraIdsSet: Set<Set<CameraId>> = emptySet()
+
+    @GuardedBy("lock") private var concurrentCameraIdMap: Map<String, List<String>> = emptyMap()
+
+    @GuardedBy("lock") private var activeConcurrentCameraInfosList: List<CameraInfo> = emptyList()
+
+    @GuardedBy("lock") private val pendingCameraIds: MutableSet<String> = mutableSetOf()
 
     @GuardedBy("lock")
-    @VisibleForTesting
-    public var concurrentCameraIdsSet: Set<Set<CameraId>> = emptySet()
-
-    @GuardedBy("lock")
-    @VisibleForTesting
-    public var concurrentCameraIdMap: Map<String, List<String>> = emptyMap()
-
-    @GuardedBy("lock")
-    @VisibleForTesting
-    public var activeConcurrentCameraInfosList: List<CameraInfo> = emptyList()
-    @GuardedBy("lock") public var pendingCameraIds: MutableList<String> = mutableListOf()
-
-    @GuardedBy("lock")
-    @VisibleForTesting
     @CameraOperatingMode
-    public var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
+    private var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
 
-    @VisibleForTesting public var concurrentModeOn: Boolean = false
+    /** Incremented whenever the operating mode changes or the coordinator is shut down. */
+    @GuardedBy("lock") private var generation: Long = 0
 
     override fun init(repository: CameraRepository) {
         synchronized(lock) { cameraRepository = repository }
@@ -148,73 +141,115 @@ public class CameraCoordinatorAdapter(
         }
 
     override fun addPendingCameraInfo(cameraInfo: CameraInfo): Unit {
-        synchronized(lock) {
-            if (concurrentModeOn) {
+        val request =
+            synchronized(lock) {
+                if (concurrentMode != CAMERA_OPERATING_MODE_CONCURRENT) {
+                    return
+                }
                 pendingCameraIds.add(checkNotNull(cameraInfo.cameraId).value)
-                tryStartConcurrentGraph()
-            }
-        }
+                takeConcurrentGraphRequestLocked()
+            } ?: return
+        startConcurrentGraphs(request)
     }
 
     override fun removePendingCameraInfo(cameraInfo: CameraInfo) {
-        synchronized(lock) {
-            if (concurrentModeOn) {
-                pendingCameraIds.remove(checkNotNull(cameraInfo.cameraId).value)
-            }
-        }
+        val cameraId = cameraInfo.cameraId?.value ?: return
+        synchronized(lock) { pendingCameraIds.remove(cameraId) }
     }
 
     override fun setActiveConcurrentCameraInfos(cameraInfos: List<CameraInfo>) {
-        synchronized(lock) {
-            activeConcurrentCameraInfosList = cameraInfos
-            tryStartConcurrentGraph()
-        }
+        val request =
+            synchronized(lock) {
+                activeConcurrentCameraInfosList = cameraInfos.toList()
+                takeConcurrentGraphRequestLocked()
+            } ?: return
+        startConcurrentGraphs(request)
     }
 
-    private fun tryStartConcurrentGraph() {
-        val concurrentCameraInfoList =
-            synchronized(lock) {
-                if (activeConcurrentCameraInfosList.isEmpty() || pendingCameraIds.isEmpty()) {
-                    return
-                }
-                val activeConcurrentCameraIdsList = activeConcurrentCameraInfosList.map {
-                    checkNotNull(it.cameraId).value
-                }
-                if (activeConcurrentCameraIdsList.toSet() != pendingCameraIds.toSet()) {
-                    return
-                }
-                pendingCameraIds.clear()
-                activeConcurrentCameraInfosList
-            }
+    private class ConcurrentGraphRequest(
+        val generation: Long,
+        val cameraIds: List<String>,
+        val repository: CameraRepository,
+        val cameraPipe: CameraPipe,
+    )
 
-        // start the concurrent camera graph.
+    /**
+     * Returns a request to start the concurrent CameraGraphs if every active concurrent camera is
+     * pending, and consumes the pending camera IDs. The pending camera IDs are kept if the
+     * coordinator is not initialized, so that nothing is lost.
+     */
+    @GuardedBy("lock")
+    private fun takeConcurrentGraphRequestLocked(): ConcurrentGraphRequest? {
+        if (activeConcurrentCameraInfosList.isEmpty() || pendingCameraIds.isEmpty()) {
+            return null
+        }
+        val activeCameraIds = activeConcurrentCameraInfosList.map {
+            checkNotNull(it.cameraId).value
+        }
+        if (activeCameraIds.toSet() != pendingCameraIds) {
+            return null
+        }
+        val repo = cameraRepository
+        val pipe = cameraPipe
+        if (repo == null || pipe == null) {
+            Camera2Logger.error {
+                "Coordinator has not been initialized with a CameraRepository and a CameraPipe."
+            }
+            return null
+        }
+        pendingCameraIds.clear()
+        return ConcurrentGraphRequest(generation, activeCameraIds, repo, pipe)
+    }
+
+    private fun isStaleRequest(request: ConcurrentGraphRequest): Boolean =
+        synchronized(lock) { generation != request.generation }
+
+    /**
+     * Starts the concurrent CameraGraphs. This must be called without holding [lock], because it
+     * calls into [CameraRepository], [CameraPipe] and [CameraInternalAdapter], which take their own
+     * locks and may call back into this coordinator.
+     */
+    private fun startConcurrentGraphs(request: ConcurrentGraphRequest) {
         val camerasToUpdate =
-            synchronized(lock) {
-                val repo = cameraRepository
-                if (repo == null) {
-                    Camera2Logger.error {
-                        "Coordinator has not been initialized with a CameraRepository."
-                    }
-                    return
-                }
-                concurrentCameraInfoList.mapNotNull { cameraInfo ->
-                    try {
-                        repo.getCamera(cameraInfo.cameraId!!.value) as? CameraInternalAdapter
-                    } catch (_: IllegalArgumentException) {
-                        null
-                    }
+            request.cameraIds.mapNotNull { cameraId ->
+                try {
+                    request.repository.getCamera(cameraId) as? CameraInternalAdapter
+                } catch (_: IllegalArgumentException) {
+                    null
                 }
             }
 
-        val graphConfigs = camerasToUpdate.map {
-            checkNotNull(it.getDeferredCameraGraphConfig()) {
-                "Every CameraInternal instance is expected to have a deferred CameraGraph config"
+        val graphConfigs = buildList {
+            for (camera in camerasToUpdate) {
+                val config = camera.getDeferredCameraGraphConfig()
+                if (config == null) {
+                    Camera2Logger.warn {
+                        "Deferred CameraGraph config missing before creation, aborting."
+                    }
+                    return
+                }
+                add(config)
             }
+        }
+
+        if (graphConfigs.isEmpty() || isStaleRequest(request)) {
+            Camera2Logger.warn {
+                "Concurrent camera state changed, aborting CameraGraph creation."
+            }
+            return
         }
 
         val cameraGraphs =
-            checkNotNull(cameraPipe).createCameraGraphs(CameraGraph.ConcurrentConfig(graphConfigs))
+            request.cameraPipe.createCameraGraphs(CameraGraph.ConcurrentConfig(graphConfigs))
         check(cameraGraphs.size == graphConfigs.size)
+
+        // Drop the CameraGraphs if the operating mode changed or the coordinator was shut down
+        // while they were being created.
+        if (isStaleRequest(request)) {
+            Camera2Logger.warn { "Concurrent camera state changed, closing stale CameraGraphs." }
+            cameraGraphs.forEach { it.close() }
+            return
+        }
 
         for ((cameraInternalAdapter, cameraGraph) in camerasToUpdate.zip(cameraGraphs)) {
             cameraInternalAdapter.resumeDeferredCameraGraphCreation(cameraGraph)
@@ -242,28 +277,25 @@ public class CameraCoordinatorAdapter(
         }
 
     override fun setCameraOperatingMode(@CameraOperatingMode cameraOperatingMode: Int) {
+        val isConcurrent = cameraOperatingMode == CAMERA_OPERATING_MODE_CONCURRENT
         val repo =
             synchronized(lock) {
                 concurrentMode = cameraOperatingMode
-                cameraRepository
-            }
-
-        if (repo == null) return
-
-        concurrentModeOn = cameraOperatingMode == CAMERA_OPERATING_MODE_CONCURRENT
-        if (!concurrentModeOn) {
-            activeConcurrentCameraInfosList = emptyList()
-        }
-
-        // Update all cameras known by the repository
-        for (camera in repo.cameras) {
-            (camera as? CameraInternalAdapter)?.let { camera ->
-                if (cameraOperatingMode == CAMERA_OPERATING_MODE_CONCURRENT) {
-                    camera.setCameraGraphCreationMode(createImmediately = false)
-                } else if (cameraOperatingMode == CAMERA_OPERATING_MODE_SINGLE) {
-                    camera.setCameraGraphCreationMode(createImmediately = true)
+                generation++
+                if (!isConcurrent) {
+                    // Drop concurrent state so that a later concurrent session starts clean.
+                    activeConcurrentCameraInfosList = emptyList()
+                    pendingCameraIds.clear()
                 }
-            }
+                cameraRepository
+            } ?: return
+
+        // Update all cameras known by the repository. CameraGraph creation is only deferred in
+        // concurrent mode, so that all concurrent CameraGraphs can be created together.
+        for (camera in repo.cameras) {
+            (camera as? CameraInternalAdapter)?.setCameraGraphCreationMode(
+                createImmediately = !isConcurrent
+            )
         }
     }
 
@@ -272,9 +304,9 @@ public class CameraCoordinatorAdapter(
     override fun removeListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {}
 
     override fun shutdown() {
-        cameraPipe = null
-        concurrentModeOn = false
         synchronized(lock) {
+            generation++
+            cameraPipe = null
             cameraRepository = null
             concurrentCameraIdsSet = emptySet()
             concurrentCameraIdMap = emptyMap()
