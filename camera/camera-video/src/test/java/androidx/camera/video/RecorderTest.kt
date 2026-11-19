@@ -22,6 +22,7 @@ import android.app.Application
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.media.MediaCodec
+import android.media.MediaFormat
 import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaRecorder
 import android.net.Uri
@@ -2120,6 +2121,87 @@ class RecorderTest {
         idleMainLooper()
 
         createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
+    }
+
+    @Test
+    fun startWithAudio_cachesPreKeyframeAudioAndWritesAlignedMuxerTimestamps() {
+        val writtenSampleTimesByTrack = mutableMapOf<Int, MutableList<Long>>()
+        val recorder =
+            createRecorder(
+                muxerFactory = createSampleTimeRecordingMuxerFactory(writtenSampleTimesByTrack)
+            )
+        val recording = createRecording(recorder = recorder, withAudio = true).startAndVerify()
+        val audioEncoder = checkNotNull(latestAudioEncoder)
+        val videoEncoder = checkNotNull(latestVideoEncoder)
+
+        // Cache multiple audio samples before and after firstVideoPtsUs (200_000us) prior to the
+        // first video keyframe arriving at Recorder (b/227125710).
+        val firstVideoPtsUs = 200_000L
+        audioEncoder.sendEncodedData(presentationTimeUs = 160_000L, isKeyFrame = false)
+        audioEncoder.sendEncodedData(presentationTimeUs = 180_000L, isKeyFrame = false)
+        audioEncoder.sendEncodedData(presentationTimeUs = 201_000L, isKeyFrame = false)
+        audioEncoder.sendEncodedData(presentationTimeUs = 222_000L, isKeyFrame = false)
+        idle(recorder)
+
+        videoEncoder.sendEncodedData(presentationTimeUs = firstVideoPtsUs, isKeyFrame = true)
+        audioEncoder.sendEncodedData(presentationTimeUs = 243_000L, isKeyFrame = false)
+        idle(recorder)
+
+        assertThat(recorder.mFirstRecordingVideoDataTimeUs).isEqualTo(firstVideoPtsUs)
+        assertThat(recorder.mFirstRecordingAudioDataTimeUs).isEqualTo(201_000L)
+        // Recorder adds video track first (index 0) and audio track second (index 1).
+        assertThat(writtenSampleTimesByTrack[0]).containsExactly(0L).inOrder()
+        assertThat(writtenSampleTimesByTrack[1]).containsExactly(1_000L, 22_000L, 43_000L).inOrder()
+
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun startWithAudio_skipsPostMuxerAudioPrecedingFirstVideoFrame() {
+        val writtenSampleTimesByTrack = mutableMapOf<Int, MutableList<Long>>()
+        val recorder =
+            createRecorder(
+                muxerFactory = createSampleTimeRecordingMuxerFactory(writtenSampleTimesByTrack)
+            )
+        val recording = createRecording(recorder = recorder, withAudio = true).startAndVerify()
+        val audioEncoder = checkNotNull(latestAudioEncoder)
+        val videoEncoder = checkNotNull(latestVideoEncoder)
+
+        // Start muxer with a pre-keyframe audio sample (160_000us < 200_000us), then send a
+        // monotonic post-muxer audio sample (190_000us) that still precedes firstVideoPtsUs.
+        audioEncoder.sendEncodedData(presentationTimeUs = 160_000L, isKeyFrame = false)
+        videoEncoder.sendEncodedData(presentationTimeUs = 200_000L, isKeyFrame = true)
+        audioEncoder.sendEncodedData(presentationTimeUs = 190_000L, isKeyFrame = false)
+        audioEncoder.sendEncodedData(presentationTimeUs = 215_000L, isKeyFrame = false)
+        idle(recorder)
+
+        assertThat(recorder.mFirstRecordingVideoDataTimeUs).isEqualTo(200_000L)
+        assertThat(recorder.mFirstRecordingAudioDataTimeUs).isEqualTo(215_000L)
+        assertThat(writtenSampleTimesByTrack[0]).containsExactly(0L).inOrder()
+        assertThat(writtenSampleTimesByTrack[1]).containsExactly(15_000L).inOrder()
+
+        recording.stopAndVerify()
+    }
+
+    private fun createSampleTimeRecordingMuxerFactory(
+        writtenSampleTimesByTrack: MutableMap<Int, MutableList<Long>>
+    ): MuxerFactory {
+        var nextTrackIndex = 0
+        return MuxerFactory {
+            object : NoOpMuxer() {
+                override fun addTrack(format: MediaFormat): Int = nextTrackIndex++
+
+                override fun writeSampleData(
+                    trackIndex: Int,
+                    byteBuffer: ByteBuffer,
+                    bufferInfo: MediaCodec.BufferInfo,
+                ) {
+                    writtenSampleTimesByTrack
+                        .getOrPut(trackIndex) { mutableListOf() }
+                        .add(bufferInfo.presentationTimeUs)
+                }
+            }
+        }
     }
 
     @Test
