@@ -31,7 +31,6 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
-import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -40,6 +39,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Rule
@@ -88,14 +88,8 @@ class EffectsFragmentDeviceTest(
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
                     10000, TimeUnit.MILLISECONDS]
         requireForegroundRule.deferCleanup {
-            try {
-                if (::fragmentScenario.isInitialized) {
-                    fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-                }
-            } finally {
-                if (::cameraProvider.isInitialized) {
-                    cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
-                }
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             }
         }
         fragmentScenario =
@@ -106,6 +100,13 @@ class EffectsFragmentDeviceTest(
                 null,
             )
         fragment = fragmentScenario.getFragment()
+    }
+
+    @After
+    fun tearDown() {
+        if (::fragmentScenario.isInitialized) {
+            fragmentScenario.close()
+        }
     }
 
     @Test

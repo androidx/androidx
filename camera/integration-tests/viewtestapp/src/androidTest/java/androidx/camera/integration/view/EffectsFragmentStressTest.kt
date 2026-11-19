@@ -29,12 +29,12 @@ import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
-import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import java.util.concurrent.TimeUnit
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -78,14 +78,8 @@ class EffectsFragmentStressTest(
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
                     10000, TimeUnit.MILLISECONDS]
         requireForegroundRule.deferCleanup {
-            try {
-                if (::fragmentScenario.isInitialized) {
-                    fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-                }
-            } finally {
-                if (::cameraProvider.isInitialized) {
-                    cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
-                }
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             }
         }
         fragmentScenario =
@@ -96,6 +90,13 @@ class EffectsFragmentStressTest(
                 null,
             )
         fragment = fragmentScenario.getFragment()
+    }
+
+    @After
+    fun tearDown() {
+        if (::fragmentScenario.isInitialized) {
+            fragmentScenario.close()
+        }
     }
 
     @LabTestRule.LabTestOnly
