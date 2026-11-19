@@ -17,6 +17,10 @@
 package androidx.viewpager2.widget.swipe
 
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.testutils.LocaleTestUtils
 import androidx.testutils.RecreatedAppCompatActivity
 import androidx.viewpager2.test.R
@@ -27,6 +31,36 @@ class TestActivity : RecreatedAppCompatActivity(R.layout.activity_test_layout) {
             LocaleTestUtils(this).setLocale(intent.getStringExtra(EXTRA_LANGUAGE)!!)
         }
         super.onCreate(savedInstanceState)
+
+        // Apply system bar and display cutout margins to android.R.id.content (requires a
+        // NoActionBar theme so ActionBarOverlayLayout doesn't overwrite them) so ViewPager2's
+        // own padding and local bounds (0, 0) stay untouched for tests and SwipeExclusionRects.
+        val content = findViewById<View>(android.R.id.content)
+        ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
+            val systemBars =
+                insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+                )
+            val lp = v.layoutParams as ViewGroup.MarginLayoutParams
+            if (
+                lp.leftMargin != systemBars.left ||
+                    lp.topMargin != systemBars.top ||
+                    lp.rightMargin != systemBars.right ||
+                    lp.bottomMargin != systemBars.bottom
+            ) {
+                lp.setMargins(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom,
+                )
+                v.layoutParams = lp
+            }
+            insets.inset(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+        }
+        if (content.isAttachedToWindow) {
+            ViewCompat.requestApplyInsets(content)
+        }
 
         /** hacky way of configuring this instance from test code */
         onCreateCallback(this)
