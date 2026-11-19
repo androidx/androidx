@@ -23,12 +23,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.action.valueChangeAction
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -129,7 +129,7 @@ class RcPlayerClockIdleDeviceTest {
                             .size(40.rdp)
                             .clickable(onClick = valueChangeAction(checked, !checked))
                 )
-                RemoteStateLayout(currentState = checked) { state -> branch(state) }
+                RemoteAllStatesLayout(currentState = checked) { state -> branch(state) }
             }
         }
         frame()

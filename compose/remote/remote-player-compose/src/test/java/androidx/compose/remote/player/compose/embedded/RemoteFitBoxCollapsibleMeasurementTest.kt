@@ -22,11 +22,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
@@ -470,10 +470,9 @@ class RemoteFitBoxCollapsibleMeasurementTest {
                 }
             },
         ) {
-            RemoteStateLayout(
+            RemoteAllStatesLayout(
                 currentState = remember { MutableRemoteInt(0) },
-                0,
-                1,
+                stateCount = 2,
                 modifier = RemoteModifier,
             ) { page ->
                 when (page) {
@@ -554,10 +553,9 @@ class RemoteFitBoxCollapsibleMeasurementTest {
                 }
             },
         ) {
-            RemoteStateLayout(
+            RemoteAllStatesLayout(
                 currentState = remember { MutableRemoteInt(0) },
-                0,
-                1,
+                stateCount = 2,
                 modifier = RemoteModifier,
             ) { page ->
                 when (page) {

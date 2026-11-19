@@ -291,7 +291,8 @@ internal class RemoteHoistNode : RemoteComposeNode() {
  * This ensures the operations underlying the given states (such as string formatting or
  * mathematical operations) are emitted at this container level, so that they are evaluated whenever
  * this container is rendered, rather than being trapped inside a conditionally hidden child
- * container (such as an inactive branch of a RemoteStateLayout).
+ * container (such as an inactive branch of a
+ * [androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout]).
  *
  * @param states The remote state expressions to hoist to the current container scope.
  */

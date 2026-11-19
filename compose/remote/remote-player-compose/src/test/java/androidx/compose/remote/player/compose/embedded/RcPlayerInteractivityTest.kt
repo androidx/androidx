@@ -57,6 +57,7 @@ import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
@@ -66,7 +67,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteFlowRow
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -1093,7 +1093,8 @@ class RcPlayerInteractivityTest {
 
             RemoteBox(modifier = RemoteModifier.size(400.rdp)) {
                 Hoist(totalScore)
-                RemoteStateLayout(currentState = currentPage, 0, 1, 2, 3) { pageIndex: Int ->
+                RemoteAllStatesLayout(currentState = currentPage, stateCount = 4) { pageIndex: Int
+                    ->
                     if (pageIndex < 3) {
                         RemoteBox(modifier = RemoteModifier.size(400.rdp)) {
                             RemoteBox(

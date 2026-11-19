@@ -22,9 +22,9 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.action.valueChangeAction
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition
 import androidx.compose.remote.creation.compose.modifier.RemoteExitTransition
@@ -88,7 +88,7 @@ class RcPlayerStateLayoutTransitionTest {
                             .size(20.rdp)
                             .clickable(onClick = valueChangeAction(checked, !checked))
                 )
-                RemoteStateLayout(currentState = checked) { state -> branch(state) }
+                RemoteAllStatesLayout(currentState = checked) { state -> branch(state) }
             }
         }
         rule.mainClock.advanceTimeBy(0)

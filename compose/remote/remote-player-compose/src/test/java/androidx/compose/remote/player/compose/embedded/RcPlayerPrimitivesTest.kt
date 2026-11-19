@@ -41,6 +41,7 @@ import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreati
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -54,7 +55,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
@@ -888,7 +888,7 @@ class RcPlayerPrimitivesTest {
         val checked = RemoteBoolean(true)
 
         rule.setRemoteContent {
-            RemoteStateLayout(currentState = checked) { state ->
+            RemoteAllStatesLayout(currentState = checked) { state ->
                 RemoteText("State $state".rs)
             }
         }

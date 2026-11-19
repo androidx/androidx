@@ -20,13 +20,13 @@ package androidx.compose.remote.integration.view.demos.examples
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow as Row
-import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier as Modifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -134,8 +134,8 @@ fun SwitchWidget(value: MutableRemoteEnum<SwitchState>) {
         contentAlignment = RemoteAlignment.CenterStart,
     ) {
         val modifierSize = RemoteModifier.size(60.rdp, 36.rdp)
-        RemoteStateLayout(modifier = RemoteModifier.wrapContentSize(), currentState = value) { state
-            ->
+        RemoteAllStatesLayout(modifier = RemoteModifier.wrapContentSize(), currentState = value) {
+            state ->
             RemoteBox {
                 when (state) {
                     Off -> SwitchWidgetOffState(modifier = modifierSize)
