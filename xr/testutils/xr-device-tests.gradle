@@ -33,7 +33,6 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
     protected static final List<String> XR_PROPS = [
         "persist.xr.frames_host.drop_far_event",
         "persist.xr.disable_don_doff_sensor",
-        "xr.power.don",
         "cpm.fake_headtracking",
         "xr.pose_read_mode",
         "cpm.fake_het_position",
@@ -41,15 +40,22 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
         "cpm.disable_capture_stabilization",
     ]
 
+    // Only save and restore transient power/timeout settings across test runs.
+    // OOBE and guardian bypass settings (device_provisioned, user_setup_complete,
+    // guardian_requires_setup, guardian_consent_granted) are intentionally one-way
+    // in prepare() so restoreDevice never un-provisions a device back to 0.
     protected static final List<String> XR_SETTINGS = [
-        "global:device_provisioned",
-        "secure:user_setup_complete",
         "global:stay_on_while_plugged_in",
         "system:screen_off_timeout",
         "system:doff_screen_timeout_ms",
-        "secure:guardian_requires_setup",
-        "secure:guardian_consent_granted",
     ]
+
+    protected static final String STOP_INPUT_INJECTION_CMD =
+        "if [ -x /system/bin/xr_inject_input_cli ]; then " +
+            "/system/bin/xr_inject_input_cli stop >/dev/null 2>&1 || true; " +
+        "elif [ -x /data/local/tmp/xr_inject_input_cli ]; then " +
+            "/data/local/tmp/xr_inject_input_cli stop >/dev/null 2>&1 || true; " +
+        "fi"
 
     protected static String shellQuote(String value) {
         def safe = value ?: ""
@@ -202,7 +208,6 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
         Map<String, String> defaultProps = [
             "persist.xr.frames_host.drop_far_event": "false",
             "persist.xr.disable_don_doff_sensor": "false",
-            "xr.power.don": "",
             "cpm.fake_headtracking": "",
             "xr.pose_read_mode": "2",
             "cpm.fake_het_position": "",
@@ -225,17 +230,21 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
         def wmDensityCommand = wmDensityOverride.isEmpty() ?
             "wm density reset" : "wm density ${shellQuote(wmDensityOverride)}"
 
-        runAdbShell(
-            serial,
-            "pm enable com.google.android.apps.vr.wiredmirror >/dev/null 2>&1 || true; " +
-                propCommands.join(" && ") + " && " +
-                wmDensityCommand
-        )
+        def preBootCommands = [
+            "pm enable com.google.android.apps.vr.wiredmirror >/dev/null 2>&1 || true",
+            STOP_INPUT_INJECTION_CMD,
+            "setprop xr.power.don ''",
+        ]
+        preBootCommands.addAll(propCommands)
+        runAdbShell(serial, preBootCommands.join("; "))
 
         restartAndWaitForXrBoot(serial)
 
         def postBootCommands = new ArrayList<String>(propCommands)
         postBootCommands.add("pm enable com.google.android.apps.vr.wiredmirror >/dev/null 2>&1 || true")
+        postBootCommands.add(wmDensityCommand)
+        postBootCommands.add(STOP_INPUT_INJECTION_CMD)
+        postBootCommands.add("settings put system puck_input_disabled 0 >/dev/null 2>&1 || true")
         postBootCommands.add("svc power stayon false")
         XR_SETTINGS.each { entry ->
             def settingKey = "setting:" + entry
@@ -264,7 +273,7 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
             propsToSave.add(0, "persist.xr.enable_dynamic_sensor")
         }
         def commands = [
-            "echo \"wm_density_override=\$(wm density 2>/dev/null | sed -n 's/.*Override density: *//p')\"",
+            "echo \"wm_density_override=\$(wm density 2>/dev/null | sed -n 's/.*Override density: *//p' | head -n 1)\"",
         ]
         propsToSave.each { prop ->
             commands.add("echo \"prop:${prop}=\$(getprop ${prop})\"")
@@ -273,12 +282,12 @@ abstract class BaseXrStagedGoldensTask extends DefaultTask {
             def parts = entry.split(":", 2)
             def namespace = parts[0]
             def key = parts[1]
-            commands.add("echo \"setting:${namespace}:${key}=\$(settings get ${namespace} ${key})\"")
+            commands.add("echo \"setting:${namespace}:${key}=\$(settings get ${namespace} ${key} 2>/dev/null)\"")
         }
         def tmpFile = "${SAVED_STATE_FILE}.tmp"
         runAdbShell(
             serial,
-            "if [ ! -f ${SAVED_STATE_FILE} ]; then " +
+            "if [ ! -s ${SAVED_STATE_FILE} ]; then " +
                 "{ " + commands.join("; ") + "; } > ${tmpFile} && " +
                 "mv ${tmpFile} ${SAVED_STATE_FILE}; " +
                 "fi"
@@ -358,6 +367,7 @@ abstract class PrepareXrDeviceTask extends BaseXrStagedGoldensTask {
                         "wm density 240 && " +
                         "settings put global device_provisioned 1 && " +
                         "settings put secure user_setup_complete 1 && " +
+                        "settings put system puck_input_disabled 0 && " +
                         "settings put global stay_on_while_plugged_in 15 && " +
                         "settings put system screen_off_timeout 1800000 && " +
                         "settings put system doff_screen_timeout_ms 1800000 && " +
@@ -371,7 +381,8 @@ abstract class PrepareXrDeviceTask extends BaseXrStagedGoldensTask {
                         "cmd XrServiceHelperService offbody false >/dev/null 2>&1 || true; " +
                         "if command -v frames_test >/dev/null 2>&1; then " +
                         "frames_test inject-offbody-sensor-event --value 1 >/dev/null 2>&1 || true; " +
-                        "fi"
+                        "fi; " +
+                        STOP_INPUT_INJECTION_CMD
                 )
                 ensureDeviceOnline(serial)
             } catch (Throwable t) {
