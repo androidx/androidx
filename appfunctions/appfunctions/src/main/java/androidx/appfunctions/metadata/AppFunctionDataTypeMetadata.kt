@@ -18,10 +18,16 @@ package androidx.appfunctions.metadata
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.os.Bundle
 import android.os.PatternMatcher
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.PatternMatchers
+import androidx.appfunctions.internal.getNonNullStringList
+import androidx.appfunctions.internal.requireBundle
+import androidx.appfunctions.internal.requireBundleList
+import androidx.appfunctions.internal.requireNonNullStringList
+import androidx.appfunctions.internal.requireString
 import androidx.appsearch.annotation.Document
 import java.util.Objects
 
@@ -55,6 +61,27 @@ internal constructor(
     /** Converts this [AppFunctionDataTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
     internal abstract fun toAppFunctionDataTypeMetadataDocument():
         AppFunctionDataTypeMetadataDocument
+
+    /**
+     * Converts this [AppFunctionDataTypeMetadata] to a [Bundle].
+     *
+     * @throws IllegalArgumentException if this metadata is nested deeper than [MAX_BUNDLE_DEPTH].
+     */
+    internal fun toBundle(): Bundle = toBundle(depth = 0)
+
+    internal fun toBundle(depth: Int): Bundle {
+        require(depth < MAX_BUNDLE_DEPTH) {
+            "Data type metadata is nested deeper than $MAX_BUNDLE_DEPTH"
+        }
+        return Bundle().apply {
+            putBoolean(KEY_IS_NULLABLE, isNullable)
+            putString(KEY_DESCRIPTION, description)
+            writeToBundle(this, depth)
+        }
+    }
+
+    /** Writes [KEY_TYPE] and subclass-specific properties into [bundle]. */
+    internal abstract fun writeToBundle(bundle: Bundle, depth: Int)
 
     /**
      * Checks if this metadata is semantically equivalent to [other].
@@ -104,6 +131,60 @@ internal constructor(
     }
 
     public companion object {
+        /**
+         * Creates an [AppFunctionDataTypeMetadata] from a [Bundle] created by [toBundle].
+         *
+         * @throws IllegalArgumentException if [bundle] is malformed or nested deeper than
+         *   [MAX_BUNDLE_DEPTH].
+         */
+        internal fun fromBundle(bundle: Bundle): AppFunctionDataTypeMetadata =
+            try {
+                fromBundle(bundle, depth = 0)
+            } catch (e: IllegalArgumentException) {
+                throw e
+            } catch (e: Exception) {
+                throw IllegalArgumentException("Malformed data type metadata bundle", e)
+            }
+
+        internal fun fromBundle(bundle: Bundle, depth: Int): AppFunctionDataTypeMetadata {
+            require(depth < MAX_BUNDLE_DEPTH) {
+                "Data type metadata is nested deeper than $MAX_BUNDLE_DEPTH"
+            }
+            require(bundle.containsKey(KEY_TYPE)) { "Missing data type" }
+            val isNullable = bundle.getBoolean(KEY_IS_NULLABLE, false)
+            val description = bundle.getString(KEY_DESCRIPTION) ?: ""
+            return when (val type = bundle.getInt(KEY_TYPE, -1)) {
+                TYPE_UNIT -> AppFunctionUnitTypeMetadata.fromBundle(isNullable, description)
+                TYPE_BOOLEAN -> AppFunctionBooleanTypeMetadata.fromBundle(isNullable, description)
+                TYPE_BYTES -> AppFunctionBytesTypeMetadata.fromBundle(isNullable, description)
+                TYPE_DOUBLE -> AppFunctionDoubleTypeMetadata.fromBundle(isNullable, description)
+                TYPE_FLOAT -> AppFunctionFloatTypeMetadata.fromBundle(isNullable, description)
+                TYPE_LONG -> AppFunctionLongTypeMetadata.fromBundle(isNullable, description)
+                TYPE_INT -> AppFunctionIntTypeMetadata.fromBundle(bundle, isNullable, description)
+                TYPE_STRING ->
+                    AppFunctionStringTypeMetadata.fromBundle(bundle, isNullable, description)
+                TYPE_PARCELABLE ->
+                    AppFunctionParcelableTypeMetadata.fromBundle(bundle, isNullable, description)
+                TYPE_REFERENCE ->
+                    AppFunctionReferenceTypeMetadata.fromBundle(bundle, isNullable, description)
+                TYPE_ARRAY ->
+                    AppFunctionArrayTypeMetadata.fromBundle(bundle, isNullable, description, depth)
+                TYPE_OBJECT ->
+                    AppFunctionObjectTypeMetadata.fromBundle(bundle, isNullable, description, depth)
+                TYPE_ALL_OF ->
+                    AppFunctionAllOfTypeMetadata.fromBundle(bundle, isNullable, description, depth)
+                TYPE_ONE_OF ->
+                    AppFunctionOneOfTypeMetadata.fromBundle(bundle, isNullable, description, depth)
+                else -> throw IllegalArgumentException("Unknown data type: $type")
+            }
+        }
+
+        private const val MAX_BUNDLE_DEPTH = 64
+
+        internal const val KEY_TYPE = "type"
+        private const val KEY_IS_NULLABLE = "isNullable"
+        private const val KEY_DESCRIPTION = "description"
+
         /** Void type. */
         internal const val TYPE_UNIT: Int = 0
         /** Boolean type. */
@@ -217,6 +298,11 @@ constructor(
         }
     }
 
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_ARRAY)
+        bundle.putBundle(KEY_ITEM_TYPE, itemType.toBundle(depth + 1))
+    }
+
     /** Converts this [AppFunctionArrayTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
         return AppFunctionDataTypeMetadataDocument(
@@ -230,6 +316,24 @@ constructor(
     public companion object {
         /** Array type. The schema of the array is defined in a [AppFunctionArrayTypeMetadata] */
         internal const val TYPE: Int = TYPE_ARRAY
+
+        private const val KEY_ITEM_TYPE = "itemType"
+
+        internal fun fromBundle(
+            bundle: Bundle,
+            isNullable: Boolean,
+            description: String,
+            depth: Int,
+        ): AppFunctionArrayTypeMetadata =
+            AppFunctionArrayTypeMetadata(
+                itemType =
+                    AppFunctionDataTypeMetadata.fromBundle(
+                        bundle.requireBundle(KEY_ITEM_TYPE),
+                        depth + 1,
+                    ),
+                isNullable = isNullable,
+                description = description,
+            )
     }
 }
 
@@ -337,6 +441,17 @@ constructor(
         return "AppFunctionAllOfTypeMetadata(matchAll=$matchAll, isNullable=$isNullable, description=$description)"
     }
 
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_ALL_OF)
+        bundle.putParcelableArrayList(
+            KEY_ALL_OF,
+            ArrayList(matchAll.map { it.toBundle(depth + 1) }),
+        )
+        if (qualifiedName != null) {
+            bundle.putString(KEY_QUALIFIED_NAME, qualifiedName)
+        }
+    }
+
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
         val allOfDocuments = matchAll.map { it.toAppFunctionDataTypeMetadataDocument() }
         return AppFunctionDataTypeMetadataDocument(
@@ -427,6 +542,25 @@ constructor(
          * * An [AppFunctionReferenceTypeMetadata] to an outer object metadata.
          */
         internal const val TYPE: Int = TYPE_ALL_OF
+
+        private const val KEY_ALL_OF = "allOf"
+        private const val KEY_QUALIFIED_NAME = "qualifiedName"
+
+        internal fun fromBundle(
+            bundle: Bundle,
+            isNullable: Boolean,
+            description: String,
+            depth: Int,
+        ): AppFunctionAllOfTypeMetadata =
+            AppFunctionAllOfTypeMetadata(
+                matchAll =
+                    bundle.requireBundleList(KEY_ALL_OF).map {
+                        AppFunctionDataTypeMetadata.fromBundle(it, depth + 1)
+                    },
+                qualifiedName = bundle.getString(KEY_QUALIFIED_NAME),
+                isNullable = isNullable,
+                description = description,
+            )
     }
 }
 
@@ -508,6 +642,15 @@ constructor(
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_ONE_OF)
+        bundle.putParcelableArrayList(
+            KEY_ONE_OF,
+            ArrayList(matchOneOf.map { it.toBundle(depth + 1) }),
+        )
+        bundle.putString(KEY_QUALIFIED_NAME, qualifiedName)
+    }
+
     override fun toAppFunctionDataTypeMetadataDocument() =
         AppFunctionDataTypeMetadataDocument(
             type = TYPE,
@@ -635,6 +778,25 @@ constructor(
 
     public companion object {
         internal const val TYPE: Int = TYPE_ONE_OF
+
+        private const val KEY_ONE_OF = "oneOf"
+        private const val KEY_QUALIFIED_NAME = "qualifiedName"
+
+        internal fun fromBundle(
+            bundle: Bundle,
+            isNullable: Boolean,
+            description: String,
+            depth: Int,
+        ): AppFunctionOneOfTypeMetadata =
+            AppFunctionOneOfTypeMetadata(
+                matchOneOf =
+                    bundle.requireBundleList(KEY_ONE_OF).map {
+                        AppFunctionDataTypeMetadata.fromBundle(it, depth + 1)
+                    },
+                qualifiedName = bundle.requireString(KEY_QUALIFIED_NAME),
+                isNullable = isNullable,
+                description = description,
+            )
     }
 }
 
@@ -687,6 +849,20 @@ constructor(
             "isNullable=$isNullable," +
             "description=$description" +
             ")"
+    }
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_OBJECT)
+        bundle.putStringArray(KEY_PROPERTY_NAMES, properties.keys.toTypedArray())
+        val propertiesBundle = Bundle()
+        for ((name, dataType) in properties) {
+            propertiesBundle.putBundle(name, dataType.toBundle(depth + 1))
+        }
+        bundle.putBundle(KEY_PROPERTIES, propertiesBundle)
+        bundle.putStringArray(KEY_REQUIRED, required.toTypedArray())
+        if (qualifiedName != null) {
+            bundle.putString(KEY_QUALIFIED_NAME, qualifiedName)
+        }
     }
 
     /**
@@ -754,6 +930,35 @@ constructor(
          * Object type. The schema of the object is defined in a [AppFunctionObjectTypeMetadata].
          */
         internal const val TYPE: Int = TYPE_OBJECT
+
+        private const val KEY_PROPERTY_NAMES = "propertyNames"
+        private const val KEY_PROPERTIES = "properties"
+        private const val KEY_REQUIRED = "required"
+        private const val KEY_QUALIFIED_NAME = "qualifiedName"
+
+        internal fun fromBundle(
+            bundle: Bundle,
+            isNullable: Boolean,
+            description: String,
+            depth: Int,
+        ): AppFunctionObjectTypeMetadata {
+            val propertyNames = bundle.requireNonNullStringList(KEY_PROPERTY_NAMES)
+            val propertiesBundle = bundle.requireBundle(KEY_PROPERTIES)
+            val properties = propertyNames.associateWith { name ->
+                AppFunctionDataTypeMetadata.fromBundle(
+                    propertiesBundle.requireBundle(name),
+                    depth + 1,
+                )
+            }
+            val required = bundle.getNonNullStringList(KEY_REQUIRED) ?: emptyList()
+            return AppFunctionObjectTypeMetadata(
+                properties = properties,
+                required = required,
+                qualifiedName = bundle.getString(KEY_QUALIFIED_NAME),
+                isNullable = isNullable,
+                description = description,
+            )
+        }
     }
 }
 
@@ -788,6 +993,11 @@ constructor(
             "isNullable=$isNullable," +
             "description=$description" +
             ")"
+    }
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_REFERENCE)
+        bundle.putString(KEY_DATA_TYPE_REFERENCE, referenceDataType)
     }
 
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
@@ -828,6 +1038,19 @@ constructor(
          * Object type. The schema of the object is defined in a [AppFunctionObjectTypeMetadata].
          */
         internal const val TYPE: Int = TYPE_REFERENCE
+
+        private const val KEY_DATA_TYPE_REFERENCE = "dataTypeReference"
+
+        internal fun fromBundle(
+            bundle: Bundle,
+            isNullable: Boolean,
+            description: String,
+        ): AppFunctionReferenceTypeMetadata =
+            AppFunctionReferenceTypeMetadata(
+                referenceDataType = bundle.requireString(KEY_DATA_TYPE_REFERENCE),
+                isNullable = isNullable,
+                description = description,
+            )
     }
 }
 
@@ -862,6 +1085,13 @@ constructor(
     init {
         require(enumValues == null || enumValues.isNotEmpty()) {
             "If specified, enumValues cannot be empty."
+        }
+    }
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_INT)
+        if (enumValues != null) {
+            bundle.putIntArray(KEY_ENUM_VALUES, enumValues.toIntArray())
         }
     }
 
@@ -902,6 +1132,21 @@ constructor(
     override fun toString(): String {
         return "AppFunctionIntTypeMetadata(isNullable=$isNullable, description=$description, enumValues=$enumValues)"
     }
+
+    internal companion object {
+        private const val KEY_ENUM_VALUES = "enumValues"
+
+        fun fromBundle(
+            bundle: Bundle,
+            isNullable: Boolean,
+            description: String,
+        ): AppFunctionIntTypeMetadata =
+            AppFunctionIntTypeMetadata(
+                isNullable = isNullable,
+                description = description,
+                enumValues = bundle.getIntArray(KEY_ENUM_VALUES)?.toSet(),
+            )
+    }
 }
 
 /**
@@ -917,6 +1162,10 @@ constructor(
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_LONG)
+    }
 
     /** Converts this [AppFunctionLongTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
@@ -952,6 +1201,11 @@ constructor(
             "Expect ${AppFunctionLongTypeMetadata::class.java} but found ${otherResolved.javaClass}"
         }
     }
+
+    internal companion object {
+        fun fromBundle(isNullable: Boolean, description: String): AppFunctionLongTypeMetadata =
+            AppFunctionLongTypeMetadata(isNullable, description)
+    }
 }
 
 /**
@@ -967,6 +1221,10 @@ constructor(
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_FLOAT)
+    }
 
     /** Converts this [AppFunctionFloatTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
@@ -1002,6 +1260,11 @@ constructor(
             "Expect ${AppFunctionFloatTypeMetadata::class.java} but found ${otherResolved.javaClass}"
         }
     }
+
+    internal companion object {
+        fun fromBundle(isNullable: Boolean, description: String): AppFunctionFloatTypeMetadata =
+            AppFunctionFloatTypeMetadata(isNullable, description)
+    }
 }
 
 /**
@@ -1019,6 +1282,10 @@ constructor(
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_UNIT)
+    }
 
     /** Converts this [AppFunctionUnitTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
@@ -1054,6 +1321,11 @@ constructor(
             "Expect ${AppFunctionUnitTypeMetadata::class.java} but found ${otherResolved.javaClass}"
         }
     }
+
+    internal companion object {
+        fun fromBundle(isNullable: Boolean, description: String): AppFunctionUnitTypeMetadata =
+            AppFunctionUnitTypeMetadata(isNullable, description)
+    }
 }
 
 /**
@@ -1069,6 +1341,10 @@ constructor(
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_BOOLEAN)
+    }
 
     /**
      * Converts this [AppFunctionBooleanTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
@@ -1106,6 +1382,11 @@ constructor(
             "Expect ${AppFunctionBooleanTypeMetadata::class.java} but found ${otherResolved.javaClass}"
         }
     }
+
+    internal companion object {
+        fun fromBundle(isNullable: Boolean, description: String): AppFunctionBooleanTypeMetadata =
+            AppFunctionBooleanTypeMetadata(isNullable, description)
+    }
 }
 
 /**
@@ -1121,6 +1402,10 @@ constructor(
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_BYTES)
+    }
 
     /** Converts this [AppFunctionBytesTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
@@ -1156,6 +1441,11 @@ constructor(
             "Expect ${AppFunctionBytesTypeMetadata::class.java} but found ${otherResolved.javaClass}"
         }
     }
+
+    internal companion object {
+        fun fromBundle(isNullable: Boolean, description: String): AppFunctionBytesTypeMetadata =
+            AppFunctionBytesTypeMetadata(isNullable, description)
+    }
 }
 
 /**
@@ -1171,6 +1461,10 @@ constructor(
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
+
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_DOUBLE)
+    }
 
     /**
      * Converts this [AppFunctionDoubleTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
@@ -1207,6 +1501,11 @@ constructor(
         require(otherResolved is AppFunctionDoubleTypeMetadata) {
             "Expect ${AppFunctionDoubleTypeMetadata::class.java} but found ${otherResolved.javaClass}"
         }
+    }
+
+    internal companion object {
+        fun fromBundle(isNullable: Boolean, description: String): AppFunctionDoubleTypeMetadata =
+            AppFunctionDoubleTypeMetadata(isNullable, description)
     }
 }
 
@@ -1329,6 +1628,26 @@ constructor(
         format = format,
     )
 
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_STRING)
+        if (enumValues != null) {
+            bundle.putStringArray(KEY_ENUM_VALUES, enumValues.toTypedArray())
+        }
+        if (format != null) {
+            bundle.putString(KEY_FORMAT, format)
+        }
+        if (patternMatchers != null) {
+            bundle.putStringArray(
+                KEY_PATTERN_PATHS,
+                Array(patternMatchers.size) { patternMatchers[it].path },
+            )
+            bundle.putIntArray(
+                KEY_PATTERN_TYPES,
+                IntArray(patternMatchers.size) { patternMatchers[it].type },
+            )
+        }
+    }
+
     /**
      * Converts this [AppFunctionStringTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
      */
@@ -1393,6 +1712,41 @@ constructor(
     public companion object {
         /** The format string representing a URI value. */
         public const val FORMAT_URI: String = "uri"
+
+        private const val KEY_ENUM_VALUES = "enumValues"
+        private const val KEY_FORMAT = "format"
+        private const val KEY_PATTERN_PATHS = "patternPaths"
+        private const val KEY_PATTERN_TYPES = "patternTypes"
+
+        internal fun fromBundle(
+            bundle: Bundle,
+            isNullable: Boolean,
+            description: String,
+        ): AppFunctionStringTypeMetadata {
+            val patternPaths = bundle.getNonNullStringList(KEY_PATTERN_PATHS)
+            val patternTypes = bundle.getIntArray(KEY_PATTERN_TYPES)
+            val patternMatchers =
+                if (patternPaths == null && patternTypes == null) {
+                    null
+                } else {
+                    require(patternPaths != null && patternTypes != null) {
+                        "Pattern paths and types must both be present"
+                    }
+                    require(patternPaths.size == patternTypes.size) {
+                        "Pattern paths and types must have the same length"
+                    }
+                    List(patternPaths.size) { index ->
+                        PatternMatchers.create(patternPaths[index], patternTypes[index])
+                    }
+                }
+            return AppFunctionStringTypeMetadata(
+                isNullable = isNullable,
+                description = description,
+                enumValues = bundle.getNonNullStringList(KEY_ENUM_VALUES)?.toSet(),
+                patternMatchers = patternMatchers,
+                format = bundle.getString(KEY_FORMAT),
+            )
+        }
     }
 }
 
@@ -1411,6 +1765,11 @@ constructor(
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
+    override fun writeToBundle(bundle: Bundle, depth: Int) {
+        bundle.putInt(KEY_TYPE, TYPE_PARCELABLE)
+        bundle.putString(KEY_QUALIFIED_NAME, qualifiedName)
+    }
+
     override fun toAppFunctionDataTypeMetadataDocument() =
         AppFunctionDataTypeMetadataDocument(
             type = TYPE_PARCELABLE,
@@ -1452,6 +1811,21 @@ constructor(
                 "Expected: ${this.qualifiedName}, " +
                 "actual: ${otherResolved.qualifiedName}"
         }
+    }
+
+    internal companion object {
+        private const val KEY_QUALIFIED_NAME = "qualifiedName"
+
+        fun fromBundle(
+            bundle: Bundle,
+            isNullable: Boolean,
+            description: String,
+        ): AppFunctionParcelableTypeMetadata =
+            AppFunctionParcelableTypeMetadata(
+                qualifiedName = bundle.requireString(KEY_QUALIFIED_NAME),
+                isNullable = isNullable,
+                description = description,
+            )
     }
 }
 
