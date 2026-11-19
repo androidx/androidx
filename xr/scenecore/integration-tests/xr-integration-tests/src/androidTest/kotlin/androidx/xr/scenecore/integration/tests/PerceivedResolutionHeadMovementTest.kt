@@ -52,7 +52,8 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@XrDeviceTest
+// Emulator excluded per b/434252357.
+@XrDeviceTest(include = [XrDeviceConfig.PHYSICAL_DEVICE])
 class PerceivedResolutionHeadMovementTest {
 
     @get:Rule(order = 0) val fakeHeadTrackingRule = FakeHeadTrackingRule()
@@ -68,10 +69,7 @@ class PerceivedResolutionHeadMovementTest {
         sessionRule.requestFullSpace()
     }
 
-    // Method-level @XrDeviceTest: XrDeviceFilter only reads include from it; emulator excluded per
-    // b/434252357.
     @Test
-    @XrDeviceTest(include = [XrDeviceConfig.PHYSICAL_DEVICE])
     fun mainPanelEntity_inHomeSpaceMode_headMovementScalesPerceivedResolutionWithDistance() {
         val recorder = PerceivedResolutionRecorder()
         val mainPanel = sessionRule.session.scene.mainPanelEntity

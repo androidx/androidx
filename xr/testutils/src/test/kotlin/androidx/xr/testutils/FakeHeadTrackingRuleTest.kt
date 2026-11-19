@@ -22,7 +22,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import org.junit.AssumptionViolatedException
 import org.junit.Test
 import org.junit.runner.Description
 import org.junit.runner.RunWith
@@ -91,7 +90,7 @@ class FakeHeadTrackingRuleTest {
     }
 
     @Test
-    fun fakeHeadTrackingRule_whenDisabled_throwsAssumptionViolatedAndSkipsBody() {
+    fun fakeHeadTrackingRule_whenDisabled_throwsIllegalStateExceptionAndSkipsBody() {
         val commands = mutableListOf<String>()
         var bodyRan = false
         val rule =
@@ -105,7 +104,9 @@ class FakeHeadTrackingRuleTest {
 
         val statement = rule.apply(statementOf { bodyRan = true }, TEST_DESCRIPTION)
 
-        assertFailsWith<AssumptionViolatedException> { statement.evaluate() }
+        val thrown = assertFailsWith<IllegalStateException> { statement.evaluate() }
+        assertTrue(thrown.message!!.contains(PROP_FAKE_HEAD_TRACKING))
+        assertTrue(thrown.message!!.contains("xr-device-tests.gradle"))
         assertFalse(bodyRan)
         assertEquals(listOf("getprop cpm.fake_headtracking"), commands)
     }
