@@ -11665,7 +11665,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * be populated.
          * <p>
          * Default implementation adds a {@link
-         * androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat}.
+         * androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat} as
+         * well as generic ({@link
+         * AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_FORWARD
+         * ACTION_SCROLL_FORWARD}, {@link
+         * AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_BACKWARD
+         * ACTION_SCROLL_BACKWARD}) and directional ({@link
+         * AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_UP
+         * ACTION_SCROLL_UP}, {@link
+         * AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_DOWN
+         * ACTION_SCROLL_DOWN}, {@link
+         * AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_LEFT
+         * ACTION_SCROLL_LEFT}, {@link
+         * AccessibilityNodeInfoCompat.AccessibilityActionCompat#ACTION_SCROLL_RIGHT
+         * ACTION_SCROLL_RIGHT}) scroll actions when the RecyclerView can scroll vertically or
+         * horizontally.
+         * <p>
+         * Note: Custom {@code RecyclerView}, {@code LayoutManager}, or {@link
+         * RecyclerViewAccessibilityDelegate} implementations (or callers using {@link
+         * ViewCompat#replaceAccessibilityAction}) that restrict or customize {@code
+         * ACTION_SCROLL_FORWARD} or {@code ACTION_SCROLL_BACKWARD} should also remove or handle
+         * the corresponding directional scroll actions.
          * <p>
          * You should override
          * {@link #getRowCountForAccessibility(RecyclerView.Recycler, RecyclerView.State)},
@@ -11687,15 +11707,38 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         public void onInitializeAccessibilityNodeInfo(@NonNull Recycler recycler,
                 @NonNull State state, @NonNull AccessibilityNodeInfoCompat info) {
-            if (mRecyclerView.canScrollVertically(-1) || mRecyclerView.canScrollHorizontally(-1)) {
+            boolean canScrollUp = mRecyclerView.canScrollVertically(-1);
+            boolean canScrollLeft = mRecyclerView.canScrollHorizontally(-1);
+            if (canScrollUp || canScrollLeft) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
                 info.setScrollable(true);
                 info.setGranularScrollingSupported(true);
+                if (canScrollUp) {
+                    info.addAction(
+                            AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP);
+                }
+                if (canScrollLeft) {
+                    info.addAction(
+                            AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                    .ACTION_SCROLL_LEFT);
+                }
             }
-            if (mRecyclerView.canScrollVertically(1) || mRecyclerView.canScrollHorizontally(1)) {
+            boolean canScrollDown = mRecyclerView.canScrollVertically(1);
+            boolean canScrollRight = mRecyclerView.canScrollHorizontally(1);
+            if (canScrollDown || canScrollRight) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
                 info.setScrollable(true);
                 info.setGranularScrollingSupported(true);
+                if (canScrollDown) {
+                    info.addAction(
+                            AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                    .ACTION_SCROLL_DOWN);
+                }
+                if (canScrollRight) {
+                    info.addAction(
+                            AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                    .ACTION_SCROLL_RIGHT);
+                }
             }
             final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
                     AccessibilityNodeInfoCompat.CollectionInfoCompat
@@ -11866,6 +11909,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         /**
          * Called by AccessibilityDelegate when an action is requested from the RecyclerView.
+         * <p>
+         * Default implementation handles {@link AccessibilityNodeInfoCompat#ACTION_SCROLL_FORWARD},
+         * {@link AccessibilityNodeInfoCompat#ACTION_SCROLL_BACKWARD}, and directional scroll
+         * actions ({@code android.R.id.accessibilityActionScrollUp}, {@code
+         * android.R.id.accessibilityActionScrollDown}, {@code
+         * android.R.id.accessibilityActionScrollLeft}, {@code
+         * android.R.id.accessibilityActionScrollRight}). Subclasses that block or customize
+         * {@code ACTION_SCROLL_FORWARD} or {@code ACTION_SCROLL_BACKWARD} should also handle or
+         * remove the corresponding directional actions; see {@link
+         * #onInitializeAccessibilityNodeInfo(Recycler, State, AccessibilityNodeInfoCompat)}.
          *
          * @param recycler The Recycler that can be used to convert view positions into adapter
          *                 positions
@@ -11908,6 +11961,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         hScroll = width - getPaddingLeft() - getPaddingRight();
                     }
                     break;
+                case android.R.id.accessibilityActionScrollUp:
+                    if (mRecyclerView.canScrollVertically(-1)) {
+                        vScroll = -(height - getPaddingTop() - getPaddingBottom());
+                    }
+                    break;
+                case android.R.id.accessibilityActionScrollDown:
+                    if (mRecyclerView.canScrollVertically(1)) {
+                        vScroll = height - getPaddingTop() - getPaddingBottom();
+                    }
+                    break;
+                case android.R.id.accessibilityActionScrollLeft:
+                    if (mRecyclerView.canScrollHorizontally(-1)) {
+                        hScroll = -(width - getPaddingLeft() - getPaddingRight());
+                    }
+                    break;
+                case android.R.id.accessibilityActionScrollRight:
+                    if (mRecyclerView.canScrollHorizontally(1)) {
+                        hScroll = width - getPaddingLeft() - getPaddingRight();
+                    }
+                    break;
             }
 
             if (vScroll == 0 && hScroll == 0) {
@@ -11931,17 +12004,23 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
             if (Float.compare(granularScrollAmount, Float.POSITIVE_INFINITY) == 0) {
                 // Assume that the client wants to scroll as far as possible. For
-                // ACTION_SCROLL_BACKWARD, this means scrolling to the beginning of the collection.
-                // For ACTION_SCROLL_FORWARD, this means scrolling to the end of the collection.
+                // ACTION_SCROLL_BACKWARD, ACTION_SCROLL_UP, and ACTION_SCROLL_LEFT, this means
+                // scrolling to the beginning of the collection. For ACTION_SCROLL_FORWARD,
+                // ACTION_SCROLL_DOWN, and ACTION_SCROLL_RIGHT, this means scrolling to the end of
+                // the collection.
 
                 if (mRecyclerView.mAdapter == null) {
                     return false;
                 }
                 switch (action) {
                     case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                    case android.R.id.accessibilityActionScrollUp:
+                    case android.R.id.accessibilityActionScrollLeft:
                         mRecyclerView.smoothScrollToPosition(0);
                         break;
                     case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                    case android.R.id.accessibilityActionScrollDown:
+                    case android.R.id.accessibilityActionScrollRight:
                         mRecyclerView.smoothScrollToPosition(
                                 mRecyclerView.mAdapter.getItemCount() - 1);
                         break;

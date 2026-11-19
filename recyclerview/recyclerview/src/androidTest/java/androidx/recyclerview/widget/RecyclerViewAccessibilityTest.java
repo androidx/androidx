@@ -161,6 +161,18 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                 (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD) != 0);
         assertEquals(mHorizontalScrollAfter || mVerticalScrollAfter,
                 (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD) != 0);
+        assertEquals(mVerticalScrollBefore,
+                info.getActionList().contains(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP));
+        assertEquals(mHorizontalScrollBefore,
+                info.getActionList().contains(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_LEFT));
+        assertEquals(mVerticalScrollAfter,
+                info.getActionList().contains(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_DOWN));
+        assertEquals(mHorizontalScrollAfter,
+                info.getActionList().contains(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_RIGHT));
         final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo = info
                 .getCollectionInfo();
         assertNotNull(collectionInfo);
@@ -236,6 +248,50 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         assertEquals(false, vScrolledBack.get());
         assertEquals(mHorizontalScrollAfter, hScrolledFwd.get());
         assertEquals(mVerticalScrollAfter, vScrolledFwd.get());
+
+        hScrolledBack.set(false);
+        vScrolledBack.set(false);
+        hScrolledFwd.set(false);
+        vScrolledFwd.set(false);
+        performAccessibilityAction(delegateCompat, recyclerView,
+                android.R.id.accessibilityActionScrollUp, null);
+        assertEquals(false, hScrolledBack.get());
+        assertEquals(mVerticalScrollBefore, vScrolledBack.get());
+        assertEquals(false, hScrolledFwd.get());
+        assertEquals(false, vScrolledFwd.get());
+
+        hScrolledBack.set(false);
+        vScrolledBack.set(false);
+        hScrolledFwd.set(false);
+        vScrolledFwd.set(false);
+        performAccessibilityAction(delegateCompat, recyclerView,
+                android.R.id.accessibilityActionScrollDown, null);
+        assertEquals(false, hScrolledBack.get());
+        assertEquals(false, vScrolledBack.get());
+        assertEquals(false, hScrolledFwd.get());
+        assertEquals(mVerticalScrollAfter, vScrolledFwd.get());
+
+        hScrolledBack.set(false);
+        vScrolledBack.set(false);
+        hScrolledFwd.set(false);
+        vScrolledFwd.set(false);
+        performAccessibilityAction(delegateCompat, recyclerView,
+                android.R.id.accessibilityActionScrollLeft, null);
+        assertEquals(mHorizontalScrollBefore, hScrolledBack.get());
+        assertEquals(false, vScrolledBack.get());
+        assertEquals(false, hScrolledFwd.get());
+        assertEquals(false, vScrolledFwd.get());
+
+        hScrolledBack.set(false);
+        vScrolledBack.set(false);
+        hScrolledFwd.set(false);
+        vScrolledFwd.set(false);
+        performAccessibilityAction(delegateCompat, recyclerView,
+                android.R.id.accessibilityActionScrollRight, null);
+        assertEquals(false, hScrolledBack.get());
+        assertEquals(false, vScrolledBack.get());
+        assertEquals(mHorizontalScrollAfter, hScrolledFwd.get());
+        assertEquals(false, vScrolledFwd.get());
     }
 
     @Test
@@ -311,6 +367,14 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                 (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD) != 0);
         assertEquals(true,
                 (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD) != 0);
+        assertTrue(info.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP));
+        assertTrue(info.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_DOWN));
+        assertTrue(info.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_LEFT));
+        assertTrue(info.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_RIGHT));
 
         int width = recyclerView.getWidth();
         int height = recyclerView.getHeight();
@@ -323,6 +387,34 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                 AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, null);
         assertEquals(width, hScrolledOffset.get());
         assertEquals(height, vScrolledOffset.get());
+
+        hScrolledOffset.set(0);
+        vScrolledOffset.set(0);
+        performAccessibilityAction(delegateCompat, recyclerView,
+                android.R.id.accessibilityActionScrollUp, null);
+        assertEquals(0, hScrolledOffset.get());
+        assertEquals(-height, vScrolledOffset.get());
+
+        hScrolledOffset.set(0);
+        vScrolledOffset.set(0);
+        performAccessibilityAction(delegateCompat, recyclerView,
+                android.R.id.accessibilityActionScrollDown, null);
+        assertEquals(0, hScrolledOffset.get());
+        assertEquals(height, vScrolledOffset.get());
+
+        hScrolledOffset.set(0);
+        vScrolledOffset.set(0);
+        performAccessibilityAction(delegateCompat, recyclerView,
+                android.R.id.accessibilityActionScrollLeft, null);
+        assertEquals(-width, hScrolledOffset.get());
+        assertEquals(0, vScrolledOffset.get());
+
+        hScrolledOffset.set(0);
+        vScrolledOffset.set(0);
+        performAccessibilityAction(delegateCompat, recyclerView,
+                android.R.id.accessibilityActionScrollRight, null);
+        assertEquals(width, hScrolledOffset.get());
+        assertEquals(0, vScrolledOffset.get());
 
         final ViewGroup parent = getRecyclerViewContainer();
         final ViewGroup.LayoutParams originalLayoutParams = parent.getLayoutParams();
@@ -344,6 +436,34 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                     AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, null);
             assertEquals(halfWidth, hScrolledOffset.get());
             assertEquals(halfHeight, vScrolledOffset.get());
+
+            hScrolledOffset.set(0);
+            vScrolledOffset.set(0);
+            performAccessibilityAction(delegateCompat, recyclerView,
+                    android.R.id.accessibilityActionScrollUp, null);
+            assertEquals(0, hScrolledOffset.get());
+            assertEquals(-halfHeight, vScrolledOffset.get());
+
+            hScrolledOffset.set(0);
+            vScrolledOffset.set(0);
+            performAccessibilityAction(delegateCompat, recyclerView,
+                    android.R.id.accessibilityActionScrollDown, null);
+            assertEquals(0, hScrolledOffset.get());
+            assertEquals(halfHeight, vScrolledOffset.get());
+
+            hScrolledOffset.set(0);
+            vScrolledOffset.set(0);
+            performAccessibilityAction(delegateCompat, recyclerView,
+                    android.R.id.accessibilityActionScrollLeft, null);
+            assertEquals(-halfWidth, hScrolledOffset.get());
+            assertEquals(0, vScrolledOffset.get());
+
+            hScrolledOffset.set(0);
+            vScrolledOffset.set(0);
+            performAccessibilityAction(delegateCompat, recyclerView,
+                    android.R.id.accessibilityActionScrollRight, null);
+            assertEquals(halfWidth, hScrolledOffset.get());
+            assertEquals(0, vScrolledOffset.get());
         } finally {
             // Sets RecyclerView's parent to original size.
             mActivityRule.runOnUiThread(() -> parent.setLayoutParams(originalLayoutParams));
@@ -462,29 +582,57 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         assertThrows(IllegalArgumentException.class,
                 () -> performAccessibilityAction(delegateCompat, recyclerView,
                         AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, args));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> performAccessibilityAction(delegateCompat, recyclerView,
+                        android.R.id.accessibilityActionScrollUp, args));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> performAccessibilityAction(delegateCompat, recyclerView,
+                        android.R.id.accessibilityActionScrollDown, args));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> performAccessibilityAction(delegateCompat, recyclerView,
+                        android.R.id.accessibilityActionScrollLeft, args));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> performAccessibilityAction(delegateCompat, recyclerView,
+                        android.R.id.accessibilityActionScrollRight, args));
     }
 
     @Test
     public void performScrollActions_withGranularScrollingForwardToInfinity_scrollsToTheEnd()
             throws Throwable {
-        final CountDownLatch scrollListenerLatch = new CountDownLatch(1);
-        final RecyclerView recyclerView = createRecyclerViewAndAdapter();
-        setLayoutManagerWithSmoothScrollToPosition(recyclerView, scrollListenerLatch,
-                recyclerView.mAdapter.getItemCount() - 1);
-        setRecyclerView(recyclerView);
-        runScrollToInfinityTest(recyclerView, AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD,
-                scrollListenerLatch);
+        for (int action : new int[]{
+                AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD,
+                android.R.id.accessibilityActionScrollDown,
+                android.R.id.accessibilityActionScrollRight
+        }) {
+            final CountDownLatch scrollListenerLatch = new CountDownLatch(1);
+            final RecyclerView recyclerView = createRecyclerViewAndAdapter();
+            setLayoutManagerWithSmoothScrollToPosition(recyclerView, scrollListenerLatch,
+                    recyclerView.mAdapter.getItemCount() - 1);
+            setRecyclerView(recyclerView);
+            runScrollToInfinityTest(recyclerView, action, scrollListenerLatch);
+            removeRecyclerView();
+        }
     }
 
     @Test
     public void performScrollActions_withGranularScrollingBackwardToInfinity_scrollsToTheBeginning()
             throws Throwable {
-        final CountDownLatch scrollListenerLatch = new CountDownLatch(1);
-        final RecyclerView recyclerView = createRecyclerViewAndAdapter();
-        setLayoutManagerWithSmoothScrollToPosition(recyclerView, scrollListenerLatch, 0);
-        setRecyclerView(recyclerView);
-        runScrollToInfinityTest(recyclerView, AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD,
-                scrollListenerLatch);
+        for (int action : new int[]{
+                AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD,
+                android.R.id.accessibilityActionScrollUp,
+                android.R.id.accessibilityActionScrollLeft
+        }) {
+            final CountDownLatch scrollListenerLatch = new CountDownLatch(1);
+            final RecyclerView recyclerView = createRecyclerViewAndAdapter();
+            setLayoutManagerWithSmoothScrollToPosition(recyclerView, scrollListenerLatch, 0);
+            setRecyclerView(recyclerView);
+            runScrollToInfinityTest(recyclerView, action, scrollListenerLatch);
+            removeRecyclerView();
+        }
     }
 
     private void runScrollToInfinityTest(RecyclerView recyclerView, int action,

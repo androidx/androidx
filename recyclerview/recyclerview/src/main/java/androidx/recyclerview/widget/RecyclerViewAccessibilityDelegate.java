@@ -56,6 +56,14 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         return mRecyclerView.hasPendingAdapterUpdates();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Subclasses that block or customize {@code ACTION_SCROLL_FORWARD} or {@code
+     * ACTION_SCROLL_BACKWARD} should also handle or remove the directional scroll actions
+     * delegated to {@link RecyclerView.LayoutManager#performAccessibilityAction(
+     * RecyclerView.Recycler, RecyclerView.State, int, Bundle)}.
+     */
     @Override
     public boolean performAccessibilityAction(
             @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
@@ -72,6 +80,14 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Subclasses that remove or customize {@code ACTION_SCROLL_FORWARD} or {@code
+     * ACTION_SCROLL_BACKWARD} should also remove or handle the directional scroll actions added by
+     * {@link RecyclerView.LayoutManager#onInitializeAccessibilityNodeInfo(RecyclerView.Recycler,
+     * RecyclerView.State, AccessibilityNodeInfoCompat)}.
+     */
     @Override
     public void onInitializeAccessibilityNodeInfo(
             @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
