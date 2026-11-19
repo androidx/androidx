@@ -16,16 +16,13 @@
 
 package androidx.compose.remote.creation.compose.widgets
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 
 /** Keep track of lambda to be run when the corresponding id is sent back by the widget */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-internal class WidgetLambdaAction(public val widgetId: Int, public val content: () -> Unit) :
-    RemoteAction {
+internal class WidgetLambdaAction(val widgetId: Int, val content: () -> Unit) : RemoteAction {
 
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val actionId = widgetId * 1000 + counter
@@ -35,18 +32,18 @@ internal class WidgetLambdaAction(public val widgetId: Int, public val content: 
         return action
     }
 
-    public companion object {
-        public var counter: Int = 0
+    companion object {
+        var counter: Int = 0
 
-        public fun clear() {
+        fun clear() {
             counter = 0
             map.clear()
         }
 
         @Suppress("PrimitiveInCollection")
-        public val map: HashMap<Int, WidgetLambdaAction> = HashMap<Int, WidgetLambdaAction>()
+        val map: HashMap<Int, WidgetLambdaAction> = HashMap<Int, WidgetLambdaAction>()
 
-        public fun run(id: Int) {
+        fun run(id: Int) {
             if (map.contains(id)) {
                 map[id]?.content?.invoke()
             }

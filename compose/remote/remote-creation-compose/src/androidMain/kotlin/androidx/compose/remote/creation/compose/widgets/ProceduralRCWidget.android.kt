@@ -27,7 +27,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteComposeBuffer
 import java.io.ByteArrayInputStream
-import kotlin.jvm.java
 
 /** Basic procedural implementation for a widget */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
