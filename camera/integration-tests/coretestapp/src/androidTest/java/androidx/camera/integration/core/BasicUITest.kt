@@ -32,6 +32,7 @@ import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_USE_CASE_CO
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.InternalTestConvenience.useInCameraTest
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.video.AudioSpec
 import androidx.test.core.app.ActivityScenario
@@ -101,10 +102,10 @@ class BasicUITest(private val implName: String) {
 
     @Test
     fun testAnalysisButton() {
-        ActivityScenario.launch<CameraXActivity>(launchIntent).use { scenario ->
+        ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             // Arrange.
             // Wait for the Activity to be created and Preview appears before starting the test.
-            scenario.waitForViewfinderIdle()
+            scenario.waitForViewfinderIdleDirect()
 
             // Skips the test if ImageAnalysis can't be enabled when launching the activity. Some
             // devices use YUV stream to take image and Preview + ImageCapture + ImageAnalysis
@@ -116,7 +117,7 @@ class BasicUITest(private val implName: String) {
                 scenario.clickView(R.id.AnalysisToggle)
 
                 // Wait for Preview start to ensure the UseCase is bound to the camera.
-                scenario.waitForViewfinderIdle()
+                scenario.waitForViewfinderIdleDirect()
             }
 
             if (scenario.withActivity { imageAnalysis == null }) {
@@ -124,23 +125,23 @@ class BasicUITest(private val implName: String) {
                 scenario.clickView(R.id.AnalysisToggle)
 
                 // Assert. Verify the ImageAnalysis is processing output.
-                scenario.waitForImageAnalysisIdle()
+                scenario.waitForImageAnalysisIdleDirect()
             }
         }
     }
 
     @Test
     fun testPreviewButton() {
-        ActivityScenario.launch<CameraXActivity>(launchIntent).use { scenario ->
+        ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             // Arrange.
             // Wait for the Activity to be created and Preview appears before starting the test.
-            scenario.waitForViewfinderIdle()
+            scenario.waitForViewfinderIdleDirect()
             // Click to disable the preview use case.
             if (scenario.withActivity { preview != null }) {
                 scenario.clickView(R.id.PreviewToggle)
 
                 // Try to take a Picture to ensure the UseCase is bound to the camera.
-                scenario.takePictureAndWaitForImageSavedIdle()
+                scenario.takePictureAndWaitForImageSavedIdleDirect()
             }
 
             if (scenario.withActivity { preview == null }) {
@@ -148,17 +149,17 @@ class BasicUITest(private val implName: String) {
                 scenario.clickView(R.id.PreviewToggle)
 
                 // Assert. Verify the Preview is processing output.
-                scenario.waitForViewfinderIdle()
+                scenario.waitForViewfinderIdleDirect()
             }
         }
     }
 
     @Test
     fun testDefaultViewFinderImplementation() {
-        ActivityScenario.launch<CameraXActivity>(launchIntent).use { scenario ->
+        ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             // Arrange.
             // Wait for the Activity to be created and Preview appears before starting the test.
-            scenario.waitForViewfinderIdle()
+            scenario.waitForViewfinderIdleDirect()
 
             scenario.withActivity {
                 if (Build.VERSION.SDK_INT >= 33) {
@@ -177,8 +178,8 @@ class BasicUITest(private val implName: String) {
             Intent(launchIntent).apply {
                 putExtra(INTENT_EXTRA_USE_CASE_COMBINATION, BIND_PREVIEW or BIND_VIDEO_CAPTURE)
             }
-        ActivityScenario.launch<CameraXActivity>(intent).use { scenario ->
-            scenario.waitForViewfinderIdle()
+        ActivityScenario.launch<CameraXActivity>(intent).useInCameraTest { scenario ->
+            scenario.waitForViewfinderIdleDirect()
             assumeTrue(scenario.withActivity { videoCapture != null })
 
             scenario.withActivity {
@@ -198,8 +199,8 @@ class BasicUITest(private val implName: String) {
                 putExtra(INTENT_EXTRA_AUDIO_SOURCE, AudioSpec.SOURCE_MIC)
                 putExtra(INTENT_EXTRA_AUDIO_CHANNEL_COUNT, AudioSpec.CHANNEL_COUNT_STEREO)
             }
-        ActivityScenario.launch<CameraXActivity>(intent).use { scenario ->
-            scenario.waitForViewfinderIdle()
+        ActivityScenario.launch<CameraXActivity>(intent).useInCameraTest { scenario ->
+            scenario.waitForViewfinderIdleDirect()
             assumeTrue(scenario.withActivity { videoCapture != null })
 
             scenario.withActivity {
@@ -220,8 +221,8 @@ class BasicUITest(private val implName: String) {
                 putExtra(INTENT_EXTRA_AUDIO_SOURCE, 999)
                 putExtra(INTENT_EXTRA_AUDIO_CHANNEL_COUNT, 0)
             }
-        ActivityScenario.launch<CameraXActivity>(intent).use { scenario ->
-            scenario.waitForViewfinderIdle()
+        ActivityScenario.launch<CameraXActivity>(intent).useInCameraTest { scenario ->
+            scenario.waitForViewfinderIdleDirect()
             assumeTrue(scenario.withActivity { videoCapture != null })
 
             scenario.withActivity {

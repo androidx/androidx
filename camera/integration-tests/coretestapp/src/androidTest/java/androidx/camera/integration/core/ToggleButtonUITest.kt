@@ -18,33 +18,28 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
-import androidx.camera.integration.core.idlingresource.WaitForViewToShow
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.InternalTestConvenience.useInCameraTest
 import androidx.camera.testing.impl.RequireForegroundRule
+import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onIdle
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.IdlingResource
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import junit.framework.AssertionFailedError
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -91,18 +86,23 @@ class ToggleButtonUITest(private val implName: String) {
     fun testFlashToggleButton() {
         ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             // Arrange.
-            WaitForViewToShow(R.id.constraintLayout).wait()
-            scenario.waitForViewfinderIdle()
-            assumeTrue(isButtonEnabled(R.id.flash_toggle))
-            val useCase = scenario.withActivity { imageCapture }
+            scenario.waitForViewfinderIdleDirect()
+            assumeTrue(
+                "Flash toggle button is not enabled",
+                scenario.isButtonEnabled(R.id.flash_toggle),
+            )
+            val boundImageCapture =
+                scenario.withActivity { listOfNotNull(imageCapture) }.singleOrNull()
+            assumeTrue("ImageCapture is not bound", boundImageCapture != null)
+            val useCase = checkNotNull(boundImageCapture)
             // There are 3 different states of flash mode: ON, OFF and AUTO.
             // By pressing flash mode toggle button, the flash mode would switch to the next state.
             // The flash mode would loop in following sequence: OFF -> AUTO -> ON -> OFF.
             // Act.
             @ImageCapture.FlashMode val mode1 = useCase.flashMode
-            onView(withId(R.id.flash_toggle)).perform(click())
+            scenario.clickView(R.id.flash_toggle)
             @ImageCapture.FlashMode val mode2 = useCase.flashMode
-            onView(withId(R.id.flash_toggle)).perform(click())
+            scenario.clickView(R.id.flash_toggle)
             @ImageCapture.FlashMode val mode3 = useCase.flashMode
 
             // Assert.
@@ -116,17 +116,21 @@ class ToggleButtonUITest(private val implName: String) {
     @Test
     fun testTorchToggleButton() {
         ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
-            WaitForViewToShow(R.id.constraintLayout).wait()
-            scenario.waitForViewfinderIdle()
-            assumeTrue(isButtonEnabled(R.id.torch_toggle))
-            val cameraInfo = scenario.withActivity { cameraInfo!! }
-            val isTorchOn = cameraInfo.isTorchOn()
-            onView(withId(R.id.torch_toggle)).perform(click())
-            assertThat(cameraInfo.isTorchOn()).isNotEqualTo(isTorchOn)
+            scenario.waitForViewfinderIdleDirect()
+            assumeTrue(
+                "Torch toggle button is not enabled",
+                scenario.isButtonEnabled(R.id.torch_toggle),
+            )
+            val boundCameraInfo = scenario.withActivity { listOfNotNull(cameraInfo) }.singleOrNull()
+            assumeTrue("CameraInfo is not available", boundCameraInfo != null)
+            val cameraInfo = checkNotNull(boundCameraInfo)
+            val isTorchOn = scenario.withActivity { cameraInfo.isTorchOn() }
+            scenario.clickView(R.id.torch_toggle)
+            awaitTorchState(cameraInfo, !isTorchOn)
             // By pressing the torch toggle button two times, it should switch back to original
             // state.
-            onView(withId(R.id.torch_toggle)).perform(click())
-            assertThat(cameraInfo.isTorchOn()).isEqualTo(isTorchOn)
+            scenario.clickView(R.id.torch_toggle)
+            awaitTorchState(cameraInfo, isTorchOn)
         }
     }
 
@@ -137,40 +141,47 @@ class ToggleButtonUITest(private val implName: String) {
             CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT),
         )
         ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
-            WaitForViewToShow(R.id.direction_toggle).wait()
-            assertThat(scenario.withActivity { preview }).isNotNull()
+            scenario.waitForViewfinderIdleDirect()
+            assertThat(scenario.withActivity { preview != null }).isTrue()
             for (i in 0..4) {
                 // Click switch camera button.
-                scenario.switchCameraAndWaitForViewfinderIdle()
+                scenario.switchCameraAndWaitForViewfinderIdleDirect()
             }
         }
     }
 
     private fun CameraInfo.isTorchOn(): Boolean = torchState.value == TorchState.ON
 
-    private fun isButtonEnabled(resource: Int): Boolean {
-        return try {
-            onView(withId(resource)).check(ViewAssertions.matches(ViewMatchers.isEnabled()))
-            // View is in hierarchy
-            true
-        } catch (e: AssertionFailedError) {
-            // View is not in hierarchy
-            false
-        } catch (e: Exception) {
-            // View is not in hierarchy
-            false
+    private fun awaitTorchState(cameraInfo: CameraInfo, expectedOn: Boolean) {
+        val expectedState = if (expectedOn) TorchState.ON else TorchState.OFF
+        val latch = CountDownLatch(1)
+        val observer =
+            Observer<Int> { state ->
+                if (state == expectedState) {
+                    latch.countDown()
+                }
+            }
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            cameraInfo.torchState.observeForever(observer)
+        }
+        try {
+            assertWithMessage("Torch did not become $expectedState within 5s")
+                .that(latch.await(5, TimeUnit.SECONDS))
+                .isTrue()
+        } finally {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                cameraInfo.torchState.removeObserver(observer)
+            }
         }
     }
 
-    private fun IdlingResource.wait() {
-        IdlingRegistry.getInstance().register(this)
-        onIdle()
-        IdlingRegistry.getInstance().unregister(this)
-    }
+    private fun ActivityScenario<CameraXActivity>.isButtonEnabled(resource: Int): Boolean =
+        withActivity {
+            findViewById<View>(resource)?.let { it.visibility == View.VISIBLE && it.isEnabled } ==
+                true
+        }
 
     companion object {
-        private const val IDLE_TIMEOUT_MS = 1_000L
-
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() = listOf(arrayOf(Camera2Config::class.simpleName))
