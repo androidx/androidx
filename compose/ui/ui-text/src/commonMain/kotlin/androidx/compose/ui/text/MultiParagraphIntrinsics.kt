@@ -28,7 +28,7 @@ import androidx.compose.ui.util.fastFilteredMap
 import androidx.compose.ui.util.fastMaxBy
 
 /**
- * Calculates and provides the intrinsic width and height of text that contains [ParagraphStyle].
+ * Calculates and provides the intrinsic width of text that contains [ParagraphStyle].
  *
  * @param annotatedString the text to be laid out
  * @param style the [TextStyle] to be applied to the whole text
