@@ -91,6 +91,7 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
     private lateinit var viewRoot: ViewGroup
     private lateinit var viewPager: ViewPager2
     private val siblingInsets = mutableListOf<WindowInsetsCompat>()
+    private var isRecording = false
 
     // Create an insets object with non-zero insets
     private val dispatchedWindowInsets = createWindowInsets()
@@ -114,12 +115,6 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
                     orientation = LinearLayout.VERTICAL
                 }
 
-            // Calling setContentView when the window is attached will make the window dispatch
-            // WindowInsets again. To avoid the insets dispatched by window affecting this test,
-            // here:
-            // 1. exits the onActivity scope after calling setContentView,
-            // 2. lets the window dispatch WindowInsets, and then
-            // 3. adds the rest views to viewRoot in the next message.
             it.setContentView(viewRoot)
         }
 
@@ -136,11 +131,12 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
                     viewRoot.addView(this)
                 }
 
-            InsetsRecordingView(it, siblingInsets, false).apply {
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 20)
-                tag = "SIBLING"
-                viewRoot.addView(this)
-            }
+            InsetsRecordingView(it, siblingInsets, false) { isRecording }
+                .apply {
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 20)
+                    tag = "SIBLING"
+                    viewRoot.addView(this)
+                }
         }
     }
 
@@ -150,9 +146,16 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
         // Test relies on the created WindowInsets being unconsumed (by default they aren't)
         assertThat(windowInsets.isConsumed, equalTo(false))
 
-        // Dispatch the insets
+        // Dispatch the insets. Only record dispatches triggered by this manual call, ignoring any
+        // asynchronous framework WindowInsets dispatches (e.g. from setContentView or Fragment
+        // view attachment calling requestApplyInsets).
         activityTestRule.scenario.onActivity {
-            ViewCompat.dispatchApplyWindowInsets(viewRoot, windowInsets)
+            isRecording = true
+            try {
+                ViewCompat.dispatchApplyWindowInsets(viewRoot, windowInsets)
+            } finally {
+                isRecording = false
+            }
         }
     }
 
@@ -251,11 +254,15 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
         }
 
         override fun createFragment(position: Int): Fragment {
-            return InsetsRecordingFragment(consumeInsets).also { fragments[position] = it }
+            return InsetsRecordingFragment(consumeInsets) { isRecording }
+                .also { fragments[position] = it }
         }
     }
 
-    class InsetsRecordingFragment(private val consumeInsets: Boolean) : Fragment() {
+    class InsetsRecordingFragment(
+        private val consumeInsets: Boolean,
+        private val isRecording: () -> Boolean,
+    ) : Fragment() {
         val recordedInsets = mutableListOf<WindowInsetsCompat>()
 
         override fun onCreateView(
@@ -263,10 +270,16 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
             container: ViewGroup?,
             savedInstanceState: Bundle?,
         ): View {
-            return InsetsRecordingView(inflater.context, recordedInsets, consumeInsets).apply {
-                layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                tag = "PAGE"
-            }
+            return InsetsRecordingView(
+                    inflater.context,
+                    recordedInsets,
+                    consumeInsets,
+                    isRecording,
+                )
+                .apply {
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    tag = "PAGE"
+                }
         }
     }
 
@@ -274,11 +287,14 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
         context: Context,
         private val recordedInsets: MutableList<WindowInsetsCompat>,
         private val consumeInsets: Boolean,
+        private val isRecording: () -> Boolean,
     ) : View(context) {
         init {
             ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
-                // Record a copy, in case they get modified down the line
-                recordedInsets.add(WindowInsetsCompat(insets))
+                if (isRecording()) {
+                    // Record a copy, in case they get modified down the line
+                    recordedInsets.add(WindowInsetsCompat(insets))
+                }
                 if (consumeInsets) {
                     @Suppress("DEPRECATION") insets.consumeSystemWindowInsets()
                 } else {
