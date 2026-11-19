@@ -51,6 +51,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -75,6 +76,9 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
@@ -2019,6 +2023,142 @@ class WebSurfaceTest {
 
         composeTestRule.waitUntil(TIMEOUT_MS) {
             bridge.evaluateJs("(window.events || []).join(',')") == "\"start,move,end\""
+        }
+    }
+
+    @Test
+    fun testBridgeUpdateSkipsRerunWhenOnlyReleaseLambdaChanges() {
+        var updateCalls = 0
+        var releaseVersion by mutableIntStateOf(0)
+        var showSurface by mutableStateOf(true)
+        var releasedVersion = -1
+        val stableUpdate: (WebViewBridge) -> Unit = { updateCalls += 1 }
+
+        composeTestRule.setContent {
+            val currentReleaseVersion = releaseVersion
+            if (showSurface) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(100.dp),
+                    bridgeFactory = ::WebViewBridge,
+                    bridgeUpdate = stableUpdate,
+                    bridgeRelease = { releasedVersion = currentReleaseVersion },
+                )
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertEquals(1, updateCalls)
+            releaseVersion = 1
+        }
+        composeTestRule.runOnIdle {
+            assertEquals(1, updateCalls)
+            releaseVersion = 2
+        }
+        composeTestRule.runOnIdle {
+            assertEquals(1, updateCalls)
+            showSurface = false
+        }
+        composeTestRule.runOnIdle { assertEquals(2, releasedVersion) }
+    }
+
+    @Test
+    fun testBridgeUpdateRerunsOnLambdaOrObservedStateChange() {
+        var observedValue by mutableIntStateOf(0)
+        val seenValues = mutableListOf<Int>()
+        var bridgeUpdate by mutableStateOf<(WebViewBridge) -> Unit>({ seenValues += -1 })
+
+        composeTestRule.setContent {
+            WebSurface(
+                content = webContent,
+                modifier = Modifier.size(100.dp),
+                bridgeFactory = ::WebViewBridge,
+                bridgeUpdate = bridgeUpdate,
+            )
+        }
+
+        composeTestRule.runOnIdle {
+            assertEquals(listOf(-1), seenValues)
+            bridgeUpdate = { seenValues += observedValue }
+        }
+        composeTestRule.runOnIdle {
+            assertEquals(listOf(-1, 0), seenValues)
+            observedValue = 1
+        }
+        composeTestRule.runOnIdle { assertEquals(listOf(-1, 0, 1), seenValues) }
+    }
+
+    @Test
+    fun testUnplacedAndReplacedWebSurfaceRedrawsAfterPlacement() {
+        lateinit var bridge: WebViewBridge
+        var placeSurface by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Layout(
+                content = {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(150.dp),
+                        bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                    )
+                }
+            ) { measurables, constraints ->
+                val placeables = measurables.map { it.measure(constraints) }
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    if (placeSurface) {
+                        placeables.forEach { it.place(0, 0) }
+                    }
+                }
+            }
+        }
+
+        bridge.loadHtml("<html><body style='margin:0;background:rgb(255,0,0);'></body></html>")
+        val location = IntArray(2)
+        composeTestRule.runOnIdle { bridge.getLocationOnScreen(location) }
+        val centerX = location[0] + bridge.width / 2
+        val centerY = location[1] + bridge.height / 2
+        waitForPixelToBe(centerX, centerY) { it == Color.RED }
+
+        // Unplace while keeping WebSurface composed/attached, then change page content.
+        composeTestRule.runOnIdle { placeSurface = false }
+        composeTestRule.waitForIdle()
+        bridge.loadHtml("<html><body style='margin:0;background:rgb(0,255,0);'></body></html>")
+
+        // Re-place at the exact same coordinates and verify both the offscreen update and a
+        // subsequent live invalidation render.
+        composeTestRule.runOnIdle { placeSurface = true }
+        waitForPixelToBe(centerX, centerY) { it == Color.GREEN }
+
+        bridge.evaluateJs("document.body.style.background = 'rgb(0,0,255)'")
+        waitForPixelToBe(centerX, centerY) { it == Color.BLUE }
+    }
+
+    @Test
+    fun testRetainWebContentClosesOnCancelledPrecomposition() {
+        val subcomposeState = SubcomposeLayoutState()
+        var precomposedContent: WebContent? = null
+
+        composeTestRule.setContent {
+            SubcomposeLayout(state = subcomposeState) { layout(0, 0) {} }
+        }
+
+        composeTestRule.runOnIdle {
+            val paused =
+                subcomposeState.createPausedPrecomposition(Unit) {
+                    precomposedContent = retainWebContent()
+                }
+            while (!paused.isComplete) {
+                paused.resume { false }
+            }
+            paused.cancel()
+            val abandoned = checkNotNull(precomposedContent)
+            try {
+                assertThrows(IllegalStateException::class.java) {
+                    abandoned.attach(composeTestRule.activity, ::WebViewBridge)
+                }
+            } finally {
+                abandoned.close()
+            }
         }
     }
 
