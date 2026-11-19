@@ -65,8 +65,8 @@ private const val MAX_SAFE_LONG_ARRAY = 30
  * creation time (see [RemoteState]).
  *
  * Comparing [RemoteInt] values with `==` checks structural equality (matching constant values or
- * expression DAGs), whereas [MutableRemoteInt] instances compare by identity; see [RemoteState].
- * For runtime equality on the remote player, use [isEqualTo].
+ * expression DAGs), whereas [MutableRemoteInt] instances compare by their underlying mutable
+ * variable; see [RemoteState]. For runtime equality on the remote player, use [isEqualTo].
  */
 @Stable
 public sealed interface RemoteInt : RemoteState<Int> {
@@ -1123,8 +1123,9 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
 /**
  * A mutable implementation of [RemoteInt].
  *
- * Distinct [MutableRemoteInt] instances represent separate mutable variables and compare by
- * identity with `==`.
+ * Two [MutableRemoteInt] instances are `==` only if they reference the same underlying mutable
+ * variable; separately created instances (e.g., via `MutableRemoteInt(initialValue)`) represent
+ * distinct mutable variables and are never `==`.
  */
 @Stable
 public sealed interface MutableRemoteInt : RemoteInt, MutableRemoteState<Int> {

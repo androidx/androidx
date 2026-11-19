@@ -882,6 +882,21 @@ class RemoteBooleanTest {
         assertThat(context.getFloat(exprId)).isEqualTo(1f)
     }
 
+    @Test
+    fun equality_readOnlyAndMutableOverSameMutableInt_notEqual() {
+        val id = 42L
+        val mutableInt = MutableRemoteInt.createMutableForId(id)
+        val readOnly = RemoteBoolean(mutableInt)
+        val mutable = MutableRemoteBoolean.createMutableForId(id)
+
+        assertThat(readOnly).isNotEqualTo(mutable)
+        assertThat(mutable).isNotEqualTo(readOnly)
+        assertThat(mutable).isEqualTo(MutableRemoteBoolean.createMutableForId(id))
+        assertThat(mutable.hashCode())
+            .isEqualTo(MutableRemoteBoolean.createMutableForId(id).hashCode())
+        assertThat(MutableRemoteBoolean(false)).isNotEqualTo(MutableRemoteBoolean(false))
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
