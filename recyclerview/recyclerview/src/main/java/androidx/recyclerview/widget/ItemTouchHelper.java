@@ -17,13 +17,11 @@
 package androidx.recyclerview.widget;
 
 import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.util.FloatProperty;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
@@ -2353,9 +2351,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     @VisibleForTesting
     static class RecoverAnimation implements Animator.AnimatorListener {
 
-        private static final FloatProperty<Void> TRACE_PROP =
-                FastScroller.traceProperty("RecoverAnimation#fraction");
-
         final float mStartDx;
 
         final float mStartDy;
@@ -2396,7 +2391,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             mStartDy = startDy;
             mTargetX = targetX;
             mTargetY = targetY;
-            mValueAnimator = ObjectAnimator.ofFloat((Void) null, TRACE_PROP, 0f, 1f);
+            mValueAnimator = ValueAnimator.ofFloat(0f, 1f);
             mValueAnimator.addUpdateListener(
                     new ValueAnimator.AnimatorUpdateListener() {
                         @Override
@@ -2404,6 +2399,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                             setFraction(animation.getAnimatedFraction());
                         }
                     });
+            mValueAnimator.setTarget(viewHolder.itemView);
             mValueAnimator.addListener(this);
             setFraction(0f);
         }

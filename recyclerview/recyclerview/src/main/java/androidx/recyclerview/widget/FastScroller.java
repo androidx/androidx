@@ -18,13 +18,11 @@ package androidx.recyclerview.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
-import android.util.FloatProperty;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -75,7 +73,6 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
 
     private static final int[] PRESSED_STATE_SET = new int[]{android.R.attr.state_pressed};
     private static final int[] EMPTY_STATE_SET = new int[]{};
-    private static final FloatProperty<Void> TRACE_PROP = traceProperty("FastScroller#showHide");
 
     private final int mScrollbarMinimumRange;
     private final int mMargin;
@@ -120,7 +117,7 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
     private final int[] mVerticalRange = new int[2];
     private final int[] mHorizontalRange = new int[2];
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ValueAnimator mShowHideAnimator = ObjectAnimator.ofFloat((Void) null, TRACE_PROP, 0, 1);
+    final ValueAnimator mShowHideAnimator = ValueAnimator.ofFloat(0, 1);
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @AnimationState int mAnimationState = ANIMATION_STATE_OUT;
     private final Runnable mHideRunnable = new Runnable() {
@@ -587,20 +584,5 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
             mVerticalTrackDrawable.setAlpha(alpha);
             requestRedraw();
         }
-    }
-
-    /**
-     * Returns a no-op property named {@code name}, used only to name an animator.
-     */
-    static FloatProperty<Void> traceProperty(String name) {
-        return new FloatProperty<Void>(name) {
-            @Override
-            public void setValue(Void target, float value) {}
-
-            @Override
-            public Float get(Void target) {
-                return 0f;
-            }
-        };
     }
 }
