@@ -384,12 +384,17 @@ class RecomposerTests {
     @Test // b/329011032
     fun validatePotentialDeadlock() = compositionTest {
         var state by mutableIntStateOf(0)
+        var unreadState by mutableIntStateOf(0)
         compose {
             repeat(200) { Text("This is some text: $state") }
             LaunchedEffect(Unit) {
                 while (true) {
                     withContext(Dispatchers.Default) {
-                        state++
+                        // The [Recomposer] only checks for frame clock
+                        // awaiters when it sees no pending
+                        // invalidations, so the background write must
+                        // not invalidate the composition.
+                        unreadState++
                         Snapshot.registerGlobalWriteObserver {}.dispose()
                     }
                 }
