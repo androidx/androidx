@@ -17,6 +17,7 @@
 package androidx.camera.integration.view
 
 import android.content.ContentResolver
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -24,7 +25,12 @@ import android.graphics.PointF
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.Surface
+import android.view.View
+import android.widget.Checkable
+import androidx.annotation.IdRes
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -43,6 +49,7 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule.Companion.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.RequireForegroundRule
+import androidx.camera.testing.impl.useAndRelease
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
@@ -53,10 +60,6 @@ import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -67,8 +70,12 @@ import androidx.test.uiautomator.UiSelector
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.io.File
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
@@ -238,7 +245,7 @@ class CameraControllerFragmentTest(
     fun imageAnalysisDisabled_isNotStreaming() {
         fragment.assertAnalysisStreaming(true)
 
-        onView(withId(R.id.analysis_enabled)).perform(scrollTo(), click())
+        clickView(R.id.analysis_enabled)
 
         fragment.assertAnalysisStreaming(false)
     }
@@ -247,8 +254,8 @@ class CameraControllerFragmentTest(
     fun imageAnalysisDisabledAndEnabled_isStreaming() {
         fragment.assertAnalysisStreaming(true)
 
-        onView(withId(R.id.analysis_enabled)).perform(scrollTo(), click())
-        onView(withId(R.id.analysis_enabled)).perform(scrollTo(), click())
+        clickView(R.id.analysis_enabled)
+        clickView(R.id.analysis_enabled)
 
         fragment.assertAnalysisStreaming(true)
     }
@@ -385,7 +392,7 @@ class CameraControllerFragmentTest(
     @Test
     fun captureDisabled_cannotTakePicture() {
         // Arrange.
-        onView(withId(R.id.capture_enabled)).perform(scrollTo(), click())
+        clickView(R.id.capture_enabled)
 
         // Act and assert.
         val exception =
@@ -401,8 +408,8 @@ class CameraControllerFragmentTest(
         fragment.assertPreviewIsStreaming()
 
         // Act.
-        onView(withId(R.id.capture_enabled)).perform(scrollTo(), click())
-        onView(withId(R.id.capture_enabled)).perform(scrollTo(), click())
+        clickView(R.id.capture_enabled)
+        clickView(R.id.capture_enabled)
         fragment.assertPreviewIsStreaming()
 
         // Assert.
@@ -411,14 +418,14 @@ class CameraControllerFragmentTest(
 
     @Test
     fun previewViewRemoved_previewIsIdle() {
-        onView(withId(R.id.remove_or_add)).perform(scrollTo(), click())
+        clickView(R.id.remove_or_add)
         fragment.assertPreviewIsIdle()
     }
 
     @Test
     fun previewViewRemovedAndAdded_previewIsStreaming() {
-        onView(withId(R.id.remove_or_add)).perform(scrollTo(), click())
-        onView(withId(R.id.remove_or_add)).perform(scrollTo(), click())
+        clickView(R.id.remove_or_add)
+        clickView(R.id.remove_or_add)
         fragment.assertPreviewIsStreaming()
     }
 
@@ -426,7 +433,7 @@ class CameraControllerFragmentTest(
     fun cameraToggled_previewIsStreaming() {
         assumeDeviceHasFrontCamera()
 
-        onView(withId(R.id.camera_toggle)).perform(scrollTo(), click())
+        clickView(R.id.camera_toggle)
         fragment.assertPreviewIsStreaming()
     }
 
@@ -434,7 +441,7 @@ class CameraControllerFragmentTest(
     fun cameraToggled_canTakePicture() {
         assumeDeviceHasFrontCamera()
 
-        onView(withId(R.id.camera_toggle)).perform(scrollTo(), click())
+        clickView(R.id.camera_toggle)
         fragment.assertPreviewIsStreaming()
         fragment.assertCanTakePicture()
     }
@@ -484,7 +491,7 @@ class CameraControllerFragmentTest(
         // Act.
         invertAllUseCaseEnableStatusExceptPreview()
         fragment.assertPreviewIsStreaming()
-        onView(withId(R.id.camera_toggle)).perform(scrollTo(), click())
+        clickView(R.id.camera_toggle)
         fragment.assertPreviewIsStreaming()
 
         // Assert.
@@ -503,8 +510,8 @@ class CameraControllerFragmentTest(
         // Act.
         invertAllUseCaseEnableStatusExceptPreview()
         repeat(times) {
-            onView(withId(R.id.video_enabled)).perform(scrollTo(), click())
-            onView(withId(R.id.video_enabled)).perform(scrollTo(), click())
+            clickView(R.id.video_enabled)
+            clickView(R.id.video_enabled)
         }
         fragment.assertPreviewIsStreaming()
 
@@ -535,10 +542,10 @@ class CameraControllerFragmentTest(
         instrumentation.runOnMainSync { fragment.toggleCamera() }
 
         // Disables VideoCapture
-        onView(withId(R.id.video_enabled)).perform(scrollTo(), click())
+        clickView(R.id.video_enabled)
 
         // Enables ImageCapture
-        onView(withId(R.id.capture_enabled)).perform(scrollTo(), click())
+        clickView(R.id.capture_enabled)
 
         // Assert.
         // Both Preview and ImageCapture can work normally. Ensures that the ImageCapture can be
@@ -548,10 +555,76 @@ class CameraControllerFragmentTest(
     }
 
     private fun invertAllUseCaseEnableStatusExceptPreview() {
-        onView(withId(R.id.capture_enabled)).perform(scrollTo(), click())
-        onView(withId(R.id.analysis_enabled)).perform(scrollTo(), click())
-        onView(withId(R.id.video_enabled)).perform(scrollTo(), click())
+        clickView(R.id.capture_enabled)
+        clickView(R.id.analysis_enabled)
+        clickView(R.id.video_enabled)
     }
+
+    /**
+     * Clicks the view directly on the main thread instead of using Espresso touch injection, which
+     * can trigger TestStorageException/InjectEventSecurityException or miss clicks inside
+     * ScrollView on some devices.
+     */
+    private fun clickView(@IdRes viewId: Int) {
+        waitUntilViewReady(viewId)
+        fragmentScenario.onFragment { targetFragment ->
+            val view = targetFragment.requireView().findViewById<View>(viewId)
+            assertWithMessage("View $viewId not found").that(view).isNotNull()
+            if (!view!!.performClick() && view !is Checkable) {
+                throw AssertionError("Failed to click view $viewId")
+            }
+        }
+        instrumentation.waitForIdleSync()
+    }
+
+    private fun waitUntilViewReady(@IdRes viewId: Int) {
+        val readyLatch = CountDownLatch(1)
+        val mainHandler = Handler(Looper.getMainLooper())
+        // View state is mutated on the main thread, so poll readiness there until the view can
+        // accept a click.
+        val readinessCheck =
+            object : Runnable {
+                override fun run() {
+                    val view = fragment.view?.findViewById<View>(viewId)
+                    if (isReadyToClick(view)) {
+                        readyLatch.countDown()
+                    } else {
+                        mainHandler.postDelayed(this, VIEW_READY_CHECK_INTERVAL_MS)
+                    }
+                }
+            }
+        mainHandler.post(readinessCheck)
+        val isReady =
+            try {
+                readyLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            } finally {
+                instrumentation.runOnMainSync { mainHandler.removeCallbacks(readinessCheck) }
+            }
+        if (!isReady) {
+            var viewState = ""
+            instrumentation.runOnMainSync {
+                viewState = describeClickReadiness(fragment.view?.findViewById(viewId))
+            }
+            assertWithMessage("View $viewId not ready within $TIMEOUT_SECONDS seconds: $viewState")
+                .fail()
+        }
+    }
+
+    private fun isReadyToClick(view: View?): Boolean =
+        view != null &&
+            view.isAttachedToWindow &&
+            view.visibility == View.VISIBLE &&
+            view.isEnabled &&
+            (view.hasOnClickListeners() || view is Checkable)
+
+    private fun describeClickReadiness(view: View?): String =
+        if (view == null) {
+            "view not found"
+        } else {
+            "isAttachedToWindow=${view.isAttachedToWindow}, visibility=${view.visibility}, " +
+                "isEnabled=${view.isEnabled}, hasOnClickListeners=${view.hasOnClickListeners()}, " +
+                "isCheckable=${view is Checkable}"
+        }
 
     private fun skipTestWithSurfaceProcessingOnCuttlefishApi30() {
         // Skip test for b/253211491
@@ -695,17 +768,21 @@ class CameraControllerFragmentTest(
         // Arrange.
         val videoSavedSemaphore = Semaphore(0)
         val videoRecordingSemaphore = Semaphore(0)
-        var finalize: VideoRecordEvent.Finalize? = null
+        val finalizeRef = AtomicReference<VideoRecordEvent.Finalize?>(null)
+        val statusCount = AtomicInteger(0)
 
         // Act.
         instrumentation.runOnMainSync {
             this.startRecording {
                 when (it) {
                     is VideoRecordEvent.Finalize -> {
-                        finalize = it
+                        finalizeRef.set(it)
+                        // Unblock status wait immediately if recording terminates early.
+                        videoRecordingSemaphore.release(RECORDING_COUNT)
                         videoSavedSemaphore.release()
                     }
                     is VideoRecordEvent.Status -> {
+                        statusCount.incrementAndGet()
                         videoRecordingSemaphore.release()
                     }
                     is VideoRecordEvent.Start,
@@ -714,44 +791,84 @@ class CameraControllerFragmentTest(
                         // no op for this test, skip these event now.
                     }
                     else -> {
-                        throw IllegalStateException()
+                        throw IllegalStateException("Unexpected VideoRecordEvent: $it")
                     }
                 }
             }
         }
 
-        // Wait for status event to proceed recording for a while.
-        assertThat(
+        var stopRequested = false
+        try {
+            // Wait for status events to proceed recording for a while (or early Finalize).
+            val acquiredStatus =
                 videoRecordingSemaphore.tryAcquire(
                     RECORDING_COUNT,
                     TIMEOUT_SECONDS,
                     TimeUnit.SECONDS,
                 )
-            )
-            .isTrue()
+            finalizeRef.get()?.let { earlyFinalize ->
+                assertWithMessage(
+                        "Video recording finalized early with error=${earlyFinalize.error}, " +
+                            "cause=${earlyFinalize.cause} (statusCount=${statusCount.get()})"
+                    )
+                    .that(earlyFinalize.hasError())
+                    .isFalse()
+            }
+            assertWithMessage(
+                    "Timed out waiting for $RECORDING_COUNT VideoRecordEvent.Status updates " +
+                        "(statusCount=${statusCount.get()}, earlyFinalize=${finalizeRef.get()})"
+                )
+                .that(acquiredStatus && statusCount.get() >= RECORDING_COUNT)
+                .isTrue()
 
-        instrumentation.runOnMainSync { this.stopRecording() }
+            stopRequested = true
+            instrumentation.runOnMainSync { this.stopRecording() }
 
-        // Wait for finalize event to saved file.
-        assertThat(videoSavedSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
-        assertThat(finalize).isNotEqualTo(null)
-        assertThat(finalize!!.hasError()).isFalse()
+            // Wait for finalize event to saved file.
+            assertWithMessage("Timed out waiting for VideoRecordEvent.Finalize")
+                .that(videoSavedSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS))
+                .isTrue()
+            val finalize = requireNotNull(finalizeRef.get())
+            assertWithMessage(
+                    "Video recording finalized with error=${finalize.error}, " +
+                        "cause=${finalize.cause}"
+                )
+                .that(finalize.hasError())
+                .isFalse()
 
-        // Verify.
-        val uri = finalize!!.outputResults.outputUri
-        assertThat(uri).isNotEqualTo(Uri.EMPTY)
-        checkFileVideo(uri)
-
-        // Cleanup.
-        val contentResolver: ContentResolver = this.activity!!.contentResolver
-        contentResolver.delete(uri, null, null)
+            // Verify.
+            val uri = finalize.outputResults.outputUri
+            assertThat(uri).isNotEqualTo(Uri.EMPTY)
+            checkFileVideo(uri)
+        } finally {
+            if (!stopRequested && finalizeRef.get() == null) {
+                instrumentation.runOnMainSync { this.stopRecording() }
+                videoSavedSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+            }
+            finalizeRef
+                .get()
+                ?.outputResults
+                ?.outputUri
+                ?.takeIf { it != Uri.EMPTY }
+                ?.let { uri ->
+                    runCatching {
+                        if (uri.scheme == ContentResolver.SCHEME_FILE) {
+                            uri.path?.let { File(it).delete() }
+                        } else {
+                            ApplicationProvider.getApplicationContext<Context>()
+                                .contentResolver
+                                .delete(uri, null, null)
+                        }
+                    }
+                }
+        }
     }
 
     private fun checkFileVideo(uri: Uri) {
-        val mediaRetriever = MediaMetadataRetriever()
-        mediaRetriever.apply {
-            setDataSource(ApplicationProvider.getApplicationContext(), uri)
-            val hasVideo = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+        MediaMetadataRetriever().useAndRelease { mediaRetriever ->
+            mediaRetriever.setDataSource(ApplicationProvider.getApplicationContext(), uri)
+            val hasVideo =
+                mediaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
             assertThat(hasVideo).isEqualTo("yes")
         }
     }
@@ -836,6 +953,7 @@ class CameraControllerFragmentTest(
         // beyond camera open alone.
         const val TIMEOUT_SECONDS = 15L
         const val RECORDING_COUNT = 5
+        private const val VIEW_READY_CHECK_INTERVAL_MS = 50L
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
