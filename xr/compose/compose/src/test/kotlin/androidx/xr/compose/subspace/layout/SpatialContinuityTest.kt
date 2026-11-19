@@ -665,8 +665,7 @@ class SpatialContinuityTest {
 
         val controllerB = Robolectric.buildActivity(SubspaceTestingActivity::class.java, intent)
         val activityB = controllerB.create().start().resume().get()
-        val sessionB = activityB.configureFakeSession()
-        sessionB.scene.mainPanelEntity.parent = sessionB.scene.activitySpace
+        activityB.configureFakeSession()
 
         activityB.setContent {
             Subspace {
@@ -725,8 +724,7 @@ class SpatialContinuityTest {
 
         val controllerB = Robolectric.buildActivity(SubspaceTestingActivity::class.java, intent)
         val activityB = controllerB.create().start().resume().get()
-        val sessionB = activityB.configureFakeSession()
-        sessionB.scene.mainPanelEntity.parent = sessionB.scene.activitySpace
+        activityB.configureFakeSession()
 
         activityB.setContent {
             Subspace {
@@ -789,7 +787,6 @@ class SpatialContinuityTest {
         val controllerB = Robolectric.buildActivity(SubspaceTestingActivity::class.java, intent)
         val activityB = controllerB.create().start().resume().get()
         val sessionB = activityB.configureFakeSession()
-        sessionB.scene.mainPanelEntity.parent = sessionB.scene.activitySpace
 
         activityB.setContent {
             Subspace {

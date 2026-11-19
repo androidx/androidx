@@ -300,4 +300,18 @@ class ComposeXrOwnerLocalsKtTest {
         assertThat(xrLocals.subspaceRootNode?.getScale(relativeTo = Space.ACTIVITY))
             .isEqualTo(expectedScale)
     }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun composeXrOwnerLocals_explicitlyDetachedMainPanel_remainsDetached() {
+        val session = composeTestRule.configureFakeSession()
+        session.scene.mainPanelEntity.parent = null
+        var locals: ComposeXrOwnerLocals? = null
+
+        composeTestRule.setContent { locals = LocalComposeXrOwners.current }
+        composeTestRule.waitForIdle()
+
+        assertNotNull(locals)
+        assertNull(session.scene.mainPanelEntity.parent)
+    }
 }
