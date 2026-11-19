@@ -52,6 +52,7 @@ class FeatureCombinationDeviceTest(
 ) : FeatureGroupTestBase(cameraSelector, implName, cameraXConfig) {
     @Test
     fun bindToLifecycle_allFeaturesPreferred_canBindSuccessfully(): Unit = runBlocking {
+        assumeHlg10StreamingReliable(allFeatures)
         assertWithMessage("Binding shouldn't fail since all features are preferred")
             .that(
                 tryBindAndVerifyFeatures(
@@ -65,6 +66,7 @@ class FeatureCombinationDeviceTest(
     @Test
     fun isSessionConfigSupported_queryReturnsFalseWithUnselectedPreferredFeatures(): Unit =
         runBlocking {
+            assumeHlg10StreamingReliable(allFeatures)
             // Arrange: Bind with all features as preferred and store the selected ones.
             val useCases = useCasesToTest.toUseCases()
             val features = allFeatures.toList()

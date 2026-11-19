@@ -59,6 +59,7 @@ abstract class FeatureGroupQueryBindAlignmentTestBase(
      */
     @Test
     fun testFeatureBindingAsRequiredOrPreferred_alignsWithIsSupportedQuery(): Unit = runBlocking {
+        assumeHlg10StreamingReliable(featureGroup)
         val useCases = useCasesToTest.toUseCases()
         val sessionConfig = SessionConfig(useCases = useCases, requiredFeatureGroup = featureGroup)
 
