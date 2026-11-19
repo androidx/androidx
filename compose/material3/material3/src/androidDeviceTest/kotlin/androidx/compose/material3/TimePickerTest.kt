@@ -365,6 +365,32 @@ class TimePickerTest {
     }
 
     @Test
+    fun timePicker_display_selectableGroup_semantics() {
+        val state = TimePickerState(initialHour = 14, initialMinute = 23, is24Hour = false)
+        lateinit var minuteDescription: String
+        lateinit var hourDescription: String
+        rule.setMaterialContent(lightColorScheme()) {
+            minuteDescription = getString(Strings.TimePickerMinuteSelection)
+            hourDescription = getString(Strings.TimePickerHourSelection)
+            TimePicker(state)
+        }
+
+        val hourSelector = rule.onNodeWithContentDescription(hourDescription)
+        val minuteSelector = rule.onNodeWithContentDescription(minuteDescription)
+
+        assertThat(hourSelector.fetchSemanticsNode().parent?.id)
+            .isEqualTo(minuteSelector.fetchSemanticsNode().parent?.id)
+
+        hourSelector
+            .onParent()
+            .assert(keyIsDefined(SelectableGroup))
+            .assert(expectValue(SemanticsProperties.IsTraversalGroup, true))
+            .onChildren()
+            .filter(isSelectable())
+            .assertCountEquals(2)
+    }
+
+    @Test
     fun timePicker_clockFace_hour_semantics() {
         val state = TimePickerState(initialHour = 14, initialMinute = 23, is24Hour = false)
         lateinit var hourDescription: String
