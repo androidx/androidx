@@ -53,86 +53,95 @@ private constructor(
     /** The value of the bit at index [id] */
     fun get(id: SnapshotId): Boolean {
         val offset = id - lowerBound
-        return if (offset >= 0 && offset < Long.SIZE_BITS) {
-            (1L shl offset.toInt()) and lowerSet != 0L
-        } else if (offset >= Long.SIZE_BITS && offset < Long.SIZE_BITS * 2) {
-            (1L shl (offset.toInt() - Long.SIZE_BITS)) and upperSet != 0L
-        } else if (offset > 0) {
-            false
-        } else belowBound?.let { it.binarySearch(id) >= 0 } ?: false
+        return if (offset >= 0) {
+            if (offset < Long.SIZE_BITS) {
+                (1L shl offset.toInt()) and lowerSet != 0L
+            } else if (offset < Long.SIZE_BITS * 2) {
+                (1L shl offset.toInt()) and upperSet != 0L
+            } else {
+                false
+            }
+        } else {
+            val array = belowBound
+            array != null && array.binarySearch(id) >= 0
+        }
     }
 
     /** Produce a copy of this set with the addition of the bit at index [id] set. */
     fun set(id: SnapshotId): SnapshotIdSet {
         val offset = id - lowerBound
-        if (offset >= 0 && offset < Long.SIZE_BITS) {
-            val mask = 1L shl offset.toInt()
-            if (lowerSet and mask == 0L) {
-                return SnapshotIdSet(
-                    upperSet = upperSet,
-                    lowerSet = lowerSet or mask,
-                    lowerBound = lowerBound,
-                    belowBound = belowBound,
-                )
-            }
-        } else if (offset >= Long.SIZE_BITS && offset < Long.SIZE_BITS * 2) {
-            val mask = 1L shl (offset.toInt() - Long.SIZE_BITS)
-            if (upperSet and mask == 0L) {
-                return SnapshotIdSet(
-                    upperSet = upperSet or mask,
-                    lowerSet = lowerSet,
-                    lowerBound = lowerBound,
-                    belowBound = belowBound,
-                )
-            }
-        } else if (offset >= Long.SIZE_BITS * 2) {
-            if (upperSet == 0L && lowerSet == 0L && belowBound == null) {
-                val newLowerBound = (id / SnapshotIdSize) * SnapshotIdSize
-                return SnapshotIdSet(
-                    upperSet = 0L,
-                    lowerSet = 1L shl (id - newLowerBound).toInt(),
-                    lowerBound = newLowerBound,
-                    belowBound = null,
-                )
-            }
-            // Shift the bit array down
-            var newUpperSet = upperSet
-            var newLowerSet = lowerSet
-            var newLowerBound = lowerBound
-            var newBelowBound: SnapshotIdArrayBuilder? = null
-            val targetLowerBound = ((id / SnapshotIdSize) - 1) * SnapshotIdSize
-            while (newLowerBound < targetLowerBound) {
-                // Shift the lower set into the array
-                if (newLowerSet != 0L) {
-                    if (newBelowBound == null) newBelowBound = SnapshotIdArrayBuilder(belowBound)
-                    repeat(Long.SIZE_BITS) { bitOffset ->
-                        if (newLowerSet and (1L shl bitOffset) != 0L) {
-                            newBelowBound.add(newLowerBound + bitOffset)
+        if (offset >= 0) {
+            if (offset < Long.SIZE_BITS) {
+                val mask = 1L shl offset.toInt()
+                if (lowerSet and mask == 0L) {
+                    return SnapshotIdSet(
+                        upperSet = upperSet,
+                        lowerSet = lowerSet or mask,
+                        lowerBound = lowerBound,
+                        belowBound = belowBound,
+                    )
+                }
+            } else if (offset < Long.SIZE_BITS * 2) {
+                val mask = 1L shl offset.toInt()
+                if (upperSet and mask == 0L) {
+                    return SnapshotIdSet(
+                        upperSet = upperSet or mask,
+                        lowerSet = lowerSet,
+                        lowerBound = lowerBound,
+                        belowBound = belowBound,
+                    )
+                }
+            } else {
+                if (upperSet == 0L && lowerSet == 0L && belowBound == null) {
+                    val newLowerBound = (id / SnapshotIdSize) * SnapshotIdSize
+                    return SnapshotIdSet(
+                        upperSet = 0L,
+                        lowerSet = 1L shl (id - newLowerBound).toInt(),
+                        lowerBound = newLowerBound,
+                        belowBound = null,
+                    )
+                }
+                // Shift the bit array down
+                var newUpperSet = upperSet
+                var newLowerSet = lowerSet
+                var newLowerBound = lowerBound
+                var newBelowBound: SnapshotIdArrayBuilder? = null
+                val targetLowerBound = ((id / SnapshotIdSize) - 1) * SnapshotIdSize
+                while (newLowerBound < targetLowerBound) {
+                    // Shift the lower set into the array
+                    if (newLowerSet != 0L) {
+                        if (newBelowBound == null) {
+                            newBelowBound = SnapshotIdArrayBuilder(belowBound)
+                        }
+                        repeat(Long.SIZE_BITS) { bitOffset ->
+                            if (newLowerSet and (1L shl bitOffset) != 0L) {
+                                newBelowBound.add(newLowerBound + bitOffset)
+                            }
                         }
                     }
+                    if (newUpperSet == 0L) {
+                        newLowerBound = (id / SnapshotIdSize) * SnapshotIdSize
+                        newLowerSet = 0L
+                        break
+                    }
+                    newLowerSet = newUpperSet
+                    newUpperSet = 0
+                    newLowerBound += Long.SIZE_BITS
                 }
-                if (newUpperSet == 0L) {
-                    newLowerBound = (id / SnapshotIdSize) * SnapshotIdSize
-                    newLowerSet = 0L
-                    break
-                }
-                newLowerSet = newUpperSet
-                newUpperSet = 0
-                newLowerBound += Long.SIZE_BITS
-            }
 
-            val newOffset = (id - newLowerBound).toInt()
-            if (newOffset < Long.SIZE_BITS) {
-                newLowerSet = newLowerSet or (1L shl newOffset)
-            } else {
-                newUpperSet = newUpperSet or (1L shl (newOffset - Long.SIZE_BITS))
+                val newOffset = (id - newLowerBound).toInt()
+                if (newOffset < Long.SIZE_BITS) {
+                    newLowerSet = newLowerSet or (1L shl newOffset)
+                } else {
+                    newUpperSet = newUpperSet or (1L shl newOffset)
+                }
+                return SnapshotIdSet(
+                    newUpperSet,
+                    newLowerSet,
+                    newLowerBound,
+                    newBelowBound?.toArray() ?: belowBound,
+                )
             }
-            return SnapshotIdSet(
-                newUpperSet,
-                newLowerSet,
-                newLowerBound,
-                newBelowBound?.toArray() ?: belowBound,
-            )
         } else {
             val array =
                 belowBound
@@ -153,35 +162,37 @@ private constructor(
     /** Produce a copy of this set with the addition of the bit at index [id] cleared. */
     fun clear(id: SnapshotId): SnapshotIdSet {
         val offset = id - lowerBound
-        if (offset >= 0 && offset < Long.SIZE_BITS) {
-            val mask = 1L shl offset.toInt()
-            if (lowerSet and mask != 0L) {
-                val newLower = lowerSet and mask.inv()
-                if (upperSet == 0L && newLower == 0L && belowBound == null) {
-                    return EMPTY
+        if (offset >= 0) {
+            if (offset < Long.SIZE_BITS) {
+                val mask = 1L shl offset.toInt()
+                if (lowerSet and mask != 0L) {
+                    val newLower = lowerSet and mask.inv()
+                    if (upperSet == 0L && newLower == 0L && belowBound == null) {
+                        return EMPTY
+                    }
+                    return SnapshotIdSet(
+                        upperSet = upperSet,
+                        lowerSet = newLower,
+                        lowerBound = lowerBound,
+                        belowBound = belowBound,
+                    )
                 }
-                return SnapshotIdSet(
-                    upperSet = upperSet,
-                    lowerSet = newLower,
-                    lowerBound = lowerBound,
-                    belowBound = belowBound,
-                )
-            }
-        } else if (offset >= Long.SIZE_BITS && offset < Long.SIZE_BITS * 2) {
-            val mask = 1L shl (offset.toInt() - Long.SIZE_BITS)
-            if (upperSet and mask != 0L) {
-                val newUpper = upperSet and mask.inv()
-                if (newUpper == 0L && lowerSet == 0L && belowBound == null) {
-                    return EMPTY
+            } else if (offset < Long.SIZE_BITS * 2) {
+                val mask = 1L shl offset.toInt()
+                if (upperSet and mask != 0L) {
+                    val newUpper = upperSet and mask.inv()
+                    if (newUpper == 0L && lowerSet == 0L && belowBound == null) {
+                        return EMPTY
+                    }
+                    return SnapshotIdSet(
+                        upperSet = newUpper,
+                        lowerSet = lowerSet,
+                        lowerBound = lowerBound,
+                        belowBound = belowBound,
+                    )
                 }
-                return SnapshotIdSet(
-                    upperSet = newUpper,
-                    lowerSet = lowerSet,
-                    lowerBound = lowerBound,
-                    belowBound = belowBound,
-                )
             }
-        } else if (offset < 0) {
+        } else {
             val array = belowBound
             if (array != null) {
                 val location = array.binarySearch(id)
