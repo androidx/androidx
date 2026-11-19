@@ -218,16 +218,22 @@ class DeviceTrackingTest {
         }
     }
 
-    // TODO(b/584773873): Assert ArDevice leaves TRACKING while DISABLED once OpenXrDevice resets
-    // trackingState on removeUpdatable.
     @Test
     @XrDeviceTest
     fun deviceTracking_dynamicModeSwitching_togglesArDeviceAvailability() {
         val session = sessionRule.session
 
         val initialDisabledError = configureDisabledAndCaptureError(session)
-        configureSpatialAndGetArDevice(session)
+        val enabledArDevice = configureSpatialAndGetArDevice(session)
+        waitUntil("ArDevice and PerceptionState to reach TRACKING", PERCEPTION_TIMEOUT) {
+            isTrackedAndSynced(session, enabledArDevice)
+        }
         val reDisabledError = configureDisabledAndCaptureError(session)
+        waitUntil("ArDevice and PerceptionState to reach STOPPED", PERCEPTION_TIMEOUT) {
+            enabledArDevice.state.value.trackingState == TrackingState.STOPPED &&
+                session.state.value.perceptionState?.arDeviceState?.trackingState ==
+                    TrackingState.STOPPED
+        }
         val reEnabledArDevice = configureSpatialAndGetArDevice(session)
 
         assertThat(assertNotNull(initialDisabledError)).hasMessageThat().contains("DISABLED")
@@ -244,6 +250,9 @@ class DeviceTrackingTest {
             arDevice.state.value.trackingState == TrackingState.TRACKING
         }
         configureDeviceTracking(session, DeviceTrackingMode.DISABLED)
+        waitUntil("ArDevice to reach STOPPED while DISABLED", PERCEPTION_TIMEOUT) {
+            arDevice.state.value.trackingState == TrackingState.STOPPED
+        }
         val poseWhileDisabled = arDevice.state.value.devicePose
 
         configureDeviceTracking(session, DeviceTrackingMode.SPATIAL)
