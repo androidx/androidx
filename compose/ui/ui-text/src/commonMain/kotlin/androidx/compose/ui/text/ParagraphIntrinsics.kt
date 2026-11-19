@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
 
-/** Calculates and presents the intrinsic width and height of text. */
+/** Calculates and presents the intrinsic width of text. */
 public interface ParagraphIntrinsics {
     /** The width for text if all soft wrap opportunities were taken. */
     public val minIntrinsicWidth: Float
