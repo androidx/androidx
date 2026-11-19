@@ -475,6 +475,475 @@ class RippleModifierNodeTest {
         Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
     }
 
+    /** Regression test for b/574113105 */
+    @Test
+    fun focusedHoveredThenUnfocused_insetFocusRing() {
+        val interactionSource = MutableInteractionSource()
+        val outerColor = Color.Red
+        val innerColor = Color.Green
+        val hoverAlpha = 0.3f
+        val shape = RoundedCornerShape(10.dp)
+
+        val ripple =
+            TestIndicationNodeFactory({
+                RippleNodeConfiguration(
+                    isBounded = true,
+                    radius = Dp.Unspecified,
+                    color = { TestRippleColor },
+                    pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
+                    focusConfiguration =
+                        RippleNodeConfiguration.FocusConfiguration.InsetRing(
+                            shape = shape,
+                            outerStrokeInset = 0.dp,
+                            outerStrokeWidth = 2.dp,
+                            outerStrokeColor = { outerColor },
+                            innerStrokeInset = 1.dp,
+                            innerStrokeWidth = 3.dp,
+                            innerStrokeColor = { innerColor },
+                            focusingAnimationSpec = snap(),
+                            unfocusingAnimationSpec = snap(),
+                        ),
+                    hoverConfiguration =
+                        RippleNodeConfiguration.HoverConfiguration.Opacity(hoverAlpha),
+                    dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.4f),
+                )
+            })
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                RippleBoxWithBackground(
+                    interactionSource,
+                    ripple,
+                    bounded = true,
+                    shape = shape,
+                    border = null,
+                )
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+        val expectedHoverColor =
+            calculateResultingRippleColor(TestRippleColor, rippleOpacity = hoverAlpha)
+
+        // Focus
+        val focus = FocusInteraction.Focus()
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(focus) } }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+        }
+
+        // Hover while focused
+        val enter = HoverInteraction.Enter()
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(enter) } }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(expectedHoverColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+        }
+
+        // Unfocus while still hovered: focus ring disappears while hover state layer remains
+        rule.runOnIdle {
+            scope!!.launch { interactionSource.emit(FocusInteraction.Unfocus(focus)) }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(expectedHoverColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(expectedHoverColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx)))
+                .isEqualTo(expectedHoverColor)
+        }
+
+        // Unhover
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(HoverInteraction.Exit(enter)) } }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+        }
+    }
+
+    /** Regression test for b/574113105 */
+    @Test
+    fun hoveredFocusedThenUnhovered_insetFocusRing() {
+        val interactionSource = MutableInteractionSource()
+        val outerColor = Color.Red
+        val innerColor = Color.Green
+        val hoverAlpha = 0.3f
+        val shape = RoundedCornerShape(10.dp)
+
+        val ripple =
+            TestIndicationNodeFactory({
+                RippleNodeConfiguration(
+                    isBounded = true,
+                    radius = Dp.Unspecified,
+                    color = { TestRippleColor },
+                    pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
+                    focusConfiguration =
+                        RippleNodeConfiguration.FocusConfiguration.InsetRing(
+                            shape = shape,
+                            outerStrokeInset = 0.dp,
+                            outerStrokeWidth = 2.dp,
+                            outerStrokeColor = { outerColor },
+                            innerStrokeInset = 1.dp,
+                            innerStrokeWidth = 3.dp,
+                            innerStrokeColor = { innerColor },
+                            focusingAnimationSpec = snap(),
+                            unfocusingAnimationSpec = snap(),
+                        ),
+                    hoverConfiguration =
+                        RippleNodeConfiguration.HoverConfiguration.Opacity(hoverAlpha),
+                    dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.4f),
+                )
+            })
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                RippleBoxWithBackground(
+                    interactionSource,
+                    ripple,
+                    bounded = true,
+                    shape = shape,
+                    border = null,
+                )
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+        val expectedHoverColor =
+            calculateResultingRippleColor(TestRippleColor, rippleOpacity = hoverAlpha)
+
+        // Hover
+        val enter = HoverInteraction.Enter()
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(enter) } }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(expectedHoverColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(expectedHoverColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx)))
+                .isEqualTo(expectedHoverColor)
+        }
+
+        // Focus while hovered: hover state layer remains active alongside inset focus ring
+        val focus = FocusInteraction.Focus()
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(focus) } }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(expectedHoverColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+        }
+
+        // Unhover while still focused: hover state layer disappears while focus ring remains
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(HoverInteraction.Exit(enter)) } }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+        }
+
+        // Unfocus
+        rule.runOnIdle {
+            scope!!.launch { interactionSource.emit(FocusInteraction.Unfocus(focus)) }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+        }
+    }
+
+    /** Regression test for b/574113105 */
+    @Test
+    fun focusedDraggedThenUnfocused_insetFocusRing() {
+        val interactionSource = MutableInteractionSource()
+        val outerColor = Color.Red
+        val innerColor = Color.Green
+        val dragAlpha = 0.4f
+        val shape = RoundedCornerShape(10.dp)
+
+        val ripple =
+            TestIndicationNodeFactory({
+                RippleNodeConfiguration(
+                    isBounded = true,
+                    radius = Dp.Unspecified,
+                    color = { TestRippleColor },
+                    pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
+                    focusConfiguration =
+                        RippleNodeConfiguration.FocusConfiguration.InsetRing(
+                            shape = shape,
+                            outerStrokeInset = 0.dp,
+                            outerStrokeWidth = 2.dp,
+                            outerStrokeColor = { outerColor },
+                            innerStrokeInset = 1.dp,
+                            innerStrokeWidth = 3.dp,
+                            innerStrokeColor = { innerColor },
+                            focusingAnimationSpec = snap(),
+                            unfocusingAnimationSpec = snap(),
+                        ),
+                    hoverConfiguration = RippleNodeConfiguration.HoverConfiguration.Opacity(0.3f),
+                    dragConfiguration =
+                        RippleNodeConfiguration.DragConfiguration.Opacity(dragAlpha),
+                )
+            })
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                RippleBoxWithBackground(
+                    interactionSource,
+                    ripple,
+                    bounded = true,
+                    shape = shape,
+                    border = null,
+                )
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+        val expectedDragColor =
+            calculateResultingRippleColor(TestRippleColor, rippleOpacity = dragAlpha)
+
+        // Focus
+        val focus = FocusInteraction.Focus()
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(focus) } }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+        }
+
+        // Drag while focused
+        val dragStart = DragInteraction.Start()
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(dragStart) } }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(expectedDragColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+        }
+
+        // Unfocus while still dragged: focus ring disappears while drag state layer remains
+        rule.runOnIdle {
+            scope!!.launch { interactionSource.emit(FocusInteraction.Unfocus(focus)) }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(expectedDragColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(expectedDragColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(expectedDragColor)
+        }
+
+        // Stop dragging
+        rule.runOnIdle {
+            scope!!.launch { interactionSource.emit(DragInteraction.Stop(dragStart)) }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap().let { bitmap ->
+            Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+            Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx)))
+                .isEqualTo(RippleBoxBackgroundColor)
+        }
+    }
+
+    @Test
+    fun hoveredFocusedThenUnfocused_focusConfigurationNone() {
+        val interactionSource = MutableInteractionSource()
+        val hoverAlpha = 0.3f
+
+        val ripple =
+            TestIndicationNodeFactory({
+                RippleNodeConfiguration(
+                    isBounded = true,
+                    radius = Dp.Unspecified,
+                    color = { TestRippleColor },
+                    pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
+                    focusConfiguration = RippleNodeConfiguration.FocusConfiguration.None,
+                    hoverConfiguration =
+                        RippleNodeConfiguration.HoverConfiguration.Opacity(hoverAlpha),
+                    dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.4f),
+                )
+            })
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                RippleBoxWithBackground(interactionSource, ripple, bounded = true)
+            }
+        }
+
+        val scopeNonNull = scope!!
+        val expectedHoverColor =
+            calculateResultingRippleColor(TestRippleColor, rippleOpacity = hoverAlpha)
+
+        val enter = HoverInteraction.Enter()
+        assertRippleMatches(
+            scopeNonNull,
+            interactionSource = interactionSource,
+            interaction = enter,
+            expectedCenterPixelColor = expectedHoverColor,
+        )
+
+        val focus = FocusInteraction.Focus()
+        assertRippleMatches(
+            scopeNonNull,
+            interactionSource = interactionSource,
+            interaction = focus,
+            expectedCenterPixelColor = expectedHoverColor,
+        )
+
+        assertRippleMatches(
+            scopeNonNull,
+            interactionSource = interactionSource,
+            interaction = FocusInteraction.Unfocus(focus),
+            expectedCenterPixelColor = expectedHoverColor,
+        )
+
+        assertRippleMatches(
+            scopeNonNull,
+            interactionSource = interactionSource,
+            interaction = HoverInteraction.Exit(enter),
+            expectedCenterPixelColor = RippleBoxBackgroundColor,
+        )
+    }
+
+    @Test
+    fun focusedHoveredThenUnhovered_hoverConfigurationNone() {
+        val interactionSource = MutableInteractionSource()
+        val focusAlpha = 0.2f
+
+        val ripple =
+            TestIndicationNodeFactory({
+                RippleNodeConfiguration(
+                    isBounded = true,
+                    radius = Dp.Unspecified,
+                    color = { TestRippleColor },
+                    pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
+                    focusConfiguration =
+                        RippleNodeConfiguration.FocusConfiguration.Opacity(focusAlpha),
+                    hoverConfiguration = RippleNodeConfiguration.HoverConfiguration.None,
+                    dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.4f),
+                )
+            })
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                RippleBoxWithBackground(interactionSource, ripple, bounded = true)
+            }
+        }
+
+        val scopeNonNull = scope!!
+        val expectedFocusColor =
+            calculateResultingRippleColor(TestRippleColor, rippleOpacity = focusAlpha)
+
+        val focus = FocusInteraction.Focus()
+        assertRippleMatches(
+            scopeNonNull,
+            interactionSource = interactionSource,
+            interaction = focus,
+            expectedCenterPixelColor = expectedFocusColor,
+        )
+
+        val enter = HoverInteraction.Enter()
+        assertRippleMatches(
+            scopeNonNull,
+            interactionSource = interactionSource,
+            interaction = enter,
+            expectedCenterPixelColor = expectedFocusColor,
+        )
+
+        assertRippleMatches(
+            scopeNonNull,
+            interactionSource = interactionSource,
+            interaction = HoverInteraction.Exit(enter),
+            expectedCenterPixelColor = expectedFocusColor,
+        )
+
+        assertRippleMatches(
+            scopeNonNull,
+            interactionSource = interactionSource,
+            interaction = FocusInteraction.Unfocus(focus),
+            expectedCenterPixelColor = RippleBoxBackgroundColor,
+        )
+    }
+
     @Test
     fun focusedHoveredThenUnhovered() {
         val interactionSource = MutableInteractionSource()
