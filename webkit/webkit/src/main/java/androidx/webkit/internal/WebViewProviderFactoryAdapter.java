@@ -207,4 +207,9 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
                     callbackExecutor.execute(() -> callback.onError(exception));
                 });
     }
+
+    @Override
+    public long getWGPUProcGetProcAddress(int majorVersion, long minorVersion) {
+        return mImpl.getWGPUProcGetProcAddress(majorVersion, minorVersion);
+    }
 }

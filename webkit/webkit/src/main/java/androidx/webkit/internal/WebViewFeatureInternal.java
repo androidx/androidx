@@ -1195,6 +1195,16 @@ public class WebViewFeatureInternal {
                     WebViewFeature.PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
                     Features.PROFILE_SELECTED_SITE_ISOLATION_V1);
 
+    /**
+     * Feature that is relevant for the implementation of
+     * {@link androidx.webkit.WebGPU#getWGPUProcGetProcAddress(int, long)}.
+     *
+     * <p>This feature is not referred to by the app and is only used by the library to choose
+     * different code paths based on underlying support from WebView.
+     */
+    public static final ApiFeature.NoFrameworkInternal WEBGPU =
+            new ApiFeature.NoFrameworkInternal(Features.WEBGPU);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
