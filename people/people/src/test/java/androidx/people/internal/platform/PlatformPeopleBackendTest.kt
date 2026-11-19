@@ -26,7 +26,9 @@ import androidx.people.Criterion
 import androidx.people.Group
 import androidx.people.GroupId
 import androidx.people.GroupMatch
+import androidx.people.MatchResult
 import androidx.people.PersonId
+import androidx.people.PersonMatch
 import androidx.people.groupQuery
 import androidx.people.groupQueryOf
 import androidx.people.internal.directoryGroupQuery
@@ -291,8 +293,8 @@ class PlatformPeopleBackendTest {
 
         assertThat(provider.queryCount).isEqualTo(0)
         assertThat(result.matches).isEmpty()
+        assertThat(result.handledQuery.isEmpty()).isTrue()
         assertThat(result.unhandledQuery.isEmpty()).isTrue()
-        assertThat(result.unmatchedQuery.isEmpty()).isTrue()
     }
 
     @Test
@@ -345,7 +347,7 @@ class PlatformPeopleBackendTest {
         assertThat(match.person.id).isEqualTo(PersonId(VOIP, "lookup_1"))
         assertThat(match.criteria).containsExactly(PHONE, EMAIL)
         assertThat(result.unhandledQuery.isEmpty()).isTrue()
-        assertThat(result.matchedQuery).isEqualTo(query)
+        assertThat(result.handledQuery).isEqualTo(query)
     }
 
     @Test
@@ -367,10 +369,12 @@ class PlatformPeopleBackendTest {
         val result = backend.queryPersons(query)
 
         assertThat(result.matches.map { it.person.id }).containsExactly(PersonId(VOIP, "lookup_1"))
-        assertThat(result.matchesFor(VOIP, PHONE)).hasSize(1)
-        assertThat(result.matchedQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE.number) })
+        assertThat((result.getResultFor(VOIP, PHONE) as MatchResult.Handled).matches).hasSize(1)
         // SMS returned no answer, so its criteria were evaluated without a match.
-        assertThat(result.unmatchedQuery).isEqualTo(personQuery(SMS) { addPhones(PHONE.number) })
+        assertThat(result.getResultFor(SMS, PHONE))
+            .isEqualTo(MatchResult.Handled(emptySet<PersonMatch>()))
+        assertThat(result.handledQuery)
+            .isEqualTo(personQuery(listOf(VOIP, SMS)) { addPhones(PHONE.number) })
         assertThat(result.unhandledQuery)
             .isEqualTo(
                 personQuery {

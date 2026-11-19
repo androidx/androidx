@@ -25,8 +25,6 @@ import androidx.people.GroupQueryResult
 import androidx.people.PersonMatch
 import androidx.people.PersonQuery
 import androidx.people.PersonQueryResult
-import androidx.people.groupQueryOf
-import androidx.people.personQueryOf
 
 // Factories for the query results that a PeopleBackend returns. They are LIBRARY_GROUP so that
 // backends and tests in other artifacts of this library group can build results too.
@@ -36,30 +34,20 @@ import androidx.people.personQueryOf
  * Directory applications reported.
  *
  * [matches] and [unhandledQuery] must only contain directories and criteria of [query], and must
- * not report a criterion as both matched and unhandled. The criteria of [query] that are neither
- * matched nor unhandled matched nothing, and make up [PersonQueryResult.unmatchedQuery].
+ * not report a criterion as both matched and unhandled. Every criterion of [query] that is not in
+ * [unhandledQuery] was evaluated and makes up [PersonQueryResult.handledQuery].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun personQueryResultOf(
     query: PersonQuery,
     matches: Set<PersonMatch>,
     unhandledQuery: PersonQuery,
-): PersonQueryResult {
-    val matchedQuery =
-        personQueryOf(
-            matches
-                .groupBy { it.person.id.directoryPackage }
-                .mapValues { (_, directoryMatches) ->
-                    directoryMatches.flatMapTo(mutableSetOf()) { it.criteria }
-                }
-        )
-    return PersonQueryResult(
+): PersonQueryResult =
+    PersonQueryResult(
         matches = matches,
-        matchedQuery = matchedQuery,
-        unmatchedQuery = query - matchedQuery - unhandledQuery,
+        handledQuery = query - unhandledQuery,
         unhandledQuery = unhandledQuery,
     )
-}
 
 /**
  * Returns the result of [query] when no People Directory application answered it, for example
@@ -79,22 +67,12 @@ public fun groupQueryResultOf(
     query: GroupQuery,
     matches: Set<GroupMatch>,
     unhandledQuery: GroupQuery,
-): GroupQueryResult {
-    val matchedQuery =
-        groupQueryOf(
-            matches
-                .groupBy { it.group.id.directoryPackage }
-                .mapValues { (_, directoryMatches) ->
-                    directoryMatches.flatMapTo(mutableSetOf()) { it.criteria }
-                }
-        )
-    return GroupQueryResult(
+): GroupQueryResult =
+    GroupQueryResult(
         matches = matches,
-        matchedQuery = matchedQuery,
-        unmatchedQuery = query - matchedQuery - unhandledQuery,
+        handledQuery = query - unhandledQuery,
         unhandledQuery = unhandledQuery,
     )
-}
 
 /**
  * Returns the result of [query] when no People Directory application answered it, following the
