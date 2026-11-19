@@ -24,8 +24,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.internal.BasicTooltipDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -1366,6 +1370,106 @@ class TooltipTest {
         assertThat(secondState.isVisible).isTrue()
         rule.onNodeWithTag(ContainerTestTag).assertDoesNotExist()
         rule.onNodeWithTag(secondContainerTag).assertIsDisplayed()
+    }
+
+    @Test
+    fun richTooltip_restoresVisibilityState_doesNotPreemptCallerLaunchedEffect() {
+        val restorationTester = StateRestorationTester(rule)
+        var showTooltip by mutableStateOf(true)
+        lateinit var state: TooltipState
+        restorationTester.setContent {
+            MaterialTheme(lightColorScheme()) {
+                state = rememberTooltipState(isPersistent = true)
+                LaunchedEffect(showTooltip) {
+                    if (showTooltip) {
+                        state.show()
+                    }
+                }
+                RichTooltipTest(text = { Text("Text") }, tooltipState = state)
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(state.isVisible).isTrue()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        val shownState = state
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+        assertThat(state).isNotSameInstanceAs(shownState)
+        assertThat(state.isVisible).isTrue()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        showTooltip = false
+        rule.waitForIdle()
+        assertThat(state.isVisible).isFalse()
+        rule.onNodeWithTag(ContainerTestTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun richTooltip_restoresVisibilityState_dismissedBeforeRestoreEffect_doesNotReopen() {
+        val restorationTester = StateRestorationTester(rule)
+        var shouldDismissOnRestore = false
+        lateinit var state: TooltipState
+        lateinit var scope: CoroutineScope
+        restorationTester.setContent {
+            MaterialTheme(lightColorScheme()) {
+                state = rememberTooltipState(isPersistent = true)
+                scope = rememberCoroutineScope()
+                DisposableEffect(Unit) { onDispose { shouldDismissOnRestore = true } }
+                LaunchedEffect(state) {
+                    if (shouldDismissOnRestore) {
+                        state.dismiss()
+                    }
+                }
+                RichTooltipTest(text = { Text("Text") }, tooltipState = state)
+            }
+        }
+
+        scope.launch { state.show() }
+        rule.waitForIdle()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        val shownState = state
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+        assertThat(state).isNotSameInstanceAs(shownState)
+        assertThat(state.isVisible).isFalse()
+        rule.onNodeWithTag(ContainerTestTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun richTooltip_restoresVisibilityState_callerLaunchedEffectAfterTooltipBox() {
+        val restorationTester = StateRestorationTester(rule)
+        var showTooltip by mutableStateOf(true)
+        lateinit var state: TooltipState
+        restorationTester.setContent {
+            MaterialTheme(lightColorScheme()) {
+                state = rememberTooltipState(isPersistent = true)
+                RichTooltipTest(text = { Text("Text") }, tooltipState = state)
+                LaunchedEffect(showTooltip) {
+                    if (showTooltip) {
+                        state.show()
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(state.isVisible).isTrue()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        val shownState = state
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+        assertThat(state).isNotSameInstanceAs(shownState)
+        assertThat(state.isVisible).isTrue()
+        rule.onNodeWithTag(ContainerTestTag).assertIsDisplayed()
+
+        showTooltip = false
+        rule.waitForIdle()
+        assertThat(state.isVisible).isFalse()
+        rule.onNodeWithTag(ContainerTestTag).assertDoesNotExist()
     }
 }
 
