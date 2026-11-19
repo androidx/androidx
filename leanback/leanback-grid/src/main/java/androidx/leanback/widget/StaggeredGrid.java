@@ -212,17 +212,15 @@ abstract class StaggeredGrid extends Grid {
             cachedIndex--;
         }
         if (!foundCachedItemInSameRow) {
+            // Just use the offset of last item.
             cachedIndex = getLastIndex();
+            return getLocation(cachedIndex);
         }
         // Assuming the cachedIndex is next to item on the same row, so the
-        // sum of offset of [cachedIndex + 1, itemIndex] should be size of the
-        // cached item plus spacing.
-        int offset = isReversedFlow() ? -getLocation(cachedIndex).mSize - mSpacing :
-                getLocation(cachedIndex).mSize + mSpacing;
-        for (int i = cachedIndex + 1; i <= getLastIndex(); i++) {
-            offset -= getLocation(i).mOffset;
-        }
-        return offset;
+        // offset of itemIndex should be size of the cached item plus spacing.
+        final Location loc = getLocation(cachedIndex);
+        return isReversedFlow() ? loc.mOffset - loc.mSize - mSpacing :
+                loc.mOffset + loc.mSize + mSpacing;
     }
 
 
