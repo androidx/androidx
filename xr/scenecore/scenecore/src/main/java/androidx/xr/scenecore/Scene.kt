@@ -205,7 +205,14 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
         spatialEnvironment = SpatialEnvironment(sceneRuntime, entityRegistry)
         perceptionSpace = PerceptionSpace.create(sceneRuntime)
         activitySpace = ActivitySpace.create(sceneRuntime, entityRegistry)
-        mainPanelEntity = MainPanelEntity.create(sceneRuntime, perceptionSpace, entityRegistry)
+        mainPanelEntity =
+            MainPanelEntity.create(sceneRuntime, perceptionSpace, entityRegistry).also {
+                // Production and fake runtimes attach mainPanelEntity to activitySpace at startup;
+                // skip when mock/delegating test runtimes leave the runtime parent unset.
+                if (sceneRuntime.mainPanelEntity.parent != null) {
+                    it.initializeParent(activitySpace)
+                }
+            }
         keyEntity = mainPanelEntity
 
         sceneRuntime.spatialModeChangeListener =

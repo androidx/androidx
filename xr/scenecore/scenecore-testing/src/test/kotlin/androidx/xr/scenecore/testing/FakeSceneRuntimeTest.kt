@@ -382,4 +382,12 @@ class FakeSceneRuntimeTest {
 
         assertThat(ppm).isGreaterThan(0f)
     }
+
+    @Test
+    fun mainPanelEntity_atStartup_isParentedToActivitySpace() {
+        assertThat(fakeSceneRuntime.mainPanelEntity.parent)
+            .isSameInstanceAs(fakeSceneRuntime.activitySpace)
+        assertThat(fakeSceneRuntime.activitySpace.children)
+            .contains(fakeSceneRuntime.mainPanelEntity)
+    }
 }

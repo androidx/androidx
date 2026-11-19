@@ -141,7 +141,7 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
     override val mediaPlayerExtensionsWrapper: FakeMediaPlayerExtensionsWrapper =
         FakeMediaPlayerExtensionsWrapper()
 
-    override val mainPanelEntity: PanelEntity = FakePanelEntity()
+    override val mainPanelEntity: PanelEntity = FakePanelEntity().apply { parent = activitySpace }
 
     override var keyEntity: Entity? = null
 

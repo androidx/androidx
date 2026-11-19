@@ -671,4 +671,49 @@ class TestRuleSceneTest {
         // and later when keyEntity was set.
         assertThat(testSpaceChangeCount).isEqualTo(2)
     }
+
+    @Test
+    fun getMainPanelEntity_atStartup_isParentedToActivitySpace() {
+        val mainPanelEntity = session.scene.mainPanelEntity
+
+        assertThat(mainPanelEntity.parent).isSameInstanceAs(session.scene.activitySpace)
+        assertThat(mainPanelEntity.rtEntity.parent)
+            .isSameInstanceAs(session.sceneRuntime.activitySpace)
+        assertThat(session.scene.activitySpace.children).contains(mainPanelEntity)
+    }
+
+    @Test
+    fun mainPanelEntity_setParentNull_detachesFromActivitySpaceAndSkipsSpaceChangeUpdates() {
+        val mainPanelEntity = session.scene.mainPanelEntity
+        val initialPose = Pose(Vector3(0.25f, 0.5f, 0.75f))
+        mainPanelEntity.setPose(initialPose)
+        val initialScale = mainPanelEntity.getScale()
+
+        mainPanelEntity.parent = null
+
+        assertThat(mainPanelEntity.parent).isNull()
+        assertThat(mainPanelEntity.rtEntity.parent).isNull()
+        assertThat(session.scene.activitySpace.children).doesNotContain(mainPanelEntity)
+
+        testRule.sceneTester.triggerSpaceChanged(
+            SpaceChangeEvent(recommendedPose = Pose(Vector3(1f, 2f, 3f)), recommendedScale = 2f)
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(mainPanelEntity.getPose()).isEqualTo(initialPose)
+        assertThat(mainPanelEntity.getScale()).isEqualTo(initialScale)
+
+        mainPanelEntity.parent = session.scene.activitySpace
+        val reattachedPose = Pose(Vector3(3f, 4f, 5f))
+        val reattachedScale = 1.5f
+        testRule.sceneTester.triggerSpaceChanged(
+            SpaceChangeEvent(recommendedPose = reattachedPose, recommendedScale = reattachedScale)
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(mainPanelEntity.parent).isSameInstanceAs(session.scene.activitySpace)
+        assertThat(session.scene.activitySpace.children).contains(mainPanelEntity)
+        assertThat(mainPanelEntity.getPose(Space.ACTIVITY)).isEqualTo(reattachedPose)
+        assertThat(mainPanelEntity.getScale(Space.ACTIVITY)).isEqualTo(reattachedScale)
+    }
 }

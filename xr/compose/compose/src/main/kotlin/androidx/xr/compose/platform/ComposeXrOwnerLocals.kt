@@ -110,11 +110,11 @@ internal class ComposeXrOwnerLocals : DefaultLifecycleObserver {
                 )
                 .also { subspaceRootNode = it }
 
-        // If the main panel is implicitly hosted (not explicitly placed in a Subspace via
-        // SpatialMainPanel), we parent it to the SubspaceRootNode so it still receives
-        // recommended pose and scale updates from the system.
+        // If the main panel is implicitly hosted (still attached to its default ActivitySpace
+        // parent rather than claimed by SpatialMainPanel or manually reparented/detached), we
+        // parent it to the SubspaceRootNode so it receives recommended pose and scale updates.
         activity.contentView.post {
-            if (createdSession.scene.mainPanelEntity.parent == null) {
+            if (createdSession.scene.mainPanelEntity.parent == createdSession.scene.activitySpace) {
                 createdSession.scene.mainPanelEntity.parent = subspaceRootNode
             }
         }

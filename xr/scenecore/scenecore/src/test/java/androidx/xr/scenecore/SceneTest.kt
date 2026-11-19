@@ -116,6 +116,51 @@ class SceneTest {
     }
 
     @Test
+    fun getMainPanelEntity_atStartup_isParentedToActivitySpace() {
+        val mainPanelEntity = session.scene.mainPanelEntity
+
+        assertThat(mainPanelEntity.parent).isSameInstanceAs(session.scene.activitySpace)
+        assertThat(mainPanelEntity.rtEntity.parent).isSameInstanceAs(sceneRuntime.activitySpace)
+        assertThat(session.scene.activitySpace.children).contains(mainPanelEntity)
+    }
+
+    @Test
+    fun mainPanelEntity_setParentNull_detachesFromActivitySpaceAndSkipsSpaceChangeUpdates() {
+        val mainPanelEntity = session.scene.mainPanelEntity
+        val initialPose = Pose(Vector3(0.25f, 0.5f, 0.75f))
+        mainPanelEntity.setPose(initialPose)
+        val initialScale = mainPanelEntity.getScale()
+
+        mainPanelEntity.parent = null
+
+        assertThat(mainPanelEntity.parent).isNull()
+        assertThat(mainPanelEntity.rtEntity.parent).isNull()
+        assertThat(session.scene.activitySpace.children).doesNotContain(mainPanelEntity)
+
+        val detachedPose = Pose(Vector3(1f, 2f, 3f))
+        val detachedScale = Vector3(2f, 2f, 2f)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(detachedPose, detachedScale)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(mainPanelEntity.getPose()).isEqualTo(initialPose)
+        assertThat(mainPanelEntity.getScale()).isEqualTo(initialScale)
+
+        mainPanelEntity.parent = session.scene.activitySpace
+        val reattachedPose = Pose(Vector3(3f, 4f, 5f))
+        val reattachedScale = Vector3(1.5f, 1.5f, 1.5f)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+            reattachedPose,
+            reattachedScale,
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(mainPanelEntity.parent).isSameInstanceAs(session.scene.activitySpace)
+        assertThat(session.scene.activitySpace.children).contains(mainPanelEntity)
+        assertThat(mainPanelEntity.getPose(Space.ACTIVITY)).isEqualTo(reattachedPose)
+        assertThat(mainPanelEntity.getScale(Space.ACTIVITY)).isEqualTo(reattachedScale.x)
+    }
+
+    @Test
     fun getPanelEntityType_returnsAllPanelEntities() {
         val panelEntity =
             PanelEntity.create(

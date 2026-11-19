@@ -147,6 +147,7 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
 
     override val mainPanelEntity: PanelEntity =
         FakePanelEntity(null, "", internalRuntime.mainPanelEntity as InternalFakePanelEntity)
+            .apply { parent = activitySpace }
 
     private var _keyEntity: Entity? = null
 

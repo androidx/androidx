@@ -127,6 +127,17 @@ internal constructor(rtEntity: RtEntity, private val entityRegistry: EntityRegis
             }
         }
 
+    internal fun initializeParent(parent: Entity) {
+        synchronized(_parent) {
+            checkNotDisposed()
+            val oldParent = _parent.getAndSet(parent)
+            if (oldParent == parent) return
+
+            oldParent?.removeChildInternal(this)
+            parent.addChildInternal(this)
+        }
+    }
+
     private fun addChildInternal(child: Entity) {
         synchronized(_children) {
             if (!_children.contains(child)) {
