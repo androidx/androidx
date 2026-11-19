@@ -17,6 +17,7 @@
 package androidx.build
 
 import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
+import androidx.build.AndroidXImplPlugin.Companion.UPLOAD_TEST_APKS_TO_GCS_TASK
 import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.aswb.registerASWBTask
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
@@ -193,6 +194,12 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             // Archive is greater than 4Gb :O
             it.isZip64 = true
             it.isReproducibleFileOrder = true
+        }
+
+        project.tasks.register(UPLOAD_TEST_APKS_TO_GCS_TASK) {
+            it.group = "Verification"
+            it.description =
+                "Opportunistically uploads device test and app APKs to GCS as they finish building."
         }
 
         AffectedModuleDetector.configure(gradle, this)

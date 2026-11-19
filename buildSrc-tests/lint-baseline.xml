@@ -614,6 +614,15 @@
     </issue>
 
     <issue
+        id="GradleProjectIsolation"
+        message="Use isolated.rootProject instead of getRootProject"
+        errorLine1="        rootProject.tasks.named(UPLOAD_TEST_APKS_TO_GCS_TASK).configure { it.dependsOn(uploadTask) }"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
+    </issue>
+
+    <issue
         id="InternalGradleApiUsage"
         message="Avoid using internal Gradle APIs"
         errorLine1="import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency"

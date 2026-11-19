@@ -18,6 +18,7 @@ package androidx.build.testConfiguration
 
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
+import androidx.build.AndroidXImplPlugin.Companion.UPLOAD_TEST_APKS_TO_GCS_TASK
 import androidx.build.androidXExtension
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
@@ -62,6 +63,12 @@ private fun Project.createTestConfigurationGenerationTask(
     projectIsolationEnabled: Boolean,
 ) {
     val copyTestApksTask = registerCopyTestApksTask(variantName, artifacts, variant)
+    registerUploadApkToGcsTask(
+        taskName = "${UPLOAD_TEST_APK_TASK}$variantName",
+        apkFile = copyTestApksTask.flatMap { it.outputTestApk },
+        variant = variant,
+        projectIsolationEnabled = projectIsolationEnabled,
+    )
     registerGenerateTestConfigurationTask(
         "${GENERATE_TEST_CONFIGURATION_TASK}$variantName",
         xmlName = "${path.asFilenamePrefix()}$variantName.xml",
@@ -305,11 +312,41 @@ private fun Project.addAppApkFromArtifactsToTestConfigGeneration(
     configureAction: Consumer<CopyApkFromArtifactsTask>,
 ) {
     val copyApkTask = registerCopyAppApkFromArtifactsTask(variant, configureAction)
+    registerUploadApkToGcsTask(
+        taskName = "${UPLOAD_APP_APK_TASK}${variant.name}",
+        apkFile = copyApkTask.flatMap { it.outputAppApk },
+        variant = variant,
+        projectIsolationEnabled = androidXExtension.isIsolatedProjectsEnabled(),
+    )
     tasks.named(
         "${GENERATE_TEST_CONFIGURATION_TASK}$testVariantName",
         GenerateTestConfigurationTask::class.java,
     ) { t ->
         t.appApksModel.set(copyApkTask.flatMap(CopyApkFromArtifactsTask::outputAppApksModel))
+    }
+}
+
+private fun Project.registerUploadApkToGcsTask(
+    taskName: String,
+    apkFile: Provider<RegularFile>,
+    variant: Variant?,
+    projectIsolationEnabled: Boolean,
+) {
+    val uploadServiceProvider = ApkGcsUploadService.registerOrGet(this)
+    val uploadTask =
+        tasks.register(taskName, UploadApkToGcsTask::class.java) { task ->
+            task.uploadService.set(uploadServiceProvider)
+            task.usesService(uploadServiceProvider)
+            task.apkFile.set(apkFile)
+            // Skip task if getTestSourceSetsForAndroid is empty, even if
+            //  androidXExtension.deviceTests.enabled is set to true
+            task.androidTestSourceCode.from(getTestSourceSetsForAndroid(variant))
+            val androidXExtension = extensions.getByType<AndroidXExtension>()
+            task.enabled = androidXExtension.deviceTests.enabled.get()
+            AffectedModuleDetector.configureTaskGuard(task)
+        }
+    if (!projectIsolationEnabled) {
+        rootProject.tasks.named(UPLOAD_TEST_APKS_TO_GCS_TASK).configure { it.dependsOn(uploadTask) }
     }
 }
 
@@ -358,3 +395,5 @@ fun Project.configureTestConfigGeneration(
 
 private const val COPY_TEST_APKS_TASK = "CopyTestApks"
 private const val GENERATE_TEST_CONFIGURATION_TASK = "GenerateTestConfiguration"
+private const val UPLOAD_TEST_APK_TASK = "UploadTestApk"
+private const val UPLOAD_APP_APK_TASK = "UploadAppApk"

@@ -1474,6 +1474,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
     companion object {
         const val FINALIZE_TEST_CONFIGS_WITH_APKS_TASK = "finalizeTestConfigsWithApks"
         const val ZIP_TEST_CONFIGS_WITH_APKS_TASK = "zipTestConfigsWithApks"
+        const val UPLOAD_TEST_APKS_TO_GCS_TASK = "uploadTestApksToGcs"
 
         const val TASK_GROUP_API = "API"
 
