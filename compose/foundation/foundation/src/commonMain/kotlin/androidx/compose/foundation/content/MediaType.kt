@@ -23,6 +23,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
  * mime type format was standardized, each platform is free to choose how they define media types.
  * Therefore, this class has an expect modifier for different platforms to specify how they define
  * certain common media types like Text, and Image.
+ *
+ * @param representation How this [MediaType] is represented in a specific platform.
  */
 @Suppress("KmpExperimentalMismatch") // actuals are not experimental
 @ExperimentalFoundationApi
