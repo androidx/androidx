@@ -20,7 +20,7 @@ import androidx.annotation.MainThread
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
-import androidx.savedstate.getValue
+import androidx.savedstate.SavedStateValue
 import androidx.savedstate.read
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,22 +32,27 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
 
     constructor(initialState: Map<String, Any?> = emptyMap()) : this(SavedStateContainer()) {
         for ((key, value) in initialState) {
-            container[key] = SimpleSavedStateValue(initialValue = unwrapSavedStateValue(value))
+            container.putSavedStateValue(
+                key,
+                SimpleSavedStateValue(initialValue = unwrapSavedStateValue(value)),
+            )
         }
     }
 
     fun asContainer(): SavedStateContainer = container
 
     fun getOrCreateContainer(key: String): SavedStateContainer {
-        val existing = container.get<Any?>(key)
+        val existing = container.getSavedStateValue<Any?, SavedStateValue<Any?>>(key)
         if (existing is SimpleSavedStateValue<*>) {
             val savedState = existing.value as? SavedState
-            container.remove<Any?>(key)
+            container.removeSavedStateValue<Any?, SavedStateValue<Any?>>(key)
             return container.getOrCreateContainer(key).also { childContainer ->
                 savedState?.read {
                     for ((childKey, childValue) in toMap()) {
-                        childContainer[childKey] =
-                            SimpleSavedStateValue(initialValue = unwrapSavedStateValue(childValue))
+                        childContainer.putSavedStateValue(
+                            childKey,
+                            SimpleSavedStateValue(initialValue = unwrapSavedStateValue(childValue)),
+                        )
                     }
                 }
             }
@@ -63,7 +68,7 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
         // behavior where this only returns true once a value is associated with the key
         // (while still returning true for explicit null values in SimpleSavedStateValue or
         // StateFlowSavedStateValue), we make sure the value is set for the provider to return true.
-        val savedStateValue = container.get<Any?>(key)
+        val savedStateValue = container.getSavedStateValue<Any?, SavedStateValue<Any?>>(key)
         return savedStateValue !is SavedStateProviderSavedStateValue ||
             savedStateValue.value != null
     }
@@ -75,22 +80,23 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
 
     @MainThread
     fun <T> getMutableStateFlow(key: String, initialValue: T): MutableStateFlow<T> {
+        val existing = container.getSavedStateValue<T, SavedStateValue<T>>(key)
         val savedStateValue =
-            when (val existing = container.get<T>(key)) {
+            when (existing) {
                 is StateFlowSavedStateValue<T> -> existing
                 is SimpleSavedStateValue<T> -> {
                     StateFlowSavedStateValue(existing.value).also {
-                        container[key] = it
+                        container.putSavedStateValue(key, it)
                     }
                 }
                 null -> {
                     StateFlowSavedStateValue(initialValue).also {
-                        container[key] = it
+                        container.putSavedStateValue(key, it)
                     }
                 }
                 else -> {
                     StateFlowSavedStateValue(get(key) ?: initialValue).also {
-                        container[key] = it
+                        container.putSavedStateValue(key, it)
                     }
                 }
             }
@@ -102,8 +108,8 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
     @MainThread
     operator fun <T> get(key: String): T? {
         return try {
-            container.get<T>(key)?.value
-        } catch (_: ClassCastException) {
+            container.getSavedStateValue<T, SavedStateValue<T>>(key)?.value
+        } catch (e: ClassCastException) {
             // Instead of failing on ClassCastException, we remove the value from the
             // SavedStateHandle and return null.
             remove<T>(key)
@@ -113,7 +119,8 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
 
     @MainThread
     operator fun <T> set(key: String, value: T?) {
-        when (val currentSavedStateValue = container.get<T?>(key)) {
+        val currentSavedStateValue = container.getSavedStateValue<T?, SavedStateValue<T?>>(key)
+        when (currentSavedStateValue) {
             is SimpleSavedStateValue<T?> -> {
                 currentSavedStateValue.value = value
             }
@@ -127,7 +134,7 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
             }
 
             null -> {
-                container[key] = SimpleSavedStateValue(initialValue = value)
+                container.putSavedStateValue(key, SimpleSavedStateValue(initialValue = value))
             }
         }
     }
@@ -135,20 +142,24 @@ internal class SavedStateHandleImpl(val container: SavedStateContainer) {
     @MainThread
     fun <T> remove(key: String): T? {
         val latestValue = get<T>(key)
-        container.remove<T>(key)
+        container.removeSavedStateValue<T, SavedStateValue<T>>(key)
         return latestValue
     }
 
     @MainThread
     fun setSavedStateProvider(key: String, provider: SavedStateProvider) {
-        container[key] = SavedStateProviderSavedStateValue(value = get(key), provider = provider)
+        container.putSavedStateValue(
+            key,
+            SavedStateProviderSavedStateValue(value = get(key), provider = provider),
+        )
     }
 
     @MainThread
     fun clearSavedStateProvider(key: String) {
-        val removed by container.remove<SavedState?>(key)
-        if (removed != null) {
-            set(key, removed)
+        val removed =
+            container.removeSavedStateValue<SavedState?, SavedStateProviderSavedStateValue>(key)
+        if (removed?.value != null) {
+            set(key, removed.value)
         }
     }
 }
