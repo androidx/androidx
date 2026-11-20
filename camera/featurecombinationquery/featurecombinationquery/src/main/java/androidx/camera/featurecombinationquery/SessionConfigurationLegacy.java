@@ -62,7 +62,7 @@ public class SessionConfigurationLegacy {
     }
 
     /**
-     * @return the configured output configurations.
+     * Returns the configured output configurations.
      */
     @NonNull
     public List<OutputConfiguration> getOutputConfigurations() {
@@ -70,7 +70,7 @@ public class SessionConfigurationLegacy {
     }
 
     /**
-     * @return the associated session parameters.
+     * Returns the associated session parameters.
      */
     @NonNull
     public SessionParametersLegacy getSessionParameters() {
