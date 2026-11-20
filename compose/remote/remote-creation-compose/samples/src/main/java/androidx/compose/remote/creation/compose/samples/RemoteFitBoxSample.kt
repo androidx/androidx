@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.samples
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
@@ -63,10 +62,7 @@ fun RemoteFitBoxSample() {
 
         // Parent container that constrains the available size
         RemoteBox(modifier = RemoteModifier.size(containerSize).background(Color.LightGray.rc)) {
-            RemoteFitBox(
-                horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                verticalArrangement = RemoteArrangement.Center,
-            ) {
+            RemoteFitBox(contentAlignment = RemoteAlignment.Center) {
                 // Child 1: Large, fits in 200.rdp but not 100.rdp
                 RemoteBox(
                     modifier = RemoteModifier.size(150.rdp).background(Color.Red.rc),

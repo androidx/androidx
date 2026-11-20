@@ -47,13 +47,13 @@ internal class OffsetModifier(
         with(this as InternalRemoteStateScope) {
             val resolvedX =
                 if (densityBehavior == RemoteDensityBehavior.Dp) {
-                    xDp?.value ?: (x / remoteDensity.density)
+                    xDp?.value ?: (x / density.density)
                 } else {
                     x
                 }
             val resolvedY =
                 if (densityBehavior == RemoteDensityBehavior.Dp) {
-                    yDp?.value ?: (y / remoteDensity.density)
+                    yDp?.value ?: (y / density.density)
                 } else {
                     y
                 }

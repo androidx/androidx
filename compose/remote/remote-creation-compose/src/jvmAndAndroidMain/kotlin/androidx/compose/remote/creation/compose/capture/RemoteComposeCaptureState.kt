@@ -48,6 +48,9 @@ public open class RemoteComposeCaptureState : RemoteComposeCreationState, Intern
 
     public val creationDisplayInfo: RemoteCreationDisplayInfo
     public val profile: Profile
+    public final override val density: RemoteDensity
+        get() = remoteDensity
+
     public final override var layoutDirection: RemoteLayoutDirection
 
     public final override val densityBehavior: RemoteDensityBehavior

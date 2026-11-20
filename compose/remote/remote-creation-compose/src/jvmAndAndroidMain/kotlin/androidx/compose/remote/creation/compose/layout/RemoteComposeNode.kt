@@ -77,7 +77,7 @@ internal abstract class RemoteComposeNode : RemoteComponentTokenProvider {
     fun overriddenScope(scope: RemoteStateScope): RemoteStateScope {
         return OverriddenScope(
             parentScope = scope,
-            remoteDensity = remoteDensity,
+            density = remoteDensity,
             layoutDirection = layoutDirection,
             node = this,
         )
@@ -356,7 +356,7 @@ internal fun shouldReverse(
 
 internal class OverriddenScope(
     override val parentScope: RemoteStateScope,
-    override val remoteDensity: RemoteDensity,
+    override val density: RemoteDensity,
     override val layoutDirection: RemoteLayoutDirection,
     val node: RemoteComposeNode,
 ) : InternalRemoteStateScope {

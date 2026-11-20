@@ -22,16 +22,15 @@ import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
 
 internal class RemoteFitBoxNode : RemoteLayoutNode() {
-    var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
-    var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
+    var contentAlignment: RemoteAlignment = RemoteAlignment.Center
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(remoteCanvas)
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startFitBox(
             recordingModifier,
-            horizontalAlignment.toRemote(layoutDirection),
-            verticalArrangement.toRemote(),
+            contentAlignment.horizontal.toRemote(layoutDirection),
+            contentAlignment.vertical.toRemote(),
         )
         renderChildren(creationState, remoteCanvas)
         creationState.document.endFitBox()
@@ -49,37 +48,29 @@ internal class RemoteFitBoxNode : RemoteLayoutNode() {
  * - Matches container dimensions to the measured size of the selected child.
  * - Hides completely (`GONE`) if no child fits within the constraints.
  *
- * Unlike [RemoteBox], which accepts a single [RemoteAlignment], [RemoteFitBox] exposes separate
- * [horizontalAlignment] and [verticalArrangement] parameters to match the underlying fit-box layout
- * semantics.
- *
- * Interactive example switching container constraints so [RemoteFitBox] selects the fitting child:
+ * Interactive example switching container constraints so `RemoteFitBox` selects the fitting child:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteFitBoxSample
  * @param modifier modifier applied to this layout
- * @param horizontalAlignment horizontal alignment for children
- * @param verticalArrangement vertical arrangement for children
- * @param content composable children to lay out inside this [RemoteFitBox]
+ * @param contentAlignment default alignment inside the layout
+ * @param content composable children to lay out inside this `RemoteFitBox`, which have access to
+ *   [RemoteBoxScope]
  */
 @RemoteComposable
 @Composable
 public fun RemoteFitBox(
     modifier: RemoteModifier = RemoteModifier,
-    horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.CenterHorizontally,
-    verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Center,
-    content: @RemoteComposable @Composable () -> Unit,
+    contentAlignment: RemoteAlignment = RemoteAlignment.Center,
+    content: @RemoteComposable @Composable RemoteBoxScope.() -> Unit,
 ) {
     RemoteLayoutNode(
         factory = ::RemoteFitBoxNode,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }
-            set(horizontalAlignment) { nodeHorizontalAlignment ->
-                this.horizontalAlignment = nodeHorizontalAlignment
-            }
-            set(verticalArrangement) { nodeVerticalArrangement ->
-                this.verticalArrangement = nodeVerticalArrangement
+            set(contentAlignment) { nodeContentAlignment ->
+                this.contentAlignment = nodeContentAlignment
             }
         },
-        content = content,
+        content = { RemoteBoxScopeInstance.content() },
     )
 }

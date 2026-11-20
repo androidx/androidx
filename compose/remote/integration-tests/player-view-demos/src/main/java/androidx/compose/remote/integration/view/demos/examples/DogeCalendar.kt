@@ -511,7 +511,7 @@ private fun DogeListItemRow(
 
             RemoteFitBox(
                 modifier = RemoteModifier.weight(1f.rf).padding(start = 14.rdp, end = 8.rdp),
-                horizontalAlignment = RemoteAlignment.Start,
+                contentAlignment = RemoteAlignment.CenterStart,
             ) {
                 arrayOf(15.rsp, 13.rsp, 11.rsp, 9.rsp).forEach { size ->
                     RemoteText(

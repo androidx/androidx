@@ -17,30 +17,19 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
-import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.CollapsiblePriorityModifier
-import androidx.compose.remote.creation.compose.modifier.HeightModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.Stable
 
 /** Scope for the children of [RemoteCollapsibleColumn]. */
 @RemoteLayoutScopeMarker
 @Immutable
-public class RemoteCollapsibleColumnScope internal constructor() {
-    /**
-     * Sets the vertical weight of the child.
-     *
-     * @param weight The weight of the child.
-     * @return a [RemoteModifier] that assigns vertical [weight] to the child
-     */
-    public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
-        then(HeightModifier(Type.WEIGHT, weight))
-
+public sealed interface RemoteCollapsibleColumnScope : RemoteColumnScope {
     /**
      * Sets the collapsible priority of the child.
      *
@@ -51,13 +40,15 @@ public class RemoteCollapsibleColumnScope internal constructor() {
      * Example of assigning collapsible priorities to children in a [RemoteCollapsibleColumn]:
      *
      * @sample androidx.compose.remote.creation.compose.samples.RemoteCollapsibleColumnSample
-     * @param priority The priority of the child. Can be any float value; higher values are
-     *   prioritized to remain visible longer.
-     * @return a [RemoteModifier] that assigns vertical collapsible [priority] to the child
+     * @param priority priority of the child; higher values are prioritized to remain visible longer
+     * @return a [RemoteModifier] that assigns vertical collapsible `priority` to the child
      */
+    @Stable
     public fun RemoteModifier.collapsiblePriority(priority: Float): RemoteModifier =
         then(CollapsiblePriorityModifier(CollapsiblePriority.VERTICAL, RemoteFloat(priority)))
 }
+
+internal object RemoteCollapsibleColumnScopeInstance : RemoteCollapsibleColumnScope
 
 internal class RemoteCollapsibleColumnNode : RemoteLayoutNode() {
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
@@ -94,10 +85,10 @@ internal class RemoteCollapsibleColumnNode : RemoteLayoutNode() {
  * Example of hiding lower-priority children when vertical space is constrained:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteCollapsibleColumnSample
- * @param modifier The modifier to apply to this layout.
- * @param verticalArrangement The vertical arrangement of the children.
- * @param horizontalAlignment The horizontal alignment of the children.
- * @param content The children of the column.
+ * @param modifier modifier to apply to this layout
+ * @param verticalArrangement vertical arrangement of the children
+ * @param horizontalAlignment horizontal alignment of the children
+ * @param content children of the column
  */
 @RemoteComposable
 @Composable
@@ -107,7 +98,6 @@ public fun RemoteCollapsibleColumn(
     horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
     content: @RemoteComposable @Composable RemoteCollapsibleColumnScope.() -> Unit,
 ) {
-    val scope = remember { RemoteCollapsibleColumnScope() }
     RemoteLayoutNode(
         factory = ::RemoteCollapsibleColumnNode,
         update = {
@@ -119,6 +109,6 @@ public fun RemoteCollapsibleColumn(
                 this.verticalArrangement = nodeVerticalArrangement
             }
         },
-        content = { scope.content() },
+        content = { RemoteCollapsibleColumnScopeInstance.content() },
     )
 }

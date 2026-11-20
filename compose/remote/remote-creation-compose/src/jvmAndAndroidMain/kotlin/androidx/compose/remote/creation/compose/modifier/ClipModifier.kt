@@ -46,9 +46,7 @@ internal class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
                         val remoteSize = RemoteSize(component.width, component.height)
                         val radius =
                             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                                min(remoteSize.width, remoteSize.height) /
-                                    remoteDensity.density /
-                                    2f
+                                min(remoteSize.width, remoteSize.height) / density.density / 2f
                             } else {
                                 min(remoteSize.width, remoteSize.height) / 2f
                             }
@@ -65,16 +63,16 @@ internal class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
                         val isRtl = layoutDirection == RemoteLayoutDirection.Rtl
                         CoreRoundedRectShape(
                             (if (isRtl) shape.topEnd else shape.topStart)
-                                .toDimension(remoteSize, remoteDensity, densityBehavior)
+                                .toDimension(remoteSize, density, densityBehavior)
                                 .floatId,
                             (if (isRtl) shape.topStart else shape.topEnd)
-                                .toDimension(remoteSize, remoteDensity, densityBehavior)
+                                .toDimension(remoteSize, density, densityBehavior)
                                 .floatId,
                             (if (isRtl) shape.bottomEnd else shape.bottomStart)
-                                .toDimension(remoteSize, remoteDensity, densityBehavior)
+                                .toDimension(remoteSize, density, densityBehavior)
                                 .floatId,
                             (if (isRtl) shape.bottomStart else shape.bottomEnd)
-                                .toDimension(remoteSize, remoteDensity, densityBehavior)
+                                .toDimension(remoteSize, density, densityBehavior)
                                 .floatId,
                         )
                     }

@@ -35,32 +35,3 @@ internal class AlignByBaselineModifier() : RemoteModifier.Element {
         return AlignByModifier(FIRST_BASELINE)
     }
 }
-
-/**
- * Aligns this layout with sibling layouts in a `Row` by their shared baseline.
- *
- * This modifier is used to align layouts within a `Row` based on their first baseline. It is
- * particularly useful for aligning text-based elements to ensure their baselines match up, creating
- * a visually consistent layout.
- *
- * This is the remote equivalent of the `Modifier.alignByBaseline()` modifier in Jetpack Compose.
- *
- * Example usage within a remote `Row`:
- * ```
- * RemoteRow(
- *     modifier = RemoteModifier.fillMaxWidth()
- * ) {
- *     RemoteText(
- *         text = "First".rs,
- *         modifier = RemoteModifier.alignByBaseline()
- *     )
- *     RemoteText(
- *         text = "Second".rs,
- *         modifier = RemoteModifier.alignByBaseline()
- *     )
- * }
- * ```
- *
- * @return a [RemoteModifier] that aligns the layout by its first baseline
- */
-public fun RemoteModifier.alignByBaseline(): RemoteModifier = then(AlignByBaselineModifier())

@@ -51,8 +51,8 @@ class RemoteTextUnitTest {
 
         assertThat(remoteTextUnit.value).isEqualTo(remoteFloat)
         assertThat(remoteTextUnit.type).isEqualTo(RemoteTextUnitType.Sp)
-        assertThat(remoteTextUnit.asConstantTextUnitOrNull()).isEqualTo(floatValue.sp)
-        assertThat(remoteTextUnit.asConstantTextUnit()).isEqualTo(floatValue.sp)
+        assertThat(remoteTextUnit.toConstantTextUnitOrNull()).isEqualTo(floatValue.sp)
+        assertThat(remoteTextUnit.toConstantTextUnit()).isEqualTo(floatValue.sp)
     }
 
     @Test

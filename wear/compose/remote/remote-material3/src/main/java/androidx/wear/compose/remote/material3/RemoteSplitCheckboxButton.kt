@@ -697,7 +697,7 @@ internal fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: Remo
         shape.createOutline(
             size = RemoteSize(width, height),
             layoutDirection = layoutDirection,
-            density = remoteDensity,
+            density = density,
         ),
         RemotePaint {
             style = RemotePaintingStyle.Fill

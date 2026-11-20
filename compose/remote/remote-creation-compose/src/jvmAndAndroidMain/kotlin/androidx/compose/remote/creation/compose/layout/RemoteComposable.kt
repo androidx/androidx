@@ -22,7 +22,7 @@ import androidx.compose.runtime.ComposableTargetMarker
  * An annotation that can be used to mark a composable function as being expected to be used in a
  * composable function that is also marked or inferred to be marked as a [RemoteComposable].
  *
- * Content marked with [RemoteComposable] will be recorded into a Remote Compose document during the
+ * Content marked with `RemoteComposable` will be recorded into a Remote Compose document during the
  * recording phase. This document can then be transmitted and played back by a Remote Compose
  * Player, potentially on a different device or process.
  */

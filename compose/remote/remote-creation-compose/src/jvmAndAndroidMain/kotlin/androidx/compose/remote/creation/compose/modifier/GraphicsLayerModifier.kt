@@ -167,9 +167,7 @@ internal class GraphicsLayerModifier(
                     )
                     layer.setFloatAttribute(
                         GraphicsLayerModifierOperation.SHAPE_RADIUS,
-                        shape.topStart
-                            .toDimension(remoteSize, remoteDensity, densityBehavior)
-                            .floatId,
+                        shape.topStart.toDimension(remoteSize, density, densityBehavior).floatId,
                     )
                 }
             }

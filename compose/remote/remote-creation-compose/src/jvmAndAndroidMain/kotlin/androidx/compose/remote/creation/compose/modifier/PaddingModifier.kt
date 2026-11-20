@@ -84,28 +84,28 @@ internal class PaddingModifier(
 
 internal fun PaddingModifier.resolveStart(scope: RemoteStateScope): RemoteFloat =
     if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
-        startDp?.value ?: (start / scope.remoteDensity.density)
+        startDp?.value ?: (start / scope.density.density)
     } else {
         start
     }
 
 internal fun PaddingModifier.resolveTop(scope: RemoteStateScope): RemoteFloat =
     if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
-        topDp?.value ?: (top / scope.remoteDensity.density)
+        topDp?.value ?: (top / scope.density.density)
     } else {
         top
     }
 
 internal fun PaddingModifier.resolveEnd(scope: RemoteStateScope): RemoteFloat =
     if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
-        endDp?.value ?: (end / scope.remoteDensity.density)
+        endDp?.value ?: (end / scope.density.density)
     } else {
         end
     }
 
 internal fun PaddingModifier.resolveBottom(scope: RemoteStateScope): RemoteFloat =
     if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
-        bottomDp?.value ?: (bottom / scope.remoteDensity.density)
+        bottomDp?.value ?: (bottom / scope.density.density)
     } else {
         bottom
     }

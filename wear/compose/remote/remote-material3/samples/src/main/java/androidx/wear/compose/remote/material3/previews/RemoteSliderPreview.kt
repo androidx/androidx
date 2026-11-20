@@ -137,5 +137,5 @@ private fun Container(
     modifier: RemoteModifier = RemoteModifier.fillMaxSize().padding(horizontal = 10.rdp),
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
+    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = { content() })
 }

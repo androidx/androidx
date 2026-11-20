@@ -18,30 +18,43 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.modifier.AlignByBaselineModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.WidthModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.Stable
 
 /** Receiver scope used by [RemoteRow] for its content. */
 @RemoteLayoutScopeMarker
 @Immutable
-public class RemoteRowScope internal constructor() {
+public sealed interface RemoteRowScope {
     /**
      * Sets the horizontal weight of this element relative to its siblings in the [RemoteRow].
      *
-     * Example of distributing width proportionally across children using [weight]:
+     * Example of distributing width proportionally across children using `weight`:
      *
      * @sample androidx.compose.remote.creation.compose.samples.RemoteRowWeightSample
-     * @param weight The proportional width to allocate to this element.
-     * @return a [RemoteModifier] that allocates width proportional to [weight]
+     * @param weight proportional width to allocate to this element
+     * @return a [RemoteModifier] that allocates width proportional to `weight`
      */
+    @Stable
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(WidthModifier(Type.WEIGHT, weight))
+
+    /**
+     * Aligns this layout with sibling layouts in a [RemoteRow] by their shared first baseline.
+     *
+     * @sample androidx.compose.remote.creation.compose.samples.RemoteRowAlignByBaselineSample
+     * @return a [RemoteModifier] that aligns the layout by its first baseline
+     */
+    @Stable
+    public fun RemoteModifier.alignByBaseline(): RemoteModifier = then(AlignByBaselineModifier())
 }
+
+internal object RemoteRowScopeInstance : RemoteRowScope
 
 internal class RemoteRowNode : RemoteLayoutNode() {
     var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
@@ -80,10 +93,10 @@ internal class RemoteRowNode : RemoteLayoutNode() {
  * Example of distributing horizontal space using [RemoteRowScope.weight]:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteRowWeightSample
- * @param modifier The modifier to be applied to this row.
- * @param horizontalArrangement The horizontal arrangement of the children.
- * @param verticalAlignment The vertical alignment of the children.
- * @param content The content of the row, which has access to [RemoteRowScope].
+ * @param modifier modifier to be applied to this row
+ * @param horizontalArrangement horizontal arrangement of the children
+ * @param verticalAlignment vertical alignment of the children
+ * @param content content of the row, which has access to [RemoteRowScope]
  */
 @RemoteComposable
 @Composable
@@ -93,7 +106,6 @@ public fun RemoteRow(
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
     content: @RemoteComposable @Composable RemoteRowScope.() -> Unit,
 ) {
-    val scope = remember { RemoteRowScope() }
     RemoteLayoutNode(
         factory = ::RemoteRowNode,
         update = {
@@ -105,6 +117,6 @@ public fun RemoteRow(
                 this.verticalAlignment = nodeVerticalAlignment
             }
         },
-        content = { scope.content() },
+        content = { RemoteRowScopeInstance.content() },
     )
 }

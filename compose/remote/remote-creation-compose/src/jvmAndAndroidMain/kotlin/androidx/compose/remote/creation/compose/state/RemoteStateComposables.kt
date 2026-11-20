@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("RemoteStateKt")
-
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
@@ -38,12 +36,12 @@ import kotlin.enums.enumEntries
 // ==============================================================================================
 
 /**
- * Remembers a named remote boolean expression.
+ * Remembers a named [RemoteBoolean] initialized with [defaultValue].
  *
- * @param name A unique name to identify this state within its [domain].
- * @param defaultValue The initial [Boolean] value.
- * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
- * @return A [RemoteBoolean] instance representing the named expression.
+ * @param name unique name identifying this state within its [domain]
+ * @param defaultValue initial [Boolean] value
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
+ * @return [RemoteBoolean] bound to the named boolean state
  */
 @Composable
 @RemoteComposable
@@ -60,12 +58,12 @@ public fun rememberNamedRemoteBoolean(
 // ==============================================================================================
 
 /**
- * Remembers a named remote string expression.
+ * Remembers a named [RemoteString] initialized with [defaultValue].
  *
- * @param name The unique name for this remote string.
- * @param defaultValue The initial [String] value for this remote string.
- * @param domain The domain of the named string (defaults to [RemoteValue.Domain.User]).
- * @return A [RemoteString] representing the named remote string expression.
+ * @param name unique name identifying this state within its [domain]
+ * @param defaultValue initial [String] value
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
+ * @return [RemoteString] bound to the named string state
  */
 @RemoteComposable
 @Composable
@@ -82,12 +80,12 @@ public fun rememberNamedRemoteString(
 // ==============================================================================================
 
 /**
- * Remembers a named remote long expression.
+ * Remembers a named [RemoteLong] initialized with [defaultValue].
  *
- * @param name The unique name for this remote long.
- * @param defaultValue The initial long value.
- * @param domain The domain of the named long (defaults to [RemoteValue.Domain.User]).
- * @return A [RemoteLong] representing the named remote long expression.
+ * @param name unique name identifying this state within its [domain]
+ * @param defaultValue initial [Long] value
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
+ * @return [RemoteLong] bound to the named long state
  */
 @RemoteComposable
 @Composable
@@ -104,12 +102,16 @@ public fun rememberNamedRemoteLong(
 // ==============================================================================================
 
 /**
- * Remembers a named remote enum expression.
+ * Remembers a named [RemoteEnum] initialized with [defaultValue].
  *
- * @param name A unique name to identify this state within its [domain].
- * @param defaultValue The initial [Enum] value.
- * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
- * @return A [RemoteEnum] instance representing the named expression.
+ * The enum value is stored in the remote document as a named integer holding the enum entry's
+ * [Enum.ordinal]. Hosts updating this value by [name] should supply the target entry's ordinal.
+ *
+ * @param T the [Enum] type represented by this state
+ * @param name unique name identifying this state within its [domain]
+ * @param defaultValue initial [Enum] value
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
+ * @return [RemoteEnum] backed by the named integer ordinal state
  */
 @Composable
 @RemoteComposable
@@ -122,13 +124,17 @@ public inline fun <reified T : Enum<T>> rememberNamedRemoteEnum(
 }
 
 /**
- * Remembers a named [RemoteEnum] expression using the given [enumEntries].
+ * Remembers a named [RemoteEnum] using the given [enumEntries].
  *
+ * The enum value is stored in the remote document as a named integer holding the enum entry's
+ * [Enum.ordinal]. Hosts updating this value by [name] should supply the target entry's ordinal.
+ *
+ * @param T the [Enum] type represented by this state
  * @param name unique name identifying this state within its [domain]
  * @param defaultValue initial [Enum] value
  * @param enumEntries [EnumEntries] containing all values of [T]
  * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
- * @return a [RemoteEnum] backed by the named state
+ * @return [RemoteEnum] backed by the named integer ordinal state
  */
 @Composable
 @RemoteComposable
@@ -250,12 +256,12 @@ public fun rememberNamedRemoteImageBitmap(
 // ==============================================================================================
 
 /**
- * Remembers a named remote integer expression.
+ * Remembers a named [RemoteInt] initialized with [defaultValue].
  *
- * @param name A unique name to identify this state within its [domain].
- * @param defaultValue The initial [Int] value.
- * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
- * @return A [RemoteInt] instance representing the named expression.
+ * @param name unique name identifying this state within its [domain]
+ * @param defaultValue initial [Int] value
+ * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
+ * @return [RemoteInt] bound to the named integer state
  */
 @Composable
 @RemoteComposable

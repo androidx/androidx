@@ -88,7 +88,7 @@ private fun Container(
     modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
+    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = { content() })
 }
 
 private val VolumeUp =

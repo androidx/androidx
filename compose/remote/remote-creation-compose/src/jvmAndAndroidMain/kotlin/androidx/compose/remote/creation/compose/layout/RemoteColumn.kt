@@ -24,24 +24,27 @@ import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.Stable
 
 /** Receiver scope used by [RemoteColumn] for its content. */
 @RemoteLayoutScopeMarker
 @Immutable
-public class RemoteColumnScope internal constructor() {
+public sealed interface RemoteColumnScope {
     /**
      * Sets the vertical weight of this element relative to its siblings in the [RemoteColumn].
      *
-     * Example of distributing height proportionally across children using [weight]:
+     * Example of distributing height proportionally across children using `weight`:
      *
      * @sample androidx.compose.remote.creation.compose.samples.RemoteColumnWeightSample
-     * @param weight The proportional height to allocate to this element.
-     * @return a [RemoteModifier] that allocates height proportional to [weight]
+     * @param weight proportional height to allocate to this element
+     * @return a [RemoteModifier] that allocates height proportional to `weight`
      */
+    @Stable
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, weight))
 }
+
+internal object RemoteColumnScopeInstance : RemoteColumnScope
 
 internal class RemoteColumnNode : RemoteLayoutNode() {
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
@@ -76,10 +79,10 @@ internal class RemoteColumnNode : RemoteLayoutNode() {
  * Example of distributing vertical space using [RemoteColumnScope.weight]:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteColumnWeightSample
- * @param modifier The modifier to be applied to this column.
- * @param verticalArrangement The vertical arrangement of the children.
- * @param horizontalAlignment The horizontal alignment of the children.
- * @param content The content of the column, which has access to [RemoteColumnScope].
+ * @param modifier modifier to be applied to this column
+ * @param verticalArrangement vertical arrangement of the children
+ * @param horizontalAlignment horizontal alignment of the children
+ * @param content content of the column, which has access to [RemoteColumnScope]
  */
 @RemoteComposable
 @Composable
@@ -89,7 +92,6 @@ public fun RemoteColumn(
     horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
     content: @RemoteComposable @Composable RemoteColumnScope.() -> Unit,
 ) {
-    val scope = remember { RemoteColumnScope() }
     RemoteLayoutNode(
         factory = ::RemoteColumnNode,
         update = {
@@ -101,6 +103,6 @@ public fun RemoteColumn(
                 this.horizontalAlignment = nodeHorizontalAlignment
             }
         },
-        content = { scope.content() },
+        content = { RemoteColumnScopeInstance.content() },
     )
 }

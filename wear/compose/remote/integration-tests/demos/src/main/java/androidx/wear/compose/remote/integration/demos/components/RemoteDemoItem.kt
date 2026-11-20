@@ -135,7 +135,7 @@ fun RemoteDemoItem(
                     RemoteBox(
                         modifier = RemoteModifier.fillMaxWidth().padding(8.rdp),
                         contentAlignment = RemoteAlignment.Center,
-                        content = content,
+                        content = { content() },
                     )
                 }
             }

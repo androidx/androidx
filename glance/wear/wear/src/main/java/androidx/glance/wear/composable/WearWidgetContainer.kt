@@ -74,7 +74,7 @@ internal fun WearWidgetContainer(
             modifier =
                 RemoteModifier.fillMaxSize()
                     .padding(horizontal = horizontalPadding, vertical = verticalPadding),
-            content = content,
+            content = { content() },
         )
     }
 }

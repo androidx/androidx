@@ -183,10 +183,10 @@ class RcPlayerFontSettingsScreenshotTest {
 
         runEmbeddedFontScreenshotTest(widthDp = 240, rowHeightDp = 40, rowCount = 3) {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                val textSizePx = 18f.rf * remoteDensity.density
-                val x = 8f.rf * remoteDensity.density
-                val rowHeightPx = 40f.rf * remoteDensity.density
-                val baselineOffsetPx = 26f.rf * remoteDensity.density
+                val textSizePx = 18f.rf * density.density
+                val x = 8f.rf * density.density
+                val rowHeightPx = 40f.rf * density.density
+                val baselineOffsetPx = 26f.rf * density.density
 
                 val paintThinCondensed = RemotePaint {
                     typeface = RemoteTypeface.Named("RobotoFlex")
@@ -238,10 +238,10 @@ class RcPlayerFontSettingsScreenshotTest {
 
         runEmbeddedFontScreenshotTest(widthDp = 240, rowHeightDp = 40, rowCount = 2) {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                val textSizePx = 20f.rf * remoteDensity.density
-                val x = 8f.rf * remoteDensity.density
-                val rowHeightPx = 40f.rf * remoteDensity.density
-                val baselineOffsetPx = 28f.rf * remoteDensity.density
+                val textSizePx = 20f.rf * density.density
+                val x = 8f.rf * density.density
+                val rowHeightPx = 40f.rf * density.density
+                val baselineOffsetPx = 28f.rf * density.density
 
                 val paintPnum = RemotePaint {
                     typeface = RemoteTypeface.Named("RobotoFlex")

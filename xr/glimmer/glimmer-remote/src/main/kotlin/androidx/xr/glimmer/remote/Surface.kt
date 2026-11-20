@@ -114,7 +114,7 @@ public fun RemoteModifier.surface(
         )
 
     return clip(shape).drawWithContent {
-        val outline = shape.createOutline(size, layoutDirection, remoteDensity)
+        val outline = shape.createOutline(size, layoutDirection, density)
 
         // 1. Background.
         drawBackground(outline = outline, focusProgress = focusProgress)

@@ -628,14 +628,14 @@ private fun RemoteDrawScope.drawBorder(
             shape.createOutline(
                 size = RemoteSize(width, height),
                 layoutDirection = layoutDirection,
-                density = remoteDensity,
+                density = density,
                 strokeWidth = strokeWidthPx,
             )
         } else {
             shape.createOutline(
                 size = RemoteSize(width, height),
                 layoutDirection = layoutDirection,
-                density = remoteDensity,
+                density = density,
             )
         }
     val paint = RemotePaint {
@@ -658,7 +658,7 @@ private fun RemoteDrawScope.drawSolidColorShape(
         shape.createOutline(
             size = RemoteSize(w, h),
             layoutDirection = layoutDirection,
-            density = remoteDensity,
+            density = density,
         ),
         RemotePaint {
             style = RemotePaintingStyle.Fill

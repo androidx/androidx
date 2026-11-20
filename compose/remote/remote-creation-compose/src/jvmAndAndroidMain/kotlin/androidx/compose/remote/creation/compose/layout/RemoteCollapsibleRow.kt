@@ -17,30 +17,19 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
-import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.CollapsiblePriorityModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.WidthModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.Stable
 
 /** Scope for the children of [RemoteCollapsibleRow]. */
 @RemoteLayoutScopeMarker
 @Immutable
-public class RemoteCollapsibleRowScope internal constructor() {
-    /**
-     * Sets the horizontal weight of the child.
-     *
-     * @param weight The weight of the child.
-     * @return a [RemoteModifier] that assigns horizontal [weight] to the child
-     */
-    public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
-        then(WidthModifier(Type.WEIGHT, weight))
-
+public sealed interface RemoteCollapsibleRowScope : RemoteRowScope {
     /**
      * Sets the collapsible priority of the child.
      *
@@ -51,13 +40,15 @@ public class RemoteCollapsibleRowScope internal constructor() {
      * Example of assigning collapsible priorities to children in a [RemoteCollapsibleRow]:
      *
      * @sample androidx.compose.remote.creation.compose.samples.RemoteCollapsibleRowSample
-     * @param priority The priority of the child. Can be any float value; higher values are
-     *   prioritized to remain visible longer.
-     * @return a [RemoteModifier] that assigns horizontal collapsible [priority] to the child
+     * @param priority priority of the child; higher values are prioritized to remain visible longer
+     * @return a [RemoteModifier] that assigns horizontal collapsible `priority` to the child
      */
+    @Stable
     public fun RemoteModifier.collapsiblePriority(priority: Float): RemoteModifier =
         then(CollapsiblePriorityModifier(CollapsiblePriority.HORIZONTAL, RemoteFloat(priority)))
 }
+
+internal object RemoteCollapsibleRowScopeInstance : RemoteCollapsibleRowScope
 
 internal class RemoteCollapsibleRowNode : RemoteLayoutNode() {
     var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
@@ -98,10 +89,10 @@ internal class RemoteCollapsibleRowNode : RemoteLayoutNode() {
  * Example of hiding lower-priority children when horizontal space is constrained:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteCollapsibleRowSample
- * @param modifier The modifier to apply to this layout.
- * @param horizontalArrangement The horizontal arrangement of the children.
- * @param verticalAlignment The vertical alignment of the children.
- * @param content The children of the row.
+ * @param modifier modifier to apply to this layout
+ * @param horizontalArrangement horizontal arrangement of the children
+ * @param verticalAlignment vertical alignment of the children
+ * @param content children of the row
  */
 @RemoteComposable
 @Composable
@@ -111,7 +102,6 @@ public fun RemoteCollapsibleRow(
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
     content: @RemoteComposable @Composable RemoteCollapsibleRowScope.() -> Unit,
 ) {
-    val scope = remember { RemoteCollapsibleRowScope() }
     RemoteLayoutNode(
         factory = ::RemoteCollapsibleRowNode,
         update = {
@@ -123,6 +113,6 @@ public fun RemoteCollapsibleRow(
                 this.verticalAlignment = nodeVerticalAlignment
             }
         },
-        content = { scope.content() },
+        content = { RemoteCollapsibleRowScopeInstance.content() },
     )
 }

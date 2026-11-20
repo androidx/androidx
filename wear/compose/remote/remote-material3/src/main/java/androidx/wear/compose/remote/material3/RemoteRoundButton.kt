@@ -114,7 +114,7 @@ internal fun RemoteRoundButton(
                 .clip(shape = pressAnimation.shape)
                 .clickable(onClick, enabled = enabled, role = role)
                 .semantics(mergeDescendants = true) { this.role = role },
-        content = content,
+        content = { content() },
     )
 }
 

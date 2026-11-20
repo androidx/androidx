@@ -177,6 +177,6 @@ private fun Stage(content: @Composable @RemoteComposable () -> Unit) {
     RemoteBox(
         modifier = RemoteModifier.fillMaxSize(),
         contentAlignment = RemoteAlignment.Center,
-        content = content,
+        content = { content() },
     )
 }

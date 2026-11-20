@@ -210,12 +210,12 @@ class RemoteCanvasScreenshotTest {
                 val paintDefault = RemotePaint {
                     typeface = RemoteTypeface.Default
                     color = RemoteColor.White
-                    textSize = 14.rf * remoteDensity.density
+                    textSize = 14.rf * density.density
                 }
                 val paintInconsolata = RemotePaint {
                     typeface = create("google:inconsolata")
                     color = RemoteColor.White
-                    textSize = 14f.rf * remoteDensity.density
+                    textSize = 14f.rf * density.density
                 }
                 drawText("Hello Default!".rs, 10f.rf, 40f.rf, paintDefault)
                 drawText("Hello Inconsolata!".rs, 10f.rf, 90f.rf, paintInconsolata)

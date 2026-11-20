@@ -205,7 +205,7 @@ class RemoteCollapsibleColumnTest {
     }
 
     private fun getPriorityModifier(priority: Float): RemoteModifier =
-        with(RemoteCollapsibleColumnScope()) { RemoteModifier.collapsiblePriority(priority) }
+        with(RemoteCollapsibleColumnScopeInstance) { RemoteModifier.collapsiblePriority(priority) }
 
     @RemoteComposable
     @Composable

@@ -44,6 +44,7 @@ internal val LocalRemoteComponentToken: ProvidableCompositionLocal<RemoteCompone
  *   draw commands).
  *
  * @return [RemoteComponent] bound to the current layout component in composition
+ * @throws IllegalStateException if called outside a RemoteCompose layout component
  */
 @Composable
 @RemoteComposable

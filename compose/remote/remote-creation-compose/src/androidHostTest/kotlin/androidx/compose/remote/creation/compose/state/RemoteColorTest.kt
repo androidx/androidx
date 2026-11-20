@@ -112,9 +112,36 @@ class RemoteColorTest {
 
     @Test
     fun extensionFunctionMatches() {
-        assertThat(Color.Black.rc.asConstantColor()).isEqualTo(Color.Black)
-        assertThat(Color.Transparent.rc.asConstantColor()).isEqualTo(Color.Transparent)
-        assertThat(RemoteColor(Color.Red).asConstantColorOrNull()).isEqualTo(Color.Red)
+        assertThat(Color.Black.rc.toConstantColor()).isEqualTo(Color.Black)
+        assertThat(Color.Transparent.rc.toConstantColor()).isEqualTo(Color.Transparent)
+        assertThat(RemoteColor(Color.Red).toConstantColorOrNull()).isEqualTo(Color.Red)
+    }
+
+    @Test
+    fun createThemedRemoteColor_unsupportedResource_throwsIllegalArgumentException() {
+        val invalidRes = 0x7f060000
+        try {
+            RemoteColor.createThemedRemoteColor(
+                lightColorRes = invalidRes,
+                darkColorRes = android.R.color.black,
+                lightFallback = Color.White,
+                darkFallback = Color.Black,
+            )
+            error("Expected IllegalArgumentException for unsupported lightColorRes")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e.message).contains("lightColorRes")
+        }
+        try {
+            RemoteColor.createThemedRemoteColor(
+                lightColorRes = android.R.color.black,
+                darkColorRes = invalidRes,
+                lightFallback = AndroidColor.WHITE,
+                darkFallback = AndroidColor.BLACK,
+            )
+            error("Expected IllegalArgumentException for unsupported darkColorRes")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e.message).contains("darkColorRes")
+        }
     }
 
     @Test
