@@ -42,10 +42,14 @@ import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.reset
@@ -137,6 +141,7 @@ class CameraCoordinatorAdapterTest {
             )
         )
     private lateinit var cameraCoordinatorAdapter: CameraCoordinatorAdapter
+    private lateinit var cameraRepository: CameraRepository
 
     @Before
     fun setUp() {
@@ -157,7 +162,7 @@ class CameraCoordinatorAdapterTest {
                 insertCamera(CameraSelector.LENS_FACING_BACK, "1", { mockCameraInternalAdapter1 })
                 insertCamera(CameraSelector.LENS_FACING_BACK, "2", { mockCameraInternalAdapter2 })
             }
-        val cameraRepository = CameraRepository().apply { init(fakeCameraFactory) }
+        cameraRepository = CameraRepository().apply { init(fakeCameraFactory) }
         cameraCoordinatorAdapter.init(cameraRepository)
     }
 
@@ -329,9 +334,193 @@ class CameraCoordinatorAdapterTest {
         reset(mockCameraInternalAdapter0)
         reset(mockCameraInternalAdapter1)
         cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_UNSPECIFIED
+        verify(mockCameraInternalAdapter0).setCameraGraphCreationMode(createImmediately = true)
+        verify(mockCameraInternalAdapter1).setCameraGraphCreationMode(createImmediately = true)
         verify(mockCameraInternalAdapter0, never()).resumeDeferredCameraGraphCreation(any())
         verify(mockCameraInternalAdapter1, never()).resumeDeferredCameraGraphCreation(any())
     }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun setCameraOperatingMode_single_clearsActiveInfos_beforeInit() {
+        val adapter = CameraCoordinatorAdapter(cameraPipe, cameraDevices)
+        adapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        adapter.activeConcurrentCameraInfos = listOf(cameraInfo("0"), cameraInfo("1"))
+
+        adapter.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
+
+        assertThat(adapter.activeConcurrentCameraInfos).isEmpty()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun setCameraOperatingMode_leavingConcurrent_clearsPendingCameraIds() {
+        stubDeferredCameraGraphConfigs()
+        cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("2"))
+        cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_UNSPECIFIED
+
+        cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinatorAdapter.activeConcurrentCameraInfos =
+            listOf(cameraInfo("0"), cameraInfo("1"))
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("0"))
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("1"))
+
+        // The stale camera "2" must not block the new concurrent session.
+        verify(mockCameraInternalAdapter0).resumeDeferredCameraGraphCreation(any())
+        verify(mockCameraInternalAdapter1).resumeDeferredCameraGraphCreation(any())
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun addPendingCameraInfo_twiceThenRemoveOnce_doesNotStartGraph() {
+        stubDeferredCameraGraphConfigs()
+        cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinatorAdapter.activeConcurrentCameraInfos =
+            listOf(cameraInfo("0"), cameraInfo("1"))
+
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("0"))
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("0"))
+        cameraCoordinatorAdapter.removePendingCameraInfo(cameraInfo("0"))
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("1"))
+
+        verify(mockCameraInternalAdapter0, never()).resumeDeferredCameraGraphCreation(any())
+        verify(mockCameraInternalAdapter1, never()).resumeDeferredCameraGraphCreation(any())
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun startConcurrentGraphs_doesNotHoldCoordinatorLock_whenCallingCameraInternal() {
+        // Simulates UseCaseManager.close() on another thread, which holds UseCaseManager.lock
+        // and then takes the coordinator lock via removePendingCameraInfo().
+        var lockAvailableInConfig = false
+        var lockAvailableInResume = false
+        whenever(mockCameraInternalAdapter0.getDeferredCameraGraphConfig()).thenAnswer {
+            lockAvailableInConfig = isCoordinatorLockAvailableFromAnotherThread()
+            mockCameraGraphConfig0
+        }
+        whenever(mockCameraInternalAdapter1.getDeferredCameraGraphConfig())
+            .thenReturn(mockCameraGraphConfig1)
+        doAnswer { lockAvailableInResume = isCoordinatorLockAvailableFromAnotherThread() }
+            .whenever(mockCameraInternalAdapter1)
+            .resumeDeferredCameraGraphCreation(any())
+        cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinatorAdapter.activeConcurrentCameraInfos =
+            listOf(cameraInfo("0"), cameraInfo("1"))
+
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("0"))
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("1"))
+
+        assertThat(lockAvailableInConfig).isTrue()
+        assertThat(lockAvailableInResume).isTrue()
+        verify(mockCameraInternalAdapter0).resumeDeferredCameraGraphCreation(any())
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun startConcurrentGraphs_dropsGraphs_whenModeChangesDuringCreation() {
+        whenever(mockCameraInternalAdapter0.getDeferredCameraGraphConfig())
+            .thenReturn(mockCameraGraphConfig0)
+        whenever(mockCameraInternalAdapter1.getDeferredCameraGraphConfig()).thenAnswer {
+            cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
+            mockCameraGraphConfig1
+        }
+        cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinatorAdapter.activeConcurrentCameraInfos =
+            listOf(cameraInfo("0"), cameraInfo("1"))
+
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("0"))
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("1"))
+
+        verify(mockCameraInternalAdapter0, never()).resumeDeferredCameraGraphCreation(any())
+        verify(mockCameraInternalAdapter1, never()).resumeDeferredCameraGraphCreation(any())
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun startConcurrentGraphs_abortsCleanly_whenModeChangeClearsDeferredConfig() {
+        var deferredConfig1: CameraGraph.Config? = mockCameraGraphConfig1
+        whenever(mockCameraInternalAdapter1.getDeferredCameraGraphConfig()).thenAnswer {
+            deferredConfig1
+        }
+        doAnswer { invocation ->
+                if (invocation.getArgument<Boolean>(0)) {
+                    deferredConfig1 = null
+                }
+            }
+            .whenever(mockCameraInternalAdapter1)
+            .setCameraGraphCreationMode(any())
+        whenever(mockCameraInternalAdapter0.getDeferredCameraGraphConfig()).thenAnswer {
+            // Simulate another thread switching out of concurrent mode while config 0 is read,
+            // clearing camera 1's deferred config before it is read.
+            cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
+            mockCameraGraphConfig0
+        }
+        cameraCoordinatorAdapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinatorAdapter.activeConcurrentCameraInfos =
+            listOf(cameraInfo("0"), cameraInfo("1"))
+
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("0"))
+        cameraCoordinatorAdapter.addPendingCameraInfo(cameraInfo("1"))
+
+        verify(mockCameraInternalAdapter0, never()).resumeDeferredCameraGraphCreation(any())
+        verify(mockCameraInternalAdapter1, never()).resumeDeferredCameraGraphCreation(any())
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun addPendingCameraInfo_beforeInit_keepsPendingCameraIds() {
+        stubDeferredCameraGraphConfigs()
+        val adapter = CameraCoordinatorAdapter(cameraPipe, cameraDevices)
+        adapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        adapter.activeConcurrentCameraInfos = listOf(cameraInfo("0"), cameraInfo("1"))
+        adapter.addPendingCameraInfo(cameraInfo("0"))
+        adapter.addPendingCameraInfo(cameraInfo("1"))
+
+        adapter.init(cameraRepository)
+        adapter.activeConcurrentCameraInfos = listOf(cameraInfo("0"), cameraInfo("1"))
+
+        verify(mockCameraInternalAdapter0).resumeDeferredCameraGraphCreation(any())
+        verify(mockCameraInternalAdapter1).resumeDeferredCameraGraphCreation(any())
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun addPendingCameraInfo_nullCameraPipe_doesNotStartGraph() {
+        stubDeferredCameraGraphConfigs()
+        val adapter = CameraCoordinatorAdapter(null, cameraDevices).apply { init(cameraRepository) }
+        adapter.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        adapter.activeConcurrentCameraInfos = listOf(cameraInfo("0"), cameraInfo("1"))
+
+        adapter.addPendingCameraInfo(cameraInfo("0"))
+        adapter.addPendingCameraInfo(cameraInfo("1"))
+
+        verify(mockCameraInternalAdapter0, never()).resumeDeferredCameraGraphCreation(any())
+        verify(mockCameraInternalAdapter1, never()).resumeDeferredCameraGraphCreation(any())
+    }
+
+    /** Returns whether another thread can take the coordinator lock within a bounded time. */
+    private fun isCoordinatorLockAvailableFromAnotherThread(): Boolean {
+        val otherCameraInfo = cameraInfo("2")
+        val acquired = CountDownLatch(1)
+        thread {
+            cameraCoordinatorAdapter.removePendingCameraInfo(otherCameraInfo)
+            acquired.countDown()
+        }
+        return acquired.await(2, TimeUnit.SECONDS)
+    }
+
+    private fun stubDeferredCameraGraphConfigs() {
+        whenever(mockCameraInternalAdapter0.getDeferredCameraGraphConfig())
+            .thenReturn(mockCameraGraphConfig0)
+        whenever(mockCameraInternalAdapter1.getDeferredCameraGraphConfig())
+            .thenReturn(mockCameraGraphConfig1)
+        whenever(mockCameraInternalAdapter2.getDeferredCameraGraphConfig())
+            .thenReturn(mockCameraGraphConfig2)
+    }
+
+    private fun cameraInfo(cameraId: String) =
+        FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId(cameraId))
 
     @Test
     fun shutdown() {
@@ -351,13 +540,11 @@ class CameraCoordinatorAdapterTest {
 
         cameraCoordinatorAdapter.shutdown()
 
-        assertThat(cameraCoordinatorAdapter.cameraRepository).isNull()
         assertThat(cameraCoordinatorAdapter.activeConcurrentCameraInfos).isEmpty()
-        assertThat(cameraCoordinatorAdapter.concurrentCameraIdMap).isEmpty()
-        assertThat(cameraCoordinatorAdapter.concurrentCameraIdsSet).isEmpty()
+        assertThat(cameraCoordinatorAdapter.concurrentCameraSelectors).isEmpty()
+        assertThat(cameraCoordinatorAdapter.getPairedConcurrentCameraId("0")).isNull()
         assertThat(cameraCoordinatorAdapter.cameraOperatingMode)
             .isEqualTo(CAMERA_OPERATING_MODE_UNSPECIFIED)
-        assertThat(cameraCoordinatorAdapter.concurrentModeOn).isFalse()
     }
 
     @Test
