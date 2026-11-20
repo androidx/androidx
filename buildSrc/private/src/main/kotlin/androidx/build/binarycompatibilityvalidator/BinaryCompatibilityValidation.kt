@@ -35,6 +35,7 @@ import androidx.build.nativeTargets
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.utils.appendCapitalized
+import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -63,6 +64,7 @@ internal const val CURRENT_API_FILE_NAME = "current.txt"
 private const val IGNORE_FILE_NAME = "current.ignore"
 private const val ABI_GROUP_NAME = "abi"
 private const val CROSS_COMPILATION_FLAG = "kotlin.native.enableKlibsCrossCompilation"
+internal const val NON_PUBLIC_MARKERS_FILE = "buildSrc/bcv-non-public-markers.txt"
 
 class BinaryCompatibilityValidation(
     val project: Project,
@@ -267,7 +269,7 @@ class BinaryCompatibilityValidation(
             // NOT the core Kotlin compilation tasks in the same build.
             it.runtimeClasspath.from(runtimeClasspath)
             it.abiFile.set(mergeFile)
-            it.excludedAnnotatedWith.addAll(nonPublicMarkers)
+            it.excludedAnnotatedWith.addAll(nonPublicMarkersProvider())
             it.klibs.set(
                 kotlinMultiplatformExtension.nativeTargets().map { target ->
                     val klibTarget =
@@ -328,86 +330,18 @@ private fun runHostCompatibilityChecks(
     }
 }
 
-// Not ideal to have a list instead of a pattern to match but this is all the API supports right now
-// https://github.com/Kotlin/binary-compatibility-validator/issues/280
-private val nonPublicMarkers =
-    setOf(
-        "androidx.annotation.Experimental",
-        "androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport",
-        "androidx.benchmark.ExperimentalBenchmarkConfigApi",
-        "androidx.benchmark.ExperimentalBenchmarkStateApi",
-        "androidx.benchmark.ExperimentalBlackHoleApi",
-        "androidx.benchmark.macro.ExperimentalMacrobenchmarkApi",
-        "androidx.benchmark.macro.ExperimentalMetricApi",
-        "androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
-        "androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi",
-        "androidx.camera.core.ExperimentalUseCaseApi",
-        "androidx.car.app.annotations.ExperimentalCarApi",
-        "androidx.compose.animation.ExperimentalAnimationApi",
-        "androidx.compose.animation.ExperimentalLookaheadAnimationVisualDebugApi",
-        "androidx.compose.animation.ExperimentalSharedTransitionApi",
-        "androidx.compose.animation.core.ExperimentalAnimationSpecApi",
-        "androidx.compose.animation.core.ExperimentalTransitionApi",
-        "androidx.compose.animation.core.InternalAnimationApi",
-        "androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi",
-        "androidx.compose.foundation.gestures.ExperimentalTapGestureDetectorBehaviorApi",
-        "androidx.compose.foundation.ExperimentalFoundationApi",
-        "androidx.compose.foundation.InternalFoundationApi",
-        "androidx.compose.foundation.layout.ExperimentalFlexBoxApi",
-        "androidx.compose.foundation.layout.ExperimentalLayoutApi",
-        "androidx.compose.foundation.style.ExperimentalFoundationStyleApi",
-        "androidx.compose.material.ExperimentalMaterialApi",
-        "androidx.compose.material3.ExperimentalMaterial3Api",
-        "androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi",
-        "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
-        "androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi",
-        "androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi",
-        "androidx.compose.remote.creation.ExperimentalRemoteCreationApi",
-        "androidx.compose.runtime.ExperimentalComposeApi",
-        "androidx.compose.runtime.ExperimentalComposeRuntimeApi",
-        "androidx.compose.runtime.InternalComposeApi",
-        "androidx.compose.runtime.InternalComposeTracingApi",
-        "androidx.compose.ui.ExperimentalComposeUiApi",
-        "androidx.compose.ui.ExperimentalIndirectPointerApi",
-        "androidx.compose.ui.ExperimentalIndirectTouchTypeApi",
-        "androidx.compose.ui.ExperimentalMediaQueryApi",
-        "androidx.compose.ui.InternalComposeUiApi",
-        "androidx.compose.ui.graphics.ExperimentalGraphicsApi",
-        "androidx.compose.ui.node.InternalCoreApi",
-        "androidx.compose.ui.test.ExperimentalTestApi",
-        "androidx.compose.ui.test.InternalTestApi",
-        "androidx.compose.ui.text.ExperimentalTextApi",
-        "androidx.compose.ui.text.InternalTextApi",
-        "androidx.compose.ui.unit.ExperimentalUnitApi",
-        "androidx.constraintlayout.compose.ExperimentalMotionApi",
-        "androidx.core.telecom.util.ExperimentalAppActions",
-        "androidx.credentials.ExperimentalDigitalCredentialApi",
-        "androidx.glance.ExperimentalGlanceApi",
-        "androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi",
-        "androidx.health.connect.client.ExperimentalDeduplicationApi",
-        "androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi",
-        "androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi",
-        "androidx.ink.authoring.ExperimentalInkGestureHandlingApi",
-        "androidx.ink.authoring.ExperimentalInkHandoffApi",
-        "androidx.ink.authoring.ExperimentalInkLatencyDataApi",
-        "androidx.ink.brush.ExperimentalInkAnimationApi",
-        "androidx.ink.brush.ExperimentalInkBrushCompatibilityApi",
-        "androidx.ink.brush.ExperimentalInkCustomBrushApi",
-        "androidx.ink.strokes.ExperimentalInkEraserApi",
-        "androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi",
-        "androidx.ink.nativeloader.InkInternalOnlyApi",
-        "androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi",
-        "androidx.paging.ExperimentalPagingApi",
-        "androidx.room3.ExperimentalRoomApi",
-        "androidx.room3.compiler.processing.ExperimentalProcessingApi",
-        "androidx.tracing.ExperimentalContextPropagation",
-        "androidx.tracing.wire.ExperimentalRingBufferApi",
-        "androidx.tv.foundation.ExperimentalTvFoundationApi",
-        "androidx.wear.compose.foundation.ExperimentalWearFoundationApi",
-        "androidx.wear.compose.material.ExperimentalWearMaterialApi",
-        "androidx.window.core.ExperimentalWindowApi",
-        "androidx.window.core.ExperimentalWindowCoreApi",
-    )
+internal fun Project.nonPublicMarkersProvider(): Provider<Set<String>> {
+    val nonPublicMarkersFile =
+        objects.fileProperty().fileValue(File(getSupportRootFolder(), NON_PUBLIC_MARKERS_FILE))
+    return providers.fileContents(nonPublicMarkersFile).asText.map(::parseNonPublicMarkers)
+}
+
+internal fun parseNonPublicMarkers(contents: String): Set<String> =
+    contents
+        .lineSequence()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.startsWith("#") }
+        .toSet()
 
 const val NEW_ISSUE_URL = "https://issuetracker.google.com/issues/new?component=1102332"
 
