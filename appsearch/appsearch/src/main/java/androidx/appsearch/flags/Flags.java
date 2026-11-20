@@ -338,7 +338,7 @@ public final class Flags {
     /**
      * Enables offline observers, which allow callers to retrieve document changes that happened
      * since a given point in time via
-     * {@code androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync}.
+     * {@link androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync}.
      */
     public static final String FLAG_ENABLE_OFFLINE_OBSERVERS =
             FLAG_PREFIX + "enable_offline_observers";
@@ -746,10 +746,10 @@ public final class Flags {
      * Whether offline observers should be enabled.
      *
      * <p>This enables tracking of document changes in Icing, and the
-     * {@code androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync} API.
+     * {@link androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync} API.
      */
     public static boolean enableOfflineObservers() {
-        // TODO: Enable this once the offline observers feature is ready.
+        // TODO(b/568469783): Enable this once the offline observers feature is ready.
         return false;
     }
 }

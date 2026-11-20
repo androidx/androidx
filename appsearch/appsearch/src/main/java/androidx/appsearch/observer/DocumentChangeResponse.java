@@ -38,11 +38,11 @@ import java.util.List;
 
 /**
  * The response of
- * {@code androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync}, describing
+ * {@link androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync}, describing
  * the documents that changed after a given point in time.
  *
  * <p>Results are paginated. If {@link #hasMoreChanges} is {@code true}, call
- * {@code androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync} again with
+ * {@link androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync} again with
  * {@link #getNextPaginationToken} to retrieve the next page of changes. The
  * {@link #getNextPaginationToken} is always populated, and can be saved by the caller to later
  * retrieve changes that occur after this call.
@@ -65,7 +65,7 @@ public final class DocumentChangeResponse implements SafeParcelable {
 
     /**
      * An opaque token used to retrieve a page of document changes from
-     * {@code androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync}.
+     * {@link androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync}.
      *
      * <p>To start retrieving changes, construct a {@link PaginationToken} with the time from which
      * changes are wanted. To continue retrieving changes, pass the
@@ -193,7 +193,7 @@ public final class DocumentChangeResponse implements SafeParcelable {
 
     /**
      * Returns the token to pass to the next call of
-     * {@code androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync} to
+     * {@link androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync} to
      * retrieve the next page of changes, or changes that happen after this call.
      */
     public @NonNull PaginationToken getNextPaginationToken() {

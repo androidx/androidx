@@ -19,7 +19,11 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.FlaggedApi;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.observer.DocumentChangeResponse;
 import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 
@@ -189,4 +193,64 @@ public interface ReadOnlyGlobalSearchSession {
     void unregisterObserverCallback(
             @NonNull String targetPackageName, @NonNull ObserverCallback observer)
             throws AppSearchException;
+
+    /**
+     * Retrieves the documents owned by {@code targetPackageName} that were added, updated or
+     * removed after the point in time described by {@code paginationToken}, and that match the
+     * given {@link ObserverSpec}.
+     *
+     * <p>Only changes to documents whose schema types are visible to the caller are returned. If
+     * the data owned by {@code targetPackageName} is not visible to the caller, or no package
+     * matching {@code targetPackageName} exists, an empty {@link DocumentChangeResponse} is
+     * returned.
+     *
+     * <p>If {@link ObserverSpec#getFilterSchemas} is empty, changes to documents of all schema
+     * types visible to the caller are returned. Otherwise, only changes to documents whose schema
+     * type is in {@link ObserverSpec#getFilterSchemas} are returned.
+     *
+     * <p>A {@link androidx.appsearch.observer.DocumentChangeSet} does not convey what kind of change
+     * occurred, nor the old or new values of the document. It is up to the caller to use the
+     * returned document IDs to look up what has changed.
+     *
+     * <p>Results are paginated. To start retrieving changes, pass a
+     * {@link DocumentChangeResponse.PaginationToken} constructed with the time from which changes
+     * are wanted. If {@link DocumentChangeResponse#hasMoreChanges} is {@code true}, call this
+     * method again with {@link DocumentChangeResponse#getNextPaginationToken} to retrieve the next
+     * page of changes. Retrieving changes is idempotent, so callers should be prepared to process
+     * the same change more than once.
+     *
+     * <p>Removed documents are only retained for a limited time, so changes for documents that
+     * were removed a long time ago may be missing.
+     *
+     * <p>Changes to documents whose schema type no longer exists are not returned, because the
+     * caller's visibility to that schema type can no longer be checked. For example, if a schema
+     * type is removed, or {@code targetPackageName} is uninstalled, its documents are deleted but
+     * no removals are reported for them. Callers that keep a copy of this data won't be told
+     * that those documents are gone.
+     *
+     * <p>This feature may not be available in all implementations. Check
+     * {@link Features#GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES} before calling this method.
+     *
+     * @param targetPackageName the package whose document changes to retrieve.
+     * @param spec              specification of what types of changes to retrieve.
+     * @param paginationToken   the token describing from which point in time to retrieve changes.
+     * @return a {@link ListenableFuture} which resolves to a {@link DocumentChangeResponse}.
+     * @throws UnsupportedOperationException if this feature is not available on this
+     *                                       AppSearch implementation.
+     */
+    // TODO(b/568469783): unhide the API once offline observers are ready.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES)
+    @FlaggedApi(Flags.FLAG_ENABLE_OFFLINE_OBSERVERS)
+    @ExperimentalAppSearchApi
+    default @NonNull ListenableFuture<DocumentChangeResponse> getDocumentChangesAsync(
+            @NonNull String targetPackageName,
+            @NonNull ObserverSpec spec,
+            DocumentChangeResponse.@NonNull PaginationToken paginationToken) {
+        throw new UnsupportedOperationException(
+                Features.GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES
+                        + " is not available on this AppSearch implementation.");
+    }
 }

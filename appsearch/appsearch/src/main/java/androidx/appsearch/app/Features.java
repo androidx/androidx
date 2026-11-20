@@ -420,9 +420,9 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
-     * {@code ReadOnlyGlobalSearchSession#getDocumentChangesAsync}.
+     * {@link ReadOnlyGlobalSearchSession#getDocumentChangesAsync}.
      */
-    // TODO: unhide the API once offline observers are ready.
+    // TODO(b/568469783): unhide the API once offline observers are ready.
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ExperimentalAppSearchApi
     String GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES =

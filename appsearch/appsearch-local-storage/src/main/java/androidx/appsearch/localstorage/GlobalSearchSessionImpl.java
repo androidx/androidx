@@ -25,6 +25,7 @@ import android.os.ParcelFileDescriptor;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
@@ -37,6 +38,7 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
+import androidx.appsearch.observer.DocumentChangeResponse;
 import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.core.util.Preconditions;
@@ -211,6 +213,27 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                             + "from other packages.");
         }
         mAppSearchImpl.unregisterObserverCallback(targetPackageName, observer);
+    }
+
+    @ExperimentalAppSearchApi
+    @Override
+    public @NonNull ListenableFuture<DocumentChangeResponse> getDocumentChangesAsync(
+            @NonNull String targetPackageName,
+            @NonNull ObserverSpec spec,
+            DocumentChangeResponse.@NonNull PaginationToken paginationToken) {
+        Preconditions.checkNotNull(targetPackageName);
+        Preconditions.checkNotNull(spec);
+        Preconditions.checkNotNull(paginationToken);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
+        if (!mFeatures.isFeatureSupported(Features.GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES)) {
+            throw new UnsupportedOperationException(
+                    Features.GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES
+                            + " is not available on this AppSearch implementation.");
+        }
+        // Visibility of the target package's data to the caller is enforced by AppSearchImpl.
+        return FutureUtil.execute(mExecutor,
+                () -> mAppSearchImpl.getDocumentChanges(
+                        targetPackageName, spec, paginationToken, mSelfCallerAccess));
     }
 
     @Override

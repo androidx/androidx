@@ -91,6 +91,8 @@ import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
 import androidx.appsearch.observer.DocumentChangeInfo;
+import androidx.appsearch.observer.DocumentChangeResponse;
+import androidx.appsearch.observer.DocumentChangeSet;
 import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.stats.BaseStats;
@@ -111,9 +113,11 @@ import com.google.android.icing.proto.DebugInfoResultProto;
 import com.google.android.icing.proto.DebugInfoVerbosity;
 import com.google.android.icing.proto.DeleteByQueryResultProto;
 import com.google.android.icing.proto.DeleteResultProto;
+import com.google.android.icing.proto.DocumentChangeResponseProto;
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.DocumentStorageInfoProto;
 import com.google.android.icing.proto.GetAllNamespacesResultProto;
+import com.google.android.icing.proto.GetDocumentChangesRequestProto;
 import com.google.android.icing.proto.GetNextPageRequestProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.GetResultProto;
@@ -5509,6 +5513,172 @@ public final class AppSearchImpl implements Closeable {
     public void unregisterObserverCallback(
             @NonNull String targetPackageName, @NonNull ObserverCallback observer) {
         mObserverManager.unregisterObserverCallback(targetPackageName, observer);
+    }
+
+    /**
+     * Retrieves the documents owned by {@code targetPackageName} that were added, updated or
+     * removed after the point in time described by {@code paginationToken}.
+     *
+     * <p>Only changes to documents whose schema types match the given {@link ObserverSpec} and
+     * are visible to the caller, as described by {@code callerAccess}, are returned. To enforce
+     * this, the request sent to Icing is restricted to the prefixed schema types of
+     * {@code targetPackageName} that the caller can access. Since both schema types and
+     * namespaces are prefixed with the package and database name in Icing, this ensures that
+     * Icing only returns changes for the target package. The results returned by Icing are
+     * additionally filtered against the same set of schema types as a defensive measure.
+     *
+     * <p>Changes to documents whose schema types no longer exist (e.g. documents that were
+     * removed as a result of their schema type being removed) are not returned, since visibility
+     * can no longer be checked for those schema types.
+     *
+     * <p>This method belongs to query group.
+     *
+     * @param targetPackageName The package whose document changes to retrieve.
+     * @param spec              Describes which schema types to retrieve changes for. If
+     *                          {@link ObserverSpec#getFilterSchemas} is empty, changes to all
+     *                          schema types visible to the caller are retrieved.
+     * @param paginationToken   Describes from which point in time to retrieve changes.
+     * @param callerAccess      Visibility access info of the calling app.
+     * @throws AppSearchException on IcingSearchEngine error.
+     */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public @NonNull DocumentChangeResponse getDocumentChanges(
+            @NonNull String targetPackageName,
+            @NonNull ObserverSpec spec,
+            DocumentChangeResponse.@NonNull PaginationToken paginationToken,
+            @NonNull CallerAccess callerAccess) throws AppSearchException {
+        Preconditions.checkNotNull(targetPackageName);
+        Preconditions.checkNotNull(spec);
+        Preconditions.checkNotNull(paginationToken);
+        Preconditions.checkNotNull(callerAccess);
+
+        mReadWriteLock.readLock().lock();
+        try {
+            throwIfClosedLocked();
+
+            // Collect the prefixed schema types owned by the target package that match the spec
+            // and that the caller has access to.
+            Set<String> allowedPrefixedSchemaTypes = getVisiblePrefixedSchemaTypesForObserverLocked(
+                    targetPackageName, spec, callerAccess);
+            if (allowedPrefixedSchemaTypes.isEmpty()) {
+                // Icing treats an empty schema filter as "all schema types", so we must not call
+                // into Icing here. There is nothing the caller can see, so return an empty
+                // response that preserves the caller's position.
+                return new DocumentChangeResponse(
+                        Collections.emptyList(), /*hasMoreChanges=*/ false, paginationToken);
+            }
+
+            GetDocumentChangesRequestProto request = GetDocumentChangesRequestProto.newBuilder()
+                    .addAllSchemaFilters(allowedPrefixedSchemaTypes)
+                    .setPageToken(DocumentChangeResponseProto.PaginationToken.newBuilder()
+                            .setLastSyncTimestampMs(paginationToken.getLastSyncTimestampMillis()))
+                    .build();
+            DocumentChangeResponseProto responseProto =
+                    mIcingSearchEngineLocked.getDocumentChanges(request);
+            LogUtil.piiTrace(TAG, "getDocumentChanges, response", responseProto.getStatus(),
+                    responseProto);
+            checkSuccess(responseProto.getStatus());
+
+            return toDocumentChangeResponse(responseProto, allowedPrefixedSchemaTypes,
+                    paginationToken);
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Returns the prefixed schema types owned by {@code targetPackageName} that match the given
+     * {@link ObserverSpec} and that are visible to the caller.
+     */
+    @GuardedBy("mReadWriteLock")
+    private @NonNull Set<String> getVisiblePrefixedSchemaTypesForObserverLocked(
+            @NonNull String targetPackageName,
+            @NonNull ObserverSpec spec,
+            @NonNull CallerAccess callerAccess) {
+        Set<String> filterSchemas = spec.getFilterSchemas();
+        Set<String> allowedPrefixedSchemaTypes = new ArraySet<>();
+        for (String prefix : mSchemaCacheLocked.getAllPrefixes()) {
+            if (!getPackageName(prefix).equals(targetPackageName)) {
+                continue;
+            }
+            for (String prefixedSchemaType
+                    : mSchemaCacheLocked.getSchemaMapForPrefix(prefix).keySet()) {
+                if (!filterSchemas.isEmpty()
+                        && !filterSchemas.contains(
+                                prefixedSchemaType.substring(prefix.length()))) {
+                    continue;
+                }
+                if (!VisibilityUtil.isSchemaSearchableByCaller(
+                        callerAccess,
+                        targetPackageName,
+                        prefixedSchemaType,
+                        mDocumentVisibilityStoreLocked,
+                        mVisibilityCheckerLocked)) {
+                    continue;
+                }
+                allowedPrefixedSchemaTypes.add(prefixedSchemaType);
+            }
+        }
+        return allowedPrefixedSchemaTypes;
+    }
+
+    /**
+     * Converts a {@link DocumentChangeResponseProto} into a {@link DocumentChangeResponse},
+     * removing prefixes and dropping any change sets whose schema type is not in
+     * {@code allowedPrefixedSchemaTypes}.
+     */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    private static @NonNull DocumentChangeResponse toDocumentChangeResponse(
+            @NonNull DocumentChangeResponseProto responseProto,
+            @NonNull Set<String> allowedPrefixedSchemaTypes,
+            DocumentChangeResponse.@NonNull PaginationToken requestPaginationToken)
+            throws AppSearchException {
+        List<DocumentChangeSet> documentChangeSets =
+                new ArrayList<>(responseProto.getDocumentChangeSetsCount());
+        for (int i = 0; i < responseProto.getDocumentChangeSetsCount(); i++) {
+            DocumentChangeResponseProto.DocumentChangeSetProto changeSetProto =
+                    responseProto.getDocumentChangeSets(i);
+            String prefixedSchemaType = changeSetProto.getSchema();
+            String prefixedNamespace = changeSetProto.getNameSpace();
+            if (!allowedPrefixedSchemaTypes.contains(prefixedSchemaType)) {
+                // Defensive check: Icing should only return changes for the requested schema
+                // types.
+                continue;
+            }
+            String prefix = getPrefix(prefixedSchemaType);
+            if (!prefix.equals(getPrefix(prefixedNamespace))) {
+                // Defensive check: the namespace must belong to the same package and database as
+                // the schema type.
+                continue;
+            }
+            // Icing returns the change tokens in chronological order of their operation
+            // timestamps, so preserve that order.
+            List<DocumentChangeSet.ChangeToken> changeTokens =
+                    new ArrayList<>(changeSetProto.getChangeTokensCount());
+            for (int j = 0; j < changeSetProto.getChangeTokensCount(); j++) {
+                DocumentChangeResponseProto.DocumentChangeSetProto.ChangeToken tokenProto =
+                        changeSetProto.getChangeTokens(j);
+                changeTokens.add(new DocumentChangeSet.ChangeToken(
+                        tokenProto.getUri(), tokenProto.getOperationTimestampMs()));
+            }
+            if (changeTokens.isEmpty()) {
+                continue;
+            }
+            documentChangeSets.add(new DocumentChangeSet(
+                    getPackageName(prefix),
+                    getDatabaseName(prefix),
+                    prefixedNamespace.substring(prefix.length()),
+                    prefixedSchemaType.substring(prefix.length()),
+                    changeTokens));
+        }
+
+        DocumentChangeResponse.PaginationToken nextPaginationToken =
+                responseProto.hasNextPageToken()
+                        ? new DocumentChangeResponse.PaginationToken(
+                                responseProto.getNextPageToken().getLastSyncTimestampMs())
+                        : requestPaginationToken;
+        return new DocumentChangeResponse(
+                documentChangeSets, responseProto.getHasMoreChanges(), nextPaginationToken);
     }
 
     /**
