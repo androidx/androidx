@@ -15,11 +15,13 @@
  */
 package androidx.appsearch.safeparcel.stub;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.CommitBlobResponse;
 import androidx.appsearch.app.EmbeddingVector;
+import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
@@ -44,6 +46,8 @@ import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.SetSchemaResponse.MigrationFailure;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityPermissionConfig;
+import androidx.appsearch.observer.DocumentChangeResponse;
+import androidx.appsearch.observer.DocumentChangeSet;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.DocumentIndexingConfigParcel;
@@ -244,5 +248,28 @@ public class StubCreators {
     /** Stub creator for {@link RemoveBlobResponse}. */
     public static class RemoveBlobResponseCreator extends
             AbstractCreator<RemoveBlobResponse> {
+    }
+
+    /** Stub creator for {@link DocumentChangeResponse}. */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static class DocumentChangeResponseCreator extends
+            AbstractCreator<DocumentChangeResponse> {
+    }
+
+    /** Stub creator for {@link DocumentChangeResponse.PaginationToken}. */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static class PaginationTokenCreator extends
+            AbstractCreator<DocumentChangeResponse.PaginationToken> {
+    }
+
+    /** Stub creator for {@link DocumentChangeSet}. */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static class DocumentChangeSetCreator extends AbstractCreator<DocumentChangeSet> {
+    }
+
+    /** Stub creator for {@link DocumentChangeSet.ChangeToken}. */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    public static class ChangeTokenCreator extends
+            AbstractCreator<DocumentChangeSet.ChangeToken> {
     }
 }
