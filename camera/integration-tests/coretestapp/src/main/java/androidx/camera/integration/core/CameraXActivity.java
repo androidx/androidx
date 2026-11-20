@@ -569,22 +569,22 @@ public class CameraXActivity extends AppCompatActivity {
     private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
     private static final int FRAMES_UNTIL_IMAGE_ANALYSIS_IS_READY = 5;
     private final @NonNull CountDownLatch mInitializationIdlingLatch = new CountDownLatch(1);
-    private @NonNull CountDownLatch mViewIdlingLatch = new CountDownLatch(0);
-    private @NonNull CountDownLatch mAnalysisIdlingLatch = new CountDownLatch(0);
-    private @NonNull CountDownLatch mImageSavedIdlingLatch = new CountDownLatch(0);
-    private @NonNull CountDownLatch mVideoSavedIdlingLatch = new CountDownLatch(0);
+    private volatile @NonNull CountDownLatch mViewIdlingLatch = new CountDownLatch(0);
+    private volatile @NonNull CountDownLatch mAnalysisIdlingLatch = new CountDownLatch(0);
+    private volatile @NonNull CountDownLatch mImageSavedIdlingLatch = new CountDownLatch(0);
+    private volatile @NonNull CountDownLatch mVideoSavedIdlingLatch = new CountDownLatch(0);
 
     /**
      * Saves the error message of the last take picture action if any error occurs. This will be
      * null which means no error occurs.
      */
-    private @Nullable String mLastTakePictureErrorMessage = null;
+    private volatile @Nullable String mLastTakePictureErrorMessage = null;
 
     /**
      * Saves the error message of the last video recording action if any error occurs. This will be
      * null which means no error occurs.
      */
-    private @Nullable String mLastVideoRecordingErrorMessage = null;
+    private volatile @Nullable String mLastVideoRecordingErrorMessage = null;
 
     /**
      * Retrieve idling resource that waits for initialization to finish.
@@ -1086,12 +1086,10 @@ public class CameraXActivity extends AppCompatActivity {
     private void setUpTakePictureButton() {
         mTakePicture.setOnClickListener(
                 new View.OnClickListener() {
-                    long mStartCaptureTime = 0;
-
                     @Override
                     public void onClick(View view) {
-
-                        mStartCaptureTime = SystemClock.elapsedRealtime();
+                        final long startCaptureTime = SystemClock.elapsedRealtime();
+                        final CountDownLatch imageSavedLatch = mImageSavedIdlingLatch;
 
                         ImageCapture.OnImageSavedCallback callback = new ImageCapture
                                 .OnImageSavedCallback() {
@@ -1099,31 +1097,36 @@ public class CameraXActivity extends AppCompatActivity {
                             public void onImageSaved(
                                     ImageCapture.@NonNull OutputFileResults
                                             outputFileResults) {
-                                Log.d(TAG, "Saved image to "
-                                        + outputFileResults.getSavedUri());
-                                mImageSavedIdlingLatch.countDown();
+                                try {
+                                    Uri savedUri = outputFileResults.getSavedUri();
+                                    Log.d(TAG, "Saved image to " + savedUri);
+                                    if (mSessionImagesUriSet != null && savedUri != null) {
+                                        mSessionImagesUriSet.add(savedUri);
+                                    }
 
-                                long duration =
-                                        SystemClock.elapsedRealtime()
-                                                - mStartCaptureTime;
-                                runOnUiThread(() -> Toast.makeText(CameraXActivity.this,
-                                        "Image captured in " + duration + " ms",
-                                        Toast.LENGTH_SHORT).show());
-                                if (mSessionImagesUriSet != null) {
-                                    mSessionImagesUriSet.add(
-                                            requireNonNull(
-                                                    outputFileResults.getSavedUri()));
+                                    long duration =
+                                            SystemClock.elapsedRealtime() - startCaptureTime;
+                                    runOnUiThread(() -> Toast.makeText(CameraXActivity.this,
+                                            "Image captured in " + duration + " ms",
+                                            Toast.LENGTH_SHORT).show());
+                                } finally {
+                                    // Count down only after recording the URI so test teardown
+                                    // deletes every captured image deterministically.
+                                    imageSavedLatch.countDown();
                                 }
                             }
 
                             @Override
                             public void onError(
                                     @NonNull ImageCaptureException exception) {
-                                Log.e(TAG, "Failed to save image.", exception);
+                                try {
+                                    Log.e(TAG, "Failed to save image.", exception);
 
-                                mLastTakePictureErrorMessage =
-                                        getImageCaptureErrorMessage(exception);
-                                mImageSavedIdlingLatch.countDown();
+                                    mLastTakePictureErrorMessage =
+                                            getImageCaptureErrorMessage(exception);
+                                } finally {
+                                    imageSavedLatch.countDown();
+                                }
                             }
                         };
 

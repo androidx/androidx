@@ -28,8 +28,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
-import androidx.testutils.withActivity
-import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -113,28 +111,8 @@ class TakePictureTest(private val implName: String) {
                 // Arrange, wait for camera starts processing output.
                 waitForViewfinderIdle()
 
-                // Act. continuously take 5 photos.
-                withActivity {
-                    cleanTakePictureErrorMessage()
-                    resetImageSavedIdlingLatch(5)
-                }
-                    .apply {
-                        for (i in 5 downTo 1) {
-                            clickView(R.id.Picture)
-                        }
-                        await(20, TimeUnit.SECONDS)
-                    }
-
-                // Assert, there's no error message.
-                withActivity {
-                    deleteSessionImages()
-                    lastTakePictureErrorMessage ?: ""
-                }
-                    .let { errorMessage ->
-                        assertWithMessage("Fail to take picture: $errorMessage")
-                            .that(errorMessage)
-                            .isEmpty()
-                    }
+                // Act & Assert, continuously take 5 photos and verify no capture errors.
+                takePictureAndWaitForImageSavedIdle(captureRequestsCount = 5)
             }
         }
     }
