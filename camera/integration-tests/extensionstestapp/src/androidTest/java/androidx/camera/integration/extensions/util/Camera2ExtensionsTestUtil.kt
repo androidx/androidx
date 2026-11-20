@@ -36,7 +36,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.AVAILABLE_CAMERA2_EXTENSION_MODES
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
@@ -46,6 +45,8 @@ import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assume.assumeTrue
 
@@ -54,6 +55,13 @@ object Camera2ExtensionsTestUtil {
     private const val LAB_STRESS_TEST_OPERATION_REPEAT_COUNT = 10
     private const val STRESS_TEST_OPERATION_REPEAT_COUNT = 3
     const val EXTENSION_NOT_FOUND = -1
+
+    // Serialize Camera2 extension callbacks onto one thread so CameraCaptureSessionImpl state
+    // callbacks do not race on a multi-threaded executor and trigger TaskDrainer collisions
+    // (b/588423193, b/425453656).
+    private val camera2CallbackExecutor: Executor = Executors.newSingleThreadExecutor { runnable ->
+        Thread(runnable, "Camera2ExtensionsTestCallbackThread")
+    }
 
     /** Returns whether the target device is excluded for extensions test */
     @JvmStatic
@@ -149,7 +157,7 @@ object Camera2ExtensionsTestUtil {
 
             extensionSession.setRepeatingRequest(
                 builder.build(),
-                CameraXExecutors.ioExecutor(),
+                camera2CallbackExecutor,
                 object : CameraExtensionSession.ExtensionCaptureCallback() {
                     override fun onCaptureSequenceCompleted(
                         session: CameraExtensionSession,
@@ -243,7 +251,7 @@ object Camera2ExtensionsTestUtil {
         val deferred = CompletableDeferred<CameraDevice>()
         cameraManager.openCamera(
             cameraId,
-            CameraXExecutors.ioExecutor(),
+            camera2CallbackExecutor,
             object : CameraDevice.StateCallback() {
                 override fun onOpened(cameraDevice: CameraDevice) {
                     deferred.complete(cameraDevice)
@@ -275,7 +283,7 @@ object Camera2ExtensionsTestUtil {
             ExtensionSessionConfiguration(
                 extensionMode,
                 outputConfigs,
-                CameraXExecutors.ioExecutor(),
+                camera2CallbackExecutor,
                 object : CameraExtensionSession.StateCallback() {
                     override fun onConfigured(cameraExtensionSession: CameraExtensionSession) {
                         deferred.complete(cameraExtensionSession)
@@ -306,7 +314,7 @@ object Camera2ExtensionsTestUtil {
         val deferredCapture = CompletableDeferred<Int>()
         session.capture(
             builder.build(),
-            CameraXExecutors.ioExecutor(),
+            camera2CallbackExecutor,
             object : CameraExtensionSession.ExtensionCaptureCallback() {
                 override fun onCaptureSequenceCompleted(
                     session: CameraExtensionSession,
