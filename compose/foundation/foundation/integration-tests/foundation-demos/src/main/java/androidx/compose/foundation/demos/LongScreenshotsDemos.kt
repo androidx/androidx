@@ -47,6 +47,7 @@ import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
@@ -55,6 +56,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.primarySurface
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,6 +68,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -83,6 +88,9 @@ val LongScreenshotsDemos =
         ComposableDemo("TextField in scrollable") { TextFieldInScrollableDemo() },
         ComposableDemo("Single giant text field") { SingleGiantTextFieldDemo() },
         ComposableDemo("Lazy list with sticky headers") { LazyListWithStickiesDemo() },
+        ComposableDemo("Pull-to-refresh list with sticky headers") {
+            PullRefreshLazyListWithStickyHeadersDemo()
+        },
         ComposableDemo("Reverse layout") { ReverseScrollingCaptureDemo() },
         ComposableDemo("Floating content") { FloatingContentDemo() },
     )
@@ -449,3 +457,87 @@ private fun FloatingContentDemo() {
         )
     }
 }
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun PullRefreshLazyListWithStickyHeadersDemo() {
+    val pullRefreshState = rememberPullRefreshState(refreshing = false, onRefresh = {})
+
+    Box(Modifier.fillMaxSize().pullRefresh(pullRefreshState)) {
+        LazyColumn(Modifier.fillMaxSize()) {
+            contactsReplicaItems.forEach { (title, itemCount) ->
+                stickyHeader {
+                    PlaceholderBox(
+                        height = 40.dp,
+                        label = "Header $title",
+                        color = Color.DarkGray,
+                        textColor = Color.White,
+                    )
+                }
+                items(itemCount) { index ->
+                    PlaceholderBox(
+                        height = 56.dp,
+                        label = "${index + 1} of $itemCount",
+                        color = Color.White,
+                        textColor = Color.Black,
+                        drawBorder = true,
+                    )
+                }
+            }
+        }
+        PullRefreshIndicator(
+            refreshing = false,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
+    }
+}
+
+@Composable
+private fun PlaceholderBox(
+    height: Dp,
+    label: String,
+    color: Color,
+    textColor: Color = Color.Unspecified,
+    drawBorder: Boolean = false,
+) {
+    var modifier = Modifier.fillMaxWidth().height(height).background(color)
+
+    if (drawBorder) {
+        modifier = modifier.border(1.dp, Color.LightGray)
+    }
+
+    Box(modifier = modifier) {
+        Text(text = label, modifier = Modifier.align(Alignment.Center), color = textColor)
+    }
+}
+
+private val contactsReplicaItems: List<Pair<String, Int>> =
+    listOf(
+        "A" to 5,
+        "B" to 3,
+        "C" to 8,
+        "D" to 4,
+        "E" to 2,
+        "F" to 6,
+        "G" to 3,
+        "H" to 5,
+        "I" to 1,
+        "J" to 4,
+        "K" to 3,
+        "L" to 7,
+        "M" to 9,
+        "N" to 2,
+        "O" to 3,
+        "P" to 5,
+        "Q" to 1,
+        "R" to 6,
+        "S" to 8,
+        "T" to 4,
+        "U" to 2,
+        "V" to 3,
+        "W" to 5,
+        "X" to 1,
+        "Y" to 2,
+        "Z" to 3,
+    )
