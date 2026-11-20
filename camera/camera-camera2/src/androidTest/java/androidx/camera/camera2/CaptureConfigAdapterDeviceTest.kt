@@ -17,9 +17,12 @@
 package androidx.camera.camera2
 
 import android.content.Context
-import android.graphics.SurfaceTexture
+import android.graphics.ImageFormat
 import android.hardware.camera2.CameraDevice
-import android.view.Surface
+import android.media.ImageReader
+import android.os.Handler
+import android.os.HandlerThread
+import android.util.Size
 import androidx.camera.camera2.adapter.CameraControlAdapter
 import androidx.camera.camera2.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
@@ -29,8 +32,9 @@ import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
-import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
@@ -40,11 +44,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
-import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -57,6 +59,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 private const val DEFAULT_LENS_FACING_SELECTOR = CameraSelector.LENS_FACING_BACK
+private const val CAPTURE_TIMEOUT_MS = 10_000L
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -66,13 +69,14 @@ class CaptureConfigAdapterDeviceTest {
 
     private var cameraControl: CameraControlAdapter? = null
     private var camera: CameraUseCaseAdapter? = null
-    private lateinit var testDeferrableSurface: TestDeferrableSurface
+    private lateinit var testDeferrableSurface: DeferrableSurface
     private lateinit var fakeUseCase: FakeTestUseCase
 
     @Before
     fun setUp() = runBlocking {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING_SELECTOR))
-        testDeferrableSurface = TestDeferrableSurface()
+        val firstRepeatingResult = CompletableDeferred<Unit>()
+        testDeferrableSurface = createDrainingDeferrableSurface()
         fakeUseCase =
             FakeTestUseCase(FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig)
                 .apply {
@@ -80,6 +84,16 @@ class CaptureConfigAdapterDeviceTest {
                         SessionConfig.Builder().also { sessionConfigBuilder ->
                             sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                             sessionConfigBuilder.addSurface(testDeferrableSurface)
+                            sessionConfigBuilder.addRepeatingCameraCaptureCallback(
+                                object : CameraCaptureCallback() {
+                                    override fun onCaptureCompleted(
+                                        captureConfigId: Int,
+                                        cameraCaptureResult: CameraCaptureResult,
+                                    ) {
+                                        firstRepeatingResult.complete(Unit)
+                                    }
+                                }
+                            )
                         }
                     )
                 }
@@ -96,6 +110,11 @@ class CaptureConfigAdapterDeviceTest {
                 .apply { withContext(Dispatchers.Main) { addUseCases(listOf(fakeUseCase)) } }
 
         cameraControl = camera!!.cameraControl.toCameraControlAdapter()
+        Truth.assertWithMessage(
+                "Timed out waiting ${CAPTURE_TIMEOUT_MS}ms for initial repeating frame"
+            )
+            .that(withTimeoutOrNull(CAPTURE_TIMEOUT_MS) { firstRepeatingResult.await() })
+            .isNotNull()
     }
 
     @After
@@ -132,11 +151,13 @@ class CaptureConfigAdapterDeviceTest {
                                 captureConfigId: Int,
                                 failure: CameraCaptureFailure,
                             ) {
-                                deferred.completeExceptionally(Throwable(failure.reason.toString()))
+                                deferred.completeExceptionally(
+                                    AssertionError("Capture failed: ${failure.reason}")
+                                )
                             }
 
                             override fun onCaptureCancelled(captureConfigId: Int) {
-                                deferred.cancel()
+                                deferred.completeExceptionally(AssertionError("Capture cancelled"))
                             }
                         }
                     )
@@ -151,10 +172,11 @@ class CaptureConfigAdapterDeviceTest {
         )
 
         // Assert
-        Truth.assertThat(
-                withTimeoutOrNull(timeMillis = 5000) { deferred.await() }!!.tagBundle.getTag(tagKey)
-            )
-            .isEqualTo(tagValue)
+        val result = withTimeoutOrNull(CAPTURE_TIMEOUT_MS) { deferred.await() }
+        Truth.assertWithMessage("Timed out waiting ${CAPTURE_TIMEOUT_MS}ms for capture result")
+            .that(result)
+            .isNotNull()
+        Truth.assertThat(result!!.tagBundle.getTag(tagKey)).isEqualTo(tagValue)
     }
 
     @Test
@@ -194,9 +216,9 @@ class CaptureConfigAdapterDeviceTest {
         )
 
         // Assert
-        Truth.assertThat(withTimeoutOrNull(timeMillis = 5000) { deferredStarted.await() })
+        Truth.assertThat(withTimeoutOrNull(CAPTURE_TIMEOUT_MS) { deferredStarted.await() })
             .isEqualTo(expectedCaptureConfigId)
-        Truth.assertThat(withTimeoutOrNull(timeMillis = 5000) { deferredCompleted.await() })
+        Truth.assertThat(withTimeoutOrNull(CAPTURE_TIMEOUT_MS) { deferredCompleted.await() })
             .isEqualTo(expectedCaptureConfigId)
     }
 
@@ -208,21 +230,32 @@ class CaptureConfigAdapterDeviceTest {
         }
     }
 
-    private class TestDeferrableSurface : DeferrableSurface() {
-        init {
-            terminationFuture.addListener({ cleanUp() }, Dispatchers.IO.asExecutor())
-        }
-
-        private val surfaceTexture = SurfaceTexture(0).also { it.setDefaultBufferSize(640, 480) }
-        val testSurface = Surface(surfaceTexture)
-
-        override fun provideSurface(): ListenableFuture<Surface> {
-            return Futures.immediateFuture(testSurface)
-        }
-
-        fun cleanUp() {
-            testSurface.release()
-            surfaceTexture.release()
-        }
+    private fun createDrainingDeferrableSurface(): DeferrableSurface {
+        val handlerThread = HandlerThread("TestDeferrableSurface").apply { start() }
+        val handler = Handler(handlerThread.looper)
+        val imageReader =
+            ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 4).apply {
+                setOnImageAvailableListener(
+                    { reader ->
+                        try {
+                            reader.acquireLatestImage()?.close()
+                        } catch (_: IllegalStateException) {
+                            // ImageReader may already be closed during teardown.
+                        }
+                    },
+                    handler,
+                )
+            }
+        return ImmediateSurface(imageReader.surface, Size(640, 480), ImageFormat.YUV_420_888)
+            .also { surface ->
+                surface.terminationFuture.addListener(
+                    {
+                        imageReader.setOnImageAvailableListener(null, null)
+                        imageReader.close()
+                        handlerThread.quitSafely()
+                    },
+                    CameraXExecutors.newHandlerExecutor(handler),
+                )
+            }
     }
 }
