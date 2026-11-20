@@ -25,7 +25,7 @@ buildscript {
 
     repositories {
         maven {
-            url("$buildDir/localMaven/")
+            url(layout.buildDirectory.dir("localMaven"))
         }
     }
     dependencies {
@@ -44,7 +44,7 @@ apply from: "${supportRootFolder}/buildSrc/repos.gradle"
 repos.addMavenRepositories(repositories)
 repositories {
     maven {
-        url("$buildDir/localMaven/")
+        url(layout.buildDirectory.dir("localMaven"))
     }
 }
 

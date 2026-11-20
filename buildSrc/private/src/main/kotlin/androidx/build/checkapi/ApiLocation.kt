@@ -148,12 +148,6 @@ fun Project.getApiFileDirectory(): File {
     return File(project.projectDir, "api")
 }
 
-/** Returns the directory containing the project's built current API file. */
-private fun Project.getBuiltApiFileDirectory(): File {
-    @Suppress("DEPRECATION")
-    return File(project.buildDir, "api")
-}
-
 /** Returns the directory containing the project's built current ABI file. */
 fun Project.getBuiltBcvFileDirectory(): Provider<Directory> =
     project.layout.buildDirectory.dir(BCV_DIR_NAME)
@@ -182,9 +176,8 @@ fun Project.getCurrentApiLocation(): ApiLocation {
  * Returns an ApiLocation for the "work-in-progress" current version which is built from tip-of-tree
  * and lives in the build output directory.
  */
-fun Project.getBuiltApiLocation(): ApiLocation {
-    return ApiLocation.fromCurrent(project.getBuiltApiFileDirectory())
-}
+fun Project.getBuiltApiLocation(): Provider<ApiLocation> =
+    project.layout.buildDirectory.dir("api").map { ApiLocation.fromCurrent(it.asFile) }
 
 /**
  * Contains information about the files used to record a library's API compatibility and lint

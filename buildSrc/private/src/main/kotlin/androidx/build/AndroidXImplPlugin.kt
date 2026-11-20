@@ -1145,12 +1145,11 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         // If a dependency is missing a debug variant, use release instead.
         buildTypes.getByName("debug").matchingFallbacks.add("release")
 
-        // AGP warns if we use project.buildDir (or subdirs) for CMake's generated
+        // AGP warns if we use the project's build directory (or subdirs) for CMake's generated
         // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
-        // lives alongside the project's buildDir.
-        @Suppress("DEPRECATION")
+        // lives alongside the project's build directory.
         externalNativeBuild.cmake.buildStagingDirectory =
-            File(project.buildDir, "../nativeBuildStaging")
+            File(project.layout.buildDirectory.get().asFile, "../nativeBuildStaging")
 
         // Align the ELF region of native shared libs 16kb boundary
         defaultConfig.externalNativeBuild.cmake.arguments.add(
