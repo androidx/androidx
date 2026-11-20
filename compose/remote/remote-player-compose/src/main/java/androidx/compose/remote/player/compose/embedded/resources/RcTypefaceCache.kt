@@ -70,23 +70,80 @@ internal fun applyVariationSettings(typeface: Typeface, variationSettings: Strin
 }
 
 /**
- * Formats variation axis [tags] and [values] into the CSS-style string expected by
- * [Paint.setFontVariationSettings] and [FontRequest] (e.g. `"'wght' 500.0, 'wdth' 110.0"`),
- * ignoring OpenType font feature tags (4-character lowercase tags other than standard variation
- * axes) and malformed tags.
+ * Maximum number of font variation axes accepted per text style, matching
+ * [PaintBundle.setTextAxis].
  */
-internal fun formatVariationAxes(tags: Array<out String>, values: FloatArray): String? {
-    val count = minOf(tags.size, values.size)
-    if (count == 0) return null
-    var builder: StringBuilder? = null
+internal const val MAX_FONT_AXES = 8
+
+/**
+ * Formats variation axis [tags] and [values] into the CSS-style string expected by
+ * [Paint.setFontVariationSettings] and [FontRequest] (e.g. `"'wdth' 110.0, 'wght' 500.0"`),
+ * ignoring OpenType font feature tags (4-character lowercase tags other than standard variation
+ * axes) and malformed tags. Axes are sorted by tag, see [buildVariationAxes].
+ */
+internal fun formatVariationAxes(tags: Array<out String>, values: FloatArray): String? =
+    buildVariationAxes(minOf(tags.size, values.size), { tags[it] }, { values[it] })
+
+/**
+ * Builds the CSS-style variation settings string for up to [MAX_FONT_AXES] axes in `0 until count`
+ * whose [tagAt] is a variation axis tag (see [isVariationAxisTag]), sorted by tag.
+ *
+ * The string is part of the [RcTypefaceRequest] and document font cache keys, so sorting lets the
+ * same axes in a different order share a [Typeface]. The sort is stable, so duplicate tags keep
+ * their relative order.
+ */
+internal inline fun buildVariationAxes(
+    count: Int,
+    tagAt: (Int) -> String?,
+    valueAt: (Int) -> Float,
+): String? {
+    if (count <= 0) return null
+    val maxAxes = minOf(count, MAX_FONT_AXES)
+    var firstTag: String? = null
+    var firstValue = 0f
+    var tags: Array<String>? = null
+    var values: FloatArray? = null
+    var size = 0
     for (i in 0 until count) {
-        val tag = tags[i]
+        if (size >= maxAxes) break
+        val tag = tagAt(i) ?: continue
         if (!isVariationAxisTag(tag)) continue
-        val sb = builder ?: StringBuilder().also { builder = it }
-        if (sb.isNotEmpty()) sb.append(", ")
-        sb.append('\'').append(tag).append("' ").append(values[i])
+        val value = valueAt(i)
+        if (size == 0) {
+            firstTag = tag
+            firstValue = value
+            size = 1
+            continue
+        }
+        val t = tags ?: Array(maxAxes) { firstTag!! }.also { tags = it }
+        val v =
+            values
+                ?: FloatArray(maxAxes).also {
+                    it[0] = firstValue
+                    values = it
+                }
+        // Stable insertion sort over at most MAX_FONT_AXES entries: duplicate tags keep their
+        // relative order.
+        var pos = size
+        while (pos > 0 && t[pos - 1] > tag) {
+            t[pos] = t[pos - 1]
+            v[pos] = v[pos - 1]
+            pos--
+        }
+        t[pos] = tag
+        v[pos] = value
+        size++
     }
-    return builder?.toString()
+    if (size == 0) return null
+    if (size == 1) return "'$firstTag' $firstValue"
+    val t = tags!!
+    val v = values!!
+    val sb = StringBuilder()
+    for (i in 0 until size) {
+        if (i > 0) sb.append(", ")
+        sb.append('\'').append(t[i]).append("' ").append(v[i])
+    }
+    return sb.toString()
 }
 
 /** Registered OpenType variation axes that have no layout-feature counterpart. */

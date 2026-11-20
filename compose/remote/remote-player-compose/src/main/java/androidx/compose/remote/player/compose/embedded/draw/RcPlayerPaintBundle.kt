@@ -35,6 +35,7 @@ import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.remote.player.compose.embedded.doc.writeContext
+import androidx.compose.remote.player.compose.embedded.resources.MAX_FONT_AXES
 import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
 import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.utils.getPath
@@ -326,7 +327,6 @@ internal class TextMeasurePaintSpec(
     }
 
     companion object {
-        private const val MAX_FONT_AXES = 8
         val Empty = TextMeasurePaintSpec()
     }
 }
