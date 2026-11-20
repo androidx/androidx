@@ -34,24 +34,24 @@ import kotlinx.coroutines.test.TestDispatcher
  * the coroutine contexts used for composition and test execution, the overall test timeout, and the
  * initial input mode.
  *
- * @property effectContext The [CoroutineContext] used to run the composition. The context for
+ * @param effectContext The [CoroutineContext] used to run the composition. The context for
  *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [androidx.compose.ui.test.MainTestClock]. Defaults to
  *   [EmptyCoroutineContext].
- * @property runTestContext The [CoroutineContext] used to create the context to run the test block.
- *   By default, test block will run using [kotlinx.coroutines.test.StandardTestDispatcher].
+ * @param runTestContext The [CoroutineContext] used to create the context to run the test block. By
+ *   default, test block will run using [kotlinx.coroutines.test.StandardTestDispatcher].
  *   [runTestContext] and [effectContext] must not share [TestCoroutineScheduler]. Defaults to
  *   [EmptyCoroutineContext].
- * @property testTimeout The [Duration] within which the test is expected to complete, otherwise a
+ * @param testTimeout The [Duration] within which the test is expected to complete, otherwise a
  *   platform specific timeout exception will be thrown. Defaults to 60 seconds.
- * @property inputMode The [InputMode] to be used for the test. This determines how input events
- *   (such as touch or keyboard) are injected and handled during the test execution. Defaults to
+ * @param inputMode The [InputMode] to be used for the test. This determines how input events (such
+ *   as touch or keyboard) are injected and handled during the test execution. Defaults to
  *   [InputMode.Touch].
- * @property failurePolicy The [TestFailurePolicy] used to configure the failure handling pipeline,
+ * @param failurePolicy The [TestFailurePolicy] used to configure the failure handling pipeline,
  *   such as capture modes for diagnostic artifacts (screenshots, UI hierarchy) and custom failure
  *   handlers. Defaults to [TestFailurePolicy].
- * @property boundsAssertionTolerance The default [Dp] tolerance used for bounds assertions (such as
+ * @param boundsAssertionTolerance The default [Dp] tolerance used for bounds assertions (such as
  *   [assertWidthIsEqualTo], [assertHeightIsEqualTo], and [assertPositionInRootIsEqualTo]). Defaults
  *   to [Dp.Unspecified].
  */
@@ -64,11 +64,39 @@ public expect class ComposeUiTestConfig(
     failurePolicy: TestFailurePolicy = TestFailurePolicy(),
     boundsAssertionTolerance: Dp = Dp.Unspecified,
 ) {
+    /**
+     * The [CoroutineContext] used to run the composition. The context for `LaunchedEffect`s and
+     * `rememberCoroutineScope` will be derived from this context. If this context contains a
+     * [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be used for composition
+     * and the [androidx.compose.ui.test.MainTestClock]. Defaults to [EmptyCoroutineContext].
+     */
     public val effectContext: CoroutineContext
+    /**
+     * The [CoroutineContext] used to create the context to run the test block. By default, test
+     * block will run using [kotlinx.coroutines.test.StandardTestDispatcher]. [runTestContext] and
+     * [effectContext] must not share [TestCoroutineScheduler]. Defaults to [EmptyCoroutineContext].
+     */
     public val runTestContext: CoroutineContext
+    /**
+     * The [Duration] within which the test is expected to complete, otherwise a platform specific
+     * timeout exception will be thrown. Defaults to 60 seconds.
+     */
     public val testTimeout: Duration
+    /**
+     * The [InputMode] to be used for the test. This determines how input events (such as touch or
+     * keyboard) are injected and handled during the test execution. Defaults to [InputMode.Touch].
+     */
     public val inputMode: InputMode
+    /**
+     * The [TestFailurePolicy] used to configure the failure handling pipeline, such as capture
+     * modes for diagnostic artifacts (screenshots, UI hierarchy) and custom failure handlers.
+     * Defaults to [TestFailurePolicy].
+     */
     public val failurePolicy: TestFailurePolicy
+    /**
+     * The default [Dp] tolerance used for bounds assertions (such as [assertWidthIsEqualTo],
+     * [assertHeightIsEqualTo], and [assertPositionInRootIsEqualTo]). Defaults to [Dp.Unspecified].
+     */
     public val boundsAssertionTolerance: Dp
 }
 
@@ -85,11 +113,11 @@ public expect class ComposeUiTestConfig(
  * [CaptureMode.Disabled] will override the suite-level configuration for the specific test using
  * this policy.
  *
- * @property screenshotCaptureMode Determines whether a visual screenshot of the screen/UI should be
+ * @param screenshotCaptureMode Determines whether a visual screenshot of the screen/UI should be
  *   captured upon failure.
- * @property uiHierarchyCaptureMode Determines whether a text-based dump of the UI and semantics
- *   trees should be captured upon failure.
- * @property failureHandlers A list of custom [TestFailureHandler]s that will be invoked in sequence
+ * @param uiHierarchyCaptureMode Determines whether a text-based dump of the UI and semantics trees
+ *   should be captured upon failure.
+ * @param failureHandlers A list of custom [TestFailureHandler]s that will be invoked in sequence
  *   after the framework completes its artifact generation.
  */
 @Immutable
@@ -98,8 +126,17 @@ public expect class TestFailurePolicy(
     uiHierarchyCaptureMode: CaptureMode = CaptureMode.Unspecified,
     failureHandlers: List<TestFailureHandler> = emptyList(),
 ) {
+    /** Determines whether a visual screenshot of the screen/UI should be captured upon failure. */
     public val screenshotCaptureMode: CaptureMode
+    /**
+     * Determines whether a text-based dump of the UI and semantics trees should be captured upon
+     * failure.
+     */
     public val uiHierarchyCaptureMode: CaptureMode
+    /**
+     * A list of custom [TestFailureHandler]s that will be invoked in sequence after the framework
+     * completes its artifact generation.
+     */
     public val failureHandlers: List<TestFailureHandler>
 
     /**

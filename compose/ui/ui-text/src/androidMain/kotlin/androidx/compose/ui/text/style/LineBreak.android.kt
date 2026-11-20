@@ -56,12 +56,15 @@ public actual value class LineBreak internal constructor(internal val mask: Int)
         wordBreak: WordBreak,
     ) : this(packBytes(strategy.value, strictness.value, wordBreak.value))
 
+    /** Defines the algorithm that inserts line breaks */
     public val strategy: Strategy
         get() = Strategy(unpackByte1(mask))
 
+    /** Defines the line breaking rules */
     public val strictness: Strictness
         get() = Strictness(unpackByte2(mask))
 
+    /** Defines how words are broken */
     public val wordBreak: WordBreak
         get() = WordBreak(unpackByte3(mask))
 

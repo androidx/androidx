@@ -22,10 +22,19 @@ import androidx.compose.ui.util.fastAny
 /** A set of vertex data used by [Canvas.drawVertices]. */
 public class Vertices /*extends NativeFieldWrapperClass2*/ {
 
+    /** The [VertexMode] used to draw the vertices. */
     public val vertexMode: VertexMode
+
+    /** A [FloatArray] of x, y pairs representing vertex positions. */
     public val positions: FloatArray
+
+    /** A [FloatArray] of u, v pairs representing texture coordinates. */
     public val textureCoordinates: FloatArray
+
+    /** An [IntArray] of ARGB colors for each vertex. */
     public val colors: IntArray
+
+    /** A [ShortArray] of indices into the positions (texture, color) array. */
     public val indices: ShortArray
 
     public constructor(

@@ -78,6 +78,7 @@ public constructor(
         composition: TextRange? = null,
     ) : this(AnnotatedString(text), selection, composition)
 
+    /** The text to be rendered. */
     public val text: String
         get() = annotatedString.text
 

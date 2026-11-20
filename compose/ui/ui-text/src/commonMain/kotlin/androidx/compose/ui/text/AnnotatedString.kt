@@ -79,6 +79,7 @@ import kotlin.jvm.JvmName
  * Gaps between paragraph styles are filled with default styles. Nested paragraphs are split and
  * merged with parent styles.
  *
+ * @property text text to display
  * @see SpanStyle
  * @see ParagraphStyle
  */

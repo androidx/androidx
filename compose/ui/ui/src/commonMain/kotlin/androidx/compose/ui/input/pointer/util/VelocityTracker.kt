@@ -142,10 +142,13 @@ public fun VelocityTracker.addPointerInputChange(event: PointerInputChange, offs
  */
 public class VelocityTracker1D
 internal constructor(
-    // whether the data points added to the tracker represent differential values
-    // (i.e. change in the  tracked object's displacement since the previous data point).
-    // If false, it means that the data points added to the tracker will be considered as absolute
-    // values (e.g. positional values).
+    /**
+     * Whether the data points added to the tracker represent differential values (i.e. change in
+     * the tracked object's displacement since the previous data point).
+     *
+     * If false, it means that the data points added to the tracker will be considered as absolute
+     * values (e.g. positional values).
+     */
     public val isDataDifferential: Boolean = false,
     // The velocity tracking strategy that this instance uses for all velocity calculations.
     private val strategy: Strategy = Strategy.Lsq2,

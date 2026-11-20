@@ -280,6 +280,7 @@ public fun createEmptyComposeRule(
 
 public class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>
 private constructor(
+    /** Test rule to use to launch the Activity. */
     public val activityRule: R,
     private val environmentFactory: () -> AndroidComposeUiTestEnvironment<A>,
 ) : ComposeContentTestRule {

@@ -22,13 +22,13 @@ import androidx.compose.runtime.Immutable
 /**
  * Properties used to customize the behavior of a [Dialog].
  *
- * @property dismissOnBackPress whether the popup can be dismissed by pressing the back or escape
+ * @param dismissOnBackPress whether the popup can be dismissed by pressing the back or escape
  *   buttons on Android or the escape key on desktop. If true, pressing the back button will call
  *   onDismissRequest.
- * @property dismissOnClickOutside whether the dialog can be dismissed by clicking outside the
- *   dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
- * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
- *   the platform default, which is smaller than the screen width. **Might be used only as named
+ * @param dismissOnClickOutside whether the dialog can be dismissed by clicking outside the dialog's
+ *   bounds. If true, clicking outside the dialog will call onDismissRequest.
+ * @param usePlatformDefaultWidth Whether the width of the dialog's content should be limited to the
+ *   platform default, which is smaller than the screen width. **Might be used only as named
  *   argument**.
  */
 @Immutable
@@ -37,8 +37,20 @@ public expect class DialogProperties(
     dismissOnClickOutside: Boolean = true,
     usePlatformDefaultWidth: Boolean = true,
 ) {
+    /**
+     * Whether the popup can be dismissed by pressing the back or escape buttons on Android or the
+     * escape key on desktop. If true, pressing the back button will call onDismissRequest.
+     */
     public val dismissOnBackPress: Boolean
+    /**
+     * Whether the popup can be dismissed by pressing the back or escape buttons on Android or the
+     * escape key on desktop. If true, pressing the back button will call onDismissRequest.
+     */
     public val dismissOnClickOutside: Boolean
+    /**
+     * Whether the width of the dialog's content should be limited to the platform default, which is
+     * smaller than the screen width. **Might be used only as named argument**.
+     */
     public val usePlatformDefaultWidth: Boolean
 }
 
