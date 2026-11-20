@@ -50,6 +50,7 @@ import androidx.compose.remote.core.semantics.CoreSemantics
 import androidx.compose.remote.player.compose.embedded.CustomComposablePlugin
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
+import androidx.compose.remote.player.compose.embedded.LocalRcIsMeasureProbe
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.components.visible
 import androidx.compose.remote.player.compose.embedded.doc.rawDimensionPx
@@ -92,10 +93,11 @@ internal fun ComponentModifiers.toModifier(
     // Track whether a DrawContentOperation has already been attached to the modifier chain, so
     // that subsequent clip operations are hoisted before drawWithContent without bypassing
     // preceding padding.
+    val isMeasureProbe = LocalRcIsMeasureProbe.current
     var drawContentProcessed = false
     var graphicsLayerProcessed = false
-    var clickProcessed = ignoreClicks
-    var touchProcessed = false
+    var clickProcessed = ignoreClicks || isMeasureProbe
+    var touchProcessed = isMeasureProbe
     // Collect the gesture operations in one pass so they can be coalesced into a single click
     // modifier and a single touch action modifier.
     val graphicsLayerOps = ArrayList<GraphicsLayerModifierOperation>()
@@ -130,7 +132,8 @@ internal fun ComponentModifiers.toModifier(
                 rawDimensionPx(rememberRemoteFloatAsState(p.rawTop).value, behavior, density)
         }
     }
-    val hasClickModifier = !ignoreClicks && (clickOps.isNotEmpty() || multiClickOps.isNotEmpty())
+    val hasClickModifier =
+        !ignoreClicks && !isMeasureProbe && (clickOps.isNotEmpty() || multiClickOps.isNotEmpty())
     // A custom plugin that handles clicks itself (ignoreClicks) consumes the release in its own
     // content, which must not turn the component's TouchUp into TouchCancel.
     val hasClickHandler = hasClickModifier || ignoreClicks
@@ -168,7 +171,8 @@ internal fun ComponentModifiers.toModifier(
                 is ZIndexModifierOperation -> modifier.zIndex(op)
                 is GraphicsLayerModifierOperation ->
                     if (drawOpsList == null) modifier else modifier.graphicsLayer(op)
-                is RippleModifierOperation -> modifier.ripple(op, hasClickModifier)
+                is RippleModifierOperation ->
+                    if (isMeasureProbe) modifier else modifier.ripple(op, hasClickModifier)
                 is ScrollModifierOperation -> modifier.scroll(op)
                 is WidthInModifierOperation -> modifier.widthIn(op)
                 is HeightInModifierOperation -> modifier.heightIn(op)

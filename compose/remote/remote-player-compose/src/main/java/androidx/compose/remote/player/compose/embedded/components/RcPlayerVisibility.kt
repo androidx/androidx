@@ -216,6 +216,9 @@ internal fun RcPlayerAnimatedVisibility(
         }
         content(
             modifier.then(sizeTrackerModifier).graphicsLayer {
+                // Deliberate divergence from the View player (Component.isVisible()): Compose keeps
+                // INVISIBLE items composed at alpha = 0f rather than gating focus, clicks, or
+                // semantics; only GONE removes the component and its subtree.
                 alpha = if (Component.Visibility.isVisible(visible)) 1f else 0f
             }
         )
@@ -342,6 +345,9 @@ internal fun Modifier.visible(op: ComponentVisibilityOperation): Modifier {
                 }
             }
         }
+        // Deliberate divergence from the View player: only GONE unplaces; INVISIBLE stays alpha =
+        // 0f
+        // and remains focusable/clickable in Compose.
         .graphicsLayer { alpha = if (visible == Component.Visibility.VISIBLE) 1f else 0f }
 }
 
