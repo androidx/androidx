@@ -464,7 +464,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
             }
 
             /**
-             * @return A new instance of {@link Config} with the given parameters.
+             * Returns a new instance of {@link Config} with the given parameters.
              */
             public @NonNull Config build() {
                 return new Config(mIsolateViewTypes, mStableIdMode);

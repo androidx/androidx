@@ -95,14 +95,14 @@ public class Selection<K> implements Iterable<K> {
     }
 
     /**
-     * @return size of the selection including both final and provisional selected items.
+     * Returns the size of the selection including both final and provisional selected items.
      */
     public int size() {
         return mSelection.size() + mProvisionalSelection.size();
     }
 
     /**
-     * @return true if the selection is empty.
+     * Returns true if the selection is empty.
      */
     public boolean isEmpty() {
         return mSelection.isEmpty() && mProvisionalSelection.isEmpty();

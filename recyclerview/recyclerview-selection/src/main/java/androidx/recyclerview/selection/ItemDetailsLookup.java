@@ -240,14 +240,14 @@ public abstract class ItemDetailsLookup<K> {
         public abstract int getPosition();
 
         /**
-         * @return true if the item has a selection key.
+         * Returns true if the item has a selection key.
          */
         public boolean hasSelectionKey() {
             return getSelectionKey() != null;
         }
 
         /**
-         * @return the selection key of an item.
+         * Returns the selection key of an item.
          */
         public abstract @Nullable K getSelectionKey();
 
