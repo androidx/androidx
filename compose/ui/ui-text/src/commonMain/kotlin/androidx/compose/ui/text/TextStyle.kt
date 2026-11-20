@@ -34,12 +34,12 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.style.TextForegroundStyle
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmName
 
 /**
@@ -59,8 +59,20 @@ public class TextStyle
 internal constructor(
     internal val spanStyle: SpanStyle,
     internal val paragraphStyle: ParagraphStyle,
-    public val platformStyle: PlatformTextStyle? = null,
+    platformStyle: PlatformTextStyle? = null,
 ) {
+    public val platformStyle: PlatformTextStyle? =
+        if (
+            platformStyle != null &&
+                PackedTextStylesLatch.isEnabled &&
+                platformStyle.spanStyle == null &&
+                platformStyle.paragraphStyle == null
+        ) {
+            null
+        } else {
+            platformStyle
+        }
+
     internal constructor(
         spanStyle: SpanStyle,
         paragraphStyle: ParagraphStyle,
@@ -97,7 +109,7 @@ internal constructor(
         lineHeight: TextUnit = TextUnit.Unspecified,
         textIndent: TextIndent? = null,
     ) : this(
-        SpanStyle(
+        createSpanStyle(
             color = color,
             fontSize = fontSize,
             fontWeight = fontWeight,
@@ -115,7 +127,7 @@ internal constructor(
             platformStyle = null,
             drawStyle = null,
         ),
-        ParagraphStyle(
+        createParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
             textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight,
@@ -157,7 +169,7 @@ internal constructor(
         platformStyle: PlatformTextStyle? = null,
         lineHeightStyle: LineHeightStyle? = null,
     ) : this(
-        SpanStyle(
+        createSpanStyle(
             color = color,
             fontSize = fontSize,
             fontWeight = fontWeight,
@@ -175,7 +187,7 @@ internal constructor(
             platformStyle = platformStyle?.spanStyle,
             drawStyle = null,
         ),
-        ParagraphStyle(
+        createParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
             textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight,
@@ -255,7 +267,7 @@ internal constructor(
         lineBreak: LineBreak? = null,
         hyphens: Hyphens? = null,
     ) : this(
-        SpanStyle(
+        createSpanStyle(
             color = color,
             fontSize = fontSize,
             fontWeight = fontWeight,
@@ -272,7 +284,7 @@ internal constructor(
             shadow = shadow,
             platformStyle = platformStyle?.spanStyle,
         ),
-        ParagraphStyle(
+        createParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
             textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight,
@@ -318,7 +330,7 @@ internal constructor(
         hyphens: Hyphens? = null,
         textMotion: TextMotion? = null,
     ) : this(
-        SpanStyle(
+        createSpanStyle(
             color = color,
             fontSize = fontSize,
             fontWeight = fontWeight,
@@ -336,7 +348,7 @@ internal constructor(
             platformStyle = platformStyle?.spanStyle,
             drawStyle = drawStyle,
         ),
-        ParagraphStyle(
+        createParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
             textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight,
@@ -410,7 +422,7 @@ internal constructor(
         hyphens: Hyphens = Hyphens.Unspecified,
         textMotion: TextMotion? = null,
     ) : this(
-        SpanStyle(
+        createSpanStyle(
             color = color,
             fontSize = fontSize,
             fontWeight = fontWeight,
@@ -428,7 +440,7 @@ internal constructor(
             platformStyle = platformStyle?.spanStyle,
             drawStyle = drawStyle,
         ),
-        ParagraphStyle(
+        createParagraphStyle(
             textAlign = textAlign,
             textDirection = textDirection,
             lineHeight = lineHeight,
@@ -504,7 +516,7 @@ internal constructor(
         hyphens: Hyphens = Hyphens.Unspecified,
         textMotion: TextMotion? = null,
     ) : this(
-        SpanStyle(
+        createSpanStyle(
             brush = brush,
             alpha = alpha,
             fontSize = fontSize,
@@ -523,7 +535,7 @@ internal constructor(
             platformStyle = platformStyle?.spanStyle,
             drawStyle = drawStyle,
         ),
-        ParagraphStyle(
+        createParagraphStyle(
             textAlign = textAlign,
             textDirection = textDirection,
             lineHeight = lineHeight,
@@ -571,7 +583,7 @@ internal constructor(
         hyphens: Hyphens? = null,
         textMotion: TextMotion? = null,
     ) : this(
-        SpanStyle(
+        createSpanStyle(
             brush = brush,
             alpha = alpha,
             fontSize = fontSize,
@@ -590,7 +602,7 @@ internal constructor(
             platformStyle = platformStyle?.spanStyle,
             drawStyle = drawStyle,
         ),
-        ParagraphStyle(
+        createParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
             textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight,
@@ -618,12 +630,39 @@ internal constructor(
      */
     @Stable
     public fun merge(other: TextStyle? = null): TextStyle {
+        if (!PackedTextStylesLatch.isEnabled) return mergeLegacy(other)
+        if (other == null || other === Default || other === this) return this
+        if (this === Default) return other
+        val mergedSpan = spanStyle.merge(other.spanStyle)
+        val mergedPara = paragraphStyle.merge(other.paragraphStyle)
+        if (mergedSpan === spanStyle && mergedPara === paragraphStyle) return this
+        if (mergedSpan === other.spanStyle && mergedPara === other.paragraphStyle) return other
+        return TextStyle(
+            spanStyle = mergedSpan,
+            paragraphStyle = mergedPara,
+            platformStyle = mergePlatformStyle(mergedSpan, mergedPara, other.platformStyle),
+        )
+    }
+
+    private fun mergeLegacy(other: TextStyle?): TextStyle {
         if (other == null || other == Default) return this
         return TextStyle(
             spanStyle = toSpanStyle().merge(other.toSpanStyle()),
             paragraphStyle = toParagraphStyle().merge(other.toParagraphStyle()),
         )
     }
+
+    private fun mergePlatformStyle(
+        mergedSpan: SpanStyle,
+        mergedPara: ParagraphStyle,
+        otherPlatform: PlatformTextStyle?,
+    ): PlatformTextStyle? =
+        selectOrCreatePlatformStyle(
+            spanStyle = mergedSpan,
+            paragraphStyle = mergedPara,
+            primaryCandidate = otherPlatform,
+            secondaryCandidate = this.platformStyle,
+        )
 
     /**
      * Merges this style with individual styling parameters.
@@ -701,8 +740,18 @@ internal constructor(
                 hyphens = hyphens,
                 textMotion = textMotion,
             )
-        if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
-        return TextStyle(mergedSpanStyle, mergedParagraphStyle)
+        if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) {
+            return this
+        }
+        if (!PackedTextStylesLatch.isEnabled) {
+            return TextStyle(mergedSpanStyle, mergedParagraphStyle)
+        }
+        return TextStyle(
+            spanStyle = mergedSpanStyle,
+            paragraphStyle = mergedParagraphStyle,
+            platformStyle =
+                mergePlatformStyle(mergedSpanStyle, mergedParagraphStyle, platformStyle),
+        )
     }
 
     @Deprecated(
@@ -772,8 +821,18 @@ internal constructor(
                 hyphens = hyphens ?: Hyphens.Unspecified,
                 textMotion = textMotion,
             )
-        if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
-        return TextStyle(mergedSpanStyle, mergedParagraphStyle)
+        if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) {
+            return this
+        }
+        if (!PackedTextStylesLatch.isEnabled) {
+            return TextStyle(mergedSpanStyle, mergedParagraphStyle)
+        }
+        return TextStyle(
+            spanStyle = mergedSpanStyle,
+            paragraphStyle = mergedParagraphStyle,
+            platformStyle =
+                mergePlatformStyle(mergedSpanStyle, mergedParagraphStyle, platformStyle),
+        )
     }
 
     /**
@@ -783,9 +842,26 @@ internal constructor(
      */
     @Stable
     public fun merge(other: SpanStyle): TextStyle {
+        if (!PackedTextStylesLatch.isEnabled) {
+            return TextStyle(spanStyle = spanStyle.merge(other), paragraphStyle = paragraphStyle)
+        }
+        val mergedSpan = spanStyle.merge(other)
+        if (mergedSpan === spanStyle) return this
+        val mergedPlatform =
+            if (
+                other.platformStyle == null || mergedSpan.platformStyle == spanStyle.platformStyle
+            ) {
+                this.platformStyle
+            } else {
+                createPlatformTextStyleInternal(
+                    mergedSpan.platformStyle,
+                    paragraphStyle.platformStyle,
+                )
+            }
         return TextStyle(
-            spanStyle = toSpanStyle().merge(other),
-            paragraphStyle = toParagraphStyle(),
+            spanStyle = mergedSpan,
+            paragraphStyle = paragraphStyle,
+            platformStyle = mergedPlatform,
         )
     }
 
@@ -796,9 +872,27 @@ internal constructor(
      */
     @Stable
     public fun merge(other: ParagraphStyle): TextStyle {
+        if (!PackedTextStylesLatch.isEnabled) {
+            return TextStyle(spanStyle = spanStyle, paragraphStyle = paragraphStyle.merge(other))
+        }
+        val mergedPara = paragraphStyle.merge(other)
+        if (mergedPara === paragraphStyle) return this
+        val mergedPlatform =
+            if (
+                other.platformStyle == null ||
+                    mergedPara.platformStyle == paragraphStyle.platformStyle
+            ) {
+                this.platformStyle
+            } else {
+                createPlatformTextStyleInternal(
+                    spanStyle.platformStyle,
+                    mergedPara.platformStyle,
+                )
+            }
         return TextStyle(
-            spanStyle = toSpanStyle(),
-            paragraphStyle = toParagraphStyle().merge(other),
+            spanStyle = spanStyle,
+            paragraphStyle = mergedPara,
+            platformStyle = mergedPlatform,
         )
     }
 
@@ -839,13 +933,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -859,11 +949,9 @@ internal constructor(
                     background = background,
                     textDecoration = textDecoration,
                     shadow = shadow,
-                    platformStyle = this.spanStyle.platformStyle,
-                    drawStyle = this.spanStyle.drawStyle,
                 ),
             paragraphStyle =
-                ParagraphStyle(
+                createParagraphStyle(
                     textAlign = textAlign ?: TextAlign.Unspecified,
                     textDirection = textDirection ?: TextDirection.Unspecified,
                     lineHeight = lineHeight,
@@ -908,13 +996,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -929,10 +1013,9 @@ internal constructor(
                     textDecoration = textDecoration,
                     shadow = shadow,
                     platformStyle = platformStyle?.spanStyle,
-                    drawStyle = this.spanStyle.drawStyle,
                 ),
             paragraphStyle =
-                ParagraphStyle(
+                createParagraphStyle(
                     textAlign = textAlign ?: TextAlign.Unspecified,
                     textDirection = textDirection ?: TextDirection.Unspecified,
                     lineHeight = lineHeight,
@@ -979,13 +1062,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -1003,7 +1082,7 @@ internal constructor(
                     drawStyle = this.drawStyle,
                 ),
             paragraphStyle =
-                ParagraphStyle(
+                createParagraphStyle(
                     textAlign = textAlign ?: TextAlign.Unspecified,
                     textDirection = textDirection ?: TextDirection.Unspecified,
                     lineHeight = lineHeight,
@@ -1053,13 +1132,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -1077,7 +1152,7 @@ internal constructor(
                     drawStyle = drawStyle,
                 ),
             paragraphStyle =
-                ParagraphStyle(
+                createParagraphStyle(
                     textAlign = textAlign ?: TextAlign.Unspecified,
                     textDirection = textDirection ?: TextDirection.Unspecified,
                     lineHeight = lineHeight,
@@ -1120,13 +1195,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -1144,7 +1215,7 @@ internal constructor(
                     drawStyle = drawStyle,
                 ),
             paragraphStyle =
-                ParagraphStyle(
+                createParagraphStyle(
                     textAlign = textAlign,
                     textDirection = textDirection,
                     lineHeight = lineHeight,
@@ -1195,7 +1266,7 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
+                createSpanStyle(
                     brush = brush,
                     alpha = alpha,
                     fontSize = fontSize,
@@ -1215,7 +1286,7 @@ internal constructor(
                     drawStyle = drawStyle,
                 ),
             paragraphStyle =
-                ParagraphStyle(
+                createParagraphStyle(
                     textAlign = textAlign ?: TextAlign.Unspecified,
                     textDirection = textDirection ?: TextDirection.Unspecified,
                     lineHeight = lineHeight,
@@ -1259,7 +1330,7 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
+                createSpanStyle(
                     brush = brush,
                     alpha = alpha,
                     fontSize = fontSize,
@@ -1279,7 +1350,7 @@ internal constructor(
                     drawStyle = drawStyle,
                 ),
             paragraphStyle =
-                ParagraphStyle(
+                createParagraphStyle(
                     textAlign = textAlign,
                     textDirection = textDirection,
                     lineHeight = lineHeight,
@@ -1448,7 +1519,7 @@ internal constructor(
 
         if (spanStyle != other.spanStyle) return false
         if (paragraphStyle != other.paragraphStyle) return false
-        if (platformStyle != other.platformStyle) return false
+        if (!PackedTextStylesLatch.isEnabled && platformStyle != other.platformStyle) return false
 
         return true
     }
@@ -1479,14 +1550,26 @@ internal constructor(
     override fun hashCode(): Int {
         var result = spanStyle.hashCode()
         result = 31 * result + paragraphStyle.hashCode()
-        result = 31 * result + (platformStyle?.hashCode() ?: 0)
+        // When PackedTextStylesLatch is enabled, platformStyle is strictly derived from
+        // spanStyle.platformStyle and paragraphStyle.platformStyle, which are already folded
+        // into spanStyle and paragraphStyle packed hashes.
+        if (!PackedTextStylesLatch.isEnabled) {
+            result = 31 * result + (platformStyle?.hashCode() ?: 0)
+        }
         return result
     }
 
     internal fun hashCodeLayoutAffectingAttributes(): Int {
         var result = spanStyle.hashCodeLayoutAffectingAttributes()
         result = 31 * result + paragraphStyle.hashCode()
-        result = 31 * result + (platformStyle?.hashCode() ?: 0)
+        // When PackedTextStylesLatch is enabled, platformStyle is strictly a function of
+        // (spanStyle.platformStyle, paragraphStyle.platformStyle), which are already hashed via
+        // SpanStyle.LAYOUT_BITS (HAS_PLATFORM_STYLE) and ParagraphStyle.bits (PLATFORM_STYLE_MASK).
+        // Any future PlatformTextStyle-only field added to TextStyle must also update
+        // hasSameLayoutAffectingAttributes and hashCodeLayoutAffectingAttributes.
+        if (!PackedTextStylesLatch.isEnabled) {
+            result = 31 * result + (platformStyle?.hashCode() ?: 0)
+        }
         return result
     }
 
@@ -1540,10 +1623,39 @@ internal constructor(
  * negative values and values greater than 1.0 are valid.
  */
 public fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
+    val lerpedSpan = lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction)
+    val lerpedPara = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction)
+    if (!PackedTextStylesLatch.isEnabled) {
+        return TextStyle(spanStyle = lerpedSpan, paragraphStyle = lerpedPara)
+    }
     return TextStyle(
-        spanStyle = lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction),
-        paragraphStyle = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction),
+        spanStyle = lerpedSpan,
+        paragraphStyle = lerpedPara,
+        platformStyle =
+            selectOrCreatePlatformStyle(
+                spanStyle = lerpedSpan,
+                paragraphStyle = lerpedPara,
+                primaryCandidate = if (fraction < 0.5f) start.platformStyle else stop.platformStyle,
+                secondaryCandidate =
+                    if (fraction < 0.5f) stop.platformStyle else start.platformStyle,
+            ),
     )
+}
+
+private object ResolvedDefaultTextStyles {
+    @JvmField
+    val Ltr =
+        TextStyle(
+            BoxedStyleValues.ResolvedDefaultSpanStyle,
+            BoxedStyleValues.ResolvedDefaultParagraphStyleLtr,
+        )
+
+    @JvmField
+    val Rtl =
+        TextStyle(
+            BoxedStyleValues.ResolvedDefaultSpanStyle,
+            BoxedStyleValues.ResolvedDefaultParagraphStyleRtl,
+        )
 }
 
 /**
@@ -1555,30 +1667,89 @@ public fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
  * @param direction a layout direction to be used for resolving text layout direction algorithm
  * @return resolved text style.
  */
-public fun resolveDefaults(style: TextStyle, direction: LayoutDirection): TextStyle =
-    TextStyle(
-        spanStyle = resolveSpanStyleDefaults(style.spanStyle),
-        paragraphStyle = resolveParagraphStyleDefaults(style.paragraphStyle, direction),
+public fun resolveDefaults(style: TextStyle, direction: LayoutDirection): TextStyle {
+    if (!PackedTextStylesLatch.isEnabled) {
+        return TextStyle(
+            spanStyle = resolveSpanStyleDefaults(style.spanStyle),
+            paragraphStyle = resolveParagraphStyleDefaults(style.paragraphStyle, direction),
+            platformStyle = style.platformStyle,
+        )
+    }
+    if (style === TextStyle.Default) {
+        return if (direction == LayoutDirection.Ltr) {
+            ResolvedDefaultTextStyles.Ltr
+        } else {
+            ResolvedDefaultTextStyles.Rtl
+        }
+    }
+    val resolvedSpan = resolveSpanStyleDefaults(style.spanStyle)
+    val resolvedPara = resolveParagraphStyleDefaults(style.paragraphStyle, direction)
+    if (resolvedSpan === style.spanStyle && resolvedPara === style.paragraphStyle) {
+        return style
+    }
+    if (resolvedSpan === BoxedStyleValues.ResolvedDefaultSpanStyle && style.platformStyle == null) {
+        if (
+            direction == LayoutDirection.Ltr &&
+                resolvedPara === BoxedStyleValues.ResolvedDefaultParagraphStyleLtr
+        ) {
+            return ResolvedDefaultTextStyles.Ltr
+        }
+        if (
+            direction == LayoutDirection.Rtl &&
+                resolvedPara === BoxedStyleValues.ResolvedDefaultParagraphStyleRtl
+        ) {
+            return ResolvedDefaultTextStyles.Rtl
+        }
+    }
+    return TextStyle(
+        spanStyle = resolvedSpan,
+        paragraphStyle = resolvedPara,
         platformStyle = style.platformStyle,
     )
+}
 
 /** If [textDirection] is null returns a [TextDirection] based on [layoutDirection]. */
 internal fun resolveTextDirection(
     layoutDirection: LayoutDirection,
     textDirection: TextDirection,
 ): TextDirection {
+    // Each arm uses an inner if-else (single reference compare against LayoutDirection.Ltr) rather
+    // than compound `when` conditions, which would emit extra branch targets and repeated loads.
     return when (textDirection) {
         TextDirection.Content ->
-            when (layoutDirection) {
-                LayoutDirection.Ltr -> TextDirection.ContentOrLtr
-                LayoutDirection.Rtl -> TextDirection.ContentOrRtl
+            if (layoutDirection == LayoutDirection.Ltr) {
+                TextDirection.ContentOrLtr
+            } else {
+                TextDirection.ContentOrRtl
             }
         TextDirection.Unspecified ->
-            when (layoutDirection) {
-                LayoutDirection.Ltr -> TextDirection.Ltr
-                LayoutDirection.Rtl -> TextDirection.Rtl
+            if (layoutDirection == LayoutDirection.Ltr) {
+                TextDirection.Ltr
+            } else {
+                TextDirection.Rtl
             }
         else -> textDirection
+    }
+}
+
+private fun selectOrCreatePlatformStyle(
+    spanStyle: SpanStyle,
+    paragraphStyle: ParagraphStyle,
+    primaryCandidate: PlatformTextStyle?,
+    secondaryCandidate: PlatformTextStyle?,
+): PlatformTextStyle? {
+    if (primaryCandidate == null && secondaryCandidate == null) return null
+    val spanPlatform = spanStyle.platformStyle
+    val paraPlatform = paragraphStyle.platformStyle
+    if (spanPlatform == null && paraPlatform == null) return null
+    return when {
+        primaryCandidate != null &&
+            spanPlatform == primaryCandidate.spanStyle &&
+            paraPlatform == primaryCandidate.paragraphStyle -> primaryCandidate
+        secondaryCandidate != null &&
+            spanPlatform == secondaryCandidate.spanStyle &&
+            paraPlatform == secondaryCandidate.paragraphStyle -> secondaryCandidate
+        else -> createPlatformTextStyleInternal(spanPlatform, paraPlatform)
     }
 }
 

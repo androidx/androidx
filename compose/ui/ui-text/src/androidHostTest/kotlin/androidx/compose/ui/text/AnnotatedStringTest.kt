@@ -26,6 +26,8 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -950,5 +952,679 @@ class AnnotatedStringTest {
     fun AnnotatedStringSaver_isAnnotatedStringSaver() {
         // already covered by existing tests if this is true
         assertThat(AnnotatedString.Saver).isSameInstanceAs(AnnotatedStringSaver)
+    }
+
+    @Test
+    fun builder_packedRangeBounds_pushPopAndAddStyle() {
+        val text = buildAnnotatedString {
+            withStyle(SpanStyle(color = Color.Red)) {
+                append("Hello ")
+                withStyle(SpanStyle(fontSize = 18.sp)) {
+                    append("World")
+                }
+            }
+        }
+        assertThat(text.text).isEqualTo("Hello World")
+        assertThat(text.spanStyles).hasSize(2)
+        assertThat(text.spanStyles[0].start).isEqualTo(0)
+        assertThat(text.spanStyles[0].end).isEqualTo(11)
+        assertThat(text.spanStyles[1].start).isEqualTo(6)
+        assertThat(text.spanStyles[1].end).isEqualTo(11)
+    }
+
+    @Test
+    fun builderAppend_andSubstringWithoutParagraphStyles_preserveZeroLengthEndRange() {
+        val endSpan = AnnotatedString.Range(SpanStyle(color = Color.Red), 3, 3)
+        val endTag = AnnotatedString.Range("meta", 3, 3, "tag")
+        val source = buildAnnotatedString {
+            append("abc")
+            addStyle(ParagraphStyle(textAlign = TextAlign.Center), 0, 3)
+            addStyle(endSpan.item, endSpan.start, endSpan.end)
+            addStringAnnotation(endTag.tag, endTag.item, endTag.start, endTag.end)
+        }
+
+        val appended = buildAnnotatedString {
+            append("12")
+            append(source, 0, source.length)
+        }
+        assertThat(appended.spanStyles).containsExactly(AnnotatedString.Range(endSpan.item, 5, 5))
+        assertThat(appended.getStringAnnotations(5, 5))
+            .containsExactly(AnnotatedString.Range("meta", 5, 5, "tag"))
+
+        val mapped =
+            source.mapEachParagraphStyle(ParagraphStyle()) { paragraphText, _ -> paragraphText }
+        assertThat(mapped).hasSize(1)
+        assertThat(mapped[0].spanStyles).containsExactly(endSpan)
+        assertThat(mapped[0].getStringAnnotations(3, 3)).containsExactly(endTag)
+    }
+
+    @Test
+    fun constructor_partitioning_reusesListWhenHomogeneous_andSplitsWhenMixed() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val spanRange = Range(SpanStyle(color = Color.Red), 0, 2)
+        val parRange = Range(par1, 0, 2)
+        val stringRange = Range(StringAnnotation("meta"), 0, 2, "tag")
+
+        for (empty in
+            listOf(
+                AnnotatedString("ab"),
+                AnnotatedString("ab", annotations = emptyList()),
+                AnnotatedString("ab", annotations = ArrayList()),
+                AnnotatedString("ab", spanStyles = emptyList(), paragraphStyles = emptyList()),
+                AnnotatedString("ab", spanStyles = ArrayList(), paragraphStyles = ArrayList()),
+                emptyAnnotatedString(),
+            )) {
+            assertThat(empty.annotations).isNull()
+            assertThat(empty.spanStylesOrNull).isNull()
+            assertThat(empty.paragraphStylesOrNull).isNull()
+            assertThat(empty.spanStyles).isEmpty()
+            assertThat(empty.paragraphStyles).isEmpty()
+            assertThat(empty.hasOtherAnnotations).isFalse()
+        }
+
+        // Public constructors defensively copy external lists.
+        val onlySpansList = listOf(spanRange)
+        for (onlySpans in
+            listOf(
+                AnnotatedString("ab", annotations = onlySpansList),
+                AnnotatedString("ab", spanStyles = onlySpansList, paragraphStyles = ArrayList()),
+            )) {
+            assertThat(onlySpans.annotations).isEqualTo(onlySpansList)
+            assertThat(onlySpans.annotations).isNotSameInstanceAs(onlySpansList)
+            assertThat(onlySpans.spanStylesOrNull).isEqualTo(onlySpansList)
+            assertThat(onlySpans.paragraphStylesOrNull).isNull()
+            assertThat(onlySpans.hasOtherAnnotations).isFalse()
+        }
+        // Trusted internal constructors reuse the list reference directly.
+        val trustedSpans = AnnotatedString("ab", onlySpansList, trusted = true)
+        assertThat(trustedSpans.annotations).isSameInstanceAs(onlySpansList)
+        assertThat(trustedSpans.spanStylesOrNull).isSameInstanceAs(onlySpansList)
+
+        val onlyParsList = listOf(parRange)
+        for (onlyPars in
+            listOf(
+                AnnotatedString("ab", annotations = onlyParsList),
+                AnnotatedString("ab", spanStyles = ArrayList(), paragraphStyles = onlyParsList),
+            )) {
+            assertThat(onlyPars.annotations).isEqualTo(onlyParsList)
+            assertThat(onlyPars.annotations).isNotSameInstanceAs(onlyParsList)
+            assertThat(onlyPars.paragraphStylesOrNull).isEqualTo(onlyParsList)
+            assertThat(onlyPars.spanStylesOrNull).isNull()
+            assertThat(onlyPars.hasOtherAnnotations).isFalse()
+        }
+        val trustedPars = AnnotatedString("ab", onlyParsList, trusted = true)
+        assertThat(trustedPars.annotations).isSameInstanceAs(onlyParsList)
+        assertThat(trustedPars.paragraphStylesOrNull).isSameInstanceAs(onlyParsList)
+
+        val onlyOther = AnnotatedString("ab", annotations = listOf(stringRange))
+        assertThat(onlyOther.spanStylesOrNull).isNull()
+        assertThat(onlyOther.paragraphStylesOrNull).isNull()
+        assertThat(onlyOther.hasOtherAnnotations).isTrue()
+
+        val spanAndPar =
+            AnnotatedString("ab", spanStyles = onlySpansList, paragraphStyles = onlyParsList)
+        assertThat(spanAndPar.spanStyles).containsExactly(spanRange)
+        assertThat(spanAndPar.paragraphStyles).containsExactly(parRange)
+        assertThat(spanAndPar.hasOtherAnnotations).isFalse()
+
+        val spanAndOther = AnnotatedString("ab", annotations = listOf(spanRange, stringRange))
+        assertThat(spanAndOther.spanStyles).containsExactly(spanRange)
+        assertThat(spanAndOther.paragraphStylesOrNull).isNull()
+        assertThat(spanAndOther.hasOtherAnnotations).isTrue()
+
+        val parAndOther = AnnotatedString("ab", annotations = listOf(parRange, stringRange))
+        assertThat(parAndOther.spanStylesOrNull).isNull()
+        assertThat(parAndOther.paragraphStyles).containsExactly(parRange)
+        assertThat(parAndOther.hasOtherAnnotations).isTrue()
+    }
+
+    @Test
+    fun sortParagraphStyles_preservesTieOrderOnStart_andEqualsHashCodeAndCharGet() {
+        val validUnsortedWithTie =
+            AnnotatedString(
+                text = "0123456789",
+                paragraphStyles =
+                    listOf(
+                        Range(par3, 6, 8),
+                        Range(par1, 0, 4),
+                        Range(par2, 0, 2),
+                        Range(par1, 8, 10),
+                    ),
+            )
+        assertThat(validUnsortedWithTie.normalizedParagraphStyles(ParagraphStyle()))
+            .isEqualTo(
+                listOf(
+                    Range(par1.merge(par2), 0, 2),
+                    Range(par1, 2, 4),
+                    Range(ParagraphStyle(), 4, 6),
+                    Range(par3, 6, 8),
+                    Range(par1, 8, 10),
+                )
+            )
+
+        assertFailsWith<IllegalArgumentException> {
+            AnnotatedString(
+                text = "0123456789",
+                paragraphStyles = listOf(Range(par3, 6, 8), Range(par2, 0, 2), Range(par1, 0, 4)),
+            )
+        }
+
+        val span = Range(SpanStyle(color = Color.Red), 0, 2)
+        val a1 = AnnotatedString("hello", listOf(span))
+        val a2 = AnnotatedString("hello", listOf(span))
+        val diffTextSameAnn = AnnotatedString("world", listOf(span))
+        val sameTextDiffAnn = AnnotatedString("hello")
+
+        assertThat(a1[0]).isEqualTo('h')
+        assertThat(a1[4]).isEqualTo('o')
+        assertThat(a1).isEqualTo(a2)
+        assertThat(a1.hashCode()).isEqualTo(a2.hashCode())
+        assertThat(a1).isNotEqualTo("hello")
+        assertThat(a1).isNotEqualTo(diffTextSameAnn)
+        assertThat(a1).isNotEqualTo(sameTextDiffAnn)
+        assertThat(sameTextDiffAnn.hashCode()).isEqualTo(31 * "hello".hashCode())
+        assertThat(a1.hasEqualAnnotations(diffTextSameAnn)).isTrue()
+        assertThat(a1.hasEqualAnnotations(sameTextDiffAnn)).isFalse()
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun subSequence_andSubstringWithoutParagraphStyles_andRangeIntervals() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val span = Range(SpanStyle(color = Color.Red), 1, 4)
+        val par = Range(par1, 1, 4)
+        val tts = Range(VerbatimTtsAnnotation("tts"), 1, 4)
+        @Suppress("DEPRECATION") val url = Range(UrlAnnotation("https://a.com"), 1, 4)
+        val linkUrl = Range(LinkAnnotation.Url("https://b.com"), 1, 4)
+        val linkClick = Range(LinkAnnotation.Clickable("click") {}, 1, 4)
+        val bullet = Range(Bullet.Default, 1, 4)
+        val tagStr = Range(StringAnnotation("val"), 1, 4, "myTag")
+
+        val pointAt0 = Range(SpanStyle(color = Color.Blue), 0, 0)
+        val pointAt1 = Range(SpanStyle(color = Color.Green), 1, 1)
+        val pointAt3 = Range(SpanStyle(color = Color.Yellow), 3, 3)
+        val pointAt5 = Range(SpanStyle(color = Color.Cyan), 5, 5)
+
+        val full =
+            AnnotatedString(
+                text = "01234",
+                annotations =
+                    listOf(
+                        span,
+                        par,
+                        tts,
+                        url,
+                        linkUrl,
+                        linkClick,
+                        bullet,
+                        tagStr,
+                        pointAt0,
+                        pointAt1,
+                        pointAt3,
+                        pointAt5,
+                    ),
+            )
+
+        assertThat(full.subSequence(TextRange(0, 5))).isSameInstanceAs(full)
+        val clipped = full.subSequence(TextRange(2, 3))
+        assertThat(clipped.text).isEqualTo("2")
+        assertThat(clipped.annotations)
+            .containsExactly(
+                Range(span.item, 0, 1),
+                Range(par.item, 0, 1),
+                Range(tts.item, 0, 1),
+                Range(url.item, 0, 1),
+                Range(linkUrl.item, 0, 1),
+                Range(linkClick.item, 0, 1),
+                Range(bullet.item, 0, 1),
+                Range(tagStr.item, 0, 1, "myTag"),
+            )
+
+        // Slice [1, 3) includes pointAt1 ([1, 1) -> [0, 0)) and excludes pointAt0 & pointAt3.
+        assertThat(full.subSequence(1, 3).spanStyles)
+            .containsExactly(Range(span.item, 0, 2), Range(pointAt1.item, 0, 0))
+        assertThat(full.subSequence(0, 0).spanStyles).containsExactly(pointAt0)
+        assertThat(full.subSequence(3, 3).spanStyles)
+            .containsExactly(Range(span.item, 0, 0), Range(pointAt3.item, 0, 0))
+        assertThat(full.subSequence(5, 5).spanStyles).containsExactly(Range(pointAt5.item, 0, 0))
+
+        // Prefix slice [0, 4) reuses existing Range instances when start == 0 and end >= range.end.
+        val prefix = full.subSequence(0, 4)
+        assertThat(prefix.spanStyles[0]).isSameInstanceAs(span)
+        assertThat(prefix.spanStyles[1]).isSameInstanceAs(pointAt0)
+        assertThat(prefix.spanStyles[2]).isSameInstanceAs(pointAt1)
+        assertThat(prefix.spanStyles[3]).isSameInstanceAs(pointAt3)
+
+        // `substringWithoutParagraphStyles` via `mapEachParagraphStyle` (all 4 branches).
+        val span1 = Range(SpanStyle(color = Color.Red), 0, 2)
+        val span2 = Range(SpanStyle(color = Color.Blue), 2, 4)
+        val parA = Range(par1, 0, 2)
+        val parB = Range(par2, 2, 4)
+        val tagA = Range(StringAnnotation("v"), 0, 3, "t")
+
+        val fullNoOther =
+            AnnotatedString(
+                "abcd",
+                spanStyles = listOf(span1),
+                paragraphStyles = listOf(Range(par1, 0, 4)),
+            )
+        val mappedFullNoOther =
+            fullNoOther.mapEachParagraphStyle(ParagraphStyle()) { sub, _ -> sub }
+        assertThat(mappedFullNoOther.single().annotations)
+            .isSameInstanceAs(fullNoOther.spanStylesOrNull)
+
+        val splitNoOther =
+            AnnotatedString(
+                "abcd",
+                spanStyles = listOf(span1, span2),
+                paragraphStyles = listOf(parA, parB),
+            )
+        assertThat(splitNoOther.mapEachParagraphStyle(ParagraphStyle()) { sub, _ -> sub })
+            .containsExactly(
+                AnnotatedString("ab", listOf(Range(span1.item, 0, 2))),
+                AnnotatedString("cd", listOf(Range(span2.item, 0, 2))),
+            )
+            .inOrder()
+
+        val splitWithOther =
+            AnnotatedString("abcd", annotations = listOf(span1, span2, parA, parB, tagA))
+        assertThat(splitWithOther.mapEachParagraphStyle(ParagraphStyle()) { sub, _ -> sub })
+            .containsExactly(
+                AnnotatedString(
+                    "ab",
+                    annotations = listOf(Range(span1.item, 0, 2), Range(tagA.item, 0, 2, "t")),
+                ),
+                AnnotatedString(
+                    "cd",
+                    annotations = listOf(Range(span2.item, 0, 2), Range(tagA.item, 0, 1, "t")),
+                ),
+            )
+            .inOrder()
+
+        val zeroPar = AnnotatedString("ab", annotations = listOf(span1, Range(par1, 0, 0), tagA))
+        val mappedZeroPar = zeroPar.mapEachParagraphStyle(ParagraphStyle()) { sub, _ -> sub }
+        assertThat(mappedZeroPar[0].text).isEmpty()
+        assertThat(mappedZeroPar[0].annotations).isNull()
+
+        // Half-open interval helpers `contains` and `intersect`.
+        for ((bS, bE, tS, tE, expected) in
+            listOf(
+                listOf(1, 5, 1, 5, 1),
+                listOf(1, 5, 2, 4, 1),
+                listOf(1, 5, 1, 1, 1),
+                listOf(1, 5, 3, 3, 1),
+                listOf(1, 5, 5, 5, 0),
+                listOf(1, 5, 0, 3, 0),
+                listOf(1, 5, 3, 6, 0),
+                listOf(3, 3, 3, 3, 1),
+                listOf(3, 3, 3, 4, 0),
+                listOf(3, 3, 2, 2, 0),
+            )) {
+            assertThat(contains(bS, bE, tS, tE)).isEqualTo(expected == 1)
+        }
+        for ((lS, lE, rS, rE, expected) in
+            listOf(
+                listOf(1, 4, 2, 5, 1),
+                listOf(1, 4, 4, 6, 0),
+                listOf(1, 4, 0, 1, 0),
+                listOf(1, 4, 1, 1, 1),
+                listOf(1, 1, 1, 4, 1),
+                listOf(1, 4, 2, 2, 1),
+                listOf(1, 4, 4, 4, 0),
+                listOf(4, 4, 1, 4, 0),
+                listOf(2, 2, 2, 2, 1),
+                listOf(2, 2, 3, 3, 0),
+            )) {
+            assertThat(intersect(lS, lE, rS, rE)).isEqualTo(expected == 1)
+        }
+    }
+
+    @Test
+    fun plus_fastPaths_andOffsetShifting() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val empty = AnnotatedString("")
+        val plainLhs = AnnotatedString("Hello")
+        val plainRhs = AnnotatedString("World")
+        val styledLhs =
+            AnnotatedString(
+                "Hello",
+                annotations = listOf(Range(SpanStyle(color = Color.Red), 1, 3)),
+            )
+        val styledRhs =
+            AnnotatedString(
+                "World",
+                annotations = listOf(Range(StringAnnotation("v"), 0, 2, "tag")),
+            )
+
+        assertThat(styledLhs + empty).isSameInstanceAs(styledLhs)
+        assertThat(plainLhs + empty).isSameInstanceAs(plainLhs)
+        assertThat(empty + styledRhs).isSameInstanceAs(styledRhs)
+        assertThat(empty + plainRhs).isSameInstanceAs(plainRhs)
+
+        val plainCombined = plainLhs + plainRhs
+        assertThat(plainCombined.text).isEqualTo("HelloWorld")
+        assertThat(plainCombined.annotations).isNull()
+
+        val lhsOnlyCombined = styledLhs + plainRhs
+        assertThat(lhsOnlyCombined.annotations).isSameInstanceAs(styledLhs.annotations)
+
+        val rhsOnlyCombined = plainLhs + styledRhs
+        assertThat(rhsOnlyCombined.annotations)
+            .containsExactly(Range(StringAnnotation("v"), 5, 7, "tag"))
+
+        val emptyWithPoint =
+            AnnotatedString("", annotations = listOf(Range(SpanStyle(color = Color.Blue), 0, 0)))
+        assertThat((plainLhs + emptyWithPoint).spanStyles)
+            .containsExactly(Range(SpanStyle(color = Color.Blue), 5, 5))
+        assertThat((emptyWithPoint + plainRhs).spanStyles)
+            .containsExactly(Range(SpanStyle(color = Color.Blue), 0, 0))
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Suppress("DEPRECATION")
+    @Test
+    fun queryMethods_fastReturnWhenNoOtherAnnotations_andEmptyTagIsolation() {
+        val plain = AnnotatedString("hello")
+        val stylesOnly =
+            AnnotatedString(
+                text = "hello",
+                spanStyles = listOf(Range(SpanStyle(color = Color.Red), 0, 5)),
+                paragraphStyles = listOf(Range(par1, 0, 5)),
+            )
+        val bulletOnly = AnnotatedString("hello", annotations = listOf(Range(Bullet.Default, 0, 5)))
+
+        for (str in listOf(plain, stylesOnly, bulletOnly)) {
+            assertThat(str.getStringAnnotations(0, 5)).isEmpty()
+            assertThat(str.getStringAnnotations("", 0, 5)).isEmpty()
+            assertThat(str.getStringAnnotations("tag", 0, 5)).isEmpty()
+            assertThat(str.hasStringAnnotations("", 0, 5)).isFalse()
+            assertThat(str.hasStringAnnotations("tag", 0, 5)).isFalse()
+            assertThat(str.getTtsAnnotations(0, 5)).isEmpty()
+            assertThat(str.getUrlAnnotations(0, 5)).isEmpty()
+            assertThat(str.getLinkAnnotations(0, 5)).isEmpty()
+            assertThat(str.hasLinkAnnotations(0, 5)).isFalse()
+        }
+
+        val linkUrl = LinkAnnotation.Url("https://compose.dev")
+        val linkClick = LinkAnnotation.Clickable("btn") {}
+        val tts = VerbatimTtsAnnotation("tts")
+        val url = UrlAnnotation("https://old.dev")
+        val mixed = buildAnnotatedString {
+            append("0123456789")
+            addStyle(SpanStyle(color = Color.Red), 0, 10)
+            addStyle(par1, 0, 10)
+            addBullet(Bullet.Default, 0, 10)
+            addTtsAnnotation(tts, 1, 3)
+            addUrlAnnotation(url, 2, 4)
+            addLink(linkUrl, 3, 5)
+            addLink(linkClick, 6, 8)
+            addStringAnnotation(tag = "", annotation = "emptyTagValue", start = 4, end = 7)
+            addStringAnnotation(tag = "custom", annotation = "customValue", start = 4, end = 7)
+        }
+
+        assertThat(mixed.hasStringAnnotations("", 0, 3)).isFalse()
+        assertThat(mixed.hasStringAnnotations("", 4, 5)).isTrue()
+        assertThat(mixed.getStringAnnotations("", 0, 10))
+            .containsExactly(Range("emptyTagValue", 4, 7, ""))
+        assertThat(mixed.getStringAnnotations(0, 10))
+            .containsExactly(Range("emptyTagValue", 4, 7, ""), Range("customValue", 4, 7, "custom"))
+
+        assertThat(mixed.hasLinkAnnotations(0, 3)).isFalse()
+        assertThat(mixed.hasLinkAnnotations(3, 4)).isTrue()
+        assertThat(mixed.hasLinkAnnotations(5, 6)).isFalse()
+        assertThat(mixed.hasLinkAnnotations(7, 8)).isTrue()
+        assertThat(mixed.hasLinkAnnotations(8, 10)).isFalse()
+        assertThat(mixed.getLinkAnnotations(0, 10))
+            .containsExactly(Range(linkUrl, 3, 5, ""), Range(linkClick, 6, 8, ""))
+
+        // Reversed range [start > end] returns empty / false across all query methods.
+        assertThat(mixed.getStringAnnotations(8, 2)).isEmpty()
+        assertThat(mixed.getStringAnnotations("", 8, 2)).isEmpty()
+        assertThat(mixed.hasStringAnnotations("", 8, 2)).isFalse()
+        assertThat(mixed.getTtsAnnotations(8, 2)).isEmpty()
+        assertThat(mixed.getUrlAnnotations(8, 2)).isEmpty()
+        assertThat(mixed.getLinkAnnotations(8, 2)).isEmpty()
+        assertThat(mixed.hasLinkAnnotations(8, 2)).isFalse()
+    }
+
+    @Test
+    fun mapAnnotations_andFlatMapAnnotations_copyOnWriteAndExpansion() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val plain = AnnotatedString("hello")
+        var invoked = false
+        assertThat(
+                plain.mapAnnotations {
+                    invoked = true
+                    it
+                }
+            )
+            .isSameInstanceAs(plain)
+        assertThat(
+                plain.flatMapAnnotations {
+                    invoked = true
+                    listOf(it)
+                }
+            )
+            .isSameInstanceAs(plain)
+        assertThat(invoked).isFalse()
+
+        val r0 = Range(SpanStyle(color = Color.Red), 0, 2)
+        val r1 = Range(SpanStyle(color = Color.Green), 2, 4)
+        val r2 = Range(StringAnnotation("v"), 1, 5, "tag")
+        val annotated = AnnotatedString("hello", annotations = listOf(r0, r1, r2))
+
+        assertThat(annotated.mapAnnotations { it }).isSameInstanceAs(annotated)
+
+        val replacedR1 = Range(SpanStyle(color = Color.Blue), 2, 5)
+        val mappedMiddle = annotated.mapAnnotations { if (it === r1) replacedR1 else it }
+        assertThat(mappedMiddle.annotations).containsExactly(r0, replacedR1, r2).inOrder()
+        assertThat(mappedMiddle.annotations!![0]).isSameInstanceAs(r0)
+        assertThat(mappedMiddle.annotations!![2]).isSameInstanceAs(r2)
+
+        val replacedR0 = Range(SpanStyle(color = Color.Yellow), 0, 1)
+        assertThat(annotated.mapAnnotations { if (it === r0) replacedR0 else it }.annotations)
+            .containsExactly(replacedR0, r1, r2)
+            .inOrder()
+
+        assertThat(annotated.flatMapAnnotations { emptyList() }.annotations).isNull()
+        val expanded = annotated.flatMapAnnotations { range ->
+            if (range === r0) listOf(Range(r0.item, 0, 1), Range(r0.item, 1, 2)) else listOf(range)
+        }
+        assertThat(expanded.annotations)
+            .containsExactly(Range(r0.item, 0, 1), Range(r0.item, 1, 2), r1, r2)
+            .inOrder()
+    }
+
+    @Test
+    fun normalizedParagraphStyles_singleParagraphFastPaths_andZeroLengthFallthroughs() {
+        val defaultStyle = ParagraphStyle(lineHeight = 20.sp)
+        val customStyle = ParagraphStyle(textAlign = TextAlign.Center)
+        val merged = defaultStyle.merge(customStyle)
+
+        assertThat(
+                AnnotatedString("Hello World", paragraphStyles = listOf(Range(customStyle, 0, 11)))
+                    .normalizedParagraphStyles(defaultStyle)
+            )
+            .containsExactly(Range(merged, 0, 11))
+
+        assertThat(
+                AnnotatedString("Hello World", paragraphStyles = listOf(Range(customStyle, 2, 8)))
+                    .normalizedParagraphStyles(defaultStyle)
+            )
+            .containsExactly(
+                Range(defaultStyle, 0, 2),
+                Range(merged, 2, 8),
+                Range(defaultStyle, 8, 11),
+            )
+            .inOrder()
+
+        assertThat(
+                AnnotatedString("Hello World", paragraphStyles = listOf(Range(customStyle, 6, 11)))
+                    .normalizedParagraphStyles(defaultStyle)
+            )
+            .containsExactly(Range(defaultStyle, 0, 6), Range(merged, 6, 11))
+            .inOrder()
+
+        assertThat(
+                AnnotatedString("abcd", paragraphStyles = listOf(Range(customStyle, 2, 2)))
+                    .normalizedParagraphStyles(defaultStyle)
+            )
+            .containsExactly(
+                Range(defaultStyle, 0, 2),
+                Range(merged, 2, 2),
+                Range(defaultStyle, 2, 4),
+            )
+            .inOrder()
+
+        assertThat(
+                AnnotatedString("abcd", paragraphStyles = listOf(Range(customStyle, 4, 4)))
+                    .normalizedParagraphStyles(defaultStyle)
+            )
+            .containsExactly(Range(defaultStyle, 0, 4), Range(merged, 4, 4))
+            .inOrder()
+
+        assertThat(
+                AnnotatedString("", paragraphStyles = listOf(Range(customStyle, 0, 0)))
+                    .normalizedParagraphStyles(defaultStyle)
+            )
+            .containsExactly(Range(merged, 0, 0))
+
+        assertThat(
+                AnnotatedString(
+                        text = "0123456789",
+                        paragraphStyles = listOf(Range(par2, 6, 8), Range(par1, 1, 3)),
+                    )
+                    .normalizedParagraphStyles(defaultStyle)
+            )
+            .containsExactly(
+                Range(defaultStyle, 0, 1),
+                Range(defaultStyle.merge(par1), 1, 3),
+                Range(defaultStyle, 3, 6),
+                Range(defaultStyle.merge(par2), 6, 8),
+                Range(defaultStyle, 8, 10),
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun zeroLengthPointRangeAtStringBoundary_isPreserved() {
+        val text = "abc"
+        val spanStyle = SpanStyle(color = Color.Red)
+        val annotatedString =
+            AnnotatedString(
+                text = text,
+                spanStyles = listOf(Range(spanStyle, 3, 3)),
+            )
+        assertThat(annotatedString.spanStyles).containsExactly(Range(spanStyle, 3, 3))
+
+        val withoutParagraphs = annotatedString.substringWithoutParagraphStyles(0, 3)
+        assertThat(withoutParagraphs.spanStyles).containsExactly(Range(spanStyle, 3, 3))
+    }
+
+    @Test
+    fun publicConstructor_defensivelyCopiesAnnotations() {
+        val mutableAnnotations = mutableListOf(Range(SpanStyle(color = Color.Red), 0, 2))
+        val annotatedString = AnnotatedString("hello", mutableAnnotations)
+        mutableAnnotations.add(Range(SpanStyle(color = Color.Blue), 2, 4))
+
+        assertThat(annotatedString.spanStyles).hasSize(1)
+        assertThat(annotatedString.spanStyles.first().item.color).isEqualTo(Color.Red)
+    }
+
+    @Test
+    fun internalConstructor_andSubstringWithoutParagraphStyles_normalizeEmptyAnnotations() {
+        val expected = AnnotatedString("hello")
+        val candidates =
+            listOf(
+                AnnotatedString.Builder("hello").toAnnotatedString(),
+                buildAnnotatedString { append("hello") },
+                AnnotatedString("hello", annotations = null, trusted = true),
+                AnnotatedString("hello", annotations = emptyList(), trusted = true),
+                AnnotatedString("hello", annotations = ArrayList(), trusted = true),
+                AnnotatedString("hello", annotations = null, trusted = false),
+                AnnotatedString("hello", annotations = emptyList(), trusted = false),
+                AnnotatedString("hello", annotations = ArrayList(), trusted = false),
+                AnnotatedString(
+                        "hello",
+                        annotations = listOf(Range(SpanStyle(color = Color.Red), 0, 5)),
+                    )
+                    .flatMapAnnotations { emptyList() },
+                AnnotatedString("hello").substringWithoutParagraphStyles(0, 5),
+                AnnotatedString("hello world").substringWithoutParagraphStyles(0, 5),
+                AnnotatedString("hello", paragraphStyles = listOf(Range(par1, 0, 5)))
+                    .substringWithoutParagraphStyles(0, 5),
+                AnnotatedString(
+                        "hello world",
+                        spanStyles = listOf(Range(SpanStyle(color = Color.Red), 6, 11)),
+                    )
+                    .substringWithoutParagraphStyles(0, 5),
+            )
+
+        for (candidate in candidates) {
+            assertThat(candidate.annotations).isNull()
+            assertThat(candidate.spanStylesOrNull).isNull()
+            assertThat(candidate.paragraphStylesOrNull).isNull()
+            assertThat(candidate).isEqualTo(expected)
+            assertThat(expected).isEqualTo(candidate)
+            assertThat(candidate.hashCode()).isEqualTo(expected.hashCode())
+            assertThat(candidate.hasEqualAnnotations(expected)).isTrue()
+        }
+
+        val emptySlice = AnnotatedString("hello").substringWithoutParagraphStyles(2, 2)
+        val expectedEmpty = AnnotatedString("")
+        assertThat(emptySlice.annotations).isNull()
+        assertThat(emptySlice).isEqualTo(expectedEmpty)
+        assertThat(emptySlice.hashCode()).isEqualTo(expectedEmpty.hashCode())
+    }
+
+    @Test
+    fun internalConstructor_untrusted_defensivelyCopiesAndValidatesUnsortedParagraphs() {
+        val emptyMutable = mutableListOf<Range<out AnnotatedString.Annotation>>()
+        val fromEmptyUntrusted =
+            AnnotatedString("hello", annotations = emptyMutable, trusted = false)
+        emptyMutable.add(Range(SpanStyle(color = Color.Red), 0, 5))
+        assertThat(fromEmptyUntrusted.annotations).isNull()
+        assertThat(fromEmptyUntrusted).isEqualTo(AnnotatedString("hello"))
+        assertThat(fromEmptyUntrusted.hashCode()).isEqualTo(AnnotatedString("hello").hashCode())
+
+        val spanFirst = Range(SpanStyle(color = Color.Red), 4, 8)
+        val spanSecond = Range(SpanStyle(color = Color.Blue), 0, 6)
+        val innerPar = Range(par2, 1, 3)
+        val outerPar = Range(par1, 0, 4)
+        val trailingPar = Range(par3, 6, 8)
+        val mutableInput =
+            mutableListOf<Range<out AnnotatedString.Annotation>>(
+                trailingPar,
+                spanFirst,
+                innerPar,
+                outerPar,
+                spanSecond,
+            )
+        val untrusted = AnnotatedString("0123456789", annotations = mutableInput, trusted = false)
+        mutableInput.clear()
+
+        assertThat(untrusted.spanStyles).containsExactly(spanFirst, spanSecond).inOrder()
+        assertThat(untrusted.paragraphStyles)
+            .containsExactly(trailingPar, innerPar, outerPar)
+            .inOrder()
+        val defaultPar = ParagraphStyle()
+        assertThat(untrusted.normalizedParagraphStyles(defaultPar))
+            .containsExactly(
+                Range(outerPar.item, 0, 1),
+                Range(outerPar.item.merge(innerPar.item), 1, 3),
+                Range(outerPar.item, 3, 4),
+                Range(defaultPar, 4, 6),
+                Range(trailingPar.item, 6, 8),
+                Range(defaultPar, 8, 10),
+            )
+            .inOrder()
+
+        assertFailsWith<IllegalArgumentException> {
+            AnnotatedString(
+                text = "0123456789",
+                annotations = listOf(Range(par2, 2, 6), Range(par1, 0, 4)),
+                trusted = false,
+            )
+        }
     }
 }

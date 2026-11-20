@@ -327,4 +327,138 @@ class AnnotatedStringTransformTest {
         assertThat(uppercase.spanStyles).isEqualTo(input.spanStyles)
         assertThat(uppercase.paragraphStyles).isEqualTo(input.paragraphStyles)
     }
+
+    /**
+     * Exact pre-CL 1 reference implementation of `AnnotatedString.transform` using `sortedSetOf(0,
+     * text.length)` and `windowed(size = 2)` to verify 100% behavioral equivalence.
+     */
+    private fun referenceTransform(
+        input: AnnotatedString,
+        transform: (String, Int, Int) -> String,
+    ): AnnotatedString {
+        val transitions = sortedSetOf(0, input.text.length)
+        input.annotations?.forEach { range ->
+            transitions.add(range.start)
+            transitions.add(range.end)
+        }
+        var resultStr = ""
+        val offsetMap = mutableMapOf(0 to 0)
+        transitions.windowed(size = 2) { (start, end) ->
+            resultStr += transform(input.text, start, end)
+            offsetMap.put(end, resultStr.length)
+        }
+        return AnnotatedString(
+            text = resultStr,
+            annotations =
+                input.annotations?.map {
+                    AnnotatedString.Range(
+                        it.item,
+                        offsetMap[it.start]!!,
+                        offsetMap[it.end]!!,
+                        it.tag,
+                    )
+                },
+        )
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun `transform matches pre-optimization reference across empty, collapsed, overlapping, and multi-annotation inputs`() {
+        val drawAnnotation = DrawAnnotation(drawBehind = {})
+        val inputs =
+            listOf(
+                AnnotatedString(""),
+                AnnotatedString(
+                    text = "",
+                    annotations =
+                        listOf(
+                            AnnotatedString.Range(spanStyle1, 0, 0),
+                            AnnotatedString.Range(StringAnnotation("v"), 0, 0, "tag"),
+                        ),
+                ),
+                AnnotatedString("single"),
+                buildAnnotatedString {
+                    append("abcdefghij")
+                    addStyle(spanStyle1, 0, 0) // collapsed at start
+                    addStyle(spanStyle2, 2, 7) // interior
+                    addStyle(spanStyle3, 5, 5) // collapsed in middle
+                    addStyle(spanStyle1, 5, 10) // overlapping + touching end
+                    addStyle(spanStyle2, 10, 10) // collapsed at end
+                    addStyle(paraStyle1, 0, 5)
+                    addStyle(paraStyle2, 5, 10)
+                    addStringAnnotation("tag1", "val1", 1, 9)
+                    addTtsAnnotation(VerbatimTtsAnnotation("tts"), 3, 6)
+                    @Suppress("DEPRECATION") addUrlAnnotation(UrlAnnotation("https://a.com"), 0, 4)
+                    addLink(LinkAnnotation.Url("https://b.com"), 4, 8)
+                    addDrawAnnotation(drawAnnotation, 2, 8)
+                },
+            )
+
+        val transforms: List<(String, Int, Int) -> String> =
+            listOf(
+                // 1:1 length-preserving transform (offsetMap remains null)
+                { str, s, e -> str.substring(s, e).uppercase(Locale.ROOT) },
+                // Uniform 2x expansion (offsetMap allocated at first non-empty slice)
+                { str, s, e -> str.substring(s, e).repeat(2) },
+                // Prefix 1:1 then expansion then contraction (exercises lazy offsetMap backfill)
+                { str, s, e ->
+                    val sub = str.substring(s, e)
+                    when {
+                        e <= 3 -> sub.uppercase(Locale.ROOT)
+                        s < 6 -> sub + sub + "!"
+                        else -> if (sub.isNotEmpty()) sub.substring(0, 1) else ""
+                    }
+                },
+                // Complete deletion of all slices (maps every cut to 0)
+                { _, _, _ -> "" },
+            )
+
+        for (input in inputs) {
+            for (fn in transforms) {
+                var actualCalls = 0
+                var expectedCalls = 0
+                val actual = input.transform { str, s, e ->
+                    actualCalls++
+                    fn(str, s, e)
+                }
+                val expected =
+                    referenceTransform(input) { str, s, e ->
+                        expectedCalls++
+                        fn(str, s, e)
+                    }
+                assertThat(actualCalls).isEqualTo(expectedCalls)
+                assertThat(actual.text).isEqualTo(expected.text)
+                assertThat(actual.annotations).isEqualTo(expected.annotations)
+                assertThat(actual).isEqualTo(expected)
+            }
+        }
+    }
+
+    @Test
+    fun `empty text with collapsed range never invokes transform callback and matches legacy`() {
+        val emptyWithCollapsedRanges =
+            AnnotatedString(
+                text = "",
+                annotations =
+                    listOf(
+                        AnnotatedString.Range(spanStyle1, 0, 0),
+                        AnnotatedString.Range(StringAnnotation("value"), 0, 0, "customTag"),
+                    ),
+            )
+        var packedCalls = 0
+        var legacyCalls = 0
+        val packedResult = emptyWithCollapsedRanges.transform { _, _, _ ->
+            packedCalls++
+            "unexpected"
+        }
+        val legacyResult = emptyWithCollapsedRanges.legacyTransform { _, _, _ ->
+            legacyCalls++
+            "unexpected"
+        }
+        assertThat(packedCalls).isEqualTo(0)
+        assertThat(legacyCalls).isEqualTo(0)
+        assertThat(packedResult).isEqualTo(legacyResult)
+        assertThat(packedResult.getStringAnnotations("customTag", 0, 0))
+            .containsExactly(AnnotatedString.Range("value", 0, 0, "customTag"))
+    }
 }

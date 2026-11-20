@@ -77,7 +77,9 @@ class PlatformSpanStyleTest {
         val platformStyle = PlatformSpanStyle()
         val style = SpanStyle(platformStyle = platformStyle)
 
-        assertThat(style.copy().platformStyle).isSameInstanceAs(platformStyle)
+        // PlatformSpanStyle is stateless, so SpanStyle packs its presence into a single bit
+        // (avoiding a SpanStyleExtras allocation) and returns PlatformSpanStyle.Default.
+        assertThat(style.copy().platformStyle).isEqualTo(platformStyle)
     }
 
     @Test
@@ -85,8 +87,9 @@ class PlatformSpanStyleTest {
         val style = SpanStyle(platformStyle = null)
 
         val platformStyle = PlatformSpanStyle()
-        assertThat(style.copy(platformStyle = platformStyle).platformStyle)
-            .isSameInstanceAs(platformStyle)
+        // PlatformSpanStyle is stateless, so SpanStyle packs its presence into a single bit
+        // (avoiding a SpanStyleExtras allocation) and returns PlatformSpanStyle.Default.
+        assertThat(style.copy(platformStyle = platformStyle).platformStyle).isEqualTo(platformStyle)
     }
 
     @Test

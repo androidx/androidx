@@ -258,6 +258,12 @@ package androidx.compose.ui.text {
     property public androidx.compose.ui.unit.TextUnit DefaultSize;
   }
 
+  @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public final class ComposeUiTextFlags {
+    property public boolean isPackedTextStylesEnabled;
+    field public static final androidx.compose.ui.text.ComposeUiTextFlags INSTANCE;
+    field public static boolean isPackedTextStylesEnabled;
+  }
+
   @androidx.compose.runtime.Stable public abstract class DrawAnnotation implements androidx.compose.ui.text.AnnotatedString.Annotation {
     ctor public DrawAnnotation();
     method public void drawBehind(androidx.compose.ui.text.DrawAnnotationScope);
@@ -538,7 +544,7 @@ package androidx.compose.ui.text {
   }
 
   @androidx.compose.runtime.Immutable public final class ParagraphStyle implements androidx.compose.ui.text.AnnotatedString.Annotation {
-    ctor @BytecodeOnly public ParagraphStyle();
+    ctor public ParagraphStyle();
     ctor @KotlinOnly public ParagraphStyle(optional androidx.compose.ui.text.style.TextAlign textAlign, optional androidx.compose.ui.text.style.TextDirection textDirection, optional androidx.compose.ui.unit.TextUnit lineHeight, optional androidx.compose.ui.text.style.TextIndent? textIndent, optional androidx.compose.ui.text.PlatformParagraphStyle? platformStyle, optional androidx.compose.ui.text.style.LineHeightStyle? lineHeightStyle, optional androidx.compose.ui.text.style.LineBreak lineBreak, optional androidx.compose.ui.text.style.Hyphens hyphens, optional androidx.compose.ui.text.style.TextMotion? textMotion);
     ctor @BytecodeOnly public ParagraphStyle(androidx.compose.ui.text.style.TextAlign!, androidx.compose.ui.text.style.TextDirection!, long, androidx.compose.ui.text.style.TextIndent!, androidx.compose.ui.text.PlatformParagraphStyle!, androidx.compose.ui.text.style.LineHeightStyle!, androidx.compose.ui.text.style.LineBreak!, androidx.compose.ui.text.style.Hyphens!, androidx.compose.ui.text.style.TextMotion!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public ParagraphStyle(androidx.compose.ui.text.style.TextAlign!, androidx.compose.ui.text.style.TextDirection!, long, androidx.compose.ui.text.style.TextIndent!, androidx.compose.ui.text.PlatformParagraphStyle!, androidx.compose.ui.text.style.LineHeightStyle!, androidx.compose.ui.text.style.LineBreak!, androidx.compose.ui.text.style.Hyphens!, androidx.compose.ui.text.style.TextMotion!, kotlin.jvm.internal.DefaultConstructorMarker!);

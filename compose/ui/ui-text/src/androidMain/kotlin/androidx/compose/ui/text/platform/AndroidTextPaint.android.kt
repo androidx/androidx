@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.PackedTextStylesLatch
 import androidx.compose.ui.text.platform.extensions.correctBlurRadius
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.modulate
@@ -51,6 +52,10 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
 
     // A wrapper to use Compose Paint APIs on this TextPaint
     private var backingComposePaint: Paint? = null
+    @VisibleForTesting
+    internal val hasBackingComposePaint: Boolean
+        get() = backingComposePaint != null
+
     private val composePaint: Paint
         get() {
             val finalBackingComposePaint = backingComposePaint
@@ -62,7 +67,9 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
 
     private var backingBlendMode: BlendMode = DrawScope.DefaultBlendMode
 
-    @VisibleForTesting internal var shadow: Shadow = Shadow.None
+    @VisibleForTesting
+    internal var shadow: Shadow = Shadow.None
+        private set
 
     /**
      * Different than other backing properties, this variable only exists to enable easy comparison
@@ -70,13 +77,18 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
      * Compose to platform color primitive integer is expensive, so it is more efficient to skip
      * this conversion if the color is not going to change at all.
      */
-    private var lastColor: Color? = null
+    private var lastColor: Color = Color.Unspecified
 
-    @VisibleForTesting internal var brush: Brush? = null
+    @VisibleForTesting
+    internal var brush: Brush? = null
+        private set
 
     internal var shaderState: State<Shader?>? = null
+        private set
 
-    @VisibleForTesting internal var brushSize: Size? = null
+    @VisibleForTesting
+    internal var brushSize: Size? = null
+        private set
 
     private var drawStyle: DrawStyle? = null
 
@@ -140,8 +152,12 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
                         this.shaderState = derivedStateOf { brush.createShader(size) }
                     }
                 }
-                composePaint.shader = this.shaderState?.value
-                this.lastColor = null
+                if (!PackedTextStylesLatch.isEnabled) {
+                    composePaint.shader = this.shaderState?.value
+                } else if (this.shaderState != null || backingComposePaint != null) {
+                    composePaint.shader = this.shaderState?.value
+                }
+                this.lastColor = Color.Unspecified
                 setAlpha(alpha)
             }
         }

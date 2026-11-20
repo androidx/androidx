@@ -80,6 +80,12 @@ public value class TextAlign internal constructor(public val value: Int) {
         public val Unspecified: TextAlign
             get() = TextAlign(0)
 
+        /**
+         * Max valid [TextAlign.value] (`End = 6`). Update [androidx.compose.ui.text.ParagraphStyle]
+         * bit pack code if you add a new value.
+         */
+        internal const val MAX_TEXT_ALIGN_VALUE = 6
+
         /** Return a list containing all possible values of TextAlign. */
         public fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
 
@@ -93,7 +99,7 @@ public value class TextAlign internal constructor(public val value: Int) {
          * @see [TextAlign.value]
          */
         public fun valueOf(value: Int): TextAlign {
-            requirePrecondition(value in 0..6) {
+            requirePrecondition(value in 0..MAX_TEXT_ALIGN_VALUE) {
                 "The given value=$value is not recognized by TextAlign."
             }
             return TextAlign(value)

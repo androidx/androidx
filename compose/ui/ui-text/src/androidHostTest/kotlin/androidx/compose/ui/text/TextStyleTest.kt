@@ -58,10 +58,12 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.jvmErasure
 import kotlin.test.assertNotEquals
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalTextApi::class)
 @RunWith(JUnit4::class)
 class TextStyleTest {
     @Test
@@ -1987,6 +1989,682 @@ class TextStyleTest {
                     "\n\tother   = $other" +
                     "\n\tsubject = $subject",
             )
+        }
+    }
+
+    @Test
+    fun merge_returnsSameInstance_whenNoOpOrFullOverride() {
+        assumeTrue(ComposeUiTextFlags.isPackedTextStylesEnabled)
+        val bodyLarge =
+            TextStyle(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Normal,
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                letterSpacing = 0.5.sp,
+            )
+        val labelLarge =
+            TextStyle(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                letterSpacing = 0.1.sp,
+            )
+        assertThat(bodyLarge.merge(bodyLarge)).isSameInstanceAs(bodyLarge)
+        assertThat(bodyLarge.merge(labelLarge)).isSameInstanceAs(labelLarge)
+        assertThat(bodyLarge.merge(ParagraphStyle())).isSameInstanceAs(bodyLarge)
+        assertThat(bodyLarge.merge(SpanStyle())).isSameInstanceAs(bodyLarge)
+    }
+
+    @Test
+    fun hashCode_andHashCodeLayoutAffectingAttributes_distributeWithoutCollisions() {
+        val spanVariants =
+            listOf(
+                SpanStyle(),
+                SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal),
+                SpanStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Italic,
+                ),
+                SpanStyle(letterSpacing = 0.5.sp, fontSynthesis = FontSynthesis.Weight),
+                SpanStyle(background = Color.Yellow, baselineShift = BaselineShift.Superscript),
+            )
+        val paraVariants =
+            listOf(
+                ParagraphStyle(),
+                ParagraphStyle(textAlign = TextAlign.Center, lineHeight = 20.sp),
+                ParagraphStyle(textDirection = TextDirection.Rtl, lineBreak = LineBreak.Heading),
+                ParagraphStyle(hyphens = Hyphens.Auto, textMotion = TextMotion.Animated),
+            )
+        val styles = spanVariants.flatMap { span ->
+            paraVariants.map { para -> TextStyle(spanStyle = span, paragraphStyle = para) }
+        }
+        val hashes = styles.map { it.hashCode() }.toSet()
+        val layoutHashes = styles.map { it.hashCodeLayoutAffectingAttributes() }.toSet()
+        assertThat(hashes.size).isEqualTo(styles.size)
+        assertThat(layoutHashes.size).isEqualTo(styles.size)
+        val withDefaultPlat =
+            TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+        val withCustomPlat = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
+        assertThat(withDefaultPlat.hashCode()).isNotEqualTo(withCustomPlat.hashCode())
+        assertThat(withDefaultPlat.hashCodeLayoutAffectingAttributes())
+            .isNotEqualTo(withCustomPlat.hashCodeLayoutAffectingAttributes())
+    }
+
+    @Test
+    fun `internal two-arg constructor synthesizes PlatformTextStyle from span and paragraph styles`() {
+        val platSpan = PlatformSpanStyle.Default
+        val platParaDefault = PlatformParagraphStyle.Default
+        val platParaCustom =
+            PlatformParagraphStyle(
+                includeFontPadding = true,
+                emojiSupportMatch = EmojiSupportMatch.None,
+            )
+
+        // Both null -> platformStyle is null
+        val bothNull = TextStyle(SpanStyle(color = Color.Red), ParagraphStyle(lineHeight = 20.sp))
+        assertThat(bothNull.platformStyle).isNull()
+
+        // Only SpanStyle has platformStyle -> PlatformTextStyle(platSpan, null)
+        val spanOnly = TextStyle(SpanStyle(platformStyle = platSpan), ParagraphStyle())
+        assertThat(spanOnly.platformStyle).isEqualTo(PlatformTextStyle(platSpan, null))
+        assertThat(spanOnly.platformStyle?.spanStyle).isSameInstanceAs(platSpan)
+        assertThat(spanOnly.platformStyle?.paragraphStyle).isNull()
+
+        // Only ParagraphStyle has Default platformStyle (bit-packed) -> PlatformTextStyle(null,
+        // Default)
+        val paraDefaultOnly =
+            TextStyle(SpanStyle(), ParagraphStyle(platformStyle = platParaDefault))
+        assertThat(paraDefaultOnly.platformStyle)
+            .isEqualTo(PlatformTextStyle(null, platParaDefault))
+
+        // Only ParagraphStyle has custom platformStyle (extras-backed) -> PlatformTextStyle(null,
+        // platParaCustom)
+        val paraCustomOnly = TextStyle(SpanStyle(), ParagraphStyle(platformStyle = platParaCustom))
+        assertThat(paraCustomOnly.platformStyle).isEqualTo(PlatformTextStyle(null, platParaCustom))
+        assertThat(paraCustomOnly.platformStyle?.paragraphStyle).isSameInstanceAs(platParaCustom)
+
+        // Both SpanStyle and ParagraphStyle have platformStyle -> PlatformTextStyle(platSpan,
+        // platParaCustom)
+        val bothNonNull =
+            TextStyle(
+                SpanStyle(platformStyle = platSpan),
+                ParagraphStyle(platformStyle = platParaCustom),
+            )
+        assertThat(bothNonNull.platformStyle).isEqualTo(PlatformTextStyle(platSpan, platParaCustom))
+    }
+
+    @Test
+    fun `default constructor reuses DefaultSpanStyle and DefaultParagraphStyle singletons`() {
+        assumeTrue(ComposeUiTextFlags.isPackedTextStylesEnabled)
+        val defaultStyle = TextStyle()
+        assertThat(defaultStyle).isEqualTo(TextStyle.Default)
+        assertThat(defaultStyle.toSpanStyle()).isSameInstanceAs(TextStyle.Default.toSpanStyle())
+        assertThat(defaultStyle.toParagraphStyle())
+            .isSameInstanceAs(TextStyle.Default.toParagraphStyle())
+    }
+
+    @Test
+    fun `brush constructor handles null brush, SolidColor with alpha, and paragraph attributes`() {
+        val nullBrushStyle = TextStyle(brush = null, alpha = 0.5f)
+        assertThat(nullBrushStyle.brush).isNull()
+        assertThat(nullBrushStyle.color).isEqualTo(Color.Unspecified)
+        assertThat(nullBrushStyle.alpha).isNaN()
+
+        val solidColorWithAlpha = TextStyle(brush = SolidColor(Color.Red), alpha = 0.5f)
+        assertThat(solidColorWithAlpha.brush).isNull()
+        assertThat(solidColorWithAlpha.color).isEqualTo(Color.Red.copy(alpha = 0.5f))
+        assertThat(solidColorWithAlpha.alpha).isWithin(1f / 256f).of(0.5f)
+
+        val solidUnspecified = TextStyle(brush = SolidColor(Color.Unspecified), alpha = 0.5f)
+        assertThat(solidUnspecified.brush).isNull()
+        assertThat(solidUnspecified.color).isEqualTo(Color.Unspecified)
+
+        val gradient = Brush.linearGradient(listOf(Color.Blue, Color.Red))
+        val platStyle = PlatformTextStyle(includeFontPadding = true)
+        val fullBrushStyle =
+            TextStyle(
+                brush = gradient,
+                alpha = 0.4f,
+                textAlign = TextAlign.Center,
+                textDirection = TextDirection.Rtl,
+                lineHeight = 22.sp,
+                textIndent = TextIndent(4.sp, 8.sp),
+                platformStyle = platStyle,
+                lineHeightStyle = LineHeightStyle.Default,
+                lineBreak = LineBreak.Heading,
+                hyphens = Hyphens.Auto,
+                textMotion = TextMotion.Animated,
+            )
+        assertThat(fullBrushStyle.brush).isSameInstanceAs(gradient)
+        assertThat(fullBrushStyle.alpha).isEqualTo(0.4f)
+        assertThat(fullBrushStyle.textAlign).isEqualTo(TextAlign.Center)
+        assertThat(fullBrushStyle.textDirection).isEqualTo(TextDirection.Rtl)
+        assertThat(fullBrushStyle.lineHeight).isEqualTo(22.sp)
+        assertThat(fullBrushStyle.textIndent).isEqualTo(TextIndent(4.sp, 8.sp))
+        assertThat(fullBrushStyle.platformStyle).isSameInstanceAs(platStyle)
+        assertThat(fullBrushStyle.lineHeightStyle).isEqualTo(LineHeightStyle.Default)
+        assertThat(fullBrushStyle.lineBreak).isEqualTo(LineBreak.Heading)
+        assertThat(fullBrushStyle.hyphens).isEqualTo(Hyphens.Auto)
+        assertThat(fullBrushStyle.textMotion).isEqualTo(TextMotion.Animated)
+    }
+
+    @Test
+    fun `merge TextStyle identity fast-paths and mergePlatformStyle branches`() {
+        assumeTrue(ComposeUiTextFlags.isPackedTextStylesEnabled)
+        val platSpanOnly =
+            PlatformTextStyle(spanStyle = PlatformSpanStyle.Default, paragraphStyle = null)
+        val platParaOnly =
+            PlatformTextStyle(
+                spanStyle = null,
+                paragraphStyle = PlatformParagraphStyle(includeFontPadding = true),
+            )
+        val platBoth =
+            PlatformTextStyle(
+                spanStyle = PlatformSpanStyle.Default,
+                paragraphStyle = PlatformParagraphStyle(includeFontPadding = true),
+            )
+
+        val style = TextStyle(color = Color.Red, platformStyle = platSpanOnly)
+
+        // Fast-path identity returns: null, Default, self, and Default receiver
+        assertThat(style.merge(null)).isSameInstanceAs(style)
+        assertThat(style.merge(TextStyle.Default)).isSameInstanceAs(style)
+        assertThat(style.merge(style)).isSameInstanceAs(style)
+        assertThat(TextStyle.Default.merge(style)).isSameInstanceAs(style)
+
+        // No-op merge with equal non-null platformStyle returns `this`
+        assertThat(style.merge(TextStyle(platformStyle = platSpanOnly))).isSameInstanceAs(style)
+
+        // Full override with equal non-null platformStyle returns `other`
+        val fullOverride = TextStyle(color = Color.Blue, platformStyle = platSpanOnly)
+        assertThat(style.merge(fullOverride)).isSameInstanceAs(fullOverride)
+
+        // mergePlatformStyle branch 1: otherPlatform == null -> preserves this.platformStyle
+        val mergedOtherNull = style.merge(TextStyle(fontSize = 18.sp, platformStyle = null))
+        assertThat(mergedOtherNull.platformStyle).isSameInstanceAs(platSpanOnly)
+
+        // mergePlatformStyle branch 2: this.platformStyle == null -> uses otherPlatform
+        val mergedThisNull =
+            TextStyle(color = Color.Red)
+                .merge(TextStyle(fontSize = 18.sp, platformStyle = platParaOnly))
+        assertThat(mergedThisNull.platformStyle).isSameInstanceAs(platParaOnly)
+
+        // mergePlatformStyle branch 3: mergedSpan/Para match otherPlatform -> returns otherPlatform
+        val mergedMatchesOther =
+            TextStyle(color = Color.Red, platformStyle = platParaOnly)
+                .merge(TextStyle(fontSize = 18.sp, platformStyle = platBoth))
+        assertThat(mergedMatchesOther.platformStyle).isSameInstanceAs(platBoth)
+
+        // mergePlatformStyle branch 4: mergedSpan/Para match this.platformStyle -> returns
+        // this.platformStyle
+        val emptyPlatform = PlatformTextStyle(spanStyle = null, paragraphStyle = null)
+        val mergedMatchesThis =
+            TextStyle(color = Color.Red, platformStyle = platBoth)
+                .merge(TextStyle(fontSize = 18.sp, platformStyle = emptyPlatform))
+        assertThat(mergedMatchesThis.platformStyle).isSameInstanceAs(platBoth)
+
+        // mergePlatformStyle branch 5 (else): combines this.platformStyle.spanStyle +
+        // other.platformStyle.paragraphStyle
+        val mergedCombined =
+            style.merge(TextStyle(lineHeight = 24.sp, platformStyle = platParaOnly))
+        assertThat(mergedCombined.platformStyle).isEqualTo(platBoth)
+        assertThat(mergedCombined.platformStyle?.spanStyle).isSameInstanceAs(platSpanOnly.spanStyle)
+        assertThat(mergedCombined.platformStyle?.paragraphStyle)
+            .isSameInstanceAs(platParaOnly.paragraphStyle)
+    }
+
+    @Test
+    fun `merge SpanStyle and ParagraphStyle preserve or synthesize PlatformTextStyle`() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val platSpan = PlatformSpanStyle.Default
+        val platParaDefault = PlatformParagraphStyle.Default
+        val platParaCustom = PlatformParagraphStyle(includeFontPadding = true)
+        val initialPlat = PlatformTextStyle(platSpan, platParaDefault)
+
+        val base =
+            TextStyle(
+                color = Color.Red,
+                lineHeight = 20.sp,
+                platformStyle = initialPlat,
+            )
+
+        // merge(SpanStyle) when other.platformStyle is null preserves this.platformStyle by
+        // reference
+        val spanMergedNullPlat = base.merge(SpanStyle(fontSize = 16.sp))
+        assertThat(spanMergedNullPlat.platformStyle).isSameInstanceAs(initialPlat)
+
+        // merge(SpanStyle) when other.platformStyle == this.platformStyle.spanStyle preserves
+        // reference
+        val spanMergedSamePlat = base.merge(SpanStyle(fontSize = 16.sp, platformStyle = platSpan))
+        assertThat(spanMergedSamePlat.platformStyle).isSameInstanceAs(initialPlat)
+
+        // merge(SpanStyle) when this.platformStyle has only paragraphStyle synthesizes combined
+        // PlatformTextStyle
+        val baseParaOnly =
+            TextStyle(lineHeight = 20.sp, platformStyle = PlatformTextStyle(null, platParaCustom))
+        val spanMergedCombined =
+            baseParaOnly.merge(SpanStyle(fontSize = 16.sp, platformStyle = platSpan))
+        assertThat(spanMergedCombined.platformStyle)
+            .isEqualTo(PlatformTextStyle(platSpan, platParaCustom))
+
+        // merge(ParagraphStyle) when other.platformStyle is null preserves this.platformStyle by
+        // reference
+        val paraMergedNullPlat = base.merge(ParagraphStyle(textAlign = TextAlign.Center))
+        assertThat(paraMergedNullPlat.platformStyle).isSameInstanceAs(initialPlat)
+
+        // merge(ParagraphStyle) when other.platformStyle == this.platformStyle.paragraphStyle
+        // preserves reference
+        val paraMergedSamePlat =
+            base.merge(
+                ParagraphStyle(textAlign = TextAlign.Center, platformStyle = platParaDefault)
+            )
+        assertThat(paraMergedSamePlat.platformStyle).isSameInstanceAs(initialPlat)
+
+        // merge(ParagraphStyle) when other.platformStyle differs synthesizes updated
+        // PlatformTextStyle
+        val paraMergedUpdatedPlat =
+            base.merge(ParagraphStyle(textAlign = TextAlign.Center, platformStyle = platParaCustom))
+        assertThat(paraMergedUpdatedPlat.platformStyle)
+            .isEqualTo(PlatformTextStyle(platSpan, platParaCustom))
+    }
+
+    @Test
+    fun `fastMerge multi-parameter merge matches TextStyle merge across all parameters and fast paths`() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val platSpanOnly =
+            PlatformTextStyle(spanStyle = PlatformSpanStyle.Default, paragraphStyle = null)
+        val platParaOnly =
+            PlatformTextStyle(
+                spanStyle = null,
+                paragraphStyle = PlatformParagraphStyle(includeFontPadding = true),
+            )
+        val base =
+            TextStyle(
+                color = Color.Red,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                platformStyle = platSpanOnly,
+            )
+
+        // Identity fast-return when all parameters are default
+        assertThat(base.merge(color = Color.Unspecified)).isSameInstanceAs(base)
+
+        // Span-only change preserves paragraphStyle reference and platformStyle
+        val spanOnlyChanged = base.merge(fontWeight = FontWeight.Bold)
+        assertThat(spanOnlyChanged.toParagraphStyle()).isSameInstanceAs(base.toParagraphStyle())
+        assertThat(spanOnlyChanged.platformStyle).isSameInstanceAs(platSpanOnly)
+
+        // Paragraph-only change (including lineHeight-only fast path) preserves spanStyle reference
+        val lineHeightChanged = base.merge(lineHeight = 28.sp)
+        assertThat(lineHeightChanged.toSpanStyle()).isSameInstanceAs(base.toSpanStyle())
+        assertThat(lineHeightChanged.lineHeight).isEqualTo(28.sp)
+
+        // PlatformStyle merge combines base span platformStyle with parameter paragraph
+        // platformStyle
+        val platformMerged = base.merge(platformStyle = platParaOnly)
+        assertThat(platformMerged.platformStyle)
+            .isEqualTo(PlatformTextStyle(platSpanOnly.spanStyle, platParaOnly.paragraphStyle))
+
+        // Full 24-parameter differential check against merge(TextStyle(...))
+        val targetColor = Color.Green
+        val targetFontSize = 18.sp
+        val targetFontWeight = FontWeight.W600
+        val targetFontStyle = FontStyle.Italic
+        val targetFontSynthesis = FontSynthesis.Weight
+        val targetFontFamily = FontFamily.Serif
+        val targetFeatureSettings = "smcp"
+        val targetLetterSpacing = 0.5.sp
+        val targetBaselineShift = BaselineShift.Superscript
+        val targetTransform = TextGeometricTransform(scaleX = 1.2f, skewX = 0.1f)
+        val targetLocaleList = LocaleList("ja-JP")
+        val targetBackground = Color.Yellow
+        val targetDecoration = TextDecoration.Underline
+        val targetShadow = Shadow(color = Color.Blue, offset = Offset(1f, 2f), blurRadius = 3f)
+        val targetDrawStyle = Stroke(width = 2f)
+        val targetTextAlign = TextAlign.Justify
+        val targetTextDirection = TextDirection.Rtl
+        val targetLineHeight = 26.sp
+        val targetTextIndent = TextIndent(firstLine = 8.sp, restLine = 4.sp)
+        val targetLineHeightStyle = LineHeightStyle.Default
+        val targetLineBreak = LineBreak.Heading
+        val targetHyphens = Hyphens.Auto
+        val targetTextMotion = TextMotion.Animated
+
+        for (receiver in listOf(TextStyle.Default, base)) {
+            val viaFastMerge =
+                receiver.merge(
+                    color = targetColor,
+                    fontSize = targetFontSize,
+                    fontWeight = targetFontWeight,
+                    fontStyle = targetFontStyle,
+                    fontSynthesis = targetFontSynthesis,
+                    fontFamily = targetFontFamily,
+                    fontFeatureSettings = targetFeatureSettings,
+                    letterSpacing = targetLetterSpacing,
+                    baselineShift = targetBaselineShift,
+                    textGeometricTransform = targetTransform,
+                    localeList = targetLocaleList,
+                    background = targetBackground,
+                    textDecoration = targetDecoration,
+                    shadow = targetShadow,
+                    drawStyle = targetDrawStyle,
+                    textAlign = targetTextAlign,
+                    textDirection = targetTextDirection,
+                    lineHeight = targetLineHeight,
+                    textIndent = targetTextIndent,
+                    lineHeightStyle = targetLineHeightStyle,
+                    lineBreak = targetLineBreak,
+                    hyphens = targetHyphens,
+                    platformStyle = platParaOnly,
+                    textMotion = targetTextMotion,
+                )
+            val viaTextStyleMerge =
+                receiver.merge(
+                    TextStyle(
+                        color = targetColor,
+                        fontSize = targetFontSize,
+                        fontWeight = targetFontWeight,
+                        fontStyle = targetFontStyle,
+                        fontSynthesis = targetFontSynthesis,
+                        fontFamily = targetFontFamily,
+                        fontFeatureSettings = targetFeatureSettings,
+                        letterSpacing = targetLetterSpacing,
+                        baselineShift = targetBaselineShift,
+                        textGeometricTransform = targetTransform,
+                        localeList = targetLocaleList,
+                        background = targetBackground,
+                        textDecoration = targetDecoration,
+                        shadow = targetShadow,
+                        drawStyle = targetDrawStyle,
+                        textAlign = targetTextAlign,
+                        textDirection = targetTextDirection,
+                        lineHeight = targetLineHeight,
+                        textIndent = targetTextIndent,
+                        lineHeightStyle = targetLineHeightStyle,
+                        lineBreak = targetLineBreak,
+                        hyphens = targetHyphens,
+                        platformStyle = platParaOnly,
+                        textMotion = targetTextMotion,
+                    )
+                )
+            assertThat(viaFastMerge).isEqualTo(viaTextStyleMerge)
+        }
+    }
+
+    @Test
+    fun `copy overloads preserve or override brush, alpha, and color accurately`() {
+        val brushA = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val brushB = Brush.linearGradient(listOf(Color.Green, Color.Yellow))
+
+        // Color-based copy() on a Brush+alpha TextStyle preserves both brush and alpha when color
+        // is not changed
+        val styledWithBrush = TextStyle(brush = brushA, alpha = 0.4f, fontSize = 14.sp)
+        val copiedFontSize = styledWithBrush.copy(fontSize = 20.sp)
+        assertThat(copiedFontSize.brush).isSameInstanceAs(brushA)
+        assertThat(copiedFontSize.alpha).isEqualTo(0.4f)
+        assertThat(copiedFontSize.color).isEqualTo(Color.Unspecified)
+        assertThat(copiedFontSize.fontSize).isEqualTo(20.sp)
+
+        // Color-based copy(color = Color.Unspecified) on a Color TextStyle clears color to
+        // Unspecified
+        val styledWithColor = TextStyle(color = Color.Red, fontSize = 14.sp)
+        val clearedColor = styledWithColor.copy(color = Color.Unspecified)
+        assertThat(clearedColor.color).isEqualTo(Color.Unspecified)
+        assertThat(clearedColor.brush).isNull()
+        assertThat(clearedColor.alpha).isNaN()
+
+        // Brush-based copy(brush = brushB) inherits existing alpha by default
+        val swappedBrushSameAlpha = styledWithBrush.copy(brush = brushB)
+        assertThat(swappedBrushSameAlpha.brush).isSameInstanceAs(brushB)
+        assertThat(swappedBrushSameAlpha.alpha).isEqualTo(0.4f)
+
+        // Brush-based copy(brush = brushB, alpha = 0.8f) overrides both brush and alpha
+        val swappedBrushNewAlpha = styledWithBrush.copy(brush = brushB, alpha = 0.8f)
+        assertThat(swappedBrushNewAlpha.brush).isSameInstanceAs(brushB)
+        assertThat(swappedBrushNewAlpha.alpha).isEqualTo(0.8f)
+
+        // Brush-based copy(brush = null) clears brush and resets color/alpha
+        val clearedBrush = styledWithBrush.copy(brush = null)
+        assertThat(clearedBrush.brush).isNull()
+        assertThat(clearedBrush.color).isEqualTo(Color.Unspecified)
+        assertThat(clearedBrush.alpha).isNaN()
+
+        // Brush-based copy(brush = SolidColor) modulates SolidColor by inherited alpha
+        val solidCopy = styledWithBrush.copy(brush = SolidColor(Color.Blue))
+        assertThat(solidCopy.brush).isNull()
+        assertThat(solidCopy.color).isEqualTo(Color.Blue.copy(alpha = 0.4f))
+    }
+
+    @Test
+    fun `preset-normalized attributes and deprecated boxing getters round-trip through TextStyle`() {
+        val style =
+            TextStyle(
+                fontFeatureSettings = "",
+                baselineShift = BaselineShift.None,
+                textGeometricTransform = TextGeometricTransform.None,
+                localeList = LocaleList.Empty,
+                shadow = Shadow.None,
+                drawStyle = Fill,
+                textAlign = TextAlign.Center,
+                textDirection = TextDirection.ContentOrRtl,
+                textIndent = TextIndent.None,
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                lineBreak = LineBreak.Simple,
+                hyphens = Hyphens.None,
+                textMotion = TextMotion.Static,
+            )
+
+        assertThat(style.fontFeatureSettings).isEqualTo("")
+        assertThat(style.baselineShift).isEqualTo(BaselineShift.None)
+        assertThat(style.textGeometricTransform).isEqualTo(TextGeometricTransform.None)
+        assertThat(style.localeList).isEqualTo(LocaleList.Empty)
+        assertThat(style.shadow).isEqualTo(Shadow.None)
+        assertThat(style.drawStyle).isEqualTo(Fill)
+        assertThat(style.textIndent).isEqualTo(TextIndent.None)
+        assertThat(style.textMotion).isEqualTo(TextMotion.Static)
+        assertThat(style.platformStyle).isEqualTo(PlatformTextStyle(includeFontPadding = false))
+        assertThat(style.toParagraphStyle().platformStyle).isEqualTo(PlatformParagraphStyle.Default)
+
+        @Suppress("DEPRECATION")
+        run {
+            assertThat(style.deprecated_boxing_textAlign).isEqualTo(TextAlign.Center)
+            assertThat(style.deprecated_boxing_textDirection).isEqualTo(TextDirection.ContentOrRtl)
+            assertThat(style.deprecated_boxing_hyphens).isEqualTo(Hyphens.None)
+            assertThat(style.deprecated_boxing_lineBreak).isEqualTo(LineBreak.Simple)
+        }
+    }
+
+    @Test
+    fun `equals, toString, and lerp with non-null PlatformTextStyle`() {
+        val platFalse = PlatformTextStyle(includeFontPadding = false)
+        val platTrue = PlatformTextStyle(includeFontPadding = true)
+        val styleA = TextStyle(color = Color.Red, lineHeight = 20.sp, platformStyle = platFalse)
+        val styleB = TextStyle(color = Color.Red, lineHeight = 20.sp, platformStyle = platFalse)
+        val styleDiffSpan =
+            TextStyle(color = Color.Blue, lineHeight = 20.sp, platformStyle = platFalse)
+        val styleDiffPara =
+            TextStyle(color = Color.Red, lineHeight = 24.sp, platformStyle = platFalse)
+        val styleDiffPlat =
+            TextStyle(color = Color.Red, lineHeight = 20.sp, platformStyle = platTrue)
+        val styleEmptyPlat =
+            TextStyle(
+                SpanStyle(),
+                ParagraphStyle(),
+                platformStyle = PlatformTextStyle(null, null),
+            )
+
+        assertThat(styleA.equals(styleA)).isTrue()
+        assertThat(styleA.equals(null)).isFalse()
+        assertThat(styleA.equals("not a TextStyle")).isFalse()
+        assertThat(styleA).isEqualTo(styleB)
+        assertThat(styleA).isNotEqualTo(styleDiffSpan)
+        assertThat(styleA).isNotEqualTo(styleDiffPara)
+        assertThat(styleA).isNotEqualTo(styleDiffPlat)
+        if (PackedTextStylesLatch.isEnabled) {
+            assertThat(TextStyle.Default).isEqualTo(styleEmptyPlat)
+        } else {
+            assertThat(TextStyle.Default).isNotEqualTo(styleEmptyPlat)
+        }
+
+        // lerp reuses matching PlatformTextStyle wrappers instead of boxing on read
+        val lerpedStart = lerp(styleA, styleDiffPlat, 0.2f)
+        val lerpedStop = lerp(styleA, styleDiffPlat, 0.8f)
+        assertThat(lerpedStart.platformStyle?.paragraphStyle?.includeFontPadding).isFalse()
+        assertThat(lerpedStop.platformStyle?.paragraphStyle?.includeFontPadding).isTrue()
+        if (PackedTextStylesLatch.isEnabled) {
+            assertThat(lerpedStart.platformStyle).isSameInstanceAs(platFalse)
+            assertThat(lerpedStop.platformStyle).isSameInstanceAs(platTrue)
+        }
+
+        // toString includes all 26 property labels
+        val str = styleA.toString()
+        for (key in
+            listOf(
+                "color=",
+                "brush=",
+                "alpha=",
+                "fontSize=",
+                "fontWeight=",
+                "fontStyle=",
+                "fontSynthesis=",
+                "fontFamily=",
+                "fontFeatureSettings=",
+                "letterSpacing=",
+                "baselineShift=",
+                "textGeometricTransform=",
+                "localeList=",
+                "background=",
+                "textDecoration=",
+                "shadow=",
+                "drawStyle=",
+                "textAlign=",
+                "textDirection=",
+                "lineHeight=",
+                "textIndent=",
+                "platformStyle=",
+                "lineHeightStyle=",
+                "lineBreak=",
+                "hyphens=",
+                "textMotion=",
+            )) {
+            assertThat(str).contains(key)
+        }
+    }
+
+    @Test
+    fun `empty PlatformTextStyle normalizes to null and preserves merge and default invariants`() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val emptyPlat =
+            TextStyle(platformStyle = PlatformTextStyle(spanStyle = null, paragraphStyle = null))
+        assertThat(emptyPlat.platformStyle).isNull()
+        assertThat(emptyPlat).isEqualTo(TextStyle.Default)
+        assertThat(emptyPlat.hashCode()).isEqualTo(TextStyle.Default.hashCode())
+
+        val red = TextStyle(color = Color.Red)
+        assertThat(red.merge(emptyPlat)).isSameInstanceAs(red)
+        assertThat(emptyPlat.merge(red)).isSameInstanceAs(red)
+        assertThat(
+                red.merge(
+                    platformStyle = PlatformTextStyle(spanStyle = null, paragraphStyle = null)
+                )
+            )
+            .isSameInstanceAs(red)
+    }
+
+    @Test
+    fun `two-arg and explicit TextStyle preserve platformStyle across SpanStyle and ParagraphStyle merges`() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val platSpan = PlatformSpanStyle.Default
+        val platPara = PlatformParagraphStyle(includeFontPadding = true)
+        val twoArg =
+            TextStyle(
+                SpanStyle(platformStyle = platSpan),
+                ParagraphStyle(platformStyle = platPara),
+            )
+        val twoArgPlat = twoArg.platformStyle
+        assertThat(twoArgPlat).isEqualTo(PlatformTextStyle(platSpan, platPara))
+        assertThat(twoArg.platformStyle).isSameInstanceAs(twoArgPlat)
+        assertThat(twoArg.copy(color = Color.Green).platformStyle).isSameInstanceAs(twoArgPlat)
+        assertThat(twoArg.merge(TextStyle(color = Color.Blue)).platformStyle)
+            .isSameInstanceAs(twoArgPlat)
+
+        val mergedSpanSamePlat = twoArg.merge(SpanStyle(fontSize = 18.sp, platformStyle = platSpan))
+        assertThat(mergedSpanSamePlat.platformStyle).isSameInstanceAs(twoArgPlat)
+
+        val mergedParaSamePlat =
+            twoArg.merge(ParagraphStyle(lineHeight = 24.sp, platformStyle = platPara))
+        assertThat(mergedParaSamePlat.platformStyle).isSameInstanceAs(twoArgPlat)
+
+        val platPara2 = PlatformParagraphStyle(includeFontPadding = false)
+        val mergedParaDiffPlat = twoArg.merge(ParagraphStyle(platformStyle = platPara2))
+        assertThat(mergedParaDiffPlat.platformStyle)
+            .isEqualTo(PlatformTextStyle(platSpan, platPara2))
+
+        val mergedSpanDiffPlat =
+            TextStyle(color = Color.Red).merge(SpanStyle(platformStyle = platSpan))
+        assertThat(mergedSpanDiffPlat.platformStyle).isEqualTo(PlatformTextStyle(platSpan, null))
+
+        val explicitWrapper = PlatformTextStyle(platSpan, platPara)
+        val explicitStyle = TextStyle(color = Color.Red, platformStyle = explicitWrapper)
+        assertThat(explicitStyle.merge(SpanStyle(fontSize = 18.sp)).platformStyle)
+            .isSameInstanceAs(explicitWrapper)
+        assertThat(explicitStyle.merge(ParagraphStyle(lineHeight = 24.sp)).platformStyle)
+            .isSameInstanceAs(explicitWrapper)
+    }
+
+    @Test
+    fun `lerp reuses matching PlatformTextStyle wrappers and caches mixed wrappers`() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val platFalse = PlatformTextStyle(includeFontPadding = false)
+        val platTrue = PlatformTextStyle(includeFontPadding = true)
+        val styleFalse = TextStyle(color = Color.Red, platformStyle = platFalse)
+        val styleTrue = TextStyle(color = Color.Blue, platformStyle = platTrue)
+
+        assertThat(lerp(styleFalse, styleTrue, 0f).platformStyle).isSameInstanceAs(platFalse)
+        assertThat(lerp(styleFalse, styleTrue, 0.2f).platformStyle).isSameInstanceAs(platFalse)
+        assertThat(lerp(styleFalse, styleTrue, 0.5f).platformStyle).isSameInstanceAs(platTrue)
+        assertThat(lerp(styleFalse, styleTrue, 0.8f).platformStyle).isSameInstanceAs(platTrue)
+        assertThat(lerp(styleFalse, styleTrue, 1f).platformStyle).isSameInstanceAs(platTrue)
+
+        // Default + null platformStyle produces null without allocating a wrapper
+        assertThat(lerp(TextStyle.Default, TextStyle(color = Color.Blue), 0.5f).platformStyle)
+            .isNull()
+
+        // Default + platTrue: below 0.5 interpolates to Default (false); at/above 0.5 reuses stop
+        val lerpedDefaultStart = lerp(TextStyle.Default, styleTrue, 0.2f)
+        val lerpedDefaultPlat = lerpedDefaultStart.platformStyle
+        assertThat(lerpedDefaultPlat).isNotNull()
+        assertThat(lerpedDefaultPlat?.paragraphStyle?.includeFontPadding).isFalse()
+        assertThat(lerpedDefaultStart.platformStyle).isSameInstanceAs(lerpedDefaultPlat)
+        assertThat(lerp(TextStyle.Default, styleTrue, 0.5f).platformStyle)
+            .isSameInstanceAs(platTrue)
+
+        // Mixed SpanStyle + ParagraphStyle wrapper is boxed once eagerly and reused across copy
+        val spanOnlyPlat = PlatformTextStyle(PlatformSpanStyle.Default, null)
+        val styleSpanOnly = TextStyle(color = Color.Red, platformStyle = spanOnlyPlat)
+        val lerpedMixed = lerp(styleSpanOnly, styleFalse, 0.2f)
+        val mixedPlat = lerpedMixed.platformStyle
+        assertThat(mixedPlat)
+            .isEqualTo(PlatformTextStyle(PlatformSpanStyle.Default, PlatformParagraphStyle.Default))
+        assertThat(lerpedMixed.platformStyle).isSameInstanceAs(mixedPlat)
+        assertThat(lerpedMixed.copy(color = Color.Green).platformStyle).isSameInstanceAs(mixedPlat)
+    }
+
+    @Test
+    fun `all public constructors including deprecated hidden overloads reuse default child styles`() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val publicConstructors =
+            TextStyle::class.constructors.filter { it.visibility == KVisibility.PUBLIC }
+        assertThat(publicConstructors).hasSize(7)
+        for (ctor in publicConstructors) {
+            val requiredArgs = ctor.parameters.filter { !it.isOptional }.associateWith { null }
+            val style = ctor.callBy(requiredArgs)
+            assertThat(style.toSpanStyle()).isSameInstanceAs(TextStyle.Default.toSpanStyle())
+            assertThat(style.toParagraphStyle())
+                .isSameInstanceAs(TextStyle.Default.toParagraphStyle())
         }
     }
 }

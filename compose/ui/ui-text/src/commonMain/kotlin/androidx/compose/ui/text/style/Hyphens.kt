@@ -72,6 +72,12 @@ public value class Hyphens internal constructor(public val value: Int) {
             get() = Hyphens(0)
 
         /**
+         * Max valid [Hyphens.value] (`Auto = 2`). Update [androidx.compose.ui.text.ParagraphStyle]
+         * bit pack code if you add a new value.
+         */
+        internal const val MAX_HYPHENS_VALUE = 2
+
+        /**
          * Creates [Hyphens] from [value].
          *
          * Useful for serialization/deserialization.
@@ -81,7 +87,7 @@ public value class Hyphens internal constructor(public val value: Int) {
          * @see androidx.compose.ui.text.style.Hyphens.value
          */
         public fun valueOf(value: Int): Hyphens {
-            requirePrecondition(value in 0..2) {
+            requirePrecondition(value in 0..MAX_HYPHENS_VALUE) {
                 "The given value=$value is not recognized by Hyphens."
             }
             return Hyphens(value)

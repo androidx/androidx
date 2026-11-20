@@ -32,6 +32,9 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.ceil
 import kotlin.random.Random
 
+/** On CI we only run a small set of tests. Set this to `true` to run the full suite. */
+const val DoFullBenchmark = false
+
 class RandomTextGenerator(
     private val alphabet: Alphabet = Alphabet.Latin,
     private val random: Random = Random(0),

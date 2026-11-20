@@ -410,4 +410,102 @@ class TextStyleResolveDefaultsTest {
         assertThat(resolveDefaults(TextStyle(), direction = LayoutDirection.Rtl).textDirection)
             .isEqualTo(TextDirection.Rtl)
     }
+
+    @Test
+    fun test_default_values_rtl_and_drawStyle_textMotion() {
+        resolveDefaults(TextStyle(), LayoutDirection.Rtl).also {
+            assertThat(it.color).isEqualTo(DefaultColor)
+            assertThat(it.drawStyle).isEqualTo(androidx.compose.ui.graphics.drawscope.Fill)
+            assertThat(it.textDirection).isEqualTo(TextDirection.Rtl)
+            assertThat(it.textMotion).isEqualTo(androidx.compose.ui.text.style.TextMotion.Static)
+            assertThat(it.lineHeightStyle).isNull()
+        }
+    }
+
+    @Test
+    fun test_use_provided_values_drawStyle_textMotion_lineHeightStyle_platformStyle() {
+        val stroke = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+        val lhs =
+            androidx.compose.ui.text.style.LineHeightStyle(
+                alignment = androidx.compose.ui.text.style.LineHeightStyle.Alignment.Center,
+                trim = androidx.compose.ui.text.style.LineHeightStyle.Trim.None,
+            )
+        val platStyle = PlatformTextStyle(includeFontPadding = true)
+        val brush = Brush.linearGradient(listOf(Color.White, Color.Black))
+
+        val resolved =
+            resolveDefaults(
+                TextStyle(
+                    brush = brush,
+                    alpha = 0.4f,
+                    drawStyle = stroke,
+                    lineHeightStyle = lhs,
+                    platformStyle = platStyle,
+                    textMotion = androidx.compose.ui.text.style.TextMotion.Animated,
+                ),
+                direction = LayoutDirection.Ltr,
+            )
+
+        assertThat(resolved.brush).isSameInstanceAs(brush)
+        assertThat(resolved.alpha).isEqualTo(0.4f)
+        assertThat(resolved.drawStyle).isEqualTo(stroke)
+        assertThat(resolved.lineHeightStyle).isEqualTo(lhs)
+        assertThat(resolved.platformStyle).isSameInstanceAs(platStyle)
+        assertThat(resolved.textMotion)
+            .isEqualTo(androidx.compose.ui.text.style.TextMotion.Animated)
+    }
+
+    @Test
+    fun resolveDefaults_onTextStyleDefault_returnsCachedSingleton() {
+        val resolvedLtr = resolveDefaults(TextStyle.Default, LayoutDirection.Ltr)
+        val resolvedRtl = resolveDefaults(TextStyle.Default, LayoutDirection.Rtl)
+        if (PackedTextStylesLatch.isEnabled) {
+            assertThat(resolveDefaults(TextStyle.Default, LayoutDirection.Ltr))
+                .isSameInstanceAs(resolvedLtr)
+            assertThat(resolveDefaults(TextStyle.Default, LayoutDirection.Rtl))
+                .isSameInstanceAs(resolvedRtl)
+            assertThat(resolveDefaults(TextStyle(), LayoutDirection.Ltr))
+                .isSameInstanceAs(resolvedLtr)
+            assertThat(resolveDefaults(TextStyle(), LayoutDirection.Rtl))
+                .isSameInstanceAs(resolvedRtl)
+        }
+    }
+
+    @Test
+    fun resolveDefaults_onAlreadyResolvedStyle_returnsSameInstance() {
+        val resolved = resolveDefaults(TextStyle.Default, LayoutDirection.Ltr)
+        if (PackedTextStylesLatch.isEnabled) {
+            assertThat(resolveDefaults(resolved, LayoutDirection.Ltr)).isSameInstanceAs(resolved)
+        }
+        val customResolved =
+            resolveDefaults(TextStyle(color = Color.Red, fontSize = 20.sp), LayoutDirection.Ltr)
+        if (PackedTextStylesLatch.isEnabled) {
+            assertThat(resolveDefaults(customResolved, LayoutDirection.Ltr))
+                .isSameInstanceAs(customResolved)
+        }
+    }
+
+    @Test
+    fun resolveDefaults_normalizesEmptyPlatformStyle_andPreservesPlatformStyle() {
+        if (!PackedTextStylesLatch.isEnabled) return
+        val resolvedDefaultLtr = resolveDefaults(TextStyle.Default, LayoutDirection.Ltr)
+        val resolvedDefaultRtl = resolveDefaults(TextStyle.Default, LayoutDirection.Rtl)
+        val emptyPlat =
+            TextStyle(platformStyle = PlatformTextStyle(spanStyle = null, paragraphStyle = null))
+        assertThat(resolveDefaults(emptyPlat, LayoutDirection.Ltr))
+            .isSameInstanceAs(resolvedDefaultLtr)
+        assertThat(resolveDefaults(emptyPlat, LayoutDirection.Rtl))
+            .isSameInstanceAs(resolvedDefaultRtl)
+
+        val platPara = PlatformParagraphStyle(includeFontPadding = true)
+        val twoArgParaPlat = TextStyle(SpanStyle(), ParagraphStyle(platformStyle = platPara))
+        val resolvedTwoArg = resolveDefaults(twoArgParaPlat, LayoutDirection.Ltr)
+        assertThat(resolvedTwoArg.platformStyle).isEqualTo(PlatformTextStyle(null, platPara))
+        assertThat(resolvedTwoArg.platformStyle).isSameInstanceAs(twoArgParaPlat.platformStyle)
+
+        val explicitPlat = PlatformTextStyle(spanStyle = null, paragraphStyle = platPara)
+        val explicitStyle = TextStyle(color = Color.Red, platformStyle = explicitPlat)
+        assertThat(resolveDefaults(explicitStyle, LayoutDirection.Ltr).platformStyle)
+            .isSameInstanceAs(explicitPlat)
+    }
 }

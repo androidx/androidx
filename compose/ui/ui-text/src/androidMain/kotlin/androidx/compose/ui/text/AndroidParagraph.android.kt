@@ -224,19 +224,21 @@ internal class AndroidParagraph(
                 )
         }
 
-        val alignment = toLayoutAlign(style.textAlign)
+        val textAlign = style.textAlign
+        val alignment = toLayoutAlign(textAlign)
 
         val justificationMode =
-            when (style.textAlign) {
+            when (textAlign) {
                 TextAlign.Justify -> JUSTIFICATION_MODE_INTER_WORD
                 else -> DEFAULT_JUSTIFICATION_MODE
             }
 
         val hyphens = toLayoutHyphenationFrequency(style.paragraphStyle.hyphens)
 
-        val breakStrategy = toLayoutBreakStrategy(style.lineBreak.strategy)
-        val lineBreakStyle = toLayoutLineBreakStyle(style.lineBreak.strictness)
-        val lineBreakWordStyle = toLayoutLineBreakWordStyle(style.lineBreak.wordBreak)
+        val lineBreak = style.lineBreak
+        val breakStrategy = toLayoutBreakStrategy(lineBreak.strategy)
+        val lineBreakStyle = toLayoutLineBreakStyle(lineBreak.strictness)
+        val lineBreakWordStyle = toLayoutLineBreakWordStyle(lineBreak.wordBreak)
 
         val ellipsize =
             when (overflow) {
@@ -780,15 +782,15 @@ internal class AndroidParagraph(
     private fun calculateLineHeight(style: TextStyle) {
         if (applyLineHeightOptimization && !resolvedLineHeight.isNaN()) {
             val diff = resolvedLineHeight - layout.height
-            val mode = style.lineHeightStyle?.mode ?: LineHeightStyle.Default.mode
+            val lineHeightStyle = style.lineHeightStyle
+            val mode = lineHeightStyle?.mode ?: LineHeightStyle.Default.mode
 
-            val trim = style.lineHeightStyle?.trim ?: LineHeightStyle.Default.trim
+            val trim = lineHeightStyle?.trim ?: LineHeightStyle.Default.trim
             val trimTop = trim.trimsFirstLineTop
             val trimBottom = !layout.didExceedMaxLines && trim.trimsLastLineBottom
 
             val topRatio =
-                style.lineHeightStyle?.alignment?.topRatio
-                    ?: LineHeightStyle.Default.alignment.topRatio
+                lineHeightStyle?.alignment?.topRatio ?: LineHeightStyle.Default.alignment.topRatio
 
             val ascentRatio =
                 when {

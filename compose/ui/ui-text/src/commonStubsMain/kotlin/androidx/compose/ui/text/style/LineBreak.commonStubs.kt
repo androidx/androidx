@@ -23,7 +23,7 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Immutable
-public actual value class LineBreak private constructor(internal val mask: Int) {
+public actual value class LineBreak internal constructor(internal val mask: Int) {
     public actual companion object {
         @Stable public actual val Simple: LineBreak = implementedInJetBrainsFork()
 

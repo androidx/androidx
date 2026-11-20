@@ -19,64 +19,80 @@ package androidx.compose.ui.text
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextMotion
+import kotlin.jvm.JvmField
+
+/**
+ * Holds the Android style [Saver] objects.
+ *
+ * Keeping these savers on a `private object` with [@JvmField] fields instead of top-level fields on
+ * `Savers_androidKt` leaves `Savers_androidKt` free of a `<clinit>` class init method. Each
+ * `Companion.Saver` getter reads its field from [AndroidStyleSavers]. R8 can strip unused savers,
+ * and the app only builds them when saving state.
+ */
+private object AndroidStyleSavers {
+    @JvmField
+    internal val EmojiSupportMatchSaverInstance: Saver<EmojiSupportMatch, Any> =
+        Saver<EmojiSupportMatch, Any>(
+            save = { it.value },
+            restore = { EmojiSupportMatch(it as Int) },
+        )
+
+    @JvmField
+    internal val PlatformParagraphStyleSaverInstance: Saver<PlatformParagraphStyle, Any> =
+        Saver<PlatformParagraphStyle, Any>(
+            save = {
+                arrayListOf(
+                    save(it.includeFontPadding),
+                    save(it.emojiSupportMatch, EmojiSupportMatchSaverInstance, this),
+                )
+            },
+            restore = {
+                @Suppress("UNCHECKED_CAST") val list = it as List<Any>
+                PlatformParagraphStyle(
+                    includeFontPadding = restore(list[0])!!,
+                    emojiSupportMatch = restore(list[1], EmojiSupportMatchSaverInstance)!!,
+                )
+            },
+        )
+
+    @JvmField
+    internal val LineBreakSaverInstance: Saver<LineBreak, Any> =
+        Saver<LineBreak, Any>(save = { it.mask }, restore = { LineBreak(it as Int) })
+
+    @JvmField
+    internal val TextMotionLinearitySaverInstance: Saver<TextMotion.Linearity, Any> =
+        Saver<TextMotion.Linearity, Any>(
+            save = { it.value },
+            restore = { TextMotion.Linearity(it as Int) },
+        )
+
+    @JvmField
+    internal val TextMotionSaverInstance: Saver<TextMotion, Any> =
+        Saver<TextMotion, Any>(
+            save = {
+                arrayListOf(
+                    save(it.linearity, TextMotionLinearitySaverInstance, this),
+                    save(it.subpixelTextPositioning),
+                )
+            },
+            restore = {
+                @Suppress("UNCHECKED_CAST") val list = it as List<Any>
+                TextMotion(
+                    linearity = restore(list[0], TextMotionLinearitySaverInstance)!!,
+                    subpixelTextPositioning = restore(list[1])!!,
+                )
+            },
+        )
+}
 
 internal actual val PlatformParagraphStyle.Companion.Saver: Saver<PlatformParagraphStyle, Any>
-    get() = PlatformParagraphStyleSaver
-
-private val PlatformParagraphStyleSaver =
-    Saver<PlatformParagraphStyle, Any>(
-        save = {
-            arrayListOf(
-                save(it.includeFontPadding),
-                save(it.emojiSupportMatch, EmojiSupportMatch.Saver, this),
-            )
-        },
-        restore = {
-            @Suppress("UNCHECKED_CAST") val list = it as List<Any>
-            PlatformParagraphStyle(
-                includeFontPadding = restore(list[0])!!,
-                emojiSupportMatch = restore(list[1], EmojiSupportMatch.Saver)!!,
-            )
-        },
-    )
+    get() = AndroidStyleSavers.PlatformParagraphStyleSaverInstance
 
 internal val EmojiSupportMatch.Companion.Saver: Saver<EmojiSupportMatch, Any>
-    get() = emojiSupportMatchSaver
-
-internal val emojiSupportMatchSaver =
-    Saver<EmojiSupportMatch, Any>(save = { it.value }, restore = { EmojiSupportMatch(it as Int) })
+    get() = AndroidStyleSavers.EmojiSupportMatchSaverInstance
 
 internal actual val LineBreak.Companion.Saver: Saver<LineBreak, Any>
-    get() = LineBreakSaver
-
-private val LineBreakSaver =
-    Saver<LineBreak, Any>(save = { it.mask }, restore = { LineBreak(it as Int) })
+    get() = AndroidStyleSavers.LineBreakSaverInstance
 
 internal actual val TextMotion.Companion.Saver: Saver<TextMotion, Any>
-    get() = TextMotionSaver
-
-private val TextMotionSaver =
-    Saver<TextMotion, Any>(
-        save = {
-            arrayListOf(
-                save(it.linearity, TextMotion.Linearity.Saver, this),
-                save(it.subpixelTextPositioning),
-            )
-        },
-        restore = {
-            @Suppress("UNCHECKED_CAST") val list = it as List<Any>
-            TextMotion(
-                linearity = restore(list[0], TextMotion.Linearity.Saver)!!,
-                subpixelTextPositioning = restore(list[1])!!,
-            )
-        },
-    )
-
-private val TextMotion.Linearity.Companion.Saver: Saver<TextMotion.Linearity, Any>
-    get() = TextMotionLinearitySaver
-
-private val TextMotionLinearitySaver =
-    Saver<TextMotion.Linearity, Any>(
-        save = { it.value },
-        restore = { TextMotion.Linearity(it as Int) },
-    )
+    get() = AndroidStyleSavers.TextMotionSaverInstance

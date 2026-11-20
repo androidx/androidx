@@ -434,4 +434,18 @@ class TextPaintExtensionsTest {
         assertThat(tp.flags and TextPaint.SUBPIXEL_TEXT_FLAG).isEqualTo(0)
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_OFF)
     }
+
+    @Test
+    fun setTextMotion_null_matchesStatic() {
+        val tp =
+            AndroidTextPaint(
+                TextPaint.LINEAR_TEXT_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG,
+                density.density,
+            )
+        tp.setTextMotion(null)
+
+        assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(0)
+        assertThat(tp.flags and TextPaint.SUBPIXEL_TEXT_FLAG).isEqualTo(0)
+        assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_ON)
+    }
 }
