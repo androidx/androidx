@@ -94,10 +94,21 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
                 }
                     .withCleanup {
                         if (::cameraProvider.isInitialized) {
-                            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-                            val extensionsManager =
-                                ExtensionsManager.getInstance(context, cameraProvider)
-                            extensionsManager.shutdown()
+                            // Isolates the two shutdown steps and waits beyond CameraPipe's ~14s
+                            // stuck-session/device close timeout chain so a wedged HAL teardown
+                            // neither skips extensionsManager.shutdown() nor leaves CameraX
+                            // shutdown in flight into the next test's getInstance() call.
+                            try {
+                                cameraProvider
+                                    .shutdownAsync()[
+                                        CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS,
+                                        TimeUnit.SECONDS,
+                                    ]
+                            } finally {
+                                val extensionsManager =
+                                    ExtensionsManager.getInstance(context, cameraProvider)
+                                extensionsManager.shutdown()
+                            }
                         }
                     },
             )
@@ -110,6 +121,8 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
 
     companion object {
         @ClassRule @JvmField val stressTest = StressTestRule()
+
+        private const val CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS = 30L
 
         @Parameterized.Parameters(name = "cameraId = {0}")
         @JvmStatic
