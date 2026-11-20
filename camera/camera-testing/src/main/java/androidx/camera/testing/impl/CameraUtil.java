@@ -1644,7 +1644,7 @@ public final class CameraUtil {
                         Logger.d(LOG_TAG, "PostTestCameraAvailability: lensFacing = " + lensFacing
                                 + ", cameraId = " + cameraId);
                         if (cameraId == null) {
-                            return;
+                            continue;
                         }
 
                         CameraAvailability cameraAvailability = new CameraAvailability(cameraId);

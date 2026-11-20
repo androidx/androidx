@@ -18,6 +18,7 @@ package androidx.camera.integration.core.stresstest
 
 import android.Manifest
 import android.content.Context
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
 import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
@@ -62,19 +63,27 @@ class ImageCaptureStressTest(
     @get:Rule(order = 1) val repeatRule = RepeatRule()
 
     @get:Rule(order = 2)
+    val postTestCameraAvailability =
+        CameraUtil.PostTestCameraAvailability(
+            listOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+        )
+
+    @get:Rule(order = 3)
     val requireForegroundRule = RequireForegroundRule {
         assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
     }
 
-    @get:Rule(order = 3)
+    @get:Rule(order = 4)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(cameraConfig)
+            CameraUtil.PreTestCamera(),
+            CameraUtil.PreTestCameraIdList(cameraConfig),
+            /* postTestCameraAvailability= */ null,
         )
 
-    @get:Rule(order = 4)
+    @get:Rule(order = 5)
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.RECORD_AUDIO,
