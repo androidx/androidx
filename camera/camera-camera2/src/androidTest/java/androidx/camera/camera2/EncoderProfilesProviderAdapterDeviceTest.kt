@@ -20,16 +20,23 @@ import android.hardware.camera2.CameraCharacteristics
 import android.media.CamcorderProfile
 import android.media.EncoderProfiles.VideoProfile.HDR_NONE
 import android.media.EncoderProfiles.VideoProfile.YUV_420
+import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CamcorderProfileResolutionQuirk
 import androidx.camera.camera2.compat.quirk.CameraQuirks
+import androidx.camera.camera2.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.compat.quirk.InvalidVideoProfilesQuirk
+import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.common.CameraId
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
+import androidx.camera.core.impl.ImageFormatConstants
+import androidx.camera.core.impl.QuirkSettingsHolder
 import androidx.camera.core.impl.Quirks
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
@@ -66,12 +73,24 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
                 arrayOf(CamcorderProfile.QUALITY_4KDCI),
                 arrayOf(CamcorderProfile.QUALITY_QHD),
                 arrayOf(CamcorderProfile.QUALITY_2K),
+                arrayOf(CamcorderProfile.QUALITY_8KUHD),
+            )
+
+        private val CTS_UNVERIFIED_QUALITIES =
+            setOf(
+                CamcorderProfile.QUALITY_VGA,
+                CamcorderProfile.QUALITY_4KDCI,
+                CamcorderProfile.QUALITY_QHD,
+                CamcorderProfile.QUALITY_2K,
+                CamcorderProfile.QUALITY_8KUHD,
             )
     }
 
     private lateinit var encoderProfilesProvider: EncoderProfilesProviderAdapter
     private var cameraId = ""
     private var intCameraId = -1
+    private lateinit var cameraMetadata: CameraMetadata
+    private lateinit var streamConfigurationMapCompat: StreamConfigurationMapCompat
     private lateinit var cameraQuirks: Quirks
 
     @get:Rule val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
@@ -82,22 +101,21 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
     fun setup() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
-        cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)!!
+        cameraId =
+            requireNotNull(CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK))
         intCameraId = cameraId.toInt()
         setUptEncoderProfileProvider()
     }
 
     private fun setUptEncoderProfileProvider() {
         val cameraPipe = CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
-        val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(CameraId(cameraId))!!
+        cameraMetadata =
+            requireNotNull(cameraPipe.cameras().awaitCameraMetadata(CameraId(cameraId)))
         val streamConfigurationMap =
             cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-        cameraQuirks =
-            CameraQuirks(
-                    cameraMetadata,
-                    StreamConfigurationMapCompat(streamConfigurationMap, cameraMetadata),
-                )
-                .quirks
+        streamConfigurationMapCompat =
+            StreamConfigurationMapCompat(streamConfigurationMap, cameraMetadata)
+        cameraQuirks = CameraQuirks(cameraMetadata, streamConfigurationMapCompat).quirks
         encoderProfilesProvider = EncoderProfilesProviderAdapter(cameraId, cameraQuirks)
     }
 
@@ -203,32 +221,98 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
         assertThat(encoderProfilesProvider.getAll(quality)).isNotNull()
     }
 
+    @Test
+    fun invalidResolutionInQuirk_returnsNull() {
+        assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
+        assumeTrue(
+            quality != CamcorderProfile.QUALITY_HIGH && quality != CamcorderProfile.QUALITY_LOW
+        )
+        val profileSize = getPlatformProfileSize(quality)
+        assumeTrue(profileSize != null)
+        assumeTrue(!isExpectedValidByResolutionQuirk(quality, requireNotNull(profileSize)))
+
+        assertThat(encoderProfilesProvider.hasProfile(quality)).isFalse()
+        assertThat(encoderProfilesProvider.getAll(quality)).isNull()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun getPlatformProfileSize(quality: Int): Size? {
+        if (
+            Build.VERSION.SDK_INT >= 31 &&
+                DeviceQuirks[InvalidVideoProfilesQuirk::class.java] == null
+        ) {
+            val profiles = CamcorderProfile.getAll(cameraId, quality) ?: return null
+            val videoProfiles = profiles.videoProfiles
+            if (videoProfiles.isEmpty()) {
+                return null
+            }
+            val video = videoProfiles[0]
+            if (video != null) {
+                return Size(video.width, video.height)
+            }
+        }
+        val profile = CamcorderProfile.get(intCameraId, quality) ?: return null
+        return Size(profile.videoFrameWidth, profile.videoFrameHeight)
+    }
+
     @Suppress("DEPRECATION")
     private fun assumeValidCamcorderProfile(quality: Int) {
         assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
         val profile = CamcorderProfile.get(intCameraId, quality)
         assumeSizeValidForCamcorderProfileResolutionQuirk(
-            Size(profile.videoFrameWidth, profile.videoFrameHeight)
+            quality,
+            Size(profile.videoFrameWidth, profile.videoFrameHeight),
         )
     }
 
     @RequiresApi(31)
     private fun assumeValidEncoderProfiles(quality: Int) {
         assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
-        val profiles = CamcorderProfile.getAll(cameraId, quality)!!
+        val profiles = requireNotNull(CamcorderProfile.getAll(cameraId, quality))
         val video = profiles.videoProfiles[0]
         assumeTrue(video != null)
-        assumeSizeValidForCamcorderProfileResolutionQuirk(Size(video.width, video.height))
+        assumeSizeValidForCamcorderProfileResolutionQuirk(quality, Size(video.width, video.height))
     }
 
-    private fun assumeSizeValidForCamcorderProfileResolutionQuirk(profileSize: Size) {
-        val resolutionQuirk =
-            cameraQuirks.get(CamcorderProfileResolutionQuirk::class.java) ?: return
-        val cameraResolutions = resolutionQuirk.getSupportedResolutions()
-        assumeTrue(
-            "The profile size $profileSize is not in camera supported " +
-                "resolutions $cameraResolutions, which is an invalid profile.",
-            cameraResolutions.contains(profileSize),
-        )
+    private fun assumeSizeValidForCamcorderProfileResolutionQuirk(
+        quality: Int,
+        profileSize: Size,
+    ) {
+        if (!isExpectedValidByResolutionQuirk(quality, profileSize)) {
+            val supportedSizes = getCameraSupportedPrivateSizes()
+            assumeTrue(
+                "The profile size $profileSize for quality $quality is not in camera supported " +
+                    "resolutions $supportedSizes, which is an invalid profile.",
+                false,
+            )
+        }
     }
+
+    private fun isExpectedValidByResolutionQuirk(quality: Int, profileSize: Size): Boolean {
+        val isLegacy = cameraMetadata.isHardwareLevelLegacy
+        val shouldEnableQuirk =
+            QuirkSettingsHolder.instance()
+                .get()
+                .shouldEnableQuirk(
+                    CamcorderProfileResolutionQuirk::class.java,
+                    isLegacy || Build.VERSION.SDK_INT >= 29,
+                )
+        if (!shouldEnableQuirk) {
+            return true
+        }
+        if (!isLegacy && quality !in CTS_UNVERIFIED_QUALITIES) {
+            return true
+        }
+        val supportedSizes = getCameraSupportedPrivateSizes()
+        if (!isLegacy && supportedSizes.isEmpty()) {
+            return true
+        }
+        return profileSize in supportedSizes
+    }
+
+    private fun getCameraSupportedPrivateSizes(): List<Size> =
+        streamConfigurationMapCompat
+            .getOutputSizes(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
+            ?.asList()
+            .orEmpty()
 }

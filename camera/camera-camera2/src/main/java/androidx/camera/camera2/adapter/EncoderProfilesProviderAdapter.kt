@@ -81,7 +81,7 @@ public class EncoderProfilesProviderAdapter(
             mEncoderProfilesCache[quality]
         } else {
             var profiles = getProfilesInternal(quality)
-            if (profiles != null && !isEncoderProfilesResolutionValidInQuirk(profiles)) {
+            if (profiles != null && !isEncoderProfilesResolutionValidInQuirk(quality, profiles)) {
                 profiles =
                     when (quality) {
                         QUALITY_HIGH -> findHighestQualityProfiles()
@@ -156,9 +156,15 @@ public class EncoderProfilesProviderAdapter(
         return if (profile != null) EncoderProfilesProxyCompat.from(profile) else null
     }
 
-    private fun isEncoderProfilesResolutionValidInQuirk(profiles: EncoderProfilesProxy): Boolean {
+    private fun isEncoderProfilesResolutionValidInQuirk(
+        quality: Int,
+        profiles: EncoderProfilesProxy,
+    ): Boolean {
         val camcorderProfileResolutionQuirk =
             cameraQuirks[CamcorderProfileResolutionQuirk::class.java] ?: return true
+        if (!camcorderProfileResolutionQuirk.requiresValidation(quality)) {
+            return true
+        }
         val videoProfiles = profiles.videoProfiles
         if (videoProfiles.isEmpty()) {
             // Empty video profiles is valid according to the doc.
@@ -167,9 +173,10 @@ public class EncoderProfilesProviderAdapter(
         // cts/CamcorderProfileTest.java ensures all video profiles have the same size so we just
         // need to check the first video profile.
         val videoProfile = videoProfiles[0]
-        return camcorderProfileResolutionQuirk
-            .getSupportedResolutions()
-            .contains(videoProfile.resolution)
+        return camcorderProfileResolutionQuirk.isProfileResolutionValid(
+            quality,
+            videoProfile.resolution,
+        )
     }
 
     @RequiresApi(31)

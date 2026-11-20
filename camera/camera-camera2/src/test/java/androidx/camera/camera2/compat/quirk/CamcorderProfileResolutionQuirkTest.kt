@@ -20,6 +20,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
+import android.media.CamcorderProfile
 import android.util.Size
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -40,7 +41,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class CamcorderProfileResolutionQuirkTest {
 
     @Test
-    fun loadByHardwareLevel() {
+    @Config(maxSdk = 28)
+    fun loadByHardwareLevel_belowApi29_enabledOnlyForLegacy() {
         var cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isFalse()
 
@@ -49,6 +51,22 @@ class CamcorderProfileResolutionQuirkTest {
 
         cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
         assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isFalse()
+
+        cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isTrue()
+    }
+
+    @Test
+    @Config(minSdk = 29)
+    fun loadByHardwareLevel_api29AndAbove_enabledForAllLevels() {
+        var cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
+        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isTrue()
+
+        cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3)
+        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isTrue()
+
+        cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
+        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isTrue()
 
         cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isTrue()
@@ -64,14 +82,122 @@ class CamcorderProfileResolutionQuirkTest {
                         EncoderProfilesUtil.RESOLUTION_1080P,
                     )
             )
-        val map = cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+        val map =
+            requireNotNull(cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP])
         val quirk =
-            CamcorderProfileResolutionQuirk(StreamConfigurationMapCompat(map, cameraMetadata))
+            CamcorderProfileResolutionQuirk(
+                StreamConfigurationMapCompat(map, cameraMetadata),
+                isLegacy = true,
+            )
 
         assertThat(quirk.getSupportedResolutions()[0])
             .isEqualTo(EncoderProfilesUtil.RESOLUTION_2160P)
         assertThat(quirk.getSupportedResolutions()[1])
             .isEqualTo(EncoderProfilesUtil.RESOLUTION_1080P)
+    }
+
+    @Test
+    fun requiresValidation_legacyCamera_validatesAllQualities() {
+        val cameraMetadata =
+            createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        val map =
+            requireNotNull(cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP])
+        val quirk =
+            CamcorderProfileResolutionQuirk(
+                StreamConfigurationMapCompat(map, cameraMetadata),
+                isLegacy = true,
+            )
+
+        for (quality in CTS_VERIFIED_QUALITIES + CTS_UNVERIFIED_QUALITIES) {
+            assertThat(quirk.requiresValidation(quality)).isTrue()
+        }
+    }
+
+    @Test
+    fun requiresValidation_nonLegacyCamera_validatesOnlyCtsUnverifiedQualities() {
+        val cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3)
+        val map =
+            requireNotNull(cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP])
+        val quirk =
+            CamcorderProfileResolutionQuirk(
+                StreamConfigurationMapCompat(map, cameraMetadata),
+                isLegacy = false,
+            )
+
+        for (quality in CTS_VERIFIED_QUALITIES) {
+            assertThat(quirk.requiresValidation(quality)).isFalse()
+        }
+        for (quality in CTS_UNVERIFIED_QUALITIES) {
+            assertThat(quirk.requiresValidation(quality)).isTrue()
+        }
+    }
+
+    @Test
+    fun isProfileResolutionValid_nonLegacy_skipsCtsVerifiedAndValidatesUnverified() {
+        val cameraMetadata =
+            createCameraMetaData(
+                hardwareLevel = CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+                supportedSizes = arrayOf(EncoderProfilesUtil.RESOLUTION_2160P),
+            )
+        val map =
+            requireNotNull(cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP])
+        val quirk =
+            CamcorderProfileResolutionQuirk(
+                StreamConfigurationMapCompat(map, cameraMetadata),
+                isLegacy = false,
+            )
+
+        // CTS-verified qualities are trusted without querying StreamConfigurationMap.
+        assertThat(
+                quirk.isProfileResolutionValid(
+                    CamcorderProfile.QUALITY_1080P,
+                    EncoderProfilesUtil.RESOLUTION_1080P,
+                )
+            )
+            .isTrue()
+        Mockito.verifyNoInteractions(map)
+
+        // CTS-unverified qualities are validated against normal PRIVATE output sizes.
+        assertThat(
+                quirk.isProfileResolutionValid(
+                    CamcorderProfile.QUALITY_QHD,
+                    EncoderProfilesUtil.RESOLUTION_QHD,
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun isProfileResolutionValid_emptySupportedSizes_skipsOnNonLegacyOnly() {
+        val emptyMetadata = createCameraMetaData(supportedSizes = emptyArray())
+        val map =
+            requireNotNull(emptyMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP])
+        val compatMap = StreamConfigurationMapCompat(map, emptyMetadata)
+
+        val nonLegacyQuirk = CamcorderProfileResolutionQuirk(compatMap, isLegacy = false)
+        assertThat(
+                nonLegacyQuirk.isProfileResolutionValid(
+                    CamcorderProfile.QUALITY_QHD,
+                    EncoderProfilesUtil.RESOLUTION_QHD,
+                )
+            )
+            .isTrue()
+
+        val legacyQuirk = CamcorderProfileResolutionQuirk(compatMap, isLegacy = true)
+        assertThat(
+                legacyQuirk.isProfileResolutionValid(
+                    CamcorderProfile.QUALITY_1080P,
+                    EncoderProfilesUtil.RESOLUTION_1080P,
+                )
+            )
+            .isFalse()
+        assertThat(
+                legacyQuirk.isProfileResolutionValid(
+                    CamcorderProfile.QUALITY_QHD,
+                    EncoderProfilesUtil.RESOLUTION_QHD,
+                )
+            )
+            .isFalse()
     }
 
     private fun createCameraMetaData(
@@ -94,5 +220,29 @@ class CamcorderProfileResolutionQuirkTest {
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap,
                 ),
         )
+    }
+
+    private companion object {
+        val CTS_VERIFIED_QUALITIES =
+            listOf(
+                CamcorderProfile.QUALITY_HIGH,
+                CamcorderProfile.QUALITY_2160P,
+                CamcorderProfile.QUALITY_1080P,
+                CamcorderProfile.QUALITY_720P,
+                CamcorderProfile.QUALITY_480P,
+                CamcorderProfile.QUALITY_CIF,
+                CamcorderProfile.QUALITY_QCIF,
+                CamcorderProfile.QUALITY_QVGA,
+                CamcorderProfile.QUALITY_LOW,
+            )
+
+        val CTS_UNVERIFIED_QUALITIES =
+            listOf(
+                CamcorderProfile.QUALITY_VGA,
+                CamcorderProfile.QUALITY_4KDCI,
+                CamcorderProfile.QUALITY_QHD,
+                CamcorderProfile.QUALITY_2K,
+                CamcorderProfile.QUALITY_8KUHD,
+            )
     }
 }
