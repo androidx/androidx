@@ -41,6 +41,8 @@ import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.player.compose.embedded.resources.buildFontVariationSettings
+import androidx.compose.remote.player.compose.embedded.resources.formatVariationAxes
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
@@ -336,7 +338,7 @@ class RcPlayerCanvasTextTypefaceTest {
 
         assertThat(testResolver.resolveCalled).isTrue()
         assertThat(testResolver.lastRequest?.variationSettings)
-            .isEqualTo("'wght' 100.0, 'wdth' 150.0")
+            .isEqualTo("'wdth' 150.0, 'wght' 100.0")
     }
 
     @Test
@@ -367,7 +369,7 @@ class RcPlayerCanvasTextTypefaceTest {
 
         assertThat(testResolver.resolveCalled).isTrue()
         assertThat(testResolver.lastRequest?.variationSettings)
-            .isEqualTo("'wght' 650.0, 'wdth' 90.0")
+            .isEqualTo("'wdth' 90.0, 'wght' 650.0")
     }
 
     @Test
@@ -730,7 +732,7 @@ class RcPlayerCanvasTextTypefaceTest {
         assertThat(capturedRequests).hasSize(1)
         assertThat(capturedRequests.single().fontFamily).isEqualTo("google:Roboto Flex")
         assertThat(capturedRequests.single().variationSettings)
-            .isEqualTo("'wght' 500.0, 'wdth' 120.0")
+            .isEqualTo("'wdth' 120.0, 'wght' 500.0")
 
         // Before completion, fallback font family is used.
         val initialFontFamily: FontFamily? =
@@ -787,7 +789,7 @@ class RcPlayerCanvasTextTypefaceTest {
         assertThat(capturedRequests).hasSize(1)
         assertThat(capturedRequests.single().fontFamily).isEqualTo("google:Roboto Flex")
         assertThat(capturedRequests.single().variationSettings)
-            .isEqualTo("'wght' 600.0, 'wdth' 110.0")
+            .isEqualTo("'wdth' 110.0, 'wght' 600.0")
 
         // Once the suspending resolver completes, the listener is notified and the cached resolved
         // typeface is returned on subsequent calls.
@@ -800,12 +802,71 @@ class RcPlayerCanvasTextTypefaceTest {
             )
         val resolvedTypefaceSecondCall =
             fontInstance.applyVariationSettings(
-                arrayOf("wght", "wdth", "tnum"),
-                floatArrayOf(600f, 110f, 1f),
+                arrayOf("wdth", "wght", "tnum"),
+                floatArrayOf(110f, 600f, 1f),
             )
+        assertThat(capturedRequests).hasSize(1)
         assertThat(resolvedTypeface).isNotNull()
         assertThat(resolvedTypeface).isNotEqualTo(initialTypeface)
         assertThat(resolvedTypefaceSecondCall).isSameInstanceAs(resolvedTypeface)
+    }
+
+    @Test
+    fun formatVariationAxesSortsAxesByTag() {
+        val expected = "'wdth' 110.0, 'wght' 600.0"
+        assertThat(
+                formatVariationAxes(arrayOf("wght", "tnum", "wdth"), floatArrayOf(600f, 1f, 110f))
+            )
+            .isEqualTo(expected)
+        assertThat(formatVariationAxes(arrayOf("wdth", "wght"), floatArrayOf(110f, 600f)))
+            .isEqualTo(expected)
+        assertThat(formatVariationAxes(arrayOf(), floatArrayOf())).isNull()
+        assertThat(formatVariationAxes(arrayOf("tnum"), floatArrayOf(1f))).isNull()
+        assertThat(formatVariationAxes(arrayOf("tnum", "wght"), floatArrayOf(1f, 500f)))
+            .isEqualTo("'wght' 500.0")
+        assertThat(
+                formatVariationAxes(
+                    arrayOf("wght", "ROND", "wdth", "wght"),
+                    floatArrayOf(400f, 100f, 110f, 700f),
+                )
+            )
+            .isEqualTo("'ROND' 100.0, 'wdth' 110.0, 'wght' 400.0, 'wght' 700.0")
+        assertThat(
+                formatVariationAxes(
+                    arrayOf(
+                        "AX08",
+                        "AX07",
+                        "tnum",
+                        "AX06",
+                        "AX05",
+                        "AX04",
+                        "AX03",
+                        "AX02",
+                        "AX01",
+                        "AAAA",
+                    ),
+                    floatArrayOf(8f, 7f, 1f, 6f, 5f, 4f, 3f, 2f, 1f, 9f),
+                )
+            )
+            .isEqualTo(
+                "'AX01' 1.0, 'AX02' 2.0, 'AX03' 3.0, 'AX04' 4.0, " +
+                    "'AX05' 5.0, 'AX06' 6.0, 'AX07' 7.0, 'AX08' 8.0"
+            )
+    }
+
+    @Test
+    fun buildFontVariationSettingsSortsAxesByTag() {
+        val context = AndroidRemoteContext()
+        context.loadText(1, "wdth")
+        context.loadText(2, "ROND")
+        fun build(axes: IntArray, values: FloatArray) =
+            buildFontVariationSettings(axes, values, FontWeight.Normal, FontStyle.Italic, context)
+
+        val settings = build(intArrayOf(1, 2), floatArrayOf(110f, 100f))
+        assertThat(settings).isEqualTo(build(intArrayOf(2, 1), floatArrayOf(100f, 110f)))
+        assertThat(settings!!.settings.map { it.axisName })
+            .containsExactly("ROND", "ital", "wdth", "wght")
+            .inOrder()
     }
 
     private fun loadKarlaTypeface(): Typeface {

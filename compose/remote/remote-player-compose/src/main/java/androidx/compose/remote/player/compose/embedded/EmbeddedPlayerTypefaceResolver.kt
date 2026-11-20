@@ -42,7 +42,7 @@ import androidx.core.provider.FontsContractCompat
  * @property weight The font weight in `[1, 1000]` (e.g., `400` for normal, `700` for bold).
  * @property italic Whether the font style is italic.
  * @property variationSettings Optional font variation settings string in the format accepted by
- *   [Paint.setFontVariationSettings] and [FontRequest] (e.g., `"'wght' 500.0, 'wdth' 110.0"`), or
+ *   [Paint.setFontVariationSettings] and [FontRequest] (e.g., `"'wdth' 110.0, 'wght' 500.0"`), or
  *   `null` if no variation axes are specified.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

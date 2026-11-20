@@ -80,6 +80,7 @@ internal fun buildFontVariationSettings(
     var hasItal = false
     val count = minOf(fontAxis.size, fontAxisValues.size)
     for (i in 0 until count) {
+        if (list.size >= MAX_FONT_AXES) break
         val name = context.getText(fontAxis[i])
         if (name != null && isVariationAxisTag(name)) {
             if (name == "wght") hasWght = true
@@ -95,6 +96,8 @@ internal fun buildFontVariationSettings(
     if (!hasItal && fontStyle == FontStyle.Italic) {
         list.add(FontVariation.italic(1f))
     }
+    // Sort by tag so the same axes in a different order share cached font families and Typefaces.
+    list.sortBy { it.axisName }
     return FontVariation.Settings(*list.toTypedArray())
 }
 
@@ -104,18 +107,11 @@ internal fun buildFontVariationSettingsString(
     context: RemoteContext,
 ): String? {
     if (fontAxis == null || fontAxisValues == null) return null
-    val count = minOf(fontAxis.size, fontAxisValues.size)
-    if (count == 0) return null
-    var builder: StringBuilder? = null
-    for (i in 0 until count) {
-        val name = context.getText(fontAxis[i]) ?: continue
-        if (!isVariationAxisTag(name)) continue
-        val resolvedValue = resolveFloat(fontAxisValues[i], fontAxisValues[i], context)
-        val sb = builder ?: StringBuilder().also { builder = it }
-        if (sb.isNotEmpty()) sb.append(", ")
-        sb.append('\'').append(name).append("' ").append(resolvedValue)
-    }
-    return builder?.toString()
+    return buildVariationAxes(
+        minOf(fontAxis.size, fontAxisValues.size),
+        { context.getText(fontAxis[it]) },
+        { resolveFloat(fontAxisValues[it], fontAxisValues[it], context) },
+    )
 }
 
 internal fun buildTypefaceRequest(
