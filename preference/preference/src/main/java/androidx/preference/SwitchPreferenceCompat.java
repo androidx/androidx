@@ -155,7 +155,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     }
 
     /**
-     * @return The text that will be displayed on the switch widget in the on state
+     * Returns the text that will be displayed on the switch widget in the on state.
      */
     public @Nullable CharSequence getSwitchTextOn() {
         return mSwitchOn;
@@ -172,7 +172,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     }
 
     /**
-     * @return The text that will be displayed on the switch widget in the off state
+     * Returns the text that will be displayed on the switch widget in the off state.
      */
     public @Nullable CharSequence getSwitchTextOff() {
         return mSwitchOff;
