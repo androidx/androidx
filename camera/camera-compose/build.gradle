@@ -39,12 +39,9 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.11.2")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation(libs.kotlinCoroutinesCore)
-    implementation(libs.kotlinCoroutinesGuava)
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     // Older versions of lifecycle-runtime lint checks use a deleted lint API
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
-
-    // Forcing upgrade due to CVE-2023-2976, see b/543176661 for more details
-    implementation(libs.guava)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
