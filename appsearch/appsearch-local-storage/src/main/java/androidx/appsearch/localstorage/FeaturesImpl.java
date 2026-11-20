@@ -120,8 +120,8 @@ public class FeaturesImpl implements Features {
                 //   platform.
                 return false;
             case Features.GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES:
-                // TODO: Enable this (together with Flags#enableOfflineObservers) once offline
-                //   observers are ready.
+                // TODO(b/568469783): Enable this (together with Flags#enableOfflineObservers)
+                //   once offline observers are ready.
                 return false;
             case Features.INDEXER_MOBILE_APPLICATIONS:
                 // The Apps Indexer is only available on platform storage and some versions of

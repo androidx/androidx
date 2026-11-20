@@ -43,6 +43,8 @@ import java.util.List;
  * <p>A {@link DocumentChangeSet} does not convey what kind of change occurred (a document was
  * added, updated or removed), nor the old or new values of the document. It is up to the caller
  * to use the returned document IDs to look up what has changed.
+ *
+ * @see androidx.appsearch.app.ReadOnlyGlobalSearchSession#getDocumentChangesAsync
  */
 // TODO(b/568469783): unhide the API once offline observers are ready.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
