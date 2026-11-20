@@ -998,7 +998,8 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         }
         project.configureErrorProneForJava()
 
-        // Force Java 1.8 source- and target-compatibility for all Java libraries.
+        // Set source- and target-compatibility for all Java libraries to the default for their
+        // software type, see getDefaultTargetJavaVersion.
         val javaExtension = project.extensions.getByType<JavaPluginExtension>()
         project.afterEvaluate {
             javaExtension.apply {
