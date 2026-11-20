@@ -16,6 +16,7 @@
 
 package androidx.savedstate
 
+import androidx.collection.MutableScatterMap
 import androidx.collection.mutableScatterMapOf
 import androidx.savedstate.internal.SynchronizedObject
 import androidx.savedstate.internal.synchronized
@@ -30,8 +31,8 @@ import androidx.savedstate.internal.synchronized
  */
 public class SavedStateContainer {
     private val lock = SynchronizedObject()
-    private val values = mutableScatterMapOf<String, SavedStateValue<*>>()
-    private val unconsumed = mutableScatterMapOf<String, SavedState>()
+    private val values: MutableScatterMap<String, SavedStateValue<*>> = mutableScatterMapOf()
+    private val unconsumed: MutableScatterMap<String, SavedState> = mutableScatterMapOf()
 
     /**
      * Checks if a [SavedStateValue] is registered under the given [key].
@@ -56,56 +57,42 @@ public class SavedStateContainer {
      * @return existing or newly created child [SavedStateContainer] instance
      */
     public fun getOrCreateContainer(key: String): SavedStateContainer =
-        getOrPut(key) { SavedStateContainerValue() }.value
+        getOrPutSavedStateValue(key) { SavedStateContainerValue() }.value
 
     /**
-     * Registers a [value] for state saving and restoration under the given [key].
-     *
-     * If a [SavedStateValue] was previously registered under [key], it is overwritten and returned.
-     *
-     * @param key unique identifier for the saved state value
-     * @param value component responsible for state saving and restoration
-     * @return previously registered [SavedStateValue], or `null` if none was registered
-     */
-    public fun <T> put(key: String, value: SavedStateValue<T>): SavedStateValue<T>? =
-        synchronized(lock) {
-            val previous = values.put(key, value)
-            if (key in unconsumed) {
-                value.restoreState(unconsumed.remove(key))
-            }
-            @Suppress("UNCHECKED_CAST")
-            previous as? SavedStateValue<T>
-        }
-
-    /**
-     * Registers a [value] for state saving and restoration under the given [key].
+     * Registers a [savedStateValue] for state saving and restoration under the given [key].
      *
      * If a [SavedStateValue] was previously registered under [key], it will be overwritten.
      *
      * @param key unique identifier for the saved state value
-     * @param value component responsible for state saving and restoration
+     * @param savedStateValue component responsible for state saving and restoration
      */
-    public operator fun <T> set(key: String, value: SavedStateValue<T>) {
-        put(key, value)
+    public fun <T, R : SavedStateValue<T>> putSavedStateValue(key: String, savedStateValue: R) {
+        synchronized(lock) {
+            values[key] = savedStateValue
+            if (key in unconsumed) {
+                savedStateValue.restoreState(unconsumed.remove(key))
+            }
+        }
     }
 
-    internal fun <T> register(
+    internal fun <T, R : SavedStateValue<T>> registerSavedStateValue(
         key: String,
-        value: SavedStateValue<T>,
+        savedStateValue: R,
     ): Boolean =
         synchronized(lock) {
             val existing = values[key]
             if (existing != null) {
                 // Allow idempotent re-registration of the exact same instance, and
                 // prevent key collisions between different instances.
-                require(existing.value === value.value) {
+                require(existing.value === savedStateValue.value) {
                     "SavedStateProvider with key '$key' already registered. " +
                         "Existing instance: '${existing.value}'. " +
-                        "New instance: '${value.value}'."
+                        "New instance: '${savedStateValue.value}'."
                 }
                 return@synchronized false
             }
-            set(key, value)
+            putSavedStateValue(key, savedStateValue)
             true
         }
 
@@ -113,12 +100,12 @@ public class SavedStateContainer {
      * Retrieves the registered [SavedStateValue] associated with [key].
      *
      * @param key unique identifier for the saved state value
-     * @return registered [SavedStateValue], or `null` if no value is found
+     * @return registered [SavedStateValue] typed as [R], or `null` if no value is found
      */
-    public operator fun <T> get(key: String): SavedStateValue<T>? =
+    public fun <T, R : SavedStateValue<T>> getSavedStateValue(key: String): R? =
         synchronized(lock) {
             @Suppress("UNCHECKED_CAST")
-            values[key] as? SavedStateValue<T>
+            values[key] as? R
         }
 
     /**
@@ -128,10 +115,8 @@ public class SavedStateContainer {
      * @param key unique identifier for the saved state value
      * @param defaultValue factory producing a new [SavedStateValue] if none is registered for [key]
      * @return existing or newly registered [SavedStateValue] instance
-     * @throws ClassCastException if an existing [SavedStateValue] registered for [key] is not an
-     *   instance of [R]
      */
-    public fun <T, R : SavedStateValue<T>> getOrPut(
+    public fun <T, R : SavedStateValue<T>> getOrPutSavedStateValue(
         key: String,
         defaultValue: () -> R,
     ): R =
@@ -142,7 +127,7 @@ public class SavedStateContainer {
                 return@synchronized existing as R
             }
             val default = defaultValue()
-            set(key, default)
+            putSavedStateValue(key, default)
             default
         }
 
@@ -152,13 +137,13 @@ public class SavedStateContainer {
      * @param key unique identifier for the saved state value to remove
      * @return previously registered [SavedStateValue], or `null` if none was registered
      */
-    public fun <T> remove(key: String): SavedStateValue<T>? =
+    public fun <T, R : SavedStateValue<T>> removeSavedStateValue(key: String): R? =
         synchronized(lock) {
             if (key in unconsumed) {
                 unconsumed.remove(key)
             }
             @Suppress("UNCHECKED_CAST")
-            values.remove(key) as? SavedStateValue<T>
+            values.remove(key) as? R
         }
 
     internal fun consumeForKey(key: String): SavedState? =

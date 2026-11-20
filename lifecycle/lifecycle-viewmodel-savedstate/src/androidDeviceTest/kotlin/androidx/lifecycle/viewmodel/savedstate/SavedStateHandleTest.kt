@@ -21,6 +21,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateValue
 import androidx.savedstate.read
 import androidx.savedstate.savedState
 import androidx.test.annotation.UiThreadTest
@@ -643,24 +644,40 @@ class SavedStateHandleTest {
         val handle = SavedStateHandle(mapOf("key1" to "value1"))
         val container = handle.asContainer()
         assertThat("key1" in container).isTrue()
-        assertThat(container.get<String>("key1")?.value).isEqualTo("value1")
+        assertThat(container.getSavedStateValue<String, SavedStateValue<String>>("key1")?.value)
+            .isEqualTo("value1")
 
         handle["key2"] = "value2"
         assertThat("key1" in container).isTrue()
         assertThat("key2" in container).isTrue()
-        assertThat(container.get<String>("key2")?.value).isEqualTo("value2")
+        assertThat(container.getSavedStateValue<String, SavedStateValue<String>>("key2")?.value)
+            .isEqualTo("value2")
 
         handle.getMutableStateFlow("flowKey", "flowValue")
-        assertThat(container.get<String>("flowKey")?.value).isEqualTo("flowValue")
+        assertThat(container.getSavedStateValue<String, SavedStateValue<String>>("flowKey")?.value)
+            .isEqualTo("flowValue")
 
         handle.getLiveData("liveDataKey", "liveDataValue")
-        assertThat(container.get<String>("liveDataKey")?.value).isEqualTo("liveDataValue")
+        assertThat(
+                container.getSavedStateValue<String, SavedStateValue<String>>("liveDataKey")?.value
+            )
+            .isEqualTo("liveDataValue")
 
         val providerBundle = Bundle().apply { putString("k", "v") }
         handle.setSavedStateProvider("providerKey") { providerBundle }
-        assertThat(container.get<SavedState?>("providerKey")?.value).isNull()
+        assertThat(
+                container
+                    .getSavedStateValue<SavedState?, SavedStateValue<SavedState?>>("providerKey")
+                    ?.value
+            )
+            .isNull()
         handle.asContainer().saveState()
-        assertThat(container.get<SavedState?>("providerKey")?.value).isEqualTo(providerBundle)
+        assertThat(
+                container
+                    .getSavedStateValue<SavedState?, SavedStateValue<SavedState?>>("providerKey")
+                    ?.value
+            )
+            .isEqualTo(providerBundle)
     }
 
     @Test

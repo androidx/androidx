@@ -33,6 +33,7 @@ import androidx.compose.ui.R
 import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.SavedStateValue
 import java.io.Serializable
 
 /** Creates [DisposableSaveableStateRegistry] associated with these [view] and [owner]. */
@@ -85,7 +86,12 @@ internal fun DisposableSaveableStateRegistry(
     val saveableStateRegistry = SaveableStateRegistry(container) { canBeSavedToBundle(it) }
     return DisposableSaveableStateRegistry(saveableStateRegistry) {
         if (registered) {
-            parentContainer.remove<SavedStateContainer>(key)
+            parentContainer.removeSavedStateValue<
+                SavedStateContainer,
+                SavedStateValue<SavedStateContainer>,
+            >(
+                key
+            )
         }
     }
 }
