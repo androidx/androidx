@@ -20,6 +20,7 @@ package androidx.xr.testutils
 
 import android.app.UiAutomation
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.RectF
 import android.os.SystemClock
 import android.util.Log
@@ -33,6 +34,7 @@ import kotlin.time.TimeSource
 private const val SCENE_CAPTURE_TAG = "SpatialSceneHelper"
 internal const val MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS = 5000L
 private const val FRAME_STABILITY_MSSIM_THRESHOLD: Double = 0.999
+private const val REQUIRED_CONSECUTIVE_MATCHES = 2
 
 /**
  * Recursively traverses [root] to find all visible, non-system-UI [SnapshotXrSpace] entities that
@@ -156,9 +158,16 @@ private fun logUnsettledTimeout(timeout: Duration) {
     )
 }
 
+private fun hasForegroundContent(pixels: IntArray, width: Int, height: Int): Boolean {
+    if (width <= 0 || height <= 0) return false
+    val bgColor = detectBackgroundColor(pixels, width, height)
+    return findForegroundBounds(pixels, width, height, Rect(0, 0, width, height), bgColor) != null
+}
+
 /**
- * Polls [UiAutomation.takeScreenshot] until two consecutive compositor frames match within
- * [FRAME_STABILITY_MSSIM_THRESHOLD] (ensuring newly registered SpaceFlinger/Impress buffers have
+ * Polls [UiAutomation.takeScreenshot] until [REQUIRED_CONSECUTIVE_MATCHES] consecutive comparisons
+ * match within [FRAME_STABILITY_MSSIM_THRESHOLD] on a frame with non-uniform foreground content
+ * (ensuring blank/stale buffers have cleared and newly registered SpaceFlinger/Impress buffers have
  * finished latching), or returns the latest non-null frame (logging a warning) if the timeout
  * elapses. All intermediate bitmaps are recycled before returning.
  */
@@ -166,17 +175,31 @@ internal fun waitForSettledSoftwareScreenshot(
     uiAutomation: UiAutomation,
     timeout: Duration,
     pollInterval: Duration,
+): Bitmap =
+    waitForSettledSoftwareScreenshot(
+        screenshotProvider = { uiAutomation.takeScreenshot() },
+        timeout = timeout,
+        pollInterval = pollInterval,
+    )
+
+internal fun waitForSettledSoftwareScreenshot(
+    screenshotProvider: () -> Bitmap?,
+    timeout: Duration,
+    pollInterval: Duration,
+    timeSource: TimeSource = TimeSource.Monotonic,
+    sleepMillis: (Long) -> Unit = SystemClock::sleep,
 ): Bitmap {
-    val start = TimeSource.Monotonic.markNow()
+    val start = timeSource.markNow()
     val stabilityMatcher = MSSIMMatcher(threshold = FRAME_STABILITY_MSSIM_THRESHOLD)
     var previousBitmap: Bitmap? = null
     var previousPixels: IntArray? = null
     var currentPixels: IntArray? = null
     var currentBitmap: Bitmap? = null
+    var consecutiveMatches = 0
 
     try {
         while (true) {
-            val raw = uiAutomation.takeScreenshot()
+            val raw = screenshotProvider()
             if (raw != null) {
                 val softwareBitmap =
                     try {
@@ -207,9 +230,23 @@ internal fun waitForSettledSoftwareScreenshot(
                     prev.recycle()
                     previousBitmap = null
                     matchResult.diff?.recycle()
-                    if (matchResult.matches) {
-                        currentBitmap = null
-                        return softwareBitmap
+                    if (
+                        matchResult.matches &&
+                            hasForegroundContent(
+                                currentPixels,
+                                softwareBitmap.width,
+                                softwareBitmap.height,
+                            )
+                    ) {
+                        consecutiveMatches++
+                        if (consecutiveMatches >= REQUIRED_CONSECUTIVE_MATCHES) {
+                            currentBitmap = null
+                            return softwareBitmap
+                        }
+                    } else {
+                        // Reset on frame transitions or uniform/blank captures so stale or empty
+                        // compositor surfaces cannot falsely settle before foreground renders.
+                        consecutiveMatches = 0
                     }
                     if (start.elapsedNow() >= timeout) {
                         logUnsettledTimeout(timeout)
@@ -219,6 +256,7 @@ internal fun waitForSettledSoftwareScreenshot(
                 } else {
                     prev?.recycle()
                     previousBitmap = null
+                    consecutiveMatches = 0
                     if (start.elapsedNow() >= timeout) {
                         logUnsettledTimeout(timeout)
                         currentBitmap = null
@@ -242,7 +280,7 @@ internal fun waitForSettledSoftwareScreenshot(
                         "return a non-null Bitmap"
                 )
             }
-            SystemClock.sleep(pollInterval.inWholeMilliseconds)
+            sleepMillis(pollInterval.inWholeMilliseconds)
         }
     } catch (t: Throwable) {
         currentBitmap?.let {
