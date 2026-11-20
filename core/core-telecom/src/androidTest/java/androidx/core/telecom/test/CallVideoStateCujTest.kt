@@ -36,12 +36,14 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -71,7 +73,12 @@ class CallVideoStateCujTest : BaseTelecomTest() {
 
     companion object {
         val TAG = CallVideoStateCujTest::class.simpleName
-        private const val ENDPOINT_SETTLE_TIMEOUT_MS = 3000L
+        // Match CallSession.INITIAL_ENDPOINT_SWITCH_TIMEOUT (3000ms) so late call-start route
+        // overrides (e.g., 2000ms BT delay) cannot slip past an early stability exit.
+        private const val ENDPOINT_MAX_WAIT_TIMEOUT_MS = 3500L
+        private const val ENDPOINT_STABILITY_WINDOW_MS = 3000L
+        private const val PLATFORM_VIDEO_STATE_SYNC_TIMEOUT_MS = 1000L
+        private const val PLATFORM_VIDEO_STATE_POLL_INTERVAL_MS = 50L
     }
 
     // ==========================================================================
@@ -628,11 +635,14 @@ class CallVideoStateCujTest : BaseTelecomTest() {
                                 callType,
                             )
 
+                            TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
+
                             // Verify call type still matches
                             val postAnswerCallType = callTypeFlow().first()
                             Log.i(
                                 TAG,
-                                "runIncomingCallPlatformAnswer_CallTypeTranslation: post-answer callType=$postAnswerCallType",
+                                "runIncomingCallPlatformAnswer_CallTypeTranslation: " +
+                                    "post-answer callType=$postAnswerCallType",
                             )
                             assertEquals(
                                 CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
@@ -643,6 +653,20 @@ class CallVideoStateCujTest : BaseTelecomTest() {
                             verifyAudioRouteSettle(
                                 CallEndpointCompat.TYPE_SPEAKER,
                                 "runIncomingCallPlatformAnswer_CallTypeTranslation",
+                            )
+
+                            // Verify platform call video state remains bidirectional after answer
+                            val platformVideoState = awaitPlatformVideoState(call)
+                            Log.i(
+                                TAG,
+                                "runIncomingCallPlatformAnswer_CallTypeTranslation: " +
+                                    "platform videoState=$platformVideoState",
+                            )
+                            assertTrue(
+                                "Platform call should have bidirectional (3) or TX/RX enabled " +
+                                    "(2) video state, actual: $platformVideoState",
+                                platformVideoState == VideoProfile.STATE_BIDIRECTIONAL ||
+                                    platformVideoState == CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
                             )
 
                             Log.i(
@@ -815,16 +839,45 @@ class CallVideoStateCujTest : BaseTelecomTest() {
         )
     }
 
-    private suspend fun CoroutineScope.getSettledEndpoint(
-        endpointFlow: Flow<CallEndpointCompat>
-    ): CallEndpointCompat? {
-        var settledEndpoint: CallEndpointCompat? = null
-        val endpointCollectorJob = launch {
-            endpointFlow.collect { endpoint -> settledEndpoint = endpoint }
+    private suspend fun awaitPlatformVideoState(call: Call): Int {
+        var videoState = call.details.videoState
+        withTimeoutOrNull(PLATFORM_VIDEO_STATE_SYNC_TIMEOUT_MS) {
+            while (
+                videoState != VideoProfile.STATE_BIDIRECTIONAL &&
+                    videoState != CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+            ) {
+                delay(PLATFORM_VIDEO_STATE_POLL_INTERVAL_MS)
+                videoState = call.details.videoState
+            }
         }
-        delay(ENDPOINT_SETTLE_TIMEOUT_MS)
-        endpointCollectorJob.cancel()
-        return settledEndpoint
+        return videoState
+    }
+
+    private suspend fun CoroutineScope.awaitSettledEndpoint(
+        endpointFlow: Flow<CallEndpointCompat>,
+        expectedRouteType: Int,
+    ): CallEndpointCompat? {
+        var latestEndpoint: CallEndpointCompat? = null
+        val settled = CompletableDeferred<CallEndpointCompat>()
+        var stabilityJob: Job? = null
+
+        val collectorJob = launch {
+            endpointFlow.collect { endpoint ->
+                latestEndpoint = endpoint
+                stabilityJob?.cancel()
+                if (endpoint.type == expectedRouteType) {
+                    stabilityJob = launch {
+                        delay(ENDPOINT_STABILITY_WINDOW_MS)
+                        settled.complete(endpoint)
+                    }
+                }
+            }
+        }
+
+        val stableMatch = withTimeoutOrNull(ENDPOINT_MAX_WAIT_TIMEOUT_MS) { settled.await() }
+        stabilityJob?.cancel()
+        collectorJob.cancel()
+        return stableMatch ?: latestEndpoint
     }
 
     private suspend fun CallControlScope.verifyAudioRouteSettle(
@@ -836,7 +889,7 @@ class CallVideoStateCujTest : BaseTelecomTest() {
         val hasTargetRoute = availableEndpointsList.any { it.type == expectedRouteType }
         if (availableEndpointsList.size > 1 && hasTargetRoute) {
             Log.i(TAG, "$methodNameForLog: waiting for endpoint to settle")
-            val settledEndpoint = getSettledEndpoint(currentCallEndpoint)
+            val settledEndpoint = awaitSettledEndpoint(currentCallEndpoint, expectedRouteType)
             Log.i(TAG, "$methodNameForLog: settledEndpoint=$settledEndpoint")
 
             assertNotNull("Never received an endpoint update", settledEndpoint)
