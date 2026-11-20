@@ -24,7 +24,7 @@ TEST_XML_CONFIGS="$SCRIPT_DIR/../../../out/test-xml-configs"
 echo "Deleting $TEST_XML_CONFIGS"
 rm -fr $TEST_XML_CONFIGS
 
-impl/build.sh zipTestConfigsWithApks zipOwnersFiles createModuleInfo "$@"
+impl/build.sh uploadTestApksToGcs zipTestConfigsWithApks zipOwnersFiles createModuleInfo "$@"
 
 record_build_metrics "$start_time"
 

@@ -183,6 +183,8 @@ val DONT_TRY_RERUNNING_TASK_TYPES =
         "org.gradle.api.publish.maven.tasks.PublishToMavenRepository_Decorated",
         // This task is not cacheable by design due to large number of inputs
         "androidx.build.license.CheckExternalDependencyLicensesTask_Decorated",
+        // Opportunistic GCS upload task with no local outputs
+        "androidx.build.testConfiguration.UploadApkToGcsTask_Decorated",
     )
 
 abstract class TaskUpToDateValidator :
