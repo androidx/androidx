@@ -20,6 +20,7 @@ import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.ext.RoomTypeNames
 import androidx.room3.vo.DataClass
 import androidx.room3.vo.ShortcutEntity
+import androidx.room3.vo.columnNames
 
 class EntityUpsertAdapterWriter
 private constructor(val tableName: String, val dataClass: DataClass) {
@@ -34,12 +35,36 @@ private constructor(val tableName: String, val dataClass: DataClass) {
 
     fun createConcrete(entity: ShortcutEntity, typeWriter: TypeWriter): XCodeBlock {
         val upsertAdapter = RoomTypeNames.UPSERT_ADAPTER.parametrizedBy(dataClass.typeName)
-        val insertHelper = EntityInsertAdapterWriter.create(entity, "").createAnonymous(typeWriter)
+        val insertWriter = EntityInsertAdapterWriter.create(entity, "")
+        val insertHelper = insertWriter.createAnonymous(typeWriter)
         val updateHelper = EntityUpdateAdapterWriter.create(entity, "").createAnonymous(typeWriter)
+        val pkColumnNames = entity.primaryKey.columnNames
+        // Upsert is not supported on virtual tables and needs primary key columns to conflict on.
+        val insertOrUpdateQuery: String?
+        val insertOrNothingQuery: String?
+        if (entity.isVirtualTable || pkColumnNames.isEmpty()) {
+            insertOrUpdateQuery = null
+            insertOrNothingQuery = null
+        } else {
+            val insertQuery = insertWriter.createInsertQuery()
+            val pkCols = pkColumnNames.joinToString(",") { "`$it`" }
+            insertOrNothingQuery = "$insertQuery ON CONFLICT ($pkCols) DO NOTHING"
+            val updateCols =
+                (dataClass.columnNames - pkColumnNames.toSet()).joinToString(",") {
+                    "`$it` = excluded.`$it`"
+                }
+            // An entity with only primary key columns has nothing to update.
+            insertOrUpdateQuery =
+                if (updateCols.isEmpty()) {
+                    insertOrNothingQuery
+                } else {
+                    "$insertQuery ON CONFLICT ($pkCols) DO UPDATE SET $updateCols"
+                }
+        }
         return XCodeBlock.ofNewInstance(
             typeName = upsertAdapter,
-            argsFormat = "%L, %L",
-            args = arrayOf(insertHelper, updateHelper),
+            argsFormat = "%L, %L, %S, %S",
+            args = arrayOf(insertHelper, updateHelper, insertOrUpdateQuery, insertOrNothingQuery),
         )
     }
 }

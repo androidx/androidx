@@ -267,4 +267,11 @@ class Fts4TableTest(private val useDriver: UseDriver) {
         songs.cancel()
         songDescriptions.cancel()
     }
+
+    @Test
+    fun upsert() {
+        val item = TestUtil.createFts4Mail(1, "Hello old friend", "How are you? Wanna grab coffee?")
+        mailDao.upsert(item)
+        assertThat(mailDao.getMail("coffee")).containsExactly(item)
+    }
 }

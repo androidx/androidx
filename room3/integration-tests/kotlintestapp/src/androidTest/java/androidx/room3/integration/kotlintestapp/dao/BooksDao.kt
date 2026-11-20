@@ -124,6 +124,12 @@ interface BooksDao {
 
     @Insert fun addBookAuthors(vararg bookAuthors: BookAuthor)
 
+    @Upsert fun upsertBookAuthors(vararg bookAuthors: BookAuthor)
+
+    @Upsert fun upsertBookAuthorsReturnIds(vararg bookAuthors: BookAuthor): LongArray
+
+    @Query("SELECT * FROM BookAuthor") fun getBookAuthors(): List<BookAuthor>
+
     @Query("SELECT * FROM book WHERE bookId = :bookId") fun getBook(bookId: String): Book
 
     @Query("SELECT * FROM book WHERE bookId = :bookId") fun getBookNullable(bookId: String): Book?

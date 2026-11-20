@@ -3641,4 +3641,98 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
+
+    @Test
+    fun upsertAdapter_nativeConflictClauses() {
+        val dbSrc =
+            Source.kotlin(
+                "MyDatabase.kt",
+                """
+                import androidx.room3.*
+
+                @Database(
+                    entities = [
+                        MyEntity::class,
+                        CompositeEntity::class,
+                        PkOnlyEntity::class,
+                        AutoGenEntity::class,
+                        FtsEntityItem::class,
+                    ],
+                    version = 1,
+                    exportSchema = false,
+                )
+                abstract class MyDatabase : RoomDatabase() {
+                  abstract fun getDao(): MyDao
+                }
+                """
+                    .trimIndent(),
+            )
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                interface MyDao {
+                  @Upsert
+                  suspend fun upsertStandard(item: MyEntity)
+
+                  @Upsert
+                  suspend fun upsertComposite(item: CompositeEntity)
+
+                  @Upsert
+                  suspend fun upsertPkOnly(item: PkOnlyEntity)
+
+                  @Upsert(entity = AutoGenEntity::class)
+                  suspend fun upsertPartialWithoutPk(item: TitleOnly)
+
+                  @Upsert
+                  suspend fun upsertFts(item: FtsEntityItem)
+                }
+
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey val pk: Int,
+                    val data: String,
+                )
+
+                @Entity(primaryKeys = ["pk1", "pk2"])
+                data class CompositeEntity(
+                    val pk1: Int,
+                    val pk2: String,
+                    val value: Int,
+                )
+
+                @Entity(primaryKeys = ["a", "b"])
+                data class PkOnlyEntity(
+                    val a: Long,
+                    val b: Long,
+                )
+
+                @Entity
+                data class AutoGenEntity(
+                    @PrimaryKey(autoGenerate = true) val id: Long,
+                    val title: String,
+                    @ColumnInfo(defaultValue = "'default'") val extra: String,
+                )
+
+                data class TitleOnly(
+                    val title: String,
+                )
+
+                @Fts4
+                @Entity
+                data class FtsEntityItem(
+                    @PrimaryKey @ColumnInfo(name = "rowid") val rowId: Int,
+                    val body: String,
+                )
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, dbSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+        )
+    }
 }

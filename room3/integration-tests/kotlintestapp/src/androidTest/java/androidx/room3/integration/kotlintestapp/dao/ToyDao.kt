@@ -20,11 +20,16 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Update
+import androidx.room3.Upsert
 import androidx.room3.integration.kotlintestapp.vo.Toy
 
 @Dao
 interface ToyDao {
     @Insert fun insert(vararg toys: Toy)
+
+    @Upsert fun upsert(toy: Toy)
+
+    @Upsert fun upsertAndReturnId(toy: Toy): Long
 
     @Query("SELECT * FROM Toy WHERE id = :id") fun getToy(id: Int): Toy?
 

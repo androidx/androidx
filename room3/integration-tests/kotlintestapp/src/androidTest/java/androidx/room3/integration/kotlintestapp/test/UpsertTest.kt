@@ -16,6 +16,7 @@
 
 package androidx.room3.integration.kotlintestapp.test
 
+import android.os.Build
 import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
@@ -25,6 +26,7 @@ import androidx.room3.integration.kotlintestapp.vo.Book
 import androidx.room3.integration.kotlintestapp.vo.Lang
 import androidx.room3.integration.kotlintestapp.vo.MiniBook
 import androidx.room3.integration.kotlintestapp.vo.Publisher
+import androidx.room3.integration.kotlintestapp.vo.Toy
 import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteException
 import androidx.test.filters.MediumTest
@@ -32,12 +34,14 @@ import io.reactivex.rxjava3.observers.TestObserver
 import io.reactivex.rxjava3.subscribers.TestSubscriber
 import java.util.concurrent.CountDownLatch
 import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.fail
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -485,5 +489,32 @@ class UpsertTest(driver: UseDriver) : TestDatabaseTest(driver) {
         assertThat(counterDao.conditionalInsert(1)).isEqualTo(1)
         // Will not cause the INSERT to modified the table, hence no row id.
         assertThat(counterDao.conditionalInsert(5)).isEqualTo(-1)
+    }
+
+    @Test
+    fun upsertUniqueIndexConflict_throws() {
+        assumeTrue(useDriver == UseDriver.BUNDLED || Build.VERSION.SDK_INT >= 30)
+        database.petDao().insertOrReplace(TestUtil.createPet(1))
+        val toyDao = database.toyDao()
+        toyDao.upsert(Toy(1, "ball", 1))
+        toyDao.upsert(Toy(1, "ball", 1))
+        assertThat(toyDao.upsertAndReturnId(Toy(1, "ball", 1))).isEqualTo(-1L)
+        assertThat(toyDao.getToy(1)?.name).isEqualTo("ball")
+
+        assertFailsWith<SQLiteException> { toyDao.upsert(Toy(2, "ball", 1)) }
+        assertFailsWith<SQLiteException> { toyDao.upsertAndReturnId(Toy(2, "ball", 1)) }
+    }
+
+    @Test
+    fun upsertAllPrimaryKeyEntity() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        booksDao.upsertBookAuthors(TestUtil.BOOK_AUTHOR_1_1)
+        booksDao.upsertBookAuthors(TestUtil.BOOK_AUTHOR_1_1)
+        assertThat(booksDao.upsertBookAuthorsReturnIds(TestUtil.BOOK_AUTHOR_1_1).asList())
+            .containsExactly(-1L)
+        assertThat(booksDao.getBookAuthors()).containsExactly(TestUtil.BOOK_AUTHOR_1_1)
     }
 }

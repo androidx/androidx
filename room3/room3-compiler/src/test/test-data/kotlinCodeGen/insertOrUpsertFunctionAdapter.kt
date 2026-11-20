@@ -50,7 +50,7 @@ internal class MyDao_Impl(
         statement.bindText(2, entity.data)
         statement.bindLong(3, entity.pk)
       }
-    })
+    }, "INSERT INTO `MyEntity` (`pk`,`data`) VALUES (?,?) ON CONFLICT (`pk`) DO UPDATE SET `data` = excluded.`data`", "INSERT INTO `MyEntity` (`pk`,`data`) VALUES (?,?) ON CONFLICT (`pk`) DO NOTHING")
   }
 
   public override fun insertEntity(item: MyEntity): Unit = performBlocking(__db, false, true) { _connection ->

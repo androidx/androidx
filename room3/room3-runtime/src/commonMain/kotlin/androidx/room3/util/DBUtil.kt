@@ -207,3 +207,27 @@ public suspend fun performClear(
         }
     }
 }
+
+/** Queries the active SQLite engine version (`SELECT sqlite_version()`). */
+internal suspend fun getSQLiteVersion(connection: SQLiteConnection): SQLiteVersion =
+    connection.prepare("SELECT sqlite_version()").use { stmt ->
+        if (!stmt.step()) return@use SQLiteVersion(0, 0, 0)
+        val parts = stmt.getText(0).split('.')
+        SQLiteVersion(
+            major = parts.getOrNull(0)?.toIntOrNull() ?: 0,
+            minor = parts.getOrNull(1)?.toIntOrNull() ?: 0,
+            patch = parts.getOrNull(2)?.takeWhile(Char::isDigit)?.toIntOrNull() ?: 0,
+        )
+    }
+
+internal data class SQLiteVersion(val major: Int, val minor: Int, val patch: Int) :
+    Comparable<SQLiteVersion> {
+    override fun compareTo(other: SQLiteVersion): Int =
+        compareValuesBy(
+            this,
+            other,
+            SQLiteVersion::major,
+            SQLiteVersion::minor,
+            SQLiteVersion::patch,
+        )
+}

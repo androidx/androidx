@@ -24,6 +24,7 @@ data class ShortcutEntity(
     val tableName = entity.tableName
     val entityClassName = entity.className
     val entityTypeName = entity.typeName
+    val isVirtualTable = entity is FtsEntity
     val primaryKey by lazy {
         if (partialEntity == null) {
             entity.primaryKey

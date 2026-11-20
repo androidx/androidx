@@ -49,14 +49,27 @@ public abstract class EntityInsertAdapter<T> {
      */
     protected abstract fun bind(statement: SQLiteStatement, entity: T)
 
+    internal fun bindInternal(statement: SQLiteStatement, entity: T) = bind(statement, entity)
+
     /**
      * Inserts the entity into the database.
      *
      * @param entity The entity to insert
      */
     public suspend fun insert(connection: SQLiteConnection, entity: T?) {
+        insert(connection, createQuery(), entity)
+    }
+
+    /**
+     * Inserts the given [entity] into the database using [query] and [bind].
+     *
+     * @param connection [SQLiteConnection] to prepare and step the statement on
+     * @param query SQL statement whose parameter placeholders match [bind]
+     * @param entity entity to insert (skipped if `null`)
+     */
+    internal suspend fun insert(connection: SQLiteConnection, query: String, entity: T?) {
         if (entity == null) return
-        connection.prepare(createQuery()).use { stmt ->
+        connection.prepare(query).use { stmt ->
             bind(stmt, entity)
             stmt.step()
         }
@@ -65,11 +78,27 @@ public abstract class EntityInsertAdapter<T> {
     /**
      * Inserts the given entities into the database.
      *
+     * @param connection [SQLiteConnection] to prepare and step the statement on
      * @param entities Entities to insert
      */
     public suspend fun insert(connection: SQLiteConnection, entities: Array<out T?>?) {
+        insert(connection, createQuery(), entities)
+    }
+
+    /**
+     * Inserts the given [entities] into the database using [query] and [bind].
+     *
+     * @param connection [SQLiteConnection] to prepare and step the statement on
+     * @param query SQL statement whose parameter placeholders match [bind]
+     * @param entities array of entities to insert (`null` array or items are skipped)
+     */
+    internal suspend fun insert(
+        connection: SQLiteConnection,
+        query: String,
+        entities: Array<out T?>?,
+    ) {
         if (entities == null) return
-        connection.prepare(createQuery()).use { stmt ->
+        connection.prepare(query).use { stmt ->
             for (entity in entities) {
                 if (entity == null) continue
                 bind(stmt, entity)
@@ -82,11 +111,27 @@ public abstract class EntityInsertAdapter<T> {
     /**
      * Inserts the given entities into the database.
      *
+     * @param connection [SQLiteConnection] to prepare and step the statement on
      * @param entities Entities to insert
      */
     public suspend fun insert(connection: SQLiteConnection, entities: Iterable<T?>?) {
+        insert(connection, createQuery(), entities)
+    }
+
+    /**
+     * Inserts the given [entities] into the database using [query] and [bind].
+     *
+     * @param connection [SQLiteConnection] to prepare and step the statement on
+     * @param query SQL statement whose parameter placeholders match [bind]
+     * @param entities entities to insert (`null` collection or items are skipped)
+     */
+    internal suspend fun insert(
+        connection: SQLiteConnection,
+        query: String,
+        entities: Iterable<T?>?,
+    ) {
         if (entities == null) return
-        connection.prepare(createQuery()).use { stmt ->
+        connection.prepare(query).use { stmt ->
             for (entity in entities) {
                 if (entity == null) continue
                 bind(stmt, entity)
