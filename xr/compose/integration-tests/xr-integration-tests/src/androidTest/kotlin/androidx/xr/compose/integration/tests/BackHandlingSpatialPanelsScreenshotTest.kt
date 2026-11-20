@@ -242,7 +242,7 @@ class BackHandlingSpatialPanelsScreenshotTest {
         composeTestRule.onNodeWithText("Panel Top Right").assertIsDisplayed()
         awaitVisiblePanels(expectedCount = 2)
 
-        val dismissedBitmap = composeTestRule.captureToBitmap()
+        val dismissedBitmap = composeTestRule.captureToBitmap(padding = 16)
         try {
             dismissedBitmap.assertAgainstGolden(
                 screenshotRule,
@@ -329,7 +329,7 @@ class BackHandlingSpatialPanelsScreenshotTest {
             deltaXAccumulated > 50f
         }
 
-        val movedBitmap = composeTestRule.captureToBitmap()
+        val movedBitmap = composeTestRule.captureToBitmap(padding = 16)
         try {
             movedBitmap.assertAgainstGolden(
                 screenshotRule,
@@ -354,7 +354,7 @@ class BackHandlingSpatialPanelsScreenshotTest {
         assertThat(composeTestRule.activity.isFinishing).isFalse()
         awaitVisiblePanels(expectedCount = 1)
 
-        val closedBitmap = composeTestRule.captureToBitmap()
+        val closedBitmap = composeTestRule.captureToBitmap(padding = 16)
         try {
             closedBitmap.assertAgainstGolden(
                 screenshotRule,
@@ -488,7 +488,7 @@ class BackHandlingSpatialPanelsScreenshotTest {
             composeTestRule.onNodeWithText("Host Compose Panel").assertIsDisplayed()
             awaitVisiblePanels(expectedCount = 1)
 
-            val closedBitmap = composeTestRule.captureToBitmap()
+            val closedBitmap = composeTestRule.captureToBitmap(padding = 16)
             try {
                 closedBitmap.assertAgainstGolden(
                     screenshotRule,

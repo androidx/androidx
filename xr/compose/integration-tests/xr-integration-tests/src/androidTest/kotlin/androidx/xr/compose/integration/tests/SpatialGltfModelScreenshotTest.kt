@@ -319,7 +319,7 @@ class SpatialGltfModelScreenshotTest {
         composeTestRule.onNodeWithText("Right Panel").assertIsDisplayed()
 
         composeTestRule
-            .captureToBitmap()
+            .captureToBitmap(padding = 16)
             .assertAgainstGolden(
                 screenshotRule,
                 "compose_spatial_gltf_model_in_spatial_row",
