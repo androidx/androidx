@@ -76,6 +76,7 @@ package androidx.glance.appwidget {
     method @InaccessibleFromKotlin public androidx.glance.appwidget.PreviewSizeMode getPreviewSizeMode();
     method @InaccessibleFromKotlin public androidx.glance.appwidget.SizeMode getSizeMode();
     method @InaccessibleFromKotlin public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object?>? getStateDefinition();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi public androidx.glance.appwidget.updatestrategy.UpdateStrategy getUpdateStrategy();
     method @kotlin.jvm.Throws(exceptionClasses=Throwable::class) public void onCompositionError(android.content.Context context, androidx.glance.GlanceId glanceId, int appWidgetId, Throwable throwable) throws java.lang.Throwable;
     method public suspend Object? onDelete(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public abstract suspend Object? provideGlance(android.content.Context context, androidx.glance.GlanceId id, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -84,6 +85,7 @@ package androidx.glance.appwidget {
     property public androidx.glance.appwidget.PreviewSizeMode previewSizeMode;
     property public androidx.glance.appwidget.SizeMode sizeMode;
     property public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object?>? stateDefinition;
+    property @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi public androidx.glance.appwidget.updatestrategy.UpdateStrategy updateStrategy;
   }
 
   public final class GlanceAppWidgetKt {
@@ -457,6 +459,21 @@ package androidx.glance.appwidget.state {
     method public static suspend <T> Object? getAppWidgetState(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super T>);
     method public static suspend Object? updateAppWidgetState(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.core.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> updateState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend <T> Object? updateAppWidgetState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> updateState, kotlin.coroutines.Continuation<? super T>);
+  }
+
+}
+
+package @SuppressCompatibility androidx.glance.appwidget.updatestrategy {
+
+  @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi public abstract class UpdateStrategy {
+    field public static final androidx.glance.appwidget.updatestrategy.UpdateStrategy.Companion Companion;
+    field public static final androidx.glance.appwidget.updatestrategy.UpdateStrategy DEFAULT;
+    field public static final androidx.glance.appwidget.updatestrategy.UpdateStrategy IMMEDIATE;
+  }
+
+  @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi public static final class UpdateStrategy.Companion {
+    property public androidx.glance.appwidget.updatestrategy.UpdateStrategy DEFAULT;
+    property public androidx.glance.appwidget.updatestrategy.UpdateStrategy IMMEDIATE;
   }
 
 }

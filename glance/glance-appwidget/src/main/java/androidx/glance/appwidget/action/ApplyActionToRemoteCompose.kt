@@ -141,6 +141,7 @@ private fun runCallbackAction(
             callbackClass = action.callbackClass,
             appWidgetId = translationContext.appWidgetId,
             parameters = action.parameters,
+            receiver = translationContext.actionBroadcastReceiver,
         )
 
     baseIntent.data =

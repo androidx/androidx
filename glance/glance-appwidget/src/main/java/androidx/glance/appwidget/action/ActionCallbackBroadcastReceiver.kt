@@ -17,27 +17,29 @@
 package androidx.glance.appwidget.action
 
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.core.os.bundleOf
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.mutableActionParametersOf
 import androidx.glance.appwidget.AppWidgetId
-import androidx.glance.appwidget.AsyncRequestWorker.Companion.toBytes
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.GlanceComponents
 import androidx.glance.appwidget.TranslationContext
-import androidx.glance.appwidget.goAsync
+import androidx.glance.appwidget.UnmanagedSessionReceiver
 import androidx.glance.appwidget.logException
-import androidx.glance.appwidget.maybeLaunchAsyncRequestWorker
-import androidx.glance.appwidget.proto.LayoutProto.AsyncRequest
-import androidx.glance.appwidget.protobuf.ByteString
+import androidx.glance.appwidget.updatestrategy.BroadcastRequest
+import androidx.glance.appwidget.updatestrategy.UpdateStrategy
 import kotlinx.coroutines.CancellationException
 
 /** Responds to broadcasts from [RunCallbackAction] clicks by executing the associated action. */
 public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
 
+    @OptIn(ExperimentalGlanceApi::class)
     override fun onReceive(context: Context?, intent: Intent?) {
         try {
             requireNotNull(context) { "Context is null" }
@@ -56,19 +58,25 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
             }
             val glanceId = AppWidgetId(extras.getInt(AppWidgetId))
 
-            val handled =
-                maybeLaunchAsyncRequestWorker(context) {
-                    runCallback =
-                        AsyncRequest.RunCallback.newBuilder().run {
-                            setClassName(className)
-                            appWidgetId = glanceId.appWidgetId
-                            actionParameters = ByteString.copyFrom(parameters.toBytes())
-                            build()
-                        }
-                }
-            if (!handled) {
-                goAsync { RunCallbackAction.run(context, className, glanceId, parameters) }
-            }
+            val maybeWidgetReceiver = createWidgetReceiver(extras.getString(ExtraReceiverClassName))
+            // Find the clicked widget: a bound widget through its receiver, or a widget shown with
+            // GlanceAppWidget.runComposition through the session it registered.
+            val widget =
+                maybeWidgetReceiver?.glanceAppWidget
+                    ?: UnmanagedSessionReceiver.getSession(glanceId.appWidgetId)?.widget
+            // Defer to the widget's UpdateStrategy, or fall back to IMMEDIATE when there is no
+            // widget (for example a preview, or an intent created by an older version).
+            val strategy = widget?.updateStrategy ?: UpdateStrategy.IMMEDIATE
+            strategy.handleBroadcast(
+                context,
+                BroadcastRequest.RunCallback(
+                    receiver = this,
+                    widgetOwner = maybeWidgetReceiver,
+                    className = className,
+                    glanceId = glanceId,
+                    parameters = parameters,
+                ),
+            )
         } catch (ex: CancellationException) {
             throw ex
         } catch (throwable: Throwable) {
@@ -80,6 +88,7 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
         internal const val AppWidgetId = "ActionCallbackBroadcastReceiver:appWidgetId"
         internal const val ExtraCallbackClassName = "ActionCallbackBroadcastReceiver:callbackClass"
         internal const val ExtraParameters = "ActionCallbackBroadcastReceiver:parameters"
+        internal const val ExtraReceiverClassName = "ActionCallbackBroadcastReceiver:receiverClass"
 
         internal fun createIntent(
             translationContext: TranslationContext,
@@ -91,6 +100,7 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
                 appWidgetId = translationContext.appWidgetId,
                 callbackClass = callbackClass,
                 parameters = parameters,
+                receiver = translationContext.actionBroadcastReceiver,
             )
 
         internal fun createIntent(
@@ -98,11 +108,13 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
             appWidgetId: Int,
             callbackClass: Class<out ActionCallback>,
             parameters: ActionParameters,
+            receiver: ComponentName? = null,
         ) =
             Intent()
                 .setComponent(glanceComponents.actionCallbackBroadcastReceiver)
                 .putExtra(ExtraCallbackClassName, callbackClass.canonicalName)
                 .putExtra(AppWidgetId, appWidgetId)
+                .putExtra(ExtraReceiverClassName, receiver?.className)
                 .putParameterExtras(parameters)
 
         internal fun Intent.putParameterExtras(parameters: ActionParameters): Intent {
@@ -127,6 +139,17 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
                     set(ToggleableStateKey, extras.getBoolean(RemoteViews.EXTRA_CHECKED))
                 }
             }
+        }
+
+        /**
+         * Creates the [GlanceAppWidgetReceiver] named by [className], or returns null if
+         * [className] is null, can't be instantiated, or isn't a [GlanceAppWidgetReceiver] (such as
+         * [UnmanagedSessionReceiver]).
+         */
+        private fun createWidgetReceiver(className: String?): GlanceAppWidgetReceiver? {
+            if (className == null) return null
+            return runCatching { Class.forName(className).getDeclaredConstructor().newInstance() }
+                .getOrNull() as? GlanceAppWidgetReceiver
         }
     }
 }
