@@ -58,9 +58,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.nativeClipboardManager
 import androidx.compose.ui.platform.testTag
@@ -598,6 +601,75 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
         assertTextToolbarShown()
     }
 
+    @Test
+    fun semantics_onLongClick_collapsedSelection_showsToolbar() = runTest {
+        assertTextToolbarNotShown()
+
+        tagInteraction.performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+
+        assertTextToolbarShown()
+        assertSelection(5 to 5)
+        assertTextToolbarHasItem(SELECT_ALL)
+    }
+
+    @Test
+    fun semantics_onLongClick_withSelection_showsToolbar() =
+        runTest(textFieldState = TextFieldState("Hello", initialSelection = TextRange(0, 5))) {
+            assertTextToolbarNotShown()
+
+            tagInteraction.performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+
+            // TextClassifier runs asynchronously on Dispatchers.IO for non-collapsed selections.
+            rule.waitUntil(2000) { spyTextActionModeCallback.menu != null }
+            assertTextToolbarShown()
+            assertSelection(0 to 5)
+            assertTextToolbarHasItem(COPY)
+        }
+
+    @Test
+    fun semantics_onLongClick_inKeyboardInputMode_showsToolbar() =
+        runTest(inputMode = InputMode.Keyboard) {
+            assertTextToolbarNotShown()
+
+            tagInteraction.performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+
+            assertTextToolbarShown()
+            assertSelection(5 to 5)
+            assertTextToolbarHasItem(SELECT_ALL)
+        }
+
+    @Test
+    fun semantics_onLongClick_withSelection_inKeyboardInputMode_showsToolbar() =
+        runTest(
+            textFieldState = TextFieldState("Hello", initialSelection = TextRange(0, 5)),
+            inputMode = InputMode.Keyboard,
+        ) {
+            assertTextToolbarNotShown()
+
+            tagInteraction.performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+
+            // TextClassifier runs asynchronously on Dispatchers.IO for non-collapsed selections.
+            rule.waitUntil(2000) { spyTextActionModeCallback.menu != null }
+            assertTextToolbarShown()
+            assertSelection(0 to 5)
+            assertTextToolbarHasItem(COPY)
+        }
+
+    @Test
+    fun semantics_onLongClick_whenDisabled_doesNotShowToolbar() = runTest {
+        enabled = false
+        rule.waitForIdle()
+
+        tagInteraction.performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+
+        assertTextToolbarNotShown()
+
+        enabled = true
+        requestTextFieldFocus()
+
+        assertTextToolbarNotShown()
+    }
+
     @Ignore("b/520540939")
     @Test
     fun toolbar_showsLocalizedStrings_whenLocaleChanges() =
@@ -621,6 +693,7 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
         modifier: Modifier = Modifier,
         inputTransformation: InputTransformation? = null,
         overrideLocales: Boolean = false,
+        inputMode: InputMode? = null,
         block: suspend TestScope.() -> Unit,
     ) = coroutineRunTest {
         TestScope(
@@ -631,6 +704,7 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
                 modifier = modifier,
                 filter = inputTransformation,
                 overrideLocales = overrideLocales,
+                inputMode = inputMode,
             )
             .block()
     }
@@ -643,6 +717,7 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
         private val modifier: Modifier,
         private val filter: InputTransformation?,
         private val overrideLocales: Boolean,
+        private val inputMode: InputMode?,
     ) {
         var textFieldState by mutableStateOf(initialTextFieldState)
         var showTextField by mutableStateOf(true)
@@ -661,7 +736,23 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
                     ProvidePlatformTextContextMenuToolbar(
                         callbackInjector = { spyTextActionModeCallback.apply { delegate = it } }
                     ) {
-                        CompositionLocalProvider(LocalClipboard provides clipboard) {
+                        val providedValues = buildList {
+                            add(LocalClipboard provides clipboard)
+                            inputMode?.let { targetInputMode ->
+                                add(
+                                    LocalInputModeManager provides
+                                        object : InputModeManager {
+                                            override val inputMode: InputMode = targetInputMode
+
+                                            override fun requestInputMode(
+                                                inputMode: InputMode
+                                            ): Boolean = false
+                                        }
+                                )
+                            }
+                        }
+                            .toTypedArray()
+                        CompositionLocalProvider(*providedValues) {
                             Column {
                                 Box(
                                     modifier =

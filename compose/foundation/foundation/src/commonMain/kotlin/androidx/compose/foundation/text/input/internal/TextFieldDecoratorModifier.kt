@@ -674,10 +674,21 @@ internal class TextFieldDecoratorModifierNode(
             true
         }
         onLongClick {
+            if (!enabled) return@onLongClick false
             if (!isFocused) {
                 requestFocus()
             }
-            textFieldSelectionState.updateTextToolbarState(TextToolbarState.Selection)
+            // requestFocus() triggers applyCurrentInputMode(), which clears
+            // isDirectTouchInteraction when not in touch mode. Explicit accessibility
+            // long-click must still show the toolbar.
+            textFieldSelectionState.isDirectTouchInteraction = true
+            val nextToolbarState =
+                if (textFieldState.visualText.selection.collapsed) {
+                    TextToolbarState.Cursor
+                } else {
+                    TextToolbarState.Selection
+                }
+            textFieldSelectionState.updateTextToolbarState(nextToolbarState)
             true
         }
         if (!selection.collapsed && !isPassword) {

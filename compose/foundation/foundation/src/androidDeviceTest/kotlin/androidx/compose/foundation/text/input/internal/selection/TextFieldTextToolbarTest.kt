@@ -54,11 +54,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.AndroidClipboard
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.TextToolbar
@@ -990,6 +993,54 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
     }
 
+    @Test
+    fun semantics_onLongClick_collapsedSelection_showsToolbar() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar)
+
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
+
+        rule.onNodeWithTag(TAG).performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+
+        rule.runOnIdle {
+            assertThat(state.selection).isEqualTo(TextRange(5))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+    }
+
+    @Test
+    fun semantics_onLongClick_withSelection_showsToolbar() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello", initialSelection = TextRange(0, 5))
+        setupContent(state, textToolbar)
+
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
+
+        rule.onNodeWithTag(TAG).performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+
+        rule.runOnIdle {
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+    }
+
+    @Test
+    fun semantics_onLongClick_inKeyboardInputMode_showsToolbar() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar, inputMode = InputMode.Keyboard)
+
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
+
+        rule.onNodeWithTag(TAG).performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+
+        rule.runOnIdle {
+            assertThat(state.selection).isEqualTo(TextRange(5))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+    }
+
     private fun setupContent(
         state: TextFieldState = TextFieldState(),
         toolbar: TextToolbar = FakeTextToolbar(),
@@ -998,6 +1049,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         clipboard: Clipboard = FakeClipboard(),
         modifier: Modifier = Modifier,
         filter: InputTransformation? = null,
+        inputMode: InputMode? = null,
         lineLimits: TextFieldLineLimits =
             if (singleLine) {
                 TextFieldLineLimits.SingleLine
@@ -1007,10 +1059,22 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     ) {
         rule.setTextFieldTestContent {
             view = LocalView.current
-            CompositionLocalProvider(
-                LocalTextToolbar provides toolbar,
-                LocalClipboard provides clipboard,
-            ) {
+            val providedValues = buildList {
+                add(LocalTextToolbar provides toolbar)
+                add(LocalClipboard provides clipboard)
+                inputMode?.let { targetInputMode ->
+                    add(
+                        LocalInputModeManager provides
+                            object : InputModeManager {
+                                override val inputMode: InputMode = targetInputMode
+
+                                override fun requestInputMode(inputMode: InputMode): Boolean = false
+                            }
+                    )
+                }
+            }
+                .toTypedArray()
+            CompositionLocalProvider(*providedValues) {
                 BasicTextField(
                     state = state,
                     modifier = modifier.width(100.dp).testTag(TAG),
