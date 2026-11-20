@@ -80,6 +80,7 @@ import androidx.glance.adaptive.core.slots.HeroComponent
 import androidx.glance.adaptive.core.slots.Icon
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconGrid
+import androidx.glance.adaptive.core.slots.ItemList
 import androidx.glance.adaptive.core.slots.LeadingComponent
 import androidx.glance.adaptive.core.slots.PrimaryComponent
 import androidx.glance.adaptive.core.slots.Ring
@@ -497,6 +498,9 @@ private fun HeroComponent.Content(tiers: SizeTiers) {
         is Graph -> Content(GraphDefaults.barSpacing(tiers))
         is IconGrid -> {
             // Drawn in DashboardTemplate follow-up (b/580007927).
+        }
+        is ItemList -> {
+            // Drawn in ListTemplate follow-up (b/586433578).
         }
     }
 }

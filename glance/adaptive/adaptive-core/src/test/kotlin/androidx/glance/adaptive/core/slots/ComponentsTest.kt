@@ -17,8 +17,11 @@
 package androidx.glance.adaptive.core.slots
 
 import android.app.Activity
+import android.graphics.Color
 import androidx.collection.floatListOf
+import androidx.collection.intListOf
 import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
+import androidx.glance.adaptive.core.templates.list.ListItemStyle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -297,7 +300,14 @@ class ComponentsTest {
         assertThat(text).isEqualTo(TemplateText("11,056", "--"))
         assertThat(text.hashCode()).isEqualTo(TemplateText("11,056", "--").hashCode())
         assertThat(text).isNotEqualTo(TemplateText("11,056"))
+        assertThat(text).isNotEqualTo(TemplateText("11,056", "--", isStruckThrough = true))
+        assertThat(TemplateText("Declined", isStruckThrough = true))
+            .isEqualTo(TemplateText("Declined", isStruckThrough = true))
+        assertThat(TemplateText("Declined", isStruckThrough = true).hashCode())
+            .isEqualTo(TemplateText("Declined", isStruckThrough = true).hashCode())
         assertThat(text.toString()).contains("11,056")
+        assertThat(TemplateText("Declined", isStruckThrough = true).toString())
+            .contains("isStruckThrough=true")
 
         assertThat(Icon(GLYPH, "Fitbit", contained = true))
             .isEqualTo(Icon(GLYPH, "Fitbit", contained = true))
@@ -312,7 +322,25 @@ class ComponentsTest {
         assertThat(button.hashCode())
             .isEqualTo(IconButton(GLYPH, "Log activity", ACTION, "Log").hashCode())
         assertThat(button).isNotEqualTo(IconButton(GLYPH, "Log activity", ACTION))
+        assertThat(button)
+            .isNotEqualTo(IconButton(GLYPH, "Log activity", ACTION, "Log", contained = false))
         assertThat(button.toString()).contains("Log activity")
+
+        val badge = Badge("Now", outlineColor = OUTLINE_COLOR, dotColors = intListOf(1, 2))
+        assertThat(badge)
+            .isEqualTo(Badge("Now", outlineColor = OUTLINE_COLOR, dotColors = intListOf(1, 2)))
+        assertThat(badge.hashCode())
+            .isEqualTo(
+                Badge("Now", outlineColor = OUTLINE_COLOR, dotColors = intListOf(1, 2)).hashCode()
+            )
+        assertThat(badge).isNotEqualTo(Badge("Later", outlineColor = OUTLINE_COLOR))
+        assertThat(badge)
+            .isNotEqualTo(
+                Badge("Now", outlineColor = OTHER_OUTLINE_COLOR, dotColors = intListOf(1, 2))
+            )
+        assertThat(badge)
+            .isNotEqualTo(Badge("Now", outlineColor = OUTLINE_COLOR, dotColors = intListOf(1)))
+        assertThat(badge.toString()).contains("Now")
 
         val tile = IconTile(GLYPH, "Garage Door", ACTION, subtitle = TemplateText("Open"))
         assertThat(tile)
@@ -327,10 +355,139 @@ class ComponentsTest {
         assertThat(tile.toString()).contains("Open")
     }
 
+    @Test
+    fun listItem_validatesTrailingExclusivityAndDividerConstraints() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(title = TemplateText("Sync"), leadingIcon = Icon(GLYPH, contained = true))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(
+                title = TemplateText("Sync"),
+                trailingIcon = Icon(GLYPH),
+                trailingChip = Badge("Now"),
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(TemplateText("TOMORROW"), subtitle = TemplateText("9:00"), isDivider = true)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(
+                TemplateText("TOMORROW"),
+                tertiaryText = TemplateText("Room"),
+                isDivider = true,
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(TemplateText("TOMORROW"), leadingIcon = Icon(GLYPH), isDivider = true)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(TemplateText("TOMORROW"), trailingIcon = Icon(GLYPH), isDivider = true)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(TemplateText("TOMORROW"), trailingChip = Badge("Now"), isDivider = true)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(TemplateText("TOMORROW"), action = ACTION, isDivider = true)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(TemplateText("TOMORROW"), style = ListItemStyle.Focused, isDivider = true)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem(TemplateText("TOMORROW", isStruckThrough = true), isDivider = true)
+        }
+    }
+
+    @Test
+    fun listItem_hasValueEquality() {
+        val full =
+            ListItem(
+                title = TemplateText("Sync", isStruckThrough = true),
+                subtitle = TemplateText("10:00"),
+                tertiaryText = TemplateText("Room 1"),
+                leadingIcon = Icon(GLYPH),
+                trailingChip = Badge("Now"),
+                action = ACTION,
+                style = ListItemStyle.Focused,
+            )
+        assertThat(full)
+            .isEqualTo(
+                ListItem(
+                    title = TemplateText("Sync", isStruckThrough = true),
+                    subtitle = TemplateText("10:00"),
+                    tertiaryText = TemplateText("Room 1"),
+                    leadingIcon = Icon(GLYPH),
+                    trailingChip = Badge("Now"),
+                    action = ACTION,
+                    style = ListItemStyle.Focused,
+                )
+            )
+        assertThat(full.hashCode())
+            .isEqualTo(
+                ListItem(
+                        title = TemplateText("Sync", isStruckThrough = true),
+                        subtitle = TemplateText("10:00"),
+                        tertiaryText = TemplateText("Room 1"),
+                        leadingIcon = Icon(GLYPH),
+                        trailingChip = Badge("Now"),
+                        action = ACTION,
+                        style = ListItemStyle.Focused,
+                    )
+                    .hashCode()
+            )
+        assertThat(full).isNotEqualTo(ListItem(TemplateText("Sync")))
+        assertThat(full.toString()).contains("Sync")
+        assertThat(full.toString()).contains("Focused")
+    }
+
+    @Test
+    fun itemList_rejectsEmptyOrDividerOnlyAndCopiesItems() {
+        assertThrows(IllegalArgumentException::class.java) { ItemList(emptyList()) }
+        assertThrows(IllegalArgumentException::class.java) {
+            ItemList(listOf(ListItem(TemplateText("TOMORROW"), isDivider = true)))
+        }
+
+        val source = mutableListOf(ListItem(TemplateText("Event 1")))
+        val list = ItemList(source)
+        source.add(ListItem(TemplateText("Event 2")))
+        assertThat(list.items).containsExactly(ListItem(TemplateText("Event 1")))
+    }
+
+    @Test
+    fun itemList_capabilitiesAndEquality() {
+        val textOnly = ItemList(listOf(ListItem(TemplateText("Event"))))
+        val withAction = ItemList(listOf(ListItem(TemplateText("Event"), action = ACTION)))
+        val withChip =
+            ItemList(listOf(ListItem(TemplateText("Event"), trailingChip = Badge("Now"))))
+        val withBoth =
+            ItemList(
+                listOf(
+                    ListItem(TemplateText("Event"), trailingChip = Badge("Now"), action = ACTION)
+                )
+            )
+
+        assertThat(textOnly.capabilities).containsExactly(Capability.Text)
+        assertThat(withAction.capabilities).containsExactly(Capability.Text, Capability.Action)
+        assertThat(withChip.capabilities).containsExactly(Capability.Text, Capability.Status)
+        assertThat(withBoth.capabilities)
+            .containsExactly(Capability.Text, Capability.Action, Capability.Status)
+
+        val base = ItemList(listOf(ListItem(TemplateText("Event"))))
+        assertThat(base).isEqualTo(ItemList(listOf(ListItem(TemplateText("Event")))))
+        assertThat(base.hashCode())
+            .isEqualTo(ItemList(listOf(ListItem(TemplateText("Event")))).hashCode())
+        assertThat(base).isNotEqualTo(ItemList(base.items, isScrollable = true))
+        assertThat(base).isNotEqualTo(ItemList(base.items, showTertiaryText = true))
+        assertThat(base).isNotEqualTo(ItemList(base.items, expandSingleItem = true))
+        assertThat(base).isNotEqualTo(ItemList(base.items, uncontainedSingleItem = true))
+        assertThat(base.toString()).contains("isScrollable=false")
+    }
+
     private fun tiles(count: Int): List<IconTile> = List(count) { IconTile(GLYPH, "Tile $it") }
 
     private companion object {
         const val GLYPH = 1
+        const val OUTLINE_COLOR = Color.GREEN
+        const val OTHER_OUTLINE_COLOR = Color.RED
         val ACTION = GlanceAdaptiveAction.LaunchAction<Activity>()
     }
 }

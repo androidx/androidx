@@ -63,6 +63,7 @@ import androidx.glance.adaptive.core.slots.HeroComponent
 import androidx.glance.adaptive.core.slots.Icon
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconGrid
+import androidx.glance.adaptive.core.slots.ItemList
 import androidx.glance.adaptive.core.slots.LeadingComponent
 import androidx.glance.adaptive.core.slots.PrimaryComponent
 import androidx.glance.adaptive.core.slots.Ring
@@ -319,6 +320,7 @@ private fun HeroComponent.toRemoteViews(
     when (this) {
         is Graph -> buildRemoteViews(taps.context, GraphDefaults.barSpacing(tiers))
         is IconGrid -> buildRemoteViews(taps, heroHeight)
+        is ItemList -> error("Drawn in ListTemplate follow-up (b/586433578).")
     }
 
 private fun ActionComponent.toRemoteViews(taps: RemoteViewsActions): RemoteViews =
@@ -356,11 +358,12 @@ private fun TrailingComponent.isTappable(taps: RemoteViewsActions): Boolean =
         is IconButton -> taps.isTappable(action)
     }
 
-/** An icon grid is not tappable itself: it keys each of its tiles the same way. */
+/** An icon grid or item list is not tappable itself: each tile or row keys its own tap. */
 private fun HeroComponent.isTappable(): Boolean =
     when (this) {
         is Graph,
-        is IconGrid -> false
+        is IconGrid,
+        is ItemList -> false
     }
 
 private fun ActionComponent.isTappable(taps: RemoteViewsActions): Boolean =
