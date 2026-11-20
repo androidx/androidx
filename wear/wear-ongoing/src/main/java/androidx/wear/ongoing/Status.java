@@ -149,7 +149,7 @@ public final class Status implements TimeDependentText {
         }
 
         /**
-         * @return the time at which this Timer or Stopwatch will display 0, will usually be in the
+         * Returns the time at which this Timer or Stopwatch will display 0, will usually be in the
          * past for a stopwatch and in the future for timers.
          */
         public long getTimeZeroMillis() {
@@ -157,7 +157,7 @@ public final class Status implements TimeDependentText {
         }
 
         /**
-         * @return {@code false} if this is a stopwatch or {@code true} if this is a timer.
+         * Returns {@code false} if this is a stopwatch or {@code true} if this is a timer.
          */
         public boolean isCountDown() {
             return mPart.mCountDown;
@@ -174,7 +174,7 @@ public final class Status implements TimeDependentText {
         }
 
         /**
-         * @return the timestamp of the time when this was paused. Use
+         * Returns the timestamp of the time when this was paused. Use
          * {@link #isPaused()} to determine if this is paused or not.
          */
         public long getPausedAtMillis() {
@@ -191,7 +191,7 @@ public final class Status implements TimeDependentText {
         }
 
         /**
-         * @return the total duration of this timer/stopwatch, if set. Use
+         * Returns the total duration of this timer/stopwatch, if set. Use
          * {@link #hasTotalDuration()} to determine if this has a duration set.
          */
         public long getTotalDurationMillis() {
@@ -453,14 +453,14 @@ public final class Status implements TimeDependentText {
     }
 
     /**
-     * @return the list of templates that this status has.
+     * Returns the list of templates that this status has.
      */
     public @NonNull List<CharSequence> getTemplates() {
         return mTemplates;
     }
 
     /**
-     * @return the names of the parts provide to this status.
+     * Returns the names of the parts provide to this status.
      */
     public @NonNull Set<String> getPartNames() {
         return Collections.unmodifiableSet(mParts.keySet());
