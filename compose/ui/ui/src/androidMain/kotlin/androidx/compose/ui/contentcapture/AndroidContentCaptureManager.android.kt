@@ -215,28 +215,33 @@ internal class AndroidContentCaptureManager(
         for (notification in boundsUpdateChannel) {
             if (isEnabled) {
                 notifyContentCaptureChanges()
-            }
-            val localHandler = handler
-            if (!checkingForSemanticsChanges && localHandler != null) {
-                checkingForSemanticsChanges = true
-                localHandler.post(contentCaptureChangeChecker)
+                val localHandler = handler
+                if (!checkingForSemanticsChanges && localHandler != null) {
+                    checkingForSemanticsChanges = true
+                    localHandler.post(contentCaptureChangeChecker)
+                }
             }
 
             delay(SendRecurringContentCaptureEventsIntervalMillis)
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     internal fun onSemanticsChange() {
         // When content capture is turned off, we still want to keep
         // currentSemanticsNodesInvalidated up to date so that when content capture is turned on
         // later, we can refresh currentSemanticsNodes if currentSemanticsNodes is stale.
         currentSemanticsNodesInvalidated = true
 
-        val localHandler = handler
-        if (isEnabled && !checkingForSemanticsChanges && localHandler != null) {
-            checkingForSemanticsChanges = true
-
-            localHandler.post(contentCaptureChangeChecker)
+        if (!isEnabled) return
+        if (AndroidComposeUiFlags.isContentCaptureSemanticsBatchingEnabled) {
+            notifySubtreeStateChangeIfNeeded()
+        } else {
+            val localHandler = handler
+            if (!checkingForSemanticsChanges && localHandler != null) {
+                checkingForSemanticsChanges = true
+                localHandler.post(contentCaptureChangeChecker)
+            }
         }
     }
 
