@@ -50,6 +50,9 @@ public class TransitionValues {
     public TransitionValues() {
     }
 
+    /**
+     * @param view the View with these values. Should not be null.
+     */
     public TransitionValues(@NonNull View view) {
         this.view = view;
     }
