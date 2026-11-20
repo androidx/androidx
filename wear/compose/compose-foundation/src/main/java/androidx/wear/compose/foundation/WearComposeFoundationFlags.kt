@@ -75,7 +75,7 @@ public object WearComposeFoundationFlags {
      * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.snapSegmentThreshold]
      * has no effect.
      */
-    // TODO: b/480192070 - Remove this flag once segment snapping has soaked.
+    // TODO: b/588340334 - Remove this flag once segment snapping has soaked.
     @field:Suppress("MutableBareField")
     @JvmField
     public var isTransformingLazyColumnSnapSegmentsEnabled: Boolean = true
