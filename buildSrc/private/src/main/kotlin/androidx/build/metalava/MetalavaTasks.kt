@@ -50,7 +50,7 @@ internal object MetalavaTasks {
         extension: AndroidXExtension,
         androidManifest: Provider<RegularFile>?,
         baselinesApiLocation: ApiBaselinesLocation,
-        builtApiLocation: ApiLocation,
+        builtApiLocation: Provider<ApiLocation>,
         outputApiLocations: List<ApiLocation>,
         config: ApiTaskConfig,
     ) {

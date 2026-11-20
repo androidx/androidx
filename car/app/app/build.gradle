@@ -143,13 +143,13 @@ abstract class GenerateProtocolApiTask extends ProtocolApiTask {
     }
 
     @OutputFile
-    File generatedApi
+    abstract RegularFileProperty getGeneratedApi()
 
     @TaskAction
     def exec() {
         List<String> args = [
                 "--api",
-                generatedApi.toString(),
+                generatedApi.get().asFile.toString(),
                 "--api-surface",
                 "car-protocol",
         ]
@@ -163,14 +163,14 @@ abstract class GenerateProtocolApiTask extends ProtocolApiTask {
 abstract class CheckProtocolApiTask extends DefaultTask {
     @InputFile
     @Optional
-    File currentApi
+    abstract RegularFileProperty getCurrentApi()
 
     @InputFile
     @Optional
-    File previousApi
+    abstract RegularFileProperty getPreviousApi()
 
     @InputFile
-    File generatedApi
+    abstract RegularFileProperty getGeneratedApi()
 
     def summarizeDiff(File a, File b) {
         if (!a.exists()) {
@@ -194,6 +194,9 @@ abstract class CheckProtocolApiTask extends DefaultTask {
 
     @TaskAction
     def exec() {
+        File currentApi = getCurrentApi().getOrNull()?.asFile
+        File previousApi = getPreviousApi().getOrNull()?.asFile
+        File generatedApi = getGeneratedApi().get().asFile
         if (currentApi == null && previousApi == null) {
             return
         }
@@ -233,14 +236,16 @@ abstract class CheckProtocolApiCompatibilityTask extends ProtocolApiTask {
 
     @InputFile
     @Optional
-    File previousApi
+    abstract RegularFileProperty getPreviousApi()
 
     @InputFile
     @Optional
-    File generatedApi
+    abstract RegularFileProperty getGeneratedApi()
 
     @TaskAction
     def exec() {
+        File previousApi = getPreviousApi().getOrNull()?.asFile
+        File generatedApi = getGeneratedApi().getOrNull()?.asFile
         if (previousApi == null || generatedApi == null) {
             return
         }
@@ -257,22 +262,23 @@ abstract class CheckProtocolApiCompatibilityTask extends ProtocolApiTask {
 
 // Update protocol API signature file for current Car API level to reflect the state of current
 // protocol API in the project.
-class UpdateProtocolApiTask extends DefaultTask {
+abstract class UpdateProtocolApiTask extends DefaultTask {
+    // The expected Car protocol API signature file for the current Car API level and project
+    // version
     @Internal
-    File protocolDir
+    abstract RegularFileProperty getUpdatedApi()
 
     @InputFile
-    File generatedApi
+    abstract RegularFileProperty getGeneratedApi()
 
     @Internal
-    File currentApi
+    abstract RegularFileProperty getCurrentApi()
 
     @TaskAction
     def exec() {
-        // The expected Car protocol API signature file for the current Car API level and project
-        // version
-        File updatedApi = new File(protocolDir, String.format(
-                "protocol-%s_%s.txt", project.latestCarAppApiLevel, project.version))
+        File updatedApi = getUpdatedApi().get().asFile
+        File generatedApi = getGeneratedApi().get().asFile
+        File currentApi = getCurrentApi().getOrNull()?.asFile
 
         if (currentApi != null && FileUtils.contentEquals(currentApi, generatedApi)) {
             return
@@ -318,11 +324,10 @@ class ApiLevelFileWriterTask extends DefaultTask {
 
 // Paths and file locations required for protocol API operations
 class ProtocolLocation {
-    File buildDir
-    File protocolDir
-    File generatedApi
-    File currentApi
-    File previousApi
+    DirectoryProperty protocolDir
+    RegularFileProperty generatedApi
+    RegularFileProperty currentApi
+    RegularFileProperty previousApi
 
     static Version parseVersion(File file) {
         int versionStart = file.name.indexOf("_")
@@ -331,7 +336,7 @@ class ProtocolLocation {
         return Version.@Companion.parse(parsedCurrentVersion)
     }
 
-    def getProtocolApiFile(int carApiLevel) {
+    static def getProtocolApiFile(File protocolDir, int carApiLevel) {
         File[] apiFiles = protocolDir.listFiles(new FilenameFilter() {
             boolean accept(File dir, String name) {
                 return name.startsWith(String.format("protocol-%d_", carApiLevel))
@@ -359,12 +364,13 @@ class ProtocolLocation {
     }
 
     ProtocolLocation(Project project) {
-        buildDir = new File(project.buildDir, "/protocol/")
-        generatedApi = new File(buildDir, "/generated.txt")
-        protocolDir = new File(project.projectDir, "/protocol/")
+        File dir = new File(project.projectDir, "/protocol/")
+        protocolDir = project.objects.directoryProperty().fileValue(dir)
+        generatedApi = project.objects.fileProperty()
+                .value(project.layout.buildDirectory.file("protocol/generated.txt"))
         int currentApiLevel = Integer.parseInt(project.latestCarAppApiLevel)
-        currentApi = getProtocolApiFile(currentApiLevel)
-        previousApi = getProtocolApiFile(currentApiLevel - 1)
+        currentApi = project.objects.fileProperty().fileValue(getProtocolApiFile(dir, currentApiLevel))
+        previousApi = project.objects.fileProperty().fileValue(getProtocolApiFile(dir, currentApiLevel - 1))
     }
 }
 
@@ -411,7 +417,8 @@ androidComponents {
         tasks.register("updateProtocolApi", UpdateProtocolApiTask) { task ->
             task.description = "Update protocol API signature file for current Car API level to reflect" +
                     "the current state of the protocol API in the source tree."
-            task.protocolDir = projectProtocolLocation.protocolDir
+            task.updatedApi = projectProtocolLocation.protocolDir.file(
+                    "protocol-${project.latestCarAppApiLevel}_${project.version}.txt")
             task.generatedApi = projectProtocolLocation.generatedApi
             task.currentApi = projectProtocolLocation.currentApi
             task.dependsOn(checkProtocolApiCompat)

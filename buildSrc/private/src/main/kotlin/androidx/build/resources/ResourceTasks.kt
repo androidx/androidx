@@ -36,7 +36,7 @@ object ResourceTasks {
     fun setupProject(
         project: Project,
         builtApiFile: Provider<RegularFile>,
-        builtApiLocation: ApiLocation,
+        builtApiLocation: Provider<ApiLocation>,
         outputApiLocations: List<ApiLocation>,
     ) {
 

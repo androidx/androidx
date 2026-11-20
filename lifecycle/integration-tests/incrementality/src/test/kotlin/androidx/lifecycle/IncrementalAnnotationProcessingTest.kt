@@ -193,7 +193,7 @@ class IncrementalAnnotationProcessingTest {
             }
 
             task clean(type: Delete) {
-                delete rootProject.buildDir
+                delete rootProject.layout.buildDirectory
             }
             """
                 .trimIndent(),
