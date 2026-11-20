@@ -15,11 +15,14 @@
  */
 package androidx.compose.remote.core;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import androidx.compose.remote.core.operations.BitmapData;
+import androidx.compose.remote.core.operations.layout.PropertyBundleModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.EventHandlerModifierOperation;
 
 import org.junit.Test;
@@ -263,6 +266,22 @@ public class LimitsTest {
         assertThrows(
                 RuntimeException.class,
                 () -> EventHandlerModifierOperation.read(buffer, new ArrayList<>()));
+    }
+
+    @Test
+    public void testPropertyBundleModifierOperationEntryLimit() {
+        WireBuffer buffer = new WireBuffer();
+        buffer.writeInt(0); // version
+        buffer.writeInt(0); // bundleId
+        buffer.writeInt(0); // parentBundleId
+        buffer.writeInt(Limits.MAX_PROPERTY_BUNDLE_ENTRIES + 1); // count > limit
+        buffer.setIndex(0);
+
+        RuntimeException e =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> PropertyBundleModifierOperation.read(buffer, new ArrayList<>()));
+        assertThat(e).hasMessageThat().contains("Invalid PropertyBundle entry count");
     }
 
     @Test

@@ -140,6 +140,7 @@ import androidx.compose.remote.core.Operations.MODIFIER_MARQUEE
 import androidx.compose.remote.core.Operations.MODIFIER_MULTI_CLICK
 import androidx.compose.remote.core.Operations.MODIFIER_OFFSET
 import androidx.compose.remote.core.Operations.MODIFIER_PADDING
+import androidx.compose.remote.core.Operations.MODIFIER_PROPERTY_BUNDLE
 import androidx.compose.remote.core.Operations.MODIFIER_RIPPLE
 import androidx.compose.remote.core.Operations.MODIFIER_ROUNDED_CLIP_RECT
 import androidx.compose.remote.core.Operations.MODIFIER_SCROLL
@@ -301,6 +302,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseProcess
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
+import androidx.compose.remote.core.operations.layout.PropertyBundleModifierOperation
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation
@@ -989,6 +991,7 @@ class OperationsProfilesTest {
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
+                    MODIFIER_PROPERTY_BUNDLE to PropertyBundleModifierOperation::class.java,
                     MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
                     LAYOUT_TEXT_INPUT to TextInputLayout::class.java,
                     DATA_BITMAP to BitmapData::class.java,
@@ -1331,6 +1334,7 @@ class OperationsProfilesTest {
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
+                    MODIFIER_PROPERTY_BUNDLE to PropertyBundleModifierOperation::class.java,
                     MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
                     LAYOUT_TEXT_INPUT to TextInputLayout::class.java,
                     DATA_BITMAP to BitmapData::class.java,

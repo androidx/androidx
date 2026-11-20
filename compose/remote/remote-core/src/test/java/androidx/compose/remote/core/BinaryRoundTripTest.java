@@ -107,6 +107,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseOperation;
 import androidx.compose.remote.core.operations.layout.ImpulseProcess;
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
+import androidx.compose.remote.core.operations.layout.PropertyBundleModifierOperation;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
@@ -332,6 +333,9 @@ public class BinaryRoundTripTest {
         originalOps.add(new TouchCancelModifierOperation());
         originalOps.add(new TouchDownModifierOperation());
         originalOps.add(new TouchUpModifierOperation());
+        originalOps.add(
+                new PropertyBundleModifierOperation(
+                        1, 2, new int[] {15, 20}, new int[] {100, 200}));
         originalOps.add(new CoreSemantics(100, (byte) 1, 101, 102, 1, true, true));
 
         // --- Actions ---

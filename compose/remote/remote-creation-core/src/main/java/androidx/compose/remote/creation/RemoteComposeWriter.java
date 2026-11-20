@@ -5489,6 +5489,22 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Adds a {@code PropertyBundleModifierOperation} to the buffer.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of property values
+     */
+    public void addPropertyBundleModifierOperation(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            int @NonNull [] values) {
+        mBuffer.addPropertyBundleModifierOperation(bundleId, parentBundleId, propertyIds, values);
+    }
+
+    /**
      * Add a collapsible priority modifier
      *
      * @param orientation the orientation

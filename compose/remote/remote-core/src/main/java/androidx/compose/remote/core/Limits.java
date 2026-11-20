@@ -150,5 +150,8 @@ public class Limits {
      */
     public static final int MAX_MESH_2D_WIDTH_SAMPLES = 64;
 
+    /** Maximum number of property entries allowed in a single PropertyBundleModifierOperation. */
+    public static final int MAX_PROPERTY_BUNDLE_ENTRIES = 256;
+
     private Limits() {}
 }

@@ -243,6 +243,7 @@ public class LayoutComponent extends Component {
         mHeightModifier = null;
         mZIndexModifier = null;
         mGraphicsLayerModifier = null;
+        mPropertyBundle = null;
         mComputedLayoutModifiers = null;
         mHorizontalScrollDelegate = null;
         mVerticalScrollDelegate = null;
@@ -429,6 +430,8 @@ public class LayoutComponent extends Component {
                 if (scrollDelegate.handlesVerticalScroll()) {
                     mVerticalScrollDelegate = scrollDelegate;
                 }
+            } else if (op instanceof PropertyBundleModifierOperation) {
+                mPropertyBundle = (PropertyBundleModifierOperation) op;
             }
         }
         if (mWidthModifier == null) {
