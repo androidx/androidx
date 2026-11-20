@@ -83,4 +83,27 @@ public class NavigateTest {
         Assert.assertEquals("The custom header was not received by the server",
                 headerValue, request.getHeader(headerKey));
     }
+
+    @Test
+    public void testNavigateWithReferrer() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1);
+        WebkitUtils.checkFeature(WebViewFeature.WEBVIEW_NAVIGATE_REFERRER);
+
+        mWebServer.enqueue(new MockResponse().setBody("<html><body>Referrer Test</body></html>"));
+        String testUrl = mWebServer.url("/referrer-test").toString();
+
+        final String referrer = "http://www.example.com/";
+
+        NavigationParameters params = new NavigationParameters.Builder()
+                .setReferrer(referrer)
+                .build();
+
+        mWebViewOnUiThread.navigateAndWaitForCompletion(testUrl, params);
+
+        RecordedRequest request = mWebServer.takeRequest(5, TimeUnit.SECONDS);
+
+        Assert.assertNotNull("The server did not receive the request", request);
+        Assert.assertEquals("The referrer was not received by the server",
+                referrer, request.getHeader("Referer"));
+    }
 }

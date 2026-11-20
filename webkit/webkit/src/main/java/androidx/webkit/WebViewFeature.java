@@ -143,6 +143,7 @@ public class WebViewFeature {
             JS_INJECTION_IN_FRAME_AND_WORLD,
             NAVIGATION_LISTENER,
             WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
+            WEBVIEW_NAVIGATE_REFERRER,
             DOWNLOAD_FAVICONS_ENABLED,
             HTTP_CACHE_MANAGER,
             CROSS_ORIGIN_ISOLATED_ALLOWLIST,
@@ -1003,6 +1004,14 @@ public class WebViewFeature {
     @WebViewCompat.ExperimentalNavigate
     public static final String WEBVIEW_NAVIGATE_DRAIN_PREFETCH =
             "WEBVIEW_NAVIGATE_DRAIN_PREFETCH";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationParameters.Builder#setReferrer(String)}.
+     */
+    @WebViewCompat.ExperimentalNavigate
+    public static final String WEBVIEW_NAVIGATE_REFERRER = "WEBVIEW_NAVIGATE_REFERRER";
 
     /**
      * Feature for
