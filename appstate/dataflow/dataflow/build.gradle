@@ -16,6 +16,7 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 
 plugins {
     id("AndroidXPlugin")
@@ -26,6 +27,9 @@ androidXMultiplatform {
     androidLibrary {
         compileSdk { version = release(37) }
         namespace = "androidx.appstate.dataflow"
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
     }
     desktop()
     mingwX64()
@@ -69,6 +73,10 @@ androidXMultiplatform {
                 implementation(libs.testRunner)
                 implementation(libs.testRules)
             }
+        }
+
+        nativeMain.dependencies {
+            implementation(libs.atomicFu)
         }
     }
 }

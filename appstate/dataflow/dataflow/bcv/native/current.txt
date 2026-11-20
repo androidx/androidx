@@ -6,3 +6,26 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.appstate.dataflow:dataflow>
+abstract interface <#A: in androidx.appstate.dataflow/DataKey<*>, #B: out kotlin/Any> androidx.appstate.dataflow/Reducer { // androidx.appstate.dataflow/Reducer|null[0]
+    abstract val initialValue // androidx.appstate.dataflow/Reducer.initialValue|{}initialValue[0]
+        abstract fun <get-initialValue>(): #B // androidx.appstate.dataflow/Reducer.initialValue.<get-initialValue>|<get-initialValue>(){}[0]
+
+    abstract fun reduce(#A, androidx.compose.runtime/Composer?, kotlin/Int): #B // androidx.appstate.dataflow/Reducer.reduce|reduce(1:0;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+
+    abstract fun interface <#A1: in androidx.appstate.dataflow/DataKey<*>, #B1: out kotlin/Any> Factory { // androidx.appstate.dataflow/Reducer.Factory|null[0]
+        abstract fun create(): androidx.appstate.dataflow/Reducer<#A1, #B1> // androidx.appstate.dataflow/Reducer.Factory.create|create(){}[0]
+    }
+}
+
+abstract interface <#A: out kotlin/Any> androidx.appstate.dataflow/DataKey // androidx.appstate.dataflow/DataKey|null[0]
+
+final class androidx.appstate.dataflow/DataflowRegistry { // androidx.appstate.dataflow/DataflowRegistry|null[0]
+    constructor <init>(kotlin.coroutines/CoroutineContext, androidx.appstate.dataflow/DataflowRegistry? = ..., kotlin.collections/Map<kotlin.reflect/KClass<out androidx.appstate.dataflow/DataKey<*>>, androidx.appstate.dataflow/Reducer.Factory<*, *>> = ...) // androidx.appstate.dataflow/DataflowRegistry.<init>|<init>(kotlin.coroutines.CoroutineContext;androidx.appstate.dataflow.DataflowRegistry?;kotlin.collections.Map<kotlin.reflect.KClass<out|androidx.appstate.dataflow.DataKey<*>>,androidx.appstate.dataflow.Reducer.Factory<*,*>>){}[0]
+
+    final fun <#A1: kotlin/Any> getState(androidx.appstate.dataflow/DataKey<#A1>): androidx.compose.runtime/State<#A1> // androidx.appstate.dataflow/DataflowRegistry.getState|getState(androidx.appstate.dataflow.DataKey<0:0>){0§<kotlin.Any>}[0]
+    final fun dispose() // androidx.appstate.dataflow/DataflowRegistry.dispose|dispose(){}[0]
+}
+
+final val androidx.appstate.dataflow/androidx_appstate_dataflow_DataflowRegistry$stableprop // androidx.appstate.dataflow/androidx_appstate_dataflow_DataflowRegistry$stableprop|#static{}androidx_appstate_dataflow_DataflowRegistry$stableprop[0]
+
+final fun androidx.appstate.dataflow/androidx_appstate_dataflow_DataflowRegistry$stableprop_getter(): kotlin/Int // androidx.appstate.dataflow/androidx_appstate_dataflow_DataflowRegistry$stableprop_getter|androidx_appstate_dataflow_DataflowRegistry$stableprop_getter(){}[0]
