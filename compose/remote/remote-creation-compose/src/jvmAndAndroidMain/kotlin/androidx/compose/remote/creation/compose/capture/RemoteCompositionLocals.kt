@@ -29,8 +29,13 @@ public val LocalRemoteDensity: ProvidableCompositionLocal<RemoteDensity> =
         RemoteDensity.Host
     }
 
-/** Composition local for [RemoteLayoutDirection]. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * The [ProvidableCompositionLocal] providing the [RemoteLayoutDirection] for remote composables,
+ * defaulting to [RemoteLayoutDirection.Ltr].
+ *
+ * Document capture provides the root layout direction; subtrees can override it with
+ * [androidx.compose.runtime.CompositionLocalProvider].
+ */
 public val LocalRemoteLayoutDirection: ProvidableCompositionLocal<RemoteLayoutDirection> =
     staticCompositionLocalOf {
         RemoteLayoutDirection.Ltr
