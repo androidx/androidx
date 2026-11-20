@@ -2001,7 +2001,7 @@ public class ViewPager extends ViewGroup {
     }
 
     /**
-     * @return Whether dragging in the gutter (left and right edges) of the ViewPager is enabled.
+     * Returns whether dragging in the gutter (left and right edges) of the ViewPager is enabled.
      */
     public boolean isDragInGutterEnabled() {
         return mDragInGutterEnabled;
