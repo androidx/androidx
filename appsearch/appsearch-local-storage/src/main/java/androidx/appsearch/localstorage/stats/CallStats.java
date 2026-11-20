@@ -606,6 +606,8 @@ public class CallStats extends BaseStats {
                 return CALL_TYPE_INITIALIZE_PENDING;
             case INTERNAL_CALL_TYPE_STRING_HANDLE_EXPIRED_DOCUMENTS_JOB:
                 return INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB;
+            case CALL_TYPE_STRING_GLOBAL_GET_DOCUMENT_CHANGES:
+                return CALL_TYPE_GLOBAL_GET_DOCUMENT_CHANGES;
             default:
                 return CALL_TYPE_UNKNOWN;
         }
@@ -656,6 +658,7 @@ public class CallStats extends BaseStats {
                 INTERNAL_CALL_TYPE_MAINTAIN_ANN_INDEX_JOB,
                 CALL_TYPE_INITIALIZE_TRIVIAL,
                 CALL_TYPE_INITIALIZE_PENDING,
-                INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB));
+                INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB,
+                CALL_TYPE_GLOBAL_GET_DOCUMENT_CHANGES));
     }
 }
