@@ -32,6 +32,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
+import androidx.annotation.GuardedBy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
@@ -46,6 +47,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,6 +58,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class SurfaceTextureProvider {
     private static final String TAG = "SurfaceTextureProvider";
+    private static final Object DEFAULT_DISPLAY_PIN_LOCK = new Object();
+
+    @GuardedBy("DEFAULT_DISPLAY_PIN_LOCK")
+    private static boolean sDefaultDisplayPinned = false;
 
     private SurfaceTextureProvider() {
     }
@@ -226,28 +232,42 @@ public final class SurfaceTextureProvider {
                             surfaceRequest.getResolution().getHeight(), frameAvailableListener);
 
             surfaceTextureFuture.addListener(() -> {
+                SurfaceTextureHolder holder = null;
                 try {
-                    SurfaceTextureHolder holder = surfaceTextureFuture.get();
+                    holder = surfaceTextureFuture.get();
+                    SurfaceTextureHolder finalHolder = holder;
                     Surface surface = new Surface(holder.getSurfaceTexture());
+                    holder = null;
                     surfaceRequest.provideSurface(surface,
                             CameraXExecutors.directExecutor(),
                             (surfaceResponse) -> {
-                                if (resultListener != null) {
-                                    resultListener.accept(surfaceResponse);
-                                }
                                 try {
-                                    holder.close();
-                                    surface.release();
-                                } catch (Exception e) {
-                                    throw new AssertionError("SurfaceTextureHolder failed"
-                                            + " to close", e);
+                                    if (resultListener != null) {
+                                        resultListener.accept(surfaceResponse);
+                                    }
+                                } finally {
+                                    try {
+                                        finalHolder.close();
+                                    } catch (Exception e) {
+                                        Logger.e(TAG, "SurfaceTextureHolder failed to close", e);
+                                    } finally {
+                                        surface.release();
+                                    }
                                 }
                             });
-                } catch (Exception e) {
-                    // Should never happen
-                    throw new AssertionError("Failed to create auto-draining surface "
-                            + "texture",
-                            e);
+                } catch (ExecutionException | InterruptedException | RuntimeException e) {
+                    if (e instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
+                    Logger.e(TAG, "Failed to create auto-draining surface texture", e);
+                    if (holder != null) {
+                        try {
+                            holder.close();
+                        } catch (Exception closeException) {
+                            Logger.e(TAG, "SurfaceTextureHolder failed to close", closeException);
+                        }
+                    }
+                    surfaceRequest.willNotProvideSurface();
                 }
             }, CameraXExecutors.directExecutor());
         };
@@ -326,56 +346,107 @@ public final class SurfaceTextureProvider {
             Handler handler = HandlerCompat.createAsync(handlerThread.getLooper());
             Executor glExecutor = CameraXExecutors.newHandlerExecutor(handler);
             glExecutor.execute(() -> {
-                Object lock = new Object();
-                AtomicBoolean surfaceTextureReleased = new AtomicBoolean(false);
-                AtomicBoolean updateTexImageFailedLogged = new AtomicBoolean(false);
-                EGLContextParams contextParams = createDummyEGLContext();
-                EGL14.eglMakeCurrent(contextParams.display, contextParams.outputSurface,
-                        contextParams.outputSurface, contextParams.context);
-                int[] textureIds = new int[1];
-                GLES20.glGenTextures(1, textureIds, 0);
-                SurfaceTexture surfaceTexture = new SurfaceTexture(textureIds[0]);
-                surfaceTexture.setDefaultBufferSize(width, height);
+                AutoDrainState state = new AutoDrainState(handlerThread);
+                SurfaceTexture surfaceTexture;
+                try {
+                    EGLContextParams contextParams = createDummyEGLContext();
+                    state.mContextParams = contextParams;
+                    if (!EGL14.eglMakeCurrent(contextParams.display, contextParams.outputSurface,
+                            contextParams.outputSurface, contextParams.context)) {
+                        throw new UnsupportedOperationException("Unable to make EGL context "
+                                + "current: " + eglErrorString(EGL14.eglGetError()));
+                    }
+                    GLES20.glGenTextures(1, state.mTextureIds, 0);
+                    state.mTextureGenerated = true;
+                    surfaceTexture = new SurfaceTexture(state.mTextureIds[0]);
+                    state.mSurfaceTexture = surfaceTexture;
+                    surfaceTexture.setDefaultBufferSize(width, height);
+                } catch (RuntimeException e) {
+                    // Release what was created and fail the future instead of leaving it
+                    // incomplete.
+                    state.release();
+                    completer.setException(e);
+                    return;
+                }
                 surfaceTexture.setOnFrameAvailableListener(it -> {
                     try {
                         glExecutor.execute(() -> {
-                            synchronized (lock) {
-                                if (surfaceTextureReleased.get()) {
-                                    return;
+                            if (state.mReleased) {
+                                return;
+                            }
+                            try {
+                                it.updateTexImage();
+                            } catch (RuntimeException e) {
+                                if (!state.mUpdateTexImageFailedLogged) {
+                                    state.mUpdateTexImageFailedLogged = true;
+                                    Logger.w(TAG, "Failed to updateTexImage", e);
+                                } else {
+                                    Logger.d(TAG, "Failed to updateTexImage: "
+                                            + e.getMessage());
                                 }
-                                try {
-                                    it.updateTexImage();
-                                } catch (RuntimeException e) {
-                                    if (updateTexImageFailedLogged.compareAndSet(false, true)) {
-                                        Logger.w(TAG, "Failed to updateTexImage", e);
-                                    } else {
-                                        Logger.d(TAG, "Failed to updateTexImage: "
-                                                + e.getMessage());
-                                    }
-                                }
-                                if (frameAvailableListener != null) {
-                                    frameAvailableListener.onFrameAvailable(surfaceTexture);
-                                }
+                            }
+                            if (frameAvailableListener != null) {
+                                frameAvailableListener.onFrameAvailable(surfaceTexture);
                             }
                         });
                     } catch (RejectedExecutionException e) {
-                        Logger.d(TAG, "The handler of the glExecutor might have been quited.");
+                        Logger.d(TAG, "The handler of the glExecutor might have been quit.");
                     }
                 });
 
-                completer.set(
-                        new SurfaceTextureHolder(surfaceTexture, () -> glExecutor.execute(() -> {
-                            synchronized (lock) {
-                                surfaceTextureReleased.set(true);
-                            }
-                            surfaceTexture.release();
-                            GLES20.glDeleteTextures(1, textureIds, 0);
-                            terminateEGLContext(contextParams);
-                            handlerThread.quitSafely();
-                        })));
+                SurfaceTextureHolder holder = new SurfaceTextureHolder(surfaceTexture, () -> {
+                    try {
+                        glExecutor.execute(state::release);
+                    } catch (RejectedExecutionException e) {
+                        Logger.d(TAG, "The handler of the glExecutor might have been quit.");
+                    }
+                });
+                if (!completer.set(holder)) {
+                    // The future was cancelled, so no caller can close the holder.
+                    state.release();
+                }
             });
             return "createAutoDrainingSurfaceTexture";
         });
+    }
+
+    /** Auto-drain resources and state that are confined to the auto-drain thread. */
+    private static final class AutoDrainState {
+        final HandlerThread mHandlerThread;
+        final int[] mTextureIds = new int[1];
+        @Nullable EGLContextParams mContextParams;
+        boolean mTextureGenerated;
+        @Nullable SurfaceTexture mSurfaceTexture;
+        boolean mReleased;
+        boolean mUpdateTexImageFailedLogged;
+
+        AutoDrainState(@NonNull HandlerThread handlerThread) {
+            mHandlerThread = handlerThread;
+        }
+
+        /**
+         * Releases the created resources and quits the auto-drain thread.
+         *
+         * <p>Idempotent on the auto-drain looper: previously, calling {@code close()} twice queued
+         * two release tasks before {@code quitSafely()} drained the queue, invoking
+         * {@code eglTerminate()} twice and stealing another holder's display reference.
+         */
+        void release() {
+            if (mReleased) {
+                return;
+            }
+            mReleased = true;
+            if (mSurfaceTexture != null) {
+                mSurfaceTexture.release();
+            }
+            if (mTextureGenerated) {
+                GLES20.glDeleteTextures(1, mTextureIds, 0);
+            }
+            if (mContextParams != null) {
+                terminateEGLContext(mContextParams);
+            }
+            mHandlerThread.quitSafely();
+        }
     }
 
     /**
@@ -383,6 +454,7 @@ public final class SurfaceTextureProvider {
      * resource.
      */
     public static class SurfaceTextureHolder implements AutoCloseable {
+        private final AtomicBoolean mClosed = new AtomicBoolean(false);
         private final SurfaceTexture mSurfaceTexture;
         private final Runnable mCloseRunnable;
 
@@ -396,17 +468,50 @@ public final class SurfaceTextureProvider {
             return mSurfaceTexture;
         }
 
+        /** Releases the resources. Calling it more than once has no effect. */
         @Override
         public void close() throws Exception {
-            mCloseRunnable.run();
+            if (mClosed.compareAndSet(false, true)) {
+                mCloseRunnable.run();
+            }
+        }
+    }
+
+    /**
+     * Pins one process-lifetime {@code eglInitialize()} reference on the default display without a
+     * matching {@code eglTerminate()}, mirroring Android's {@code RenderThread}.
+     *
+     * <p>Headless tests lack a {@code RenderThread} keeping {@code EGL_DEFAULT_DISPLAY} at
+     * {@code refs >= 1}. When {@code eglTerminate()} drops {@code refs} to 0 in {@code libEGL},
+     * {@code refLock} is released while {@code eglIsInitialized} stays {@code true} during driver
+     * teardown, allowing multiple concurrent {@code eglInitialize()} callers to return prematurely
+     * and fail {@code eglChooseConfig()} (b/583337721). This pin keeps {@code refs >= 1} across
+     * sequential/concurrent holders (and absorbs up to one stray unbalanced external
+     * {@code eglTerminate()}).
+     */
+    private static void pinDefaultDisplay(@NonNull EGLDisplay eglDisplay) {
+        synchronized (DEFAULT_DISPLAY_PIN_LOCK) {
+            if (sDefaultDisplayPinned) {
+                return;
+            }
+            int[] versions = new int[2];
+            if (EGL14.eglInitialize(eglDisplay, versions, 0, versions, 1)) {
+                // Intentionally never eglTerminate()'d so EGL_DEFAULT_DISPLAY stays initialized
+                // for the process lifetime while per-instance references remain balanced.
+                sDefaultDisplayPinned = true;
+            } else {
+                Logger.w(TAG, "Unable to pin default EGL display: "
+                        + eglErrorString(EGL14.eglGetError()));
+            }
         }
     }
 
     private static @NonNull EGLContextParams createDummyEGLContext() {
         EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-        if (Objects.equals(eglDisplay, EGL14.EGL_NO_DISPLAY)) {
+        if (eglDisplay == null || Objects.equals(eglDisplay, EGL14.EGL_NO_DISPLAY)) {
             throw new UnsupportedOperationException("Unable to get default EGL display");
         }
+        pinDefaultDisplay(eglDisplay);
 
         int[] versions = new int[2];
         int majorOffset = 0;
@@ -414,58 +519,79 @@ public final class SurfaceTextureProvider {
         boolean initialized = EGL14.eglInitialize(eglDisplay, versions, majorOffset, versions,
                 minorOffset);
         if (!initialized) {
-            throw new UnsupportedOperationException("Unable to initialize EGL");
+            throw new UnsupportedOperationException(
+                    "Unable to initialize EGL: " + eglErrorString(EGL14.eglGetError()));
         }
         Logger.d(TAG, "Initialized EGL version " + versions[0] + "." + versions[1]);
 
-        int[] eglConfigAttribs = new int[] {
-                EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
-                EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT,
-                EGL14.EGL_NONE };
-        EGLConfig[] eglConfigs = new EGLConfig[1];
-        int[] numConfigs = new int[1];
-        boolean foundConfig = EGL14.eglChooseConfig(eglDisplay, eglConfigAttribs, 0, eglConfigs,
-                0, 1, numConfigs, 0);
-        if (!foundConfig) {
-            throw new UnsupportedOperationException("Unable to choose a valid EGL config");
+        EGLContextParams params = new EGLContextParams();
+        params.display = eglDisplay;
+        try {
+            int[] eglConfigAttribs = new int[] {
+                    EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
+                    EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT,
+                    EGL14.EGL_NONE };
+            EGLConfig[] eglConfigs = new EGLConfig[1];
+            int[] numConfigs = new int[1];
+            boolean foundConfig = EGL14.eglChooseConfig(eglDisplay, eglConfigAttribs, 0,
+                    eglConfigs, 0, 1, numConfigs, 0);
+            if (!foundConfig || numConfigs[0] <= 0 || eglConfigs[0] == null) {
+                throw new UnsupportedOperationException("Unable to choose a valid EGL config: "
+                        + eglErrorString(EGL14.eglGetError()));
+            }
+
+            int[] contextAttribs = new int[] {
+                    EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
+                    EGL14.EGL_NONE
+            };
+            params.context = EGL14.eglCreateContext(eglDisplay, eglConfigs[0],
+                    /* share_context= */EGL14.EGL_NO_CONTEXT, contextAttribs, 0);
+            if (params.context == null || Objects.equals(params.context, EGL14.EGL_NO_CONTEXT)) {
+                throw new UnsupportedOperationException("Unable to create EGL context: "
+                        + eglErrorString(EGL14.eglGetError()));
+            }
+
+            // Create a placeholder 1x1 pbuffer for the output surface. This is required since
+            // some drivers may not support a surfaceless config
+            int[] pbufferAttribs = new int[] {
+                    EGL14.EGL_WIDTH, 1,
+                    EGL14.EGL_HEIGHT, 1,
+                    EGL14.EGL_NONE
+            };
+            params.outputSurface = EGL14.eglCreatePbufferSurface(eglDisplay, eglConfigs[0],
+                    pbufferAttribs, 0);
+            if (params.outputSurface == null
+                    || Objects.equals(params.outputSurface, EGL14.EGL_NO_SURFACE)) {
+                throw new UnsupportedOperationException("Unable to create EGL pbuffer surface: "
+                        + eglErrorString(EGL14.eglGetError()));
+            }
+            return params;
+        } catch (RuntimeException e) {
+            // Release what was created, including the eglInitialize() reference above.
+            terminateEGLContext(params);
+            throw e;
         }
-
-        int[] contextAttribs = new int[] {
-                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
-                EGL14.EGL_NONE
-        };
-        EGLContext eglContext = EGL14.eglCreateContext(eglDisplay, eglConfigs[0],
-                /* share_context= */EGL14.EGL_NO_CONTEXT, contextAttribs, 0);
-        if (Objects.equals(eglContext, EGL14.EGL_NO_CONTEXT)) {
-            throw new UnsupportedOperationException("Unable to create EGL context");
-        }
-
-        // Create a placeholder 1x1 pbuffer for the output surface. This is required since some
-        // drivers may not support a surfaceless config
-        int[] pbufferAttribs = new int[] {
-                EGL14.EGL_WIDTH, 1,
-                EGL14.EGL_HEIGHT, 1,
-                EGL14.EGL_NONE
-        };
-        EGLSurface eglPbuffer = EGL14.eglCreatePbufferSurface(eglDisplay, eglConfigs[0],
-                pbufferAttribs, 0);
-
-        EGLContextParams returnParams = new EGLContextParams();
-        returnParams.display = eglDisplay;
-        returnParams.context = eglContext;
-        returnParams.outputSurface = eglPbuffer;
-
-        return returnParams;
     }
 
     private static void terminateEGLContext(@NonNull EGLContextParams contextParams) {
         EGL14.eglMakeCurrent(contextParams.display, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
                 EGL14.EGL_NO_CONTEXT);
 
-        EGL14.eglDestroySurface(contextParams.display, contextParams.outputSurface);
-        EGL14.eglDestroyContext(contextParams.display, contextParams.context);
+        if (contextParams.outputSurface != null
+                && !Objects.equals(contextParams.outputSurface, EGL14.EGL_NO_SURFACE)) {
+            EGL14.eglDestroySurface(contextParams.display, contextParams.outputSurface);
+        }
+        if (contextParams.context != null
+                && !Objects.equals(contextParams.context, EGL14.EGL_NO_CONTEXT)) {
+            EGL14.eglDestroyContext(contextParams.display, contextParams.context);
+        }
 
         EGL14.eglTerminate(contextParams.display);
+        EGL14.eglReleaseThread();
+    }
+
+    private static @NonNull String eglErrorString(int error) {
+        return "0x" + Integer.toHexString(error);
     }
 
     /**
@@ -512,7 +638,7 @@ public final class SurfaceTextureProvider {
 
     static final class EGLContextParams {
         public EGLDisplay display;
-        public EGLContext context;
-        public EGLSurface outputSurface;
+        public @Nullable EGLContext context;
+        public @Nullable EGLSurface outputSurface;
     }
 }
