@@ -41,8 +41,8 @@ public interface EmojiCompatConfigurationView {
     void setEmojiCompatEnabled(boolean enabled);
 
     /**
-     * @return the current enabled state, set via
-     * {@link EmojiCompatConfigurationView#setEmojiCompatEnabled(boolean)}
+     * Returns the current enabled state, set via
+     * {@link EmojiCompatConfigurationView#setEmojiCompatEnabled(boolean)}.
      */
     boolean isEmojiCompatEnabled();
 }

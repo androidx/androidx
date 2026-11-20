@@ -539,7 +539,7 @@ public abstract class ActionBar {
     public void setSplitBackgroundDrawable(Drawable d) { }
 
     /**
-     * @return The current custom view.
+     * Returns the current custom view.
      */
     public abstract View getCustomView();
 
@@ -597,7 +597,7 @@ public abstract class ActionBar {
     public abstract void setNavigationMode(@NavigationMode int mode);
 
     /**
-     * @return The current set of display options.
+     * Returns the current set of display options.
      */
     @DisplayOptions
     public abstract int getDisplayOptions();
@@ -807,7 +807,7 @@ public abstract class ActionBar {
     public abstract void hide();
 
     /**
-     * @return <code>true</code> if the ActionBar is showing, <code>false</code> otherwise.
+     * Returns <code>true</code> if the ActionBar is showing, <code>false</code> otherwise.
      */
     public abstract boolean isShowing();
 

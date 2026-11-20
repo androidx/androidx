@@ -562,7 +562,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     /**
-     * @return The {@link AppCompatDelegate} being used by this Activity.
+     * Returns the {@link AppCompatDelegate} being used by this Activity.
      */
     public @NonNull AppCompatDelegate getDelegate() {
         if (mDelegate == null) {

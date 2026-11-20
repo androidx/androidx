@@ -221,7 +221,7 @@ public class DrawableWrapperCompat extends Drawable implements Drawable.Callback
     }
 
     /**
-     * @return the wrapped drawable
+     * Returns the wrapped drawable.
      */
     public @Nullable Drawable getDrawable() {
         return mDrawable;

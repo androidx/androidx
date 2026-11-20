@@ -574,7 +574,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     /**
-     * @return the tint applied to the track drawable
+     * Returns the tint applied to the track drawable.
      *
      * @see #setTrackTintList(ColorStateList)
      * @see android.R.attr#trackTint
@@ -603,8 +603,8 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     /**
-     * @return the blending mode used to apply the tint to the track
-     *         drawable
+     * Returns the blending mode used to apply the tint to the track
+     *         drawable.
      *
      * @see #setTrackTintMode(PorterDuff.Mode)
      * @see android.R.attr#trackTintMode
@@ -700,7 +700,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     /**
-     * @return the tint applied to the thumb drawable
+     * Returns the tint applied to the thumb drawable.
      *
      * @see #setThumbTintList(ColorStateList)
      * @see android.R.attr#thumbTint
@@ -730,8 +730,8 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     /**
-     * @return the blending mode used to apply the tint to the thumb
-     *         drawable
+     * Returns the blending mode used to apply the tint to the thumb
+     *         drawable.
      *
      * @see #setThumbTintMode(PorterDuff.Mode)
      * @see android.R.attr#thumbTintMode
@@ -1145,7 +1145,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     }
 
     /**
-     * @return the current thumb position as a decimal value between 0 (off) and 1 (on).
+     * Returns the current thumb position as a decimal value between 0 (off) and 1 (on).
      */
     @FloatRange(from = 0.0, to = 1.0)
     protected final float getThumbPosition() {

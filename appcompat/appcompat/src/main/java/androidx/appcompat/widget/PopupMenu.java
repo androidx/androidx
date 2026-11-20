@@ -147,7 +147,7 @@ public class PopupMenu {
     }
 
     /**
-     * @return the gravity used to align the popup window to its anchor view
+     * Returns the gravity used to align the popup window to its anchor view.
      * @see #setGravity(int)
      */
     public int getGravity() {
@@ -209,8 +209,8 @@ public class PopupMenu {
     }
 
     /**
-     * @return a {@link MenuInflater} that can be used to inflate menu items
-     *         from XML into the menu returned by {@link #getMenu()}
+     * Returns a {@link MenuInflater} that can be used to inflate menu items
+     *         from XML into the menu returned by {@link #getMenu()}.
      * @see #getMenu()
      */
     public @NonNull MenuInflater getMenuInflater() {
