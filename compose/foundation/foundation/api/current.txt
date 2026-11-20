@@ -196,6 +196,7 @@ package androidx.compose.foundation {
     property public boolean isSelectionAutoScrollEnabled;
     property public boolean isSmartSelectionEnabled;
     property public boolean isTextFieldWaitWindowFocusForInputSessionEnabled;
+    property public boolean isTextLookaheadOptimizationEnabled;
     property public boolean isUsingCacheWindowInStaggeredGrids;
     property public boolean isUsingDynamicDefaultCacheWindowInGrids;
     property public boolean isUsingDynamicDefaultCacheWindowInLists;
@@ -232,6 +233,7 @@ package androidx.compose.foundation {
     field public static boolean isSelectionAutoScrollEnabled;
     field public static boolean isSmartSelectionEnabled;
     field public static boolean isTextFieldWaitWindowFocusForInputSessionEnabled;
+    field public static boolean isTextLookaheadOptimizationEnabled;
     field public static boolean isUsingCacheWindowInStaggeredGrids;
     field public static boolean isUsingDynamicDefaultCacheWindowInGrids;
     field public static boolean isUsingDynamicDefaultCacheWindowInLists;
