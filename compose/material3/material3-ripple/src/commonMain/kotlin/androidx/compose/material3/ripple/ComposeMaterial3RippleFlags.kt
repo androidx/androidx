@@ -53,5 +53,5 @@ public object ComposeMaterial3RippleFlags {
     //  focus ring has soaked.
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isBorderRendererFocusRingEnabled: Boolean = false
+    public var isBorderRendererFocusRingEnabled: Boolean = true
 }
