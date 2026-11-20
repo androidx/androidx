@@ -439,6 +439,13 @@ public interface Features {
     String ENCRYPTED_BLOB = "ENCRYPTED_BLOB";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SchemaVisibilityConfig.Builder#setAllowedPackageWithTags}.
+     */
+    @ExperimentalAppSearchApi
+    String SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS = "SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

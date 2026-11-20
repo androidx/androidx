@@ -26,11 +26,13 @@ import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.flags.RequiresFlagsDisabled;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.android.appsearch.proto.AndroidVOverlayProto;
 import com.google.android.appsearch.proto.PackageIdentifierProto;
 import com.google.android.appsearch.proto.VisibilityConfigProto;
+import com.google.android.appsearch.proto.VisibleToPackageWithTagsProto;
 import com.google.android.appsearch.proto.VisibleToPermissionProto;
 import com.google.android.icing.protobuf.ByteString;
 import com.google.common.collect.ImmutableSet;
@@ -431,5 +433,553 @@ public class VisibilityToDocumentConverterTest {
 
         assertThat(convertedConfig.getWriterUid()).isEqualTo(testUid);
         assertThat(convertedConfig).isEqualTo(visibilityConfig);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testToGenericDocuments_packagesWithTags() throws Exception {
+        byte[] cert1 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+
+        // The schema is visible to "tagA" and "tagB" of package1 which also hold permissions 1
+        // and 2.
+        SchemaVisibilityConfig visibleToConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(new PackageIdentifier("com.example.test1", cert1),
+                        ImmutableSet.of("tagA", "tagB"))
+                .addRequiredPermissions(ImmutableSet.of(1, 2))
+                .build();
+        InternalVisibilityConfig visibilityConfig =
+                new InternalVisibilityConfig.Builder("someSchema")
+                        .addVisibleToConfig(visibleToConfig)
+                        .build();
+
+        // A package which is restricted by attribution tag must not be stored as a package which
+        // has access regardless of the attribution tag.
+        assertThat(VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig))
+                .isEqualTo(VisibilityToDocumentConverter.createVisibilityDocument(
+                        new InternalVisibilityConfig.Builder("someSchema").build()));
+
+        GenericDocument overlayDoc =
+                VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig);
+        assertThat(overlayDoc).isNotNull();
+        AndroidVOverlayProto overlayProto = AndroidVOverlayProto.parseFrom(
+                overlayDoc.getPropertyBytes("visibilityProtoSerializeProperty"));
+
+        assertThat(overlayProto.getVisibilityConfig())
+                .isEqualTo(VisibilityConfigProto.getDefaultInstance());
+
+        assertThat(overlayProto.getVisibleToConfigsList()).hasSize(1);
+        VisibilityConfigProto visibleToConfigProto = overlayProto.getVisibleToConfigs(0);
+        // The only package is the placeholder, which no caller can match.
+        assertThat(visibleToConfigProto.getVisibleToPackagesList()).containsExactly(
+                PackageIdentifierProto.newBuilder()
+                        .setPackageName(
+                                VisibilityToDocumentConverter
+                                        .PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME)
+                        .setPackageSha256Cert(ByteString.copyFrom(new byte[32])).build());
+        assertThat(visibleToConfigProto.getVisibleToPermissionsList()).containsExactly(
+                VisibleToPermissionProto.newBuilder()
+                        .addAllPermissions(ImmutableSet.of(1, 2)).build());
+        assertThat(visibleToConfigProto.getVisibleToPackagesWithTagsList()).hasSize(1);
+        VisibleToPackageWithTagsProto visibleToPackageWithTagsProto =
+                visibleToConfigProto.getVisibleToPackagesWithTags(0);
+        assertThat(visibleToPackageWithTagsProto.getPackageIdentifier()).isEqualTo(
+                PackageIdentifierProto.newBuilder()
+                        .setPackageName("com.example.test1")
+                        .setPackageSha256Cert(ByteString.copyFrom(cert1)).build());
+        assertThat(visibleToPackageWithTagsProto.getAttributionTagsList())
+                .containsExactly("tagA", "tagB");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testToGenericDocumentAndBack_packagesWithTags() {
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        byte[] cert3 = new byte[32];
+        byte[] cert4 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+        Arrays.fill(cert3, (byte) 3);
+        Arrays.fill(cert4, (byte) 4);
+        PackageIdentifier package1 = new PackageIdentifier("com.example.test1", cert1);
+        PackageIdentifier package2 = new PackageIdentifier("com.example.test2", cert2);
+        PackageIdentifier package3 = new PackageIdentifier("com.example.test3", cert3);
+        PackageIdentifier package4 = new PackageIdentifier("com.example.test4", cert4);
+
+        SchemaVisibilityConfig packagesOnlyConfig = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(package3)
+                .build();
+        SchemaVisibilityConfig tagsOnlyConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(package1, ImmutableSet.of("tagA", "tagB"))
+                .build();
+        SchemaVisibilityConfig tagsAndPermissionsConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(package2, ImmutableSet.of("tagC"))
+                .addRequiredPermissions(ImmutableSet.of(1, 2))
+                .build();
+        InternalVisibilityConfig visibilityConfig =
+                new InternalVisibilityConfig.Builder("someSchema")
+                        .addVisibleToPackage(package4)
+                        .setNotDisplayedBySystem(true)
+                        .addVisibleToConfig(packagesOnlyConfig)
+                        .addVisibleToConfig(tagsOnlyConfig)
+                        .addVisibleToConfig(tagsAndPermissionsConfig)
+                        .build();
+
+        GenericDocument visibilityDoc =
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig);
+        GenericDocument androidVOverlay =
+                VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig);
+
+        InternalVisibilityConfig rebuild =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
+
+        // InternalVisibilityConfig#equals depends on the order of the visible to configs, which
+        // may change when they are stored, so compare each setting.
+        assertThat(rebuild.getSchemaType()).isEqualTo("someSchema");
+        assertThat(rebuild.isNotDisplayedBySystem()).isTrue();
+        assertThat(rebuild.getVisibilityConfig()).isEqualTo(visibilityConfig.getVisibilityConfig());
+        assertThat(rebuild.getVisibilityConfig().getAllowedPackages()).containsExactly(package4);
+        assertThat(rebuild.getVisibilityConfig().getAllowedPackagesWithTags()).isEmpty();
+        assertThat(rebuild.getVisibleToConfigs())
+                .containsExactly(packagesOnlyConfig, tagsOnlyConfig, tagsAndPermissionsConfig);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testDoesConfigContainAndroidVOverlay_packagesWithTags() {
+        InternalVisibilityConfig configWithoutOverlay =
+                new InternalVisibilityConfig.Builder("someSchema")
+                        .addVisibleToPackage(
+                                new PackageIdentifier("com.example.test", new byte[32]))
+                        .build();
+        assertThat(VisibilityToDocumentConverter
+                .doesConfigContainAndroidVOverlay(configWithoutOverlay)).isFalse();
+        assertThat(VisibilityToDocumentConverter.createAndroidVOverlay(configWithoutOverlay))
+                .isNull();
+
+        SchemaVisibilityConfig packageWithTagsConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(
+                        new PackageIdentifier("com.example.test", new byte[32]),
+                        ImmutableSet.of("tagA"))
+                .build();
+
+        // Packages which are restricted by attribution tag are stored in a visible to config.
+        InternalVisibilityConfig configWithTags =
+                new InternalVisibilityConfig.Builder("someSchema")
+                        .addVisibleToConfig(packageWithTagsConfig)
+                        .build();
+        assertThat(VisibilityToDocumentConverter
+                .doesConfigContainAndroidVOverlay(configWithTags)).isTrue();
+        assertThat(VisibilityToDocumentConverter.createAndroidVOverlay(configWithTags))
+                .isNotNull();
+
+        // They are only supported in a visible to config: the API cannot set them on the
+        // visibility config of a schema, where they are not stored.
+        InternalVisibilityConfig configWithTagsInVisibilityConfig =
+                new InternalVisibilityConfig.Builder("someSchema")
+                        .setVisibilityConfig(packageWithTagsConfig)
+                        .build();
+        assertThat(VisibilityToDocumentConverter
+                .doesConfigContainAndroidVOverlay(configWithTagsInVisibilityConfig)).isFalse();
+        assertThat(VisibilityToDocumentConverter
+                .createAndroidVOverlay(configWithTagsInVisibilityConfig)).isNull();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testToVisibilityConfig_packageWithoutTags() throws Exception {
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+        PackageIdentifierProto package1Proto = PackageIdentifierProto.newBuilder()
+                .setPackageName("com.example.test1")
+                .setPackageSha256Cert(ByteString.copyFrom(cert1)).build();
+        PackageIdentifierProto package2Proto = PackageIdentifierProto.newBuilder()
+                .setPackageName("com.example.test2")
+                .setPackageSha256Cert(ByteString.copyFrom(cert2)).build();
+        VisibleToPackageWithTagsProto package1WithTagsProto =
+                VisibleToPackageWithTagsProto.newBuilder()
+                        .setPackageIdentifier(package1Proto)
+                        .addAttributionTags("tagA")
+                        .build();
+        // A package which is restricted to no attribution tags cannot be created through the API.
+        VisibleToPackageWithTagsProto package2WithoutTagsProto =
+                VisibleToPackageWithTagsProto.newBuilder()
+                        .setPackageIdentifier(package2Proto)
+                        .build();
+
+        AndroidVOverlayProto overlayProto = AndroidVOverlayProto.newBuilder()
+                .setVisibilityConfig(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackagesWithTags(package1WithTagsProto)
+                        .addVisibleToPackagesWithTags(package2WithoutTagsProto)
+                        .build())
+                // A valid config.
+                .addVisibleToConfigs(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackagesWithTags(package1WithTagsProto)
+                        .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
+                                .addAllPermissions(ImmutableSet.of(1)).build())
+                        .build())
+                // A config which would only require permission 2 if the package without
+                // attribution tags was ignored on its own.
+                .addVisibleToConfigs(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackagesWithTags(package2WithoutTagsProto)
+                        .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
+                                .addAllPermissions(ImmutableSet.of(2)).build())
+                        .build())
+                // A config which has both a valid and an invalid package.
+                .addVisibleToConfigs(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackagesWithTags(package1WithTagsProto)
+                        .addVisibleToPackagesWithTags(package2WithoutTagsProto)
+                        .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
+                                .addAllPermissions(ImmutableSet.of(3)).build())
+                        .build())
+                // A config whose only package that is restricted by attribution tag is invalid.
+                .addVisibleToConfigs(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackages(package1Proto)
+                        .addVisibleToPackagesWithTags(package2WithoutTagsProto)
+                        .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
+                                .addAllPermissions(ImmutableSet.of(4)).build())
+                        .build())
+                .build();
+        GenericDocument androidVOverlay =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
+                        "someSchema", "AndroidVOverlayType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyBytes("visibilityProtoSerializeProperty",
+                                overlayProto.toByteArray())
+                        .build();
+        GenericDocument visibilityDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "someSchema",
+                        "VisibilityType")
+                        .setCreationTimestampMillis(0)
+                        .build();
+
+        InternalVisibilityConfig visibilityConfig =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
+
+        // The package without attribution tags doesn't grant access to anyone.
+        PackageIdentifier package1 = new PackageIdentifier("com.example.test1", cert1);
+        // Packages restricted by attribution tag are not read for the visibility config of a
+        // schema, only for its visible to configs.
+        assertThat(visibilityConfig.getVisibilityConfig().getAllowedPackages()).isEmpty();
+        assertThat(visibilityConfig.getVisibilityConfig().getAllowedPackagesWithTags()).isEmpty();
+        // The invalid package is ignored in the config which also has a valid package. The
+        // configs which would have no package restricted by attribution tag left are dropped, so
+        // that a config is never widened.
+        assertThat(visibilityConfig.getVisibleToConfigs()).containsExactly(
+                new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(package1, ImmutableSet.of("tagA"))
+                        .addRequiredPermissions(ImmutableSet.of(1))
+                        .build(),
+                new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(package1, ImmutableSet.of("tagA"))
+                        .addRequiredPermissions(ImmutableSet.of(3))
+                        .build());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testToVisibilityConfig_packagesAndPackagesWithTags() throws Exception {
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        byte[] cert3 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+        Arrays.fill(cert3, (byte) 3);
+        PackageIdentifierProto package1Proto = PackageIdentifierProto.newBuilder()
+                .setPackageName("com.example.test1")
+                .setPackageSha256Cert(ByteString.copyFrom(cert1)).build();
+        VisibleToPackageWithTagsProto package2WithTagsProto =
+                VisibleToPackageWithTagsProto.newBuilder()
+                        .setPackageIdentifier(PackageIdentifierProto.newBuilder()
+                                .setPackageName("com.example.test2")
+                                .setPackageSha256Cert(ByteString.copyFrom(cert2)).build())
+                        .addAttributionTags("tagA")
+                        .build();
+
+        // A config which has both packages and packages that are restricted by attribution tag
+        // cannot be created through the API.
+        AndroidVOverlayProto overlayProto = AndroidVOverlayProto.newBuilder()
+                .setVisibilityConfig(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackagesWithTags(package2WithTagsProto)
+                        .build())
+                // A valid config.
+                .addVisibleToConfigs(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackagesWithTags(package2WithTagsProto)
+                        .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
+                                .addAllPermissions(ImmutableSet.of(1)).build())
+                        .build())
+                // A config which has both.
+                .addVisibleToConfigs(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackages(package1Proto)
+                        .addVisibleToPackagesWithTags(package2WithTagsProto)
+                        .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
+                                .addAllPermissions(ImmutableSet.of(2)).build())
+                        .build())
+                .build();
+        GenericDocument androidVOverlay =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
+                        "someSchema", "AndroidVOverlayType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyBytes("visibilityProtoSerializeProperty",
+                                overlayProto.toByteArray())
+                        .build();
+        // The visibility document has a package, while the overlay has a package that is
+        // restricted by attribution tag for the same config.
+        GenericDocument visibilityDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "someSchema",
+                        "VisibilityType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyString("packageName", "com.example.test3")
+                        .setPropertyBytes("sha256Cert", cert3)
+                        .build();
+
+        // The stored settings are read without an exception.
+        InternalVisibilityConfig visibilityConfig =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
+
+        // The package that is restricted by attribution tag is ignored, which can only narrow
+        // access.
+        assertThat(visibilityConfig.getVisibilityConfig().getAllowedPackages())
+                .containsExactly(new PackageIdentifier("com.example.test3", cert3));
+        assertThat(visibilityConfig.getVisibilityConfig().getAllowedPackagesWithTags()).isEmpty();
+        // Only the valid config is kept.
+        assertThat(visibilityConfig.getVisibleToConfigs()).containsExactly(
+                new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(
+                                new PackageIdentifier("com.example.test2", cert2),
+                                ImmutableSet.of("tagA"))
+                        .addRequiredPermissions(ImmutableSet.of(1))
+                        .build());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testPackagesWithTagsPlaceholder() throws Exception {
+        byte[] cert1 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        PackageIdentifier package1 = new PackageIdentifier("com.example.test1", cert1);
+        SchemaVisibilityConfig packageWithTagsConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(package1, ImmutableSet.of("tagA"))
+                .addRequiredPermissions(ImmutableSet.of(1, 2))
+                .build();
+        SchemaVisibilityConfig packageConfig = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(package1)
+                .addRequiredPermissions(ImmutableSet.of(3))
+                .build();
+
+        // A config which has packages restricted by attribution tag is stored with the
+        // placeholder package. Other configs are not. A version of AppSearch that predates
+        // packages restricted by attribution tag ignores them, and must not be left with only
+        // the permissions of the config: the placeholder is then the package that has access,
+        // and no caller can match it.
+        VisibilityConfigProto packageWithTagsProto =
+                VisibilityToDocumentConverter.convertSchemaVisibilityConfigToProto(
+                        packageWithTagsConfig);
+        assertThat(packageWithTagsProto.getVisibleToPackagesCount()).isEqualTo(1);
+        assertThat(packageWithTagsProto.getVisibleToPackages(0).getPackageName()).isEqualTo(
+                VisibilityToDocumentConverter.PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME);
+        VisibilityConfigProto packageProto =
+                VisibilityToDocumentConverter.convertSchemaVisibilityConfigToProto(packageConfig);
+        assertThat(packageProto.getVisibleToPackagesCount()).isEqualTo(1);
+        assertThat(packageProto.getVisibleToPackages(0).getPackageName())
+                .isEqualTo("com.example.test1");
+
+        // The placeholder is removed when the config is read.
+        assertThat(VisibilityToDocumentConverter.convertVisibilityConfigFromProto(
+                packageWithTagsProto)).isEqualTo(packageWithTagsConfig);
+        InternalVisibilityConfig visibilityConfig =
+                new InternalVisibilityConfig.Builder("someSchema")
+                        .addVisibleToConfig(packageWithTagsConfig)
+                        .addVisibleToConfig(packageConfig)
+                        .build();
+        InternalVisibilityConfig rebuild =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig),
+                        VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig));
+        assertThat(rebuild.getVisibleToConfigs())
+                .containsExactly(packageWithTagsConfig, packageConfig);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testPackagesWithTagsPlaceholder_withoutPackagesWithTags() throws Exception {
+        byte[] cert1 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        PackageIdentifier package1 = new PackageIdentifier("com.example.test1", cert1);
+        PackageIdentifierProto package1Proto = PackageIdentifierProto.newBuilder()
+                .setPackageName("com.example.test1")
+                .setPackageSha256Cert(ByteString.copyFrom(cert1)).build();
+        PackageIdentifierProto placeholderProto = PackageIdentifierProto.newBuilder()
+                .setPackageName(
+                        VisibilityToDocumentConverter.PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME)
+                .setPackageSha256Cert(ByteString.copyFrom(new byte[32])).build();
+        SchemaVisibilityConfig packageWithTagsConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(package1, ImmutableSet.of("tagA"))
+                .addRequiredPermissions(ImmutableSet.of(3))
+                .build();
+
+        // A version of AppSearch that predates packages restricted by attribution tag returns
+        // the placeholder to callers as a package. When a caller sets such a config back, it is
+        // stored with the placeholder, but without packages restricted by attribution tag.
+        AndroidVOverlayProto overlayProto = AndroidVOverlayProto.newBuilder()
+                // A config which would only require permission 1 without the placeholder.
+                .addVisibleToConfigs(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackages(placeholderProto)
+                        .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
+                                .addAllPermissions(ImmutableSet.of(1)).build())
+                        .build())
+                // A config to which the caller added a package before it set the config back.
+                .addVisibleToConfigs(VisibilityConfigProto.newBuilder()
+                        .addVisibleToPackages(placeholderProto)
+                        .addVisibleToPackages(package1Proto)
+                        .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
+                                .addAllPermissions(ImmutableSet.of(2)).build())
+                        .build())
+                // A config which was stored by this version.
+                .addVisibleToConfigs(
+                        VisibilityToDocumentConverter.convertSchemaVisibilityConfigToProto(
+                                packageWithTagsConfig))
+                .build();
+        GenericDocument androidVOverlay =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
+                        "someSchema", "AndroidVOverlayType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyBytes("visibilityProtoSerializeProperty",
+                                overlayProto.toByteArray())
+                        .build();
+        GenericDocument visibilityDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "someSchema",
+                        "VisibilityType")
+                        .setCreationTimestampMillis(0)
+                        .build();
+
+        InternalVisibilityConfig visibilityConfig =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
+
+        // The placeholder is never returned. The config whose only package is the placeholder
+        // is dropped, so that it is not widened to every caller which holds permission 1. The
+        // config which has another package keeps the access that it had with the placeholder.
+        assertThat(visibilityConfig.getVisibleToConfigs()).containsExactly(
+                new SchemaVisibilityConfig.Builder()
+                        .addAllowedPackage(package1)
+                        .addRequiredPermissions(ImmutableSet.of(2))
+                        .build(),
+                packageWithTagsConfig);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testConvertVisibilityConfigFromProto_packagesWithTagsNotConverted() {
+        byte[] cert1 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        PackageIdentifierProto package1Proto = PackageIdentifierProto.newBuilder()
+                .setPackageName("com.example.test1")
+                .setPackageSha256Cert(ByteString.copyFrom(cert1)).build();
+        PackageIdentifierProto placeholderProto = PackageIdentifierProto.newBuilder()
+                .setPackageName(
+                        VisibilityToDocumentConverter.PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME)
+                .setPackageSha256Cert(ByteString.copyFrom(new byte[32])).build();
+        PackageIdentifier placeholder = new PackageIdentifier(
+                VisibilityToDocumentConverter.PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME,
+                new byte[32]);
+        // A package which is restricted to no attribution tags cannot be created through the API.
+        VisibleToPackageWithTagsProto package1WithoutTagsProto =
+                VisibleToPackageWithTagsProto.newBuilder()
+                        .setPackageIdentifier(package1Proto)
+                        .build();
+        VisibleToPermissionProto permissionProto = VisibleToPermissionProto.newBuilder()
+                .addAllPermissions(ImmutableSet.of(1)).build();
+
+        // In all of these protos, no package that is restricted by attribution tag can be
+        // converted. The config must not be left with the permission only, which would grant
+        // access to every caller which holds it.
+
+        // The placeholder is kept as a package, which no caller can match.
+        SchemaVisibilityConfig placeholderOnlyConfig =
+                VisibilityToDocumentConverter.convertVisibilityConfigFromProto(
+                        VisibilityConfigProto.newBuilder()
+                                .addVisibleToPackages(placeholderProto)
+                                .addVisibleToPermissions(permissionProto)
+                                .build());
+        assertThat(placeholderOnlyConfig.getAllowedPackages()).containsExactly(placeholder);
+        assertThat(placeholderOnlyConfig.getAllowedPackagesWithTags()).isEmpty();
+        assertThat(placeholderOnlyConfig.getRequiredPermissions())
+                .containsExactly(ImmutableSet.of(1));
+
+        SchemaVisibilityConfig placeholderAndPackageWithoutTagsConfig =
+                VisibilityToDocumentConverter.convertVisibilityConfigFromProto(
+                        VisibilityConfigProto.newBuilder()
+                                .addVisibleToPackages(placeholderProto)
+                                .addVisibleToPackagesWithTags(package1WithoutTagsProto)
+                                .addVisibleToPermissions(permissionProto)
+                                .build());
+        assertThat(placeholderAndPackageWithoutTagsConfig.getAllowedPackages())
+                .containsExactly(placeholder);
+        assertThat(placeholderAndPackageWithoutTagsConfig.getAllowedPackagesWithTags()).isEmpty();
+        assertThat(placeholderAndPackageWithoutTagsConfig.getRequiredPermissions())
+                .containsExactly(ImmutableSet.of(1));
+
+        // Without the placeholder, the config has no requirement at all, and grants access to
+        // no one.
+        SchemaVisibilityConfig packageWithoutTagsConfig =
+                VisibilityToDocumentConverter.convertVisibilityConfigFromProto(
+                        VisibilityConfigProto.newBuilder()
+                                .addVisibleToPackagesWithTags(package1WithoutTagsProto)
+                                .addVisibleToPermissions(permissionProto)
+                                .build());
+        assertThat(packageWithoutTagsConfig)
+                .isEqualTo(new SchemaVisibilityConfig.Builder().build());
+    }
+
+    @Test
+    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testPackagesWithTags_flagDisabled() throws Exception {
+        byte[] cert1 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        PackageIdentifier package1 = new PackageIdentifier("com.example.test1", cert1);
+        SchemaVisibilityConfig packageWithTagsConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(package1, ImmutableSet.of("tagA"))
+                .addRequiredPermissions(ImmutableSet.of(1, 2))
+                .build();
+        InternalVisibilityConfig visibilityConfig =
+                new InternalVisibilityConfig.Builder("someSchema")
+                        .addVisibleToConfig(packageWithTagsConfig)
+                        .build();
+
+        // Writing still stores the placeholder and the packages restricted by attribution tag,
+        // so that the config is not widened to its permissions only.
+        GenericDocument visibilityDoc =
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig);
+        GenericDocument androidVOverlay =
+                VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig);
+        VisibilityConfigProto storedProto =
+                VisibilityToDocumentConverter.convertSchemaVisibilityConfigToProto(
+                        packageWithTagsConfig);
+        assertThat(storedProto.getVisibleToPackagesCount()).isEqualTo(1);
+        assertThat(storedProto.getVisibleToPackages(0).getPackageName()).isEqualTo(
+                VisibilityToDocumentConverter.PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME);
+        assertThat(storedProto.getVisibleToPackagesWithTagsCount()).isEqualTo(1);
+
+        // With the flag disabled, reading keeps the placeholder as an allowed package and
+        // ignores the packages restricted by attribution tag, restoring pre-feature behavior.
+        SchemaVisibilityConfig expectedConfig = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(new PackageIdentifier(
+                        VisibilityToDocumentConverter.PACKAGES_WITH_TAGS_PLACEHOLDER_PACKAGE_NAME,
+                        new byte[32]))
+                .addRequiredPermissions(ImmutableSet.of(1, 2))
+                .build();
+        assertThat(VisibilityToDocumentConverter.convertVisibilityConfigFromProto(storedProto))
+                .isEqualTo(expectedConfig);
+        InternalVisibilityConfig rebuild =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
+        assertThat(rebuild.getVisibleToConfigs()).containsExactly(expectedConfig);
     }
 }

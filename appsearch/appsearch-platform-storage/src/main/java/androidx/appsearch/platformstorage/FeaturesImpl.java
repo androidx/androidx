@@ -205,6 +205,9 @@ final class FeaturesImpl implements Features {
             case Features.ENCRYPTED_BLOB:
                 // TODO(b/564581503) : Update when feature is ready in service-appsearch.
                 // fall through
+            case Features.SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS:
+                // TODO(b/584870136) : Update when feature is ready in service-appsearch.
+                // fall through
                 return false;
 
             default:

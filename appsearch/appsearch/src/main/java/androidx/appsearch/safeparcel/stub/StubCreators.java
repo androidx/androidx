@@ -50,6 +50,7 @@ import androidx.appsearch.app.VisibilityPermissionConfig;
 import androidx.appsearch.observer.DocumentChangeResponse;
 import androidx.appsearch.observer.DocumentChangeSet;
 import androidx.appsearch.observer.ObserverSpec;
+import androidx.appsearch.safeparcel.PackageIdentifierWithTagsParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.DocumentIndexingConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.EmbeddingIndexingConfigParcel;
@@ -127,6 +128,11 @@ public class StubCreators {
     /** Stub creator for {@link VisibilityPermissionConfig}. */
     public static class VisibilityPermissionConfigCreator extends
             AbstractCreator<VisibilityPermissionConfig> {
+    }
+
+    /** Stub creator for {@link PackageIdentifierWithTagsParcel}. */
+    public static class PackageIdentifierWithTagsParcelCreator extends
+            AbstractCreator<PackageIdentifierWithTagsParcel> {
     }
 
     /** Stub creator for {@link androidx.appsearch.stats.SchemaMigrationStats}. */

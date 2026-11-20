@@ -936,6 +936,12 @@ public final class SetSchemaRequest {
          * and the querier will have access if they match ANY of the
          * {@link SchemaVisibilityConfig}.
          *
+         * <p>A schema type cannot be visible to the same package both as a whole, through
+         * {@link #setSchemaTypeVisibilityForPackage} or
+         * {@link SchemaVisibilityConfig.Builder#addAllowedPackage}, and restricted by attribution
+         * tags, through {@link SchemaVisibilityConfig.Builder#setAllowedPackageWithTags}:
+         * {@link #build} throws if it is.
+         *
          * @param schemaType              The schema type to set visibility on.
          * @param schemaVisibilityConfig  The {@link SchemaVisibilityConfig} holds all requirements
          *                                that a call must to match to access the schema.
@@ -1436,7 +1442,9 @@ public final class SetSchemaRequest {
          *
          * @throws IllegalArgumentException if schema types were referenced, but the
          *                                  corresponding {@link AppSearchSchema} type was never
-         *                                  added.
+         *                                  added, or if a schema type is visible to the same
+         *                                  package both as a whole and restricted by attribution
+         *                                  tags.
          */
         @OptIn(markerClass = ExperimentalAppSearchApi.class)
         public @NonNull SetSchemaRequest build() {
@@ -1463,6 +1471,7 @@ public final class SetSchemaRequest {
                 throw new IllegalArgumentException(
                         "Cannot set version to the request if schema is empty.");
             }
+            verifyNoConflictingPackageVisibilitySettings();
 
             SchemaUtil.verifyPropertyPathSchemaTypes(mSchemas, mSchemasWipeoutAccountPropertyPaths,
                     AppSearchAccount.SCHEMA_TYPE);
@@ -1478,6 +1487,25 @@ public final class SetSchemaRequest {
                     mMigrators,
                     mForceOverride,
                     mVersion);
+        }
+
+        /**
+         * Verifies that no schema type is visible to the same package both as a whole and
+         * restricted by attribution tag.
+         */
+        private void verifyNoConflictingPackageVisibilitySettings() {
+            for (int i = 0; i < mSchemaVisibleToConfigs.size(); i++) {
+                String schemaType = mSchemaVisibleToConfigs.keyAt(i);
+                String packageName =
+                        SchemaVisibilityConfig.findPackageWithConflictingVisibilitySettings(
+                                mSchemasVisibleToPackages.get(schemaType),
+                                mSchemaVisibleToConfigs.valueAt(i));
+                if (packageName != null) {
+                    throw new IllegalArgumentException(
+                            "Schema type " + schemaType + " is visible to package " + packageName
+                                    + " both as a whole and restricted by attribution tags.");
+                }
+            }
         }
 
         private void resetIfBuilt() {

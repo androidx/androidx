@@ -1513,6 +1513,134 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testAddSchemaTypeVisibleToConfig_allowedPackageWithTags() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
+        PackageIdentifier packageIdentifier = new PackageIdentifier("com.package.foo",
+                new byte[]{100});
+        SchemaVisibilityConfig configA = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(packageIdentifier, ImmutableSet.of("tagA"))
+                .build();
+        SchemaVisibilityConfig configB = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(packageIdentifier, ImmutableSet.of("tagB"))
+                .addRequiredPermissions(ImmutableSet.of(SetSchemaRequest.READ_SMS))
+                .build();
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(schema)
+                .addSchemaTypeVisibleToConfig("Schema", configA)
+                .addSchemaTypeVisibleToConfig("Schema", configB)
+                .build();
+
+        assertThat(request.getSchemasVisibleToConfigs()).containsExactly("Schema",
+                ImmutableSet.of(configA, configB));
+        // The package is not granted whole-package access.
+        assertThat(request.getSchemasVisibleToPackages()).isEmpty();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testBuild_packageVisibleWithAndWithoutTags_throws() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
+        PackageIdentifier packageFoo =
+                new PackageIdentifier("com.package.foo", new byte[]{100});
+        // The same package, identified by another certificate.
+        PackageIdentifier packageFooOtherCert =
+                new PackageIdentifier("com.package.foo", new byte[]{101});
+
+        // The package as a whole would have access, so its tags would have no effect.
+        SetSchemaRequest.Builder builder = new SetSchemaRequest.Builder()
+                .addSchemas(schema)
+                .setSchemaTypeVisibilityForPackage("Schema", /*visible=*/ true, packageFoo)
+                .addSchemaTypeVisibleToConfig("Schema", new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(packageFooOtherCert, ImmutableSet.of("tagA"))
+                        .build());
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, builder::build);
+        assertThat(e).hasMessageThat().contains(
+                "is visible to package com.package.foo both as a whole and restricted by "
+                        + "attribution tags");
+
+        // The request is valid once the package is no longer visible as a whole.
+        SetSchemaRequest request = builder
+                .setSchemaTypeVisibilityForPackage("Schema", /*visible=*/ false, packageFoo)
+                .build();
+        assertThat(request.getSchemasVisibleToPackages()).isEmpty();
+        assertThat(request.getSchemasVisibleToConfigs().get("Schema")).hasSize(1);
+
+        // The same applies to a config which has other requirements.
+        SchemaVisibilityConfig config = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(packageFoo, ImmutableSet.of("tagA"))
+                .addRequiredPermissions(ImmutableSet.of(SetSchemaRequest.READ_SMS))
+                .build();
+        assertThrows(IllegalArgumentException.class,
+                () -> new SetSchemaRequest.Builder()
+                        .addSchemas(schema)
+                        .setSchemaTypeVisibilityForPackage(
+                                "Schema", /*visible=*/ true, packageFoo)
+                        .addSchemaTypeVisibleToConfig("Schema", config)
+                        .build());
+
+        // A package is also visible as a whole when it is an allowed package of another config,
+        // even if that config has other requirements.
+        SchemaVisibilityConfig packageConfig = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(packageFooOtherCert)
+                .addRequiredPermissions(ImmutableSet.of(SetSchemaRequest.READ_CALENDAR))
+                .build();
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
+                () -> new SetSchemaRequest.Builder()
+                        .addSchemas(schema)
+                        .addSchemaTypeVisibleToConfig("Schema", packageConfig)
+                        .addSchemaTypeVisibleToConfig("Schema", config)
+                        .build());
+        assertThat(e2).hasMessageThat().contains(
+                "is visible to package com.package.foo both as a whole and restricted by "
+                        + "attribution tags");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testBuild_differentPackagesVisibleWithAndWithoutTags() {
+        PackageIdentifier packageFoo =
+                new PackageIdentifier("com.package.foo", new byte[]{100});
+        PackageIdentifier packageBar =
+                new PackageIdentifier("com.package.bar", new byte[]{100});
+
+        SchemaVisibilityConfig barConfig = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(packageBar)
+                .addRequiredPermissions(ImmutableSet.of(SetSchemaRequest.READ_SMS))
+                .build();
+        SchemaVisibilityConfig fooConfig = new SchemaVisibilityConfig.Builder()
+                .addAllowedPackage(packageFoo)
+                .addRequiredPermissions(ImmutableSet.of(SetSchemaRequest.READ_SMS))
+                .build();
+
+        // A schema type can be visible to a package as a whole and to another package by
+        // attribution tag, and a package can be visible both ways for different schema types.
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(
+                        new AppSearchSchema.Builder("Schema1").build(),
+                        new AppSearchSchema.Builder("Schema2").build())
+                .setSchemaTypeVisibilityForPackage("Schema1", /*visible=*/ true, packageBar)
+                .addSchemaTypeVisibleToConfig("Schema1", barConfig)
+                .addSchemaTypeVisibleToConfig("Schema1", new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(packageFoo, ImmutableSet.of("tagA"))
+                        .build())
+                .setSchemaTypeVisibilityForPackage("Schema2", /*visible=*/ true, packageFoo)
+                .addSchemaTypeVisibleToConfig("Schema2", fooConfig)
+                .build();
+
+        assertThat(request.getSchemasVisibleToPackages()).containsExactly(
+                "Schema1", ImmutableSet.of(packageBar),
+                "Schema2", ImmutableSet.of(packageFoo));
+        assertThat(request.getSchemasVisibleToConfigs()).containsExactly(
+                "Schema1", ImmutableSet.of(barConfig, new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(packageFoo, ImmutableSet.of("tagA"))
+                        .build()),
+                "Schema2", ImmutableSet.of(fooConfig));
+    }
+
+    @Test
     @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
     public void testSetPubliclyVisibleSchema_multiCert() {
         byte[] cert1 = new byte[32];

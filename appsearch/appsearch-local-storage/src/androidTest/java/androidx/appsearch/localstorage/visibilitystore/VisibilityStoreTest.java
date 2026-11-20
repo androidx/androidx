@@ -29,6 +29,7 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.VisibilityPermissionConfig;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
@@ -37,6 +38,8 @@ import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -45,6 +48,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -56,6 +60,8 @@ public class VisibilityStoreTest {
      * Always trigger optimize in this class. OptimizeStrategy will be tested in its own test class.
      */
     private static final OptimizeStrategy ALWAYS_OPTIMIZE = optimizeInfo -> true;
+    @Rule
+    public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
     private AppSearchImpl mAppSearchImpl;
@@ -406,6 +412,83 @@ public class VisibilityStoreTest {
                         /*typePropertyPaths=*/ Collections.emptyMap(),
                 /*callStatsBuilder=*/ null));
         assertThat(e).hasMessageThat().contains("not found.");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testSetAndGetVisibility_packagesWithTags() throws Exception {
+        String prefix = PrefixUtil.createPrefix("packageName", "databaseName");
+        PackageIdentifier packageBar = new PackageIdentifier("pkgBar", new byte[32]);
+        SchemaVisibilityConfig packageWithTagsConfig = new SchemaVisibilityConfig.Builder()
+                .setAllowedPackageWithTags(packageBar, ImmutableSet.of("tagA", "tagB"))
+                .addRequiredPermissions(ImmutableSet.of(1, 2))
+                .build();
+        InternalVisibilityConfig visibilityConfig =
+                new InternalVisibilityConfig.Builder(prefix + "Email")
+                        .addVisibleToConfig(packageWithTagsConfig)
+                        .build();
+
+        mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig),
+                /*callStatsBuilder=*/ null);
+
+        assertThat(mVisibilityStore.getVisibility(prefix + "Email"))
+                .isEqualTo(visibilityConfig);
+
+        // Verify the packages and their attribution tags are read back from the stored documents
+        // by a new VisibilityStore.
+        VisibilityStore visibilityStore = VisibilityStore.createDocumentVisibilityStore(
+                mAppSearchImpl, /*callStatsBuilder=*/ null);
+        InternalVisibilityConfig actualConfig = visibilityStore.getVisibility(prefix + "Email");
+        assertThat(actualConfig).isEqualTo(visibilityConfig);
+        assertThat(actualConfig.getVisibleToConfigs()).containsExactly(packageWithTagsConfig);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS)
+    public void testSetVisibility_removeOverlay_packagesWithTags() throws Exception {
+        // Set a visibility config whose only overlay setting is a visible to config with a
+        // package with attribution tags.
+        InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder("Email")
+                .addVisibleToConfig(new SchemaVisibilityConfig.Builder()
+                        .setAllowedPackageWithTags(
+                                new PackageIdentifier("pkgBar", new byte[32]),
+                                ImmutableSet.of("tagA"))
+                        .build())
+                .setNotDisplayedBySystem(true)
+                .build();
+        mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig),
+                /*callStatsBuilder=*/ null);
+
+        // verify the overlay document is created.
+        mAppSearchImpl.getDocument(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.DOCUMENT_ANDROID_V_OVERLAY_DATABASE_NAME,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
+                /*id=*/ "Email",
+                /*typePropertyPaths=*/ Collections.emptyMap(),
+                /*callStatsBuilder=*/ null);
+
+        // update the visibility config w/o overlay
+        InternalVisibilityConfig updateConfig = new InternalVisibilityConfig.Builder("Email")
+                .setNotDisplayedBySystem(true)
+                .build();
+        mVisibilityStore.setVisibility(ImmutableList.of(updateConfig),
+                /*callStatsBuilder=*/ null);
+
+        // Verify the overlay document is removed, so that the package cannot get the access back.
+        AppSearchException e = assertThrows(AppSearchException.class,
+                () -> mAppSearchImpl.getDocument(
+                        VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                        VisibilityStore.DOCUMENT_ANDROID_V_OVERLAY_DATABASE_NAME,
+                        VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
+                        /*id=*/ "Email",
+                        /*typePropertyPaths=*/ Collections.emptyMap(),
+                /*callStatsBuilder=*/ null));
+        assertThat(e).hasMessageThat().contains("not found.");
+        assertThat(mVisibilityStore.getVisibility("Email")).isEqualTo(updateConfig);
+        VisibilityStore visibilityStore = VisibilityStore.createDocumentVisibilityStore(
+                mAppSearchImpl, /*callStatsBuilder=*/ null);
+        assertThat(visibilityStore.getVisibility("Email")).isEqualTo(updateConfig);
     }
 
     @Test

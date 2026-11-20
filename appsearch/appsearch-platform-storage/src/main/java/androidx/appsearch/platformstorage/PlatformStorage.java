@@ -137,6 +137,11 @@ public final class PlatformStorage {
              * using {@link
              * androidx.appsearch.app.SetSchemaRequest.Builder#setSchemaTypeVisibilityForPackage}).
              *
+             * <p>When {@link Features#SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS} is supported, an
+             * attribution tag set by {@link Context#createAttributionContext} will govern access
+             * to schemas with visibility restricted by attribution tags (see {@link
+             * androidx.appsearch.app.SchemaVisibilityConfig.Builder#setAllowedPackageWithTags}).
+             *
              * @param context The context used as the parent of the created SearchContext
              * @param databaseName The name of the database.
              * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
@@ -241,6 +246,16 @@ public final class PlatformStorage {
             @NonNull
             private PlatformConversionAdapter mAdapter;
 
+            /**
+             * Creates a {@link GlobalSearchContext.Builder} instance.
+             *
+             * <p>When {@link Features#SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS} is supported, an
+             * attribution tag set by {@link Context#createAttributionContext} will govern access
+             * to schemas with visibility restricted by attribution tags (see {@link
+             * androidx.appsearch.app.SchemaVisibilityConfig.Builder#setAllowedPackageWithTags}).
+             *
+             * @param context The context used as the parent of the created GlobalSearchContext
+             */
             @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
             public Builder(@NonNull Context context) {
                 mContext = Preconditions.checkNotNull(context);
