@@ -199,8 +199,9 @@ public final class CommitEncryptedBlobRequest implements SafeParcelable {
          *     returned to callers.
          * @param ownerTag An opaque tag identifying the owner of all blobs in this request, such as
          *     the account that they belong to. AppSearch stores the tag with the blob encryption
-         *     key. When a wrapped key of a blob is requested, AppSearch only returns it if the
-         *     requester is attested to act for the same owner.
+         *     key. When {@link AppSearchSession#getWrappedBlobEncryptionKeysAsync} is called,
+         *     AppSearch only returns the key of a blob if the trusted component in that request is
+         *     attested to act for the same owner.
          */
         public Builder(@NonNull byte[] symmetricKey, @NonNull byte[] ownerTag) {
             mSymmetricKey = Objects.requireNonNull(symmetricKey).clone();

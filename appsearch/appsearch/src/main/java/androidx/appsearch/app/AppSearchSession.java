@@ -256,6 +256,21 @@ public interface AppSearchSession extends Closeable {
     }
 
     /**
+     * Gets the Data Encryption Keys (DEKs) of a batch of encrypted blobs, wrapped with the public
+     * key of a trusted component.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ENCRYPTED_BLOB)
+    default @NonNull ListenableFuture<GetWrappedBlobEncryptionKeysResponse>
+            getWrappedBlobEncryptionKeysAsync(
+                    @NonNull GetWrappedBlobEncryptionKeysRequest request) {
+        throw new UnsupportedOperationException(Features.ENCRYPTED_BLOB
+                + " is not available on this AppSearch implementation.");
+    }
+
+    /**
      * Opens a batch of AppSearch Blobs for reading.
      *
      * <p> Only blobs committed via {@link #commitBlobAsync} are available for reading.

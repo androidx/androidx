@@ -65,6 +65,7 @@ import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
+import androidx.appsearch.app.WrappedBlobEncryptionKey;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.stats.InitializeStats;
@@ -3333,7 +3334,7 @@ public class AppSearchImplTest {
                                 .setRevocableFileDescriptorStore(
                                         new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
                                 .setIcingSearchEngine(
-                                        new IcingSearchEngine(
+                                        new FakeVmIcingSearchEngine(
                                                 mUnlimitedConfig.toIcingSearchEngineOptions(
                                                         mAppSearchDir.getAbsolutePath(),
                                                         /* isVmEnabled= */ true)))
@@ -3398,6 +3399,243 @@ public class AppSearchImplTest {
             inputStream.read(globalReadBytes);
         }
         assertThat(globalReadBytes).isEqualTo(data);
+
+        byte[] serverPublicKey = generateRandomBytes(32);
+        byte[] serverAttestation = generateRandomBytes(16);
+        WrappedBlobEncryptionKey wrappedBlobEncryptionKey =
+                mAppSearchImpl.rewrapBlobKey(
+                        "package",
+                        "db1",
+                        handle,
+                        new CallerAccess("package"),
+                        serverPublicKey,
+                        serverAttestation,
+                        /* callStatsBuilder= */ null);
+        assertThat(wrappedBlobEncryptionKey.getWrappedDek()).isEqualTo(symmetricKey);
+        assertThat(wrappedBlobEncryptionKey.getAeadParams()).isEqualTo(aeadParams);
+
+        WrappedBlobEncryptionKey globalWrappedBlobEncryptionKey =
+                mAppSearchImpl.globalRewrapBlobKey(
+                        handle,
+                        serverPublicKey,
+                        serverAttestation,
+                        mSelfCallerAccess,
+                        /* callStatsBuilder= */ null);
+        assertThat(globalWrappedBlobEncryptionKey.getWrappedDek()).isEqualTo(symmetricKey);
+        assertThat(globalWrappedBlobEncryptionKey.getAeadParams()).isEqualTo(aeadParams);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public void testGlobalRewrapBlobKey_namespaceNotVisibleToCaller_throwsNotFound()
+            throws Exception {
+        LaunchVmFeatures launchVmFeatures = new LaunchVmFeatures();
+        launchVmFeatures.setVmEnabled(true);
+        // No blob namespace is visible to other packages.
+        VisibilityChecker mockVisibilityChecker = createMockVisibilityChecker(ImmutableSet.of());
+        mAppSearchImpl =
+                AppSearchImpl.create(
+                        mAppSearchDir,
+                        mUnlimitedConfig,
+                        new AppSearchUserPlugins.Builder()
+                                .setVisibilityChecker(mockVisibilityChecker)
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .setIcingSearchEngine(
+                                        new FakeVmIcingSearchEngine(
+                                                mUnlimitedConfig.toIcingSearchEngineOptions(
+                                                        mAppSearchDir.getAbsolutePath(),
+                                                        /* isVmEnabled= */ true)))
+                                .setLaunchVmFeatures(launchVmFeatures)
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+        byte[] data = generateRandomBytes(20 * 1024); // 20 KiB
+        byte[] digest = calculateDigest(data);
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "package", "db1", "ns");
+        try (ParcelFileDescriptor writePfd =
+                        mAppSearchImpl.openWriteBlob(
+                                "package",
+                                "db1",
+                                handle,
+                                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                                /* callStatsBuilder= */ null);
+                OutputStream outputStream =
+                        new ParcelFileDescriptor.AutoCloseOutputStream(writePfd)) {
+            outputStream.write(data);
+            outputStream.flush();
+        }
+        mAppSearchImpl.commitBlob(
+                "package",
+                "db1",
+                handle,
+                /* symmetricKey= */ generateRandomBytes(32),
+                /* aeadParams= */ new byte[] {5, 6, 7, 8},
+                /* ownerTag= */ new byte[] {9, 10},
+                /* callStatsBuilder= */ null);
+
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.globalRewrapBlobKey(
+                                        handle,
+                                        /* serverPublicKey= */ generateRandomBytes(32),
+                                        /* serverAttestation= */ generateRandomBytes(16),
+                                        new CallerAccess("otherPackage"),
+                                        /* callStatsBuilder= */ null));
+
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public void testRewrapBlobKey_blobOfOtherPackage_throwsInvalidArgument() throws Exception {
+        mAppSearchImpl =
+                AppSearchImpl.create(
+                        mAppSearchDir,
+                        mUnlimitedConfig,
+                        new AppSearchUserPlugins.Builder()
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+        byte[] digest = calculateDigest(generateRandomBytes(10));
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "package", "db1", "ns");
+
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.rewrapBlobKey(
+                                        "otherPackage",
+                                        "db1",
+                                        handle,
+                                        new CallerAccess("otherPackage"),
+                                        /* serverPublicKey= */ generateRandomBytes(32),
+                                        /* serverAttestation= */ generateRandomBytes(16),
+                                        /* callStatsBuilder= */ null));
+
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_INVALID_ARGUMENT);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public void testRewrapBlobKey_unencryptedBlob_throwsNotFound() throws Exception {
+        // Blob keys can only be rewrapped when the Icing instance runs in the pVM, so
+        // inject the Icing instance like the pVM one and enable the VM for the user.
+        LaunchVmFeatures launchVmFeatures = new LaunchVmFeatures();
+        launchVmFeatures.setVmEnabled(true);
+        String visiblePrefix = PrefixUtil.createPrefix("package", "db1");
+        VisibilityChecker mockVisibilityChecker =
+                createMockVisibilityChecker(ImmutableSet.of(visiblePrefix + "ns"));
+        mAppSearchImpl =
+                AppSearchImpl.create(
+                        mAppSearchDir,
+                        mUnlimitedConfig,
+                        new AppSearchUserPlugins.Builder()
+                                .setVisibilityChecker(mockVisibilityChecker)
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .setIcingSearchEngine(
+                                        new FakeVmIcingSearchEngine(
+                                                mUnlimitedConfig.toIcingSearchEngineOptions(
+                                                        mAppSearchDir.getAbsolutePath(),
+                                                        /* isVmEnabled= */ true)))
+                                .setLaunchVmFeatures(launchVmFeatures)
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+        // Make the blob namespace visible to other packages so that it can be read globally.
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "package",
+                "db1",
+                ImmutableList.of(new InternalVisibilityConfig.Builder("ns").build()),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                /* callStatsBuilder= */ null);
+        byte[] data = generateRandomBytes(20 * 1024); // 20 KiB
+        byte[] digest = calculateDigest(data);
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "package", "db1", "ns");
+        try (ParcelFileDescriptor writePfd =
+                        mAppSearchImpl.openWriteBlob(
+                                "package",
+                                "db1",
+                                handle,
+                                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                                /* callStatsBuilder= */ null);
+                OutputStream outputStream =
+                        new ParcelFileDescriptor.AutoCloseOutputStream(writePfd)) {
+            outputStream.write(data);
+            outputStream.flush();
+        }
+        mAppSearchImpl.commitBlob(
+                "package",
+                "db1",
+                handle,
+                /* symmetricKey= */ null,
+                /* aeadParams= */ null,
+                /* ownerTag= */ null,
+                /* callStatsBuilder= */ null);
+
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.rewrapBlobKey(
+                                        "package",
+                                        "db1",
+                                        handle,
+                                        new CallerAccess("package"),
+                                        new byte[32],
+                                        new byte[16],
+                                        /* callStatsBuilder= */ null));
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public void testRewrapBlobKey_icingNotInVm_throwsUnavailable() throws Exception {
+        // AppSearchImpl creates its own Icing instance, which does not run in the pVM.
+        mAppSearchImpl =
+                AppSearchImpl.create(
+                        mAppSearchDir,
+                        new AppSearchConfigImpl(
+                                new UnlimitedLimitConfig(), new LocalStorageIcingOptionsConfig()),
+                        new AppSearchUserPlugins.Builder()
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(
+                        calculateDigest(generateRandomBytes(20)), "package", "db1", "ns");
+
+        AppSearchException exception =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.rewrapBlobKey(
+                                        "package",
+                                        "db1",
+                                        handle,
+                                        new CallerAccess("package"),
+                                        new byte[32],
+                                        new byte[16],
+                                        /* callStatsBuilder= */ null));
+        assertThat(exception.getResultCode()).isEqualTo(AppSearchResult.RESULT_UNAVAILABLE);
+
+        AppSearchException globalException =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.globalRewrapBlobKey(
+                                        handle,
+                                        new byte[32],
+                                        new byte[16],
+                                        mSelfCallerAccess,
+                                        /* callStatsBuilder= */ null));
+        assertThat(globalException.getResultCode()).isEqualTo(AppSearchResult.RESULT_UNAVAILABLE);
     }
 
     @Test
@@ -13532,5 +13770,25 @@ public class AppSearchImplTest {
                 /*callStatsBuilder=*/ null);
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
                 .isEqualTo(PersistType.Code.FULL);
+    }
+
+    /**
+     * A host {@link IcingSearchEngine} that stands in for the isolated storage pVM engine in tests.
+     *
+     * <p>Only the pVM engine can re-wrap blob keys, so {@link #rewrapBlobKey} returns the stored
+     * blob key as is.
+     */
+    private static final class FakeVmIcingSearchEngine extends IcingSearchEngine {
+        FakeVmIcingSearchEngine(IcingSearchEngineOptions options) {
+            super(options);
+        }
+
+        @Override
+        public BlobProto rewrapBlobKey(
+                PropertyProto.BlobHandleProto blobHandle,
+                byte[] serverPublicKey,
+                byte[] serverAttestation) {
+            return getBlobKey(blobHandle);
+        }
     }
 }

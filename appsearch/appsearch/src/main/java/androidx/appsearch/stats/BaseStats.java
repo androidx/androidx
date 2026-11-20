@@ -22,6 +22,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.HideInPlatform;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlag;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -100,6 +102,9 @@ public class BaseStats {
             CALL_TYPE_INITIALIZE_PENDING,
             INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB,
             CALL_TYPE_GLOBAL_GET_DOCUMENT_CHANGES,
+            CALL_TYPE_COMMIT_ENCRYPTED_BLOB,
+            CALL_TYPE_GET_WRAPPED_BLOB_ENCRYPTION_KEYS,
+            CALL_TYPE_GLOBAL_GET_WRAPPED_BLOB_ENCRYPTION_KEYS,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CallType {
@@ -177,6 +182,15 @@ public class BaseStats {
     // Represents the offline observers getDocumentChanges API of GlobalSearchSession.
     public static final int CALL_TYPE_GLOBAL_GET_DOCUMENT_CHANGES = 56;
 
+    @RequiresFlag(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public static final int CALL_TYPE_COMMIT_ENCRYPTED_BLOB = 57;
+
+    @RequiresFlag(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public static final int CALL_TYPE_GET_WRAPPED_BLOB_ENCRYPTION_KEYS = 58;
+
+    @RequiresFlag(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public static final int CALL_TYPE_GLOBAL_GET_WRAPPED_BLOB_ENCRYPTION_KEYS = 59;
+
     // These strings are for the subset of call types that correspond to an AppSearchManager API
     public static final String CALL_TYPE_STRING_INITIALIZE = "initialize";
     public static final String CALL_TYPE_STRING_SET_SCHEMA = "localSetSchema";
@@ -236,6 +250,17 @@ public class BaseStats {
             "handleExpiredDocumentsJob";
     public static final String CALL_TYPE_STRING_GLOBAL_GET_DOCUMENT_CHANGES =
             "globalGetDocumentChanges";
+
+    @RequiresFlag(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public static final String CALL_TYPE_STRING_COMMIT_ENCRYPTED_BLOB = "commitEncryptedBlob";
+
+    @RequiresFlag(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public static final String CALL_TYPE_STRING_GET_WRAPPED_BLOB_ENCRYPTION_KEYS =
+            "getWrappedBlobEncryptionKeys";
+
+    @RequiresFlag(Flags.FLAG_ENABLE_COMMIT_ENCRYPTED_BLOB)
+    public static final String CALL_TYPE_STRING_GLOBAL_GET_WRAPPED_BLOB_ENCRYPTION_KEYS =
+            "globalGetWrappedBlobEncryptionKeys";
 
     // Enabled features bitmask with all features disabled.
     public static final long NO_FEATURES_ENABLED_BITMASK = 0;

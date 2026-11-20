@@ -21,6 +21,7 @@ import android.os.ParcelFileDescriptor;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchBlobHandle;
+import androidx.appsearch.app.WrappedBlobEncryptionKey;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -56,6 +57,18 @@ public final class AppSearchBatchResultParcelV2<KeyType, ValueType> {
     public static @NonNull AppSearchBatchResultParcelV2<AppSearchBlobHandle, Void>
             fromBlobHandleToVoid(
             @NonNull AppSearchBatchResult<AppSearchBlobHandle, Void> result) {
+        return new AppSearchBatchResultParcelV2<>(result);
+    }
+
+    /**
+     * Creates an instance of {@link AppSearchBatchResultParcelV2} with key type {@link
+     * AppSearchBlobHandle} and value type {@link WrappedBlobEncryptionKey}.
+     */
+    public static @NonNull
+            AppSearchBatchResultParcelV2<AppSearchBlobHandle, WrappedBlobEncryptionKey>
+            fromBlobHandleToWrappedBlobEncryptionKey(
+                    @NonNull AppSearchBatchResult<AppSearchBlobHandle, WrappedBlobEncryptionKey>
+                            result) {
         return new AppSearchBatchResultParcelV2<>(result);
     }
 
