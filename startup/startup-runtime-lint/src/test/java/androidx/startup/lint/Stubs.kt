@@ -71,6 +71,24 @@ object Stubs {
             .indented()
             .within("src")
 
+    val TEST_INITIALIZER_WITH_ABSTRACT_BASE: TestFile =
+        kotlin(
+                "com/example/TestInitializer.kt",
+                """
+            package com.example
+
+            import androidx.startup.Initializer
+
+            abstract class BaseInitializer: Initializer<Unit>
+
+            class TestInitializer: BaseInitializer() {
+                override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
+            }
+        """,
+            )
+            .indented()
+            .within("src")
+
     /** The Test Initializer in Java. */
     val TEST_INITIALIZER_JAVA: TestFile =
         java(
