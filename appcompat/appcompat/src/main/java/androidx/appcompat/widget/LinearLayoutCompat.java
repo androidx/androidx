@@ -215,7 +215,7 @@ public class LinearLayoutCompat extends ViewGroup {
     }
 
     /**
-     * @return A flag set indicating how dividers should be shown around items.
+     * Returns a flag set indicating how dividers should be shown around items.
      * @see #setShowDividers(int)
      */
     @Attribute(value = "androidx.appcompat:showDividers", intMapping = {
@@ -230,7 +230,7 @@ public class LinearLayoutCompat extends ViewGroup {
     }
 
     /**
-     * @return the divider Drawable that will divide each item.
+     * Returns the divider Drawable that will divide each item.
      *
      * @see #setDividerDrawable(Drawable)
      */
@@ -492,7 +492,7 @@ public class LinearLayoutCompat extends ViewGroup {
     }
 
     /**
-     * @return The index of the child that will be used if this layout is
+     * Returns the index of the child that will be used if this layout is
      *   part of a larger layout that is baseline aligned, or -1 if none has
      *   been set.
      */

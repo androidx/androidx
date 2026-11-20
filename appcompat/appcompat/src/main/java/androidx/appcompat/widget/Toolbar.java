@@ -433,8 +433,8 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     /**
-     * @return resource identifier of the theme used to inflate popup menus, or
-     *         0 if menus are inflated against the toolbar theme
+     * Returns resource identifier of the theme used to inflate popup menus, or
+     *         0 if menus are inflated against the toolbar theme.
      * @see #setPopupTheme(int)
      */
     @Attribute("androidx.appcompat:popupTheme")
@@ -466,7 +466,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     /**
-     * @return the starting title margin in pixels
+     * Returns the starting title margin in pixels.
      * @see #setTitleMarginStart(int)
      * {@link androidx.appcompat.R.attr#titleMarginStart}
      */
@@ -489,7 +489,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     /**
-     * @return the top title margin in pixels
+     * Returns the top title margin in pixels.
      * @see #setTitleMarginTop(int)
      * {@link androidx.appcompat.R.attr#titleMarginTop}
      */
@@ -512,7 +512,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     /**
-     * @return the ending title margin in pixels
+     * Returns the ending title margin in pixels.
      * @see #setTitleMarginEnd(int)
      * {@link androidx.appcompat.R.attr#titleMarginEnd}
      */
@@ -535,7 +535,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     /**
-     * @return the bottom title margin in pixels
+     * Returns the bottom title margin in pixels.
      * @see #setTitleMarginBottom(int)
      * {@link androidx.appcompat.R.attr#titleMarginBottom}
      */

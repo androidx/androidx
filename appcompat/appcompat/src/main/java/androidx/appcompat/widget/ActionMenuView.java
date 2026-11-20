@@ -109,8 +109,8 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     /**
-     * @return resource identifier of the theme used to inflate popup menus, or
-     *         0 if menus are inflated against the action menu view theme
+     * Returns the resource identifier of the theme used to inflate popup menus, or
+     *         0 if menus are inflated against the action menu view theme.
      * @see #setPopupTheme(int)
      */
     public int getPopupTheme() {

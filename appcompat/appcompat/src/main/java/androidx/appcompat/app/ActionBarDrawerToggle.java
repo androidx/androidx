@@ -72,7 +72,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public interface DelegateProvider {
 
         /**
-         * @return Delegate to use for ActionBarDrawableToggles, or null if the Activity
+         * Returns the delegate to use for ActionBarDrawableToggles, or null if the Activity
          * does not wish to override the default behavior.
          */
         @Nullable Delegate getDrawerToggleDelegate();
@@ -332,7 +332,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     /**
-     * @return true if the enhanced drawer indicator is enabled, false otherwise
+     * Returns true if the enhanced drawer indicator is enabled, false otherwise.
      * @see #setDrawerIndicatorEnabled(boolean)
      */
     public boolean isDrawerIndicatorEnabled() {
@@ -363,7 +363,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     /**
-     * @return DrawerArrowDrawable that is currently shown by the ActionBarDrawerToggle.
+     * Returns the DrawerArrowDrawable that is currently shown by the ActionBarDrawerToggle.
      */
     public @NonNull DrawerArrowDrawable getDrawerArrowDrawable() {
         return mSlider;
@@ -392,7 +392,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     /**
-     * @return whether the drawer slide animation is enabled
+     * Returns whether the drawer slide animation is enabled.
      */
     public boolean isDrawerSlideAnimationEnabled() {
         return mDrawerSlideAnimationEnabled;

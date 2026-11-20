@@ -315,7 +315,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return Where the optional prompt view should appear.
+     * Returns where the optional prompt view should appear.
      *
      * @see #POSITION_PROMPT_ABOVE
      * @see #POSITION_PROMPT_BELOW
@@ -416,7 +416,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The background drawable for the popup window.
+     * Returns the background drawable for the popup window.
      */
     public @Nullable Drawable getBackground() {
         return mPopup.getBackground();
@@ -470,7 +470,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The horizontal offset of the popup from its anchor in pixels.
+     * Returns the horizontal offset of the popup from its anchor in pixels.
      */
     public int getHorizontalOffset() {
         return mDropDownHorizontalOffset;
@@ -486,7 +486,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The vertical offset of the popup from its anchor in pixels.
+     * Returns the vertical offset of the popup from its anchor in pixels.
      */
     public int getVerticalOffset() {
         if (!mDropDownVerticalOffsetSet) {
@@ -537,7 +537,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The width of the popup window in pixels.
+     * Returns the width of the popup window in pixels.
      */
     public int getWidth() {
         return mDropDownWidth;
@@ -570,7 +570,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The height of the popup window in pixels.
+     * Returns the height of the popup window in pixels.
      */
     public int getHeight() {
         return mDropDownHeight;
@@ -859,7 +859,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return {@code true} if this popup is configured to assume the user does not need
+     * Returns {@code true} if this popup is configured to assume the user does not need
      * to interact with the IME while it is showing, {@code false} otherwise.
      */
     public boolean isInputMethodNotNeeded() {
@@ -887,7 +887,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The currently selected item or null if the popup is not showing.
+     * Returns the currently selected item or null if the popup is not showing.
      */
     public @Nullable Object getSelectedItem() {
         if (!isShowing()) {
@@ -897,7 +897,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The position of the currently selected item or {@link ListView#INVALID_POSITION}
+     * Returns the position of the currently selected item or {@link ListView#INVALID_POSITION}
      * if {@link #isShowing()} == {@code false}.
      *
      * @see ListView#getSelectedItemPosition()
@@ -910,7 +910,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The ID of the currently selected item or {@link ListView#INVALID_ROW_ID}
+     * Returns the ID of the currently selected item or {@link ListView#INVALID_ROW_ID}
      * if {@link #isShowing()} == {@code false}.
      *
      * @see ListView#getSelectedItemId()
@@ -923,7 +923,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * @return The View for the currently selected item or null if
+     * Returns the View for the currently selected item or null if
      * {@link #isShowing()} == {@code false}.
      *
      * @see ListView#getSelectedView()

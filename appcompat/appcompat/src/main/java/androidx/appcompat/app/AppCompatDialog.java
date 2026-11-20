@@ -169,7 +169,7 @@ public class AppCompatDialog extends ComponentDialog implements AppCompatCallbac
     }
 
     /**
-     * @return The {@link AppCompatDelegate} being used by this Dialog.
+     * Returns the {@link AppCompatDelegate} being used by this Dialog.
      */
     public @NonNull AppCompatDelegate getDelegate() {
         if (mDelegate == null) {
