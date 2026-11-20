@@ -38,10 +38,8 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.common.truth.Truth
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,6 +77,7 @@ class PlayServicesDevicePerformanceTest {
 
     @After
     fun tearDown() {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         runBlocking { testDataStore.edit { it.clear() } }
     }
 
@@ -100,13 +99,8 @@ class PlayServicesDevicePerformanceTest {
         fakeDevicePerformanceClient.taskSource.setResult(clientMpc)
         val playServicesDevicePerformance =
             PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
-        // Waits until the DataStore is populated with at least one non-null value.
-        testDataStore.data
-            .mapNotNull { values ->
-                // No type safety.
-                values[mpcKey]
-            }
-            .first()
+        // Waits until the DataStore is populated with the default MPC value.
+        testDataStore.data.first { values -> values[mpcKey] == defaultMediaPerformanceClass }
 
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
         Truth.assertThat(pcScore).isEqualTo(defaultMediaPerformanceClass)
@@ -120,14 +114,8 @@ class PlayServicesDevicePerformanceTest {
         fakeDevicePerformanceClient.taskSource.setResult(clientMpc)
         val playServicesDevicePerformance =
             PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
-        val mpcKey = intPreferencesKey("mpc_value")
-        // Waits until the DataStore is populated with at least one non-null value.
-        testDataStore.data
-            .mapNotNull { values ->
-                // No type safety.
-                values[mpcKey]
-            }
-            .first()
+        // Waits until the DataStore is populated with the client MPC value.
+        testDataStore.data.first { values -> values[mpcKey] == clientMpc }
 
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
         Truth.assertThat(pcScore).isEqualTo(clientMpc)
@@ -181,22 +169,8 @@ class PlayServicesDevicePerformanceTest {
         fakeDevicePerformanceClient.taskSource.setResult(clientMpc)
         val playServicesDevicePerformance =
             PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
-        // As the client has returned a value higher than the datastore, we expect the datastore
-        // to be updated by the library within 200 ms.
-        runCatching {
-            withTimeout(200) {
-                // Waits until the DataStore is populated with new MPC value
-                do {
-                    val mpc =
-                        testDataStore.data
-                            .mapNotNull { values ->
-                                // No type safety.
-                                values[mpcKey]
-                            }
-                            .first()
-                } while (mpc != clientMpc)
-            }
-        }
+        // Waits until the DataStore is populated with the new MPC value.
+        testDataStore.data.first { values -> values[mpcKey] == clientMpc }
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
         Truth.assertThat(pcScore).isEqualTo(clientMpc)
     }
