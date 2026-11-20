@@ -1083,6 +1083,7 @@ internal class TooltipStateImpl(
      * @param mutatePriority [MutatePriority] to be used with [mutatorMutex].
      */
     override suspend fun show(mutatePriority: MutatePriority) {
+        pendingShowOnRestore = false
         val cancellableShow: suspend () -> Unit = {
             suspendCancellableCoroutine { continuation ->
                 transition.targetState = true
@@ -1110,6 +1111,7 @@ internal class TooltipStateImpl(
 
     /** Dismiss the tooltip associated with this [TooltipState] if it's currently being shown. */
     override fun dismiss() {
+        pendingShowOnRestore = false
         transition.targetState = false
         if (isPersistent) {
             job?.cancel()
