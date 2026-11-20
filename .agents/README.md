@@ -15,6 +15,7 @@ task. For the repo-wide build/test/commit/upload workflow, start from the root
 | [`api_review`](skills/api_review/SKILL.md) | Reviewing pending public-API changes against the Jetpack API guidelines. |
 | [`benchmark`](skills/benchmark/SKILL.md) | Running, analyzing, or writing Compose micro/macrobenchmarks. |
 | [`ktdoc_quality`](skills/ktdoc_quality/SKILL.md) | Improving Kotlin KDoc so it is concise, active, and linked to API elements. |
+| [`create-feature-flag-cleanup-bug`](skills/create-feature-flag-cleanup-bug/SKILL.md) | Filing the cleanup (tracking) bug that a new Compose feature flag needs. Filing requires explicit approval from the user. |
 | [`find-my-flags`](skills/find-my-flags/SKILL.md) | Finding Compose feature flags introduced by an author and mapping them to a library version. |
 | [`remove-feature-flag`](skills/remove-feature-flag/SKILL.md) | Removing an obsolete feature flag and its dead code without behavior changes. |
 | [`compose-catalog`](skills/compose-catalog/SKILL.md) | Building, installing, and running the Compose Material Catalog app on devices or emulators. |
