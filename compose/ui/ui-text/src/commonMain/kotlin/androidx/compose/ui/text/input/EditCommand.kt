@@ -53,6 +53,7 @@ public class CommitTextCommand(
         newCursorPosition: Int,
     ) : this(AnnotatedString(text), newCursorPosition)
 
+    /** The text to commit. We ignore any styles in the original API. */
     public val text: String
         get() = annotatedString.text
 
@@ -175,6 +176,7 @@ public class SetComposingTextCommand(
         newCursorPosition: Int,
     ) : this(AnnotatedString(text), newCursorPosition)
 
+    /** The composing text. */
     public val text: String
         get() = annotatedString.text
 

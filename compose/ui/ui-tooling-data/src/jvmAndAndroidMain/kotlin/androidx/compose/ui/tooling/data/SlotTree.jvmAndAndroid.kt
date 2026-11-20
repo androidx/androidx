@@ -127,27 +127,41 @@ public data class SourceLocation(
 /** A group that represents the invocation of a component */
 @UiToolingDataApi
 public class CallGroup(
+    /** The key is the key generated for the group */
     key: Any?,
+    /** The name of the function called, if provided */
     name: String?,
+    /** The bounding layout box for the group. */
     box: IntRect,
+    /** The source location that produce the group if it can be determined */
     location: SourceLocation?,
+    /**
+     * An optional value that identifies a Group independently of movement caused by recompositions.
+     */
     identity: Any?,
     override val parameters: List<ParameterInformation>,
+    /** Any data that was stored in the slot table for the group */
     data: Collection<Any?>,
+    /** The child groups of this group */
     children: Collection<Group>,
+    /** True if the group is for an inline function call */
     isInline: Boolean,
 ) : Group(key, name, location, identity, box, data, children, isInline)
 
 /** A group that represents an emitted node */
 @UiToolingDataApi
 public class NodeGroup(
+    /** The key is the key generated for the group */
     key: Any?,
 
     /** An emitted node */
     public val node: Any,
+    /** The bounding layout box for the group. */
     box: IntRect,
+    /** Any data that was stored in the slot table for the group */
     data: Collection<Any?>,
     override val modifierInfo: List<ModifierInfo>,
+    /** The child groups of this group */
     children: Collection<Group>,
 ) : Group(key, null, null, null, box, data, children, false)
 

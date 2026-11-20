@@ -170,6 +170,7 @@ public class Rgb
 internal constructor(
     name: String,
     primaries: FloatArray,
+    /** Reference white as a [WhitePoint] */
     public val whitePoint: WhitePoint,
     transform: FloatArray?,
     oetf: DoubleFunction,

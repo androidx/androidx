@@ -66,6 +66,8 @@ public object FontVariation {
          * A collection of settings to apply to a single font.
          *
          * Settings must be unique on [Setting.axisName]
+         *
+         * @param settings All settings, unique by [FontVariation.Setting.axisName]
          */
         public constructor(vararg settings: Setting) : this(settings.asList())
 
