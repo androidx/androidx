@@ -125,7 +125,7 @@ class OpenGlRendererTest {
     private lateinit var cameraId: String
     private lateinit var cameraCharacteristics: CameraCharacteristics
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
-    private lateinit var renderOutput: RenderOutput<*>
+    private lateinit var renderOutput: RenderOutput
     private var lensFacing = LENS_FACING_BACK
     private val surfacesToRelease = mutableListOf<Surface>()
     private val surfaceTexturesToRelease = mutableListOf<SurfaceTexture>()
