@@ -287,8 +287,14 @@ private fun StackedHeader(card: ResolvedMatrixCard) {
 @RemoteComposable
 @Composable
 private fun CompactRowHeader(taps: RemoteComposeActions, card: ResolvedMatrixCard) {
+    val rowModifier =
+        if (card.headerHorizontalPadding.value > 0f) {
+            RemoteModifier.fillMaxWidth().padding(horizontal = card.headerHorizontalPadding.asRdp())
+        } else {
+            RemoteModifier.fillMaxWidth()
+        }
     RemoteRow(
-        modifier = RemoteModifier.fillMaxWidth(),
+        modifier = rowModifier,
         verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
         card.leading?.let { leading ->
@@ -326,9 +332,16 @@ private fun CompactRowHeader(taps: RemoteComposeActions, card: ResolvedMatrixCar
 @RemoteComposable
 @Composable
 private fun RowHeader(taps: RemoteComposeActions, card: ResolvedMatrixCard) {
+    val rowModifier =
+        if (card.headerHorizontalPadding.value > 0f) {
+            RemoteModifier.fillMaxWidth()
+                .heightIn(min = MatrixDefaults.HeaderRowMinHeight.asRdp())
+                .padding(horizontal = card.headerHorizontalPadding.asRdp())
+        } else {
+            RemoteModifier.fillMaxWidth().heightIn(min = MatrixDefaults.HeaderRowMinHeight.asRdp())
+        }
     RemoteRow(
-        modifier =
-            RemoteModifier.fillMaxWidth().heightIn(min = MatrixDefaults.HeaderRowMinHeight.asRdp()),
+        modifier = rowModifier,
         verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
         card.leading?.let { leading ->
@@ -482,12 +495,21 @@ private fun SecondaryComponent.SecondaryContent(
 private fun TrailingComponent.Content(taps: RemoteComposeActions, size: Dp) {
     when (this) {
         is IconButton ->
-            Content(
-                taps = taps,
-                diameter = size,
-                glyphSize = size * IconButtonDefaults.TrailingGlyphRatio,
-                width = size + MatrixDefaults.TrailingExtraWidth,
-            )
+            if (contained) {
+                Content(
+                    taps = taps,
+                    diameter = size,
+                    glyphSize = size * IconButtonDefaults.TrailingGlyphRatio,
+                    width = size + MatrixDefaults.TrailingExtraWidth,
+                )
+            } else {
+                Content(
+                    taps = taps,
+                    diameter = size,
+                    glyphSize = MatrixDefaults.UncontainedTrailingGlyphSize,
+                    width = MatrixDefaults.UncontainedTrailingWidth,
+                )
+            }
     }
 }
 

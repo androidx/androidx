@@ -17,10 +17,13 @@
 package androidx.glance.adaptive.appwidget.components.icon
 
 import android.content.Context
+import android.os.Build
 import android.widget.RemoteViews
+import androidx.annotation.ColorRes
 import androidx.compose.ui.unit.Dp
 import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.components.density
+import androidx.glance.adaptive.appwidget.components.setImageTint
 import androidx.glance.adaptive.appwidget.components.setMaxSize
 import androidx.glance.adaptive.appwidget.components.toPx
 import androidx.glance.adaptive.core.slots.Icon
@@ -30,7 +33,7 @@ import androidx.glance.adaptive.core.slots.Icon
  *
  * When [Icon.contained] is `true`, the glyph is drawn in a filled circle [size] across, tinted with
  * `onSecondaryContainer`, as the design draws the Quick Actions header's brand icon. When `false`,
- * the icon is the glyph alone, tinted with the primary color.
+ * the icon is the glyph alone, tinted with [uncontainedTintRes] (defaults to the primary color).
  *
  * The glyph cannot be sized before API 31, so it wraps its drawable and is capped (see
  * [setMaxSize]), and a circle is padded out around it: its drawable must be declared at least as
@@ -38,9 +41,14 @@ import androidx.glance.adaptive.core.slots.Icon
  *
  * @param context Context the views are built for.
  * @param size Edge length the matrix gives the icon.
+ * @param uncontainedTintRes Color resource tint applied when [Icon.contained] is `false`.
  * @return The icon's views.
  */
-internal fun Icon.buildRemoteViews(context: Context, size: Dp): RemoteViews {
+internal fun Icon.buildRemoteViews(
+    context: Context,
+    size: Dp,
+    @ColorRes uncontainedTintRes: Int = R.color.glance_adaptive_appwidget_remoteviews_primary,
+): RemoteViews {
     val density = context.density
     val views =
         RemoteViews(
@@ -55,6 +63,15 @@ internal fun Icon.buildRemoteViews(context: Context, size: Dp): RemoteViews {
     views.setImageViewResource(iconId, icon)
     views.setContentDescription(iconId, contentDescription)
     if (!contained) {
+        // On API 31+, setSlot recycles the ImageView via addStableView, so always set the tint to
+        // clear any previous non-default tint on reapply. Below API 31, views re-inflate and
+        // skipping the default tint preserves XML's day/night-aware android:tint.
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ||
+                uncontainedTintRes != R.color.glance_adaptive_appwidget_remoteviews_primary
+        ) {
+            views.setImageTint(context, iconId, uncontainedTintRes)
+        }
         views.setMaxSize(iconId, size.toPx(density))
         return views
     }

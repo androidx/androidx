@@ -24,6 +24,7 @@
   padding, so it goes with the slot when there is no leading component.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/glance_adaptive_appwidget_remoteviews_header_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="56dp"

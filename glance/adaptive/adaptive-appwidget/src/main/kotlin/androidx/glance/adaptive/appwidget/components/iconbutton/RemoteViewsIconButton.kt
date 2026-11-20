@@ -27,9 +27,11 @@ import androidx.glance.adaptive.appwidget.components.toPx
 import androidx.glance.adaptive.core.slots.IconButton
 
 /**
- * Draws the icon button as a circle [diameter] across, or as a pill [width] wide and [diameter]
- * tall when [width] is larger, with its glyph [glyphSize] across at the center. It centers itself
- * in its slot.
+ * Draws the icon button as a filled circle [diameter] across, or as a pill [width] wide and
+ * [diameter] tall when [width] is larger, with its glyph [glyphSize] across at the center when
+ * [IconButton.contained] is `true`. When [IconButton.contained] is `false`, draws a bare glyph
+ * tinted with the primary color and no background, padded to [width] × [diameter]. It centers
+ * itself in its slot.
  *
  * The glyph cannot be sized before API 31, so it wraps its drawable and is capped at [glyphSize],
  * and the shape is padded out around it: the glyph's drawable must be declared at least [glyphSize]
@@ -54,20 +56,29 @@ internal fun IconButton.buildRemoteViews(
     val context = taps.context
     val density = context.density
     val views =
-        RemoteViews(context.packageName, R.layout.glance_adaptive_appwidget_remoteviews_icon_button)
+        RemoteViews(
+            context.packageName,
+            if (contained) {
+                R.layout.glance_adaptive_appwidget_remoteviews_icon_button
+            } else {
+                R.layout.glance_adaptive_appwidget_remoteviews_icon_button_uncontained
+            },
+        )
     val buttonId = R.id.glance_adaptive_appwidget_remoteviews_icon_button
     val glyphId = R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph
     val pill = width > diameter
-    // Set either way, as the host reapplies an update onto the previous hierarchy.
-    views.setInt(
-        buttonId,
-        "setBackgroundResource",
-        if (pill) {
-            R.drawable.glance_adaptive_appwidget_remoteviews_button_pill
-        } else {
-            R.drawable.glance_adaptive_appwidget_remoteviews_button_circle
-        },
-    )
+    if (contained) {
+        // Set either way, as the host reapplies an update onto the previous hierarchy.
+        views.setInt(
+            buttonId,
+            "setBackgroundResource",
+            if (pill) {
+                R.drawable.glance_adaptive_appwidget_remoteviews_button_pill
+            } else {
+                R.drawable.glance_adaptive_appwidget_remoteviews_button_circle
+            },
+        )
+    }
 
     views.setImageViewResource(glyphId, icon)
     val glyphPx = glyphSize.toPx(density)
