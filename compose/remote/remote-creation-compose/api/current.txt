@@ -72,6 +72,11 @@ package androidx.compose.remote.creation.compose.capture {
     property public androidx.collection.IntObjectMap<android.app.PendingIntent> pendingIntents;
   }
 
+  public final class RemoteCompositionLocalsKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection> getLocalRemoteLayoutDirection();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection> LocalRemoteLayoutDirection;
+  }
+
   @androidx.compose.runtime.Immutable public final class RemoteCreationDisplayInfo {
     ctor @BytecodeOnly public RemoteCreationDisplayInfo(int, int, float, float, boolean, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getDensity();
