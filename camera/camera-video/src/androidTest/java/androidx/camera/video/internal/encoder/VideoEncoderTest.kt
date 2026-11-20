@@ -41,12 +41,16 @@ import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.io.File
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.abs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -68,6 +72,7 @@ import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import org.mockito.invocation.InvocationOnMock
@@ -384,14 +389,66 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
         return heldEncodedData
     }
 
-    private fun createVideoEncoderConfig(): VideoEncoderConfig {
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun startVideoEncoderAfterFramesQueuedWhileConfigured_dropsPreStartFramesAndEncodes() {
+        initVideoEncoder(inputTimebase = (camera.cameraInfo as CameraInfoInternal).timebase)
+        val firstBatchLatch = CountDownLatch(4)
+        val secondBatchLatch = CountDownLatch(10)
+        val frameCount = AtomicInteger(0)
+        val preStartCutoffTimeUs = AtomicLong(0L)
+        instrumentation.runOnMainSync {
+            preview.surfaceProvider =
+                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
+                    val count = frameCount.incrementAndGet()
+                    if (count <= 4) {
+                        if (count == 4) {
+                            preStartCutoffTimeUs.set(
+                                TimeUnit.NANOSECONDS.toMicros(System.nanoTime())
+                            )
+                        }
+                        firstBatchLatch.countDown()
+                    } else {
+                        secondBatchLatch.countDown()
+                    }
+                }
+        }
+        // Wait for camera frames to reach the configured encoder's input surface while it is
+        // still in CONFIGURED state.
+        assertThat(firstBatchLatch.await(15, TimeUnit.SECONDS)).isTrue()
+        // Wait for 10 additional camera frames (exceeding camera pipeline depth) so no frame
+        // with sensor timestamp < preStartCutoffTimeUs remains in flight when start() resumes
+        // the input surface.
+        assertThat(secondBatchLatch.await(15, TimeUnit.SECONDS)).isTrue()
+
+        // Start from timestamp 0 so EncoderImpl does not filter pre-start frames by
+        // mStartStopTimeRangeUs; only suspending the input surface while CONFIGURED drops them.
+        videoEncoder.start(0L)
+        val inOrder = inOrder(videoEncoderCallback)
+        inOrder.verify(videoEncoderCallback, timeout(15000L)).onEncodeStart()
+        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
+        inOrder
+            .verify(videoEncoderCallback, timeout(15000L).atLeast(5))
+            .onEncodedData(captor.capture())
+        assertThat(captor.allValues.first().presentationTimeUs)
+            .isAtLeast(preStartCutoffTimeUs.get())
+        assertThat(captor.allValues.first().isKeyFrame).isTrue()
+
+        videoEncoder.stop()
+        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
+        verify(videoEncoderCallback, never()).onEncodeError(any())
+    }
+
+    private fun createVideoEncoderConfig(
+        inputTimebase: Timebase = INPUT_TIMEBASE
+    ): VideoEncoderConfig {
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
         val quality = Quality.LOWEST
         val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
         val resolution = videoCapabilities.getResolution(quality, dynamicRange)!!
 
         return VideoEncoderConfig.builder()
-            .setInputTimebase(INPUT_TIMEBASE)
+            .setInputTimebase(inputTimebase)
             .setBitrate(BIT_RATE)
             .setColorFormat(COLOR_FORMAT)
             .setCaptureFrameRate(FRAME_RATE)
@@ -402,9 +459,9 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
             .build()
     }
 
-    private fun initVideoEncoder() {
+    private fun initVideoEncoder(inputTimebase: Timebase = INPUT_TIMEBASE) {
         // init video encoder
-        videoEncoderConfig = createVideoEncoderConfig()
+        videoEncoderConfig = createVideoEncoderConfig(inputTimebase)
 
         videoEncoderCallback = mock(EncoderCallback::class.java)
         doAnswer { args: InvocationOnMock ->
