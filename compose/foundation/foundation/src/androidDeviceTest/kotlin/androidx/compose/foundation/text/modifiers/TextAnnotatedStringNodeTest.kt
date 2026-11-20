@@ -19,7 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Canvas as GraphicsCanvas
+import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -33,9 +37,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Bullet
 import androidx.compose.ui.text.DrawAnnotation
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -360,5 +367,161 @@ class TextAnnotatedStringNodeTest {
 
         val restoredLayout = rule.onNodeWithTag("textNode").fetchTextLayoutResult()
         Truth.assertThat(restoredLayout.layoutInput.text.text).isEqualTo(originalText)
+    }
+
+    @Test
+    fun draw_whenWillClip_usesPrimitiveClipRectWithoutAllocatingRect() {
+        var capturedLayoutResult: TextLayoutResult? = null
+        var spyCanvas: PrimitiveClipTrackingCanvas? = null
+        val subject =
+            TextAnnotatedStringElement(
+                AnnotatedString("Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
+                TextStyle.Default.copy(fontSize = 20.sp),
+                createFontFamilyResolver(context),
+                TEST_LOCALE_LIST,
+                onTextLayout = { capturedLayoutResult = it },
+                overflow = TextOverflow.Clip,
+                softWrap = false,
+                maxLines = 1,
+            )
+
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.layout { measurable, _ ->
+                            val placeable = measurable.measure(Constraints.fixed(50, 50))
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
+                        .drawWithContent {
+                            drawContent()
+                            val previousCanvas = drawContext.canvas
+                            val trackingCanvas = PrimitiveClipTrackingCanvas(previousCanvas)
+                            spyCanvas = trackingCanvas
+                            drawContext.canvas = trackingCanvas
+                            try {
+                                drawContent()
+                            } catch (_: ClassCastException) {
+                                // AndroidParagraph.paint casts Canvas to final AndroidCanvas
+                                // after TextAnnotatedStringNode.draw has executed clipRect.
+                            } finally {
+                                trackingCanvas.restoreUnbalancedSaves()
+                                drawContext.canvas = previousCanvas
+                            }
+                        }
+                        .then(subject)
+            )
+        }
+        rule.waitForIdle()
+
+        val layoutResult = checkNotNull(capturedLayoutResult)
+        val canvas = checkNotNull(spyCanvas)
+        Truth.assertThat(layoutResult.hasVisualOverflow).isTrue()
+        Truth.assertThat(canvas.rectClipCalls).isEqualTo(0)
+        Truth.assertThat(canvas.primitiveClipCalls).isEqualTo(1)
+        Truth.assertThat(canvas.lastLeft).isEqualTo(0f)
+        Truth.assertThat(canvas.lastTop).isEqualTo(0f)
+        Truth.assertThat(canvas.lastRight).isEqualTo(layoutResult.size.width.toFloat())
+        Truth.assertThat(canvas.lastBottom).isEqualTo(layoutResult.size.height.toFloat())
+        Truth.assertThat(canvas.lastClipOp).isEqualTo(ClipOp.Intersect)
+    }
+
+    @Test
+    fun draw_whenNotOverflowing_doesNotClip() {
+        var capturedLayoutResult: TextLayoutResult? = null
+        var spyCanvas: PrimitiveClipTrackingCanvas? = null
+        val subject =
+            TextAnnotatedStringElement(
+                AnnotatedString("Hi"),
+                TextStyle.Default.copy(fontSize = 12.sp),
+                createFontFamilyResolver(context),
+                TEST_LOCALE_LIST,
+                onTextLayout = { capturedLayoutResult = it },
+                overflow = TextOverflow.Clip,
+            )
+
+        rule.setContent {
+            Box(
+                modifier =
+                    Modifier.layout { measurable, _ ->
+                            val placeable =
+                                measurable.measure(Constraints(maxWidth = 1000, maxHeight = 1000))
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
+                        .drawWithContent {
+                            drawContent()
+                            val previousCanvas = drawContext.canvas
+                            val trackingCanvas = PrimitiveClipTrackingCanvas(previousCanvas)
+                            spyCanvas = trackingCanvas
+                            drawContext.canvas = trackingCanvas
+                            try {
+                                drawContent()
+                            } catch (_: ClassCastException) {
+                                // AndroidParagraph.paint casts Canvas to final AndroidCanvas
+                                // after TextAnnotatedStringNode.draw has checked willClip.
+                            } finally {
+                                trackingCanvas.restoreUnbalancedSaves()
+                                drawContext.canvas = previousCanvas
+                            }
+                        }
+                        .then(subject)
+            )
+        }
+        rule.waitForIdle()
+
+        val layoutResult = checkNotNull(capturedLayoutResult)
+        val canvas = checkNotNull(spyCanvas)
+        Truth.assertThat(layoutResult.hasVisualOverflow).isFalse()
+        Truth.assertThat(canvas.rectClipCalls).isEqualTo(0)
+        Truth.assertThat(canvas.primitiveClipCalls).isEqualTo(0)
+    }
+
+    private class PrimitiveClipTrackingCanvas(private val delegate: GraphicsCanvas) :
+        GraphicsCanvas by delegate {
+        private var openSaves = 0
+        var rectClipCalls = 0
+        var primitiveClipCalls = 0
+        var lastLeft = Float.NaN
+        var lastTop = Float.NaN
+        var lastRight = Float.NaN
+        var lastBottom = Float.NaN
+        var lastClipOp: ClipOp? = null
+
+        override fun save() {
+            openSaves++
+            delegate.save()
+        }
+
+        override fun restore() {
+            openSaves--
+            delegate.restore()
+        }
+
+        fun restoreUnbalancedSaves() {
+            while (openSaves > 0) {
+                openSaves--
+                delegate.restore()
+            }
+        }
+
+        override fun clipRect(rect: Rect, clipOp: ClipOp) {
+            rectClipCalls++
+            delegate.clipRect(rect, clipOp)
+        }
+
+        override fun clipRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            clipOp: ClipOp,
+        ) {
+            primitiveClipCalls++
+            lastLeft = left
+            lastTop = top
+            lastRight = right
+            lastBottom = bottom
+            lastClipOp = clipOp
+            delegate.clipRect(left, top, right, bottom, clipOp)
+        }
     }
 }

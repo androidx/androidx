@@ -20,9 +20,7 @@ import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.toTextStyle
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shadow
@@ -875,9 +873,8 @@ private constructor(
             if (willClip) {
                 val width = textLayoutResult.size.width.toFloat()
                 val height = textLayoutResult.size.height.toFloat()
-                val bounds = Rect(Offset.Zero, Size(width, height))
                 canvas.save()
-                canvas.clipRect(bounds)
+                canvas.clipRect(left = 0f, top = 0f, right = width, bottom = height)
             }
             try {
                 if (drawAnnotationScope != null) {
