@@ -79,10 +79,11 @@ class RcColorThemePlayerTest {
             captureRule.captureDocument(context = context) {
                 val color =
                     RemoteColor.createThemedRemoteColor(
-                        lightColorRes = 0,
-                        darkColorRes = 0,
-                        lightFallback = lightColor,
-                        darkFallback = darkColor,
+                        group = "test",
+                        lightModeIndex = 0,
+                        darkModeIndex = 0,
+                        lightFallback = lightColor.toArgb(),
+                        darkFallback = darkColor.toArgb(),
                     )
                 RemoteBox(modifier = RemoteModifier.size(50.rdp).background(color))
             }
@@ -275,10 +276,11 @@ class RcColorThemePlayerTest {
             captureRule.captureDocument(context = context) {
                 val color =
                     RemoteColor.createThemedRemoteColor(
-                        lightColorRes = 0,
-                        darkColorRes = 0,
-                        lightFallback = lightFallback,
-                        darkFallback = darkFallback,
+                        group = "test",
+                        lightModeIndex = 0,
+                        darkModeIndex = 0,
+                        lightFallback = lightFallback.toArgb(),
+                        darkFallback = darkFallback.toArgb(),
                     )
                 RemoteBox(modifier = RemoteModifier.size(50.rdp).background(color))
             }

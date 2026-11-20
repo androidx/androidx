@@ -35,20 +35,31 @@ import androidx.compose.remote.creation.Rc.AndroidColors
  * @param darkFallback The fallback ARGB color integer to use in dark mode if the theme color cannot
  *   be resolved.
  * @return A [RemoteColor] representing the themed color.
+ * @throws IllegalArgumentException if [lightColorRes] or [darkColorRes] is not a supported
+ *   [android.R.color] system color resource.
  */
 public fun RemoteColor.Companion.createThemedRemoteColor(
     @ColorRes lightColorRes: Int,
     @ColorRes darkColorRes: Int,
     @ColorInt lightFallback: Int,
     @ColorInt darkFallback: Int,
-): RemoteColor =
-    createThemedRemoteColor(
+): RemoteColor {
+    val lightModeIndex = AndroidSystemColorMap.lookupIndex(lightColorRes)
+    require(lightModeIndex >= 0) {
+        "Unsupported lightColorRes: 0x${lightColorRes.toString(16)} is not a supported android.R.color resource."
+    }
+    val darkModeIndex = AndroidSystemColorMap.lookupIndex(darkColorRes)
+    require(darkModeIndex >= 0) {
+        "Unsupported darkColorRes: 0x${darkColorRes.toString(16)} is not a supported android.R.color resource."
+    }
+    return createThemedRemoteColor(
         group = AndroidColors.GROUP,
-        lightModeIndex = AndroidSystemColorMap.lookupIndex(lightColorRes),
-        darkModeIndex = AndroidSystemColorMap.lookupIndex(darkColorRes),
+        lightModeIndex = lightModeIndex,
+        darkModeIndex = darkModeIndex,
         lightFallback = lightFallback,
         darkFallback = darkFallback,
     )
+}
 
 /**
  * Maps standard [android.R.color] resource IDs to and from their 0..195 index in the `"android"`

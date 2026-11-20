@@ -41,6 +41,8 @@ public fun RemoteColor(color: Color): RemoteColor = RemoteColor(color.toArgb())
  * @param darkFallback The fallback [Color] value to use in dark mode if the theme color cannot be
  *   resolved.
  * @return A [RemoteColor] representing the themed color.
+ * @throws IllegalArgumentException if [lightColorRes] or [darkColorRes] is not a supported
+ *   [android.R.color] system color resource.
  */
 public fun RemoteColor.Companion.createThemedRemoteColor(
     @ColorRes lightColorRes: Int,
@@ -65,11 +67,11 @@ public val Color.rc: RemoteColor
  * @return the constant [Color] value of this [RemoteColor]
  * @throws IllegalStateException if this state does not have a constant value.
  */
-public fun RemoteColor.asConstantColor(): Color = Color(constantValue)
+public fun RemoteColor.toConstantColor(): Color = Color(constantValue)
 
 /**
  * Converts this [RemoteColor] to a [Color] if it has a constant value, or null otherwise.
  *
  * @return the constant [Color] value of this [RemoteColor], or `null` if it is dynamic
  */
-public fun RemoteColor.asConstantColorOrNull(): Color? = constantValueOrNull?.let { Color(it) }
+public fun RemoteColor.toConstantColorOrNull(): Color? = constantValueOrNull?.let { Color(it) }

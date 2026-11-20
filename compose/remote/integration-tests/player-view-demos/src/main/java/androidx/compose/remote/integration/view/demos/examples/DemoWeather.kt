@@ -68,7 +68,7 @@ fun WeatherDemo() {
         ) {
             RemoteFitBox(
                 RemoteModifier.fillMaxSize(),
-                verticalArrangement = RemoteArrangement.Top,
+                contentAlignment = RemoteAlignment.TopCenter,
             ) {
                 val res = LocalResources.current
                 val image = remember {

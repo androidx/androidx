@@ -54,7 +54,7 @@ internal class BorderModifier(
 
                 val remoteSize = RemoteSize(component.width, component.height)
                 roundedCorner =
-                    shape.topStart.toDimension(remoteSize, remoteDensity, densityBehavior).floatId
+                    shape.topStart.toDimension(remoteSize, density, densityBehavior).floatId
             }
 
             val resolvedWidth =

@@ -524,6 +524,6 @@ private fun SimulatedCard(
                     drawContent()
                 }
                 .padding(14.rdp),
-        content = content,
+        content = { content() },
     )
 }

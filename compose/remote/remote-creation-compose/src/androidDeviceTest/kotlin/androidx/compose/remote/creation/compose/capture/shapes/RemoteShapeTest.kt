@@ -170,7 +170,7 @@ class RemoteShapeTest {
                     shape.createOutline(
                         size = size,
                         layoutDirection = layoutDirection,
-                        density = remoteDensity,
+                        density = density,
                     ),
                     paint,
                 )

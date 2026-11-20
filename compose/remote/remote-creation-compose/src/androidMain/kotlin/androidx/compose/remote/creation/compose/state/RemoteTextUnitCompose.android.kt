@@ -53,7 +53,7 @@ public fun RemoteTextUnit(
  * @return the constant [TextUnit] value of this [RemoteTextUnit]
  * @throws IllegalStateException if this state does not have a constant value.
  */
-public fun RemoteTextUnit.asConstantTextUnit(): TextUnit =
+public fun RemoteTextUnit.toConstantTextUnit(): TextUnit =
     when (type) {
         RemoteTextUnitType.Sp -> constantValue.sp
     }
@@ -63,7 +63,7 @@ public fun RemoteTextUnit.asConstantTextUnit(): TextUnit =
  *
  * @return the constant [TextUnit] value of this [RemoteTextUnit], or `null` if it is dynamic
  */
-public fun RemoteTextUnit.asConstantTextUnitOrNull(): TextUnit? {
+public fun RemoteTextUnit.toConstantTextUnitOrNull(): TextUnit? {
     val constValue = constantValueOrNull ?: return null
     return when (type) {
         RemoteTextUnitType.Sp -> constValue.sp

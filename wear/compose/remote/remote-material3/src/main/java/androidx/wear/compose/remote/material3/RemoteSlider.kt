@@ -148,12 +148,13 @@ public fun RemoteSlider(
                     .clickable(decreaseAction, enabled = enabled)
                     .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             contentAlignment = RemoteAlignment.Center,
-            content =
+            content = {
                 provideScopeContent(
                     colors.buttonIconColor(enabled),
                     RemoteMaterialTheme.typography.labelMedium,
                     decreaseIcon,
-                ),
+                )()
+            },
         )
 
         RemoteCanvas(
@@ -178,12 +179,13 @@ public fun RemoteSlider(
                     .clickable(increaseAction, enabled = enabled)
                     .semantics(mergeDescendants = true) { role = RemoteRole.Button },
             contentAlignment = RemoteAlignment.Center,
-            content =
+            content = {
                 provideScopeContent(
                     colors.buttonIconColor(enabled),
                     RemoteMaterialTheme.typography.labelMedium,
                     increaseIcon,
-                ),
+                )()
+            },
         )
     }
 }

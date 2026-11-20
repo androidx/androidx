@@ -20,6 +20,12 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+
+/** Receiver scope used by [RemoteBox] for its content. */
+@RemoteLayoutScopeMarker @Immutable public sealed interface RemoteBoxScope
+
+internal object RemoteBoxScopeInstance : RemoteBoxScope
 
 internal class RemoteBoxNode : RemoteLayoutNode() {
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
@@ -44,19 +50,19 @@ internal class RemoteBoxNode : RemoteLayoutNode() {
  * `RemoteBox` allows you to wrap multiple children and position them using [contentAlignment]. In
  * Remote Compose, this layout is recorded as a Box command.
  *
- * Example of centering overlapping children inside a [RemoteBox]:
+ * Example of centering overlapping children inside a `RemoteBox`:
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteBoxSample
- * @param modifier The modifier to be applied to this box.
- * @param contentAlignment The default alignment inside the Box.
- * @param content The content of the box.
+ * @param modifier modifier to be applied to this box
+ * @param contentAlignment default alignment inside the box
+ * @param content content of the box, which has access to [RemoteBoxScope]
  */
 @RemoteComposable
 @Composable
 public fun RemoteBox(
     modifier: RemoteModifier = RemoteModifier,
     contentAlignment: RemoteAlignment = RemoteAlignment.TopStart,
-    content: @RemoteComposable @Composable () -> Unit,
+    content: @RemoteComposable @Composable RemoteBoxScope.() -> Unit,
 ) {
     RemoteLayoutNode(
         factory = ::RemoteBoxNode,
@@ -69,14 +75,14 @@ public fun RemoteBox(
                 this.verticalAlignment = nodeVerticalAlignment
             }
         },
-        content = content,
+        content = { RemoteBoxScopeInstance.content() },
     )
 }
 
 /**
- * A version of [RemoteBox] with no content, often used as a spacer or a background placeholder.
+ * A version of `RemoteBox` with no content, often used as a spacer or a background placeholder.
  *
- * @param modifier The modifier to be applied to this box.
+ * @param modifier modifier to be applied to this box
  */
 @RemoteComposable
 @Composable

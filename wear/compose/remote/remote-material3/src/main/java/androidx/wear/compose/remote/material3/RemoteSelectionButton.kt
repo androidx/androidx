@@ -151,7 +151,7 @@ internal fun RemoteSelectionButtonImpl(
             RemoteBox(
                 modifier = RemoteModifier.wrapContentSize(),
                 contentAlignment = RemoteAlignment.Center,
-                content = provideScopeContent(contentColor = iconColor, content = icon),
+                content = { provideScopeContent(contentColor = iconColor, content = icon)() },
             )
             RemoteBox(RemoteModifier.size(6.rdp))
         }
@@ -192,7 +192,7 @@ internal fun RemoteSelectionButtonImpl(
         RemoteBox(
             modifier = RemoteModifier.wrapContentSize(),
             contentAlignment = RemoteAlignment.Center,
-            content = selectionControl,
+            content = { selectionControl() },
         )
     }
 }

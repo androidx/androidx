@@ -31,7 +31,7 @@ class RemoteComponentPreviewWrapper : PreviewWrapperProvider {
             RemoteBox(
                 RemoteModifier.fillMaxSize(),
                 contentAlignment = RemoteAlignment.Center,
-                content = content,
+                content = { content() },
             )
         }
     }

@@ -60,11 +60,11 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
-import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.toConstantColorOrNull
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
@@ -412,7 +412,9 @@ public fun RemoteCompactButton(
                     RemoteBox(
                         modifier = RemoteModifier.wrapContentSize(),
                         contentAlignment = RemoteAlignment.Center,
-                        content = provideScopeContent(colors.iconColor(enabled = enabled), icon),
+                        content = {
+                            provideScopeContent(colors.iconColor(enabled = enabled), icon)()
+                        },
                     )
                     RemoteBox(RemoteModifier.size(RemoteButtonDefaults.CompactButtonIconSpacing))
                 }
@@ -574,7 +576,7 @@ private fun RemoteButtonImpl(
             RemoteBox(
                 modifier = RemoteModifier.wrapContentSize(),
                 contentAlignment = RemoteAlignment.Center,
-                content = provideScopeContent(colors.iconColor(enabled = enabled), icon),
+                content = { provideScopeContent(colors.iconColor(enabled = enabled), icon)() },
             )
             RemoteBox(RemoteModifier.size(iconSpacing))
         }
@@ -653,7 +655,7 @@ public object RemoteButtonDefaults {
             iconColor = iconColor ?: default.iconColor,
             disabledContainerColor =
                 disabledContainerColor
-                    ?: if (containerColor?.asConstantColorOrNull() == Color.Transparent) {
+                    ?: if (containerColor?.toConstantColorOrNull() == Color.Transparent) {
                         Color.Transparent.rc
                     } else {
                         default.disabledContainerColor
@@ -1335,7 +1337,7 @@ private fun RemoteDrawScope.drawBorder(
                 shape.createOutline(
                     size = RemoteSize(width, height),
                     layoutDirection = layoutDirection,
-                    density = remoteDensity,
+                    density = density,
                     strokeWidth = strokeWidthPx,
                 )
             }
@@ -1343,7 +1345,7 @@ private fun RemoteDrawScope.drawBorder(
                 shape.createOutline(
                     size = RemoteSize(width, height),
                     layoutDirection = layoutDirection,
-                    density = remoteDensity,
+                    density = density,
                     strokeWidth = strokeWidthPx,
                 )
             }
@@ -1351,7 +1353,7 @@ private fun RemoteDrawScope.drawBorder(
                 shape.createOutline(
                     size = RemoteSize(width, height),
                     layoutDirection = layoutDirection,
-                    density = remoteDensity,
+                    density = density,
                 )
             }
         }
@@ -1371,7 +1373,7 @@ private fun RemoteDrawScope.drawBorder(
  */
 internal fun RemoteDrawScope.clipToShape(shape: RemoteShape, block: RemoteDrawScope.() -> Unit) =
     clipOutline(
-        shape.createOutline(RemoteSize(width, height), layoutDirection, remoteDensity),
+        shape.createOutline(RemoteSize(width, height), layoutDirection, density),
         block,
     )
 
@@ -1380,7 +1382,7 @@ private fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: Remot
         shape.createOutline(
             size = RemoteSize(width, height),
             layoutDirection = layoutDirection,
-            density = remoteDensity,
+            density = density,
         ),
         RemotePaint {
             style = RemotePaintingStyle.Fill

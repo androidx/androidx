@@ -76,7 +76,7 @@ private class DefaultRemoteContainerPainter(
                 shape.createOutline(
                     size = size,
                     layoutDirection = layoutDirection,
-                    density = remoteDensity,
+                    density = density,
                 )
             drawOutline(outline, paint)
         }
@@ -102,7 +102,7 @@ internal class ShapedBitmapPainter(
             shape.createOutline(
                 size = size,
                 layoutDirection = layoutDirection,
-                density = remoteDensity,
+                density = density,
             )
         drawOutline(outline, paint)
     }

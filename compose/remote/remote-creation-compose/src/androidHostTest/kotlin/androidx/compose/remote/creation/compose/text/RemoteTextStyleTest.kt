@@ -19,10 +19,10 @@ package androidx.compose.remote.creation.compose.text
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTextUnitType
-import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
-import androidx.compose.remote.creation.compose.state.asConstantTextUnitOrNull
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.state.toConstantColorOrNull
+import androidx.compose.remote.creation.compose.state.toConstantTextUnitOrNull
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
@@ -103,11 +103,11 @@ class RemoteTextStyleTest {
             )
 
         assertThat(remoteStyle.fontSize?.type).isEqualTo(RemoteTextUnitType.Sp)
-        assertThat(remoteStyle.fontSize?.asConstantTextUnitOrNull()).isEqualTo(16.sp)
-        assertThat(remoteStyle.color?.asConstantColorOrNull()).isEqualTo(Color.Red)
-        assertThat(remoteStyle.letterSpacing?.asConstantTextUnitOrNull()).isEqualTo(1.2f.sp)
-        assertThat(remoteStyle.lineHeight?.asConstantTextUnitOrNull()).isEqualTo(20.sp)
-        assertThat(remoteStyle.background?.asConstantColorOrNull()).isEqualTo(Color.Blue)
+        assertThat(remoteStyle.fontSize?.toConstantTextUnitOrNull()).isEqualTo(16.sp)
+        assertThat(remoteStyle.color?.toConstantColorOrNull()).isEqualTo(Color.Red)
+        assertThat(remoteStyle.letterSpacing?.toConstantTextUnitOrNull()).isEqualTo(1.2f.sp)
+        assertThat(remoteStyle.lineHeight?.toConstantTextUnitOrNull()).isEqualTo(20.sp)
+        assertThat(remoteStyle.background?.toConstantColorOrNull()).isEqualTo(Color.Blue)
         assertThat(remoteStyle.fontWeight).isEqualTo(RemoteFontWeight.Bold)
         assertThat(remoteStyle.fontStyle).isEqualTo(RemoteFontStyle.Italic)
         assertThat(remoteStyle.fontFamily).isEqualTo(RemoteFontFamily.Serif)

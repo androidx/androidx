@@ -114,7 +114,7 @@ public fun RemoteOneHandedGestureClickIndicator(
     RemoteBox(modifier = modifier, contentAlignment = RemoteAlignment.Center) {
         RemoteBox(
             modifier = RemoteModifier.graphicsLayer(alpha = contentAlpha),
-            content = content,
+            content = { content() },
         )
 
         RemotePrimaryGestureIndicator(

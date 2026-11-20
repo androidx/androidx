@@ -35,7 +35,7 @@ public fun RemoteDp(value: Dp): RemoteDp = value.asRdp()
  *
  * @return the constant [Dp] value of this [RemoteDp], or `null` if it is dynamic
  */
-public fun RemoteDp.asConstantDpOrNull(): Dp? = constantValueOrNull?.dp
+public fun RemoteDp.toConstantDpOrNull(): Dp? = constantValueOrNull?.dp
 
 /**
  * Converts this [RemoteDp] to a [Dp] if it has a constant value.
@@ -43,7 +43,7 @@ public fun RemoteDp.asConstantDpOrNull(): Dp? = constantValueOrNull?.dp
  * @return the constant [Dp] value of this [RemoteDp]
  * @throws IllegalStateException if this state does not have a constant value.
  */
-public fun RemoteDp.asConstantDp(): Dp = constantValue.dp
+public fun RemoteDp.toConstantDp(): Dp = constantValue.dp
 
 /**
  * Extension function to convert a [Dp] to a [RemoteDp].

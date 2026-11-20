@@ -123,12 +123,13 @@ public fun RemoteStepper(
         RemoteBox(
             modifier = RemoteModifier.fillMaxWidth().weight(RemoteStepperDefaults.ContentWeight.rf),
             contentAlignment = RemoteAlignment.Center,
-            content =
+            content = {
                 provideScopeContent(
                     colors.contentColor(enabled),
                     RemoteMaterialTheme.typography.bodyLarge,
                     content,
-                ),
+                )()
+            },
         )
 
         RemoteBox(

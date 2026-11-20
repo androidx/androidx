@@ -118,6 +118,6 @@ private fun Button(onClick: RemoteAction, content: @Composable @RemoteComposable
                 .clickable(onClick)
                 .background(Color.LightGray.rc),
         contentAlignment = RemoteAlignment.Center,
-        content = content,
+        content = { content() },
     )
 }

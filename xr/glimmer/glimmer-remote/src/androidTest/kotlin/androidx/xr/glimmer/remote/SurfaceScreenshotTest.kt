@@ -144,7 +144,7 @@ class SurfaceScreenshotTest {
         RemoteBox(
             modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc).padding(12.rdp),
             contentAlignment = RemoteAlignment.Center,
-            content = content,
+            content = { content() },
         )
     }
 }

@@ -34,6 +34,6 @@ fun ComponentContainer(
     RemoteBox(
         modifier = modifier.fillMaxSize().background(RemoteColor.Black),
         contentAlignment = RemoteAlignment.Center,
-        content = content,
+        content = { content() },
     )
 }

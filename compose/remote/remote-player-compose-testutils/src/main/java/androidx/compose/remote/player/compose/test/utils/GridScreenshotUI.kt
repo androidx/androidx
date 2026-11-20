@@ -114,6 +114,6 @@ private fun Container(
     RemoteBox(
         modifier = modifier.size(size).background(Color(0xFFCFD8DC).rc),
         contentAlignment = RemoteAlignment.CenterStart,
-        content = content,
+        content = { content() },
     )
 }

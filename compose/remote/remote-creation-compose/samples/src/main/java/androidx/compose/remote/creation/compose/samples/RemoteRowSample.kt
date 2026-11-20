@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,5 +56,24 @@ fun RemoteRowWeightSample() {
     RemoteRow(modifier = RemoteModifier.width(200.rdp)) {
         RemoteBox(modifier = RemoteModifier.weight(1f.rf).height(40.rdp).background(Color.Red.rc))
         RemoteBox(modifier = RemoteModifier.weight(2f.rf).height(40.rdp).background(Color.Blue.rc))
+    }
+}
+
+@Sampled
+@Preview
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteRowAlignByBaselineSample() {
+    RemoteRow(horizontalArrangement = RemoteArrangement.spacedBy(8.rdp)) {
+        RemoteText(
+            text = "Large".rs,
+            fontSize = 24.rsp,
+            modifier = RemoteModifier.alignByBaseline(),
+        )
+        RemoteText(
+            text = "Small".rs,
+            fontSize = 12.rsp,
+            modifier = RemoteModifier.alignByBaseline(),
+        )
     }
 }

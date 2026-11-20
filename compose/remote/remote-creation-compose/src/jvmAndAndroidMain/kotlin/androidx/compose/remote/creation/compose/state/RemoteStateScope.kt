@@ -32,12 +32,12 @@ import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.runtime.Composable
 
 /**
- * Scope providing access to remote environment properties ([remoteDensity] and [layoutDirection])
- * during document capture.
+ * Scope providing access to remote environment properties ([density] and [layoutDirection]) during
+ * document capture.
  */
-public interface RemoteStateScope {
+public sealed interface RemoteStateScope {
     /** The [RemoteDensity] associated with the document being drawn into. */
-    public val remoteDensity: RemoteDensity
+    public val density: RemoteDensity
 
     /** The [RemoteLayoutDirection] associated with the document being drawn into. */
     public val layoutDirection: RemoteLayoutDirection
@@ -108,6 +108,7 @@ public val RemoteStateScope.creationState: RemoteComposeCreationState
  * Allocates the RemoteValue in global scope allowing assigning to global state IDs and
  * document-level properties.
  *
+ * @param T the [RemoteValue] subtype allocated in global scope
  * @return this [RemoteValue] allocated in global scope
  */
 @Composable
