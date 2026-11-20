@@ -60,6 +60,9 @@ private constructor(private val impl: ViewModelProviderImpl) {
      * [default factory][HasDefaultViewModelProviderFactory.defaultViewModelProviderFactory] if the
      * owner implements [HasDefaultViewModelProviderFactory]. Otherwise, a [NewInstanceFactory] will
      * be used.
+     *
+     * @param owner The [ViewModelStoreOwner] whose [ViewModelStore] will be used to store the
+     *   [ViewModel] instances.
      */
     public constructor(
         owner: ViewModelStoreOwner
