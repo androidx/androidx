@@ -259,6 +259,8 @@ internal class CppGenerator(private val schema: OperationSchema) {
                 close = null,
             ) {
                 line("doc->majorVersion = rawMajor & 0xFFFF;")
+                line("doc->width = 256;")
+                line("doc->height = 256;")
                 line("int32_t numProps = buffer.readInt();")
                 block("if (numProps < 0 || static_cast<size_t>(numProps) > kMaxHeaderProperties)") {
                     line("throw std::runtime_error(\"Invalid numProps in header\");")
@@ -270,10 +272,10 @@ internal class CppGenerator(private val schema: OperationSchema) {
                     }
                 }
                 block("for (int32_t i = 0; i < numProps; i++)") {
-                    line("uint16_t tag = static_cast<uint16_t>(buffer.readShort());")
-                    line("uint16_t itemLen = static_cast<uint16_t>(buffer.readShort());")
-                    line("int32_t dataType = (tag >> 10) & 0x3F;")
-                    line("int32_t key = tag & 0x3FF;")
+                    line("int16_t tag = buffer.readShort();")
+                    line("buffer.readShort(); // itemLen (read and ignored)")
+                    line("int32_t dataType = static_cast<int32_t>(tag) >> 10;")
+                    line("int32_t key = static_cast<int32_t>(tag) & 0x3F;")
                     block("switch (dataType)") {
                         block("case 0:", openSuffix = " { // INT") {
                             line("int32_t val = buffer.readInt();")
@@ -313,19 +315,10 @@ internal class CppGenerator(private val schema: OperationSchema) {
                             line("break;")
                         }
                         block("case 3:", openSuffix = " { // STRING") {
-                            line("buffer.readStringView();")
+                            line("buffer.readStringView(4000);")
                             line("break;")
                         }
                         block("default:") {
-                            block("if (itemLen > buffer.remaining())") {
-                                line("throw std::runtime_error(")
-                                indent {
-                                    line(
-                                        "\"Header property length exceeds remaining buffer size\");"
-                                    )
-                                }
-                            }
-                            line("buffer.setIndex(buffer.getIndex() + itemLen);")
                             line("break;")
                         }
                     }

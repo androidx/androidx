@@ -349,6 +349,8 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                 line()
                 pyBlock("if (raw_major & 0xFFFF0000) == 0x048C0000") {
                     line("doc.major_version = raw_major & 0xFFFF")
+                    line("doc.width = 256")
+                    line("doc.height = 256")
                     line("num_props = buffer.read_int()")
                     pyBlock("if num_props < 0 or num_props > cls.MAX_HEADER_PROPERTIES") {
                         line("raise ValueError(f\"Invalid header property count: {num_props}\")")
@@ -361,10 +363,10 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                         }
                     }
                     pyBlock("for _ in range(num_props)") {
-                        line("tag = buffer.read_short() & 0xFFFF")
-                        line("item_len = buffer.read_short() & 0xFFFF")
-                        line("data_type = (tag >> 10) & 0x3F")
-                        line("key = tag & 0x3FF")
+                        line("tag = buffer.read_short()")
+                        line("buffer.read_short()  # item_len (read and ignored)")
+                        line("data_type = tag >> 10")
+                        line("key = tag & 0x3F")
                         pyBlock("if data_type == 0") {
                             line("val = buffer.read_int()")
                             pyBlock("if key == 5") { line("doc.width = val") }
@@ -388,8 +390,7 @@ internal class PythonGenerator(private val schema: OperationSchema) {
                                 )
                             }
                         }
-                        pyBlock("elif data_type == 3") { line("buffer.read_utf8()") }
-                        pyBlock("else") { line("buffer.skip_bytes(item_len)") }
+                        pyBlock("elif data_type == 3") { line("buffer.read_utf8(4000)") }
                     }
                 }
                 pyBlock("elif 0 <= raw_major < 0x10000") {

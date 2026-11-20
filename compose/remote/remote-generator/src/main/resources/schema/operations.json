@@ -105,7 +105,20 @@
         {
           "name": "majorVersion",
           "type": "int",
-          "description": "Major version"
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "version",
+              "range": "0..15",
+              "description": "Major format version in modern layout"
+            },
+            {
+              "name": "magic",
+              "range": "16..31",
+              "description": "Magic marker 0x048C written in modern layout"
+            }
+          ],
+          "description": "Signed values < 0x10000 select legacy layout; values >= 0x10000 select property-map layout with version in bits 0..15"
         },
         {
           "name": "minorVersion",
@@ -120,17 +133,32 @@
         {
           "name": "width",
           "type": "int",
-          "description": "Document canvas width in pixels"
+          "defaultValue": "256",
+          "presentIf": "majorVersion < 65536",
+          "description": "Document canvas width in pixels (legacy layout)"
         },
         {
           "name": "height",
           "type": "int",
-          "description": "Document canvas height in pixels"
+          "defaultValue": "256",
+          "presentIf": "majorVersion < 65536",
+          "description": "Document canvas height in pixels (legacy layout)"
         },
         {
           "name": "capabilities",
           "type": "long",
-          "description": "Bitmask of supported capability profiles"
+          "defaultValue": "0",
+          "presentIf": "majorVersion < 65536",
+          "description": "Bitmask of supported capability profiles (legacy layout)"
+        },
+        {
+          "name": "properties",
+          "type": "HeaderProperty[]",
+          "lengthType": "int",
+          "maxLength": 1000,
+          "javaLimit": "Limits.MAX_TABLE_SIZE",
+          "presentIf": "majorVersion >= 65536",
+          "description": "Header property map entries (modern layout)"
         }
       ],
       "extensions": {
@@ -138,10 +166,160 @@
         "tagType": "short",
         "supportedTags": [
           {
+            "name": "DOC_WIDTH",
+            "tag": 5,
+            "type": "int",
+            "description": "Document width in pixels"
+          },
+          {
+            "name": "DOC_HEIGHT",
+            "tag": 6,
+            "type": "int",
+            "description": "Document height in pixels"
+          },
+          {
+            "name": "DOC_DENSITY_AT_GENERATION",
+            "tag": 7,
+            "type": "float",
+            "description": "Density at generation"
+          },
+          {
+            "name": "DOC_DESIRED_FPS",
+            "tag": 8,
+            "type": "int",
+            "description": "Desired frame rate"
+          },
+          {
+            "name": "DOC_CONTENT_DESCRIPTION",
+            "tag": 9,
+            "type": "string",
+            "description": "Document content description"
+          },
+          {
+            "name": "DOC_SOURCE",
+            "tag": 11,
+            "type": "int",
+            "description": "Document source identifier"
+          },
+          {
+            "name": "DOC_DATA_UPDATE",
+            "tag": 12,
+            "type": "int",
+            "description": "Document data update flag"
+          },
+          {
+            "name": "HOST_EXCEPTION_HANDLER",
+            "tag": 13,
+            "type": "int",
+            "description": "Host action ID invoked on exception"
+          },
+          {
+            "name": "DOC_PROFILES",
+            "tag": 14,
+            "type": "int",
+            "description": "Capability profile bitmask"
+          },
+          {
+            "name": "FEATURE_PAINT_MEASURE",
+            "tag": 15,
+            "type": "int",
+            "description": "Direct measure in paint"
+          },
+          {
+            "name": "DEBUG",
+            "tag": 16,
+            "type": "int",
+            "description": "Player debug verbosity level"
+          },
+          {
+            "name": "FEATURE_MEASURE_VERSION",
+            "tag": 17,
+            "type": "int",
+            "description": "Measure implementation version"
+          },
+          {
+            "name": "FEATURE_TOUCH_VERSION",
+            "tag": 18,
+            "type": "int",
+            "description": "Touch implementation version"
+          },
+          {
+            "name": "TEST_TIME",
+            "tag": 19,
+            "type": "long",
+            "description": "Test capture epoch time in ms"
+          },
+          {
+            "name": "TEST_AFTER",
+            "tag": 20,
+            "type": "float",
+            "description": "Test capture offset in seconds"
+          },
+          {
+            "name": "TEST_COLOR_THEME",
+            "tag": 21,
+            "type": "string",
+            "description": "Simulated color theme overrides"
+          },
+          {
+            "name": "TEST_ACTIONS",
+            "tag": 22,
+            "type": "string",
+            "description": "Scripted test touch actions"
+          },
+          {
+            "name": "FEATURE_PRIORITY_FIX",
+            "tag": 23,
+            "type": "int",
+            "description": "Collapsible priority fix"
+          },
+          {
+            "name": "FEATURE_LT_RESIZE",
+            "tag": 24,
+            "type": "int",
+            "description": "Origin-aware resizing animations"
+          },
+          {
+            "name": "FEATURE_ARRAY_LISTENERS",
+            "tag": 25,
+            "type": "int",
+            "description": "Array listener pattern in TextLookup"
+          },
+          {
+            "name": "FEATURE_CLICK_VERSION",
+            "tag": 26,
+            "type": "int",
+            "description": "Click behavior version"
+          },
+          {
+            "name": "DOC_DENSITY_BEHAVIOR",
+            "tag": 27,
+            "type": "int",
+            "description": "Density behavior (0=legacy, 1=px, 2=dp)"
+          },
+          {
+            "name": "FEATURE_OPTIMIZATION_LEVEL",
+            "tag": 28,
+            "type": "int",
+            "description": "Layout optimization level"
+          },
+          {
+            "name": "FEATURE_DISALLOW_INTERCEPT_TOUCH",
+            "tag": 29,
+            "type": "int",
+            "description": "Disallow parent touch intercept"
+          },
+          {
+            "name": "FEATURE_DATA_PASS_CANVAS_OPS",
+            "tag": 30,
+            "type": "int",
+            "description": "Evaluate CanvasOperations in DATA pass"
+          },
+          {
             "name": "COMPRESS",
             "tag": 31,
             "type": "int",
-            "description": "Compression mode (1 = zlib DEFLATE)"
+            "description": "Compression mode (0=none, 1=zlib DEFLATE)"
           },
           {
             "name": "DOC_SCROLL",
@@ -1459,12 +1637,14 @@
         {
           "name": "id",
           "type": "int",
-          "description": "Unique variable ID"
+          "description": "Unique variable ID",
+          "role": "idDef",
+          "idKind": "float"
         },
         {
           "name": "value",
-          "type": "float",
-          "description": "Literal float value"
+          "type": "float_or_id",
+          "description": "Float value or NaN-encoded variable ID"
         }
       ],
       "profiles": [
@@ -1777,7 +1957,6 @@
             "PATH_SPLINE_STRIP": 3,
             "SPLINE_ROUND_STRIP": 4
           },
-          "strictEnum": true,
           "description": "Mesh encoding variant discriminator"
         },
         {
@@ -1798,7 +1977,20 @@
         {
           "name": "flags",
           "type": "int",
-          "description": "Mesh flags (bit 8 = antialiasWidth)"
+          "description": "Mesh flags (bit 8 = antialiasWidth)",
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "capSegments",
+              "range": "0..7",
+              "description": "Cap column count for TYPE_SPLINE_ROUND_STRIP"
+            },
+            {
+              "name": "antialias",
+              "range": "8",
+              "description": "Edge antialiasing skirt flag"
+            }
+          ]
         },
         {
           "name": "aux",
@@ -1810,6 +2002,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex X expression"
         },
@@ -1818,6 +2011,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex Y expression"
         },
@@ -1826,6 +2020,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Texcoord U expression"
         },
@@ -1834,6 +2029,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Texcoord V expression"
         },
@@ -1842,6 +2038,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex alpha expression"
         },
@@ -1850,6 +2047,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex red expression"
         },
@@ -1858,6 +2056,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex green expression"
         },
@@ -1866,6 +2065,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Vertex blue expression"
         },
@@ -1874,6 +2074,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "type == 0",
           "description": "Strip width expression"
         },
@@ -1882,28 +2083,29 @@
           "type": "short[]",
           "lengthType": "int",
           "maxLength": 49152,
-          "presentIf": "type == 1 || type == 2",
+          "javaLimit": "Limits.MAX_MESH_2D_INDICES",
+          "presentIf": "type != 0 && type != 3 && type != 4",
           "description": "Triangle index buffer"
         },
         {
           "name": "vertsLen",
           "type": "int",
           "derivedFrom": "len(verts)",
-          "presentIf": "type == 1",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "Vertex float count"
         },
         {
           "name": "uvLen",
           "type": "int",
           "derivedFrom": "len(uv)",
-          "presentIf": "type == 1",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "UV float count"
         },
         {
           "name": "colorsLen",
           "type": "int",
           "derivedFrom": "len(colors)",
-          "presentIf": "type == 1",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "Color int count"
         },
         {
@@ -1911,7 +2113,8 @@
           "type": "float_or_id[]",
           "countFrom": "vertsLen",
           "maxLength": 32768,
-          "presentIf": "type == 1",
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES * 2",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "32-bit vertex coordinates"
         },
         {
@@ -1919,7 +2122,8 @@
           "type": "float[]",
           "countFrom": "uvLen",
           "maxLength": 32768,
-          "presentIf": "type == 1",
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES * 2",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "32-bit UV texture coordinates"
         },
         {
@@ -1927,7 +2131,8 @@
           "type": "int[]",
           "countFrom": "colorsLen",
           "maxLength": 16384,
-          "presentIf": "type == 1",
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES",
+          "presentIf": "type != 0 && type != 2 && type != 3 && type != 4",
           "description": "ARGB vertex colors"
         },
         {
@@ -1956,6 +2161,7 @@
           "type": "short[]",
           "countFrom": "vertsF16Len",
           "maxLength": 32768,
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES * 2",
           "presentIf": "type == 2",
           "description": "IEEE 754 binary16 vertex coordinates"
         },
@@ -1964,6 +2170,7 @@
           "type": "short[]",
           "countFrom": "uvF16Len",
           "maxLength": 32768,
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES * 2",
           "presentIf": "type == 2",
           "description": "IEEE 754 binary16 UV coordinates"
         },
@@ -1972,6 +2179,7 @@
           "type": "int[]",
           "countFrom": "colorsF16Len",
           "maxLength": 16384,
+          "javaLimit": "Limits.MAX_MESH_2D_VERTICES",
           "presentIf": "type == 2",
           "description": "ARGB vertex colors for F16 mesh"
         },
@@ -1980,6 +2188,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 64,
+          "javaLimit": "Limits.MAX_MESH_2D_WIDTH_SAMPLES",
           "presentIf": "type == 3 || type == 4",
           "description": "Spline strip width samples"
         },
@@ -1988,13 +2197,14 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 64,
+          "javaLimit": "Limits.MAX_MESH_2D_WIDTH_SAMPLES",
           "presentIf": "type == 3 || type == 4",
           "description": "Spline strip width sample positions"
         },
         {
           "name": "antialiasWidth",
           "type": "float_or_id",
-          "defaultValue": "0.0",
+          "defaultValue": "1.0",
           "presentIf": "(flags & 256) != 0",
           "description": "Optional edge antialiasing width"
         }
@@ -3267,10 +3477,23 @@
           "description": "Haptic and touch behavior flags"
         },
         {
+          "name": "expressionLen",
+          "type": "int",
+          "description": "Expression element count in bits 0..15 (bits 16..31 ignored by reader)",
+          "bits": [
+            {
+              "name": "expLen",
+              "range": "0..15",
+              "derivedFrom": "len(expression)"
+            }
+          ]
+        },
+        {
           "name": "expression",
           "type": "float_or_id[]",
-          "lengthType": "int",
+          "countFrom": "expLen",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "encoding": "rpn_float_expression",
           "description": "Touch mapping RPN expression"
         },
@@ -3297,6 +3520,7 @@
           "type": "float_or_id[]",
           "countFrom": "stopLen",
           "maxLength": 200,
+          "javaLimit": "Limits.MAX_TOUCH_STOPS",
           "description": "Stop positions/notches specification"
         },
         {
@@ -3304,6 +3528,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 200,
+          "javaLimit": "Limits.MAX_EASING_LEN",
           "description": "Spring or easing specification parameters"
         }
       ],
@@ -4106,13 +4331,17 @@
         {
           "name": "textId",
           "type": "int",
-          "description": "Text ID in bits 0..30 and optional glyphSpacing presence flag in bit 31",
+          "description": "Text ID (bits 0..15 when bit 31 is set, bits 0..30 otherwise) and glyphSpacing presence flag in bit 31",
           "bits": [
             {
               "name": "textId",
               "range": "0..30",
               "role": "idRef",
-              "idKind": "text"
+              "idKind": "text",
+              "whenBitSet": {
+                "bit": 31,
+                "range": "0..15"
+              }
             },
             {
               "name": "hasGlyphSpacing",
@@ -5375,7 +5604,8 @@
           "name": "attributes",
           "type": "GraphicsLayerAttribute[]",
           "lengthType": "int",
-          "description": "Tagged graphics layer attributes"
+          "description": "Tagged graphics layer attributes",
+          "maxLength": 22
         }
       ],
       "profiles": [
@@ -5910,12 +6140,14 @@
         {
           "id": 20,
           "name": "fontAxis",
-          "type": "int[]"
+          "type": "int[]",
+          "lengthType": "ushort"
         },
         {
           "id": 21,
           "name": "fontAxisValues",
-          "type": "float_or_id[]"
+          "type": "float_or_id[]",
+          "lengthType": "ushort"
         },
         {
           "id": 22,
@@ -5936,7 +6168,9 @@
           "defaultValue": "-1"
         }
       ],
-      "isContainer": true
+      "isContainer": true,
+      "sparseCountType": "ushort",
+      "sparseKeyType": "ubyte"
     },
     {
       "id": 240,
@@ -6056,7 +6290,8 @@
           "id": 2,
           "name": "animationId",
           "type": "int",
-          "defaultValue": "-1"
+          "defaultValue": "-1",
+          "ignored": true
         },
         {
           "id": 3,
@@ -6175,12 +6410,14 @@
         {
           "id": 20,
           "name": "fontAxis",
-          "type": "int[]"
+          "type": "int[]",
+          "lengthType": "ushort"
         },
         {
           "id": 21,
           "name": "fontAxisValues",
-          "type": "float_or_id[]"
+          "type": "float_or_id[]",
+          "lengthType": "ushort"
         },
         {
           "id": 22,
@@ -6192,7 +6429,8 @@
           "id": 23,
           "name": "flags",
           "type": "int",
-          "defaultValue": "0"
+          "defaultValue": "0",
+          "ignored": true
         },
         {
           "id": 24,
@@ -6200,7 +6438,9 @@
           "type": "int",
           "defaultValue": "-1"
         }
-      ]
+      ],
+      "sparseCountType": "ushort",
+      "sparseKeyType": "ubyte"
     },
     {
       "id": 243,
@@ -6502,17 +6742,43 @@
         {
           "name": "tag",
           "type": "int",
-          "description": "Packed attribute type in bits 0..9 and data type tag in bits 10..15 (0=int, 1=float)",
+          "description": "Packed attribute index in bits 0..5 (0..21) and signed data type in bits 10..31 (0=int, 1=float_or_id)",
           "bits": [
             {
               "name": "attributeType",
-              "range": "0..9",
-              "description": "Layer attribute key"
+              "range": "0..5",
+              "description": "Layer attribute key (0..21)",
+              "enum": {
+                "SCALE_X": 0,
+                "SCALE_Y": 1,
+                "ROTATION_X": 2,
+                "ROTATION_Y": 3,
+                "ROTATION_Z": 4,
+                "TRANSFORM_ORIGIN_X": 5,
+                "TRANSFORM_ORIGIN_Y": 6,
+                "TRANSLATION_X": 7,
+                "TRANSLATION_Y": 8,
+                "TRANSLATION_Z": 9,
+                "SHADOW_ELEVATION": 10,
+                "ALPHA": 11,
+                "CAMERA_DISTANCE": 12,
+                "COMPOSITING_STRATEGY": 13,
+                "SPOT_SHADOW_COLOR": 14,
+                "AMBIENT_SHADOW_COLOR": 15,
+                "HAS_BLUR": 16,
+                "BLUR_RADIUS_X": 17,
+                "BLUR_RADIUS_Y": 18,
+                "BLUR_TILE_MODE": 19,
+                "SHAPE": 20,
+                "SHAPE_RADIUS": 21
+              },
+              "strictEnum": true
             },
             {
               "name": "dataType",
-              "range": "10..15",
-              "description": "0=int, 1=float"
+              "range": "10..31",
+              "signed": true,
+              "description": "0=int, 1=float_or_id; any other value omits the value word"
             }
           ],
           "unpackBits": false
@@ -6520,7 +6786,26 @@
         {
           "name": "value",
           "type": "int",
-          "description": "Integer value or raw float bits depending on dataType"
+          "defaultValue": "0",
+          "presentIf": "(tag >> 10) == 0 || (tag >> 10) == 1",
+          "conditionalTypes": [
+            {
+              "when": "(tag >> 10) == 0",
+              "type": "int"
+            },
+            {
+              "when": "(tag >> 10) == 1",
+              "type": "float_or_id"
+            }
+          ],
+          "conditionalRoles": [
+            {
+              "when": "(tag >> 10) == 0 && ((tag & 63) == 14 || (tag & 63) == 15)",
+              "role": "idRef",
+              "idKind": "color"
+            }
+          ],
+          "description": "Integer value (dataType == 0) or raw float/NaN-ID bits (dataType == 1)"
         }
       ]
     },
@@ -6646,6 +6931,61 @@
           "maxLength": 32,
           "encoding": "rpn_float_expression",
           "description": "Update RPN float expression"
+        }
+      ]
+    },
+    "HeaderProperty": {
+      "description": "Property map entry in modern (v1.1+) Header operations",
+      "fields": [
+        {
+          "name": "tag",
+          "type": "short",
+          "description": "Packed 6-bit property key (bits 0..5) and signed data type (bits 10..15)",
+          "bits": [
+            {
+              "name": "key",
+              "range": "0..5",
+              "description": "Property tag key (0..63)"
+            },
+            {
+              "name": "dataType",
+              "range": "10..15",
+              "signed": true,
+              "description": "0=int, 1=float, 2=long, 3=string; any other value reads 0 bytes"
+            }
+          ],
+          "unpackBits": false
+        },
+        {
+          "name": "itemLen",
+          "type": "short",
+          "description": "Declared payload byte length (read and ignored by Java reader)"
+        },
+        {
+          "name": "intValue",
+          "type": "int",
+          "presentIf": "(tag >> 10) == 0",
+          "description": "32-bit integer property value when dataType == 0"
+        },
+        {
+          "name": "floatValue",
+          "type": "float",
+          "presentIf": "(tag >> 10) == 1",
+          "description": "32-bit float property value when dataType == 1"
+        },
+        {
+          "name": "longValue",
+          "type": "long",
+          "presentIf": "(tag >> 10) == 2",
+          "description": "64-bit integer property value when dataType == 2"
+        },
+        {
+          "name": "stringValue",
+          "type": "string",
+          "maxLength": 4000,
+          "javaLimit": "Limits.MAX_STRING_SIZE",
+          "presentIf": "(tag >> 10) == 3",
+          "description": "UTF-8 string property value when dataType == 3"
         }
       ]
     }
