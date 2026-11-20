@@ -425,9 +425,10 @@ The Java language level determines the minimum version of the Java runtime
 required for lint checks and other host-side libraries like compilers.
 
 To avoid causing issues for clients, we try to separate Java compiler or runtime
-updates from language level by pinning the Java language level to the second
-most-recent stable LTS version. In extreme cases, however, we may be required to
-move to a more recent version because of a dependency like AGP or Gradle.
+updates from language level by pinning the Java language level to an older
+stable LTS version, currently Java 17 (`VERSION_17`). In extreme cases, however,
+we may be required to move to a more recent version because of a dependency like
+AGP or Gradle.
 
 Library owners *may*, in cases where clients are unable to update their Java
 version, temporarily pin their Java language version to a lower value by
@@ -436,8 +437,8 @@ specifying the compatibility DSL properties:
 ```
 javaExtension.apply {
     // TODO(b/12345678) Remove this once clients are able to update.
-    sourceCompatibility = VERSION_17
-    targetCompatibility = VERSION_17
+    sourceCompatibility = VERSION_11
+    targetCompatibility = VERSION_11
 }
 ```
 
@@ -446,9 +447,10 @@ un-pin and rejoin the rest of AndroidX.
 
 #### Java language (device-side) {#java-device}
 
-Currently, the highest Java language level supported for Android libraries is
-Java 1.8 (`VERSION_1_8`). AndroidX **does not** currently support library API
-desugaring, so the use of Java 8 APIs requires `minSdk 26` or higher.
+Android libraries in AndroidX compile with Java 11 source and target
+compatibility (`VERSION_11`), so they ship Java 11 bytecode (class file version
+55). AndroidX **does not** currently support library API desugaring, so the use
+of Java 8 APIs requires `minSdk 26` or higher.
 
 #### Android SDK {#compile-sdk}
 
