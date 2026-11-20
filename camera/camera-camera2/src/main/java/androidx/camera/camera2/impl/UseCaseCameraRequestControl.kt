@@ -625,16 +625,9 @@ constructor(
     override fun setTorchOnAsync(): Deferred<Result3A> = setTorchOnAsync(session = null)
 
     override fun setTorchOnAsync(session: CameraGraph.Session?): Deferred<Result3A> =
-        runIfNotClosed {
-            runOnSequential(session) {
-                Camera2Logger.debug { "UseCaseCameraRequestControlImpl#setTorchOnAsync" }
-                if (session != null) {
-                    session.setTorchOn()
-                } else {
-                    useGraphSessionOrFailed { it.setTorchOn() }
-                }
-            }
-        } ?: submitFailedResult
+        setTorchAsync(session, "UseCaseCameraRequestControlImpl#setTorchOnAsync") {
+            it.setTorchOn()
+        }
 
     override fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> =
         setTorchOffAsync(aeMode, session = null)
@@ -643,14 +636,27 @@ constructor(
         aeMode: AeMode,
         session: CameraGraph.Session?,
     ): Deferred<Result3A> =
+        setTorchAsync(session, "UseCaseCameraRequestControlImpl#setTorchOffAsync") {
+            it.setTorchOff(aeMode = aeMode)
+        }
+
+    private fun setTorchAsync(
+        session: CameraGraph.Session?,
+        logLabel: String,
+        action: (CameraGraph.Session) -> Deferred<Result3A>,
+    ): Deferred<Result3A> =
         runIfNotClosed {
             runOnSequential(session) {
-                Camera2Logger.debug { "UseCaseCameraRequestControlImpl#setTorchOffAsync" }
-                if (session != null) {
-                    session.setTorchOff(aeMode = aeMode)
-                } else {
-                    useGraphSessionOrFailed { it.setTorchOff(aeMode = aeMode) }
-                }
+                Camera2Logger.debug { logLabel }
+                val result =
+                    if (session != null) {
+                        action(session)
+                    } else {
+                        useGraphSessionOrFailed { action(it) }
+                    }
+                // Controller3A.update3A leaves Result3AStateListenerImpl unbounded (timeLimitNs =
+                // null), so apply a wall-clock timeout in case the HAL stalls or omits FLASH_MODE.
+                result.withTimeoutMillis(default3ATimeoutMillis())
             }
         } ?: submitFailedResult
 
@@ -711,9 +717,7 @@ constructor(
                 // Bound unlock3A with a wall-clock timeout in case the HAL stops delivering frames
                 // while the CameraGraph remains open, ensuring update3A still runs inside the same
                 // session to reset metering regions and the returned Deferred completes.
-                val timeoutMillis =
-                    TimeUnit.NANOSECONDS.toMillis(CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS) +
-                        CHECK_3A_TIMEOUT_BUFFER_IN_MS
+                val timeoutMillis = default3ATimeoutMillis()
                 var unlockResult: Deferred<Result3A>? = null
                 val result = useGraphSessionOrFailed { session ->
                     unlockResult =
@@ -801,12 +805,13 @@ constructor(
             runCancellableOnSequential {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#update3aRegions" }
                 useGraphSessionOrFailed {
-                    it.update3A(
-                        aeRegions = aeRegions,
-                        afRegions = afRegions,
-                        awbRegions = awbRegions,
-                    )
-                }
+                        it.update3A(
+                            aeRegions = aeRegions,
+                            afRegions = afRegions,
+                            awbRegions = awbRegions,
+                        )
+                    }
+                    .withTimeoutMillis(default3ATimeoutMillis())
             }
         } ?: submitFailedResult
 
@@ -967,6 +972,10 @@ constructor(
             block = block,
         )
 
+    private fun default3ATimeoutMillis(): Long =
+        TimeUnit.NANOSECONDS.toMillis(CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS) +
+            CHECK_3A_TIMEOUT_BUFFER_IN_MS
+
     private fun Deferred<Result3A>.withTimeoutMillis(timeoutMillis: Long): Deferred<Result3A> {
         if (isCompleted) return this
         val source = this
@@ -974,7 +983,11 @@ constructor(
         val timeoutJob =
             threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
                 delay(timeoutMillis)
-                timedDeferred.complete(Result3A(Result3A.Status.TIME_LIMIT_REACHED))
+                // Cancel source on timeout so unbounded update3A listeners do not remain active in
+                // Listener3A.
+                if (timedDeferred.complete(Result3A(Result3A.Status.TIME_LIMIT_REACHED))) {
+                    source.cancel()
+                }
             }
         source.invokeOnCompletion { throwable ->
             if (throwable == null) {
