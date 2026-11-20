@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,30 +21,35 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationRailBaselineItemTokens {
-    inline val ActiveIndicatorIconLabelSpace: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
-
-    inline val ActiveIndicatorLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
+    // References
     inline val ActiveIndicatorShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
-
-    inline val ActiveIndicatorTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 64.0.dp
 
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerNone
 
+    // Values
+    inline val ActiveIndicatorIconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space100
+
+    inline val ActiveIndicatorLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val ActiveIndicatorTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
+
     inline val ContainerVerticalSpace: androidx.compose.ui.unit.Dp
-        get() = 6.0.dp
+        get() = MeasurementTokens.Space75
 
     inline val HeaderSpaceMinimum: androidx.compose.ui.unit.Dp
-        get() = 40.0.dp
+        get() = MeasurementTokens.Space500
 
     inline val IconSize: androidx.compose.ui.unit.Dp
         get() = 24.0.dp
+
+    inline val ShortContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
 }

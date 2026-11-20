@@ -115,7 +115,6 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.internal.textFieldBackground
 import androidx.compose.material3.tokens.AppBarTokens
-import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
@@ -1772,8 +1771,7 @@ public object SearchBarDefaults {
      * Default container color for an [ExpandedFullScreenContainedSearchBar] in the expanded state.
      */
     public val fullScreenContainedSearchBarColor: Color
-        @Composable
-        get() = ColorSchemeKeyTokens.SurfaceContainerLow.value // TODO: replace with token.
+        @Composable get() = SearchViewTokens.ContainedBackgroundColor.value
 
     /** Default shape for a [DockedSearchBar]. */
     public val dockedShape: Shape
@@ -1784,7 +1782,7 @@ public object SearchBarDefaults {
         get() = RoundedCornerShape(corner = CornerSize(12.dp)) // TODO: replace with token.
 
     /** Default gap size for a drop-down attached to a [DockedSearchBar]. */
-    public val dockedDropdownGapSize: Dp = 2.dp // TODO: replace with token.
+    public val dockedDropdownGapSize: Dp = SearchViewTokens.ContainedDockedBarResultsGap
 
     /** Default scrim color for a drop-down attached to a [DockedSearchBar]. */
     public val dockedDropdownScrimColor: Color
@@ -1942,8 +1940,7 @@ public object SearchBarDefaults {
     @Composable
     public fun appBarWithSearchColors(
         searchBarColors: SearchBarColors = colors(),
-        // TODO Load the color tokens from the component tokens file
-        scrolledSearchBarContainerColor: Color = ColorSchemeKeyTokens.SurfaceContainerHighest.value,
+        scrolledSearchBarContainerColor: Color = AppBarTokens.SearchOnScrollContainerColor.value,
         appBarContainerColor: Color = AppBarTokens.ContainerColor.value,
         scrolledAppBarContainerColor: Color = AppBarTokens.OnScrollContainerColor.value,
         appBarNavigationIconColor: Color = AppBarTokens.LeadingIconColor.value,

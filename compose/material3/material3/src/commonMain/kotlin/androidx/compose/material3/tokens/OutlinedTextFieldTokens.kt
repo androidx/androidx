@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,11 +21,9 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object OutlinedTextFieldTokens {
+    // References
     inline val CaretColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
-
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 56.0.dp
 
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerExtraSmall
@@ -33,30 +31,21 @@ internal object OutlinedTextFieldTokens {
     inline val DisabledInputColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledInputOpacity = 0.38f
     inline val DisabledLabelColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledLabelOpacity = 0.38f
     inline val DisabledLeadingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledLeadingIconOpacity = 0.38f
     inline val DisabledOutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
-
-    const val DisabledOutlineOpacity = 0.12f
-    inline val DisabledOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
 
     inline val DisabledSupportingColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledSupportingOpacity = 0.38f
     inline val DisabledTrailingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledTrailingIconOpacity = 0.38f
     inline val ErrorFocusCaretColor: ColorToken
         get() = ColorSchemeKeyTokens.Error
 
@@ -126,9 +115,6 @@ internal object OutlinedTextFieldTokens {
     inline val FocusOutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
 
-    inline val FocusOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 2.0.dp
-
     inline val FocusSupportingColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
@@ -146,9 +132,6 @@ internal object OutlinedTextFieldTokens {
 
     inline val HoverOutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
-
-    inline val HoverOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
 
     inline val HoverSupportingColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
@@ -180,14 +163,8 @@ internal object OutlinedTextFieldTokens {
     inline val LeadingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
-    inline val LeadingIconSize: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
-
     inline val OutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.Outline
-
-    inline val OutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
 
     inline val SupportingColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
@@ -197,6 +174,28 @@ internal object OutlinedTextFieldTokens {
 
     inline val TrailingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    // Values
+    const val DisabledInputOpacity: Float = 0.38f
+    const val DisabledLabelOpacity: Float = 0.38f
+    const val DisabledLeadingIconOpacity: Float = 0.38f
+    const val DisabledOutlineOpacity: Float = 0.12f
+    inline val DisabledOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    const val DisabledSupportingOpacity: Float = 0.38f
+    const val DisabledTrailingIconOpacity: Float = 0.38f
+    inline val FocusOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 3.0.dp
+
+    inline val HoverOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val LeadingIconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val OutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
 
     inline val TrailingIconSize: androidx.compose.ui.unit.Dp
         get() = 24.0.dp

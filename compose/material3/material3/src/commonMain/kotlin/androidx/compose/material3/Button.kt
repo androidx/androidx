@@ -969,11 +969,10 @@ public object ButtonDefaults {
     public val ExtraSmallContentPadding: PaddingValues
         get() =
             PaddingValues(
-                // TODO update with the value from ButtonXSmallTokens.kt once it's been corrected
-                start = 12.dp,
-                end = 12.dp,
-                top = 6.dp,
-                bottom = 6.dp,
+                start = ExtraSmallLeadingPadding,
+                end = ExtraSmallTrailingPadding,
+                top = ExtraSmallVerticalPadding,
+                bottom = ExtraSmallVerticalPadding,
             )
 
     /** Default content padding for a medium button. */
@@ -1114,8 +1113,7 @@ public object ButtonDefaults {
     /**
      * The default spacing between an icon and a text when they used inside any extra small button.
      */
-    // TODO use the value from ButtonXSmallTokens.kt once it's been corrected
-    public val ExtraSmallIconSpacing: Dp = 4.dp
+    public val ExtraSmallIconSpacing: Dp = ButtonXSmallTokens.IconLabelSpace
 
     /** The default spacing between an icon and a text when they're inside any medium button. */
     public val MediumIconSpacing: Dp = ButtonMediumTokens.IconLabelSpace
@@ -1332,9 +1330,16 @@ public object ButtonDefaults {
                         contentColor = fromToken(FilledTonalButtonTokens.LabelTextColor),
                         disabledContainerColor =
                             fromToken(FilledTonalButtonTokens.DisabledContainerColor)
-                                .copy(alpha = FilledTonalButtonTokens.DisabledContainerOpacity),
+                                .copy(
+                                    // TODO(b/588071802): This value is outdated, but updating it
+                                    //  is a breaking visual change
+                                    alpha = 0.12f
+                                ),
                         disabledContentColor =
-                            fromToken(FilledTonalButtonTokens.DisabledLabelTextColor)
+                            // TODO(b/588071802): Use
+                            //  FilledTonalButtonTokens.DisabledLabelTextColor once its value is
+                            //  updated to OnSurface
+                            fromToken(ColorSchemeKeyTokens.OnSurface)
                                 .copy(alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity),
                     )
                     .also { defaultFilledTonalButtonColorsCached = it }
@@ -1420,12 +1425,11 @@ public object ButtonDefaults {
             return defaultTextButtonColorsCached
                 ?: ButtonColors(
                         containerColor = Color.Transparent,
-                        // TODO replace with the token value once it's corrected
-                        contentColor = fromToken(ColorSchemeKeyTokens.Primary),
+                        contentColor = fromToken(TextButtonTokens.LabelTextColor),
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
-                            fromToken(TextButtonTokens.DisabledLabelColor)
-                                .copy(alpha = TextButtonTokens.DisabledLabelOpacity),
+                            fromToken(TextButtonTokens.DisabledLabelTextColor)
+                                .copy(alpha = TextButtonTokens.DisabledLabelTextOpacity),
                     )
                     .also { defaultTextButtonColorsCached = it }
         }
@@ -1502,8 +1506,8 @@ public object ButtonDefaults {
     public fun filledTonalButtonElevation(
         defaultElevation: Dp = FilledTonalButtonTokens.ContainerElevation,
         pressedElevation: Dp = FilledTonalButtonTokens.PressedContainerElevation,
-        focusedElevation: Dp = FilledTonalButtonTokens.FocusContainerElevation,
-        hoveredElevation: Dp = FilledTonalButtonTokens.HoverContainerElevation,
+        focusedElevation: Dp = FilledTonalButtonTokens.FocusedContainerElevation,
+        hoveredElevation: Dp = FilledTonalButtonTokens.HoveredContainerElevation,
         disabledElevation: Dp = 0.dp,
     ): ButtonElevation =
         ButtonElevation(
@@ -1665,6 +1669,9 @@ public object ButtonDefaults {
     private val iconSmallHorizontalPadding
         get() = if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else SmallStartPadding
 
+    private val ExtraSmallLeadingPadding = ButtonXSmallTokens.LeadingSpace
+    private val ExtraSmallTrailingPadding = ButtonXSmallTokens.TrailingSpace
+    private val ExtraSmallVerticalPadding = 6.dp
     private val MediumLeadingPadding = ButtonMediumTokens.LeadingSpace
     private val MediumTrailingPadding = ButtonMediumTokens.TrailingSpace
     private val MediumVerticalPadding = 16.dp

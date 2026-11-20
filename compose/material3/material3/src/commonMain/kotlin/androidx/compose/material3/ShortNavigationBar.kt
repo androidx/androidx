@@ -242,7 +242,12 @@ public fun ShortNavigationBarItem(
         selected = selected,
         onClick = onClick,
         icon = icon,
-        labelTextStyle = NavigationBarTokens.LabelTextFont.value,
+        labelTextStyle =
+            if (isIconPositionTop) {
+                NavigationBarVerticalItemTokens.LabelTextFont.value
+            } else {
+                NavigationBarHorizontalItemTokens.LabelTextFont.value
+            },
         indicatorShape = NavigationBarTokens.ItemActiveIndicatorShape.value,
         indicatorWidth = NavigationBarVerticalItemTokens.ActiveIndicatorWidth,
         indicatorPadding = PaddingValues(indicatorHorizontalPadding, indicatorVerticalPadding),
@@ -519,16 +524,13 @@ internal val TopIconItemVerticalPadding
     get() = NavigationBarVerticalItemTokens.ContainerBetweenSpace
 /*@VisibleForTesting*/
 internal val TopIconIndicatorVerticalPadding =
-    (NavigationBarVerticalItemTokens.ActiveIndicatorHeight -
-        NavigationBarVerticalItemTokens.IconSize) / 2
+    (NavigationBarVerticalItemTokens.ActiveIndicatorHeight - NavigationBarTokens.ItemIconSize) / 2
 /*@VisibleForTesting*/
 internal val TopIconIndicatorHorizontalPadding =
-    (NavigationBarVerticalItemTokens.ActiveIndicatorWidth -
-        NavigationBarVerticalItemTokens.IconSize) / 2
+    (NavigationBarVerticalItemTokens.ActiveIndicatorWidth - NavigationBarTokens.ItemIconSize) / 2
 /*@VisibleForTesting*/
 internal val StartIconIndicatorVerticalPadding =
-    (NavigationBarHorizontalItemTokens.ActiveIndicatorHeight -
-        NavigationBarHorizontalItemTokens.IconSize) / 2
+    (NavigationBarHorizontalItemTokens.ActiveIndicatorHeight - NavigationBarTokens.ItemIconSize) / 2
 /*@VisibleForTesting*/
 internal val TopIconIndicatorToLabelPadding: Dp
     get() = 4.dp

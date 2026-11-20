@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,11 +21,18 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SearchViewTokens {
+    // References
+    inline val ContainedBackgroundColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val ContainedDockedBarShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ContainedDockedResultsShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerHigh
-
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level3
 
     inline val DividerColor: ColorToken
         get() = ColorSchemeKeyTokens.Outline
@@ -33,14 +40,8 @@ internal object SearchViewTokens {
     inline val DockedContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerExtraLarge
 
-    inline val DockedHeaderContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 56.0.dp
-
     inline val FullScreenContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerNone
-
-    inline val FullScreenHeaderContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 72.0.dp
 
     inline val HeaderInputTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
@@ -59,4 +60,41 @@ internal object SearchViewTokens {
 
     inline val HeaderTrailingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    // Values
+    inline val ContainedDockedBarResultsGap: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space25
+
+    inline val ContainedFullScreenBarContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val ContainedIconLabelGap: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
+    inline val ContainedLeadingMargin: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space150
+
+    inline val ContainedTrailingMargin: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space150
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val DockedHeaderContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val FullScreenHeaderContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 72.0.dp
+
+    inline val LabelTrailingTrailingIconIconSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val LeadingLeadingIconIconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val TrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
 }

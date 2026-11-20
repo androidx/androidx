@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_117
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,16 +21,12 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object RadioButtonTokens {
+    // References
     inline val DisabledSelectedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledSelectedIconOpacity = 0.38f
     inline val DisabledUnselectedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
-
-    const val DisabledUnselectedIconOpacity = 0.38f
-    inline val IconSize: androidx.compose.ui.unit.Dp
-        get() = 20.0.dp
 
     inline val SelectedFocusIconColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
@@ -44,9 +40,6 @@ internal object RadioButtonTokens {
     inline val SelectedPressedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
 
-    inline val StateLayerSize: androidx.compose.ui.unit.Dp
-        get() = 40.0.dp
-
     inline val UnselectedFocusIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
@@ -58,4 +51,13 @@ internal object RadioButtonTokens {
 
     inline val UnselectedPressedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
+
+    // Values
+    const val DisabledSelectedIconOpacity: Float = 0.38f
+    const val DisabledUnselectedIconOpacity: Float = 0.38f
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val StateLayerSize: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_14_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,8 +21,19 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object FabMenuBaselineTokens {
+    // References
+    inline val CloseButtonContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ItemContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ItemLabelText: TypographyToken
+        get() = TypographyKeyTokens.TitleMedium
+
+    // Values
     inline val CloseButtonBetweenSpace: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
+        get() = MeasurementTokens.Space100
 
     inline val CloseButtonContainerElevation: androidx.compose.ui.unit.Dp
         get() = ElevationTokens.Level3
@@ -30,36 +41,30 @@ internal object FabMenuBaselineTokens {
     inline val CloseButtonContainerHeight: androidx.compose.ui.unit.Dp
         get() = 56.0.dp
 
-    inline val CloseButtonContainerShape: ShapeToken
-        get() = ShapeKeyTokens.CornerFull
-
     inline val CloseButtonContainerWidth: androidx.compose.ui.unit.Dp
         get() = 56.0.dp
 
     inline val CloseButtonIconSize: androidx.compose.ui.unit.Dp
         get() = 20.0.dp
 
-    inline val ListItemBetweenSpace: androidx.compose.ui.unit.Dp
-        get() = 4.0.dp
+    inline val ItemBetweenSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
 
-    inline val ListItemContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level3
+    inline val ItemContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
 
-    inline val ListItemContainerHeight: androidx.compose.ui.unit.Dp
+    inline val ItemContainerHeight: androidx.compose.ui.unit.Dp
         get() = 56.0.dp
 
-    inline val ListItemContainerShape: ShapeToken
-        get() = ShapeKeyTokens.CornerFull
+    inline val ItemIconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space100
 
-    inline val ListItemIconLabelSpace: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
-
-    inline val ListItemIconSize: androidx.compose.ui.unit.Dp
+    inline val ItemIconSize: androidx.compose.ui.unit.Dp
         get() = 24.0.dp
 
-    inline val ListItemLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
+    inline val ItemLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space300
 
-    inline val ListItemTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
+    inline val ItemTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space300
 }

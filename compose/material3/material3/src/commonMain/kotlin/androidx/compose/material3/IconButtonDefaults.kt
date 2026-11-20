@@ -20,13 +20,13 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.tokens.FilledIconButtonTokens
 import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
-import androidx.compose.material3.tokens.LargeIconButtonTokens
-import androidx.compose.material3.tokens.MediumIconButtonTokens
+import androidx.compose.material3.tokens.IconButtonLargeTokens
+import androidx.compose.material3.tokens.IconButtonMediumTokens
+import androidx.compose.material3.tokens.IconButtonSmallTokens
+import androidx.compose.material3.tokens.IconButtonXLargeTokens
+import androidx.compose.material3.tokens.IconButtonXSmallTokens
 import androidx.compose.material3.tokens.OutlinedIconButtonTokens
-import androidx.compose.material3.tokens.SmallIconButtonTokens
 import androidx.compose.material3.tokens.StandardIconButtonTokens
-import androidx.compose.material3.tokens.XLargeIconButtonTokens
-import androidx.compose.material3.tokens.XSmallIconButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -838,7 +838,7 @@ public object IconButtonDefaults {
             } else {
                 outlineColor.copy(alpha = OutlinedIconButtonTokens.DisabledOpacity)
             }
-        return remember(color) { BorderStroke(SmallIconButtonTokens.OutlinedOutlineWidth, color) }
+        return remember(color) { BorderStroke(IconButtonSmallTokens.OutlinedOutlineWidth, color) }
     }
 
     /**
@@ -856,60 +856,60 @@ public object IconButtonDefaults {
             } else {
                 outlineColor.copy(alpha = OutlinedIconButtonTokens.DisabledOpacity)
             }
-        return remember(color) { BorderStroke(SmallIconButtonTokens.OutlinedOutlineWidth, color) }
+        return remember(color) { BorderStroke(IconButtonSmallTokens.OutlinedOutlineWidth, color) }
     }
 
     /** Default ripple shape for a standard icon button. */
     public val standardShape: Shape
-        @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
+        @Composable get() = IconButtonSmallTokens.ContainerShapeRound.value
 
     /** Default shape for a filled icon button. */
     public val filledShape: Shape
-        @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
+        @Composable get() = IconButtonSmallTokens.ContainerShapeRound.value
 
     /** Default shape for an outlined icon button. */
     public val outlinedShape: Shape
-        @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
+        @Composable get() = IconButtonSmallTokens.ContainerShapeRound.value
 
     /** Default round shape for any extra small icon button. */
     public val extraSmallRoundShape: Shape
-        @Composable get() = XSmallIconButtonTokens.ContainerShapeRound.value
+        @Composable get() = IconButtonXSmallTokens.ContainerShapeRound.value
 
     /** Default square shape for any extra small icon button. */
     public val extraSmallSquareShape: Shape
-        @Composable get() = XSmallIconButtonTokens.ContainerShapeSquare.value
+        @Composable get() = IconButtonXSmallTokens.ContainerShapeSquare.value
 
     /** Default pressed shape for any extra small icon button. */
     public val extraSmallPressedShape: Shape
-        @Composable get() = XSmallIconButtonTokens.PressedContainerShape.value
+        @Composable get() = IconButtonXSmallTokens.PressedContainerShape.value
 
     /** Default selected shape for any extra small icon button. */
     public val extraSmallSelectedRoundShape: Shape
-        @Composable get() = XSmallIconButtonTokens.SelectedContainerShapeRound.value
+        @Composable get() = IconButtonXSmallTokens.SelectedContainerShapeRound.value
 
     /** Default selected shape for any extra small, square icon button. */
     public val extraSmallSelectedSquareShape: Shape
-        @Composable get() = XSmallIconButtonTokens.SelectedContainerShapeSquare.value
+        @Composable get() = IconButtonXSmallTokens.SelectedContainerShapeSquare.value
 
     /** Default shape for any small icon button. */
     public val smallRoundShape: Shape
-        @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
+        @Composable get() = IconButtonSmallTokens.ContainerShapeRound.value
 
     /** Default square shape for any small icon button. */
     public val smallSquareShape: Shape
-        @Composable get() = SmallIconButtonTokens.ContainerShapeSquare.value
+        @Composable get() = IconButtonSmallTokens.ContainerShapeSquare.value
 
     /** Default pressed shape for any small icon button. */
     public val smallPressedShape: Shape
-        @Composable get() = SmallIconButtonTokens.PressedContainerShape.value
+        @Composable get() = IconButtonSmallTokens.PressedContainerShape.value
 
     /** Default selected shape for any small icon button. */
     public val smallSelectedRoundShape: Shape
-        @Composable get() = SmallIconButtonTokens.SelectedContainerShapeRound.value
+        @Composable get() = IconButtonSmallTokens.SelectedContainerShapeRound.value
 
     /** Default selected shape for any small, square icon button. */
     public val smallSelectedSquareShape: Shape
-        @Composable get() = SmallIconButtonTokens.SelectedContainerShapeSquare.value
+        @Composable get() = IconButtonSmallTokens.SelectedContainerShapeSquare.value
 
     @Deprecated(
         message = "Use the camel case version",
@@ -918,67 +918,67 @@ public object IconButtonDefaults {
     )
     @get:JvmName("getSmallSelectedSquareShape_pascalName") // Renames the JVM signature
     public val SmallSelectedSquareShape: Shape
-        @Composable get() = SmallIconButtonTokens.SelectedContainerShapeSquare.value
+        @Composable get() = IconButtonSmallTokens.SelectedContainerShapeSquare.value
 
     /** Default shape for any medium icon button. */
     public val mediumRoundShape: Shape
-        @Composable get() = MediumIconButtonTokens.ContainerShapeRound.value
+        @Composable get() = IconButtonMediumTokens.ContainerShapeRound.value
 
     /** Default shape for any medium icon button. */
     public val mediumSquareShape: Shape
-        @Composable get() = MediumIconButtonTokens.ContainerShapeSquare.value
+        @Composable get() = IconButtonMediumTokens.ContainerShapeSquare.value
 
     /** Default pressed shape for any medium icon button. */
     public val mediumPressedShape: Shape
-        @Composable get() = MediumIconButtonTokens.PressedContainerShape.value
+        @Composable get() = IconButtonMediumTokens.PressedContainerShape.value
 
     /** Default selected shape for any medium icon button. */
     public val mediumSelectedRoundShape: Shape
-        @Composable get() = MediumIconButtonTokens.SelectedContainerShapeRound.value
+        @Composable get() = IconButtonMediumTokens.SelectedContainerShapeRound.value
 
     /** Default selected shape for any medium, square icon button. */
     public val mediumSelectedSquareShape: Shape
-        @Composable get() = MediumIconButtonTokens.SelectedContainerShapeSquare.value
+        @Composable get() = IconButtonMediumTokens.SelectedContainerShapeSquare.value
 
     /** Default shape for any large icon button. */
     public val largeRoundShape: Shape
-        @Composable get() = LargeIconButtonTokens.ContainerShapeRound.value
+        @Composable get() = IconButtonLargeTokens.ContainerShapeRound.value
 
     /** Default shape for any large icon button. */
     public val largeSquareShape: Shape
-        @Composable get() = LargeIconButtonTokens.ContainerShapeSquare.value
+        @Composable get() = IconButtonLargeTokens.ContainerShapeSquare.value
 
     /** Default pressed shape for any large icon button. */
     public val largePressedShape: Shape
-        @Composable get() = LargeIconButtonTokens.PressedContainerShape.value
+        @Composable get() = IconButtonLargeTokens.PressedContainerShape.value
 
     /** Default selected shape for any large icon button. */
     public val largeSelectedRoundShape: Shape
-        @Composable get() = LargeIconButtonTokens.SelectedContainerShapeRound.value
+        @Composable get() = IconButtonLargeTokens.SelectedContainerShapeRound.value
 
     /** Default selected shape for any large, square icon button. */
     public val largeSelectedSquareShape: Shape
-        @Composable get() = LargeIconButtonTokens.SelectedContainerShapeSquare.value
+        @Composable get() = IconButtonLargeTokens.SelectedContainerShapeSquare.value
 
     /** Default shape for any extra large icon button. */
     public val extraLargeRoundShape: Shape
-        @Composable get() = XLargeIconButtonTokens.ContainerShapeRound.value
+        @Composable get() = IconButtonXLargeTokens.ContainerShapeRound.value
 
     /** Default shape for any extra large icon button. */
     public val extraLargeSquareShape: Shape
-        @Composable get() = XLargeIconButtonTokens.ContainerShapeSquare.value
+        @Composable get() = IconButtonXLargeTokens.ContainerShapeSquare.value
 
     /** Default pressed shape for any extra large icon button. */
     public val extraLargePressedShape: Shape
-        @Composable get() = XLargeIconButtonTokens.PressedContainerShape.value
+        @Composable get() = IconButtonXLargeTokens.PressedContainerShape.value
 
     /** Default selected shape for any extra large icon button. */
     public val extraLargeSelectedRoundShape: Shape
-        @Composable get() = XLargeIconButtonTokens.SelectedContainerShapeRound.value
+        @Composable get() = IconButtonXLargeTokens.SelectedContainerShapeRound.value
 
     /** Default selected shape for any extra large, square icon button. */
     public val extraLargeSelectedSquareShape: Shape
-        @Composable get() = XLargeIconButtonTokens.SelectedContainerShapeSquare.value
+        @Composable get() = IconButtonXLargeTokens.SelectedContainerShapeSquare.value
 
     /**
      * Creates a [IconButtonShapes] that correspond to the shapes in the default or pressed states.
@@ -1007,8 +1007,8 @@ public object IconButtonDefaults {
         get() {
             return defaultIconButtonShapesCached
                 ?: IconButtonShapes(
-                        shape = fromToken(SmallIconButtonTokens.ContainerShapeRound),
-                        pressedShape = fromToken(SmallIconButtonTokens.PressedContainerShape),
+                        shape = fromToken(IconButtonSmallTokens.ContainerShapeRound),
+                        pressedShape = fromToken(IconButtonSmallTokens.PressedContainerShape),
                     )
                     .also { defaultIconButtonShapesCached = it }
         }
@@ -1048,27 +1048,27 @@ public object IconButtonDefaults {
         get() {
             return defaultIconToggleButtonShapesCached
                 ?: IconToggleButtonShapes(
-                        shape = fromToken(SmallIconButtonTokens.ContainerShapeRound),
-                        pressedShape = fromToken(SmallIconButtonTokens.PressedContainerShape),
-                        checkedShape = fromToken(SmallIconButtonTokens.SelectedContainerShapeRound),
+                        shape = fromToken(IconButtonSmallTokens.ContainerShapeRound),
+                        pressedShape = fromToken(IconButtonSmallTokens.PressedContainerShape),
+                        checkedShape = fromToken(IconButtonSmallTokens.SelectedContainerShapeRound),
                     )
                     .also { defaultIconToggleButtonShapesCached = it }
         }
 
     /** Default container for any extra small icon button. */
-    public val extraSmallIconSize: Dp = XSmallIconButtonTokens.IconSize
+    public val extraSmallIconSize: Dp = IconButtonXSmallTokens.IconSize
 
     /** Default size for any small icon button. */
-    public val smallIconSize: Dp = SmallIconButtonTokens.IconSize
+    public val smallIconSize: Dp = IconButtonSmallTokens.IconSize
 
     /** Default container size for any medium icon button. */
-    public val mediumIconSize: Dp = MediumIconButtonTokens.IconSize
+    public val mediumIconSize: Dp = IconButtonMediumTokens.IconSize
 
     /** Default size for any large icon button. */
-    public val largeIconSize: Dp = LargeIconButtonTokens.IconSize
+    public val largeIconSize: Dp = IconButtonLargeTokens.IconSize
 
     /** Default size for any xlarge icon button. */
-    public val extraLargeIconSize: Dp = XLargeIconButtonTokens.IconSize
+    public val extraLargeIconSize: Dp = IconButtonXLargeTokens.IconSize
 
     /**
      * Default container size for any extra small icon button.
@@ -1081,19 +1081,19 @@ public object IconButtonDefaults {
         val horizontalSpace =
             when (widthOption) {
                 IconButtonWidthOption.Narrow ->
-                    XSmallIconButtonTokens.NarrowLeadingSpace +
-                        XSmallIconButtonTokens.NarrowTrailingSpace
+                    IconButtonXSmallTokens.NarrowLeadingSpace +
+                        IconButtonXSmallTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
-                    XSmallIconButtonTokens.DefaultLeadingSpace +
-                        XSmallIconButtonTokens.DefaultLeadingSpace
+                    IconButtonXSmallTokens.DefaultLeadingSpace +
+                        IconButtonXSmallTokens.DefaultLeadingSpace
                 IconButtonWidthOption.Wide ->
-                    XSmallIconButtonTokens.WideLeadingSpace +
-                        XSmallIconButtonTokens.WideTrailingSpace
+                    IconButtonXSmallTokens.WideLeadingSpace +
+                        IconButtonXSmallTokens.WideTrailingSpace
                 else -> 0.dp
             }
         return DpSize(
-            XSmallIconButtonTokens.IconSize + horizontalSpace,
-            XSmallIconButtonTokens.ContainerHeight,
+            IconButtonXSmallTokens.IconSize + horizontalSpace,
+            IconButtonXSmallTokens.ContainerHeight,
         )
     }
 
@@ -1108,18 +1108,18 @@ public object IconButtonDefaults {
         val horizontalSpace =
             when (widthOption) {
                 IconButtonWidthOption.Narrow ->
-                    SmallIconButtonTokens.NarrowLeadingSpace +
-                        SmallIconButtonTokens.NarrowTrailingSpace
+                    IconButtonSmallTokens.NarrowLeadingSpace +
+                        IconButtonSmallTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
-                    SmallIconButtonTokens.DefaultLeadingSpace +
-                        SmallIconButtonTokens.DefaultLeadingSpace
+                    IconButtonSmallTokens.DefaultLeadingSpace +
+                        IconButtonSmallTokens.DefaultLeadingSpace
                 IconButtonWidthOption.Wide ->
-                    SmallIconButtonTokens.WideLeadingSpace + SmallIconButtonTokens.WideTrailingSpace
+                    IconButtonSmallTokens.WideLeadingSpace + IconButtonSmallTokens.WideTrailingSpace
                 else -> 0.dp
             }
         return DpSize(
-            SmallIconButtonTokens.IconSize + horizontalSpace,
-            SmallIconButtonTokens.ContainerHeight,
+            IconButtonSmallTokens.IconSize + horizontalSpace,
+            IconButtonSmallTokens.ContainerHeight,
         )
     }
 
@@ -1134,19 +1134,19 @@ public object IconButtonDefaults {
         val horizontalSpace =
             when (widthOption) {
                 IconButtonWidthOption.Narrow ->
-                    MediumIconButtonTokens.NarrowLeadingSpace +
-                        MediumIconButtonTokens.NarrowTrailingSpace
+                    IconButtonMediumTokens.NarrowLeadingSpace +
+                        IconButtonMediumTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
-                    MediumIconButtonTokens.DefaultLeadingSpace +
-                        MediumIconButtonTokens.DefaultLeadingSpace
+                    IconButtonMediumTokens.DefaultLeadingSpace +
+                        IconButtonMediumTokens.DefaultLeadingSpace
                 IconButtonWidthOption.Wide ->
-                    MediumIconButtonTokens.WideLeadingSpace +
-                        MediumIconButtonTokens.WideTrailingSpace
+                    IconButtonMediumTokens.WideLeadingSpace +
+                        IconButtonMediumTokens.WideTrailingSpace
                 else -> 0.dp
             }
         return DpSize(
-            MediumIconButtonTokens.IconSize + horizontalSpace,
-            MediumIconButtonTokens.ContainerHeight,
+            IconButtonMediumTokens.IconSize + horizontalSpace,
+            IconButtonMediumTokens.ContainerHeight,
         )
     }
 
@@ -1161,18 +1161,18 @@ public object IconButtonDefaults {
         val horizontalSpace =
             when (widthOption) {
                 IconButtonWidthOption.Narrow ->
-                    LargeIconButtonTokens.NarrowLeadingSpace +
-                        LargeIconButtonTokens.NarrowTrailingSpace
+                    IconButtonLargeTokens.NarrowLeadingSpace +
+                        IconButtonLargeTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
-                    LargeIconButtonTokens.UniformLeadingSpace +
-                        LargeIconButtonTokens.UniformLeadingSpace
+                    IconButtonLargeTokens.DefaultLeadingSpace +
+                        IconButtonLargeTokens.DefaultLeadingSpace
                 IconButtonWidthOption.Wide ->
-                    LargeIconButtonTokens.WideLeadingSpace + LargeIconButtonTokens.WideTrailingSpace
+                    IconButtonLargeTokens.WideLeadingSpace + IconButtonLargeTokens.WideTrailingSpace
                 else -> 0.dp
             }
         return DpSize(
-            LargeIconButtonTokens.IconSize + horizontalSpace,
-            LargeIconButtonTokens.ContainerHeight,
+            IconButtonLargeTokens.IconSize + horizontalSpace,
+            IconButtonLargeTokens.ContainerHeight,
         )
     }
 
@@ -1187,19 +1187,19 @@ public object IconButtonDefaults {
         val horizontalSpace =
             when (widthOption) {
                 IconButtonWidthOption.Narrow ->
-                    XLargeIconButtonTokens.NarrowLeadingSpace +
-                        XLargeIconButtonTokens.NarrowTrailingSpace
+                    IconButtonXLargeTokens.NarrowLeadingSpace +
+                        IconButtonXLargeTokens.NarrowTrailingSpace
                 IconButtonWidthOption.Uniform ->
-                    XLargeIconButtonTokens.DefaultLeadingSpace +
-                        XLargeIconButtonTokens.DefaultLeadingSpace
+                    IconButtonXLargeTokens.DefaultLeadingSpace +
+                        IconButtonXLargeTokens.DefaultLeadingSpace
                 IconButtonWidthOption.Wide ->
-                    XLargeIconButtonTokens.WideLeadingSpace +
-                        XLargeIconButtonTokens.WideTrailingSpace
+                    IconButtonXLargeTokens.WideLeadingSpace +
+                        IconButtonXLargeTokens.WideTrailingSpace
                 else -> 0.dp
             }
         return DpSize(
-            XLargeIconButtonTokens.IconSize + horizontalSpace,
-            XLargeIconButtonTokens.ContainerHeight,
+            IconButtonXLargeTokens.IconSize + horizontalSpace,
+            IconButtonXLargeTokens.ContainerHeight,
         )
     }
 

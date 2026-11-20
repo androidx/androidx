@@ -391,7 +391,7 @@ public fun TooltipScope.PlainTooltip(
                     )
                     .padding(PlainTooltipContentPadding)
         ) {
-            val textStyle = PlainTooltipTokens.SupportingTextFont.value
+            val textStyle = PlainTooltipTokens.SupportingTextType.value
 
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,

@@ -32,10 +32,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.Icons
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.tokens.ButtonGroupSmallTokens
 import androidx.compose.material3.tokens.ConnectedButtonGroupSmallTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.ShapeTokens
+import androidx.compose.material3.tokens.StandardButtonGroupSmallTokens
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -189,7 +189,7 @@ public object ButtonGroupDefaults {
 
     /** The default Arrangement used between children for standard button group. */
     public val HorizontalArrangement: Arrangement.Horizontal =
-        Arrangement.spacedBy(ButtonGroupSmallTokens.BetweenSpace)
+        Arrangement.spacedBy(StandardButtonGroupSmallTokens.BetweenSpace)
 
     /** The default spacing used between children for connected button group */
     public val ConnectedSpaceBetween: Dp = ConnectedButtonGroupSmallTokens.BetweenSpace

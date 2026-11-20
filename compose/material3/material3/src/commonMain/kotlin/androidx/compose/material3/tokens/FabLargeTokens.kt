@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_14_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,15 +21,17 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object FabLargeTokens {
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 96.0.dp
-
+    // References
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerExtraLarge
+
+    // Values
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
 
     inline val ContainerWidth: androidx.compose.ui.unit.Dp
         get() = 96.0.dp
 
     inline val IconSize: androidx.compose.ui.unit.Dp
-        get() = 32.0.dp
+        get() = 36.0.dp
 }

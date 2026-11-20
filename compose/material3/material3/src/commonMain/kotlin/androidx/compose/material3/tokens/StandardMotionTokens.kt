@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_14_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
+
 package androidx.compose.material3.tokens
+
 internal object StandardMotionTokens {
-    const val SpringDefaultSpatialDamping = 0.9f
-    const val SpringDefaultSpatialStiffness = 700.0f
     const val SpringDefaultEffectsDamping = 1.0f
     const val SpringDefaultEffectsStiffness = 1600.0f
-    const val SpringFastSpatialDamping = 0.9f
-    const val SpringFastSpatialStiffness = 1400.0f
+    const val SpringDefaultSpatialDamping = 0.9f
+    const val SpringDefaultSpatialStiffness = 700.0f
     const val SpringFastEffectsDamping = 1.0f
     const val SpringFastEffectsStiffness = 3800.0f
-    const val SpringSlowSpatialDamping = 0.9f
-    const val SpringSlowSpatialStiffness = 300.0f
+    const val SpringFastSpatialDamping = 0.9f
+    const val SpringFastSpatialStiffness = 1400.0f
     const val SpringSlowEffectsDamping = 1.0f
     const val SpringSlowEffectsStiffness = 800.0f
+    const val SpringSlowSpatialDamping = 0.9f
+    const val SpringSlowSpatialStiffness = 300.0f
 }

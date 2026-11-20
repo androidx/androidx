@@ -25,7 +25,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.tokens.NavigationBarTokens
+import androidx.compose.material3.tokens.NavigationBarHorizontalItemTokens
+import androidx.compose.material3.tokens.NavigationBarVerticalItemTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
@@ -108,7 +109,12 @@ class NavigationItemScreenshotTest {
             selected = true,
             onClick = {},
             icon = { Icon(Icons.Filled.Home, contentDescription = null) },
-            labelTextStyle = NavigationBarTokens.LabelTextFont.value,
+            labelTextStyle =
+                if (iconPosition == NavigationItemIconPosition.Top) {
+                    NavigationBarVerticalItemTokens.LabelTextFont.value
+                } else {
+                    NavigationBarHorizontalItemTokens.LabelTextFont.value
+                },
             indicatorShape = CircleShape,
             indicatorWidth = 56.dp,
             indicatorPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),

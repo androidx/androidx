@@ -513,74 +513,66 @@ public object ExposedDropdownMenuDefaults {
      */
     @Composable
     public fun textFieldColors(
-        focusedTextColor: Color = FilledAutocompleteTokens.FieldFocusInputTextColor.value,
-        unfocusedTextColor: Color = FilledAutocompleteTokens.FieldInputTextColor.value,
+        focusedTextColor: Color = FilledAutocompleteTokens.FocusInputTextColor.value,
+        unfocusedTextColor: Color = FilledAutocompleteTokens.InputTextColor.value,
         disabledTextColor: Color =
-            FilledAutocompleteTokens.FieldDisabledInputTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledInputTextOpacity
+            FilledAutocompleteTokens.DisabledInputTextColor.value.copy(
+                alpha = FilledAutocompleteTokens.DisabledInputTextOpacity
             ),
-        errorTextColor: Color = FilledAutocompleteTokens.FieldErrorInputTextColor.value,
-        focusedContainerColor: Color = FilledAutocompleteTokens.TextFieldContainerColor.value,
-        unfocusedContainerColor: Color = FilledAutocompleteTokens.TextFieldContainerColor.value,
-        disabledContainerColor: Color = FilledAutocompleteTokens.TextFieldContainerColor.value,
-        errorContainerColor: Color = FilledAutocompleteTokens.TextFieldContainerColor.value,
-        cursorColor: Color = FilledAutocompleteTokens.TextFieldCaretColor.value,
-        errorCursorColor: Color = FilledAutocompleteTokens.TextFieldErrorFocusCaretColor.value,
+        errorTextColor: Color = FilledAutocompleteTokens.ErrorInputTextColor.value,
+        focusedContainerColor: Color = FilledAutocompleteTokens.ContainerColor.value,
+        unfocusedContainerColor: Color = FilledAutocompleteTokens.ContainerColor.value,
+        disabledContainerColor: Color = FilledAutocompleteTokens.ContainerColor.value,
+        errorContainerColor: Color = FilledAutocompleteTokens.ContainerColor.value,
+        cursorColor: Color = FilledAutocompleteTokens.CaretColor.value,
+        errorCursorColor: Color = FilledAutocompleteTokens.ErrorFocusCaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusActiveIndicatorColor.value,
-        unfocusedIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldActiveIndicatorColor.value,
+        focusedIndicatorColor: Color = FilledAutocompleteTokens.FocusActiveIndicatorColor.value,
+        unfocusedIndicatorColor: Color = FilledAutocompleteTokens.ActiveIndicatorColor.value,
         disabledIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledActiveIndicatorColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledActiveIndicatorOpacity
+            FilledAutocompleteTokens.DisabledActiveIndicatorColor.value.copy(
+                alpha = FilledAutocompleteTokens.DisabledActiveIndicatorOpacity
             ),
-        errorIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorActiveIndicatorColor.value,
-        focusedLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusLeadingIconColor.value,
-        unfocusedLeadingIconColor: Color = FilledAutocompleteTokens.TextFieldLeadingIconColor.value,
+        errorIndicatorColor: Color = FilledAutocompleteTokens.ErrorActiveIndicatorColor.value,
+        focusedLeadingIconColor: Color = FilledAutocompleteTokens.FocusLeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = FilledAutocompleteTokens.LeadingIconColor.value,
         disabledLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledLeadingIconColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledLeadingIconOpacity
+            FilledAutocompleteTokens.DisabledLeadingIconColor.value.copy(
+                alpha = FilledAutocompleteTokens.DisabledLeadingIconOpacity
             ),
-        errorLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorLeadingIconColor.value,
-        focusedTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusTrailingIconColor.value,
-        unfocusedTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldTrailingIconColor.value,
+        errorLeadingIconColor: Color = FilledAutocompleteTokens.ErrorLeadingIconColor.value,
+        focusedTrailingIconColor: Color = FilledAutocompleteTokens.FocusTrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = FilledAutocompleteTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledTrailingIconColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledTrailingIconOpacity
+            FilledAutocompleteTokens.DisabledTrailingIconColor.value.copy(
+                alpha = FilledAutocompleteTokens.DisabledTrailingIconOpacity
             ),
-        errorTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorTrailingIconColor.value,
-        focusedLabelColor: Color = FilledAutocompleteTokens.FieldFocusLabelTextColor.value,
-        unfocusedLabelColor: Color = FilledAutocompleteTokens.FieldLabelTextColor.value,
-        disabledLabelColor: Color = FilledAutocompleteTokens.FieldDisabledLabelTextColor.value,
-        errorLabelColor: Color = FilledAutocompleteTokens.FieldErrorLabelTextColor.value,
-        focusedPlaceholderColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedPlaceholderColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
+        errorTrailingIconColor: Color = FilledAutocompleteTokens.ErrorTrailingIconColor.value,
+        focusedLabelColor: Color = FilledAutocompleteTokens.FocusLabelTextColor.value,
+        unfocusedLabelColor: Color = FilledAutocompleteTokens.LabelTextColor.value,
+        disabledLabelColor: Color = FilledAutocompleteTokens.DisabledLabelTextColor.value,
+        errorLabelColor: Color = FilledAutocompleteTokens.ErrorLabelTextColor.value,
+        focusedPlaceholderColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
+        unfocusedPlaceholderColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
         disabledPlaceholderColor: Color =
-            FilledAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledSupportingTextOpacity
+            FilledAutocompleteTokens.DisabledSupportingTextColor.value.copy(
+                alpha = FilledAutocompleteTokens.DisabledSupportingTextOpacity
             ),
-        errorPlaceholderColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        focusedPrefixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedPrefixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
+        errorPlaceholderColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
+        focusedPrefixColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
+        unfocusedPrefixColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
         disabledPrefixColor: Color =
-            FilledAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledSupportingTextOpacity
+            FilledAutocompleteTokens.DisabledSupportingTextColor.value.copy(
+                alpha = FilledAutocompleteTokens.DisabledSupportingTextOpacity
             ),
-        errorPrefixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        focusedSuffixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedSuffixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
+        errorPrefixColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
+        focusedSuffixColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
+        unfocusedSuffixColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
         disabledSuffixColor: Color =
-            FilledAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledSupportingTextOpacity
+            FilledAutocompleteTokens.DisabledSupportingTextColor.value.copy(
+                alpha = FilledAutocompleteTokens.DisabledSupportingTextOpacity
             ),
-        errorSuffixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
+        errorSuffixColor: Color = FilledAutocompleteTokens.SupportingTextColor.value,
     ): TextFieldColors =
         TextFieldDefaults.colors(
             focusedTextColor = focusedTextColor,
@@ -674,76 +666,69 @@ public object ExposedDropdownMenuDefaults {
      */
     @Composable
     public fun outlinedTextFieldColors(
-        focusedTextColor: Color = OutlinedAutocompleteTokens.FieldFocusInputTextColor.value,
-        unfocusedTextColor: Color = OutlinedAutocompleteTokens.FieldInputTextColor.value,
+        focusedTextColor: Color = OutlinedAutocompleteTokens.FocusInputTextColor.value,
+        unfocusedTextColor: Color = OutlinedAutocompleteTokens.InputTextColor.value,
         disabledTextColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledInputTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledInputTextOpacity
+            OutlinedAutocompleteTokens.DisabledInputTextColor.value.copy(
+                alpha = OutlinedAutocompleteTokens.DisabledInputTextOpacity
             ),
-        errorTextColor: Color = OutlinedAutocompleteTokens.FieldErrorInputTextColor.value,
+        errorTextColor: Color = OutlinedAutocompleteTokens.ErrorInputTextColor.value,
         focusedContainerColor: Color = Color.Transparent,
         unfocusedContainerColor: Color = Color.Transparent,
         disabledContainerColor: Color = Color.Transparent,
         errorContainerColor: Color = Color.Transparent,
-        cursorColor: Color = OutlinedAutocompleteTokens.TextFieldCaretColor.value,
-        errorCursorColor: Color = OutlinedAutocompleteTokens.TextFieldErrorFocusCaretColor.value,
+        cursorColor: Color = OutlinedAutocompleteTokens.CaretColor.value,
+        errorCursorColor: Color = OutlinedAutocompleteTokens.ErrorFocusCaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedBorderColor: Color = OutlinedAutocompleteTokens.TextFieldFocusOutlineColor.value,
-        unfocusedBorderColor: Color = OutlinedAutocompleteTokens.TextFieldOutlineColor.value,
+        focusedBorderColor: Color = OutlinedAutocompleteTokens.FocusOutlineColor.value,
+        unfocusedBorderColor: Color = OutlinedAutocompleteTokens.OutlineColor.value,
         disabledBorderColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledOutlineColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledOutlineOpacity
+            OutlinedAutocompleteTokens.DisabledOutlineColor.value.copy(
+                alpha = OutlinedAutocompleteTokens.DisabledOutlineOpacity
             ),
-        errorBorderColor: Color = OutlinedAutocompleteTokens.TextFieldErrorOutlineColor.value,
-        focusedLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldFocusLeadingIconColor.value,
-        unfocusedLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldLeadingIconColor.value,
+        errorBorderColor: Color = OutlinedAutocompleteTokens.ErrorOutlineColor.value,
+        focusedLeadingIconColor: Color = OutlinedAutocompleteTokens.FocusLeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = OutlinedAutocompleteTokens.LeadingIconColor.value,
         disabledLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledLeadingIconColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledLeadingIconOpacity
+            OutlinedAutocompleteTokens.DisabledLeadingIconColor.value.copy(
+                alpha = OutlinedAutocompleteTokens.DisabledLeadingIconOpacity
             ),
-        errorLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldErrorLeadingIconColor.value,
-        focusedTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldFocusTrailingIconColor.value,
-        unfocusedTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldTrailingIconColor.value,
+        errorLeadingIconColor: Color = OutlinedAutocompleteTokens.ErrorLeadingIconColor.value,
+        focusedTrailingIconColor: Color = OutlinedAutocompleteTokens.FocusTrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = OutlinedAutocompleteTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledTrailingIconColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledTrailingIconOpacity
+            OutlinedAutocompleteTokens.DisabledTrailingIconColor.value.copy(
+                alpha = OutlinedAutocompleteTokens.DisabledTrailingIconOpacity
             ),
-        errorTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldErrorTrailingIconColor.value,
-        focusedLabelColor: Color = OutlinedAutocompleteTokens.FieldFocusLabelTextColor.value,
-        unfocusedLabelColor: Color = OutlinedAutocompleteTokens.FieldLabelTextColor.value,
+        errorTrailingIconColor: Color = OutlinedAutocompleteTokens.ErrorTrailingIconColor.value,
+        focusedLabelColor: Color = OutlinedAutocompleteTokens.FocusLabelTextColor.value,
+        unfocusedLabelColor: Color = OutlinedAutocompleteTokens.LabelTextColor.value,
         disabledLabelColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledLabelTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledLabelTextOpacity
+            OutlinedAutocompleteTokens.DisabledLabelTextColor.value.copy(
+                alpha = OutlinedAutocompleteTokens.DisabledLabelTextOpacity
             ),
-        errorLabelColor: Color = OutlinedAutocompleteTokens.FieldErrorLabelTextColor.value,
-        focusedPlaceholderColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedPlaceholderColor: Color =
-            OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
+        errorLabelColor: Color = OutlinedAutocompleteTokens.ErrorLabelTextColor.value,
+        focusedPlaceholderColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
+        unfocusedPlaceholderColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
         disabledPlaceholderColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
+            OutlinedAutocompleteTokens.DisabledSupportingTextColor.value.copy(
+                alpha = OutlinedAutocompleteTokens.DisabledSupportingTextOpacity
             ),
-        errorPlaceholderColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        focusedPrefixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedPrefixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
+        errorPlaceholderColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
+        focusedPrefixColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
+        unfocusedPrefixColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
         disabledPrefixColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
+            OutlinedAutocompleteTokens.DisabledSupportingTextColor.value.copy(
+                alpha = OutlinedAutocompleteTokens.DisabledSupportingTextOpacity
             ),
-        errorPrefixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        focusedSuffixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedSuffixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
+        errorPrefixColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
+        focusedSuffixColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
+        unfocusedSuffixColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
         disabledSuffixColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
+            OutlinedAutocompleteTokens.DisabledSupportingTextColor.value.copy(
+                alpha = OutlinedAutocompleteTokens.DisabledSupportingTextOpacity
             ),
-        errorSuffixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
+        errorSuffixColor: Color = OutlinedAutocompleteTokens.SupportingTextColor.value,
     ): TextFieldColors =
         OutlinedTextFieldDefaults.colors(
             focusedTextColor = focusedTextColor,

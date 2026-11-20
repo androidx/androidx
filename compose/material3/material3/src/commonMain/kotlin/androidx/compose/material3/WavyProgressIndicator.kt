@@ -463,7 +463,7 @@ public object WavyProgressIndicatorDefaults {
         LinearProgressIndicatorTokens.IndeterminateActiveWaveWavelength
 
     /** A default linear progress indicator container height. */
-    public val LinearContainerHeight: Dp = LinearProgressIndicatorTokens.WaveHeight
+    public val LinearContainerHeight: Dp = LinearProgressIndicatorTokens.LargeHeight
 
     /** A default linear progress indicator container width. */
     public val LinearContainerWidth: Dp = 240.dp
@@ -472,7 +472,7 @@ public object WavyProgressIndicatorDefaults {
     public val LinearTrackStopIndicatorSize: Dp = LinearProgressIndicatorTokens.StopSize
 
     /** A default circular progress indicator container size. */
-    public val CircularContainerSize: Dp = CircularProgressIndicatorTokens.WaveSize
+    public val CircularContainerSize: Dp = CircularProgressIndicatorTokens.LargeSize
 
     /** A default wavelength of a circular progress indicator when it's in a wavy form. */
     public val CircularWavelength: Dp = CircularProgressIndicatorTokens.ActiveWaveWavelength

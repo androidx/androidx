@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,26 +21,22 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SwitchTokens {
+    // References
     inline val DisabledSelectedHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.Surface
 
-    const val DisabledSelectedHandleOpacity = 1.0f
     inline val DisabledSelectedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledSelectedIconOpacity = 0.38f
     inline val DisabledSelectedTrackColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledTrackOpacity = 0.12f
     inline val DisabledUnselectedHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledUnselectedHandleOpacity = 0.38f
     inline val DisabledUnselectedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerHighest
 
-    const val DisabledUnselectedIconOpacity = 0.38f
     inline val DisabledUnselectedTrackColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerHighest
 
@@ -53,17 +49,11 @@ internal object SwitchTokens {
     inline val HandleShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
-    inline val PressedHandleHeight: androidx.compose.ui.unit.Dp
-        get() = 28.0.dp
-
-    inline val PressedHandleWidth: androidx.compose.ui.unit.Dp
-        get() = 28.0.dp
-
     inline val SelectedFocusHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.PrimaryContainer
 
     inline val SelectedFocusIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+        get() = ColorSchemeKeyTokens.Primary
 
     inline val SelectedFocusTrackColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
@@ -71,32 +61,24 @@ internal object SwitchTokens {
     inline val SelectedHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimary
 
-    inline val SelectedHandleHeight: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
-
-    inline val SelectedHandleWidth: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
-
     inline val SelectedHoverHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.PrimaryContainer
 
     inline val SelectedHoverIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+        get() = ColorSchemeKeyTokens.Primary
 
     inline val SelectedHoverTrackColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
 
+    // TODO(b/588071802): This value is outdated, but updating it is a breaking visual change
     inline val SelectedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimaryContainer
-
-    inline val SelectedIconSize: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
 
     inline val SelectedPressedHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.PrimaryContainer
 
     inline val SelectedPressedIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+        get() = ColorSchemeKeyTokens.Primary
 
     inline val SelectedPressedTrackColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
@@ -107,20 +89,8 @@ internal object SwitchTokens {
     inline val StateLayerShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
-    inline val StateLayerSize: androidx.compose.ui.unit.Dp
-        get() = 40.0.dp
-
-    inline val TrackHeight: androidx.compose.ui.unit.Dp
-        get() = 32.0.dp
-
-    inline val TrackOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 2.0.dp
-
     inline val TrackShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
-
-    inline val TrackWidth: androidx.compose.ui.unit.Dp
-        get() = 52.0.dp
 
     inline val UnselectedFocusHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
@@ -137,12 +107,6 @@ internal object SwitchTokens {
     inline val UnselectedHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.Outline
 
-    inline val UnselectedHandleHeight: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
-    inline val UnselectedHandleWidth: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
     inline val UnselectedHoverHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
@@ -157,9 +121,6 @@ internal object SwitchTokens {
 
     inline val UnselectedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerHighest
-
-    inline val UnselectedIconSize: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
 
     inline val UnselectedPressedHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
@@ -179,9 +140,51 @@ internal object SwitchTokens {
     inline val UnselectedTrackOutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.Outline
 
-    inline val IconHandleHeight: androidx.compose.ui.unit.Dp
+    // Values
+    const val DisabledSelectedHandleOpacity: Float = 1.0f
+    const val DisabledSelectedIconOpacity: Float = 0.38f
+    const val DisabledTrackOpacity: Float = 0.12f
+    const val DisabledUnselectedHandleOpacity: Float = 0.38f
+    const val DisabledUnselectedIconOpacity: Float = 0.38f
+    inline val HandleHeight: androidx.compose.ui.unit.Dp
         get() = 24.0.dp
 
-    inline val IconHandleWidth: androidx.compose.ui.unit.Dp
+    inline val HandleWidth: androidx.compose.ui.unit.Dp
         get() = 24.0.dp
+
+    inline val PressedHandleHeight: androidx.compose.ui.unit.Dp
+        get() = 28.0.dp
+
+    inline val PressedHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 28.0.dp
+
+    inline val SelectedHandleHeight: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val SelectedHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val SelectedIconSize: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val StateLayerSize: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val TrackHeight: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val TrackOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val TrackWidth: androidx.compose.ui.unit.Dp
+        get() = 52.0.dp
+
+    inline val UnselectedHandleHeight: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val UnselectedHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val UnselectedIconSize: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
 }

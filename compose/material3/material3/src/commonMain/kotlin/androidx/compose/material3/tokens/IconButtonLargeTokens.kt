@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,40 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: 14_1_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 import androidx.compose.ui.unit.dp
 
-internal object XLargeIconButtonTokens {
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 136.0.dp
-
+internal object IconButtonLargeTokens {
+    // References
     inline val ContainerShapeRound: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
     inline val ContainerShapeSquare: ShapeToken
         get() = ShapeKeyTokens.CornerExtraLarge
-
-    inline val DefaultLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 48.0.dp
-
-    inline val DefaultTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 48.0.dp
-
-    inline val IconSize: androidx.compose.ui.unit.Dp
-        get() = 40.0.dp
-
-    inline val NarrowLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 32.0.dp
-
-    inline val NarrowTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 32.0.dp
-
-    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 3.0.dp
 
     inline val PressedContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerLarge
@@ -57,9 +37,31 @@ internal object XLargeIconButtonTokens {
     inline val SelectedContainerShapeSquare: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
+    // Values
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
+
+    inline val DefaultLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space400
+
+    inline val DefaultTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space400
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val NarrowLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val NarrowTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
     inline val WideLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 72.0.dp
+        get() = MeasurementTokens.Space600
 
     inline val WideTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 72.0.dp
+        get() = MeasurementTokens.Space600
 }

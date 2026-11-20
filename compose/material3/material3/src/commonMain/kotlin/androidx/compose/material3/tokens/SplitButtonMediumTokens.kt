@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: 18_0_18
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -22,31 +21,34 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SplitButtonMediumTokens {
+    // References
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    // Values
     inline val BetweenSpace: androidx.compose.ui.unit.Dp
-        get() = 2.0.dp
+        get() = MeasurementTokens.Space25
 
     inline val ContainerHeight: androidx.compose.ui.unit.Dp
         get() = 56.0.dp
-
-    inline val ContainerShape: ShapeToken
-        get() = ShapeKeyTokens.CornerFull
 
     val InnerCornerCornerSize = ShapeTokens.CornerValueExtraSmall
     val InnerHoveredCornerCornerSize = ShapeTokens.CornerValueMedium
     val InnerPressedCornerCornerSize = ShapeTokens.CornerValueMedium
     inline val LeadingButtonLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
+        get() = MeasurementTokens.Space300
 
     inline val LeadingButtonTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
+        get() = MeasurementTokens.Space300
 
-    inline val TrailingIconSize: androidx.compose.ui.unit.Dp
-        get() = 26.0.dp
-
-    const val TrailingInnerSelectedCornerCornerSizePercent = 50.0f
     inline val TrailingButtonLeadingSpace: androidx.compose.ui.unit.Dp
         get() = 15.0.dp
 
     inline val TrailingButtonTrailingSpace: androidx.compose.ui.unit.Dp
         get() = 15.0.dp
+
+    inline val TrailingIconSize: androidx.compose.ui.unit.Dp
+        get() = 26.0.dp
+
+    const val TrailingInnerSelectedCornerCornerSizePercent = 50.0f
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,6 +21,7 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SheetBottomTokens {
+    // References
     inline val DockedContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerLow
 
@@ -30,21 +31,22 @@ internal object SheetBottomTokens {
     inline val DockedDragHandleColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
+    inline val DockedMinimizedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    // Values
     inline val DockedDragHandleHeight: androidx.compose.ui.unit.Dp
         get() = 4.0.dp
 
     inline val DockedDragHandleWidth: androidx.compose.ui.unit.Dp
         get() = 32.0.dp
 
-    inline val DockedMinimizedContainerShape: ShapeToken
-        get() = ShapeKeyTokens.CornerNone
-
     inline val DockedModalContainerElevation: androidx.compose.ui.unit.Dp
         get() = ElevationTokens.Level1
 
     inline val DockedStandardContainerElevation: androidx.compose.ui.unit.Dp
         get() = ElevationTokens.Level1
-
-    inline val FocusIndicatorColor: ColorToken
-        get() = ColorSchemeKeyTokens.Secondary
 }

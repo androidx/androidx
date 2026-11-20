@@ -13,26 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_14_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object FabPrimaryContainerTokens {
+    // References
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.PrimaryContainer
 
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level3
-
-    inline val FocusedContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level3
-
     inline val FocusedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimaryContainer
-
-    inline val HoveredContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level4
 
     inline val HoveredIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimaryContainer
@@ -40,9 +32,19 @@ internal object FabPrimaryContainerTokens {
     inline val IconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimaryContainer
 
-    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level3
-
     inline val PressedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    // Values
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val FocusedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val HoveredContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level4
+
+    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
 }

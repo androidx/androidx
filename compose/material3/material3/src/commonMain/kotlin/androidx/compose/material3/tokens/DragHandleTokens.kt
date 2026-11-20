@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: 7_0_1
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,14 +21,28 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DragHandleTokens {
+    // References
     inline val Color: ColorToken
         get() = ColorSchemeKeyTokens.Outline
 
-    inline val ContainerWidth: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
-
     inline val DraggedColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val DraggedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val PressedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val PressedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val Shape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    // Values
+    inline val ContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
 
     inline val DraggedElevation: androidx.compose.ui.unit.Dp
         get() = ElevationTokens.Level0
@@ -36,18 +50,14 @@ internal object DragHandleTokens {
     inline val DraggedHeight: androidx.compose.ui.unit.Dp
         get() = 52.0.dp
 
-    inline val DraggedShape: ShapeToken
-        get() = ShapeKeyTokens.CornerMedium
-
     inline val DraggedWidth: androidx.compose.ui.unit.Dp
         get() = 12.0.dp
 
-    val Elevation = ElevationTokens.Level0
+    inline val Elevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
     inline val Height: androidx.compose.ui.unit.Dp
         get() = 48.0.dp
-
-    inline val PressedColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurface
 
     inline val PressedElevation: androidx.compose.ui.unit.Dp
         get() = ElevationTokens.Level0
@@ -55,14 +65,8 @@ internal object DragHandleTokens {
     inline val PressedHeight: androidx.compose.ui.unit.Dp
         get() = 52.0.dp
 
-    inline val PressedShape: ShapeToken
-        get() = ShapeKeyTokens.CornerMedium
-
     inline val PressedWidth: androidx.compose.ui.unit.Dp
         get() = 12.0.dp
-
-    inline val Shape: ShapeToken
-        get() = ShapeKeyTokens.CornerFull
 
     inline val Width: androidx.compose.ui.unit.Dp
         get() = 4.0.dp

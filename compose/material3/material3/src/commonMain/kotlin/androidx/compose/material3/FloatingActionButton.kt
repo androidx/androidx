@@ -47,7 +47,6 @@ import androidx.compose.material3.internal.animateElevation
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.ExtendedFabLargeTokens
 import androidx.compose.material3.tokens.ExtendedFabMediumTokens
-import androidx.compose.material3.tokens.ExtendedFabPrimaryTokens
 import androidx.compose.material3.tokens.ExtendedFabSmallTokens
 import androidx.compose.material3.tokens.FabBaselineTokens
 import androidx.compose.material3.tokens.FabLargeTokens
@@ -140,7 +139,7 @@ public fun FloatingActionButton(
 ): Unit =
     FloatingActionButton(
         onClick,
-        ExtendedFabPrimaryTokens.LabelTextFont.value,
+        ExtendedFabSmallTokens.LabelText.value,
         FabBaselineTokens.ContainerWidth,
         FabBaselineTokens.ContainerHeight,
         modifier,
@@ -1007,7 +1006,7 @@ public object FloatingActionButtonDefaults {
     public val MediumIconSize: Dp = FabMediumTokens.IconSize
 
     /** The recommended size of the icon inside a [LargeFloatingActionButton]. */
-    public val LargeIconSize: Dp = 36.dp // TODO: FabLargeTokens.IconSize is incorrect
+    public val LargeIconSize: Dp = FabLargeTokens.IconSize
 
     /** Default shape for a floating action button. */
     public val shape: Shape
@@ -1019,7 +1018,7 @@ public object FloatingActionButtonDefaults {
 
     /** Default shape for a medium floating action button. */
     public val mediumShape: Shape
-        @Composable get() = ShapeDefaults.LargeIncreased // TODO: update to use token
+        @Composable get() = FabMediumTokens.ContainerShape.value
 
     /** Default shape for a large floating action button. */
     public val largeShape: Shape
@@ -1027,7 +1026,7 @@ public object FloatingActionButtonDefaults {
 
     /** Default shape for an extended floating action button. */
     public val extendedFabShape: Shape
-        @Composable get() = ExtendedFabPrimaryTokens.ContainerShape.value
+        @Composable get() = ExtendedFabSmallTokens.ContainerShape.value
 
     /** Default shape for a small extended floating action button. */
     public val smallExtendedFabShape: Shape
@@ -1035,7 +1034,7 @@ public object FloatingActionButtonDefaults {
 
     /** Default shape for a medium extended floating action button. */
     public val mediumExtendedFabShape: Shape
-        @Composable get() = ShapeDefaults.LargeIncreased // TODO: update to use token
+        @Composable get() = ExtendedFabMediumTokens.ContainerShape.value
 
     /** Default shape for a large extended floating action button. */
     public val largeExtendedFabShape: Shape
@@ -1451,9 +1450,8 @@ private val MediumExtendedFabPaddingStart
     get() = ExtendedFabMediumTokens.LeadingSpace
 private val MediumExtendedFabPaddingEnd
     get() = ExtendedFabMediumTokens.TrailingSpace
-// TODO: ExtendedFabMediumTokens.IconLabelSpace is incorrect
 private val MediumExtendedFabIconPadding
-    get() = 12.dp
+    get() = ExtendedFabMediumTokens.IconLabelSpace
 private val MediumExtendedFabTextStyle = TypographyKeyTokens.TitleLarge
 
 private val LargeExtendedFabMinimumWidth
@@ -1464,9 +1462,8 @@ private val LargeExtendedFabPaddingStart
     get() = ExtendedFabLargeTokens.LeadingSpace
 private val LargeExtendedFabPaddingEnd
     get() = ExtendedFabLargeTokens.TrailingSpace
-// TODO: ExtendedFabLargeTokens.IconLabelSpace is incorrect
 private val LargeExtendedFabIconPadding
-    get() = 16.dp
+    get() = ExtendedFabLargeTokens.IconLabelSpace
 private val LargeExtendedFabTextStyle = TypographyKeyTokens.HeadlineSmall
 
 private val ExtendedFabStartIconPadding

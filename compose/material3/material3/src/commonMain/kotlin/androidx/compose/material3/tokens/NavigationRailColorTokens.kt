@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object NavigationRailColorTokens {
+    // References
     inline val ItemActiveFocusedStateLayer: ColorToken
         get() = ColorSchemeKeyTokens.OnSecondaryContainer
 
@@ -51,4 +52,6 @@ internal object NavigationRailColorTokens {
 
     inline val ItemInactivePressedStateLayer: ColorToken
         get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    // Values
 }

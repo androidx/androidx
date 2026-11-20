@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,11 +21,9 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object FilledTextFieldTokens {
+    // References
     inline val ActiveIndicatorColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
-
-    inline val ActiveIndicatorHeight: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
 
     inline val CaretColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
@@ -39,34 +37,24 @@ internal object FilledTextFieldTokens {
     inline val DisabledActiveIndicatorColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    inline val DisabledActiveIndicatorHeight: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
-
-    const val DisabledActiveIndicatorOpacity = 0.38f
     inline val DisabledContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledContainerOpacity = 0.04f
     inline val DisabledInputColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledInputOpacity = 0.38f
     inline val DisabledLabelColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledLabelOpacity = 0.38f
     inline val DisabledLeadingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledLeadingIconOpacity = 0.38f
     inline val DisabledSupportingColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledSupportingOpacity = 0.38f
     inline val DisabledTrailingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledTrailingIconOpacity = 0.38f
     inline val ErrorActiveIndicatorColor: ColorToken
         get() = ColorSchemeKeyTokens.Error
 
@@ -127,9 +115,6 @@ internal object FilledTextFieldTokens {
     inline val FocusActiveIndicatorColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
 
-    inline val FocusActiveIndicatorHeight: androidx.compose.ui.unit.Dp
-        get() = 2.0.dp
-
     inline val FocusInputColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
@@ -147,9 +132,6 @@ internal object FilledTextFieldTokens {
 
     inline val HoverActiveIndicatorColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
-
-    inline val HoverActiveIndicatorHeight: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
 
     inline val HoverInputColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
@@ -190,9 +172,6 @@ internal object FilledTextFieldTokens {
     inline val LeadingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
-    inline val LeadingIconSize: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
-
     inline val SupportingColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
@@ -201,6 +180,29 @@ internal object FilledTextFieldTokens {
 
     inline val TrailingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    // Values
+    inline val ActiveIndicatorHeight: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val DisabledActiveIndicatorHeight: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    const val DisabledActiveIndicatorOpacity: Float = 0.38f
+    const val DisabledContainerOpacity: Float = 0.04f
+    const val DisabledInputOpacity: Float = 0.38f
+    const val DisabledLabelOpacity: Float = 0.38f
+    const val DisabledLeadingIconOpacity: Float = 0.38f
+    const val DisabledSupportingOpacity: Float = 0.38f
+    const val DisabledTrailingIconOpacity: Float = 0.38f
+    inline val FocusActiveIndicatorHeight: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val HoverActiveIndicatorHeight: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val LeadingIconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
 
     inline val TrailingIconSize: androidx.compose.ui.unit.Dp
         get() = 24.0.dp

@@ -44,7 +44,7 @@ import androidx.compose.material3.tokens.SplitButtonMediumTokens
 import androidx.compose.material3.tokens.SplitButtonSmallTokens
 import androidx.compose.material3.tokens.SplitButtonXLargeTokens
 import androidx.compose.material3.tokens.SplitButtonXSmallTokens
-import androidx.compose.material3.tokens.StateTokens
+import androidx.compose.material3.tokens.StateLayerTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -418,7 +418,7 @@ public object SplitButtonDefaults {
     private val TrailingButtonMinWidth = LeadingButtonMinWidth
 
     /** Trailing button state layer alpha when in checked state */
-    private const val TrailingButtonStateLayerAlpha = StateTokens.PressedStateLayerOpacity
+    private const val TrailingButtonStateLayerAlpha = StateLayerTokens.PressedOpacity
 
     /** Default shape of the leading button. */
     private fun leadingButtonShape(endCornerSize: CornerSize = SmallInnerCornerSize) =

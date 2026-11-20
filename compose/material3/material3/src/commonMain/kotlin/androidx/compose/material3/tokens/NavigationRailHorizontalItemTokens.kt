@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,22 +21,20 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationRailHorizontalItemTokens {
+    // References
+    inline val LabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    // Values
     inline val ActiveIndicatorHeight: androidx.compose.ui.unit.Dp
         get() = 56.0.dp
 
     inline val FullWidthLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
+        get() = MeasurementTokens.Space200
 
     inline val FullWidthTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
+        get() = MeasurementTokens.Space200
 
     inline val IconLabelSpace: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
-
-    inline val LeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
-    // TODO: Update this file to include the following missing tokens:
-    inline val LabelTextFont: TypographyToken
-        get() = TypographyKeyTokens.LabelLarge
+        get() = MeasurementTokens.Space100
 }

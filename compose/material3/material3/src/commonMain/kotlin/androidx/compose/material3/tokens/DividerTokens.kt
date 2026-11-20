@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_117
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,9 +21,11 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DividerTokens {
+    // References
     inline val Color: ColorToken
         get() = ColorSchemeKeyTokens.OutlineVariant
 
+    // Values
     inline val Thickness: androidx.compose.ui.unit.Dp
         get() = 1.0.dp
 }

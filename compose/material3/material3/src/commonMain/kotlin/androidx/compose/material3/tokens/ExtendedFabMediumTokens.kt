@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_14_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,13 +21,19 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ExtendedFabMediumTokens {
+    // References
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLargeIncreased
+
+    inline val LabelText: TypographyToken
+        get() = TypographyKeyTokens.TitleLarge
+
+    // Values
     inline val ContainerHeight: androidx.compose.ui.unit.Dp
         get() = 80.0.dp
 
-    // TODO: uncomment when ShapeKeyTokens.CornerLargeIncreased is available
-    // val ContainerShape = ShapeKeyTokens.CornerLargeIncreased
     inline val IconLabelSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
+        get() = MeasurementTokens.Space150
 
     inline val IconSize: androidx.compose.ui.unit.Dp
         get() = 28.0.dp

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: 14_0_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -22,14 +21,16 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DockedToolbarTokens {
-    inline val ContainerColor: ColorToken
-        get() = ColorSchemeKeyTokens.SurfaceContainer
+    // References
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
 
+    // Values
     inline val ContainerHeight: androidx.compose.ui.unit.Dp
         get() = 64.0.dp
 
     inline val ContainerLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
+        get() = MeasurementTokens.Space200
 
     inline val ContainerMaxSpacing: androidx.compose.ui.unit.Dp
         get() = 32.0.dp
@@ -37,9 +38,6 @@ internal object DockedToolbarTokens {
     inline val ContainerMinSpacing: androidx.compose.ui.unit.Dp
         get() = 4.0.dp
 
-    inline val ContainerShape: ShapeToken
-        get() = ShapeKeyTokens.CornerNone
-
     inline val ContainerTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
+        get() = MeasurementTokens.Space200
 }

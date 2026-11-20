@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: 29.0.0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object ReorderListTokens {
+    // References
     inline val ItemContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.TertiaryContainer
 
@@ -45,4 +46,6 @@ internal object ReorderListTokens {
 
     inline val ItemTrailingSupportingTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    // Values
 }

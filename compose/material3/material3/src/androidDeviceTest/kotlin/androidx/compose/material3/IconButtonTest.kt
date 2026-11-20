@@ -27,8 +27,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.tokens.FilledIconButtonTokens
 import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
+import androidx.compose.material3.tokens.IconButtonSmallTokens
 import androidx.compose.material3.tokens.OutlinedIconButtonTokens
-import androidx.compose.material3.tokens.SmallIconButtonTokens
 import androidx.compose.material3.tokens.StandardIconButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -1424,7 +1424,7 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalContentColor provides Color.Blue) {
                 Truth.assertThat(IconButtonDefaults.outlinedIconButtonBorder(enabled = true))
-                    .isEqualTo(BorderStroke(SmallIconButtonTokens.OutlinedOutlineWidth, Color.Blue))
+                    .isEqualTo(BorderStroke(IconButtonSmallTokens.OutlinedOutlineWidth, Color.Blue))
             }
         }
     }
@@ -1441,7 +1441,7 @@ class IconButtonTest {
                 )
                 .isEqualTo(
                     BorderStroke(
-                        SmallIconButtonTokens.OutlinedOutlineWidth,
+                        IconButtonSmallTokens.OutlinedOutlineWidth,
                         outlineColor.copy(alpha = OutlinedIconButtonTokens.DisabledOpacity),
                     )
                 )

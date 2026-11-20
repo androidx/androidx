@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,14 +21,12 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationBarTokens {
+    // References
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainer
 
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level2
-
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 64.0.dp
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
 
     inline val ItemActiveIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSecondaryContainer
@@ -36,17 +34,11 @@ internal object NavigationBarTokens {
     inline val ItemActiveIndicatorColor: ColorToken
         get() = ColorSchemeKeyTokens.SecondaryContainer
 
-    inline val ItemActiveIndicatorIconLabelSpace: androidx.compose.ui.unit.Dp
-        get() = 4.0.dp
-
     inline val ItemActiveIndicatorShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
     inline val ItemActiveLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.Secondary
-
-    inline val ItemBetweenSpace: androidx.compose.ui.unit.Dp
-        get() = 0.0.dp
 
     inline val ItemInactiveIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
@@ -54,13 +46,22 @@ internal object NavigationBarTokens {
     inline val ItemInactiveLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
-    inline val NavShape: ShapeToken
-        get() = ShapeKeyTokens.CornerNone
+    // Values
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
 
-    // TODO: Update this file to include the following missing tokens:
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
+
+    inline val ItemActiveIndicatorIconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val ItemBetweenSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space0
+
+    inline val ItemIconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
     inline val TallContainerHeight: androidx.compose.ui.unit.Dp
         get() = 80.0.dp
-
-    inline val LabelTextFont: TypographyToken
-        get() = TypographyKeyTokens.LabelMedium
 }
