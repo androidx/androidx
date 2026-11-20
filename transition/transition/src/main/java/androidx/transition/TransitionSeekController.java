@@ -32,20 +32,20 @@ import org.jspecify.annotations.NonNull;
  */
 public interface TransitionSeekController {
     /**
-     * @return The total duration, in milliseconds, of the Transition's animations.
+     * Returns the total duration, in milliseconds, of the Transition's animations.
      */
     @IntRange(from = 0)
     long getDurationMillis();
 
     /**
-     * @return The time, in milliseconds, of the animation. This will be between 0
+     * Returns the time, in milliseconds, of the animation. This will be between 0
      * and {@link #getDurationMillis()}.
      */
     @IntRange(from = 0)
     long getCurrentPlayTimeMillis();
 
     /**
-     * @return The fraction, between 0 and 1, inclusive, of the progress of the transition.
+     * Returns the fraction, between 0 and 1, inclusive, of the progress of the transition.
      * @see #getCurrentPlayTimeMillis()
      */
     @FloatRange(from = 0.0, to = 1.0)
