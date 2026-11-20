@@ -186,6 +186,40 @@ class BrushFamilyTest {
                 listOf(makeAnimatedCoat(1000L), makeAnimatedCoat(1500L), makeAnimatedCoat(600L))
             )
         assertThat(brushFamily.paintAnimationLoopDurationMillis).isEqualTo(3000L)
+
+        // A non-animated fallback paint preference after an animated paint preference should not
+        // zero
+        // out the family's loop duration.
+        val brushFamilyWithTilingFallback =
+            BrushFamily(
+                listOf(
+                    BrushCoat(
+                        paintPreferences =
+                            listOf(
+                                BrushPaint(
+                                    listOf(
+                                        BrushPaint.StampingTexture(
+                                            clientTextureId = "foo",
+                                            animationFrames = 10,
+                                            animationRows = 10,
+                                            animationDurationMillis = 1000L,
+                                        )
+                                    )
+                                ),
+                                BrushPaint(
+                                    listOf(
+                                        BrushPaint.TilingTexture(
+                                            clientTextureId = "foo",
+                                            sizeX = 1f,
+                                            sizeY = 1f,
+                                        )
+                                    )
+                                ),
+                            )
+                    )
+                )
+            )
+        assertThat(brushFamilyWithTilingFallback.paintAnimationLoopDurationMillis).isEqualTo(1000L)
     }
 
     @OptIn(ExperimentalInkCustomBrushApi::class)

@@ -24,20 +24,44 @@ class AngleTest {
 
     @Test
     fun degreesToRadians() {
-        assertEquals(Angle.degreesToRadians(180f), PI.toFloat())
-        assertEquals(Angle.degreesToRadians(Angle.ZERO_DEGREES), Angle.ZERO_RADIANS)
-        assertEquals(Angle.degreesToRadians(Angle.HALF_TURN_DEGREES), Angle.HALF_TURN_RADIANS)
-        assertEquals(Angle.degreesToRadians(Angle.QUARTER_TURN_DEGREES), Angle.QUARTER_TURN_RADIANS)
-        assertEquals(Angle.degreesToRadians(Angle.FULL_TURN_DEGREES), Angle.FULL_TURN_RADIANS)
+        assertEquals(Angle.degreesToRadians(180f), PI.toFloat(), 1e-6f)
+        assertEquals(Angle.degreesToRadians(Angle.ZERO_DEGREES), Angle.ZERO_RADIANS, 1e-6f)
+        assertEquals(
+            Angle.degreesToRadians(Angle.HALF_TURN_DEGREES),
+            Angle.HALF_TURN_RADIANS,
+            1e-6f,
+        )
+        assertEquals(
+            Angle.degreesToRadians(Angle.QUARTER_TURN_DEGREES),
+            Angle.QUARTER_TURN_RADIANS,
+            1e-6f,
+        )
+        assertEquals(
+            Angle.degreesToRadians(Angle.FULL_TURN_DEGREES),
+            Angle.FULL_TURN_RADIANS,
+            1e-6f,
+        )
     }
 
     @Test
     fun radiansToDegrees() {
-        assertEquals(Angle.radiansToDegrees(PI.toFloat()), 180f)
-        assertEquals(Angle.radiansToDegrees(Angle.ZERO_RADIANS), Angle.ZERO_DEGREES)
-        assertEquals(Angle.radiansToDegrees(Angle.HALF_TURN_RADIANS), Angle.HALF_TURN_DEGREES)
-        assertEquals(Angle.radiansToDegrees(Angle.QUARTER_TURN_RADIANS), Angle.QUARTER_TURN_DEGREES)
-        assertEquals(Angle.radiansToDegrees(Angle.FULL_TURN_RADIANS), Angle.FULL_TURN_DEGREES)
+        assertEquals(Angle.radiansToDegrees(PI.toFloat()), 180f, 1e-4f)
+        assertEquals(Angle.radiansToDegrees(Angle.ZERO_RADIANS), Angle.ZERO_DEGREES, 1e-4f)
+        assertEquals(
+            Angle.radiansToDegrees(Angle.HALF_TURN_RADIANS),
+            Angle.HALF_TURN_DEGREES,
+            1e-4f,
+        )
+        assertEquals(
+            Angle.radiansToDegrees(Angle.QUARTER_TURN_RADIANS),
+            Angle.QUARTER_TURN_DEGREES,
+            1e-4f,
+        )
+        assertEquals(
+            Angle.radiansToDegrees(Angle.FULL_TURN_RADIANS),
+            Angle.FULL_TURN_DEGREES,
+            1e-4f,
+        )
     }
 
     @Test
@@ -51,7 +75,7 @@ class AngleTest {
     @Test
     fun normalizedRadians_returnsValueFromJni() {
         assertEquals(Angle.normalizedRadians(Angle.ZERO_RADIANS), 0f)
-        assertEquals(Angle.normalizedRadians(-Angle.HALF_TURN_RADIANS), PI.toFloat())
+        assertEquals(Angle.normalizedRadians(-Angle.HALF_TURN_RADIANS), PI.toFloat(), 1e-6f)
     }
 
     @Test

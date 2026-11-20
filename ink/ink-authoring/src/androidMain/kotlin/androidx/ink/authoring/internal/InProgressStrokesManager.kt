@@ -393,6 +393,12 @@ internal class InProgressStrokesManager<
                 it.preConcat(motionEventToWorldTransform)
             }
         val strokeId = InProgressStrokeId.create()
+        // Anchor shape lifecycle timing strictly to `getSystemElapsedTimeNanos()` so clock skew or
+        // synthetic MotionEvent timestamps (e.g., starting at 0L) cannot produce negative or
+        // inflated
+        // `shapeDurationMillis`, while keeping intra-stroke StrokeInput deltas relative to
+        // `event.eventTime`.
+        val startSystemElapsedTimeMillis = receivedActionTimeNanos / 1_000_000L
         return startStrokeInternal(
             // This ignores any historical inputs included in this MotionEvent. ACTION_DOWN doesn't
             // have any, and if a user is passing ACTION_MOVE to startStroke, this assumes the
@@ -408,7 +414,8 @@ internal class InProgressStrokesManager<
                     strokeUnitLengthCm,
                 ),
             shapeSpec = shapeSpec,
-            startTimeMillis = event.eventTime,
+            startEventTimeMillis = event.eventTime,
+            startSystemElapsedTimeMillis = startSystemElapsedTimeMillis,
             inputsFromMotionEvents = true,
             strokeId = strokeId,
             inputToStrokeTransform = motionEventToStrokeTransform,
@@ -438,12 +445,17 @@ internal class InProgressStrokesManager<
         shapeSpec: ShapeSpecT,
         strokeToViewTransform: Matrix,
     ): InProgressStrokeId {
-        // The start time here isn't really relevant unless this override of startStroke is combined
-        // with the MotionEvent override of addToStroke or finishStroke.
+        // Offset the start timestamp by `input.elapsedTimeMillis` so `startSystemElapsedTimeMillis`
+        // represents the system time corresponding to `elapsedTimeMillis == 0` for this stroke, and
+        // `InProgressShape.update` begins aligned with the caller's input timestamps rather than
+        // lagging behind them.
+        val startSystemElapsedTimeMillis =
+            getSystemElapsedTimeNanos() / 1_000_000L - input.elapsedTimeMillis
         return startStrokeInternal(
             input = input,
             shapeSpec = shapeSpec,
-            startTimeMillis = getSystemElapsedTimeNanos() / 1_000_000L,
+            startEventTimeMillis = startSystemElapsedTimeMillis,
+            startSystemElapsedTimeMillis = startSystemElapsedTimeMillis,
             inputsFromMotionEvents = false,
             // Although a MotionEvent isn't used to start the stroke, the inputToStrokeTransform is
             // still needed to transform the stroke coordinates into view coordinates for rendering,
@@ -464,7 +476,8 @@ internal class InProgressStrokesManager<
     private fun startStrokeInternal(
         input: StrokeInput,
         shapeSpec: ShapeSpecT,
-        startTimeMillis: Long,
+        startEventTimeMillis: Long,
+        startSystemElapsedTimeMillis: Long,
         inputsFromMotionEvents: Boolean,
         strokeId: InProgressStrokeId = InProgressStrokeId.create(),
         inputToStrokeTransform: Matrix = Matrix(),
@@ -477,7 +490,7 @@ internal class InProgressStrokesManager<
         uiThreadState.currentCohort[strokeId] =
             UiStrokeState.Started(
                 motionEventToStrokeTransform = inputToStrokeTransform,
-                startEventTimeMillis = startTimeMillis,
+                startEventTimeMillis = startEventTimeMillis,
                 inputsFromMotionEvents = inputsFromMotionEvents,
                 strokeUnitLengthCm = input.strokeUnitLengthCm,
                 hasBarrelTwist = input.hasBarrelTwist(),
@@ -489,7 +502,7 @@ internal class InProgressStrokesManager<
                 inputToStrokeTransform,
                 shapeSpec,
                 latencyData,
-                startTimeMillis,
+                startSystemElapsedTimeMillis,
             )
         queueActionToRenderThread(startAction)
         return startAction.strokeId
@@ -686,7 +699,7 @@ internal class InProgressStrokesManager<
                 forceHasBarrelTwist = strokeState.hasBarrelTwist,
             ),
             strokeId,
-            endTimeMs = event.eventTime,
+            endSystemElapsedTimeMillis = receivedActionTimeNanos / 1_000_000L,
             latencyData =
                 latencyDataPool.obtainLatencyDataForSingleEvent(
                     event,
@@ -711,7 +724,11 @@ internal class InProgressStrokesManager<
         check(!strokeState.inputsFromMotionEvents) {
             "Stroke ID $strokeId was started with a MotionEvent but finished with a StrokeInput"
         }
-        finishStrokeInternal(input, strokeId, getSystemElapsedTimeNanos() / 1_000_000L)
+        finishStrokeInternal(
+            input,
+            strokeId,
+            endSystemElapsedTimeMillis = getSystemElapsedTimeNanos() / 1_000_000L,
+        )
     }
 
     /** Complete the input for a stroke that is currently [UiStrokeState.Started]. */
@@ -719,12 +736,12 @@ internal class InProgressStrokesManager<
     private fun finishStrokeInternal(
         input: StrokeInput?,
         strokeId: InProgressStrokeId,
-        endTimeMs: Long,
+        endSystemElapsedTimeMillis: Long,
         forceCompletion: Boolean = false,
         latencyData: LatencyData? = null,
     ) {
         assertStrokeInStartedState(strokeId)
-        uiThreadState.lastStrokeInputCompletedSystemElapsedTimeMillis = endTimeMs
+        uiThreadState.lastStrokeInputCompletedSystemElapsedTimeMillis = endSystemElapsedTimeMillis
         uiThreadState.currentCohort[strokeId] = UiStrokeState.InputCompleted
         queueActionToRenderThread(FinishAction(input, strokeId, forceCompletion, latencyData))
     }
@@ -741,7 +758,7 @@ internal class InProgressStrokesManager<
         if (uiThreadState.currentCohort[strokeId] !is UiStrokeState.Started) return
         uiThreadState.currentCohort[strokeId] = UiStrokeState.Canceled
         uiThreadState.lastStrokeInputCompletedSystemElapsedTimeMillis =
-            receivedActionTimeNanos / 1_000_000
+            receivedActionTimeNanos / 1_000_000L
         val cancelAction =
             CancelAction(
                 strokeId,
@@ -816,7 +833,7 @@ internal class InProgressStrokesManager<
         if (
             inProgressStrokesRenderHelper.supportsDebounce &&
                 !uiThreadState.cohortHandoffAsap &&
-                getSystemElapsedTimeNanos() / 1_000_000 <
+                getSystemElapsedTimeNanos() / 1_000_000L <
                     uiThreadState.lastStrokeInputCompletedSystemElapsedTimeMillis +
                         uiThreadState.cohortHandoffDebounceDurationMs
         ) {
@@ -904,8 +921,8 @@ internal class InProgressStrokesManager<
                 finishStrokeInternal(
                     input = null,
                     strokeId = id,
+                    endSystemElapsedTimeMillis = getSystemElapsedTimeNanos() / 1_000_000L,
                     forceCompletion = true,
-                    endTimeMs = getSystemElapsedTimeNanos() / 1_000_000,
                 )
             }
         }
@@ -1064,11 +1081,13 @@ internal class InProgressStrokesManager<
         forceCompletion: Boolean = false,
     ) {
         val systemElapsedTimeMillis = systemElapsedTimeNanos / 1_000_000L
-        // TODO(b/552666754): Replace this clamp-and-ratchet workaround with a more comprehensive
-        // fix
-        // that derives start and update timestamps from a consistent clock.
+        // Guard against non-monotonic steps in `getSystemElapsedTimeNanos` so
+        // `InProgressShape.update`
+        // always receives non-negative, non-decreasing durations over the course of a stroke.
         val shapeDurationMillis =
-            (systemElapsedTimeMillis - startEventTimeMillis).coerceAtLeast(maxShapeDurationMillis)
+            (systemElapsedTimeMillis - startSystemElapsedTimeMillis).coerceAtLeast(
+                maxShapeDurationMillis
+            )
         maxShapeDurationMillis = shapeDurationMillis
         inProgressShape.update(shapeDurationMillis = shapeDurationMillis)
         if (forceCompletion) {
@@ -1088,14 +1107,15 @@ internal class InProgressStrokesManager<
             RenderThreadStrokeState(
                 inProgressShape = inProgressShape,
                 strokeToMotionEventTransform = strokeToMotionEventTransform,
-                startEventTimeMillis = action.startEventTimeMillis,
+                startSystemElapsedTimeMillis = action.startSystemElapsedTimeMillis,
             )
-        inProgressShape.start(shapeSpec, action.startEventTimeMillis)
+        inProgressShape.start(shapeSpec, action.startSystemElapsedTimeMillis)
         inProgressShape.enqueueInputs(
             MutableStrokeInputBatch().apply { runCatching { add(action.strokeInput) } },
             ImmutableStrokeInputBatch.EMPTY,
         )
-        // Use the current time rather than action.startEventTimeMillis, because some time may
+        // Use the current time rather than action.startSystemElapsedTimeMillis, because some time
+        // may
         // have elapsed as part of input processing and the current time will be more accurate for
         // shape generation and animation effects.
         strokeState.updateShape(systemElapsedTimeNanos)
@@ -1555,7 +1575,7 @@ internal class InProgressStrokesManager<
         val motionEventToStrokeTransform: Matrix,
         val shapeSpec: ShapeSpecT,
         val latencyData: LatencyData?,
-        val startEventTimeMillis: Long,
+        val startSystemElapsedTimeMillis: Long,
     ) : Action
 
     /**
@@ -1687,7 +1707,7 @@ internal class InProgressStrokesManager<
     >(
         val inProgressShape: InProgressShapeT,
         val strokeToMotionEventTransform: Matrix,
-        val startEventTimeMillis: Long,
+        val startSystemElapsedTimeMillis: Long,
         var status: Status = RenderThreadStrokeState.Started,
         var maxShapeDurationMillis: Long = 0L,
     ) {

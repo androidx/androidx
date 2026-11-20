@@ -18,6 +18,7 @@ package androidx.ink.rendering.android.canvas
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.os.Build
 import androidx.core.graphics.withMatrix
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
@@ -51,7 +52,10 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val textureStore = TextureBitmapStore { id ->
         when (id) {
-            "checkerboard" -> R.drawable.checkerboard
+            TEXTURE_ID_CHECKERBOARD -> R.drawable.checkerboard
+            TEXTURE_ID_CIRCLE -> R.drawable.circle
+            TEXTURE_ID_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
+            TEXTURE_ID_POOP_EMOJI -> R.drawable.poop_emoji
             else -> null
         }?.let { BitmapFactory.decodeResource(context.resources, it) }
     }
@@ -96,6 +100,9 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
             goldenName,
         )
     }
+
+    override fun isSupported(testCase: TestCase): Boolean =
+        Build.VERSION.SDK_INT >= testCase.minAndroidSdk
 
     override fun assertLazyAssertsPass() {
         // Lazy image diffing is supported only in the upstream version.

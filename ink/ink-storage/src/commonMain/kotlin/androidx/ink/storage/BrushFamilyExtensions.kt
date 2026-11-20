@@ -16,7 +16,7 @@
 
 @file:JvmName("BrushFamilyExtensions")
 @file:JvmMultifileClass
-@file:OptIn(InkInternalOnlyApi::class)
+@file:OptIn(InkInternalOnlyApi::class, ExperimentalInkCustomBrushApi::class)
 
 package androidx.ink.storage
 
@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.Version
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
@@ -38,7 +39,8 @@ import kotlin.jvm.JvmName
  * [BrushFamily] will be used instead of recomputing the proto from the [BrushFamily] object.
  *
  * @param textureIdToPngBytes A callback to retrieve the PNG bytes of the texture bitmap for a given
- *   client texture ID.
+ *   client texture ID, and the texture ID to write in its place (see
+ *   [TexturePngBytesLookup.getEncodedTextureId]).
  */
 public fun BrushFamily.encode(textureIdToPngBytes: TexturePngBytesLookup? = null): ByteArray =
     encodeUncompressed(textureIdToPngBytes).compress()
@@ -52,11 +54,13 @@ internal fun BrushFamily.encodeUncompressed(
     textureIdToPngBytes: TexturePngBytesLookup?
 ): ByteArray {
     var textureMap: MutableMap<String, ByteArray>? = null
+    var encodedTextureIds: MutableMap<String, String>? = null
     if (textureIdToPngBytes != null) {
-        textureMap = mutableMapOf<String, ByteArray>()
-        collectTextures(textureMap, textureIdToPngBytes)
+        textureMap = mutableMapOf()
+        encodedTextureIds = mutableMapOf()
+        collectTextures(textureMap, encodedTextureIds, textureIdToPngBytes)
     }
-    return BrushFamilySerializationNative.encode(nativePointer, textureMap)
+    return BrushFamilySerializationNative.encode(nativePointer, textureMap, encodedTextureIds)
 }
 
 /**
@@ -114,7 +118,8 @@ internal fun BrushFamily.Companion.decodeUncompressed(
  * [BrushFamily].
  *
  * @param textureIdToPngBytes A callback to retrieve the PNG bytes of the texture bitmap for a given
- *   client texture ID.
+ *   client texture ID, and the texture ID to write in its place (see
+ *   [TexturePngBytesLookup.getEncodedTextureId]).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkBrushCompatibilityApi
@@ -133,15 +138,18 @@ internal fun List<BrushFamily>.encodeMultipleUncompressed(
     textureIdToPngBytes: TexturePngBytesLookup?
 ): ByteArray {
     var textureMap: MutableMap<String, ByteArray>? = null
+    var encodedTextureIds: MutableMap<String, String>? = null
     if (textureIdToPngBytes != null) {
-        textureMap = mutableMapOf<String, ByteArray>()
+        textureMap = mutableMapOf()
+        encodedTextureIds = mutableMapOf()
         for (brushFamily in this) {
-            brushFamily.collectTextures(textureMap, textureIdToPngBytes)
+            brushFamily.collectTextures(textureMap, encodedTextureIds, textureIdToPngBytes)
         }
     }
     return BrushFamilySerializationNative.encodeMultiple(
         LongArray(this.size) { index -> this[index].nativePointer },
         textureMap,
+        encodedTextureIds,
     )
 }
 
@@ -190,7 +198,9 @@ public fun interface OnDecodeTexturePngBytes {
      *
      * @param clientTextureId The client-provided texture ID.
      * @param pngBytes The PNG bytes of the texture bitmap, or null if none was encoded.
-     * @return The texture ID to use in the decoded BrushFamily.
+     * @return The texture ID to use in the decoded BrushFamily. If this is different from
+     *   [clientTextureId], override [TexturePngBytesLookup.getEncodedTextureId] to write
+     *   [clientTextureId] back when the [BrushFamily] is encoded again.
      */
     @UsedByNative public fun onDecodeTexture(clientTextureId: String, pngBytes: ByteArray?): String
 }
@@ -205,10 +215,35 @@ public fun interface TexturePngBytesLookup {
      * @return The PNG bytes of the texture bitmap to encode, or null to not encode any texture.
      */
     public fun getTexturePngBytes(clientTextureId: String): ByteArray?
+
+    /**
+     * Returns the texture ID to write into a serialized [BrushFamily] in place of
+     * [clientTextureId]. By default, texture IDs are written unchanged.
+     *
+     * Override this to undo any change made to texture IDs when decoding (see
+     * [OnDecodeTexturePngBytes.onDecodeTexture]), for example to remove a prefix that was added to
+     * keep texture IDs unique, so that re-encoding a decoded [BrushFamily] writes the texture IDs
+     * that it was originally serialized with.
+     *
+     * This is called whether or not [getTexturePngBytes] returns a bitmap for [clientTextureId].
+     * The result may be cached by consumers, so this should return a deterministic result for a
+     * given input. If two different client texture IDs used in the same [BrushFamily] return the
+     * same encoded ID, their layers will share that encoded ID in the serialized form and only the
+     * first texture's bitmap will be stored. If [BrushFamily.hasFallbacks] is true for a
+     * [BrushFamily] that is encoded on its own, its stored serialized form, which already has the
+     * original texture IDs, is written instead, so this has no effect.
+     *
+     * @param clientTextureId The texture ID used by the [BrushFamily] being encoded.
+     * @return The texture ID to write into the serialized [BrushFamily].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkCustomBrushApi
+    public fun getEncodedTextureId(clientTextureId: String): String = clientTextureId
 }
 
 private fun BrushFamily.collectTextures(
     textureMap: MutableMap<String, ByteArray>,
+    encodedTextureIds: MutableMap<String, String>,
     textureIdToPngBytes: TexturePngBytesLookup,
 ) {
     for (coat in coats) {
@@ -221,9 +256,16 @@ private fun BrushFamily.collectTextures(
                         else -> continue
                     }
                 if (textureId.isEmpty()) continue
-                if (textureMap.containsKey(textureId)) continue
-                textureMap[textureId] =
-                    textureIdToPngBytes.getTexturePngBytes(textureId) ?: continue
+                if (!textureMap.containsKey(textureId)) {
+                    textureIdToPngBytes.getTexturePngBytes(textureId)?.let {
+                        textureMap[textureId] = it
+                    }
+                }
+                if (!encodedTextureIds.containsKey(textureId)) {
+                    val encodedTextureId = textureIdToPngBytes.getEncodedTextureId(textureId)
+                    if (encodedTextureId != textureId)
+                        encodedTextureIds[textureId] = encodedTextureId
+                }
             }
         }
     }
@@ -233,13 +275,19 @@ expect internal object BrushFamilySerializationNative {
 
     /**
      * Serializes a [BrushFamily] to a [ByteArray] using the provided texture map represented in
-     * corresponding arrays of keys (client texture IDs) and values (PNG bytes).
+     * corresponding arrays of keys (client texture IDs) and values (PNG bytes). Client texture IDs
+     * that are keys in [encodedTextureIds] are written as the corresponding values instead.
      */
-    fun encode(nativeBrushFamilyPointer: Long, textureMap: Map<String, ByteArray>?): ByteArray
+    fun encode(
+        nativeBrushFamilyPointer: Long,
+        textureMap: Map<String, ByteArray>?,
+        encodedTextureIds: Map<String, String>?,
+    ): ByteArray
 
     fun encodeMultiple(
         nativeBrushFamilyPointers: LongArray,
         textureMap: Map<String, ByteArray>?,
+        encodedTextureIds: Map<String, String>?,
     ): ByteArray
 
     /**

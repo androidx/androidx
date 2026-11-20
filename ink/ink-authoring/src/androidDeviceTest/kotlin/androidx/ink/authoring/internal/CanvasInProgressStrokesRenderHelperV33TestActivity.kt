@@ -71,7 +71,10 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
                     canvasStrokeRenderer = mockRenderer,
                 ),
                 fakeThreads.uiThreadExecutor,
-                { fakeThreads.renderThreadExecutor.apply { isShutdown = false } },
+                {
+                    fakeThreads.renderThreadExecutorFactoryCallCount++
+                    fakeThreads.renderThreadExecutor.apply { isShutdown = false }
+                },
             )
         renderHelper.callback = mockCallback
     }
@@ -94,6 +97,8 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
         val uiThreadExecutor = FakeScheduledExecutor(ThreadId.UI)
 
         val renderThreadExecutor = FakeScheduledExecutor(ThreadId.RENDER)
+
+        var renderThreadExecutorFactoryCallCount = 0
 
         fun uiThreadReadyTaskCount() = uiThreadExecutor.tasks.size
 

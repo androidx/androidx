@@ -352,7 +352,8 @@ actual internal object BrushFamilySerializationNative {
 
     /**
      * Serializes a [BrushFamily] to a [ByteArray] using the provided texture map represented in
-     * corresponding arrays of keys (client texture IDs) and values (PNG bytes). If
+     * corresponding arrays of keys (client texture IDs) and values (PNG bytes). Client texture IDs
+     * that are keys in [encodedTextureIds] are written as the corresponding values instead. If
      * [BrushFamily.hasFallbacks] is true, then the stored proto message including fallbacks for
      * this [BrushFamily] will be used instead of recomputing the proto from the [BrushFamily]
      * object.
@@ -360,12 +361,15 @@ actual internal object BrushFamilySerializationNative {
     actual fun encode(
         nativeBrushFamilyPointer: Long,
         textureMap: Map<String, ByteArray>?,
+        encodedTextureIds: Map<String, String>?,
     ): ByteArray =
         encode(
             nativeBrushFamilyPointer,
             textureMap?.keys?.toTypedArray(),
             // Kotlin doesn't guarantee traversal order of Map.keys is the same as Map.values.
             textureMap?.keys?.map { textureMap[it]!! }?.toTypedArray(),
+            encodedTextureIds?.keys?.toTypedArray(),
+            encodedTextureIds?.keys?.map { encodedTextureIds[it]!! }?.toTypedArray(),
         )
 
     @UsedByNative
@@ -373,17 +377,22 @@ actual internal object BrushFamilySerializationNative {
         nativeBrushFamilyPointer: Long,
         textureMapKeys: Array<String>?,
         textureMapValues: Array<ByteArray>?,
+        encodedTextureIdMapKeys: Array<String>?,
+        encodedTextureIdMapValues: Array<String>?,
     ): ByteArray
 
     actual fun encodeMultiple(
         nativeBrushFamilyPointers: LongArray,
         textureMap: Map<String, ByteArray>?,
+        encodedTextureIds: Map<String, String>?,
     ): ByteArray =
         encodeMultiple(
             nativeBrushFamilyPointers,
             textureMap?.keys?.toTypedArray(),
             // Kotlin doesn't guarantee traversal order of Map.keys is the same as Map.values.
             textureMap?.keys?.map { textureMap[it]!! }?.toTypedArray(),
+            encodedTextureIds?.keys?.toTypedArray(),
+            encodedTextureIds?.keys?.map { encodedTextureIds[it]!! }?.toTypedArray(),
         )
 
     @UsedByNative
@@ -391,6 +400,8 @@ actual internal object BrushFamilySerializationNative {
         nativeBrushFamilyPointers: LongArray,
         textureMapKeys: Array<String>?,
         textureMapValues: Array<ByteArray>?,
+        encodedTextureIdMapKeys: Array<String>?,
+        encodedTextureIdMapValues: Array<String>?,
     ): ByteArray
 
     /**

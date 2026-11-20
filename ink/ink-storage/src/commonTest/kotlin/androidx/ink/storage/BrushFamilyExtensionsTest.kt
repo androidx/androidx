@@ -23,6 +23,7 @@ import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.BrushTip
 import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.EasingFunction
 import androidx.ink.brush.behavior.IntegralNode
@@ -44,7 +45,11 @@ import okio.IOException
 import okio.buffer
 import okio.use
 
-@OptIn(ExperimentalEncodingApi::class, ExperimentalInkBrushCompatibilityApi::class)
+@OptIn(
+    ExperimentalEncodingApi::class,
+    ExperimentalInkBrushCompatibilityApi::class,
+    ExperimentalInkCustomBrushApi::class,
+)
 class BrushFamilyExtensionsTest {
 
     private val notGzippedBytes = byteArrayOf(0)
@@ -452,5 +457,245 @@ class BrushFamilyExtensionsTest {
             isNotNull()
             isEqualTo(expectedBitmap1)
         }
+    }
+
+    @Test
+    fun encode_getEncodedTextureId_restoresTextureIdsRenamedByDecode() {
+        val textureIdToPngBytes =
+            mapOf(
+                "texture_id_1" to byteArrayOf(1, 1, 1, 1),
+                "texture_id_2" to byteArrayOf(2, 2, 2, 2),
+            )
+        val original =
+            BrushFamily(
+                paint =
+                    BrushPaint(
+                        textureLayers =
+                            listOf(
+                                TilingTexture(
+                                    clientTextureId = "texture_id_1",
+                                    sizeX = 1f,
+                                    sizeY = 4f,
+                                ),
+                                TilingTexture(
+                                    clientTextureId = "texture_id_2",
+                                    sizeX = 2f,
+                                    sizeY = 2f,
+                                ),
+                            )
+                    )
+            )
+        val encoded = original.encode(textureIdToPngBytes::get)
+
+        // Decode, adding a prefix to each texture ID and storing each bitmap under the new ID, as
+        // an
+        // app might do to avoid collisions with texture IDs that it already uses.
+        val textureStore = mutableMapOf<String, ByteArray?>()
+        val addPrefix = OnDecodeTexturePngBytes { id: String, pngBytes: ByteArray? ->
+            "renamed/$id".also { textureStore[it] = pngBytes }
+        }
+        val decoded = BrushFamily.decode(encoded, onDecodeTexture = addPrefix)
+        assertThat(decoded)
+            .isEqualTo(
+                BrushFamily(
+                    paint =
+                        BrushPaint(
+                            textureLayers =
+                                listOf(
+                                    TilingTexture(
+                                        clientTextureId = "renamed/texture_id_1",
+                                        sizeX = 1f,
+                                        sizeY = 4f,
+                                    ),
+                                    TilingTexture(
+                                        clientTextureId = "renamed/texture_id_2",
+                                        sizeX = 2f,
+                                        sizeY = 2f,
+                                    ),
+                                )
+                        )
+                )
+            )
+
+        // Encoding with the inverse transformation writes the original texture IDs.
+        val reencoded =
+            decoded.encode(
+                object : TexturePngBytesLookup {
+                    override fun getTexturePngBytes(clientTextureId: String): ByteArray? =
+                        textureStore[clientTextureId]
+
+                    override fun getEncodedTextureId(clientTextureId: String): String =
+                        clientTextureId.removePrefix("renamed/")
+                }
+            )
+        val redecodedTextureStore = mutableMapOf<String, ByteArray?>()
+        val recordTextures = OnDecodeTexturePngBytes { id: String, pngBytes: ByteArray? ->
+            redecodedTextureStore[id] = pngBytes
+            id
+        }
+        assertThat(BrushFamily.decode(reencoded, onDecodeTexture = recordTextures))
+            .isEqualTo(original)
+        assertThat(redecodedTextureStore.keys).containsExactly("texture_id_1", "texture_id_2")
+        assertThat(redecodedTextureStore["texture_id_1"])
+            .isEqualTo(textureIdToPngBytes["texture_id_1"])
+        assertThat(redecodedTextureStore["texture_id_2"])
+            .isEqualTo(textureIdToPngBytes["texture_id_2"])
+    }
+
+    @Test
+    fun encode_getEncodedTextureId_appliesToTexturesWithoutBitmaps() {
+        val removePrefix =
+            object : TexturePngBytesLookup {
+                override fun getTexturePngBytes(clientTextureId: String): ByteArray? = null
+
+                override fun getEncodedTextureId(clientTextureId: String): String =
+                    clientTextureId.removePrefix("renamed/")
+            }
+        val family =
+            BrushFamily(
+                paint =
+                    BrushPaint(
+                        textureLayers =
+                            listOf(
+                                TilingTexture(
+                                    clientTextureId = "renamed/texture_id_1",
+                                    sizeX = 1f,
+                                    sizeY = 4f,
+                                )
+                            )
+                    )
+            )
+
+        val encoded = family.encode(removePrefix)
+
+        assertThat(BrushFamily.decode(encoded))
+            .isEqualTo(
+                BrushFamily(
+                    paint =
+                        BrushPaint(
+                            textureLayers =
+                                listOf(
+                                    TilingTexture(
+                                        clientTextureId = "texture_id_1",
+                                        sizeX = 1f,
+                                        sizeY = 4f,
+                                    )
+                                )
+                        )
+                )
+            )
+    }
+
+    @Test
+    fun encodeMultiple_getEncodedTextureId_appliesToAllBrushFamilies() {
+        val v1Tip =
+            BrushTip(
+                behaviors =
+                    listOf(
+                        BrushBehavior(
+                            TargetNode(
+                                target = Target.WIDTH_MULTIPLIER,
+                                targetModifierRangeStart = 1f,
+                                targetModifierRangeEnd = 2f,
+                                input =
+                                    IntegralNode(
+                                        integrateOver = ProgressDomain.TIME_IN_SECONDS,
+                                        integralValueRangeStart = 0f,
+                                        integralValueRangeEnd = 1f,
+                                        integralOutOfRangeBehavior = OutOfRange.CLAMP,
+                                        input = SourceNode(Source.NORMALIZED_PRESSURE, 0f, 1f),
+                                    ),
+                            )
+                        )
+                    )
+            )
+        val textureIdToPngBytes =
+            mapOf(
+                "texture_id_1" to byteArrayOf(1, 1, 1, 1),
+                "texture_id_2" to byteArrayOf(2, 2, 2, 2),
+            )
+        val removePrefix =
+            object : TexturePngBytesLookup {
+                override fun getTexturePngBytes(clientTextureId: String): ByteArray? =
+                    textureIdToPngBytes[clientTextureId.removePrefix("renamed/")]
+
+                override fun getEncodedTextureId(clientTextureId: String): String =
+                    clientTextureId.removePrefix("renamed/")
+            }
+        val families =
+            listOf(
+                BrushFamily(
+                    paint =
+                        BrushPaint(
+                            textureLayers =
+                                listOf(
+                                    TilingTexture(
+                                        clientTextureId = "renamed/texture_id_1",
+                                        sizeX = 1f,
+                                        sizeY = 4f,
+                                    )
+                                )
+                        )
+                ),
+                BrushFamily(
+                    tip = v1Tip,
+                    paint =
+                        BrushPaint(
+                            textureLayers =
+                                listOf(
+                                    TilingTexture(
+                                        clientTextureId = "renamed/texture_id_2",
+                                        sizeX = 1f,
+                                        sizeY = 4f,
+                                    )
+                                )
+                        ),
+                ),
+            )
+
+        val encoded = families.encodeMultiple(removePrefix)
+
+        val decodedTextureStore = mutableMapOf<String, ByteArray?>()
+        val recordTextures = OnDecodeTexturePngBytes { id: String, pngBytes: ByteArray? ->
+            decodedTextureStore[id] = pngBytes
+            id
+        }
+        val decoded = BrushFamily.decodeMultiple(encoded, onDecodeTexture = recordTextures)
+        assertThat(decoded)
+            .containsExactly(
+                BrushFamily(
+                    paint =
+                        BrushPaint(
+                            textureLayers =
+                                listOf(
+                                    TilingTexture(
+                                        clientTextureId = "texture_id_1",
+                                        sizeX = 1f,
+                                        sizeY = 4f,
+                                    )
+                                )
+                        )
+                ),
+                BrushFamily(
+                    tip = v1Tip,
+                    paint =
+                        BrushPaint(
+                            textureLayers =
+                                listOf(
+                                    TilingTexture(
+                                        clientTextureId = "texture_id_2",
+                                        sizeX = 1f,
+                                        sizeY = 4f,
+                                    )
+                                )
+                        ),
+                ),
+            )
+            .inOrder()
+        assertThat(decodedTextureStore.keys).containsExactly("texture_id_1", "texture_id_2")
+        assertThat(decodedTextureStore["texture_id_1"])
+            .isEqualTo(textureIdToPngBytes["texture_id_1"])
+        assertThat(decodedTextureStore["texture_id_2"])
+            .isEqualTo(textureIdToPngBytes["texture_id_2"])
     }
 }

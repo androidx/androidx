@@ -68,19 +68,16 @@ internal class BrushPaintCache(
     ) {
         private val scratchMatrix = Matrix()
 
-        private val bitmapShaderLocalMatrices: List<Matrix?>? =
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                // `Shader.setLocalMatrix` saves the `Matrix` instance rather than copying its data
-                // to an
-                // internal instance before API 26, so allocate dedicated `Matrix` instances for
-                // those
-                // shaders to avoid accidentally clobbering data. After API 26, `scratchMatrix` can
-                // be used
-                // for all layers to save allocations.
-                bitmapShaders.map { if (it == null) null else Matrix() }
-            } else {
-                null
-            }
+        // Dedicated `Matrix` per resolved layer, used both to skip redundant `setLocalMatrix`
+        // updates
+        // and because `Shader.setLocalMatrix` before API 26 saves the `Matrix` reference rather
+        // than
+        // copying its data to an internal instance.
+        private val currentLocalMatrices: List<Matrix?> = bitmapShaders.map {
+            if (it == null) null else Matrix()
+        }
+
+        private var isInitialized = false
 
         init {
             require(
@@ -95,6 +92,36 @@ internal class BrushPaintCache(
             }
         }
 
+        private fun buildShader(): Shader? =
+            // Each layer is combined with the result of combining all of the previous layers, using
+            // the
+            // immediately previous layer's blend mode. (Effectively, ComposeShader acts as the
+            // non-leaf
+            // nodes in a binary tree; more like a linked-list in this case because the destination
+            // side
+            // is always a leaf.) No layers reduce to null, a single layer reduces to the single
+            // BitmapShader.
+            bitmapShaders.reduceIndexedOrNull<Shader?, Shader?> { i, acc, shader ->
+                when {
+                    // TextureLayers that fail to resolve to a texture Bitmap are ignored. This
+                    // seems like
+                    // clearer behavior than refusing to apply the whole texture, and a more gentle
+                    // fallback
+                    // than crashing. It also allows textures to be disabled with a
+                    // TextureBitmapStore whose
+                    // load method returns null.
+                    acc == null -> shader
+                    shader == null -> acc
+                    // The constructor arguments are destination, source, blend mode.
+                    else ->
+                        ComposeShader(
+                            shader,
+                            acc,
+                            textureLayers[i - 1].blendMode.toPorterDuffMode(),
+                        )
+                }
+            }
+
         /**
          * When [strokeToGraphicsObjectTransform] is null (the typical value), it means that the
          * graphics object (e.g. [android.graphics.Mesh] or [android.graphics.Path] is in stroke
@@ -103,11 +130,13 @@ internal class BrushPaintCache(
          * (see [CanvasPathRenderer] code for before [Build.VERSION_CODES.P] for example).
          */
         fun updateLocalTransform(
+            paint: Paint,
             @FloatRange(from = 0.0) brushSize: Float,
             firstInput: StrokeInput,
             lastInput: StrokeInput,
             strokeToGraphicsObjectTransform: Matrix?,
         ) {
+            var anyMatrixChanged = !isInitialized
             for (i in 0 until textureLayers.size) {
                 val bitmapShader = bitmapShaders[i] ?: continue
                 val textureLayer = textureLayers[i]
@@ -115,13 +144,9 @@ internal class BrushPaintCache(
                     checkNotNull(bitmaps[i]) {
                         "bitmap[$i] should be non-null if bitmapShaders[$i] is non-null."
                     }
-                val scratchShaderLocalMatrix =
-                    if (bitmapShaderLocalMatrices != null) {
-                        checkNotNull(bitmapShaderLocalMatrices[i]) {
-                            "bitmapShaderLocalMatrices[$i] shouldbe non-null if bitmapShader[$i] is non-null."
-                        }
-                    } else {
-                        scratchMatrix
+                val currentLocalMatrix =
+                    checkNotNull(currentLocalMatrices[i]) {
+                        "currentLocalMatrices[$i] should be non-null if bitmapShader[$i] is non-null."
                     }
                 // The texture coordinates being drawn are in the graphics object space of the
                 // stroke - this
@@ -131,7 +156,7 @@ internal class BrushPaintCache(
                 // coordinates, so we need to compute the combined chain of transforms from that
                 // coordinate
                 // space to the graphics object space.
-                val texelToGraphicsObjectTransform = scratchShaderLocalMatrix.also {
+                val texelToGraphicsObjectTransform = scratchMatrix.also {
                     it.reset()
                     if (strokeToGraphicsObjectTransform != null) {
                         it.preConcat(strokeToGraphicsObjectTransform)
@@ -205,16 +230,33 @@ internal class BrushPaintCache(
                     // Compute (texel -> stroke) = (UV -> stroke) * (texel -> UV)
                     it.preScale(1f / bitmap.width, 1f / bitmap.height)
                 }
-                // Do not use Matrix.isIdentity - it returns false for the identity matrix on
-                // earlier API
-                // levels.
-                val localMatrix =
-                    if (texelToGraphicsObjectTransform == IDENTITY_MATRIX) {
-                        null
-                    } else {
-                        texelToGraphicsObjectTransform
-                    }
-                bitmapShader.setLocalMatrix(localMatrix)
+                if (!isInitialized || texelToGraphicsObjectTransform != currentLocalMatrix) {
+                    currentLocalMatrix.set(texelToGraphicsObjectTransform)
+                    // Do not use Matrix.isIdentity - it returns false for the identity matrix on
+                    // earlier API
+                    // levels.
+                    val localMatrix =
+                        if (currentLocalMatrix == IDENTITY_MATRIX) {
+                            null
+                        } else {
+                            currentLocalMatrix
+                        }
+                    bitmapShader.setLocalMatrix(localMatrix)
+                    anyMatrixChanged = true
+                }
+            }
+            if (!isInitialized || (anyMatrixChanged && paint.shader is ComposeShader)) {
+                // Before API 26, `ComposeShader` eagerly captures its child shaders' native
+                // instances in
+                // its constructor, and across API levels updating a child `BitmapShader`'s local
+                // matrix
+                // does not invalidate an already-realized parent `ComposeShader`. Build
+                // `paint.shader`
+                // after child local matrices are applied, and rebuild `ComposeShader` whenever any
+                // child
+                // local matrix changes.
+                paint.shader = buildShader()
+                isInitialized = true
             }
         }
     }
@@ -287,40 +329,15 @@ internal class BrushPaintCache(
                     else -> BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
                 }
             }
-        // Each layer is combined with the result of combining all of the previous layers, using the
-        // immediately previous layer's blend mode. (Effectively, ComposeShader acts as the non-leaf
-        // nodes in a binary tree; more like a linked-list in this case because the destination side
-        // is
-        // always a leaf.) No layers reduce to null, a single layer reduces to the single
-        // BitmapShader.
-        paint.shader =
-            bitmapShaders.reduceIndexedOrNull<Shader?, Shader?> { i, acc, shader ->
-                when {
-                    // TextureLayers that fail to resolve to a texture Bitmap are ignored. This
-                    // seems like
-                    // clearer behavior than refusing to apply the whole texture, and a more gentle
-                    // fallback
-                    // than crashing. It also allows textures to be disabled with a
-                    // TextureBitmapStore whose
-                    // load method returns null.
-                    acc == null -> shader
-                    shader == null -> acc
-                    // The constructor arguments are destination, source, blend mode.
-                    else ->
-                        ComposeShader(
-                            shader,
-                            acc,
-                            textureLayers[i - 1].blendMode.toPorterDuffMode(),
-                        )
-                }
-            }
+        val hasShader = bitmapShaders.any { it != null }
         return PaintCacheData(
             paint,
-            // Only construct the ShaderHelper if we actually loaded some texture bitmaps and
-            // generated
-            // a shader.
-            if (paint.shader != null) ShaderHelper(textureLayers, bitmaps, bitmapShaders) else null,
-            if (applyColorFilterToTexture && paint.shader != null) ColorFilterHelper() else null,
+            // Only construct the ShaderHelper if we actually loaded some texture bitmaps.
+            // `paint.shader`
+            // is populated by `ShaderHelper.updateLocalTransform` after child local matrices are
+            // applied.
+            if (hasShader) ShaderHelper(textureLayers, bitmaps, bitmapShaders) else null,
+            if (applyColorFilterToTexture && hasShader) ColorFilterHelper() else null,
         )
     }
 
@@ -333,6 +350,7 @@ internal class BrushPaintCache(
         strokeToGraphicsObjectTransform: Matrix?,
     ) {
         shaderHelper?.updateLocalTransform(
+            paint,
             brushSize,
             firstInput,
             lastInput,

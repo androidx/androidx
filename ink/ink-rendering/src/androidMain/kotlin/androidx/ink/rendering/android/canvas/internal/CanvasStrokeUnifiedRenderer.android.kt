@@ -26,6 +26,7 @@ import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.populateMatrix
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
@@ -40,7 +41,7 @@ import androidx.ink.strokes.StrokePaintAnimationClock
  *   [androidx.ink.brush.BrushCoat.paintPreferences] and [androidx.ink.brush.BrushPaint.selfOverlap]
  *   instead.
  */
-@OptIn(ExperimentalInkAnimationApi::class)
+@OptIn(ExperimentalInkAnimationApi::class, InkInternalOnlyApi::class)
 internal class CanvasStrokeUnifiedRenderer(
     private val textureStore: TextureBitmapStore = TextureBitmapStore { null },
     forcePathRendering: Boolean,
@@ -61,17 +62,17 @@ internal class CanvasStrokeUnifiedRenderer(
         add(lazy { CanvasPathRenderer(textureStore) })
     }
 
-    override fun draw(
+    override fun drawInternal(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
         animatorClockStateMillis: Long,
     ) {
         strokeToScreenTransform.populateMatrix(scratchAffineTransformMatrix)
-        draw(canvas, stroke, scratchAffineTransformMatrix, animatorClockStateMillis)
+        drawInternal(canvas, stroke, scratchAffineTransformMatrix, animatorClockStateMillis)
     }
 
-    override fun draw(
+    override fun drawInternal(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
@@ -130,17 +131,22 @@ internal class CanvasStrokeUnifiedRenderer(
         )
     }
 
-    override fun draw(
+    override fun drawInternal(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
         animatorClockStateMillis: Long,
     ) {
         strokeToScreenTransform.populateMatrix(scratchAffineTransformMatrix)
-        draw(canvas, inProgressStroke, scratchAffineTransformMatrix, animatorClockStateMillis)
+        drawInternal(
+            canvas,
+            inProgressStroke,
+            scratchAffineTransformMatrix,
+            animatorClockStateMillis,
+        )
     }
 
-    override fun draw(
+    override fun drawInternal(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
