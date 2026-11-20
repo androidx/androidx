@@ -1019,10 +1019,10 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
 
 private val EmptyDoubleList: DoubleList = MutableDoubleList(0)
 
-/** @return a read-only [DoubleList] with nothing in it. */
+/** Returns a read-only [DoubleList] with nothing in it. */
 public fun emptyDoubleList(): DoubleList = EmptyDoubleList
 
-/** @return a read-only [DoubleList] with nothing in it. */
+/** Returns a read-only [DoubleList] with nothing in it. */
 public fun doubleListOf(): DoubleList = EmptyDoubleList
 
 /** @return a new read-only [DoubleList] with [element1] as the only item in the list. */
@@ -1043,7 +1043,7 @@ public fun doubleListOf(element1: Double, element2: Double, element3: Double): D
 public fun doubleListOf(vararg elements: Double): DoubleList =
     MutableDoubleList(elements.size).apply { plusAssign(elements) }
 
-/** @return a new empty [MutableDoubleList] with the default capacity. */
+/** Returns a new empty [MutableDoubleList] with the default capacity. */
 public inline fun mutableDoubleListOf(): MutableDoubleList = MutableDoubleList()
 
 /** @return a new [MutableDoubleList] with [element1] as the only item in the list. */

@@ -1591,10 +1591,10 @@ private val EmptyArray = arrayOfNulls<Any>(0)
 
 private val EmptyObjectList: ObjectList<Any?> = MutableObjectList(0)
 
-/** @return a read-only [ObjectList] with nothing in it. */
+/** Returns a read-only [ObjectList] with nothing in it. */
 public fun <E> emptyObjectList(): ObjectList<E> = EmptyObjectList as ObjectList<E>
 
-/** @return a read-only [ObjectList] with nothing in it. */
+/** Returns a read-only [ObjectList] with nothing in it. */
 public fun <E> objectListOf(): ObjectList<E> = EmptyObjectList as ObjectList<E>
 
 /** @return a new read-only [ObjectList] with [element1] as the only element in the list. */
@@ -1615,7 +1615,7 @@ public fun <E> objectListOf(element1: E, element2: E, element3: E): ObjectList<E
 public fun <E> objectListOf(vararg elements: E): ObjectList<E> =
     MutableObjectList<E>(elements.size).apply { plusAssign(elements as Array<E>) }
 
-/** @return a new empty [MutableObjectList] with the default capacity. */
+/** Returns a new empty [MutableObjectList] with the default capacity. */
 public inline fun <E> mutableObjectListOf(): MutableObjectList<E> = MutableObjectList()
 
 /** @return a new [MutableObjectList] with [element1] as the only element in the list. */

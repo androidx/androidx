@@ -1093,12 +1093,12 @@ public class MutablePKeyList(
 private val EmptyPKeyList: PKeyList = MutablePKeyList(0)
 
 /**
- * @return a read-only [PKeyList] with nothing in it.
+ * Returns a read-only [PKeyList] with nothing in it.
  */
 public fun emptyPKeyList(): PKeyList = EmptyPKeyList
 
 /**
- * @return a read-only [PKeyList] with nothing in it.
+ * Returns a read-only [PKeyList] with nothing in it.
  */
 public fun pKeyListOf(): PKeyList = EmptyPKeyList
 
@@ -1127,7 +1127,7 @@ public fun pKeyListOf(vararg elements: PKey): PKeyList =
     MutablePKeyList(elements.size).apply { plusAssign(elements) }
 
 /**
- * @return a new empty [MutablePKeyList] with the default capacity.
+ * Returns a new empty [MutablePKeyList] with the default capacity.
  */
 public inline fun mutablePKeyListOf(): MutablePKeyList = MutablePKeyList()
 
