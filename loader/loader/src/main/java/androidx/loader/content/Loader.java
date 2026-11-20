@@ -148,14 +148,14 @@ public class Loader<D> {
     }
 
     /**
-     * @return an application context retrieved from the Context passed to the constructor.
+     * Returns an application context retrieved from the Context passed to the constructor.
      */
     public @NonNull Context getContext() {
         return mContext;
     }
 
     /**
-     * @return the ID of this loader
+     * Returns the ID of this loader.
      */
     public int getId() {
         return mId;
