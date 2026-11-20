@@ -19,10 +19,12 @@ package androidx.web
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.web.WebGlueCommunicator.asProxy
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Proxy
@@ -51,7 +53,10 @@ public fun WebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
  * This may only be used when [WebFeature.WEB_CONTENT] feature checks pass.
  */
 public class WebContent
-internal constructor(private val boundaryInterface: WebContentBoundaryInterface) : AutoCloseable {
+internal constructor(
+    private val boundaryInterface: WebContentBoundaryInterface,
+    private val useMutableContextWrapper: Boolean = true,
+) : AutoCloseable {
 
     internal fun getInvocationHandler(): InvocationHandler =
         Proxy.getInvocationHandler(boundaryInterface)
@@ -59,6 +64,7 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
     private var isDetached: Boolean = true
     private var isDestroyed: Boolean = false
     private var currentView: WebContentView? = null
+    private var currentContext: Context? = null
 
     /** Returns whether this [WebContent] is currently attached to a [WebContentView]. */
     @InternalWebApi
@@ -155,7 +161,9 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
     @UiThread
     public fun detach() {
         if (isDetached || isDestroyed) return
-        internalAttach(currentView!!.context.applicationContext, ::DetachedWebContentView)
+        val detachedContext =
+            currentView!!.context.applicationContext.createConfigurationContext(Configuration())
+        internalAttach(detachedContext, ::DetachedWebContentView)
     }
 
     /**
@@ -166,9 +174,13 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
     @UiThread
     override fun close() {
         if (isDestroyed) return
-        boundaryInterface.destroy()
-        isDestroyed = true
-        currentView = null
+        try {
+            boundaryInterface.destroy()
+        } finally {
+            isDestroyed = true
+            currentView = null
+            currentContext = null
+        }
     }
 
     internal fun <T : WebContentView> internalAttach(context: Context, factory: (Context) -> T): T {
@@ -180,16 +192,52 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
             }
         }
 
-        return boundaryInterface.executeViewFactory(context, factory::invoke).also { nextView ->
-            currentView?.transferViewState(nextView)
-            currentView = nextView
-            isDetached = nextView is DetachedWebContentView
+        val nextContext = getContext(context)
+        val nextView =
+            try {
+                boundaryInterface.executeViewFactory(nextContext, factory::invoke)
+            } catch (t: Throwable) {
+                cleanUpContext(nextContext)
+                throw t
+            }
+
+        currentView?.transferViewState(nextView)
+        val previousContext = currentContext
+        currentView = nextView
+        currentContext = nextContext
+        isDetached = nextView is DetachedWebContentView
+        // Clean up the previous context only after executeViewFactory() finishes, so Chromium's
+        // detach/adopt teardown still observes the original Activity (e.g. when unregistering
+        // ComponentCallbacks).
+        cleanUpContext(previousContext)
+        return nextView
+    }
+
+    private fun getContext(context: Context): Context {
+        return if (useMutableContextWrapper && unwrapActivity(context) != null) {
+            WebContentContextWrapper(context)
+        } else {
+            context
         }
+    }
+
+    private fun cleanUpContext(context: Context?) {
+        (context as? WebContentContextWrapper)?.cleanUp()
     }
 
     /** Builder for [WebContent]. */
     @Suppress("EmptyBuilder")
     public class Builder {
+        /**
+         * Wraps attached [Activity] contexts in a [WebContentContextWrapper] whose base is reset to
+         * an application-backed configuration context once the view is detached or transferred.
+         * Enabled by default as defense-in-depth against Chromium or framework objects retaining a
+         * detached view or context; leak tests can disable this to verify Chromium itself releases
+         * the [Activity]. We will eventually remove this behaviour once we're confident that
+         * Chromium has no leaks.
+         */
+        @VisibleForTesting internal var useMutableContextWrapper: Boolean = true
+
         /** Creates a new [Builder] to create [WebContent]. */
         @RequiresFeature(
             name = WebFeature.WEB_CONTENT,
@@ -210,7 +258,7 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
                     .buildWebContent(::transfer)
                     .asProxy<WebContentBoundaryInterface>()
 
-            return WebContent(contentBoundary)
+            return WebContent(contentBoundary, useMutableContextWrapper)
         }
     }
 }

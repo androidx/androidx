@@ -16,6 +16,8 @@
 
 package androidx.web
 
+import android.content.ComponentCallbacks
+import android.content.ContextWrapper
 import android.view.ContextThemeWrapper
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
@@ -535,30 +537,90 @@ class WebContentTest {
 
     @Test
     fun testAllowsGarbageCollectionOfOldActivity() {
+        assertAllowsGarbageCollectionOfOldActivity(
+            useMutableContextWrapper = true,
+            retainDetachedView = true,
+        )
+    }
+
+    @Test
+    fun testAllowsGarbageCollectionOfOldActivity_withoutMutableContextWrapper() {
+        assertAllowsGarbageCollectionOfOldActivity(useMutableContextWrapper = false)
+    }
+
+    private fun assertAllowsGarbageCollectionOfOldActivity(
+        useMutableContextWrapper: Boolean,
+        retainDetachedView: Boolean = false,
+    ) {
         var weakActivity: WeakReference<TestActivity>? = null
+        var retainedView: WebContentView? = null
 
-        WebContent().use { webContent ->
-            launch<TestActivity>().use { scenario ->
-                scenario.onActivity { activity ->
-                    webContent.attach(activity, ::WebContentView)
-                    weakActivity = WeakReference(activity)
+        WebContent { this.useMutableContextWrapper = useMutableContextWrapper }
+            .use { webContent ->
+                launch<TestActivity>().use { scenario ->
+                    scenario.onActivity { activity ->
+                        val view = webContent.attach(activity, ::WebContentView)
+                        if (retainDetachedView) retainedView = view
+                        weakActivity = WeakReference(activity)
+                    }
+                    scenario.onActivity { webContent.detach() }
                 }
-                scenario.onActivity { webContent.detach() }
-            }
 
-            launch<TestActivity2>().use { scenario ->
-                scenario.onActivity { activity -> webContent.attach(activity, ::WebContentView) }
-            }
-
-            runBlocking {
-                withTimeout(5.seconds) {
-                    while (weakActivity?.get() != null) {
-                        Runtime.getRuntime().gc()
-                        delay(100.milliseconds)
+                launch<TestActivity2>().use { scenario ->
+                    scenario.onActivity { activity ->
+                        webContent.attach(activity, ::WebContentView)
                     }
                 }
+
+                runBlocking {
+                    withTimeout(5.seconds) {
+                        while (weakActivity?.get() != null) {
+                            Runtime.getRuntime().gc()
+                            delay(100.milliseconds)
+                        }
+                    }
+                }
+                assertNull(weakActivity?.get())
+                if (retainDetachedView) assertNotNull(retainedView)
             }
-            assertNull(weakActivity?.get())
+    }
+
+    @Test
+    fun testCloseUnregistersActivityComponentCallbacks() {
+        launch<TestActivity>().use { scenario ->
+            val activeCallbacks = mutableSetOf<ComponentCallbacks>()
+            val webContent = WebContent()
+            scenario.onActivity { activity ->
+                val trackingContext =
+                    object : ContextWrapper(activity) {
+                        override fun registerComponentCallbacks(callback: ComponentCallbacks) {
+                            activeCallbacks.add(callback)
+                            super.registerComponentCallbacks(callback)
+                        }
+
+                        override fun unregisterComponentCallbacks(callback: ComponentCallbacks) {
+                            activeCallbacks.remove(callback)
+                            super.unregisterComponentCallbacks(callback)
+                        }
+                    }
+                val view = webContent.attach(trackingContext, ::WebContentView)
+                activity.setContentView(
+                    view,
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    ),
+                )
+            }
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity { webContent.close() }
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity {
+                assertTrue(
+                    "ComponentCallbacks still registered after close: $activeCallbacks",
+                    activeCallbacks.isEmpty(),
+                )
+            }
         }
     }
 
