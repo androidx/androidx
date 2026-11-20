@@ -64,7 +64,7 @@ public class JavaScriptExecutionException extends Exception {
     }
 
     /**
-     * @return the type of error that caused this exception. See {@link #ERROR_FRAME_DESTROYED}
+     * Returns the type of error that caused this exception. See {@link #ERROR_FRAME_DESTROYED}
      * and {@link #ERROR_GENERIC}.
      */
     public @ErrorType int getErrorType() {

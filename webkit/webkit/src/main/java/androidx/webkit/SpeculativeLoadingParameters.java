@@ -71,28 +71,28 @@ public final class SpeculativeLoadingParameters {
 
     /**
      *
-     * @return The map of the additional headers built using {@link Builder}.
+     * Returns the map of the additional headers built using {@link Builder}.
      */
     public @NonNull Map<String, String> getAdditionalHeaders() {
         return mAdditionalHeaders;
     }
 
     /**
-     * @return The noVarySearch model built using {@link Builder}.
+     * Returns the noVarySearch model built using {@link Builder}.
      */
     public @Nullable NoVarySearchHeader getExpectedNoVarySearchData() {
         return mExpectedNoVarySearchHeader;
     }
 
     /**
-     * @return The javascript enabled setting built using {@link Builder}.
+     * Returns the javascript enabled setting built using {@link Builder}.
      */
     public boolean isJavaScriptEnabled() {
         return mIsJavaScriptEnabled;
     }
 
     /**
-     * @return The variations id built using {@link Builder}.
+     * Returns the variations id built using {@link Builder}.
      */
     @SuppressWarnings("AutoBoxing") // Integer is intentional here.
     public @Nullable Integer getVariationsId() {

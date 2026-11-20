@@ -41,7 +41,7 @@ public final class NavigationParameters {
     }
 
     /**
-     * @return Setting for whether a navigation will replace the current entry,
+     * Returns whether a navigation will replace the current entry,
      * set using {@link NavigationParameters.Builder}.
      */
     public boolean shouldReplaceCurrentEntry() {
@@ -49,7 +49,7 @@ public final class NavigationParameters {
     }
 
     /**
-     * @return The map of the additional headers added using {@link NavigationParameters.Builder}.
+     * Returns the map of the additional headers added using {@link NavigationParameters.Builder}.
      */
     public @NonNull Map<String, String> getAdditionalHeaders() {
         return mAdditionalHeaders;
