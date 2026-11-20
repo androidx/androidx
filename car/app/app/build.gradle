@@ -162,14 +162,17 @@ abstract class GenerateProtocolApiTask extends ProtocolApiTask {
 // for diffs to generated Metalava API signature files, which would indicate a protocol API change.
 abstract class CheckProtocolApiTask extends DefaultTask {
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     @Optional
     abstract RegularFileProperty getCurrentApi()
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     @Optional
     abstract RegularFileProperty getPreviousApi()
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     abstract RegularFileProperty getGeneratedApi()
 
     def summarizeDiff(File a, File b) {
@@ -235,10 +238,12 @@ abstract class CheckProtocolApiCompatibilityTask extends ProtocolApiTask {
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     @Optional
     abstract RegularFileProperty getPreviousApi()
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     @Optional
     abstract RegularFileProperty getGeneratedApi()
 
@@ -269,6 +274,7 @@ abstract class UpdateProtocolApiTask extends DefaultTask {
     abstract RegularFileProperty getUpdatedApi()
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     abstract RegularFileProperty getGeneratedApi()
 
     @Internal
@@ -390,7 +396,6 @@ androidComponents {
         ProtocolLocation projectProtocolLocation = new ProtocolLocation(project)
         tasks.register("generateProtocolApi", GenerateProtocolApiTask) { task ->
             task.description = "Generate an API signature file for the classes annotated with @CarProtocol"
-            task.dependsOn(assemble)
             task.generatedApi = projectProtocolLocation.generatedApi
             task.sourceDirs = sourceCollection
             task.dependencyClasspath.from(dependencyClasspath)
