@@ -1255,7 +1255,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     }
 
     /**
-     * @return true if the app has specified that changes in adapter content cannot change
+     * Returns true if the app has specified that changes in adapter content cannot change
      * the size of the RecyclerView itself.
      */
     public boolean hasFixedSize() {
@@ -9767,7 +9767,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
-         * @return true if RecyclerView is currently in the state of smooth scrolling.
+         * Returns true if RecyclerView is currently in the state of smooth scrolling.
          */
         public boolean isSmoothScrolling() {
             return mSmoothScroller != null && mSmoothScroller.isRunning();
@@ -11570,7 +11570,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
-         * @return The host RecyclerView's {@link View#getMinimumWidth()}
+         * Returns the host RecyclerView's {@link View#getMinimumWidth()}.
          */
         @Px
         public int getMinimumWidth() {
@@ -11578,7 +11578,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
-         * @return The host RecyclerView's {@link View#getMinimumHeight()}
+         * Returns the host RecyclerView's {@link View#getMinimumHeight()}.
          */
         @Px
         public int getMinimumHeight() {
@@ -12778,7 +12778,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
-         * @return The view type of this ViewHolder.
+         * Returns the view type of this ViewHolder.
          */
         public final int getItemViewType() {
             return mItemViewType;
@@ -12992,7 +12992,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
-         * @return true if this item is available to be recycled, false otherwise.
+         * Returns {@code true} if this item is available to be recycled, {@code false} otherwise.
          * @see #setIsRecyclable(boolean)
          */
         public final boolean isRecyclable() {
@@ -13009,7 +13009,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
-         * @return True if ViewHolder is not referenced by RecyclerView animations but has
+         * Returns {@code true} if ViewHolder is not referenced by RecyclerView animations but has
          * transient state which will prevent it from being recycled.
          */
         boolean doesTransientStatePreventRecycling() {
@@ -13439,7 +13439,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
-         * @return The LayoutManager to which this SmoothScroller is attached. Will return
+         * Returns the LayoutManager to which this SmoothScroller is attached. Will return
          * <code>null</code> after the SmoothScroller is stopped.
          */
         public @Nullable LayoutManager getLayoutManager() {
@@ -13482,7 +13482,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
 
         /**
-         * @return True if SmoothScroller is currently active
+         * Returns true if SmoothScroller is currently active.
          */
         public boolean isRunning() {
             return mRunning;
@@ -14176,8 +14176,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         /**
-         * @return true if the structure of the data set has changed since the last call to
-         * onLayoutChildren, false otherwise
+         * Returns true if the structure of the data set has changed since the last call to
+         * onLayoutChildren, false otherwise.
          */
         public boolean didStructureChange() {
             return mStructureChanged;

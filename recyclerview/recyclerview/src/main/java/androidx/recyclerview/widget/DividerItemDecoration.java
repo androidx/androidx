@@ -103,7 +103,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     /**
-     * @return the {@link Drawable} for this divider.
+     * Returns the {@link Drawable} for this divider.
      */
     @SuppressWarnings("GetterSetterNullability")
     public @Nullable Drawable getDrawable() {

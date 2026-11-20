@@ -57,7 +57,7 @@ public abstract class FocusDelegate<K> {
     public abstract void focusItem(@NonNull ItemDetails<K> item);
 
     /**
-     * @return true if there is a focused item.
+     * Returns true if there is a focused item.
      */
     public abstract boolean hasFocusedItem();
 

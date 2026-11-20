@@ -94,14 +94,14 @@ public abstract class StorageStrategy<K> {
     }
 
     /**
-     * @return StorageStrategy suitable for use with {@link String} keys.
+     * Returns a StorageStrategy suitable for use with {@link String} keys.
      */
     public static @NonNull StorageStrategy<String> createStringStorage() {
         return new StringStorageStrategy();
     }
 
     /**
-     * @return StorageStrategy suitable for use with {@link Long} keys.
+     * Returns a StorageStrategy suitable for use with {@link Long} keys.
      */
     public static @NonNull StorageStrategy<Long> createLongStorage() {
         return new LongStorageStrategy();

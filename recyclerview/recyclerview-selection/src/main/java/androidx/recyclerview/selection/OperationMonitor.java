@@ -122,7 +122,7 @@ public final class OperationMonitor {
     }
 
     /**
-     * @return true if there are any running operations.
+     * Returns true if there are any running operations.
      */
     public boolean isStarted() {
         synchronized (mLock) {
