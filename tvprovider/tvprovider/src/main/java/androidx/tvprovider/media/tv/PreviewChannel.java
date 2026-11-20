@@ -114,7 +114,7 @@ public class PreviewChannel {
     }
 
     /**
-     * @return the ID the system assigns to this preview channel upon publication.
+     * Returns the ID the system assigns to this preview channel upon publication.
      */
     public long getId() {
         Long l = mValues.getAsLong(Channels._ID);
@@ -122,15 +122,15 @@ public class PreviewChannel {
     }
 
     /**
-     * @return package name of the app that created this channel
+     * Returns the package name of the app that created this channel.
      */
     public String getPackageName() {
         return mValues.getAsString(Channels.COLUMN_PACKAGE_NAME);
     }
 
     /**
-     * @return what type of channel this is. For preview channels, the type is always
-     * TvContractCompat.Channels.TYPE_PREVIEW
+     * Returns what type of channel this is. For preview channels, the type is always
+     * TvContractCompat.Channels.TYPE_PREVIEW.
      */
     @Channels.Type
     public String getType() {
@@ -138,14 +138,14 @@ public class PreviewChannel {
     }
 
     /**
-     * @return The name users see when this channel appears on the home screen
+     * Returns the name users see when this channel appears on the home screen.
      */
     public CharSequence getDisplayName() {
         return mValues.getAsString(Channels.COLUMN_DISPLAY_NAME);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_DESCRIPTION} for the channel. A short text
+     * Returns the value of {@link Channels#COLUMN_DESCRIPTION} for the channel. A short text
      * explaining what this channel contains.
      */
     public CharSequence getDescription() {
@@ -153,7 +153,7 @@ public class PreviewChannel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the channel.
+     * Returns the value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the channel.
      */
     public Uri getAppLinkIntentUri() {
         String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_INTENT_URI);
@@ -161,7 +161,7 @@ public class PreviewChannel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the program.
+     * Returns the value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the program.
      */
     public Intent getAppLinkIntent() throws URISyntaxException {
         String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_INTENT_URI);
@@ -205,49 +205,49 @@ public class PreviewChannel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_DATA} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_DATA} for the channel.
      */
     public byte[] getInternalProviderDataByteArray() {
         return mValues.getAsByteArray(Channels.COLUMN_INTERNAL_PROVIDER_DATA);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG1} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG1} for the channel.
      */
     public Long getInternalProviderFlag1() {
         return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG1);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG2} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG2} for the channel.
      */
     public Long getInternalProviderFlag2() {
         return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG2);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG3} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG3} for the channel.
      */
     public Long getInternalProviderFlag3() {
         return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG3);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG4} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG4} for the channel.
      */
     public Long getInternalProviderFlag4() {
         return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG4);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_ID} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_ID} for the channel.
      */
     public String getInternalProviderId() {
         return mValues.getAsString(Channels.COLUMN_INTERNAL_PROVIDER_ID);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_BROWSABLE} for the channel. A preview channel
+     * Returns the value of {@link Channels#COLUMN_BROWSABLE} for the channel. A preview channel
      * is BROWABLE when it is visible on the TV home screen.
      */
     public boolean isBrowsable() {

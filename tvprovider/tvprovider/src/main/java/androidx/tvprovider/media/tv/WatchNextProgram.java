@@ -122,7 +122,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
     }
 
     /**
-     * @return The value of {@link WatchNextPrograms#COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS} for the
+     * Returns the value of {@link WatchNextPrograms#COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS} for the
      * program.
      */
     public long getLastEngagementTimeUtcMillis() {
@@ -271,7 +271,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
         }
 
         /**
-         * @return A new Program with values supplied by the Builder.
+         * Returns a new Program with values supplied by the Builder.
          */
         public WatchNextProgram build() {
             return new WatchNextProgram(this);
