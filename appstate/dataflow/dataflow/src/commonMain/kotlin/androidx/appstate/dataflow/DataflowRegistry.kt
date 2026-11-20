@@ -66,32 +66,46 @@ public constructor(
     }
 
     /**
-     * Gets a [State] containing data of type [S] from this registry for the given [key].
+     * Gets a state containing data of type [S] from this registry for the given [key].
      *
      * Getting a state from this registry might activate the necessary chain of reducers to produce
      * the data. If this registry has a parent, then the data might be retrieved from the parent, if
      * necessary.
      *
+     * The returned [DisposableState] might be shared. Calling [DisposableState.dispose] decrements
+     * its reference count in this registry. When all references are disposed, the active reducer is
+     * deactivated.
+     *
      * @param key The [DataKey] identifying the data type and any runtime arguments.
      * @throws IllegalStateException if a reducer that produces the requested state is not
      *   registered in the chain of registries, or if the chain of registries is already disposed.
      */
-    public fun <S : Any> getState(key: DataKey<S>): State<S> {
+    public fun <S : Any> getState(key: DataKey<S>): DisposableState<S> {
         checkIfDisposed()
         lock.withLock {
             runTransformScope()
             val activeReducer = actives[key]
             if (activeReducer != null) {
+                activeReducer.references++
                 @Suppress("UNCHECKED_CAST")
-                return activeReducer.disposableState as State<S>
+                return RegistryDisposableState(
+                    key = key,
+                    registry = this,
+                    delegate = activeReducer.disposableState as DisposableState<S>,
+                )
             }
             @Suppress("UNCHECKED_CAST")
             val factory = reducerFactories[key::class] as? Reducer.Factory<DataKey<S>, S>
             if (factory != null) {
                 val newReducer = createActiveReducer(key, factory)
                 actives[key] = newReducer
+                newReducer.references++
                 @Suppress("UNCHECKED_CAST")
-                return newReducer.disposableState as State<S>
+                return RegistryDisposableState(
+                    key = key,
+                    registry = this,
+                    delegate = newReducer.disposableState as DisposableState<S>,
+                )
             }
             if (parent != null) {
                 return parent.getState(key)
@@ -111,6 +125,17 @@ public constructor(
                 reducer.reduce(key)
             }
         return ActiveReducer(reducer, state)
+    }
+
+    private fun releaseActive(key: DataKey<*>) {
+        lock.withLock {
+            val active = actives[key] ?: return@withLock
+            active.references--
+            if (active.references <= 0) {
+                actives.remove(key)
+                active.disposableState.dispose()
+            }
+        }
     }
 
     private fun runTransformScope() {
@@ -151,5 +176,23 @@ public constructor(
     private class ActiveReducer(
         val reducer: Reducer<*, Any>,
         val disposableState: DisposableState<out Any>,
-    )
+    ) {
+        var references: Int = 0
+    }
+
+    // Represents a reference counted disposable state from this registry.
+    private class RegistryDisposableState<T : Any>(
+        private val key: DataKey<*>,
+        private val registry: DataflowRegistry,
+        private val delegate: DisposableState<T>,
+    ) : DisposableState<T>, State<T> by delegate {
+        @Volatile private var isDisposed = false
+
+        override fun dispose() {
+            if (!isDisposed) {
+                isDisposed = true
+                registry.releaseActive(key)
+            }
+        }
+    }
 }

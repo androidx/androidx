@@ -18,6 +18,7 @@ package androidx.appstate.dataflow
 
 import androidx.appstate.transform.testing.transformTest
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -171,6 +172,68 @@ class DataflowRegistryTest {
         val state1Again = registry.getState(ParameterizedTestKey(count = 10))
         assertThat(state1Again.value).isEqualTo(TestData(10))
         assertThat(createCount).isEqualTo(2)
+
+        registry.dispose()
+    }
+
+    @Test
+    fun getState_dispose_deactivatesReducerWhenAllReferencesDisposed() = transformTest {
+        var createCount = 0
+        var disposeCount = 0
+        var sourceCount by mutableStateOf(1)
+
+        val registry =
+            DataflowRegistry(
+                coroutineContext = testDispatcher,
+                parent = null,
+                reducerFactories =
+                    mapOf(
+                        TestData.Companion::class to
+                            Reducer.Factory {
+                                createCount++
+                                object : Reducer<DataKey<TestData>, TestData> {
+                                    override val initialValue = TestData(0)
+
+                                    @Composable
+                                    override fun reduce(key: DataKey<TestData>): TestData {
+                                        DisposableEffect(Unit) { onDispose { disposeCount++ } }
+                                        return TestData(sourceCount)
+                                    }
+                                }
+                            }
+                    ),
+            )
+
+        val state1 = registry.getState(TestData)
+        val state2 = registry.getState(TestData)
+        advance()
+
+        assertThat(createCount).isEqualTo(1)
+        assertThat(disposeCount).isEqualTo(0)
+        assertThat(state1.value).isEqualTo(TestData(1))
+        assertThat(state2.value).isEqualTo(TestData(1))
+
+        // Disposing the first reference keeps the reducer active because state2 is still active
+        state1.dispose()
+        // Disposing state1 again is idempotent and must not decrement references a second time
+        state1.dispose()
+        advance()
+        assertThat(disposeCount).isEqualTo(0)
+
+        sourceCount = 2
+        advance()
+        assertThat(state2.value).isEqualTo(TestData(2))
+
+        // Disposing the last reference deactivates and removes the reducer
+        state2.dispose()
+        advance()
+        assertThat(disposeCount).isEqualTo(1)
+
+        // Requesting state again creates a new active reducer instance
+        val state3 = registry.getState(TestData)
+        advance()
+        assertThat(createCount).isEqualTo(2)
+        assertThat(state3.value).isEqualTo(TestData(2))
 
         registry.dispose()
     }
