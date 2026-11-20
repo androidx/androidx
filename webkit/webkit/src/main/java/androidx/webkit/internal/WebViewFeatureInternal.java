@@ -29,7 +29,6 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.webkit.BackForwardCacheSettings;
@@ -566,7 +565,6 @@ public class WebViewFeatureInternal {
      * @deprecated The origin trial to disable the X-Requested-With feature has ended, so this
      * API no longer does anything.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Deprecated(forRemoval = true)
     @SuppressWarnings("removal")
     public static final ApiFeature.NoFramework REQUESTED_WITH_HEADER_ALLOW_LIST =
@@ -663,7 +661,6 @@ public class WebViewFeatureInternal {
      * {@link androidx.webkit.WebViewCompat#isAudioMuted(WebView)}
      * {@link androidx.webkit.WebViewCompat#setAudioMuted(WebView, boolean)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework MUTE_AUDIO =
             new ApiFeature.NoFramework(WebViewFeature.MUTE_AUDIO,
                     Features.MUTE_AUDIO);
@@ -917,7 +914,6 @@ public class WebViewFeatureInternal {
      * This feature covers:
      * {@link androidx.webkit.WebViewBuilder#build(Context)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework WEBVIEW_BUILDER_V1 =
             new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_BUILDER_EXPERIMENTAL_V1,
                     Features.WEBVIEW_BUILDER);
@@ -927,7 +923,6 @@ public class WebViewFeatureInternal {
      * This feature covers:
      * {@link androidx.webkit.WebViewBuilder#applyTo(WebView)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework WEBVIEW_BUILDER_V2 =
             new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_BUILDER_EXPERIMENTAL_V2,
                     Features.WEBVIEW_BUILDER_V2);
@@ -966,7 +961,6 @@ public class WebViewFeatureInternal {
      * {@link Profile#clearCustomHeader(String, String)}, and
      * {@link Profile#clearAllCustomHeaders()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework CUSTOM_REQUEST_HEADERS =
             new ApiFeature.NoFramework(WebViewFeature.CUSTOM_REQUEST_HEADERS,
                     Features.CUSTOM_REQUEST_HEADERS);
