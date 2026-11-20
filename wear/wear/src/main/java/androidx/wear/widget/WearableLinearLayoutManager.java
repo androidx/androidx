@@ -83,7 +83,7 @@ public class WearableLinearLayoutManager extends LinearLayoutManager {
     }
 
     /**
-     * @return the current {@link LayoutCallback} associated with this
+     * Returns the current {@link LayoutCallback} associated with this
      * {@link WearableLinearLayoutManager}.
      */
     public @Nullable LayoutCallback getLayoutCallback() {

@@ -159,6 +159,6 @@ public interface AmbientLifecycleObserver : DefaultLifecycleObserver {
         public fun onExitAmbient() {}
     }
 
-    /** @return {@code true} if the activity is currently in ambient. */
+    /** Returns {@code true} if the activity is currently in ambient. */
     public val isAmbient: Boolean
 }
