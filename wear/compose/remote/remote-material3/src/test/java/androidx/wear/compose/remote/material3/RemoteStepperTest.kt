@@ -53,12 +53,10 @@ class RemoteStepperTest {
 
     @Test
     fun defaultValues() {
-        assertThat(RemoteStepperDefaults.IconSize.value.constantValue).isWithin(0.001f).of(24f)
-        assertThat(RemoteStepperDefaults.ButtonWidth.value.constantValue).isWithin(0.001f).of(60f)
-        assertThat(RemoteStepperDefaults.ButtonHeight.value.constantValue).isWithin(0.001f).of(48f)
-        assertThat(RemoteStepperDefaults.VerticalSpacing.value.constantValue)
-            .isWithin(0.001f)
-            .of(8f)
+        assertThat(RemoteStepperDefaults.IconSize.constantValue).isWithin(0.001f).of(24f)
+        assertThat(RemoteStepperDefaults.ButtonWidth.constantValue).isWithin(0.001f).of(60f)
+        assertThat(RemoteStepperDefaults.ButtonHeight.constantValue).isWithin(0.001f).of(48f)
+        assertThat(RemoteStepperDefaults.VerticalSpacing.constantValue).isWithin(0.001f).of(8f)
         assertThat(RemoteStepperDefaults.ButtonWeight).isWithin(0.001f).of(0.35f)
         assertThat(RemoteStepperDefaults.ContentWeight).isWithin(0.001f).of(0.3f)
         assertThat(RemoteStepperDefaults.buttonShape).isEqualTo(RemoteCircleShape)

@@ -26,9 +26,9 @@ import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
-import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteValue
 
 /**
  * Creates a [RemoteAction] that triggers a named action on the host.
@@ -119,7 +119,7 @@ public fun hostAction(id: Int, metadata: RemoteString? = null): RemoteAction {
 internal class HostAction(
     public val name: RemoteString,
     public val type: Type = Type.NONE,
-    public val value: RemoteState<*>? = null,
+    public val value: RemoteValue<*>? = null,
 ) : RemoteAction {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

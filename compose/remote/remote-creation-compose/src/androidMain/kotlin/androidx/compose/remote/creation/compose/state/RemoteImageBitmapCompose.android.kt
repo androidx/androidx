@@ -47,14 +47,14 @@ public fun RemoteImageBitmap(value: ImageBitmap): RemoteImageBitmap =
  *
  * @param name A unique name to identify this state within its [domain].
  * @param defaultValue The initial [ImageBitmap] value for the named remote bitmap.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
  * @return A [RemoteImageBitmap] representing the named bitmap.
  */
 @RememberInComposition
 public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
     name: String,
     defaultValue: ImageBitmap,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteImageBitmap =
     MutableRemoteImageBitmap(
         constantValueOrNull = null,

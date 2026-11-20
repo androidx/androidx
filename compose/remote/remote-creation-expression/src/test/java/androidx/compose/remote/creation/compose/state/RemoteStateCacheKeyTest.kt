@@ -59,10 +59,10 @@ class RemoteStateCacheKeyTest {
 
     @Test
     fun remoteNamedCacheKey_Equality() {
-        val key1 = RemoteNamedCacheKey(RemoteState.Domain.User, "width")
-        val key1Dup = RemoteNamedCacheKey(RemoteState.Domain.User, "width")
-        val key2 = RemoteNamedCacheKey(RemoteState.Domain.User, "height")
-        val key3 = RemoteNamedCacheKey(RemoteState.Domain.System, "width")
+        val key1 = RemoteNamedCacheKey(RemoteValue.Domain.User, "width")
+        val key1Dup = RemoteNamedCacheKey(RemoteValue.Domain.User, "width")
+        val key2 = RemoteNamedCacheKey(RemoteValue.Domain.User, "height")
+        val key3 = RemoteNamedCacheKey(RemoteValue.Domain.System, "width")
 
         assertThat(key1).isEqualTo(key1Dup)
         assertThat(key1.hashCode()).isEqualTo(key1Dup.hashCode())
@@ -270,7 +270,7 @@ class RemoteStateCacheKeyTest {
         val keys =
             listOf(
                 RemoteConstantCacheKey(10f),
-                RemoteNamedCacheKey(RemoteState.Domain.User, "test"),
+                RemoteNamedCacheKey(RemoteValue.Domain.User, "test"),
                 RemoteStateIdKey(123),
                 RemoteComponentCacheKey(1, "width"),
                 RemoteOperationCacheKey.create(RemoteFloatOperationKey.Plus, 1f.rf, 2f.rf),

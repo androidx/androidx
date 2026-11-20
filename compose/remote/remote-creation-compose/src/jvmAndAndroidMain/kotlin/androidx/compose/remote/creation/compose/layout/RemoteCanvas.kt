@@ -44,9 +44,9 @@ import androidx.compose.remote.creation.compose.state.RemoteIntArray
 import androidx.compose.remote.creation.compose.state.RemoteLong
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
-import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
 import androidx.compose.remote.creation.compose.state.getIdListForCreationState
 
@@ -951,7 +951,7 @@ public class RemoteCanvas(
         buffer.addRoots(op, until)
     }
 
-    private fun generateFormalArg(id: Int, actualArg: Any?): RemoteState<*> {
+    private fun generateFormalArg(id: Int, actualArg: Any?): RemoteValue<*> {
         return when (actualArg) {
             is RemoteFloat -> RemoteFloat(Utils.asNan(id))
             is RemoteInt -> RemoteInt.createForId(id.toLong() + 0x100000000L)
@@ -973,7 +973,7 @@ public class RemoteCanvas(
      * @param creationState creation state associated with the document being written
      * @return document ID for the pattern argument
      */
-    private fun RemoteState<*>.getPatternArgId(creationState: RemoteComposeCreationState): Int {
+    private fun RemoteValue<*>.getPatternArgId(creationState: RemoteComposeCreationState): Int {
         // RemoteFloatArray defaults to a primitive float array (DataListFloat) for spline and
         // dereference efficiency, but PatternForEach requires variable IDs (DataListIds) to remap
         // elements during pattern expansion.
@@ -1037,7 +1037,7 @@ public class RemoteCanvas(
      * @return a [RemotePattern1] that inflates the recorded pattern
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T1 : RemoteState<*>> definePattern(action: (T1) -> Unit): RemotePattern1<T1> {
+    public fun <T1 : RemoteValue<*>> definePattern(action: (T1) -> Unit): RemotePattern1<T1> {
         var patternId = -1
         return RemotePattern1 { arg1, modifier ->
             if (patternId == -1) {
@@ -1079,7 +1079,7 @@ public class RemoteCanvas(
      * @return a [RemotePattern2] that inflates the recorded pattern
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T1 : RemoteState<*>, T2 : RemoteState<*>> definePattern(
+    public fun <T1 : RemoteValue<*>, T2 : RemoteValue<*>> definePattern(
         action: (T1, T2) -> Unit
     ): RemotePattern2<T1, T2> {
         var patternId = -1
@@ -1129,9 +1129,9 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : RemoteState<*>,
-        T2 : RemoteState<*>,
-        T3 : RemoteState<*>,
+        T1 : RemoteValue<*>,
+        T2 : RemoteValue<*>,
+        T3 : RemoteValue<*>,
     > definePattern(action: (T1, T2, T3) -> Unit): RemotePattern3<T1, T2, T3> {
         var patternId = -1
         return RemotePattern3 { arg1, arg2, arg3, modifier ->
@@ -1183,10 +1183,10 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : RemoteState<*>,
-        T2 : RemoteState<*>,
-        T3 : RemoteState<*>,
-        T4 : RemoteState<*>,
+        T1 : RemoteValue<*>,
+        T2 : RemoteValue<*>,
+        T3 : RemoteValue<*>,
+        T4 : RemoteValue<*>,
     > definePattern(action: (T1, T2, T3, T4) -> Unit): RemotePattern4<T1, T2, T3, T4> {
         var patternId = -1
         return RemotePattern4 { arg1, arg2, arg3, arg4, modifier ->
@@ -1243,11 +1243,11 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : RemoteState<*>,
-        T2 : RemoteState<*>,
-        T3 : RemoteState<*>,
-        T4 : RemoteState<*>,
-        T5 : RemoteState<*>,
+        T1 : RemoteValue<*>,
+        T2 : RemoteValue<*>,
+        T3 : RemoteValue<*>,
+        T4 : RemoteValue<*>,
+        T5 : RemoteValue<*>,
     > definePattern(action: (T1, T2, T3, T4, T5) -> Unit): RemotePattern5<T1, T2, T3, T4, T5> {
         var patternId = -1
         return RemotePattern5 { arg1, arg2, arg3, arg4, arg5, modifier ->
@@ -1307,12 +1307,12 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : RemoteState<*>,
-        T2 : RemoteState<*>,
-        T3 : RemoteState<*>,
-        T4 : RemoteState<*>,
-        T5 : RemoteState<*>,
-        T6 : RemoteState<*>,
+        T1 : RemoteValue<*>,
+        T2 : RemoteValue<*>,
+        T3 : RemoteValue<*>,
+        T4 : RemoteValue<*>,
+        T5 : RemoteValue<*>,
+        T6 : RemoteValue<*>,
     > definePattern(
         action: (T1, T2, T3, T4, T5, T6) -> Unit
     ): RemotePattern6<T1, T2, T3, T4, T5, T6> {
@@ -1373,7 +1373,7 @@ public class RemoteCanvas(
      * @param action drawing commands to record for each element
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T : RemoteState<*>> forEach(items: List<T>, action: (T) -> Unit) {
+    public fun <T : RemoteValue<*>> forEach(items: List<T>, action: (T) -> Unit) {
         if (items.isEmpty()) return
         val localItemId = document.nextId()
         val formal = generateFormalArg(localItemId, items.first()) as T
@@ -1477,7 +1477,7 @@ public class RemoteCanvas(
      * @param action drawing commands to record for each pair
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T1 : RemoteState<*>, T2 : RemoteState<*>> forEach(
+    public fun <T1 : RemoteValue<*>, T2 : RemoteValue<*>> forEach(
         items1: List<T1>,
         items2: List<T2>,
         action: (T1, T2) -> Unit,
@@ -1537,9 +1537,9 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : RemoteState<*>,
-        T2 : RemoteState<*>,
-        T3 : RemoteState<*>,
+        T1 : RemoteValue<*>,
+        T2 : RemoteValue<*>,
+        T3 : RemoteValue<*>,
     > forEach(
         items1: List<T1>,
         items2: List<T2>,
@@ -1608,10 +1608,10 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : RemoteState<*>,
-        T2 : RemoteState<*>,
-        T3 : RemoteState<*>,
-        T4 : RemoteState<*>,
+        T1 : RemoteValue<*>,
+        T2 : RemoteValue<*>,
+        T3 : RemoteValue<*>,
+        T4 : RemoteValue<*>,
     > forEach(
         items1: List<T1>,
         items2: List<T2>,
@@ -1687,11 +1687,11 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : RemoteState<*>,
-        T2 : RemoteState<*>,
-        T3 : RemoteState<*>,
-        T4 : RemoteState<*>,
-        T5 : RemoteState<*>,
+        T1 : RemoteValue<*>,
+        T2 : RemoteValue<*>,
+        T3 : RemoteValue<*>,
+        T4 : RemoteValue<*>,
+        T5 : RemoteValue<*>,
     > forEach(
         items1: List<T1>,
         items2: List<T2>,
@@ -1773,12 +1773,12 @@ public class RemoteCanvas(
      */
     @Suppress("UNCHECKED_CAST")
     public fun <
-        T1 : RemoteState<*>,
-        T2 : RemoteState<*>,
-        T3 : RemoteState<*>,
-        T4 : RemoteState<*>,
-        T5 : RemoteState<*>,
-        T6 : RemoteState<*>,
+        T1 : RemoteValue<*>,
+        T2 : RemoteValue<*>,
+        T3 : RemoteValue<*>,
+        T4 : RemoteValue<*>,
+        T5 : RemoteValue<*>,
+        T6 : RemoteValue<*>,
     > forEach(
         items1: List<T1>,
         items2: List<T2>,
@@ -1887,7 +1887,7 @@ public fun interface RemotePattern0 : (RemoteModifier?) -> Unit {
  * Call to inflate the recorded template with the provided argument.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern1<T1 : RemoteState<*>> : (T1, RemoteModifier?) -> Unit {
+public fun interface RemotePattern1<T1 : RemoteValue<*>> : (T1, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1): Unit = invoke(arg1, null)
 
     public override operator fun invoke(arg1: T1, modifier: RemoteModifier?)
@@ -1899,7 +1899,7 @@ public fun interface RemotePattern1<T1 : RemoteState<*>> : (T1, RemoteModifier?)
  * Call to inflate the recorded template with the provided arguments.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemotePattern2<T1 : RemoteState<*>, T2 : RemoteState<*>> :
+public fun interface RemotePattern2<T1 : RemoteValue<*>, T2 : RemoteValue<*>> :
     (T1, T2, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2): Unit = invoke(arg1, arg2, null)
 
@@ -1913,9 +1913,9 @@ public fun interface RemotePattern2<T1 : RemoteState<*>, T2 : RemoteState<*>> :
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemotePattern3<
-    T1 : RemoteState<*>,
-    T2 : RemoteState<*>,
-    T3 : RemoteState<*>,
+    T1 : RemoteValue<*>,
+    T2 : RemoteValue<*>,
+    T3 : RemoteValue<*>,
 > : (T1, T2, T3, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2, arg3: T3): Unit = invoke(arg1, arg2, arg3, null)
 
@@ -1929,10 +1929,10 @@ public fun interface RemotePattern3<
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemotePattern4<
-    T1 : RemoteState<*>,
-    T2 : RemoteState<*>,
-    T3 : RemoteState<*>,
-    T4 : RemoteState<*>,
+    T1 : RemoteValue<*>,
+    T2 : RemoteValue<*>,
+    T3 : RemoteValue<*>,
+    T4 : RemoteValue<*>,
 > : (T1, T2, T3, T4, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4): Unit =
         invoke(arg1, arg2, arg3, arg4, null)
@@ -1953,11 +1953,11 @@ public fun interface RemotePattern4<
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemotePattern5<
-    T1 : RemoteState<*>,
-    T2 : RemoteState<*>,
-    T3 : RemoteState<*>,
-    T4 : RemoteState<*>,
-    T5 : RemoteState<*>,
+    T1 : RemoteValue<*>,
+    T2 : RemoteValue<*>,
+    T3 : RemoteValue<*>,
+    T4 : RemoteValue<*>,
+    T5 : RemoteValue<*>,
 > : (T1, T2, T3, T4, T5, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5): Unit =
         invoke(arg1, arg2, arg3, arg4, arg5, null)
@@ -1979,12 +1979,12 @@ public fun interface RemotePattern5<
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemotePattern6<
-    T1 : RemoteState<*>,
-    T2 : RemoteState<*>,
-    T3 : RemoteState<*>,
-    T4 : RemoteState<*>,
-    T5 : RemoteState<*>,
-    T6 : RemoteState<*>,
+    T1 : RemoteValue<*>,
+    T2 : RemoteValue<*>,
+    T3 : RemoteValue<*>,
+    T4 : RemoteValue<*>,
+    T5 : RemoteValue<*>,
+    T6 : RemoteValue<*>,
 > : (T1, T2, T3, T4, T5, T6, RemoteModifier?) -> Unit {
     public operator fun invoke(arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, arg6: T6): Unit =
         invoke(arg1, arg2, arg3, arg4, arg5, arg6, null)

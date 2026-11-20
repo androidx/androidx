@@ -287,7 +287,7 @@ class CaptureRemoteDocumentTest {
         }
 
     @Test
-    fun constantCacheKey_doesNotRetainRemoteStateInstance() {
+    fun constantCacheKey_doesNotRetainRemoteValueInstance() {
         var weakRef: WeakReference<RemoteString>? = null
         val creationState =
             RemoteComposeCreationState(

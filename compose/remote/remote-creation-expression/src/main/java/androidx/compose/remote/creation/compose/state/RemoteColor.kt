@@ -34,7 +34,7 @@ private const val RgbMask: Int = 0x00FFFFFF
  *
  * Operations on [RemoteColor] are evaluated dynamically on the remote player at runtime unless all
  * inputs are known constants, in which case constant folding evaluates the result immediately at
- * creation time (see [RemoteState]).
+ * creation time (see [RemoteValue]).
  *
  * Constant color values are backed by a 32-bit packed ARGB integer ([ColorInt]) in sRGB color
  * space:
@@ -44,10 +44,10 @@ private const val RgbMask: Int = 0x00FFFFFF
  * - Bits 0-7: Blue component (0-255).
  *
  * Comparing [RemoteColor] values with `==` checks structural equality (matching constant values or
- * expression DAGs); see [RemoteState].
+ * expression DAGs); see [RemoteValue].
  */
 @Stable
-public sealed interface RemoteColor : RemoteState<Int> {
+public sealed interface RemoteColor : RemoteValue<Int> {
     /** Constant 32-bit ARGB [ColorInt] value of this color, or `null` if dynamic. */
     @get:ColorInt @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?
 
@@ -178,14 +178,14 @@ public sealed interface RemoteColor : RemoteState<Int> {
          *
          * @param name A unique name to identify this state within its [domain].
          * @param defaultValue The initial ARGB integer value for the named remote color.
-         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
          * @return A [RemoteColor] representing the named color.
          */
         @JvmStatic
         public fun createNamedRemoteColor(
             name: String,
             @ColorInt defaultValue: Int,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteColor {
             return RemoteColorImpl(
                 constantValueOrNull = null,
@@ -210,14 +210,14 @@ public sealed interface RemoteColor : RemoteState<Int> {
          *
          * @param name unique name identifying this state within its [domain]
          * @param defaultValue initial [RemoteColor] constant or expression
-         * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+         * @param domain domain for the named state, defaulting to [RemoteValue.Domain.User]
          * @return a named [RemoteColor] initialized to [defaultValue]
          */
         @JvmStatic
         public fun createNamedRemoteColor(
             name: String,
             defaultValue: RemoteColor,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteColor {
             return RemoteColorImpl(
                 constantValueOrNull = null,
@@ -451,7 +451,7 @@ private class RemoteColorImpl(
     private val configuredBlue: RemoteFloat?,
     private val configuredAlpha: RemoteFloat?,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
-) : BaseRemoteState<Int>(cacheKey), RemoteColor {
+) : BaseRemoteValue<Int>(cacheKey), RemoteColor {
     override val equalityType: KClass<*>
         get() = RemoteColor::class
 
@@ -469,7 +469,7 @@ private class RemoteColorImpl(
     )
 
     override val constantValue: Int
-        get() = checkNotNull(constantValueOrNull) { "No constant value for this state" }
+        get() = checkNotNull(constantValueOrNull) { "No constant value for this RemoteValue" }
 
     override fun times(other: RemoteColor): RemoteColor {
         val thisConst = this.constantValueOrNull
@@ -591,7 +591,7 @@ private enum class ColorOperationKey : RemoteOperation {
             else -> formatCamelCaseFunction(args)
         }
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             FromArgb ->
                 RemoteColor(
@@ -960,7 +960,7 @@ private fun constantColorOrNull(
     }
 }
 
-private fun asRemoteColor(arg: RemoteState<*>): RemoteColor =
+private fun asRemoteColor(arg: RemoteValue<*>): RemoteColor =
     when (arg) {
         is RemoteColor -> arg
         is RemoteInt ->
@@ -971,7 +971,7 @@ private fun asRemoteColor(arg: RemoteState<*>): RemoteColor =
         else -> throw IllegalArgumentException("Expected RemoteColor or RemoteInt, but found $arg")
     }
 
-private fun asConstantInt(arg: RemoteState<*>, default: Int = 0): Int =
+private fun asConstantInt(arg: RemoteValue<*>, default: Int = 0): Int =
     (arg.constantValueOrNull as? Number)?.toInt() ?: default
 
 /**
@@ -985,11 +985,11 @@ internal class RemoteStateThemeColorKey(
     @ColorInt internal val lightFallback: Int,
     @ColorInt internal val darkFallback: Int,
 ) : BaseRemoteStateCacheKey() {
-    private var state: RemoteState<*>? = null
+    private var state: RemoteValue<*>? = null
 
-    override fun getState(): RemoteState<*>? = state
+    override fun getState(): RemoteValue<*>? = state
 
-    override fun setState(state: RemoteState<*>?) {
+    override fun setState(state: RemoteValue<*>?) {
         this.state = state
     }
 

@@ -26,20 +26,20 @@ import org.junit.runners.JUnit4
 class RemoteStateTest {
     @Test
     fun domainToString() {
-        assertEquals("USER", RemoteState.Domain.User.toString())
-        assertEquals("SYSTEM", RemoteState.Domain.System.toString())
-        assertEquals("", RemoteState.Domain.None.toString())
+        assertEquals("USER", RemoteValue.Domain.User.toString())
+        assertEquals("SYSTEM", RemoteValue.Domain.System.toString())
+        assertEquals("", RemoteValue.Domain.None.toString())
     }
 
     @Test
     fun domainEquals() {
-        assertEquals(RemoteState.Domain.User, RemoteState.Domain("USER"))
-        assertNotEquals(RemoteState.Domain.User, RemoteState.Domain.System)
-        assertEquals(RemoteState.Domain.None, RemoteState.Domain(null))
+        assertEquals(RemoteValue.Domain.User, RemoteValue.Domain("USER"))
+        assertNotEquals(RemoteValue.Domain.User, RemoteValue.Domain.System)
+        assertEquals(RemoteValue.Domain.None, RemoteValue.Domain(null))
     }
 
     @Test
     fun domainHashcode() {
-        assertEquals(RemoteState.Domain.User.hashCode(), RemoteState.Domain("USER").hashCode())
+        assertEquals(RemoteValue.Domain.User.hashCode(), RemoteValue.Domain("USER").hashCode())
     }
 }

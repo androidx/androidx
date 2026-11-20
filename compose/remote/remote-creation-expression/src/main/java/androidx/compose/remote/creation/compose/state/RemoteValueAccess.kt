@@ -21,24 +21,24 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 
 /**
- * Library-group contract implemented by [RemoteState] implementations to support expression caching
+ * Library-group contract implemented by [RemoteValue] implementations to support expression caching
  * and document ID resolution.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RemoteStateAccess {
-    /** The cache key identifying this state within [RemoteComposeCreationState]. */
+public interface RemoteValueAccess {
+    /** The cache key identifying this [RemoteValue] within [RemoteComposeCreationState]. */
     public val cacheKey: RemoteStateCacheKey
 
-    /** The underlying encoded [RemoteState] representation for this state. */
-    public val asEncoded: RemoteState<*>
-        get() = this as RemoteState<*>
+    /** The underlying encoded [RemoteValue] representation for this value. */
+    public val asEncoded: RemoteValue<*>
+        get() = this as RemoteValue<*>
 
-    /** The underlying encoded [MutableRemoteState] representation for this state. */
-    public val asEncodedMutable: MutableRemoteState<*>
-        get() = this as MutableRemoteState<*>
+    /** The underlying encoded [MutableRemoteValue] representation for this value. */
+    public val asEncodedMutable: MutableRemoteValue<*>
+        get() = this as MutableRemoteValue<*>
 
     /**
-     * Returns a new or cached id for this [RemoteState] within the [RemoteComposeCreationState].
+     * Returns a new or cached id for this [RemoteValue] within the [RemoteComposeCreationState].
      *
      * @param creationState The [RemoteComposeCreationState] for which the ID will be generated.
      * @return The ID of this remote value, for the given [creationState].
@@ -61,8 +61,8 @@ public interface RemoteStateAccess {
         Utils.asNan(getId(creationState))
 }
 
-internal fun RemoteState<*>.requireRemoteStateAccess(): RemoteStateAccess =
-    this as? RemoteStateAccess
+internal fun RemoteValue<*>.requireRemoteValueAccess(): RemoteValueAccess =
+    this as? RemoteValueAccess
         ?: throw IllegalArgumentException(
-            "${this::class.qualifiedName ?: this::class.simpleName} must implement RemoteStateAccess"
+            "${this::class.qualifiedName ?: this::class.simpleName} must implement RemoteValueAccess"
         )

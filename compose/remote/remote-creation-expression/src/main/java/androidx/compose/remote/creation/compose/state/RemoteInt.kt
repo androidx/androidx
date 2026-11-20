@@ -62,14 +62,14 @@ private const val MAX_SAFE_LONG_ARRAY = 30
  *
  * Operations on [RemoteInt] are evaluated dynamically on the remote player at runtime unless all
  * inputs are known constants, in which case constant folding evaluates the result immediately at
- * creation time (see [RemoteState]).
+ * creation time (see [RemoteValue]).
  *
  * Comparing [RemoteInt] values with `==` checks structural equality (matching constant values or
  * expression DAGs), whereas [MutableRemoteInt] instances compare by their underlying mutable
- * variable; see [RemoteState]. For runtime equality on the remote player, use [isEqualTo].
+ * variable; see [RemoteValue]. For runtime equality on the remote player, use [isEqualTo].
  */
 @Stable
-public sealed interface RemoteInt : RemoteState<Int> {
+public sealed interface RemoteInt : RemoteValue<Int> {
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?
 
     /**
@@ -260,14 +260,14 @@ public sealed interface RemoteInt : RemoteState<Int> {
          *
          * @param name The unique name for this remote int.
          * @param defaultValue The initial [Int] value for the named remote int.
-         * @param domain The domain of the named integer (defaults to [RemoteState.Domain.User]).
+         * @param domain The domain of the named integer (defaults to [RemoteValue.Domain.User]).
          * @return A [RemoteInt] representing the named int.
          */
         @JvmStatic
         public fun createNamedRemoteInt(
             name: String,
             defaultValue: Int,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteInt {
             return RemoteInt(
                 constantValueOrNull = null,
@@ -429,7 +429,7 @@ internal enum class RemoteIntOperationKey(
         }
     }
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             Add -> (args[0] as RemoteInt) + (args[1] as RemoteInt)
             Sub -> (args[0] as RemoteInt) - (args[1] as RemoteInt)
@@ -556,7 +556,7 @@ private fun RemoteInt.writeIntToDocument(creationState: RemoteComposeCreationSta
 }
 
 internal abstract class BaseRemoteInt(cacheKey: RemoteStateCacheKey) :
-    BaseRemoteState<Int>(cacheKey), RemoteInt {
+    BaseRemoteValue<Int>(cacheKey), RemoteInt {
     override val equalityType: KClass<*>
         get() = RemoteInt::class
 
@@ -1128,7 +1128,7 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
  * distinct mutable variables and are never `==`.
  */
 @Stable
-public sealed interface MutableRemoteInt : RemoteInt, MutableRemoteState<Int> {
+public sealed interface MutableRemoteInt : RemoteInt, MutableRemoteValue<Int> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**

@@ -33,10 +33,10 @@ import kotlin.reflect.KClass
  *
  * Comparing [RemoteImageBitmap] values with `==` checks structural equality (matching constant
  * values or expression DAGs), whereas [MutableRemoteImageBitmap] instances compare by identity; see
- * [RemoteState].
+ * [RemoteValue].
  */
 @Stable
-public sealed interface RemoteImageBitmap : RemoteState<Any> {
+public sealed interface RemoteImageBitmap : RemoteValue<Any> {
     /** The width of the bitmap as represented in the remote document. */
     public val width: RemoteFloat
 
@@ -67,14 +67,14 @@ public sealed interface RemoteImageBitmap : RemoteState<Any> {
          *
          * @param name unique name to identify this state within its [domain]
          * @param url URL of the image
-         * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
+         * @param domain domain for the named state, defaults to [RemoteValue.Domain.User]
          * @return a [RemoteImageBitmap] for the named bitmap
          */
         @JvmStatic
         public fun createNamedRemoteImageBitmap(
             name: String,
             url: String,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteImageBitmap = createNamedRemoteImageBitmap(name, url, 1, 1, domain)
 
         /**
@@ -87,7 +87,7 @@ public sealed interface RemoteImageBitmap : RemoteState<Any> {
          *   dimensions
          * @param height expected height of the bitmap in pixels, or 0 to use the loaded image's
          *   dimensions
-         * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
+         * @param domain domain for the named state, defaults to [RemoteValue.Domain.User]
          * @return a [RemoteImageBitmap] for the named bitmap
          */
         @JvmStatic
@@ -97,7 +97,7 @@ public sealed interface RemoteImageBitmap : RemoteState<Any> {
             url: String,
             width: Int,
             height: Int,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteImageBitmap =
             RemoteImageBitmapImpl(
                 constantValueOrNull = null,
@@ -138,7 +138,7 @@ private enum class ImageBitmapOperationKey {
 }
 
 private abstract class BaseRemoteImageBitmap(cacheKey: RemoteStateCacheKey) :
-    BaseRemoteState<Any>(cacheKey), RemoteImageBitmap {
+    BaseRemoteValue<Any>(cacheKey), RemoteImageBitmap {
     override val equalityType: KClass<*>
         get() = RemoteImageBitmap::class
 
@@ -182,13 +182,13 @@ private class RemoteImageBitmapImpl(
 
 /**
  * A mutable implementation of [RemoteImageBitmap] that holds its value in a
- * [MutableRemoteState<Any>].
+ * [MutableRemoteValue<Any>].
  *
  * Distinct [MutableRemoteImageBitmap] instances represent separate mutable variables and compare by
  * identity with `==`.
  */
 @Stable
-public sealed interface MutableRemoteImageBitmap : RemoteImageBitmap, MutableRemoteState<Any> {
+public sealed interface MutableRemoteImageBitmap : RemoteImageBitmap, MutableRemoteValue<Any> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**

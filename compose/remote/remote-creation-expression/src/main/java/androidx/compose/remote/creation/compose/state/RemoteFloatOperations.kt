@@ -22,7 +22,7 @@ package androidx.compose.remote.creation.compose.state
  *
  * Operations on RemoteFloat are typically evaluated dynamically at runtime on the remote player.
  * However, if all input operands are constants known at creation time, constant folding evaluates
- * the result immediately (see RemoteState).
+ * the result immediately (see RemoteValue).
  */
 
 import androidx.annotation.RestrictTo
@@ -115,7 +115,7 @@ public fun max(a: Float, b: RemoteFloat): RemoteFloat =
 /**
  * Returns a [RemoteFloat] that evaluates to the greater of [a] and [b].
  *
- * See [RemoteState] for dynamic runtime evaluation versus creation-time constant folding.
+ * See [RemoteValue] for dynamic runtime evaluation versus creation-time constant folding.
  *
  * @param a The first [RemoteFloat] value.
  * @param b The second [RemoteFloat] value.
@@ -135,7 +135,7 @@ public fun min(a: Float, b: RemoteFloat): RemoteFloat =
 /**
  * Returns a [RemoteFloat] that evaluates to the smaller of [a] and [b].
  *
- * See [RemoteState] for dynamic runtime evaluation versus creation-time constant folding.
+ * See [RemoteValue] for dynamic runtime evaluation versus creation-time constant folding.
  *
  * @param a The first [RemoteFloat] value.
  * @param b The second [RemoteFloat] value.

@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
  * @property size The size of the array
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public sealed interface RemoteMutableFloatArray : RemoteState<List<RemoteFloat>> {
+public sealed interface RemoteMutableFloatArray : RemoteValue<List<RemoteFloat>> {
     public val size: Int
 
     /**
@@ -55,7 +55,7 @@ private enum class MutableFloatArrayOperationKey : RemoteOperation {
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "mutableFloatArrayOf(${args.joinToDebugString()})"
 
-        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+        override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
             RemoteMutableFloatArray(args.size)
     },
     Get {
@@ -65,13 +65,13 @@ private enum class MutableFloatArrayOperationKey : RemoteOperation {
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             args.formatArrayAccess(precedence)
 
-        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+        override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
             (args[0] as RemoteMutableFloatArray)[args[1] as RemoteInt]
     },
 }
 
 private class RemoteMutableFloatArrayImpl(override val size: Int) :
-    BaseRemoteState<List<RemoteFloat>>(RemoteStateArrayKey(size)), RemoteMutableFloatArray {
+    BaseRemoteValue<List<RemoteFloat>>(RemoteStateArrayKey(size)), RemoteMutableFloatArray {
     override val equalityType: KClass<*>
         get() = RemoteMutableFloatArray::class
 

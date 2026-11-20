@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 
 /** Represents an array of remote strings. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public sealed interface RemoteStringArray : RemoteState<List<RemoteString>> {
+public sealed interface RemoteStringArray : RemoteValue<List<RemoteString>> {
     override val constantValueOrNull: List<RemoteString>?
 
     /** Array access operator for [RemoteStringArray] with an [Int] index. */
@@ -44,7 +44,7 @@ private enum class StringArrayOperationKey : RemoteOperation {
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "arrayOf(${args.joinToDebugString()})"
 
-        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+        override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
             RemoteStringArray(args.fastMap { it as RemoteString })
     },
     Get {
@@ -54,7 +54,7 @@ private enum class StringArrayOperationKey : RemoteOperation {
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             args.formatArrayAccess(precedence)
 
-        override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> =
+        override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
             (args[0] as RemoteStringArray)[args[1] as RemoteInt]
     },
 }
@@ -62,7 +62,7 @@ private enum class StringArrayOperationKey : RemoteOperation {
 private class RemoteStringArrayImpl(
     override val constantValueOrNull: List<RemoteString>?,
     cacheKey: RemoteStateCacheKey,
-) : BaseRemoteState<List<RemoteString>>(cacheKey), RemoteStringArray {
+) : BaseRemoteValue<List<RemoteString>>(cacheKey), RemoteStringArray {
     override val equalityType: KClass<*>
         get() = RemoteStringArray::class
 

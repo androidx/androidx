@@ -26,20 +26,20 @@ import androidx.compose.remote.creation.actions.ValueStringChange
 import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
-import androidx.compose.remote.creation.compose.state.MutableRemoteState
+import androidx.compose.remote.creation.compose.state.MutableRemoteValue
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
-import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.arrayForCreationState
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.isLiteral
 
 /** Update a value on click. */
 internal class ValueChangeAction<T>(
-    public val remoteValue: MutableRemoteState<T>,
-    public val updatedValue: RemoteState<T>,
+    public val remoteValue: MutableRemoteValue<T>,
+    public val updatedValue: RemoteValue<T>,
 ) : RemoteAction {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction =
@@ -79,17 +79,17 @@ internal class ValueFloatChangeAction(
 }
 
 /**
- * Creates an [RemoteAction] that updates the value of a [MutableRemoteState] to a new
- * [RemoteState].
+ * Creates an [RemoteAction] that updates the value of a [MutableRemoteValue] to a new
+ * [RemoteValue].
  *
- * Example of toggling a [MutableRemoteState] boolean value on click:
+ * Example of toggling a [MutableRemoteValue] boolean value on click:
  *
  * @sample androidx.compose.remote.creation.compose.samples.ClickableValueChangeSample
- * @param remoteState The mutable remote state to be updated.
- * @param updatedValue The new remote state value to apply.
+ * @param remoteValue The mutable remote value to be updated.
+ * @param updatedValue The new remote value to apply.
  * @return An [RemoteAction] representing the value change.
  */
 public fun <T> valueChangeAction(
-    remoteState: MutableRemoteState<T>,
-    updatedValue: RemoteState<T>,
-): RemoteAction = ValueChangeAction(remoteState, updatedValue)
+    remoteValue: MutableRemoteValue<T>,
+    updatedValue: RemoteValue<T>,
+): RemoteAction = ValueChangeAction(remoteValue, updatedValue)

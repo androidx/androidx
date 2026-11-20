@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 
 /**
- * Traverses a [RemoteState] expression DAG to inspect, collect, or rewrite nodes.
+ * Traverses a [RemoteValue] expression DAG to inspect, collect, or rewrite nodes.
  *
  * Implementations process nodes bottom-up (post-order). Shared sub-expressions in the DAG are
  * visited once per traversal via the memoization map in [RemoteStateCacheKey.accept].
@@ -32,30 +32,30 @@ internal fun interface RemoteStateVisitor<R> {
      * Visits a [RemoteStateCacheKey] node in the AST DAG.
      *
      * @param key The cache key being visited.
-     * @param state The associated [RemoteState], or `null` if not yet instantiated.
+     * @param state The associated [RemoteValue], or `null` if not yet instantiated.
      * @param visitedArgs The results from visiting each child argument in
      *   [RemoteStateCacheKey.args] (empty for leaf nodes).
      * @return The result of visiting this node.
      */
-    fun visit(key: RemoteStateCacheKey, state: RemoteState<*>?, visitedArgs: List<R>): R
+    fun visit(key: RemoteStateCacheKey, state: RemoteValue<*>?, visitedArgs: List<R>): R
 }
 
 /**
- * Transforms this [RemoteState] expression DAG bottom-up.
+ * Transforms this [RemoteValue] expression DAG bottom-up.
  *
  * Wrappers ([RemoteBoolean], [RemoteDp], [RemoteEnum]) are automatically unwrapped and re-wrapped.
  * If [transform] returns `null` for a node, default transformation behavior is applied (preserving
  * unchanged nodes, reconstructing operations with transformed arguments, resolving constants,
  * etc.).
  *
- * @param transform A lambda that inspects each [RemoteState] node in the AST DAG and returns a
- *   replacement [RemoteState], or `null` to preserve the node or use default reconstruction.
- * @return The transformed [RemoteState] instance.
+ * @param transform A lambda that inspects each [RemoteValue] node in the AST DAG and returns a
+ *   replacement [RemoteValue], or `null` to preserve the node or use default reconstruction.
+ * @return The transformed [RemoteValue] instance.
  */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <S : RemoteState<*>> S.transform(
-    transform: (state: RemoteState<*>) -> RemoteState<*>?
+public fun <S : RemoteValue<*>> S.transform(
+    transform: (state: RemoteValue<*>) -> RemoteValue<*>?
 ): S {
     if (hasConstantValue) {
         val replaced = transform(this)
@@ -76,13 +76,13 @@ public fun <S : RemoteState<*>> S.transform(
             if (newInt === intValue) this else RemoteEnum(newInt, enumEntries)
         }
         else -> {
-            accept<RemoteState<*>> { key, state, visitedArgs ->
+            accept<RemoteValue<*>> { key, state, visitedArgs ->
                 val node =
                     state
                         ?: when (key) {
                             is RemoteConstantCacheKey -> resolveConstantState(key)
                             is RemoteColorConstantCacheKey -> RemoteColor(key.color)
-                            is FloatArrayCacheKey -> FloatArrayRemoteState(key.floatArray, key)
+                            is FloatArrayCacheKey -> FloatArrayRemoteValue(key.floatArray, key)
                             else -> null
                         }
                 val custom = if (node != null) transform(node) else null
@@ -104,7 +104,7 @@ public fun <S : RemoteState<*>> S.transform(
                         }
                         is RemoteConstantCacheKey -> node ?: resolveConstantState(key)
                         is RemoteColorConstantCacheKey -> node ?: RemoteColor(key.color)
-                        is FloatArrayCacheKey -> node ?: FloatArrayRemoteState(key.floatArray, key)
+                        is FloatArrayCacheKey -> node ?: FloatArrayRemoteValue(key.floatArray, key)
                         is RemoteNamedCacheKey ->
                             node
                                 ?: throw IllegalStateException(
@@ -126,7 +126,7 @@ public fun <S : RemoteState<*>> S.transform(
 
 private fun hasArgsChanged(
     original: List<RemoteStateCacheKey>,
-    visited: List<RemoteState<*>>,
+    visited: List<RemoteValue<*>>,
 ): Boolean {
     for (i in 0 until original.size) {
         if (visited[i].cacheKey != original[i]) return true
@@ -134,8 +134,8 @@ private fun hasArgsChanged(
     return false
 }
 
-/** Resolves or creates a [RemoteState] corresponding to the given [RemoteConstantCacheKey]. */
-internal fun resolveConstantState(key: RemoteConstantCacheKey): RemoteState<*> {
+/** Resolves or creates a [RemoteValue] corresponding to the given [RemoteConstantCacheKey]. */
+internal fun resolveConstantState(key: RemoteConstantCacheKey): RemoteValue<*> {
     return when (val v = key.value) {
         is Float -> RemoteFloat(v)
         is Int -> RemoteInt(v)
@@ -149,8 +149,8 @@ internal fun resolveConstantState(key: RemoteConstantCacheKey): RemoteState<*> {
     }
 }
 
-internal fun <R> RemoteState<*>.accept(visitor: RemoteStateVisitor<R>): R =
-    (this as BaseRemoteState<*>).accept(visitor)
+internal fun <R> RemoteValue<*>.accept(visitor: RemoteStateVisitor<R>): R =
+    (this as BaseRemoteValue<*>).accept(visitor)
 
-internal fun RemoteState<*>.writeToDocument(creationState: RemoteComposeCreationState): Int =
-    (this as BaseRemoteState<*>).writeToDocument(creationState)
+internal fun RemoteValue<*>.writeToDocument(creationState: RemoteComposeCreationState): Int =
+    (this as BaseRemoteValue<*>).writeToDocument(creationState)

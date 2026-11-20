@@ -43,8 +43,8 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createTranslateXy
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -214,7 +214,7 @@ class RemoteBrushTest {
                 RemoteImageBitmap.createNamedRemoteImageBitmap(
                     name = "background",
                     defaultValue = createImage(400, 400).asImageBitmap(),
-                    domain = RemoteState.Domain.User,
+                    domain = RemoteValue.Domain.User,
                 )
             }
             val imageSize = RemoteSize(image.width, image.height)

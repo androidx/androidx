@@ -174,7 +174,7 @@ class RemoteExpressionJvmTest {
     fun testRemoteTextUnitSp() {
         val sp = 14f.rsp
         assertThat(sp.type).isEqualTo(RemoteTextUnitType.Sp)
-        assertThat(sp.value.constantValue).isEqualTo(14f)
+        assertThat(sp.constantValue).isEqualTo(14f)
     }
 
     @Test
@@ -401,14 +401,14 @@ class RemoteExpressionJvmTest {
     }
 
     @Test
-    fun testUnsupportedRemoteState_throwsIllegalArgumentException() {
+    fun testUnsupportedRemoteValue_throwsIllegalArgumentException() {
         val state = RemoteComposeCreationState()
         val unsupported =
-            object : RemoteState<Float> {
+            object : RemoteValue<Float> {
                 override val constantValueOrNull: Float? = null
             }
         val unsupportedMutable =
-            object : MutableRemoteState<Float> {
+            object : MutableRemoteValue<Float> {
                 override val constantValueOrNull: Float? = null
             }
 

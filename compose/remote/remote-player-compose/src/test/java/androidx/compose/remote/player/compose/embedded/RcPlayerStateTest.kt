@@ -45,8 +45,8 @@ import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
-import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rc
@@ -267,7 +267,7 @@ class RcPlayerStateTest {
             val userVar = remember { createNamedRemoteFloat("user_var", 15f) }
             // An unprefixed variable
             val rawVar = remember {
-                createNamedRemoteFloat("raw_var", 25f, domain = RemoteState.Domain.None)
+                createNamedRemoteFloat("raw_var", 25f, domain = RemoteValue.Domain.None)
             }
             RemoteBox(
                 modifier =
@@ -304,7 +304,7 @@ class RcPlayerStateTest {
                 createNamedRemoteFloat(
                     "unprefixed_var",
                     100f,
-                    domain = RemoteState.Domain.None,
+                    domain = RemoteValue.Domain.None,
                 )
             }
             RemoteBox(modifier = RemoteModifier.size(rawVar.asRemoteDp(), 10.rdp))

@@ -34,7 +34,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -436,17 +435,15 @@ private fun PaddedContainerCell() {
     ) {
         RemoteBox(modifier = RemoteModifier.size(14.rdp, 8.rdp).background(0xFFE53935.rc))
         val paddedBox = remoteComponent()
-        val innerWidthDp = max(paddedBox.width.toRemoteDp().value - 20f.rf, 0f.rf)
+        val innerWidthDp = max(paddedBox.width.toRemoteDp() - 20.rdp, 0.rdp)
         RemoteColumn(modifier = RemoteModifier.padding(top = 12.rdp)) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(innerWidthDp.asRemoteDp())
-                        .height(22.rdp)
-                        .background(0xFFEF5350.rc),
+                    RemoteModifier.width(innerWidthDp).height(22.rdp).background(0xFFEF5350.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(
-                    "in:".rs + (innerWidthDp + 0.5f).toRemoteInt().toRemoteString(),
+                    "in:".rs + (innerWidthDp.value + 0.5f).toRemoteInt().toRemoteString(),
                     fontSize = 7.rsp,
                     color = RemoteColor.White,
                 )

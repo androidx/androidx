@@ -33,15 +33,15 @@ import kotlin.reflect.KClass
  *
  * Operations on [RemoteBoolean] are evaluated dynamically on the remote player at runtime unless
  * all inputs are known constants, in which case constant folding evaluates the result immediately
- * at creation time (see [RemoteState]).
+ * at creation time (see [RemoteValue]).
  *
  * Comparing [RemoteBoolean] values with `==` checks structural equality (matching constant values
  * or expression DAGs and mutability), whereas [MutableRemoteBoolean] instances compare by their
- * underlying mutable variable; see [RemoteState]. For runtime equality on the remote player, use
+ * underlying mutable variable; see [RemoteValue]. For runtime equality on the remote player, use
  * [isEqualTo].
  */
 @Stable
-public sealed interface RemoteBoolean : RemoteState<Boolean> {
+public sealed interface RemoteBoolean : RemoteValue<Boolean> {
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Boolean?
 
     /**
@@ -208,7 +208,7 @@ public sealed interface RemoteBoolean : RemoteState<Boolean> {
          * via AndroidRemoteContext.setNamedBoolean.
          *
          * @param name The unique name for this remote boolean.
-         * @param domain The domain of the named boolean (defaults to [RemoteState.Domain.User]).
+         * @param domain The domain of the named boolean (defaults to [RemoteValue.Domain.User]).
          * @param defaultValue The initial [Boolean] value for the named remote boolean.
          * @return A [RemoteBoolean] representing the named boolean.
          */
@@ -216,7 +216,7 @@ public sealed interface RemoteBoolean : RemoteState<Boolean> {
         public fun createNamedRemoteBoolean(
             name: String,
             defaultValue: Boolean,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteBoolean {
             return RemoteBoolean(
                 createNamedRemoteInt(
@@ -246,7 +246,7 @@ public val RemoteBoolean.intValue: RemoteInt
     get() = (this as BaseRemoteBoolean).intValue
 
 private abstract class BaseRemoteBoolean :
-    BaseRemoteState<Boolean>(RemoteStateInstanceKey()), RemoteBoolean {
+    BaseRemoteValue<Boolean>(RemoteStateInstanceKey()), RemoteBoolean {
     override val equalityType: KClass<*>
         get() = RemoteBoolean::class
 
@@ -519,7 +519,7 @@ private enum class BooleanOperationKey : RemoteOperation {
         return "$condStr ? ${args[1].toOperandString(0)} : ${args[2].toOperandString(0)}"
     }
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             SelectString ->
                 RemoteBoolean(args[0] as RemoteInt)
@@ -549,7 +549,7 @@ private enum class BooleanOperationKey : RemoteOperation {
  * distinct mutable variables and are never `==`.
  */
 @Stable
-public sealed interface MutableRemoteBoolean : RemoteBoolean, MutableRemoteState<Boolean> {
+public sealed interface MutableRemoteBoolean : RemoteBoolean, MutableRemoteValue<Boolean> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**

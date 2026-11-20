@@ -46,7 +46,7 @@ public class RemoteBitmapFont
 constructor(
     glyphs: List<Glyph>,
     @Suppress("PrimitiveInCollection") public val kerningTable: Map<String, Short> = emptyMap(),
-) : RemoteState<Any>, RemoteStateAccess {
+) : RemoteValue<Any>, RemoteValueAccess {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey()
 

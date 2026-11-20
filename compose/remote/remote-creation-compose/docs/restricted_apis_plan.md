@@ -58,7 +58,7 @@ The following restricted APIs remain across `remote-creation-compose` and `remot
   - `RemoteFloatOperations`: `cubicEasing` (and `CUBIC_*` / `SPLINE_CUSTOM` / `EASE_OUT_*` constants), `evalSpline`, `interpolateRemoteFloat`, `animateRemoteFloat`, `rand`, `randRange`, and mixed `Float` overloads (`min`, `max`, `lerp`, `clamp`, `atan2`).
   - `RemoteFloat`, `RemoteInt`, & `RemoteLong`: Mixed primitive `Float`/`Int` operators, `RemoteInt` math/bitwise helpers, `toRemoteStringWithPadding` / `toRemoteStringOptions`, `RemoteLong(Long)` constructor & `fromLowHigh`, `createReference`, `Hoist`, and `selectIf*` helpers.
 - **Array & Scope Helpers**:
-  - `RemoteFloatArray`, `RemoteMutableFloatArray`, `RemoteIntArray`, `RemoteStringArray`, and `RemoteState.withGlobalScope`.
+  - `RemoteFloatArray`, `RemoteMutableFloatArray`, `RemoteIntArray`, `RemoteStringArray`, and `RemoteValue.withGlobalScope`.
 
 ### 5. Shaders, Vectors, Capture & Actions
 
@@ -73,7 +73,7 @@ The following restricted APIs remain across `remote-creation-compose` and `remot
 
 ### 6. Keep Restricted (Cross-Module Boundary)
 
-- Wire-serialization, capture-state, and cache-key APIs shared across RemoteCompose modules (`:compose:remote:remote-creation-expression`, `:compose:remote:remote-creation-compose`, `:compose:remote:remote-player-compose`, `:compose:remote:remote-testing`, `:wear:compose:remote:remote-material3`, and `:xr:glimmer:glimmer-remote`), including `RemoteComposeCreationState`, `RemoteComposeCaptureState`, `LocalRemoteComposeCreationState`, `RemoteStateScope` ID accessors (`id`, `floatId`, `longId`, `document`, `creationState`), `BaseRemoteState` ID methods, `RemoteStateCacheKey`, `RemoteStateVisitor`, `RemoteCanvas`, `RemoteAction.toRemoteAction()`, `RemoteModifier.toRecordingModifier`, and prebuilt binary bridges (`CapturedDocument`, `WriterEvents`).
+- Wire-serialization, capture-state, and cache-key APIs shared across RemoteCompose modules (`:compose:remote:remote-creation-expression`, `:compose:remote:remote-creation-compose`, `:compose:remote:remote-player-compose`, `:compose:remote:remote-testing`, `:wear:compose:remote:remote-material3`, and `:xr:glimmer:glimmer-remote`), including `RemoteComposeCreationState`, `RemoteComposeCaptureState`, `LocalRemoteComposeCreationState`, `RemoteStateScope` ID accessors (`id`, `floatId`, `longId`, `document`, `creationState`), `BaseRemoteValue` ID methods, `RemoteStateCacheKey`, `RemoteStateVisitor`, `RemoteCanvas`, `RemoteAction.toRemoteAction()`, `RemoteModifier.toRecordingModifier`, and prebuilt binary bridges (`CapturedDocument`, `WriterEvents`).
 
 ## Out of Scope
 

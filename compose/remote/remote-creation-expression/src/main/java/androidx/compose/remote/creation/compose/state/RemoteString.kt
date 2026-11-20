@@ -35,13 +35,13 @@ import kotlin.reflect.KClass
  *
  * Operations on [RemoteString] are evaluated dynamically on the remote player at runtime unless all
  * inputs are known constants, in which case constant folding evaluates the result immediately at
- * creation time (see [RemoteState]).
+ * creation time (see [RemoteValue]).
  *
  * Comparing [RemoteString] values with `==` checks structural equality (matching constant values or
- * expression DAGs), whereas [MutableRemoteString] instances compare by identity; see [RemoteState].
+ * expression DAGs), whereas [MutableRemoteString] instances compare by identity; see [RemoteValue].
  */
 @Stable
-public sealed interface RemoteString : RemoteState<String> {
+public sealed interface RemoteString : RemoteValue<String> {
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: String?
 
     /** The length of this [RemoteString] as a [RemoteInt]. */
@@ -171,14 +171,14 @@ public sealed interface RemoteString : RemoteState<String> {
          *
          * @param name A unique name to identify this state within its [domain].
          * @param defaultValue The initial [String] value for the named remote string.
-         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
          * @return A [RemoteString] representing the named string.
          */
         @JvmStatic
         public fun createNamedRemoteString(
             name: String,
             defaultValue: String,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteString {
             return RemoteString(
                 constantValueOrNull = null,
@@ -232,7 +232,7 @@ private enum class StringOperationKey(override val precedence: Int = 100) : Remo
         }
     }
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             Concat -> (args[0] as RemoteString) + (args[1] as RemoteString)
             Substring -> {
@@ -336,7 +336,7 @@ private abstract class BaseRemoteString(
     override val constantValueOrNull: String?,
     cacheKey: RemoteStateCacheKey,
     val lazyRemoteString: LazyRemoteString,
-) : BaseRemoteState<String>(cacheKey), RemoteString {
+) : BaseRemoteValue<String>(cacheKey), RemoteString {
     override val equalityType: KClass<*>
         get() = RemoteString::class
 
@@ -1076,13 +1076,13 @@ internal fun mergeSets(a: Set<String>?, b: Set<String>?): Set<String>? {
 }
 
 /**
- * An implementation of [RemoteString] that holds its value in a [MutableRemoteState<String>].
+ * An implementation of [RemoteString] that holds its value in a [MutableRemoteValue<String>].
  *
  * Distinct [MutableRemoteString] instances represent separate mutable variables and compare by
  * identity with `==`.
  */
 @Stable
-public sealed interface MutableRemoteString : RemoteString, MutableRemoteState<String> {
+public sealed interface MutableRemoteString : RemoteString, MutableRemoteValue<String> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**

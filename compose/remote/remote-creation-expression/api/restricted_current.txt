@@ -59,30 +59,30 @@ package androidx.compose.remote.creation.compose.layout {
 
 package androidx.compose.remote.creation.compose.state {
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteBoolean extends androidx.compose.remote.creation.compose.state.RemoteBoolean androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Boolean> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteBoolean extends androidx.compose.remote.creation.compose.state.RemoteBoolean androidx.compose.remote.creation.compose.state.MutableRemoteValue<java.lang.Boolean> {
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.RemoteEnum<T> androidx.compose.remote.creation.compose.state.MutableRemoteState<T> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.RemoteEnum<T> androidx.compose.remote.creation.compose.state.MutableRemoteValue<T> {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.MutableRemoteInt getRemoteInt();
     property public abstract androidx.compose.remote.creation.compose.state.MutableRemoteInt remoteInt;
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteFloat extends androidx.compose.remote.creation.compose.state.RemoteFloat androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Float> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteFloat extends androidx.compose.remote.creation.compose.state.RemoteFloat androidx.compose.remote.creation.compose.state.MutableRemoteValue<java.lang.Float> {
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteImageBitmap extends androidx.compose.remote.creation.compose.state.RemoteImageBitmap androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Object> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteImageBitmap extends androidx.compose.remote.creation.compose.state.RemoteImageBitmap androidx.compose.remote.creation.compose.state.MutableRemoteValue<java.lang.Object> {
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteInt extends androidx.compose.remote.creation.compose.state.RemoteInt androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Integer> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteInt extends androidx.compose.remote.creation.compose.state.RemoteInt androidx.compose.remote.creation.compose.state.MutableRemoteValue<java.lang.Integer> {
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteLong extends androidx.compose.remote.creation.compose.state.RemoteLong androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Long> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteLong extends androidx.compose.remote.creation.compose.state.RemoteLong androidx.compose.remote.creation.compose.state.MutableRemoteValue<java.lang.Long> {
   }
 
-  @androidx.compose.runtime.Stable public interface MutableRemoteState<T> extends androidx.compose.remote.creation.compose.state.RemoteState<T> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteString extends androidx.compose.remote.creation.compose.state.RemoteString androidx.compose.remote.creation.compose.state.MutableRemoteValue<java.lang.String> {
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface MutableRemoteString extends androidx.compose.remote.creation.compose.state.RemoteString androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.String> {
+  @androidx.compose.runtime.Stable public interface MutableRemoteValue<T> extends androidx.compose.remote.creation.compose.state.RemoteValue<T> {
   }
 
   public final class RemoteAnimationKt {
@@ -101,9 +101,9 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat! animate$default(androidx.compose.remote.creation.compose.state.RemoteAnimationSpec!, androidx.compose.remote.creation.compose.state.RemoteFloat!, float, float, int, Object!);
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteBoolean extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Boolean> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteBoolean extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Boolean> {
     method public infix androidx.compose.remote.creation.compose.state.RemoteBoolean and(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
-    method public static androidx.compose.remote.creation.compose.state.RemoteBoolean createNamedRemoteBoolean(String name, boolean defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method public static androidx.compose.remote.creation.compose.state.RemoteBoolean createNamedRemoteBoolean(String name, boolean defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
     method @InaccessibleFromKotlin public Boolean? getConstantValueOrNull();
     method public androidx.compose.remote.creation.compose.state.RemoteBoolean isEqualTo(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
     method public androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEqualTo(androidx.compose.remote.creation.compose.state.RemoteBoolean other);
@@ -122,8 +122,8 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteBoolean.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteBoolean createNamedRemoteBoolean(String name, boolean defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteBoolean! createNamedRemoteBoolean$default(androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion!, String!, boolean, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteBoolean createNamedRemoteBoolean(String name, boolean defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteBoolean! createNamedRemoteBoolean$default(androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion!, String!, boolean, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
   }
 
   public final class RemoteBooleanKt {
@@ -133,11 +133,11 @@ package androidx.compose.remote.creation.compose.state {
     property public static androidx.compose.remote.creation.compose.state.RemoteBoolean boolean.rb;
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteColor extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Integer> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteColor extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Integer> {
     method public androidx.compose.remote.creation.compose.state.RemoteColor copy(optional androidx.compose.remote.creation.compose.state.RemoteFloat? alpha, optional androidx.compose.remote.creation.compose.state.RemoteFloat? red, optional androidx.compose.remote.creation.compose.state.RemoteFloat? green, optional androidx.compose.remote.creation.compose.state.RemoteFloat? blue);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! copy$default(androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method public static androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, androidx.compose.remote.creation.compose.state.RemoteColor defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method public static androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, @ColorInt int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method public static androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, androidx.compose.remote.creation.compose.state.RemoteColor defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method public static androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, @ColorInt int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getAlpha();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getBlue();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getBrightness();
@@ -160,10 +160,10 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteColor.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, androidx.compose.remote.creation.compose.state.RemoteColor defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, @ColorInt int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, String!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, String!, int, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, androidx.compose.remote.creation.compose.state.RemoteColor defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, @ColorInt int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, String!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, String!, int, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getBlack();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getBlue();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor getCyan();
@@ -223,7 +223,7 @@ package androidx.compose.remote.creation.compose.state {
     field public static final androidx.compose.remote.creation.compose.state.RemoteConfiguration INSTANCE;
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteDp extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Float> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteDp extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Float> {
     method public operator androidx.compose.remote.creation.compose.state.RemoteFloat div(androidx.compose.remote.creation.compose.state.RemoteDp other);
     method public operator androidx.compose.remote.creation.compose.state.RemoteDp div(androidx.compose.remote.creation.compose.state.RemoteFloat other);
     method public operator androidx.compose.remote.creation.compose.state.RemoteDp div(androidx.compose.remote.creation.compose.state.RemoteInt other);
@@ -252,20 +252,20 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteDp.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<? extends androidx.compose.remote.creation.compose.state.RemoteDp> value);
-    method public androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp(String name, float defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! createNamedRemoteDp$default(androidx.compose.remote.creation.compose.state.RemoteDp.Companion!, String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! createNamedRemoteDp$default(androidx.compose.remote.creation.compose.state.RemoteDp.Companion!, String!, float, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp(String name, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain, kotlin.jvm.functions.Function0<? extends androidx.compose.remote.creation.compose.state.RemoteDp> value);
+    method public androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp(String name, float defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! createNamedRemoteDp$default(androidx.compose.remote.creation.compose.state.RemoteDp.Companion!, String!, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! createNamedRemoteDp$default(androidx.compose.remote.creation.compose.state.RemoteDp.Companion!, String!, float, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
   }
 
   public final class RemoteDpKt {
     method public static androidx.compose.remote.creation.compose.state.RemoteDp RemoteDp(androidx.compose.remote.creation.compose.state.RemoteFloat value);
     method public static androidx.compose.remote.creation.compose.state.RemoteDp RemoteDp(float value);
     method public static androidx.compose.remote.creation.compose.state.RemoteDp asRemoteDp(androidx.compose.remote.creation.compose.state.RemoteFloat);
-    method public static androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<? extends androidx.compose.remote.creation.compose.state.RemoteDp> value);
-    method public static androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp(String name, float defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! createNamedRemoteDp$default(String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! createNamedRemoteDp$default(String!, float, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public static androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp(String name, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain, kotlin.jvm.functions.Function0<? extends androidx.compose.remote.creation.compose.state.RemoteDp> value);
+    method public static androidx.compose.remote.creation.compose.state.RemoteDp createNamedRemoteDp(String name, float defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! createNamedRemoteDp$default(String!, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp! createNamedRemoteDp$default(String!, float, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteDp getRdp(float);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteDp getRdp(int);
     method public static androidx.compose.remote.creation.compose.state.RemoteDp max(androidx.compose.remote.creation.compose.state.RemoteDp a, androidx.compose.remote.creation.compose.state.RemoteDp b);
@@ -300,7 +300,7 @@ package androidx.compose.remote.creation.compose.state {
     property public androidx.compose.remote.creation.compose.state.RemoteEasing Standard;
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.RemoteState<T> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteEnum<T extends java.lang.Enum<T>> extends androidx.compose.remote.creation.compose.state.RemoteValue<T> {
     method @InaccessibleFromKotlin public kotlin.enums.EnumEntries<T> getEnumEntries();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getOrdinal();
     method public androidx.compose.remote.creation.compose.state.RemoteInt toRemoteInt(kotlin.jvm.functions.Function1<? super T,? extends androidx.compose.remote.creation.compose.state.RemoteInt> mapping);
@@ -313,7 +313,7 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteEnum.Companion {
-    method @KotlinOnly public inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> createNamedRemoteEnum(String name, T defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @KotlinOnly public inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> createNamedRemoteEnum(String name, T defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
   }
 
   public final class RemoteEnumKt {
@@ -323,9 +323,9 @@ package androidx.compose.remote.creation.compose.state {
     method @KotlinOnly public static inline <reified T extends java.lang.Enum<T>> androidx.compose.remote.creation.compose.state.RemoteEnum<T> RemoteEnum(T value);
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteFloat extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Float> {
-    method public static androidx.compose.remote.creation.compose.state.RemoteFloat createNamedRemoteFloat(String name, androidx.compose.remote.creation.compose.state.RemoteFloat defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method public static androidx.compose.remote.creation.compose.state.RemoteFloat createNamedRemoteFloat(String name, float defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteFloat extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Float> {
+    method public static androidx.compose.remote.creation.compose.state.RemoteFloat createNamedRemoteFloat(String name, androidx.compose.remote.creation.compose.state.RemoteFloat defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method public static androidx.compose.remote.creation.compose.state.RemoteFloat createNamedRemoteFloat(String name, float defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
     method public operator androidx.compose.remote.creation.compose.state.RemoteFloat div(androidx.compose.remote.creation.compose.state.RemoteFloat other);
     method @InaccessibleFromKotlin public Float? getConstantValueOrNull();
     method public androidx.compose.remote.creation.compose.state.RemoteBoolean isEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat other);
@@ -347,10 +347,10 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteFloat.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteFloat createNamedRemoteFloat(String name, androidx.compose.remote.creation.compose.state.RemoteFloat defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method public androidx.compose.remote.creation.compose.state.RemoteFloat createNamedRemoteFloat(String name, float defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat! createNamedRemoteFloat$default(androidx.compose.remote.creation.compose.state.RemoteFloat.Companion!, String!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat! createNamedRemoteFloat$default(androidx.compose.remote.creation.compose.state.RemoteFloat.Companion!, String!, float, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat createNamedRemoteFloat(String name, androidx.compose.remote.creation.compose.state.RemoteFloat defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat createNamedRemoteFloat(String name, float defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat! createNamedRemoteFloat$default(androidx.compose.remote.creation.compose.state.RemoteFloat.Companion!, String!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteFloat! createNamedRemoteFloat$default(androidx.compose.remote.creation.compose.state.RemoteFloat.Companion!, String!, float, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
   }
 
   public final class RemoteFloatKt {
@@ -392,8 +392,8 @@ package androidx.compose.remote.creation.compose.state {
     method public static androidx.compose.remote.creation.compose.state.RemoteFloat toRad(androidx.compose.remote.creation.compose.state.RemoteFloat a);
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteImageBitmap extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Object> {
-    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteImageBitmap extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Object> {
+    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getHeight();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getWidth();
     property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat height;
@@ -402,16 +402,16 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteImageBitmap.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion!, String!, String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion!, String!, String!, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
   }
 
   public final class RemoteImageBitmapKt {
     method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap RemoteImageBitmap(String url);
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteInt extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Integer> {
-    method public static androidx.compose.remote.creation.compose.state.RemoteInt createNamedRemoteInt(String name, int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteInt extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Integer> {
+    method public static androidx.compose.remote.creation.compose.state.RemoteInt createNamedRemoteInt(String name, int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
     method public operator androidx.compose.remote.creation.compose.state.RemoteInt div(androidx.compose.remote.creation.compose.state.RemoteInt other);
     method public operator androidx.compose.remote.creation.compose.state.RemoteInt div(int other);
     method @InaccessibleFromKotlin public Integer? getConstantValueOrNull();
@@ -438,8 +438,8 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteInt.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteInt createNamedRemoteInt(String name, int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteInt! createNamedRemoteInt$default(androidx.compose.remote.creation.compose.state.RemoteInt.Companion!, String!, int, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteInt createNamedRemoteInt(String name, int defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteInt! createNamedRemoteInt$default(androidx.compose.remote.creation.compose.state.RemoteInt.Companion!, String!, int, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
   }
 
   public final class RemoteIntKt {
@@ -449,8 +449,8 @@ package androidx.compose.remote.creation.compose.state {
     property public static androidx.compose.remote.creation.compose.state.RemoteInt int.ri;
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteLong extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Long> {
-    method public static androidx.compose.remote.creation.compose.state.RemoteLong createNamedRemoteLong(String name, long defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteLong extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Long> {
+    method public static androidx.compose.remote.creation.compose.state.RemoteLong createNamedRemoteLong(String name, long defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
     method @InaccessibleFromKotlin public Long? getConstantValueOrNull();
     method public operator androidx.compose.remote.creation.compose.state.RemoteLong minus(androidx.compose.remote.creation.compose.state.RemoteLong other);
     method public operator androidx.compose.remote.creation.compose.state.RemoteLong plus(androidx.compose.remote.creation.compose.state.RemoteLong other);
@@ -461,8 +461,8 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteLong.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteLong createNamedRemoteLong(String name, long defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteLong! createNamedRemoteLong$default(androidx.compose.remote.creation.compose.state.RemoteLong.Companion!, String!, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteLong createNamedRemoteLong(String name, long defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteLong! createNamedRemoteLong$default(androidx.compose.remote.creation.compose.state.RemoteLong.Companion!, String!, long, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
   }
 
   public final class RemoteLongKt {
@@ -470,38 +470,12 @@ package androidx.compose.remote.creation.compose.state {
     method public static androidx.compose.remote.creation.compose.state.RemoteLong RemoteLong(long value);
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteMatrix3x3 extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Object> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteMatrix3x3 extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Object> {
     method public operator androidx.compose.remote.creation.compose.state.RemoteMatrix3x3 times(androidx.compose.remote.creation.compose.state.RemoteMatrix3x3 other);
   }
 
-  @androidx.compose.runtime.Stable public interface RemoteState<T> {
-    method @InaccessibleFromKotlin public default T getConstantValue();
-    method @InaccessibleFromKotlin public T? getConstantValueOrNull();
-    method @InaccessibleFromKotlin public default boolean getHasConstantValue();
-    property public default T constantValue;
-    property public abstract T? constantValueOrNull;
-    property public default boolean hasConstantValue;
-  }
-
-  @androidx.compose.runtime.Stable public static class RemoteState.Domain {
-    ctor public RemoteState.Domain(String? namespace);
-    method public final String prefixed(String name);
-  }
-
-  public static final class RemoteState.Domain.None extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {
-    field public static final androidx.compose.remote.creation.compose.state.RemoteState.Domain.None INSTANCE;
-  }
-
-  public static final class RemoteState.Domain.System extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {
-    field public static final androidx.compose.remote.creation.compose.state.RemoteState.Domain.System INSTANCE;
-  }
-
-  public static final class RemoteState.Domain.User extends androidx.compose.remote.creation.compose.state.RemoteState.Domain {
-    field public static final androidx.compose.remote.creation.compose.state.RemoteState.Domain.User INSTANCE;
-  }
-
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteString extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.String> {
-    method public static androidx.compose.remote.creation.compose.state.RemoteString createNamedRemoteString(String name, String defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteString extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.String> {
+    method public static androidx.compose.remote.creation.compose.state.RemoteString createNamedRemoteString(String name, String defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
     method @InaccessibleFromKotlin public String? getConstantValueOrNull();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getLength();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteBoolean isEmpty();
@@ -518,8 +492,8 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public static final class RemoteString.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteString createNamedRemoteString(String name, String defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteString! createNamedRemoteString$default(androidx.compose.remote.creation.compose.state.RemoteString.Companion!, String!, String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteString createNamedRemoteString(String name, String defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteValue.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteString! createNamedRemoteString$default(androidx.compose.remote.creation.compose.state.RemoteString.Companion!, String!, String!, androidx.compose.remote.creation.compose.state.RemoteValue.Domain!, int, Object!);
   }
 
   public final class RemoteStringKt {
@@ -529,7 +503,7 @@ package androidx.compose.remote.creation.compose.state {
     property public static androidx.compose.remote.creation.compose.state.RemoteString String.rs;
   }
 
-  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteTextUnit extends androidx.compose.remote.creation.compose.state.RemoteState<java.lang.Float> {
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteTextUnit extends androidx.compose.remote.creation.compose.state.RemoteValue<java.lang.Float> {
     method @InaccessibleFromKotlin public Float? getConstantValueOrNull();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteTextUnitType getType();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getValue();
@@ -592,6 +566,32 @@ package androidx.compose.remote.creation.compose.state {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteEasing getEasing();
     property public int durationMillis;
     property public androidx.compose.remote.creation.compose.state.RemoteEasing easing;
+  }
+
+  @androidx.compose.runtime.Stable public interface RemoteValue<T> {
+    method @InaccessibleFromKotlin public default T getConstantValue();
+    method @InaccessibleFromKotlin public T? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public default boolean getHasConstantValue();
+    property public default T constantValue;
+    property public abstract T? constantValueOrNull;
+    property public default boolean hasConstantValue;
+  }
+
+  @androidx.compose.runtime.Stable public static class RemoteValue.Domain {
+    ctor public RemoteValue.Domain(String? namespace);
+    method public final String prefixed(String name);
+  }
+
+  public static final class RemoteValue.Domain.None extends androidx.compose.remote.creation.compose.state.RemoteValue.Domain {
+    field public static final androidx.compose.remote.creation.compose.state.RemoteValue.Domain.None INSTANCE;
+  }
+
+  public static final class RemoteValue.Domain.System extends androidx.compose.remote.creation.compose.state.RemoteValue.Domain {
+    field public static final androidx.compose.remote.creation.compose.state.RemoteValue.Domain.System INSTANCE;
+  }
+
+  public static final class RemoteValue.Domain.User extends androidx.compose.remote.creation.compose.state.RemoteValue.Domain {
+    field public static final androidx.compose.remote.creation.compose.state.RemoteValue.Domain.User INSTANCE;
   }
 
 }

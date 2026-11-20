@@ -30,15 +30,15 @@ import kotlin.reflect.KClass
  * [RemoteDp] represents a Dp value that may be a constant, a named variable, or a dynamic
  * expression. Operations on [RemoteDp] are evaluated dynamically on the remote player at runtime
  * unless all inputs are known constants, in which case constant folding evaluates the result
- * immediately at creation time (see [RemoteState]).
+ * immediately at creation time (see [RemoteValue]).
  *
  * Comparing [RemoteDp] values with `==` checks structural equality (matching constant values or
- * expression DAGs); see [RemoteState]. For runtime equality on the remote player, use [isEqualTo].
+ * expression DAGs); see [RemoteValue]. For runtime equality on the remote player, use [isEqualTo].
  */
 @Stable
-public sealed interface RemoteDp : RemoteState<Float> {
+public sealed interface RemoteDp : RemoteValue<Float> {
     // AutoBoxing is acceptable here because constantValueOrNull is not expected to be on a
-    // hot path, and it follows the pattern for all RemoteState subclasses.
+    // hot path, and it follows the pattern for all RemoteValue subclasses.
     @get:Suppress("AutoBoxing") override val constantValueOrNull: Float?
 
     /** The underlying [RemoteFloat] value in Dp. */
@@ -225,13 +225,13 @@ public sealed interface RemoteDp : RemoteState<Float> {
          *
          * @param name A unique name to identify this state within its [domain].
          * @param defaultValue The initial [Float] value for the named remote Dp.
-         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
          * @return A [RemoteDp] representing the named Dp.
          */
         public fun createNamedRemoteDp(
             name: String,
             defaultValue: Float,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteDp {
             return RemoteDp(
                 createNamedRemoteFloat(
@@ -246,13 +246,13 @@ public sealed interface RemoteDp : RemoteState<Float> {
          * Creates a named [RemoteDp] expression.
          *
          * @param name A unique name to identify this state within its [domain].
-         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+         * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
          * @param value A lambda that provides the [RemoteDp] expression.
          * @return A [RemoteDp] representing the named Dp expression.
          */
         public fun createNamedRemoteDp(
             name: String,
-            domain: RemoteState.Domain = RemoteState.Domain.User,
+            domain: RemoteValue.Domain = RemoteValue.Domain.User,
             value: () -> RemoteDp,
         ): RemoteDp {
             val remoteDp = value()
@@ -268,7 +268,7 @@ public sealed interface RemoteDp : RemoteState<Float> {
 }
 
 private class RemoteDpImpl(override val value: RemoteFloat, cacheKey: RemoteStateCacheKey) :
-    BaseRemoteState<Float>(cacheKey), RemoteDp {
+    BaseRemoteValue<Float>(cacheKey), RemoteDp {
     override val equalityType: KClass<*>
         get() = RemoteDp::class
 
@@ -355,7 +355,7 @@ private enum class DpOperationKey : RemoteOperation {
         }
     }
 
-    override fun reconstruct(args: List<RemoteState<*>>): RemoteState<*> {
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
             Dp -> RemoteDp(args[0] as RemoteFloat)
             ToPx -> RemoteDp(args[0] as RemoteFloat).toPx()
@@ -388,26 +388,26 @@ public fun RemoteDp(value: Float): RemoteDp = RemoteDp(value.rf)
  *
  * @param name A unique name to identify this state within its [domain].
  * @param defaultValue The initial [Float] value for the named remote Dp.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
  * @return A [RemoteDp] representing the named Dp.
  */
 public fun createNamedRemoteDp(
     name: String,
     defaultValue: Float,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
 ): RemoteDp = RemoteDp.createNamedRemoteDp(name, defaultValue, domain)
 
 /**
  * Creates a named [RemoteDp] expression.
  *
  * @param name A unique name to identify this state within its [domain].
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param domain The domain for the named state. Defaults to [RemoteValue.Domain.User].
  * @param value A lambda that provides the [RemoteDp] expression.
  * @return A [RemoteDp] representing the named Dp expression.
  */
 public fun createNamedRemoteDp(
     name: String,
-    domain: RemoteState.Domain = RemoteState.Domain.User,
+    domain: RemoteValue.Domain = RemoteValue.Domain.User,
     value: () -> RemoteDp,
 ): RemoteDp = RemoteDp.createNamedRemoteDp(name, domain, value)
 
