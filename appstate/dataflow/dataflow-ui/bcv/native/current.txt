@@ -6,3 +6,4 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.appstate.dataflow:dataflow-ui>
+final fun <#A: kotlin/Any> (androidx.appstate.dataflow/DataflowRegistry).androidx.appstate.dataflow.ui/UiContent(androidx.appstate.dataflow/DataKey<#A>, kotlin/Function3<#A, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.appstate.dataflow.ui/UiContent|UiContent@androidx.appstate.dataflow.DataflowRegistry(androidx.appstate.dataflow.DataKey<0:0>;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any>}[0]
