@@ -52,7 +52,6 @@ import androidx.inspection.Inspector
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
 import androidx.savedstate.SavedStateContainer
-import androidx.savedstate.SavedStateValue
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
@@ -633,10 +632,7 @@ class ComposeLayoutInspector(
                     parent
                         .keys()
                         .filter { it.startsWith(SAVEABLE_STATE_REGISTRY_KEY_PREFIX) }
-                        .mapNotNull { key ->
-                            parent.getSavedStateValue<Any?, SavedStateValue<Any?>>(key)?.value
-                                as? SavedStateContainer
-                        }
+                        .mapNotNull { key -> parent.get<Any?>(key)?.value as? SavedStateContainer }
                 }
         val savedStates = containers.map { it to it.saveState() }
 

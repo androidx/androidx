@@ -108,8 +108,8 @@ private class SaveableStateRegistryImpl(
         canBeSaved: (Any) -> Boolean,
     ) : this(SavedStateContainer(), restored, canBeSaved)
 
-    private val saveableStateValue: SaveableStateValue =
-        container.getOrPutSavedStateValue(SAVEABLE_STATE_VALUE_KEY) {
+    private val saveableStateValue =
+        container.getOrPut(SAVEABLE_STATE_VALUE_KEY) {
             SaveableStateValue(restored = restored, canBeSaved = canBeSaved)
         }
 
