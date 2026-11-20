@@ -219,6 +219,10 @@ public object JsonSchemaParser {
 
                 val restrictToLibraryGroup = opObj.optBoolean("restrictToLibraryGroup", true)
                 val encoding = if (opObj.has("encoding")) opObj.getString("encoding") else null
+                val sparseCountType =
+                    if (opObj.has("sparseCountType")) opObj.getString("sparseCountType") else null
+                val sparseKeyType =
+                    if (opObj.has("sparseKeyType")) opObj.getString("sparseKeyType") else null
                 val sparseParameters =
                     if (opObj.has("sparseParameters")) {
                         val spArray = opObj.getJSONArray("sparseParameters")
@@ -232,6 +236,13 @@ public object JsonSchemaParser {
                                     if (spObj.has("defaultValue")) spObj.getString("defaultValue")
                                     else null,
                                 description = spObj.optString("description", ""),
+                                lengthType =
+                                    if (spObj.has("lengthType")) spObj.getString("lengthType")
+                                    else null,
+                                role = if (spObj.has("role")) spObj.getString("role") else null,
+                                idKind =
+                                    if (spObj.has("idKind")) spObj.getString("idKind") else null,
+                                ignored = spObj.optBoolean("ignored", false),
                             )
                         }
                     } else null
@@ -252,6 +263,8 @@ public object JsonSchemaParser {
                         opCodeName = opCodeName,
                         restrictToLibraryGroup = restrictToLibraryGroup,
                         encoding = encoding,
+                        sparseCountType = sparseCountType,
+                        sparseKeyType = sparseKeyType,
                         sparseParameters = sparseParameters,
                         allowedChildren = allowedChildren,
                     )
@@ -316,6 +329,20 @@ public object JsonSchemaParser {
         if (root.has("structs")) {
             val structsObj = root.getJSONObject("structs")
             declaredTypes.addAll(structsObj.keys().asSequence())
+            for (structName in structsObj.keys()) {
+                val structObj = structsObj.getJSONObject(structName)
+                if (structObj.has("fields")) {
+                    val sfArray = structObj.getJSONArray("fields")
+                    for (j in 0 until sfArray.length()) {
+                        validateField(
+                            owner = "Struct $structName",
+                            f = sfArray.getJSONObject(j),
+                            declaredTypes = declaredTypes,
+                            errors = errors,
+                        )
+                    }
+                }
+            }
         }
 
         // 3. Operations validation
@@ -347,42 +374,42 @@ public object JsonSchemaParser {
             if (op.has("fields")) {
                 val fArray = op.getJSONArray("fields")
                 for (j in 0 until fArray.length()) {
-                    val f = fArray.getJSONObject(j)
-                    val fType = f.getString("type")
-                    val elemType = fType.removeSuffix("[]")
-                    if (
-                        fType !in declaredTypes &&
-                            elemType !in declaredTypes &&
-                            fType != "int[]" &&
-                            fType != "bytes"
-                    ) {
+                    validateField(
+                        owner = "Operation $name",
+                        f = fArray.getJSONObject(j),
+                        declaredTypes = declaredTypes,
+                        errors = errors,
+                    )
+                }
+            }
+            if (op.has("sparseCountType")) {
+                val sct = op.getString("sparseCountType")
+                if (sct !in VALID_LENGTH_TYPES) {
+                    errors.add("Operation $name has invalid sparseCountType '$sct'")
+                }
+            }
+            if (op.has("sparseKeyType")) {
+                val skt = op.getString("sparseKeyType")
+                if (skt !in VALID_LENGTH_TYPES) {
+                    errors.add("Operation $name has invalid sparseKeyType '$skt'")
+                }
+            }
+            if (op.has("sparseParameters")) {
+                val spArray = op.getJSONArray("sparseParameters")
+                for (j in 0 until spArray.length()) {
+                    val sp = spArray.getJSONObject(j)
+                    val spName = sp.getString("name")
+                    val spType = sp.getString("type")
+                    if (!isDeclaredSchemaType(spType, declaredTypes)) {
                         errors.add(
-                            "Operation $name field ${f.getString("name")} has undeclared type '$fType'"
+                            "Operation $name sparse parameter $spName has undeclared type '$spType'"
                         )
                     }
-                    if (f.optBoolean("strictEnum", false)) {
-                        val enumObj = f.optJSONObject("enum")
-                        if (enumObj == null || enumObj.length() == 0) {
+                    if (sp.has("lengthType")) {
+                        val lt = sp.getString("lengthType")
+                        if (lt !in VALID_LENGTH_TYPES) {
                             errors.add(
-                                "Operation $name field ${f.getString("name")} sets strictEnum without a non-empty enum"
-                            )
-                        }
-                    }
-                    if (f.has("maxLength") && f.getInt("maxLength") < 0) {
-                        errors.add(
-                            "Operation $name field ${f.getString("name")} has negative maxLength"
-                        )
-                    }
-                    if (f.has("payloadKind")) {
-                        val pk = f.getString("payloadKind")
-                        if (pk != "operations") {
-                            errors.add(
-                                "Operation $name field ${f.getString("name")} has invalid payloadKind '$pk'"
-                            )
-                        }
-                        if (fType != "bytes") {
-                            errors.add(
-                                "Operation $name field ${f.getString("name")} sets payloadKind on non-bytes type '$fType'"
+                                "Operation $name sparse parameter $spName has invalid lengthType '$lt'"
                             )
                         }
                     }
@@ -468,6 +495,112 @@ public object JsonSchemaParser {
         return errors
     }
 
+    private val VALID_LENGTH_TYPES = setOf("ubyte", "byte", "ushort", "short", "int")
+
+    private fun isDeclaredSchemaType(type: String, declaredTypes: Set<String>): Boolean {
+        val elemType = type.removeSuffix("[]")
+        return type in declaredTypes ||
+            elemType in declaredTypes ||
+            type == "int[]" ||
+            type == "bytes"
+    }
+
+    private fun isValidBitRange(range: String): Boolean {
+        val low = range.substringBefore("..").toIntOrNull() ?: return false
+        val high = range.substringAfter("..", range).toIntOrNull() ?: return false
+        return low in 0..31 && high in low..31
+    }
+
+    private fun validateField(
+        owner: String,
+        f: JSONObject,
+        declaredTypes: Set<String>,
+        errors: MutableList<String>,
+    ) {
+        val fName = f.getString("name")
+        val fType = f.getString("type")
+        if (!isDeclaredSchemaType(fType, declaredTypes)) {
+            errors.add("$owner field $fName has undeclared type '$fType'")
+        }
+        if (f.has("lengthType")) {
+            val lt = f.getString("lengthType")
+            if (lt !in VALID_LENGTH_TYPES) {
+                errors.add("$owner field $fName has invalid lengthType '$lt'")
+            }
+        }
+        if (f.optBoolean("strictEnum", false)) {
+            val enumObj = f.optJSONObject("enum")
+            if (enumObj == null || enumObj.length() == 0) {
+                errors.add("$owner field $fName sets strictEnum without a non-empty enum")
+            }
+        }
+        if (f.has("maxLength") && f.getInt("maxLength") < 0) {
+            errors.add("$owner field $fName has negative maxLength")
+        }
+        if (f.has("payloadKind")) {
+            val pk = f.getString("payloadKind")
+            if (pk != "operations") {
+                errors.add("$owner field $fName has invalid payloadKind '$pk'")
+            }
+            if (fType != "bytes") {
+                errors.add("$owner field $fName sets payloadKind on non-bytes type '$fType'")
+            }
+        }
+        if (f.has("conditionalTypes")) {
+            val ctArr = f.getJSONArray("conditionalTypes")
+            if (ctArr.length() == 0) {
+                errors.add("$owner field $fName has empty conditionalTypes")
+            }
+            for (cIdx in 0 until ctArr.length()) {
+                val cObj = ctArr.getJSONObject(cIdx)
+                val whenExpr = cObj.optString("when", "")
+                val cType = cObj.optString("type", "")
+                if (whenExpr.isBlank()) {
+                    errors.add("$owner field $fName conditionalTypes[$cIdx] has blank when")
+                }
+                if (!isDeclaredSchemaType(cType, declaredTypes)) {
+                    errors.add(
+                        "$owner field $fName conditionalTypes[$cIdx] has undeclared type '$cType'"
+                    )
+                }
+            }
+        }
+        if (f.has("bits")) {
+            val bitsArr = f.getJSONArray("bits")
+            for (bIdx in 0 until bitsArr.length()) {
+                val bObj = bitsArr.getJSONObject(bIdx)
+                val bName = bObj.getString("name")
+                val bRange = bObj.optString("range", "")
+                if (!isValidBitRange(bRange)) {
+                    errors.add("$owner field $fName bit $bName has invalid bit range '$bRange'")
+                }
+                if (bObj.optBoolean("strictEnum", false)) {
+                    val bEnum = bObj.optJSONObject("enum")
+                    if (bEnum == null || bEnum.length() == 0) {
+                        errors.add(
+                            "$owner field $fName bit $bName sets strictEnum without a non-empty enum"
+                        )
+                    }
+                }
+                if (bObj.has("whenBitSet")) {
+                    val wbs = bObj.getJSONObject("whenBitSet")
+                    val bitIdx = wbs.optInt("bit", -1)
+                    val wbsRange = wbs.optString("range", "")
+                    if (bitIdx !in 0..31) {
+                        errors.add(
+                            "$owner field $fName bit $bName has invalid whenBitSet.bit $bitIdx (must be 0..31)"
+                        )
+                    }
+                    if (!isValidBitRange(wbsRange)) {
+                        errors.add(
+                            "$owner field $fName bit $bName has invalid whenBitSet.range '$wbsRange'"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     private fun parseField(fieldObj: JSONObject): SchemaField {
         val fieldName = fieldObj.getString("name")
         val fieldType = fieldObj.getString("type")
@@ -492,6 +625,23 @@ public object JsonSchemaParser {
                 val bitsArray = fieldObj.getJSONArray("bits")
                 (0 until bitsArray.length()).map { idx ->
                     val bObj = bitsArray.getJSONObject(idx)
+                    val bitEnums =
+                        if (bObj.has("enum")) {
+                            val bEnumObj = bObj.getJSONObject("enum")
+                            val map = mutableMapOf<String, Int>()
+                            for (eKey in bEnumObj.keys()) {
+                                map[eKey] = bEnumObj.getInt(eKey)
+                            }
+                            map
+                        } else null
+                    val whenBitSet =
+                        if (bObj.has("whenBitSet")) {
+                            val wObj = bObj.getJSONObject("whenBitSet")
+                            SchemaConditionalBitRange(
+                                bit = wObj.getInt("bit"),
+                                range = wObj.getString("range"),
+                            )
+                        } else null
                     SchemaBitField(
                         name = bObj.getString("name"),
                         range = bObj.getString("range"),
@@ -501,6 +651,9 @@ public object JsonSchemaParser {
                             if (bObj.has("derivedFrom")) bObj.getString("derivedFrom") else null,
                         signed = bObj.optBoolean("signed", false),
                         description = bObj.optString("description", ""),
+                        enumValues = bitEnums,
+                        strictEnum = bObj.optBoolean("strictEnum", false),
+                        whenBitSet = whenBitSet,
                     )
                 }
             } else null
@@ -522,6 +675,29 @@ public object JsonSchemaParser {
         val javaLimit = if (fieldObj.has("javaLimit")) fieldObj.getString("javaLimit") else null
         val payloadKind =
             if (fieldObj.has("payloadKind")) fieldObj.getString("payloadKind") else null
+        val conditionalTypes =
+            if (fieldObj.has("conditionalTypes")) {
+                val ctArray = fieldObj.getJSONArray("conditionalTypes")
+                (0 until ctArray.length()).map { idx ->
+                    val ctObj = ctArray.getJSONObject(idx)
+                    SchemaConditionalType(
+                        condition = ctObj.getString("when"),
+                        type = ctObj.getString("type"),
+                    )
+                }
+            } else emptyList()
+        val conditionalRoles =
+            if (fieldObj.has("conditionalRoles")) {
+                val crArray = fieldObj.getJSONArray("conditionalRoles")
+                (0 until crArray.length()).map { idx ->
+                    val crObj = crArray.getJSONObject(idx)
+                    SchemaConditionalRole(
+                        condition = crObj.getString("when"),
+                        role = crObj.getString("role"),
+                        idKind = if (crObj.has("idKind")) crObj.getString("idKind") else null,
+                    )
+                }
+            } else emptyList()
 
         return SchemaField(
             name = fieldName,
@@ -546,6 +722,8 @@ public object JsonSchemaParser {
             maxLength = maxLength,
             javaLimit = javaLimit,
             payloadKind = payloadKind,
+            conditionalTypes = conditionalTypes,
+            conditionalRoles = conditionalRoles,
         )
     }
 }

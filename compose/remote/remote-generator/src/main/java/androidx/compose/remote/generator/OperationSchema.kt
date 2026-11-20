@@ -131,6 +131,8 @@ public class SchemaOperation(
     public val opCodeName: String? = null,
     public val restrictToLibraryGroup: Boolean = true,
     public val encoding: String? = null,
+    public val sparseCountType: String? = null,
+    public val sparseKeyType: String? = null,
     public val sparseParameters: List<SchemaSparseParam>? = null,
     public val allowedChildren: List<String>? = null,
 ) {
@@ -195,10 +197,37 @@ public class SchemaField(
     public val maxLength: Int? = null,
     public val javaLimit: String? = null,
     public val payloadKind: String? = null,
+    public val conditionalTypes: List<SchemaConditionalType> = emptyList(),
+    public val conditionalRoles: List<SchemaConditionalRole> = emptyList(),
 ) {
     public val effectiveLengthType: String
         get() = lengthType ?: "short"
 }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaConditionalBitRange(public val bit: Int, public val range: String) {
+    public val lowBit: Int
+        get() = range.substringBefore("..").toInt()
+
+    public val highBit: Int
+        get() = range.substringAfter("..", range).toInt()
+
+    public val bitWidth: Int
+        get() = highBit - lowBit + 1
+
+    public val bitMask: Long
+        get() = if (bitWidth >= 32) 0xFFFFFFFFL else (1L shl bitWidth) - 1L
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaConditionalType(public val condition: String, public val type: String)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaConditionalRole(
+    public val condition: String,
+    public val role: String,
+    public val idKind: String? = null,
+)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SchemaBitField(
@@ -209,6 +238,9 @@ public class SchemaBitField(
     public val derivedFrom: String? = null,
     public val signed: Boolean = false,
     public val description: String = "",
+    public val enumValues: Map<String, Int>? = null,
+    public val strictEnum: Boolean = false,
+    public val whenBitSet: SchemaConditionalBitRange? = null,
 ) {
     public val lowBit: Int
         get() = range.substringBefore("..").toInt()
@@ -230,6 +262,10 @@ public class SchemaSparseParam(
     public val type: String,
     public val defaultValue: String? = null,
     public val description: String = "",
+    public val lengthType: String? = null,
+    public val role: String? = null,
+    public val idKind: String? = null,
+    public val ignored: Boolean = false,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
