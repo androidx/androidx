@@ -27,6 +27,7 @@ import androidx.camera.core.Logger
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -49,13 +50,15 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class ImageProcessingLatencyTest(private val targetResolution: Size) {
-    @get:Rule
+    @get:Rule(order = 0) val labTest: LabTestRule = LabTestRule()
+
+    @get:Rule(order = 1) val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+
+    @get:Rule(order = 2)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
-
-    @get:Rule val labTest: LabTestRule = LabTestRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
