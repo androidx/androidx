@@ -544,7 +544,7 @@ public final class ContentInfoCompat {
         }
 
         /**
-         * @return A new {@link ContentInfoCompat} instance with the data from this builder.
+         * Returns a new {@link ContentInfoCompat} instance with the data from this builder.
          */
         public @NonNull ContentInfoCompat build() {
             return mBuilderCompat.build();

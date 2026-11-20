@@ -69,8 +69,8 @@ import kotlinx.coroutines.flow.flow
  */
 public interface CallControlScope : CoroutineScope {
     /**
-     * @return the 128-bit universally unique identifier Telecom assigned to this CallControlScope.
-     *   This id can be helpful for debugging when dumping the telecom system.
+     * Returns the 128-bit universally unique identifier Telecom assigned to this CallControlScope.
+     * This id can be helpful for debugging when dumping the telecom system.
      */
     public fun getCallId(): ParcelUuid
 

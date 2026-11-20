@@ -10738,7 +10738,7 @@ public class NotificationCompat {
         }
 
         /**
-         * @return the pending intent used to populate the floating window for this bubble, or
+         * Returns the pending intent used to populate the floating window for this bubble, or
          * null if this bubble is created via {@link Builder#Builder(String)}.
          */
         @SuppressLint("InvalidNullConversion")
@@ -10747,7 +10747,7 @@ public class NotificationCompat {
         }
 
         /**
-         * @return the shortcut id used for this bubble if created via
+         * Returns the shortcut id used for this bubble if created via
          * {@link Builder#Builder(String)} or null if created via
          * {@link Builder#Builder(PendingIntent, IconCompat)}.
          */
@@ -10756,14 +10756,14 @@ public class NotificationCompat {
         }
 
         /**
-         * @return the pending intent to send when the bubble is dismissed by a user, if one exists.
+         * Returns the pending intent to send when the bubble is dismissed by a user, if one exists.
          */
         public @Nullable PendingIntent getDeleteIntent() {
             return mDeleteIntent;
         }
 
         /**
-         * @return the icon that will be displayed for this bubble when it is collapsed, or null
+         * Returns the icon that will be displayed for this bubble when it is collapsed, or null
          * if the bubble is created via {@link Builder#Builder(String)}.
          */
         @SuppressLint("InvalidNullConversion")
@@ -10772,7 +10772,7 @@ public class NotificationCompat {
         }
 
         /**
-         * @return the ideal height, in DPs, for the floating window that app content defined by
+         * Returns the ideal height, in DPs, for the floating window that app content defined by
          * {@link #getIntent()} for this bubble. A value of 0 indicates a desired height has not
          * been set.
          */
@@ -10782,7 +10782,7 @@ public class NotificationCompat {
         }
 
         /**
-         * @return the resId of ideal height for the floating window that app content defined by
+         * Returns the resId of ideal height for the floating window that app content defined by
          * {@link #getIntent()} for this bubble. A value of 0 indicates a res value has not
          * been provided for the desired height.
          */
@@ -10792,7 +10792,7 @@ public class NotificationCompat {
         }
 
         /**
-         * @return whether this bubble should auto expand when it is posted.
+         * Returns whether this bubble should auto expand when it is posted.
          *
          * @see BubbleMetadata.Builder#setAutoExpandBubble(boolean)
          */
@@ -10801,7 +10801,7 @@ public class NotificationCompat {
         }
 
         /**
-         * @return whether this bubble should suppress the notification when it is posted.
+         * Returns whether this bubble should suppress the notification when it is posted.
          *
          * @see BubbleMetadata.Builder#setSuppressNotification(boolean)
          */

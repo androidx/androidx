@@ -134,7 +134,7 @@ public class AccessibilityNodeProviderCompat {
     }
 
     /**
-     * @return The wrapped {@link android.view.accessibility.AccessibilityNodeProvider}.
+     * Returns the wrapped {@link android.view.accessibility.AccessibilityNodeProvider}.
      */
     public @Nullable Object getProvider() {
         return mProvider;

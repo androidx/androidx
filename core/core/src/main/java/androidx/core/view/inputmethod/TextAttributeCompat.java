@@ -274,7 +274,7 @@ public final class TextAttributeCompat {
         }
 
         /**
-         * @return a new {@link TextAttributeCompat}.
+         * Returns a new {@link TextAttributeCompat}.
          */
         public @NonNull TextAttributeCompat build() {
             return new TextAttributeCompat(mTextConversionSuggestions, mExtras,

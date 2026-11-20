@@ -64,6 +64,8 @@ public interface AccessibilityViewCommand {
     final class MoveAtGranularityArguments extends CommandArguments {
 
         /**
+         * Returns movement granularity to be used when traversing the node text.
+         *
          * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_CHARACTER
          *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER
          * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_WORD
@@ -74,7 +76,6 @@ public interface AccessibilityViewCommand {
          *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PARAGRAPH
          * @see AccessibilityNodeInfoCompat#MOVEMENT_GRANULARITY_PAGE
          *  AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_PAGE
-         * @return Movement granularity to be used when traversing the node text.
          */
         public int getGranularity() {
             return mBundle.getInt(
@@ -82,7 +83,7 @@ public interface AccessibilityViewCommand {
         }
 
         /**
-         * @return Whether when moving at granularity to extend the selection or to move it.
+         * Returns whether when moving at granularity to extend the selection or to move it.
          */
         public boolean getExtendSelection() {
             return mBundle.getBoolean(
@@ -98,7 +99,7 @@ public interface AccessibilityViewCommand {
     final class MoveHtmlArguments extends CommandArguments {
 
         /**
-         * @return HTML element type, for example BUTTON, INPUT, TABLE, etc.
+         * Returns HTML element type, for example BUTTON, INPUT, TABLE, etc.
          */
         public @Nullable String getHTMLElement() {
             return mBundle.getString(
@@ -113,14 +114,14 @@ public interface AccessibilityViewCommand {
     final class SetSelectionArguments extends CommandArguments {
 
         /**
-         * @return Selection start.
+         * Returns the selection start.
          */
         public int getStart() {
             return mBundle.getInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_START_INT);
         }
 
         /**
-         * @return Selection End.
+         * Returns the selection end.
          */
         public int getEnd() {
             return mBundle.getInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_END_INT);
@@ -133,7 +134,7 @@ public interface AccessibilityViewCommand {
     final class SetTextArguments extends CommandArguments {
 
         /**
-         * @return The text content to set.
+         * Returns the text content to set.
          */
         public @Nullable CharSequence getText() {
             return mBundle.getCharSequence(
@@ -148,14 +149,14 @@ public interface AccessibilityViewCommand {
     final class ScrollToPositionArguments extends CommandArguments {
 
         /**
-         * @return The collection row to make visible on screen.
+         * Returns the collection row to make visible on screen.
          */
         public int getRow() {
             return mBundle.getInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_ROW_INT);
         }
 
         /**
-         * @return The collection column to make visible on screen.
+         * Returns the collection column to make visible on screen.
          */
         public int getColumn() {
             return mBundle.getInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_COLUMN_INT);
@@ -169,7 +170,7 @@ public interface AccessibilityViewCommand {
     final class SetProgressArguments extends CommandArguments {
 
         /**
-         * @return The progress value to set.
+         * Returns the progress value to set.
          */
         public float getProgress() {
             return mBundle.getFloat(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_PROGRESS_VALUE);
@@ -183,14 +184,14 @@ public interface AccessibilityViewCommand {
     final class MoveWindowArguments extends CommandArguments {
 
         /**
-         * @return The x coordinate to which to move a window.
+         * Returns the x coordinate to which to move a window.
          */
         public int getX() {
             return mBundle.getInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVE_WINDOW_X);
         }
 
         /**
-         * @return The y coordinate to which to move a window.
+         * Returns the y coordinate to which to move a window.
          */
         public int getY() {
             return mBundle.getInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVE_WINDOW_Y);

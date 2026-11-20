@@ -207,7 +207,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
     }
 
     /**
-     * @return the number of intents added so far.
+     * Returns the number of intents added so far.
      */
     public int getIntentCount() {
         return mIntents.size();
