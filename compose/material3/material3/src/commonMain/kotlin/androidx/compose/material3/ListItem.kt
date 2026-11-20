@@ -1707,56 +1707,44 @@ private fun InteractiveListItem(
                     ),
             verticalAlignment = verticalAlignment,
             contentPadding = contentPadding,
-            leading =
+            leading = {
                 if (leadingContent != null) {
-                    {
-                        LeadingDecorator(
-                            startPadding = contentPadding.calculateStartPadding(layoutDirection),
-                            color = leadingColor,
-                            textStyle = leadingTextStyle,
-                            content = leadingContent,
-                        )
-                    }
-                } else {
-                    EmptyContent
-                },
-            trailing =
+                    LeadingDecorator(
+                        startPadding = contentPadding.calculateStartPadding(layoutDirection),
+                        color = leadingColor,
+                        textStyle = leadingTextStyle,
+                        content = leadingContent,
+                    )
+                }
+            },
+            trailing = {
                 if (trailingContent != null) {
-                    {
-                        TrailingDecorator(
-                            endPadding = contentPadding.calculateEndPadding(layoutDirection),
-                            color = trailingColor,
-                            textStyle = trailingTextStyle,
-                            content = trailingContent,
-                        )
-                    }
-                } else {
-                    EmptyContent
-                },
-            overline =
+                    TrailingDecorator(
+                        endPadding = contentPadding.calculateEndPadding(layoutDirection),
+                        color = trailingColor,
+                        textStyle = trailingTextStyle,
+                        content = trailingContent,
+                    )
+                }
+            },
+            overline = {
                 if (overlineContent != null) {
-                    {
-                        OverlineDecorator(
-                            color = overlineColor,
-                            textStyle = overlineTextStyle,
-                            content = overlineContent,
-                        )
-                    }
-                } else {
-                    EmptyContent
-                },
-            supporting =
+                    OverlineDecorator(
+                        color = overlineColor,
+                        textStyle = overlineTextStyle,
+                        content = overlineContent,
+                    )
+                }
+            },
+            supporting = {
                 if (supportingContent != null) {
-                    {
-                        SupportingDecorator(
-                            color = supportingColor,
-                            textStyle = supportingTextStyle,
-                            content = supportingContent,
-                        )
-                    }
-                } else {
-                    EmptyContent
-                },
+                    SupportingDecorator(
+                        color = supportingColor,
+                        textStyle = supportingTextStyle,
+                        content = supportingContent,
+                    )
+                }
+            },
             content = { ContentDecorator(textStyle = contentTextStyle, content = content) },
         )
     }
@@ -2130,8 +2118,6 @@ private class InteractiveListItemMeasurePolicy(
         return newConstraints.constrainHeight(calculatedHeight)
     }
 }
-
-private val EmptyContent: @Composable () -> Unit = {}
 
 private fun Modifier.zIndexLambda(zIndex: FloatProducer): Modifier =
     layout { measurable, constraints ->
