@@ -42,6 +42,7 @@ import androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction
 import androidx.xr.compose.testing.onAllSubspaceNodes
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.ImageBasedLightingAsset
@@ -98,6 +99,15 @@ private const val DEFAULT_SUBSPACE_DISTANCE_METERS = 1.75f
  * `computedPixelsPerMeter` on the task hierarchy.
  */
 private const val DEFAULT_PIXELS_PER_METER = 1600f
+
+/** Minimum squared offset (m^2) for trusting CPM's `SubspaceRoot` position over head pose. */
+private const val MIN_ROOT_OFFSET_SQUARED_METERS = 0.01f
+
+/** Near-plane depth clamp (m) to avoid division by zero or sign inversion during projection. */
+private const val MIN_PROJECTION_DEPTH_METERS = 0.01f
+
+/** Comparison epsilon for normalized camera-space bounds. */
+private const val PROJECTION_EPSILON = 1e-4f
 
 private val anySubspaceNode = SubspaceSemanticsMatcher("anySubspaceNode") { true }
 
@@ -439,221 +449,295 @@ private fun cropToComposeNode(
     val height = softwareBitmap.height
     val pixels = toPixelArray(softwareBitmap)
     val bgColor = detectBackgroundColor(pixels, width, height)
-    val fullBounds = Rect(0, 0, width, height)
     val overallBounds =
-        findForegroundBounds(pixels, width, height, fullBounds, bgColor) ?: return softwareBitmap
+        findForegroundBounds(pixels, width, height, Rect(0, 0, width, height), bgColor)
+            ?: return softwareBitmap
 
     val subspaceRoot = findSubspaceRoot(semanticsInfo)
     val tightBounds =
         if (semanticsInfo === subspaceRoot) {
             overallBounds
         } else {
-            val treeNodes = collectNodes(subspaceRoot)
-            val allVisualNodes =
-                treeNodes.distinct().filter { it.size.width > 0 && it.size.height > 0 }
-
-            val renderedNodeIds = runOnMainThread {
-                (allVisualNodes + semanticsInfo).filter(::isRenderedEntity).mapTo(mutableSetOf()) {
-                    it.semanticsId
-                }
-            }
-
-            val allRenderedNodes =
-                allVisualNodes
-                    .filter { it.semanticsId in renderedNodeIds }
-                    .ifEmpty {
-                        allVisualNodes
-                            .filter { it.childrenInfo.isEmpty() }
-                            .ifEmpty { allVisualNodes }
-                    }
-            val subspaceCpmNode = task.findNodeByName("SubspaceRoot") ?: task.spatialTransform
-            val pixelsPerMeter =
-                subspaceCpmNode?.computedPixelsPerMeter
-                    ?: task.computedPixelsPerMeter
-                    ?: DEFAULT_PIXELS_PER_METER
-            val head = (subspaceCpmNode ?: task).headPose ?: Pose.Identity
-            val viewRotInv = head.rotation.inverse
-            val rootRotation = subspaceCpmNode?.rotation ?: head.rotation
-            val rootScale = subspaceCpmNode?.scale ?: Vector3.One
-            val rootPosition =
-                if (
-                    subspaceCpmNode != null &&
-                        (subspaceCpmNode.position - head.translation).lengthSquared >= 0.01f
-                ) {
-                    subspaceCpmNode.position
-                } else {
-                    head.translation +
-                        (head.rotation * Vector3(0f, 0f, -DEFAULT_SUBSPACE_DISTANCE_METERS))
-                }
-
-            fun computeProjectedBounds(node: SubspaceSemanticsInfo): FloatArray? {
-                val size = node.size
-                if (size.width <= 0 || size.height <= 0) return null
-
-                val widthM = size.width.toFloat() / pixelsPerMeter
-                val heightM = size.height.toFloat() / pixelsPerMeter
-                val depthM = size.depth.toFloat() / pixelsPerMeter
-                val halfW = (widthM * rootScale.x) / 2f
-                val halfH = (heightM * rootScale.y) / 2f
-                val halfD = (depthM * rootScale.z).coerceAtLeast(0f) / 2f
-
-                val tx = node.poseInRoot.translation.x / pixelsPerMeter
-                val ty = node.poseInRoot.translation.y / pixelsPerMeter
-                val tz = node.poseInRoot.translation.z / pixelsPerMeter
-                val translation = Vector3(tx * rootScale.x, ty * rootScale.y, tz * rootScale.z)
-
-                val worldPos = rootPosition + (rootRotation * translation)
-                val worldRot = rootRotation * node.poseInRoot.rotation
-
-                var minX = Float.POSITIVE_INFINITY
-                var minY = Float.POSITIVE_INFINITY
-                var maxX = Float.NEGATIVE_INFINITY
-                var maxY = Float.NEGATIVE_INFINITY
-
-                for (sx in -1..1 step 2) {
-                    for (sy in -1..1 step 2) {
-                        for (sz in -1..1 step 2) {
-                            val localCorner = Vector3(sx * halfW, sy * halfH, sz * halfD)
-                            val worldCorner = worldPos + (worldRot * localCorner)
-                            val camCorner = viewRotInv * (worldCorner - head.translation)
-                            val depth = (-camCorner.z).coerceAtLeast(0.01f)
-                            val projX = camCorner.x / depth
-                            val projY = camCorner.y / depth
-                            if (projX < minX) minX = projX
-                            if (projY < minY) minY = projY
-                            if (projX > maxX) maxX = projX
-                            if (projY > maxY) maxY = projY
-                        }
-                    }
-                }
-
-                return floatArrayOf(minX, minY, maxX, maxY)
-            }
-
-            var allMinX = Float.POSITIVE_INFINITY
-            var allMinY = Float.POSITIVE_INFINITY
-            var allMaxX = Float.NEGATIVE_INFINITY
-            var allMaxY = Float.NEGATIVE_INFINITY
-            var validCount = 0
-
-            for (n in allRenderedNodes) {
-                val b = computeProjectedBounds(n) ?: continue
-                if (b[0] < allMinX) allMinX = b[0]
-                if (b[1] < allMinY) allMinY = b[1]
-                if (b[2] > allMaxX) allMaxX = b[2]
-                if (b[3] > allMaxY) allMaxY = b[3]
-                validCount++
-            }
-
-            val targetSubtreeIds =
-                collectNodes(semanticsInfo).mapTo(mutableSetOf()) { it.semanticsId }
-            val targetNodes =
-                allRenderedNodes
-                    .filter { it.semanticsId in targetSubtreeIds }
-                    .ifEmpty {
-                        collectNodes(semanticsInfo).filter {
-                            it !== semanticsInfo && it.size.width > 0 && it.size.height > 0
-                        }
-                    }
-            val targetBox = run {
-                var tMinX = Float.POSITIVE_INFINITY
-                var tMinY = Float.POSITIVE_INFINITY
-                var tMaxX = Float.NEGATIVE_INFINITY
-                var tMaxY = Float.NEGATIVE_INFINITY
-                var count = 0
-                fun includeNode(node: SubspaceSemanticsInfo) {
-                    val b = computeProjectedBounds(node) ?: return
-                    if (b[0] < tMinX) tMinX = b[0]
-                    if (b[1] < tMinY) tMinY = b[1]
-                    if (b[2] > tMaxX) tMaxX = b[2]
-                    if (b[3] > tMaxY) tMaxY = b[3]
-                    count++
-                }
-                for (tn in targetNodes) {
-                    includeNode(tn)
-                }
-                if (count == 0) {
-                    includeNode(semanticsInfo)
-                }
-                if (count > 0) floatArrayOf(tMinX, tMinY, tMaxX, tMaxY) else null
-            }
-
-            val isFull =
-                targetBox == null ||
-                    validCount == 0 ||
-                    (targetBox[0] <= allMinX + 1e-4f &&
-                        targetBox[1] <= allMinY + 1e-4f &&
-                        targetBox[2] >= allMaxX - 1e-4f &&
-                        targetBox[3] >= allMaxY - 1e-4f)
-            if (isFull) {
-                overallBounds
-            } else {
-                val totalW = allMaxX - allMinX
-                val totalH = allMaxY - allMinY
-                if (totalW <= 1e-4f || totalH <= 1e-4f) {
-                    overallBounds
-                } else {
-                    val leftFrac = ((targetBox[0] - allMinX) / totalW).coerceIn(0f, 1f)
-                    val rightFrac = ((targetBox[2] - allMinX) / totalW).coerceIn(leftFrac, 1f)
-                    val topFrac = ((allMaxY - targetBox[3]) / totalH).coerceIn(0f, 1f)
-                    val bottomFrac = ((allMaxY - targetBox[1]) / totalH).coerceIn(topFrac, 1f)
-
-                    val w = overallBounds.width()
-                    val h = overallBounds.height()
-                    val leftPx =
-                        (overallBounds.left + floor((leftFrac * w).toDouble()).toInt()).coerceIn(
-                            0,
-                            width,
-                        )
-                    val topPx =
-                        (overallBounds.top + floor((topFrac * h).toDouble()).toInt()).coerceIn(
-                            0,
-                            height,
-                        )
-                    val rightPx =
-                        (overallBounds.left + ceil((rightFrac * w).toDouble()).toInt()).coerceIn(
-                            leftPx,
-                            width,
-                        )
-                    val bottomPx =
-                        (overallBounds.top + ceil((bottomFrac * h).toDouble()).toInt()).coerceIn(
-                            topPx,
-                            height,
-                        )
-                    val projectedRect = Rect(leftPx, topPx, rightPx, bottomPx)
-                    if (
-                        semanticsInfo.semanticsId in renderedNodeIds &&
-                            semanticsInfo.childrenInfo.isEmpty()
-                    ) {
-                        findForegroundBounds(pixels, width, height, projectedRect, bgColor)
-                            ?: projectedRect
-                    } else {
-                        projectedRect
-                    }
-                }
-            }
+            resolveSubtreeCropBounds(
+                semanticsInfo = semanticsInfo,
+                subspaceRoot = subspaceRoot,
+                task = task,
+                overallBounds = overallBounds,
+                pixels = pixels,
+                bitmapWidth = width,
+                bitmapHeight = height,
+                bgColor = bgColor,
+            )
         }
 
+    return padAndCropSafely(bitmap, softwareBitmap, tightBounds, padding)
+}
+
+/**
+ * Resolves the tight pixel crop rectangle for a non-root [semanticsInfo] subtree by comparing its
+ * camera-space projection against all rendered nodes under [subspaceRoot].
+ */
+private fun resolveSubtreeCropBounds(
+    semanticsInfo: SubspaceSemanticsInfo,
+    subspaceRoot: SubspaceSemanticsInfo,
+    task: SnapshotXrSpace,
+    overallBounds: Rect,
+    pixels: IntArray,
+    bitmapWidth: Int,
+    bitmapHeight: Int,
+    bgColor: Int,
+): Rect {
+    val treeNodes = collectNodes(subspaceRoot)
+    val allVisualNodes = treeNodes.distinct().filter { it.size.width > 0 && it.size.height > 0 }
+    val renderedNodeIds = runOnMainThread {
+        (allVisualNodes + semanticsInfo).filter(::isRenderedEntity).mapTo(mutableSetOf()) {
+            it.semanticsId
+        }
+    }
+    // Prefer rendered SceneCore entities; fall back to leaf nodes or all visual nodes when Compose
+    // layout containers lack corresponding SceneCore entities.
+    val allRenderedNodes =
+        allVisualNodes
+            .filter { it.semanticsId in renderedNodeIds }
+            .ifEmpty {
+                allVisualNodes.filter { it.childrenInfo.isEmpty() }.ifEmpty { allVisualNodes }
+            }
+
+    val projection = SubspaceProjection.fromSnapshot(task)
+    val allProjected = allRenderedNodes.unionProjectedBounds(projection) ?: return overallBounds
+
+    val targetSubtreeNodes = collectNodes(semanticsInfo)
+    val targetSubtreeIds = targetSubtreeNodes.mapTo(mutableSetOf()) { it.semanticsId }
+    val targetNodes =
+        allRenderedNodes
+            .filter { it.semanticsId in targetSubtreeIds }
+            .ifEmpty {
+                targetSubtreeNodes.filter {
+                    it !== semanticsInfo && it.size.width > 0 && it.size.height > 0
+                }
+            }
+    val targetProjected =
+        targetNodes.unionProjectedBounds(projection)
+            ?: projection.projectNode(semanticsInfo)
+            ?: return overallBounds
+
+    val projectedRect =
+        mapProjectedBoundsToBitmapRect(
+            allBounds = allProjected,
+            targetBounds = targetProjected,
+            overallBounds = overallBounds,
+            bitmapWidth = bitmapWidth,
+            bitmapHeight = bitmapHeight,
+        )
+    // Refine leaf rendered entities against actual rendered pixels within the projected estimate.
+    return if (
+        semanticsInfo.semanticsId in renderedNodeIds && semanticsInfo.childrenInfo.isEmpty()
+    ) {
+        findForegroundBounds(pixels, bitmapWidth, bitmapHeight, projectedRect, bgColor)
+            ?: projectedRect
+    } else {
+        projectedRect
+    }
+}
+
+/**
+ * Expands [tightBounds] by [padding] pixels clamped to bitmap edges and crops [softwareBitmap].
+ * [sourceBitmap] is retained solely for reference-identity comparison so a temporary converted
+ * [softwareBitmap] can be recycled safely without recycling the caller's input bitmap.
+ */
+private fun padAndCropSafely(
+    sourceBitmap: Bitmap,
+    softwareBitmap: Bitmap,
+    tightBounds: Rect,
+    padding: Int,
+): Bitmap {
     val safePadding = max(0, padding)
     val finalBounds =
         Rect(
             (tightBounds.left - safePadding).coerceAtLeast(0),
             (tightBounds.top - safePadding).coerceAtLeast(0),
-            (tightBounds.right + safePadding).coerceAtMost(width),
-            (tightBounds.bottom + safePadding).coerceAtMost(height),
+            (tightBounds.right + safePadding).coerceAtMost(softwareBitmap.width),
+            (tightBounds.bottom + safePadding).coerceAtMost(softwareBitmap.height),
         )
-
     val cropped =
         try {
             crop(softwareBitmap, finalBounds)
         } catch (t: Throwable) {
-            if (softwareBitmap !== bitmap && !softwareBitmap.isRecycled) {
+            if (softwareBitmap !== sourceBitmap && !softwareBitmap.isRecycled) {
                 softwareBitmap.recycle()
             }
             throw t
         }
-    if (cropped !== softwareBitmap && softwareBitmap !== bitmap && !softwareBitmap.isRecycled) {
+    if (
+        cropped !== softwareBitmap && softwareBitmap !== sourceBitmap && !softwareBitmap.isRecycled
+    ) {
         softwareBitmap.recycle()
     }
     return cropped
+}
+
+/** Perspective-divided 2D bounds in camera view space (`x / depth`, `y / depth`). */
+internal data class ProjectedBounds(
+    val minX: Float,
+    val minY: Float,
+    val maxX: Float,
+    val maxY: Float,
+) {
+    val width: Float
+        get() = maxX - minX
+
+    val height: Float
+        get() = maxY - minY
+
+    fun union(other: ProjectedBounds): ProjectedBounds =
+        ProjectedBounds(
+            minX = minOf(minX, other.minX),
+            minY = minOf(minY, other.minY),
+            maxX = maxOf(maxX, other.maxX),
+            maxY = maxOf(maxY, other.maxY),
+        )
+
+    fun covers(other: ProjectedBounds, tolerance: Float = PROJECTION_EPSILON): Boolean =
+        minX <= other.minX + tolerance &&
+            minY <= other.minY + tolerance &&
+            maxX >= other.maxX - tolerance &&
+            maxY >= other.maxY - tolerance
+}
+
+/** Transforms Subspace-local 3D volumes into normalized camera-space [ProjectedBounds]. */
+internal data class SubspaceProjection(
+    val headPose: Pose,
+    val rootPosition: Vector3,
+    val rootRotation: Quaternion,
+    val rootScale: Vector3,
+    val pixelsPerMeter: Float,
+) {
+    private val viewRotInv: Quaternion = headPose.rotation.inverse
+
+    fun projectNode(node: SubspaceSemanticsInfo): ProjectedBounds? =
+        projectVolume(node.size.width, node.size.height, node.size.depth, node.poseInRoot)
+
+    fun projectVolume(
+        widthPx: Int,
+        heightPx: Int,
+        depthPx: Int,
+        poseInRoot: Pose,
+    ): ProjectedBounds? {
+        if (widthPx <= 0 || heightPx <= 0) return null
+
+        val halfW = ((widthPx.toFloat() / pixelsPerMeter) * rootScale.x) / 2f
+        val halfH = ((heightPx.toFloat() / pixelsPerMeter) * rootScale.y) / 2f
+        val halfD = ((depthPx.toFloat() / pixelsPerMeter) * rootScale.z).coerceAtLeast(0f) / 2f
+
+        val scaledTranslation =
+            Vector3(
+                (poseInRoot.translation.x / pixelsPerMeter) * rootScale.x,
+                (poseInRoot.translation.y / pixelsPerMeter) * rootScale.y,
+                (poseInRoot.translation.z / pixelsPerMeter) * rootScale.z,
+            )
+        val worldPos = rootPosition + (rootRotation * scaledTranslation)
+        val worldRot = rootRotation * poseInRoot.rotation
+
+        return projectBoxCorners(halfW, halfH, halfD, worldPos, worldRot)
+    }
+
+    private fun projectBoxCorners(
+        halfW: Float,
+        halfH: Float,
+        halfD: Float,
+        worldPos: Vector3,
+        worldRot: Quaternion,
+    ): ProjectedBounds {
+        var minX = Float.POSITIVE_INFINITY
+        var minY = Float.POSITIVE_INFINITY
+        var maxX = Float.NEGATIVE_INFINITY
+        var maxY = Float.NEGATIVE_INFINITY
+        for (sx in CORNER_SIGNS) {
+            for (sy in CORNER_SIGNS) {
+                for (sz in CORNER_SIGNS) {
+                    val localCorner = Vector3(sx * halfW, sy * halfH, sz * halfD)
+                    val worldCorner = worldPos + (worldRot * localCorner)
+                    val camCorner = viewRotInv * (worldCorner - headPose.translation)
+                    val depth = (-camCorner.z).coerceAtLeast(MIN_PROJECTION_DEPTH_METERS)
+                    val projX = camCorner.x / depth
+                    val projY = camCorner.y / depth
+                    minX = minOf(minX, projX)
+                    minY = minOf(minY, projY)
+                    maxX = maxOf(maxX, projX)
+                    maxY = maxOf(maxY, projY)
+                }
+            }
+        }
+        return ProjectedBounds(minX, minY, maxX, maxY)
+    }
+
+    companion object {
+        private val CORNER_SIGNS = floatArrayOf(-1f, 1f)
+
+        fun fromSnapshot(task: SnapshotXrSpace): SubspaceProjection {
+            val subspaceCpmNode = task.findNodeByName("SubspaceRoot") ?: task.spatialTransform
+            val pixelsPerMeter =
+                subspaceCpmNode?.computedPixelsPerMeter
+                    ?: task.computedPixelsPerMeter
+                    ?: DEFAULT_PIXELS_PER_METER
+            val headPose = (subspaceCpmNode ?: task).headPose ?: Pose.Identity
+            val rootRotation = subspaceCpmNode?.rotation ?: headPose.rotation
+            val rootScale = subspaceCpmNode?.scale ?: Vector3.One
+            // CPM sometimes reports SubspaceRoot at head origin; project forward in that case.
+            val rootPosition =
+                if (
+                    subspaceCpmNode != null &&
+                        (subspaceCpmNode.position - headPose.translation).lengthSquared >=
+                            MIN_ROOT_OFFSET_SQUARED_METERS
+                ) {
+                    subspaceCpmNode.position
+                } else {
+                    headPose.translation +
+                        (headPose.rotation * Vector3(0f, 0f, -DEFAULT_SUBSPACE_DISTANCE_METERS))
+                }
+            return SubspaceProjection(
+                headPose = headPose,
+                rootPosition = rootPosition,
+                rootRotation = rootRotation,
+                rootScale = rootScale,
+                pixelsPerMeter = pixelsPerMeter,
+            )
+        }
+    }
+}
+
+private fun List<SubspaceSemanticsInfo>.unionProjectedBounds(
+    projection: SubspaceProjection
+): ProjectedBounds? = mapNotNull(projection::projectNode).reduceOrNull(ProjectedBounds::union)
+
+/**
+ * Maps [targetBounds] relative to [allBounds] onto pixel coordinates inside [overallBounds],
+ * flipping camera +Y-up to bitmap +Y-down and clamping to `[0, bitmapWidth] x [0, bitmapHeight]`.
+ */
+internal fun mapProjectedBoundsToBitmapRect(
+    allBounds: ProjectedBounds,
+    targetBounds: ProjectedBounds,
+    overallBounds: Rect,
+    bitmapWidth: Int,
+    bitmapHeight: Int,
+): Rect {
+    if (
+        targetBounds.covers(allBounds) ||
+            allBounds.width <= PROJECTION_EPSILON ||
+            allBounds.height <= PROJECTION_EPSILON
+    ) {
+        return overallBounds
+    }
+    val leftFrac = ((targetBounds.minX - allBounds.minX) / allBounds.width).coerceIn(0f, 1f)
+    val rightFrac = ((targetBounds.maxX - allBounds.minX) / allBounds.width).coerceIn(leftFrac, 1f)
+    val topFrac = ((allBounds.maxY - targetBounds.maxY) / allBounds.height).coerceIn(0f, 1f)
+    val bottomFrac = ((allBounds.maxY - targetBounds.minY) / allBounds.height).coerceIn(topFrac, 1f)
+
+    val w = overallBounds.width()
+    val h = overallBounds.height()
+    val leftPx = (overallBounds.left + floor(leftFrac * w).toInt()).coerceIn(0, bitmapWidth)
+    val topPx = (overallBounds.top + floor(topFrac * h).toInt()).coerceIn(0, bitmapHeight)
+    val rightPx = (overallBounds.left + ceil(rightFrac * w).toInt()).coerceIn(leftPx, bitmapWidth)
+    val bottomPx = (overallBounds.top + ceil(bottomFrac * h).toInt()).coerceIn(topPx, bitmapHeight)
+    return Rect(leftPx, topPx, rightPx, bottomPx)
 }
