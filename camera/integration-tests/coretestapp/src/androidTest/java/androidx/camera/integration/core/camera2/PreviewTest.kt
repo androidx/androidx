@@ -102,6 +102,8 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -109,12 +111,13 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class PreviewTest(private val implName: String, private val cameraConfig: CameraXConfig) {
     @get:Rule
-    val cameraRule =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
-
-    // Launch activity when testing in Vivo devices to prevent testing process from being killed.
-    @get:Rule
-    val wakelockEmptyActivityRule = WakelockEmptyActivityRule(brandsToEnable = listOf("vivo"))
+    val cameraRule: TestRule =
+        RuleChain.outerRule(WakelockEmptyActivityRule())
+            .around(
+                CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+                    PreTestCameraIdList(cameraConfig)
+                )
+            )
 
     companion object {
         private const val ANY_THREAD_NAME = "any-thread-name"

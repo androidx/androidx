@@ -50,6 +50,7 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.camera.testing.impl.util.Camera2InteropUtil
 import androidx.camera.testing.impl.util.Camera2InteropUtil.builder
@@ -81,6 +82,8 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -89,8 +92,13 @@ import org.junit.runners.Parameterized
 class Camera2InteropIntegrationTest(val implName: String, val cameraConfig: CameraXConfig) {
 
     @get:Rule
-    val useCamera =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
+    val useCamera: TestRule =
+        RuleChain.outerRule(WakelockEmptyActivityRule())
+            .around(
+                CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+                    PreTestCameraIdList(cameraConfig)
+                )
+            )
 
     private var processCameraProvider: ProcessCameraProvider? = null
     private lateinit var cameraSelector: CameraSelector

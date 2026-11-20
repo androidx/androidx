@@ -39,6 +39,7 @@ import androidx.camera.integration.core.util.StressTestUtil.assumeNotRedfin64Bit
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
@@ -60,6 +61,8 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito.mock
@@ -77,10 +80,13 @@ class FrameRateTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
-    val cameraRule =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(cameraConfig)
-        )
+    val cameraRule: TestRule =
+        RuleChain.outerRule(WakelockEmptyActivityRule())
+            .around(
+                CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+                    CameraUtil.PreTestCameraIdList(cameraConfig)
+                )
+            )
 
     companion object {
         private const val TAG = "FrameRateTest"

@@ -51,6 +51,7 @@ import androidx.camera.testing.impl.HandlerUtil
 import androidx.camera.testing.impl.TestImageUtil.createBitmap
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.camera.testing.impl.TestImageUtil.rotateBitmap
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -73,6 +74,8 @@ import org.junit.Assume.assumeTrue
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 /** Unit tests for [DefaultSurfaceProcessor]. */
@@ -116,8 +119,14 @@ class DefaultSurfaceProcessorTest {
     }
 
     @get:Rule
-    val useCamera =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(testCameraRule, testCameraIdListRule)
+    val useCamera: TestRule =
+        RuleChain.outerRule(WakelockEmptyActivityRule())
+            .around(
+                CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+                    testCameraRule,
+                    testCameraIdListRule,
+                )
+            )
 
     private lateinit var surfaceProcessor: DefaultSurfaceProcessor
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
