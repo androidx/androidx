@@ -25,6 +25,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnMeasuredItem
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.startOffset
 import androidx.wear.compose.foundation.pager.HorizontalPager
@@ -345,26 +346,42 @@ private class TransformingLazyColumnStateScrollInfoProvider(
                     null
                 }
 
-            // The logical offset is always top-down.
+            val animatedProgress =
+                animation
+                    ?.takeIf {
+                        it.isPlacementAnimationInProgress && previousLastItemKey == lastItem.key
+                    }
+                    ?.animatedScrollProgress
+                    ?.takeIf { it.isSpecified }
+
+            // The logical offset is always top-down. Compute offset and transformedHeight directly
+            // from the animation's reactive state (rawOffset + placementDelta) instead of plain
+            // vars written in place(), avoiding 1-frame lag and measure-before-place mismatches.
             val logicalOffset =
-                if (
-                    animation?.isPlacementAnimationInProgress == true &&
-                        previousLastItemKey == lastItem.key &&
-                        animation.animatedScrollProgress.isSpecified
-                ) {
-                    animation.logicalOffset.y
+                if (animation != null && animatedProgress != null) {
+                    animation.rawOffset.y + animation.placementDelta.y
                 } else {
                     lastItem.offset
                 }
 
             if (animation?.isPlacementAnimationInProgress != true) {
                 previousLastItemKey = lastItem.key
+            } else if (previousLastItemKey != lastItem.key) {
+                previousLastItemKey = null
             }
 
             return if (reverseLayout) {
                     logicalOffset
                 } else {
-                    screenHeightPx - logicalOffset - lastItem.transformedHeight
+                    val transformedHeight =
+                        if (animation != null && animatedProgress != null) {
+                            (lastItem as? TransformingLazyColumnMeasuredItem)?.transformedHeight(
+                                animatedProgress
+                            ) ?: animation.transformedHeight
+                        } else {
+                            lastItem.transformedHeight
+                        }
+                    screenHeightPx - logicalOffset - transformedHeight
                 }
                 .toFloat()
                 .coerceAtLeast(0f)
