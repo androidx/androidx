@@ -138,8 +138,8 @@ package androidx.compose.ui.tooling.preview {
     field public static final String PIXEL_TABLET = "id:pixel_tablet";
     field public static final String PIXEL_XL = "id:pixel_xl";
     field public static final String TABLET = "spec:width=1280dp,height=800dp,dpi=240,windowPosture=flat,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=medium";
-    field public static final String TV_1080p = "spec:width=1920dp,height=1080dp";
-    field public static final String TV_720p = "spec:width=1280dp,height=720dp";
+    field public static final String TV_1080p = "spec:width=1920dp,height=1080dp,windowPosture=flat,pointerPrecision=none,keyboardKind=virtual,hasCamera=false,hasMicrophone=true,viewingDistance=far";
+    field public static final String TV_720p = "spec:width=1280dp,height=720dp,windowPosture=flat,pointerPrecision=none,keyboardKind=virtual,hasCamera=false,hasMicrophone=true,viewingDistance=far";
     field @Deprecated public static final String WEAR_OS_LARGE_ROUND = "id:wearos_large_round";
     field @Deprecated public static final String WEAR_OS_RECT = "id:wearos_rect";
     field @Deprecated public static final String WEAR_OS_SMALL_ROUND = "id:wearos_small_round";

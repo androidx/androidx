@@ -463,6 +463,30 @@ class PreviewMediaQueryTest {
         )
     }
 
+    @Test
+    fun testReferenceTv720p() {
+        assertReferenceDevice(
+            spec = Devices.TV_720p,
+            isTabletop = false,
+            pointerPrecision = UiMediaScope.PointerPrecision.None,
+            keyboardKind = UiMediaScope.KeyboardKind.Virtual,
+            hasCamera = false,
+            viewingDistance = UiMediaScope.ViewingDistance.Far,
+        )
+    }
+
+    @Test
+    fun testReferenceTv1080p() {
+        assertReferenceDevice(
+            spec = Devices.TV_1080p,
+            isTabletop = false,
+            pointerPrecision = UiMediaScope.PointerPrecision.None,
+            keyboardKind = UiMediaScope.KeyboardKind.Virtual,
+            hasCamera = false,
+            viewingDistance = UiMediaScope.ViewingDistance.Far,
+        )
+    }
+
     /**
      * The parser silently ignores keys it does not know, so a misspelled key that carries a default
      * value would go unnoticed. Overriding each parameter of each reference device with a value
@@ -470,7 +494,15 @@ class PreviewMediaQueryTest {
      */
     @Test
     fun testReferenceDeviceParametersAreAllParsed() {
-        for (spec in listOf(Devices.PHONE, Devices.FOLDABLE, Devices.TABLET, Devices.DESKTOP)) {
+        for (spec in
+            listOf(
+                Devices.PHONE,
+                Devices.FOLDABLE,
+                Devices.TABLET,
+                Devices.DESKTOP,
+                Devices.TV_720p,
+                Devices.TV_1080p,
+            )) {
             fun scopeWith(key: String, value: String) =
                 createPreviewUiMediaScope(fakeWindowInfo(), spec.withParameter(key, value))
 
@@ -487,7 +519,13 @@ class PreviewMediaQueryTest {
                 scopeWith("keyboardKind", "none").keyboardKind,
             )
             assertFalse(spec, scopeWith("hasCamera", "false").hasCamera)
+            assertTrue(spec, scopeWith("hasCamera", "true").hasCamera)
             assertFalse(spec, scopeWith("hasMicrophone", "false").hasMicrophone)
+            assertEquals(
+                spec,
+                UiMediaScope.ViewingDistance.Medium,
+                scopeWith("viewingDistance", "medium").viewingDistance,
+            )
             assertEquals(
                 spec,
                 UiMediaScope.ViewingDistance.Far,
@@ -502,14 +540,16 @@ class PreviewMediaQueryTest {
         pointerPrecision: UiMediaScope.PointerPrecision,
         keyboardKind: UiMediaScope.KeyboardKind,
         viewingDistance: UiMediaScope.ViewingDistance,
+        hasCamera: Boolean = true,
+        hasMicrophone: Boolean = true,
     ) {
         val scope = createPreviewUiMediaScope(fakeWindowInfo(), spec)
         assertEquals(isTabletop, scope.windowPosture.isTabletop)
         assertEquals(!isTabletop, scope.windowPosture.isFlat)
         assertEquals(pointerPrecision, scope.pointerPrecision)
         assertEquals(keyboardKind, scope.keyboardKind)
-        assertTrue(scope.hasCamera)
-        assertTrue(scope.hasMicrophone)
+        assertEquals(hasCamera, scope.hasCamera)
+        assertEquals(hasMicrophone, scope.hasMicrophone)
         assertEquals(viewingDistance, scope.viewingDistance)
     }
 

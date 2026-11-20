@@ -100,8 +100,10 @@ public object Devices {
         "spec:width=1920dp,height=1080dp,dpi=160,windowPosture=flat,pointerPrecision=fine,keyboardKind=physical,hasCamera=true,hasMicrophone=true,viewingDistance=medium"
 
     // TV devices (not adding 4K since it will be very heavy for preview)
-    public const val TV_720p: String = "spec:width=1280dp,height=720dp"
-    public const val TV_1080p: String = "spec:width=1920dp,height=1080dp"
+    public const val TV_720p: String =
+        "spec:width=1280dp,height=720dp,windowPosture=flat,pointerPrecision=none,keyboardKind=virtual,hasCamera=false,hasMicrophone=true,viewingDistance=far"
+    public const val TV_1080p: String =
+        "spec:width=1920dp,height=1080dp,windowPosture=flat,pointerPrecision=none,keyboardKind=virtual,hasCamera=false,hasMicrophone=true,viewingDistance=far"
 }
 
 /** Annotation for defining the [Preview] device to use. */
