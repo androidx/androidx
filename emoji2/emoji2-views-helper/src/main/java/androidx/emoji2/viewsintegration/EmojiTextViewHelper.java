@@ -169,7 +169,7 @@ public final class EmojiTextViewHelper {
     }
 
     /**
-     * @return current enabled state for this helper
+     * Returns the current enabled state for this helper.
      */
     public boolean isEnabled() {
         return mHelper.isEnabled();

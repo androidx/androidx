@@ -133,7 +133,7 @@ public class TypefaceEmojiRasterizer {
     }
 
     /**
-     * @return return typeface to be used to render
+     * Returns typeface to be used to render.
      */
     public @NonNull Typeface getTypeface() {
         return mMetadataRepo.getTypeface();
@@ -171,14 +171,14 @@ public class TypefaceEmojiRasterizer {
     }
 
     /**
-     * @return width of the emoji image
+     * Returns the width of the emoji image.
      */
     public int getWidth() {
         return getMetadataItem().width();
     }
 
     /**
-     * @return height of the emoji image
+     * Returns the height of the emoji image.
      */
     public int getHeight() {
         return getMetadataItem().height();
@@ -276,8 +276,8 @@ public class TypefaceEmojiRasterizer {
     }
 
     /**
-     * @return whether the emoji is in Emoji Presentation by default (without emoji
-     *         style selector 0xFE0F)
+     * Returns whether the emoji is in Emoji Presentation by default (without emoji
+     *         style selector 0xFE0F).
      */
     public boolean isDefaultEmoji() {
         return getMetadataItem().emojiStyle();
@@ -293,7 +293,7 @@ public class TypefaceEmojiRasterizer {
     }
 
     /**
-     * @return the length of the codepoints for this emoji
+     * Returns the length of the codepoints for this emoji.
      */
     public int getCodepointsLength() {
         return getMetadataItem().codepointsLength();
