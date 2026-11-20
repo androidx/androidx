@@ -20,6 +20,7 @@ import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThre
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -54,6 +55,8 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.integration.view.util.CaptureUtilsKt;
+import androidx.camera.testing.impl.FileUtil;
+import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.Recording;
 import androidx.camera.video.VideoRecordEvent;
@@ -594,14 +597,27 @@ public class CameraControllerFragment extends Fragment {
         return mRotation;
     }
 
+    @SuppressLint("RestrictedApiAndroidX") // b/223576109: MediaStoreVideoCannotWrite check
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @VisibleForTesting
     @MainThread
     void startRecording(Consumer<VideoRecordEvent> listener) {
-        MediaStoreOutputOptions outputOptions = getNewVideoOutputMediaStoreOptions();
         AudioConfig audioConfig = AudioConfig.create(true);
-        mActiveRecording = mCameraController.startRecording(outputOptions, audioConfig,
-                mExecutorService, listener);
+        if (FileUtil.canDeviceWriteToMediaStore()) {
+            mActiveRecording =
+                    mCameraController.startRecording(
+                            getNewVideoOutputMediaStoreOptions(),
+                            audioConfig,
+                            mExecutorService,
+                            listener);
+        } else {
+            String videoFileName = "video_" + System.currentTimeMillis();
+            FileOutputOptions outputOptions =
+                    FileUtil.generateVideoFileOutputOptions(videoFileName, "mp4");
+            mActiveRecording =
+                    mCameraController.startRecording(
+                            outputOptions, audioConfig, mExecutorService, listener);
+        }
     }
 
     @VisibleForTesting
