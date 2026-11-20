@@ -145,7 +145,7 @@ public class PagerTabStrip extends PagerTitleStrip {
     }
 
     /**
-     * @return The current tab indicator color as an 0xRRGGBB value.
+     * Returns the current tab indicator color as an 0xRRGGBB value.
      */
     @ColorInt
     public int getTabIndicatorColor() {

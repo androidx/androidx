@@ -179,7 +179,7 @@ public class PagerTitleStrip extends ViewGroup {
     }
 
     /**
-     * @return The required spacing between title segments in pixels
+     * Returns the required spacing between title segments in pixels.
      */
     public int getTextSpacing() {
         return mScaledTextSpacing;
