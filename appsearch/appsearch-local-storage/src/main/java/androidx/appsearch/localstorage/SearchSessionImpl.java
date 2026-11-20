@@ -514,6 +514,9 @@ class SearchSessionImpl implements AppSearchSession {
                     // We pass the caller mPackageName and mDatabaseName to AppSearchImpl and let it
                     // to compare with given handle to reduce code export delta.
                     mAppSearchImpl.commitBlob(mPackageName, mDatabaseName, handle,
+                            /* symmetricKey= */ null,
+                            /* aeadParams= */ null,
+                            /* ownerTag= */ null,
                             /*callStatsBuilder=*/null);
                     resultBuilder.setSuccess(handle, null);
                 } catch (Throwable t) {

@@ -429,6 +429,16 @@ public interface Features {
             "GLOBAL_SEARCH_SESSION_GET_DOCUMENT_CHANGES";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSession#commitEncryptedBlobAsync}.
+     *
+     * <p>This feature can only be supported if {@link #SCHEMA_BLOB_HANDLE} is supported.
+     */
+    // TODO(b/564581503): unhide the API once platform storage supports encrypted blobs.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String ENCRYPTED_BLOB = "ENCRYPTED_BLOB";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

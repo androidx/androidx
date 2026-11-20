@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.CommitBlobResponse;
+import androidx.appsearch.app.CommitEncryptedBlobRequest;
 import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.GetByDocumentIdRequest;
@@ -233,6 +234,11 @@ public class StubCreators {
     /** Stub creator for {@link OpenBlobForWriteResponse}. */
     public static class OpenBlobForWriteResponseCreator extends
             AbstractCreator<OpenBlobForWriteResponse> {
+    }
+
+    /** Stub creator for {@link CommitEncryptedBlobRequest}. */
+    public static class CommitEncryptedBlobRequestCreator extends
+            AbstractCreator<CommitEncryptedBlobRequest> {
     }
 
     /** Stub creator for {@link CommitBlobResponse}. */

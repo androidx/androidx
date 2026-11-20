@@ -107,6 +107,7 @@ import com.google.android.icing.IcingSearchEngine;
 import com.google.android.icing.IcingSearchEngineInterface;
 import com.google.android.icing.proto.BatchGetResultProto;
 import com.google.android.icing.proto.BatchPutResultProto;
+import com.google.android.icing.proto.BlobKeyProto;
 import com.google.android.icing.proto.BlobProto;
 import com.google.android.icing.proto.DebugInfoProto;
 import com.google.android.icing.proto.DebugInfoResultProto;
@@ -158,6 +159,7 @@ import com.google.android.icing.proto.SuggestionResponse;
 import com.google.android.icing.proto.SuggestionSpecProto;
 import com.google.android.icing.proto.TypePropertyMask;
 import com.google.android.icing.proto.UsageReport;
+import com.google.android.icing.protobuf.ByteString;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -2504,14 +2506,27 @@ public final class AppSearchImpl implements Closeable {
      * <p>After this call, the blob is readable via {@link #openReadBlob}. And any rewrite is not
      * allowed.
      *
-     * @param packageName    The package name that owns this blob.
-     * @param databaseName   The databaseName this blob resides in.
-     * @param handle         The {@link AppSearchBlobHandle} represent the blob.
+     * <p>If {@code symmetricKey} is non-null, the raw symmetric DEK is passed to the isolated
+     * storage service (pVM), which keeps it in its encrypted storage. The DEK is never stored
+     * outside the pVM: if the data of this instance is not stored in the pVM, this throws {@link
+     * AppSearchResult#RESULT_UNAVAILABLE} and the blob is left uncommitted.
+     *
+     * @param packageName  The package name that owns this blob.
+     * @param databaseName The databaseName this blob resides in.
+     * @param handle       The {@link AppSearchBlobHandle} represent the blob.
+     * @param symmetricKey The raw symmetric DEK when committing an encrypted blob, or {@code null}
+     *                     for an unencrypted blob.
+     * @param aeadParams   Optional AEAD parameters of an encrypted blob.
+     * @param ownerTag     Optional opaque tag identifying the owner of an encrypted blob.
      */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public void commitBlob(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull AppSearchBlobHandle handle,
+            byte @Nullable [] symmetricKey,
+            byte @Nullable [] aeadParams,
+            byte @Nullable [] ownerTag,
             CallStats.@Nullable Builder callStatsBuilder)
             throws AppSearchException, IOException {
         if (mRevocableFileDescriptorStore == null) {
@@ -2530,6 +2545,20 @@ public final class AppSearchImpl implements Closeable {
             }
             verifyCallingBlobHandle(packageName, databaseName, handle);
 
+            // Only the isolated storage pVM protects the DEK. Any other Icing instance would
+            // persist the raw DEK next to the encrypted blob, so fail before committing anything.
+            // The blob stays pending and the caller still owns the DEK.
+            // TODO(b/564581503): Let IcingSearchEngineInterface report whether it supports
+            //   encrypted blobs instead of checking the VM state here.
+            boolean isIcingSearchEngineProtectingBlobKeys =
+                    Flags.enableCommitEncryptedBlob() && mLaunchVmFeatures.isVmEnabled();
+            if (symmetricKey != null && !isIcingSearchEngineProtectingBlobKeys) {
+                throw new AppSearchException(
+                        AppSearchResult.RESULT_UNAVAILABLE,
+                        "Encrypted blobs can only be committed when AppSearch data is stored in"
+                                + " isolated storage.");
+            }
+
             // If AppSearch manages blob files, it is responsible for verifying the digest of the
             // blob file.
             if (Flags.enableAppSearchManageBlobFiles()) {
@@ -2538,7 +2567,19 @@ public final class AppSearchImpl implements Closeable {
 
             PropertyProto.BlobHandleProto blobHandleProto =
                     BlobHandleToProtoConverter.toBlobHandleProto(handle);
-            BlobProto result = mIcingSearchEngineLocked.commitBlob(blobHandleProto);
+            BlobProto result;
+            if (symmetricKey == null) {
+                result = mIcingSearchEngineLocked.commitBlob(blobHandleProto);
+            } else {
+                // TODO(b/564581503): Store ownerTag in BlobKeyProto once Icing supports it.
+                BlobKeyProto.Builder blobKeyProtoBuilder =
+                        BlobKeyProto.newBuilder().setKey(ByteString.copyFrom(symmetricKey));
+                if (aeadParams != null) {
+                    blobKeyProtoBuilder.setAeadParams(ByteString.copyFrom(aeadParams));
+                }
+                result = mIcingSearchEngineLocked.commitEncryptedBlob(
+                        blobHandleProto, blobKeyProtoBuilder.build());
+            }
 
             if (callStatsBuilder != null) {
                 callStatsBuilder
@@ -6061,7 +6102,6 @@ public final class AppSearchImpl implements Closeable {
                     (int) (swapLatencyEndMillis - upgradeLockAcquiredMillis);
         }
     }
-
 
     /**
      * Removes the blob files that are no longer referenced after optimize, if AppSearch manages

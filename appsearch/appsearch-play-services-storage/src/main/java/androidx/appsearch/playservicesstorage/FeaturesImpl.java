@@ -125,6 +125,9 @@ final class FeaturesImpl implements Features {
             case Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA:
                 // TODO(b/390450012) : Update once this features is supported.
                 // fall through
+            case Features.ENCRYPTED_BLOB:
+                // Encrypted blobs need isolated storage, which GMSCore AppSearch does not have.
+                // fall through
             default:
                 return false; // AppSearch features absent in GMSCore AppSearch.
         }
