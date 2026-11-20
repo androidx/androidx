@@ -301,6 +301,7 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
         private const val MH_TAG = "MH"
         private const val INITIAL_IDLE_TIMEOUT_MS: Long = 2000
         private const val UI_STABILIZATION_TIMEOUT_MS: Long = 3000
+        private const val FOREGROUND_ACTIVITY_DESTROY_TIMEOUT_MS: Long = 5000
         private const val FOREGROUND_CHECK_DELAY_MS: Long = 200
         private const val DISMISS_LOCK_SCREEN_CODE = 82
         private const val ADB_SHELL_DISMISS_KEYGUARD_API23_AND_ABOVE = "wm dismiss-keyguard"
@@ -393,10 +394,22 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
             } catch (e: Exception) {
                 Logger.d(TAG, "Fail to get foreground", e)
             } finally {
-                if (activityRef != null) {
-                    IdlingRegistry.getInstance().unregister(activityRef!!.viewReadyIdlingResource)
-                    instrumentation.runOnMainSync { activityRef?.finish() }
-                    instrumentation.waitForIdleSync()
+                activityRef?.let { activity ->
+                    IdlingRegistry.getInstance().unregister(activity.viewReadyIdlingResource)
+                    instrumentation.runOnMainSync { activity.finish() }
+                    try {
+                        if (!activity.awaitDestroyed(FOREGROUND_ACTIVITY_DESTROY_TIMEOUT_MS)) {
+                            Logger.w(
+                                TAG,
+                                "Timed out waiting ${FOREGROUND_ACTIVITY_DESTROY_TIMEOUT_MS}ms " +
+                                    "for $activity to be destroyed",
+                            )
+                        }
+                        instrumentation.waitForIdleSync()
+                    } catch (_: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                        Logger.w(TAG, "Interrupted while waiting for $activity to be destroyed")
+                    }
                 }
             }
 

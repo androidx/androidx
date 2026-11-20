@@ -24,13 +24,22 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /** An empty activity that checks the activity's <em>main</em> window currently has window focus. */
 public class ForegroundTestActivity extends Activity {
 
     final CountingIdlingResource mViewReady = new CountingIdlingResource("ViewReady");
+    private final CountDownLatch mDestroyedLatch = new CountDownLatch(1);
 
     public @NonNull CountingIdlingResource getViewReadyIdlingResource() {
         return mViewReady;
+    }
+
+    /** Waits up to {@code timeoutMs} for {@link #onDestroy()} to complete. */
+    public boolean awaitDestroyed(long timeoutMs) throws InterruptedException {
+        return mDestroyedLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -45,5 +54,11 @@ public class ForegroundTestActivity extends Activity {
         if (hasFocus && !mViewReady.isIdleNow()) {
             mViewReady.decrement();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDestroyedLatch.countDown();
     }
 }
