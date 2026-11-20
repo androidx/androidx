@@ -130,6 +130,8 @@ class JobSchedulerNamespaceTest {
     @MediumTest
     @Test
     fun schedule_persistsJobWhenPersistenceEnabled() {
+        // Relies on RECEIVE_BOOT_COMPLETED merged from work-runtime's AndroidManifest.xml for
+        // isJobSchedulerPersistenceEffective() to return true.
         val persistedConfig =
             Configuration.Builder().setJobSchedulerPersistenceEnabled(true).build()
         val persistedScheduler =
