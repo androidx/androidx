@@ -339,7 +339,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     }
 
     /**
-     * @return The offset in pixels from the top of this view at which the progress spinner should
+     * Returns the offset in pixels from the top of this view at which the progress spinner should
      *         appear.
      */
     public int getProgressViewStartOffset() {
@@ -347,7 +347,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     }
 
     /**
-     * @return The offset in pixels from the top of this view at which the progress spinner should
+     * Returns the offset in pixels from the top of this view at which the progress spinner should
      *         come to rest after a successful swipe gesture.
      */
     public int getProgressViewEndOffset() {
@@ -653,7 +653,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     }
 
     /**
-     * @return Whether the SwipeRefreshWidget is actively showing refresh
+     * Returns whether the SwipeRefreshWidget is actively showing refresh
      *         progress.
      */
     public boolean isRefreshing() {
@@ -744,8 +744,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     }
 
     /**
-     * @return Whether it is possible for the child view of this layout to
-     *         scroll up. Override this if the child view is a custom view.
+     * Returns whether it is possible for the child view of this layout to scroll up.
+     * <p>
+     * Override this if the child view is a custom view.
      */
     public boolean canChildScrollUp() {
         if (mChildScrollUpCallback != null) {
