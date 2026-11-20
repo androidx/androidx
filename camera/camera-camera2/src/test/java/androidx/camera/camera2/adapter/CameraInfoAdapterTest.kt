@@ -28,6 +28,7 @@ import android.util.Size
 import android.util.SizeF
 import androidx.annotation.OptIn
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.unwrapAs
+import androidx.camera.camera2.impl.DisplayInfoManager
 import androidx.camera.camera2.impl.ZoomControl
 import androidx.camera.camera2.internal.DOLBY_VISION_10B_UNCONSTRAINED
 import androidx.camera.camera2.internal.HLG10_UNCONSTRAINED
@@ -39,10 +40,12 @@ import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraExtensionMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator
 import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.testing.FakeZoomCompat
+import androidx.camera.camera2.testing.TestShadowWindowManager
 import androidx.camera.common.CameraId
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.DynamicRange
@@ -74,11 +77,13 @@ import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowDisplayManager
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -89,6 +94,11 @@ class CameraInfoAdapterTest {
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule(MoreExecutors.directExecutor().asCoroutineDispatcher())
+
+    @After
+    fun tearDown() {
+        DisplayInfoManager.releaseInstance()
+    }
 
     private val defaultCameraId = "0"
     private val defaultCameraProperties = FakeCameraProperties()
@@ -861,6 +871,87 @@ class CameraInfoAdapterTest {
                 ),
             )
         assertThat(unsupportedRepeating).isNull()
+    }
+
+    @Test
+    @Config(shadows = [TestShadowWindowManager::class])
+    fun resolveRepeatingStream_selectsFpsCompatibleSizeStatelessly() {
+        ShadowDisplayManager.changeDisplay(android.view.Display.DEFAULT_DISPLAY, "w1920dp-h1080dp")
+        DisplayInfoManager.releaseInstance()
+        val mockMap =
+            FakeCameraInfoAdapterCreator.createMockStreamConfigurationMap(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 33_333_332L,
+                )
+            )
+        val cameraInfoAdapter =
+            createCameraInfoAdapter(
+                cameraProperties =
+                    createCameraProperties(
+                        mapOf(
+                            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap,
+                            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
+                                intArrayOf(
+                                    android.hardware.camera2.CameraMetadata
+                                        .REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR
+                                ),
+                        )
+                    )
+            )
+        val factory = FakeUseCaseConfigFactory()
+        val videoConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.VIDEO_CAPTURE,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.VIDEO_CAPTURE,
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                )
+                .useCaseConfig
+        val unionInfo =
+            CalculatedUseCaseInfo(
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                null,
+                null,
+                emptyMap(),
+                StreamSpecQueryResult(),
+                null,
+            )
+
+        // 1. 60 FPS resolves MeteringRepeating to 1280x720 (640x480 max FPS is 30).
+        val repeating60Fps =
+            cameraInfoAdapter.resolveRepeatingStream(
+                unionInfo,
+                listOf(
+                    ResolvedStreamInfo(
+                        videoConfig,
+                        StreamSpec.builder(Size(1920, 1080))
+                            .setExpectedFrameRateRange(Range(60, 60))
+                            .build(),
+                    )
+                ),
+            )
+        assertThat(repeating60Fps).isNotNull()
+        assertThat(requireNotNull(repeating60Fps).streamSpec.resolution).isEqualTo(Size(1280, 720))
+
+        // 2. Subsequent UNSPECIFIED query on the same CameraInfoAdapter returns 640x480 cleanly.
+        val repeatingUnspecified =
+            cameraInfoAdapter.resolveRepeatingStream(
+                unionInfo,
+                listOf(
+                    ResolvedStreamInfo(videoConfig, StreamSpec.builder(Size(1920, 1080)).build())
+                ),
+            )
+        assertThat(repeatingUnspecified).isNotNull()
+        assertThat(requireNotNull(repeatingUnspecified).streamSpec.resolution)
+            .isEqualTo(Size(640, 480))
     }
 
     private fun createCameraProperties(

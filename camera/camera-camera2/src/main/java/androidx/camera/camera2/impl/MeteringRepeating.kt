@@ -20,11 +20,14 @@ import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination
+import androidx.camera.camera2.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.compat.getMaxFrameRate
 import androidx.camera.camera2.compat.workaround.getSupportedRepeatingSurfaceSizes
 import androidx.camera.camera2.internal.DynamicRangeResolver
 import androidx.camera.core.DynamicRange
@@ -43,6 +46,7 @@ import androidx.camera.core.impl.ResolvedStreamInfo
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.CloseableErrorListener
 import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
 import androidx.camera.core.impl.StreamUseCase
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
@@ -55,8 +59,6 @@ import androidx.camera.core.impl.utils.UseCaseUtil.getVideoStabilization
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.core.streamsharing.StreamSharingConfig
-import kotlin.collections.isEmpty
-import kotlin.collections.sortBy
 import kotlin.math.min
 
 private val DEFAULT_PREVIEW_SIZE = Size(640, 480) // VGA
@@ -72,7 +74,16 @@ public class MeteringRepeating(
     private val displayInfoManager: DisplayInfoManager,
 ) : UseCase(config) {
 
-    internal val meteringSurfaceSize = getProperPreviewSize(cameraProperties, displayInfoManager)
+    private val streamConfigurationMapCompat =
+        StreamConfigurationMapCompat(
+            cameraProperties.metadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP],
+            cameraProperties.metadata,
+        )
+
+    private val isManualSensorSupported =
+        cameraProperties.metadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]?.contains(
+            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR
+        ) ?: false
 
     private val dynamicRangeResolver = DynamicRangeResolver(cameraProperties.metadata)
 
@@ -94,10 +105,13 @@ public class MeteringRepeating(
         primaryStreamSpec: StreamSpec,
         secondaryStreamSpec: StreamSpec?,
     ): StreamSpec {
+        val surfaceSize =
+            primaryStreamSpec.resolution.takeIf { it.width > 0 && it.height > 0 }
+                ?: getProperPreviewSize(primaryStreamSpec.expectedFrameRateRange)
         updateSessionConfig(
-            listOf(createPipeline(meteringSurfaceSize, primaryStreamSpec.dynamicRange).build())
+            listOf(createPipeline(surfaceSize, primaryStreamSpec.dynamicRange).build())
         )
-        return primaryStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
+        return primaryStreamSpec.toBuilder().setResolution(surfaceSize).build()
     }
 
     override fun onUnbind() {
@@ -109,12 +123,25 @@ public class MeteringRepeating(
         }
     }
 
-    /** Sets up the use case's session configuration, mainly its [DeferrableSurface]. */
-    public fun setupSession(dynamicRange: DynamicRange = DynamicRange.SDR) {
-        // The suggested stream spec resolution passed to `updateSuggestedStreamSpec` doesn't
-        // matter since this use case uses the min preview size.
+    /**
+     * Sets up the use case's session configuration, mainly its [DeferrableSurface].
+     *
+     * @param dynamicRange The resolved dynamic range for the metering surface.
+     * @param expectedFrameRateRange The session frame rate range used to select a surface size
+     *   whose minimum frame duration does not limit the session frame rate.
+     * @param resolvedSurfaceSize Pre-validated surface size computed by [resolveStreamInfo],
+     *   defaulting to the proper preview size for [expectedFrameRateRange] when called standalone.
+     */
+    public fun setupSession(
+        dynamicRange: DynamicRange = DynamicRange.SDR,
+        expectedFrameRateRange: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED,
+        resolvedSurfaceSize: Size = getProperPreviewSize(expectedFrameRateRange),
+    ) {
         updateSuggestedStreamSpec(
-            StreamSpec.builder(DEFAULT_PREVIEW_SIZE).setDynamicRange(dynamicRange).build(),
+            StreamSpec.builder(resolvedSurfaceSize)
+                .setDynamicRange(dynamicRange)
+                .setExpectedFrameRateRange(expectedFrameRateRange)
+                .build(),
             null,
         )
     }
@@ -169,20 +196,6 @@ public class MeteringRepeating(
         return newSurface
     }
 
-    internal fun resolveDynamicRange(
-        streams: List<ResolvedStreamInfo>,
-        supportedSurfaceCombination: SupportedSurfaceCombination,
-        @CameraMode.Mode cameraMode: Int = CameraMode.DEFAULT,
-    ): DynamicRange? =
-        synchronized(supportedSurfaceCombination) {
-            if (streams.isEmpty()) {
-                return null
-            }
-            val attachedSurfaceInfoList =
-                toAttachedSurfaceInfoList(streams, supportedSurfaceCombination, cameraMode)
-            resolveDynamicRange(attachedSurfaceInfoList)
-        }
-
     internal fun resolveStreamInfo(
         streams: List<ResolvedStreamInfo>,
         supportedSurfaceCombination: SupportedSurfaceCombination,
@@ -195,6 +208,7 @@ public class MeteringRepeating(
             if (streams.isEmpty()) {
                 return null
             }
+            val expectedFrameRateRange = streams.selectExpectedFrameRateRange()
             val attachedSurfaceInfoList =
                 toAttachedSurfaceInfoList(streams, supportedSurfaceCombination, cameraMode)
             val meteringDynamicRange = resolveDynamicRange(attachedSurfaceInfoList) ?: return null
@@ -227,6 +241,8 @@ public class MeteringRepeating(
                     videoStabilization = videoStabilization,
                     isUltraHdrOn = isUltraHdrOn,
                 )
+            val (primarySize, fallbackSize) = resolveSurfaceSizeCandidates(expectedFrameRateRange)
+
             val sessionSurfacesConfigs =
                 sessionSurfaceConfigsProvider?.invoke(featureSettings)
                     ?: buildList {
@@ -244,17 +260,17 @@ public class MeteringRepeating(
                             }
                         }
                     }
-            val meteringSurfaceConfig =
-                supportedSurfaceCombination.transformSurfaceConfig(
-                    cameraMode,
-                    imageFormat,
-                    meteringSurfaceSize,
-                    currentConfig.streamUseCase,
-                    featureSettings,
-                )
 
-            val isSupported =
-                supportedSurfaceCombination
+            fun isCandidateSupported(candidateSize: Size): Boolean {
+                val meteringSurfaceConfig =
+                    supportedSurfaceCombination.transformSurfaceConfig(
+                        cameraMode,
+                        imageFormat,
+                        candidateSize,
+                        currentConfig.streamUseCase,
+                        featureSettings,
+                    )
+                return supportedSurfaceCombination
                     .checkSupported(
                         featureSettings,
                         mutableListOf<SurfaceConfig>().apply {
@@ -264,19 +280,108 @@ public class MeteringRepeating(
                     )
                     .also {
                         Camera2Logger.debug {
-                            "Combination of $sessionSurfacesConfigs + $this is supported: $it"
+                            "Combination of $sessionSurfacesConfigs + $this ($candidateSize) " +
+                                "is supported: $it"
                         }
                     }
-            if (!isSupported) {
-                return null
             }
+
+            // Retry with the <= VGA size so a constrained stream combination keeps its repeating
+            // stream instead of dropping it when the larger FPS-compatible size does not fit.
+            val selectedSize =
+                when {
+                    isCandidateSupported(primarySize) -> primarySize
+                    fallbackSize != primarySize && isCandidateSupported(fallbackSize) ->
+                        fallbackSize
+                    else -> return null
+                }
+
             ResolvedStreamInfo(
                 currentConfig,
-                StreamSpec.builder(meteringSurfaceSize)
+                StreamSpec.builder(selectedSize)
                     .setDynamicRange(meteringDynamicRange)
+                    .setExpectedFrameRateRange(expectedFrameRateRange)
                     .build(),
             )
         }
+
+    private fun getProperPreviewSize(expectedFrameRateRange: Range<Int>): Size =
+        resolveSurfaceSizeCandidates(expectedFrameRateRange).first
+
+    /**
+     * Returns a pair of candidate surface sizes: the preferred size that supports the upper bound
+     * of [expectedFrameRateRange] (or the fallback size if none does), and the fallback size that
+     * ignores the frame rate, i.e. the largest size <= min(VGA, display size).
+     */
+    private fun resolveSurfaceSizeCandidates(expectedFrameRateRange: Range<Int>): Pair<Size, Size> {
+        var outputSizes = streamConfigurationMapCompat.getOutputSizes(ImageFormat.PRIVATE)
+        if (outputSizes.isNullOrEmpty()) {
+            if (streamConfigurationMapCompat.toStreamConfigurationMap() == null) {
+                Camera2Logger.error { "Can not retrieve SCALER_STREAM_CONFIGURATION_MAP." }
+            }
+            return DEFAULT_PREVIEW_SIZE to DEFAULT_PREVIEW_SIZE
+        }
+
+        val supportedOutputSizes = outputSizes.getSupportedRepeatingSurfaceSizes()
+        if (supportedOutputSizes.isNotEmpty()) {
+            outputSizes = supportedOutputSizes
+        } else {
+            Camera2Logger.warn { "No supported output size list, fallback to current list" }
+        }
+
+        val fallbackSize = selectPreviewSize(outputSizes)
+        if (
+            expectedFrameRateRange == FRAME_RATE_RANGE_UNSPECIFIED ||
+                expectedFrameRateRange.upper <= 0
+        ) {
+            return fallbackSize to fallbackSize
+        }
+
+        // A small surface can have a longer minimum frame duration than larger ones on some
+        // devices, which would cap the session frame rate.
+        val fpsCompatibleSizes = outputSizes.filter { size ->
+            streamConfigurationMapCompat.getMaxFrameRate(
+                ImageFormat.PRIVATE,
+                size,
+                isManualSensorSupported,
+            ) >= expectedFrameRateRange.upper
+        }
+        val primarySize =
+            if (fpsCompatibleSizes.isNotEmpty()) {
+                selectPreviewSize(fpsCompatibleSizes.toTypedArray())
+            } else {
+                fallbackSize
+            }
+        return primarySize to fallbackSize
+    }
+
+    private fun selectPreviewSize(candidateSizes: Array<Size>): Size {
+        val sortedSizes = candidateSizes.sortedBy { size ->
+            size.width.toLong() * size.height.toLong()
+        }
+
+        // Find maximum supported resolution that is <= min(VGA, display resolution).
+        // Using minimum supported size could cause issues on certain devices.
+        val previewSize = displayInfoManager.getPreviewSize()
+        val maxSizeProduct =
+            min(640L * 480L, previewSize.width.toLong() * previewSize.height.toLong())
+
+        var previousSize: Size? = null
+        for (outputSize in sortedSizes) {
+            val product = outputSize.width.toLong() * outputSize.height.toLong()
+            if (product == maxSizeProduct) {
+                return outputSize
+            } else if (product > maxSizeProduct) {
+                // Returns the maximum supported resolution that is <= min(VGA, display resolution)
+                // if it is found
+                return previousSize ?: break
+            }
+            previousSize = outputSize
+        }
+
+        // If not found, return the minimum size.
+        return previousSize ?: sortedSizes[0]
+    }
 
     private fun toAttachedSurfaceInfoList(
         streams: List<ResolvedStreamInfo>,
@@ -394,55 +499,11 @@ public class MeteringRepeating(
     }
 }
 
-internal fun getProperPreviewSize(
-    cameraProperties: CameraProperties,
-    displayInfoManager: DisplayInfoManager,
-): Size {
-    var outputSizes = cameraProperties.getOutputSizes() ?: return DEFAULT_PREVIEW_SIZE
-
-    if (outputSizes.isEmpty()) {
-        return DEFAULT_PREVIEW_SIZE
-    }
-
-    val supportedOutputSizes = outputSizes.getSupportedRepeatingSurfaceSizes()
-
-    if (supportedOutputSizes.isNotEmpty()) {
-        outputSizes = supportedOutputSizes
-    } else {
-        Camera2Logger.warn { "No supported output size list, fallback to current list" }
-    }
-
-    outputSizes.sortBy { size -> size.width.toLong() * size.height.toLong() }
-
-    // Find maximum supported resolution that is <= min(VGA, display resolution)
-    // Using minimum supported size could cause some issue on certain devices.
-    val previewSize = displayInfoManager.getPreviewSize()
-    val maxSizeProduct = min(640L * 480L, previewSize.width.toLong() * previewSize.height.toLong())
-
-    var previousSize: Size? = null
-    for (outputSize in outputSizes) {
-        val product = outputSize.width.toLong() * outputSize.height.toLong()
-        if (product == maxSizeProduct) {
-            return outputSize
-        } else if (product > maxSizeProduct) {
-            // Returns the maximum supported resolution that is <= min(VGA, display resolution)
-            // if it is found
-            return previousSize ?: break
-        }
-        previousSize = outputSize
-    }
-
-    // If not found, return the minimum size.
-    return previousSize ?: outputSizes[0]
-}
-
-private fun CameraProperties.getOutputSizes(): Array<Size>? {
-    val map =
-        metadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-            ?: run {
-                Camera2Logger.error { "Can not retrieve SCALER_STREAM_CONFIGURATION_MAP." }
-                return null
-            }
-
-    return map.getOutputSizes(ImageFormat.PRIVATE)
-}
+/**
+ * Selects the frame rate range used to size [MeteringRepeating] as the highest upper bound among
+ * streams with a specified expected frame rate range.
+ */
+private fun List<ResolvedStreamInfo>.selectExpectedFrameRateRange(): Range<Int> =
+    map { it.streamSpec.expectedFrameRateRange }
+        .filter { it != FRAME_RATE_RANGE_UNSPECIFIED }
+        .maxByOrNull { it.upper } ?: FRAME_RATE_RANGE_UNSPECIFIED

@@ -35,6 +35,7 @@ import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMetho
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMethod.WITHOUT_FEATURE_COMBO_FIRST_AND_THEN_WITH_IT
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMethod.WITH_FEATURE_COMBO
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.compat.getMaxFrameRate
 import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.compat.workaround.Hlg10UhdVideoStabilizationValidator
@@ -1687,23 +1688,8 @@ public class SupportedSurfaceCombination(
         return min(customMaxFps, surfaceMaxFps)
     }
 
-    private fun getMaxFrameRate(imageFormat: Int, size: Size): Int {
-        val minFrameDuration =
-            streamConfigurationMapCompat.getOutputMinFrameDuration(imageFormat, size)
-        if (minFrameDuration <= 0L) {
-            if (isManualSensorSupported) {
-                Camera2Logger.warn {
-                    "minFrameDuration: $minFrameDuration is invalid for imageFormat = $imageFormat, size = $size"
-                }
-                return 0
-            } else {
-                // According to the doc, getOutputMinFrameDuration may return 0 if device doesn't
-                // support manual sensor. Return MAX_VALUE indicates no limit.
-                return FRAME_RATE_UNLIMITED
-            }
-        }
-        return (1_000_000_000.0 / minFrameDuration + 0.5).toInt()
-    }
+    private fun getMaxFrameRate(imageFormat: Int, size: Size): Int =
+        streamConfigurationMapCompat.getMaxFrameRate(imageFormat, size, isManualSensorSupported)
 
     /**
      * @param range
