@@ -446,7 +446,7 @@ public final class Palette {
         }
 
         /**
-         * @return this swatch's RGB color value
+         * Returns this swatch's RGB color value.
          */
         @ColorInt
         public int getRgb() {
@@ -468,7 +468,7 @@ public final class Palette {
         }
 
         /**
-         * @return the number of pixels represented by this swatch
+         * Returns the number of pixels represented by this swatch.
          */
         public int getPopulation() {
             return mPopulation;
