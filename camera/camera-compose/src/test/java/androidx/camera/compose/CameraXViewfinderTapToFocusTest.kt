@@ -69,6 +69,7 @@ class CameraXViewfinderTapToFocusTest {
 
     private val surfaceRequests = mutableListOf<SurfaceRequest>()
     private var showViewfinder by mutableStateOf(true)
+    private var isTapToFocusEnabled by mutableStateOf(true)
 
     @After
     fun tearDown() {
@@ -164,6 +165,25 @@ class CameraXViewfinderTapToFocusTest {
         composeTestRule.waitForIdle()
 
         assertThat(future.isCancelled).isTrue()
+        assertThat(harness.events.map { it.second }).containsExactly(FocusState.STARTED).inOrder()
+    }
+
+    @Test
+    fun tapToFocus_disabledWhileAwaiting_cancelsFutureWithoutEmittingFailed() {
+        val harness = setupTapToFocusHarness()
+
+        composeTestRule.onNodeWithTag(VIEWFINDER_TAG).performTouchInput { click(center) }
+        composeTestRule.waitForIdle()
+
+        assertThat(harness.events.map { it.second }).containsExactly(FocusState.STARTED).inOrder()
+        val future = checkNotNull(harness.latestFuture)
+        assertThat(future.isDone).isFalse()
+
+        isTapToFocusEnabled = false
+        composeTestRule.waitForIdle()
+
+        assertThat(future.isCancelled).isTrue()
+        assertThat(harness.events.map { it.second }).containsExactly(FocusState.STARTED).inOrder()
     }
 
     private fun setupTapToFocusHarness(): TapToFocusHarness {
@@ -205,12 +225,13 @@ class CameraXViewfinderTapToFocusTest {
         )
 
         showViewfinder = true
+        isTapToFocusEnabled = true
         composeTestRule.setContent {
             if (showViewfinder) {
                 CameraXViewfinder(
                     surfaceRequest = surfaceRequest,
                     implementationMode = ImplementationMode.EMBEDDED,
-                    isTapToFocusEnabled = true,
+                    isTapToFocusEnabled = isTapToFocusEnabled,
                     onTapToFocus = { offset, state -> harness.events.add(offset to state) },
                     modifier = Modifier.size(200.dp, 200.dp).testTag(VIEWFINDER_TAG),
                 )
