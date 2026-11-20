@@ -1275,6 +1275,7 @@ constructor(
 public class AppFunctionUnitTypeMetadata
 @JvmOverloads
 constructor(
+    /** Whether the data type is nullable. */
     // Unit types are inherently not nullable in the same way other types are,
     // but the `isNullable` property is part of the base class.
     // Typically, for Unit, this would be false.

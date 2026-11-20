@@ -343,6 +343,8 @@ internal constructor(
  *
  * Note that this is different from [AppFunctionAppUnknownException], in that the error wasn't
  * necessarily caused by the app.
+ *
+ * @property errorCode The error code.
  */
 public class AppFunctionUnknownException
 internal constructor(public val errorCode: Int, errorMessage: String? = null, extras: Bundle) :
