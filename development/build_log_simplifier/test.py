@@ -14,9 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from build_log_simplifier import build_exemptions_matcher
 from build_log_simplifier import collapse_consecutive_blank_lines
 from build_log_simplifier import collapse_tasks_having_no_output
 from build_log_simplifier import extract_task_names
+from build_log_simplifier import get_path_replacements
+from build_log_simplifier import rejoin_split_lines
+from build_log_simplifier import remove_by_regexes
 from build_log_simplifier import remove_unmatched_exemptions
 from build_log_simplifier import suggest_missing_exemptions
 from build_log_simplifier import normalize_paths
@@ -278,6 +282,55 @@ def test_remove_control_characters():
             "Expected output: " + str(expected) + ".\n\n" +
             "Actual output  : " + str(actual) + ".")
 
+def test_rejoin_split_lines():
+    print("test_rejoin_split_lines")
+    sqlite = "java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader"
+    sqlite_exemption = "WARNING: java\\.lang\\.System::load has been called by .*"
+    chain = "WARN: Chain.java:46 Missing @param tag in DFunction applyChainConstrai"
+    chain_exemption = "WARN: Chain\\.java:46 Missing @param tag in DFunction applyChainConstraints"
+    split_chain = ["> Task :docs\n", chain + "\n", "> Task :b\n", "\n", "> Task :docs\n", "nts\n"]
+    # Each case: log lines, exemptions, and the lines --validate should report
+    cases = [
+        # b/337056047#comment3: cut right after "WARN"
+        (["OUT_DIR=/src/out\n", "> Task :docs\n", "WARN\n", "> Task :b\n", "\n",
+          "> Task :docs\n", ": /src/out/Nav.kt:40 Missing @param tag\n"],
+         ["OUT_DIR=\\$OUT_DIR", "WARN: \\$OUT_DIR/Nav\\.kt:40 Missing @param tag"], []),
+        # b/337056047#comment9: cut in the middle of a word
+        (split_chain, [chain_exemption], []),
+        # The first piece already matches an exemption by itself
+        (split_chain, [chain_exemption, re.escape(chain)], []),
+        # b/337056047#comment19: cut after "WARNING: " (trailing space kept), header has a suffix
+        (["CHECKOUT=/src\n", "> Task :kzip\n", "WARNING: \n", "> Task :b\n", "\n",
+          "> Task :kzip UP-TO-DATE\n", sqlite + " (file:/src/sqlite.jar)\n"],
+         ["CHECKOUT=\\$CHECKOUT", sqlite_exemption], []),
+        # Cut inside a path: the joined line should get $OUT_DIR, not $CHECKOUT followed by "out"
+        (["OUT_DIR=/src/out\n", "CHECKOUT=/src\n", "> Task :a\n", "w: /src/ou\n",
+          "> Task :b\n", "> Task :a\n", "t/Foo.kt bad\n"],
+         ["OUT_DIR=\\$OUT_DIR", "CHECKOUT=\\$CHECKOUT", "w: \\$OUT_DIR/Foo\\.kt bad"], []),
+        # Two complete lines and only the first is exempt: report the second
+        (["> Task :a\n", "known\n", "> Task :b\n", "> Task :a\n", "new\n"], ["known"],
+         ["> Task :a\n", "new\n"]),
+        # Same, with an exemption ending in ".*" that also matches the joined line
+        (["> Task :a\n", "known\n", "> Task :b\n", "> Task :a\n", "new\n"], ["known.*"],
+         ["> Task :a\n", "new\n"]),
+        # The joined line isn't exempt: report both pieces
+        (["> Task :a\n", "WARNING: \n", "> Task :b\n", "> Task :a\n", "new\n"],
+         ["WARNING: known"], ["> Task :a\n", "WARNING: \n", "> Task :a\n", "new\n"]),
+        # Pieces from different tasks are never joined
+        (["> Task :a\n", "WARNING: \n", "> Task :b\n", sqlite + "\n"], [sqlite_exemption],
+         ["> Task :a\n", "WARNING: \n", "> Task :b\n", sqlite + "\n"]),
+        # A joined line never gets a third piece
+        (["> Task :a\n", "WARN: \n", "> Task :b\n", "> Task :a\n", "foo\n", "> Task :b\n",
+          "> Task :a\n", "bar\n"], ["WARN: foo", "WARN: foobar"], ["> Task :a\n", "bar\n"]),
+    ]
+    for log, config, expected in cases:
+        matcher = build_exemptions_matcher(config)
+        lines = rejoin_split_lines(log, matcher, get_path_replacements(log))
+        actual = collapse_tasks_having_no_output(remove_by_regexes(lines, config, True))
+        if actual != expected:
+            fail("test_rejoin_split_lines failed.\nLog     : " + str(log) +
+                "\nConfig  : " + str(config) +
+                "\nExpected: " + str(expected) + "\nActual  : " + str(actual))
 
 def main():
     test_collapse_consecutive_blank_lines()
@@ -289,6 +342,7 @@ def main():
     test_regexes_matcher_index_first_matching_regex()
     test_remove_control_characters()
     test_remove_unmatched_exemptions()
+    test_rejoin_split_lines()
 
 if __name__ == "__main__":
     main()
