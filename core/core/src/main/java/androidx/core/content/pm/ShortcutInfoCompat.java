@@ -119,7 +119,7 @@ public class ShortcutInfoCompat {
     ShortcutInfoCompat() { }
 
     /**
-     * @return {@link ShortcutInfo} object from this compat object.
+     * Returns {@link ShortcutInfo} object from this compat object.
      */
     @RequiresApi(25)
     public ShortcutInfo toShortcutInfo() {

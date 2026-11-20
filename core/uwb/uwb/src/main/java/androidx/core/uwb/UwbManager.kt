@@ -48,7 +48,8 @@ interface UwbManager : AutoCloseable {
     public suspend fun clientSessionScope(): UwbClientSessionScope
 
     /**
-     * @return a new [UwbControleeSessionScope] that tracks the lifecycle of a UWB connection.
+     * Returns a new [UwbControleeSessionScope] that tracks the lifecycle of a UWB connection.
+     *
      * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned
      *   off.
      * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is
@@ -57,7 +58,8 @@ interface UwbManager : AutoCloseable {
     public suspend fun controleeSessionScope(): UwbControleeSessionScope
 
     /**
-     * @return a new [UwbControllerSessionScope] that tracks the lifecycle of a UWB connection.
+     * Returns new [UwbControllerSessionScope] that tracks the lifecycle of a UWB connection.
+     *
      * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned
      *   off.
      * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is

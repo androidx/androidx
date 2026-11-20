@@ -315,7 +315,7 @@ public abstract class RoundedBitmapDrawable extends Drawable {
     }
 
     /**
-     * @return <code>true</code> if the image is circular, else <code>false</code>.
+     * Returns <code>true</code> if the image is circular, else <code>false</code>.
      */
     public boolean isCircular() {
         return mIsCircular;
@@ -348,7 +348,7 @@ public abstract class RoundedBitmapDrawable extends Drawable {
     }
 
     /**
-     * @return The corner radius applied when drawing the bitmap.
+     * Returns the corner radius applied when drawing the bitmap.
      */
     public float getCornerRadius() {
         return mCornerRadius;

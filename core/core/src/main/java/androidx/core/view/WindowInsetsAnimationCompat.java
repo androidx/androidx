@@ -90,7 +90,7 @@ public final class WindowInsetsAnimationCompat {
     }
 
     /**
-     * @return The bitmask of {@link Type} that are animating.
+     * Returns the bitmask of {@link Type} that are animating.
      */
     @InsetsType
     public int getTypeMask() {
@@ -160,7 +160,7 @@ public final class WindowInsetsAnimationCompat {
     }
 
     /**
-     * @return duration of animation in {@link java.util.concurrent.TimeUnit#MILLISECONDS}, or
+     * Returns the duration of animation in {@link java.util.concurrent.TimeUnit#MILLISECONDS}, or
      * -1 if the animation doesn't have a fixed duration.
      */
     public long getDurationMillis() {

@@ -121,7 +121,7 @@ public final class LocusIdCompat {
     }
 
     /**
-     * @return {@link LocusId} object from this compat object.
+     * Returns {@link LocusId} object from this compat object.
      */
     @RequiresApi(29)
     public @NonNull LocusId toLocusId() {

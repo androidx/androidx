@@ -401,7 +401,7 @@ public class AccessibilityWindowInfoCompat {
     public void recycle() { }
 
     /**
-     * @return The unwrapped {@link android.view.accessibility.AccessibilityWindowInfo}.
+     * Returns the unwrapped {@link android.view.accessibility.AccessibilityWindowInfo}.
      */
     public @Nullable AccessibilityWindowInfo unwrap() {
         return mInfo;

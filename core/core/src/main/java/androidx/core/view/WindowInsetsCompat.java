@@ -2628,7 +2628,7 @@ public class WindowInsetsCompat {
         }
 
         /**
-         * @return An insets type representing any system bars for displaying status.
+         * Returns an insets type representing any system bars for displaying status.
          */
         @InsetsType
         public static int statusBars() {
@@ -2636,7 +2636,7 @@ public class WindowInsetsCompat {
         }
 
         /**
-         * @return An insets type representing any system bars for navigation.
+         * Returns an insets type representing any system bars for navigation.
          */
         @InsetsType
         public static int navigationBars() {
@@ -2644,7 +2644,7 @@ public class WindowInsetsCompat {
         }
 
         /**
-         * @return An insets type representing the window of a caption bar.
+         * Returns an insets type representing the window of a caption bar.
          */
         @InsetsType
         public static int captionBar() {
@@ -2652,7 +2652,7 @@ public class WindowInsetsCompat {
         }
 
         /**
-         * @return An insets type representing the window of an {@link InputMethod}.
+         * Returns an insets type representing the window of an {@link InputMethod}.
          */
         @InsetsType
         public static int ime() {
@@ -2730,7 +2730,7 @@ public class WindowInsetsCompat {
         }
 
         /**
-         * @return All system bars. Includes {@link #statusBars()}, {@link #captionBar()} as well as
+         * Returns all system bars. Includes {@link #statusBars()}, {@link #captionBar()} as well as
          * {@link #navigationBars()}, {@link #systemOverlays()} but not {@link #ime()}.
          */
         @InsetsType
@@ -2804,7 +2804,7 @@ public class WindowInsetsCompat {
         }
 
         /**
-         * @return all four sides.
+         * Returns all four sides.
          */
         public static @InsetsSide int all() {
             return LEFT | TOP | RIGHT | BOTTOM;

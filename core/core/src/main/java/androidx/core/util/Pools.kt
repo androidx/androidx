@@ -46,7 +46,7 @@ public class Pools private constructor() {
      * @param T The pooled type.
      */
     public interface Pool<T : Any> {
-        /** @return An instance from the pool if such, null otherwise. */
+        /** Returns an instance from the pool if such, null otherwise. */
         public fun acquire(): T?
 
         /**

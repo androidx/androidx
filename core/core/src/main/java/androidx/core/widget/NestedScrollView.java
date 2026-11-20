@@ -526,7 +526,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     /**
-     * @return The maximum amount this scroll view will scroll in response to
+     * Returns the maximum amount this scroll view will scroll in response to
      *   an arrow event.
      */
     public int getMaxScrollAmount() {
@@ -634,7 +634,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     /**
-     * @return Whether arrow scrolling will animate its transition.
+     * Returns whether arrow scrolling will animate its transition.
      */
     public boolean isSmoothScrollingEnabled() {
         return mSmoothScrollingEnabled;

@@ -123,7 +123,7 @@ public final class WindowInsetsAnimationControllerCompat {
     }
 
     /**
-     * @return The {@link Type}s this object is currently controlling.
+     * Returns the {@link Type}s this object is currently controlling.
      */
     @InsetsType
     public int getTypes() {

@@ -199,7 +199,7 @@ public final class BidiFormatter {
         }
 
         /**
-         * @return A BidiFormatter with the specified options.
+         * Returns a BidiFormatter with the specified options.
          */
         public BidiFormatter build() {
             if (mFlags == DEFAULT_FLAGS &&
@@ -266,14 +266,14 @@ public final class BidiFormatter {
     }
 
     /**
-     * @return Whether the context directionality is RTL
+     * Returns whether the context directionality is RTL.
      */
     public boolean isRtlContext() {
         return mIsRtlContext;
     }
 
     /**
-     * @return Whether directionality "reset" should also be done before a string being
+     * Returns whether directionality "reset" should also be done before a string being
      * bidi-wrapped, not just after it.
      */
     public boolean getStereoReset() {

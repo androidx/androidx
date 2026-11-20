@@ -1637,7 +1637,7 @@ public class AccessibilityNodeInfoCompat {
         }
 
         /**
-         * @return The tag for this structured semantic information.
+         * Returns the tag for this structured semantic information.
          */
         @Nullable
         public String getTag() {
@@ -2577,12 +2577,14 @@ public class AccessibilityNodeInfoCompat {
         }
 
         /**
-         * @return The node associated with {@code this} {@link SelectionPositionCompat}
+         * Returns the node associated with {@code this} {@link SelectionPositionCompat}
          *
          * Compatibility:
          * <ul>
          *     <li>API &lt: 36.1: Always returns {@code null}</li>
          * </ul>
+         *
+         * @return the associated node, or null
          */
         public @Nullable AccessibilityNodeInfoCompat getNode() {
             if (BuildCompat.isAtLeastB_1()) {
@@ -2593,13 +2595,15 @@ public class AccessibilityNodeInfoCompat {
         }
 
         /**
-         * @return A value from 0 to the length of {@link #getNode()}'s content representing the
+         * Returns value from 0 to the length of {@link #getNode()}'s content representing the
          *     offset of the {@link SelectionPositionCompat}
          *
          * Compatibility:
          * <ul>
          *     <li>API &lt: 36.1: Always returns {@code -1}</li>
          * </ul>
+         *
+         * @return the offset value, or {@code -1}
          */
         public int getOffset() {
             if (BuildCompat.isAtLeastB_1()) {
@@ -2621,13 +2625,15 @@ public class AccessibilityNodeInfoCompat {
         }
 
         /**
-         * @return The view associated with {@code this} {@link SelectionPositionCompat}.
+         * Returns the view associated with {@code this} {@link SelectionPositionCompat}.
          *     Will return null if the view is not attached to a window.
          *
          * Compatibility:
          * <ul>
          *     <li>API &lt: 36.1: Always returns {@code null}</li>
          * </ul>
+         *
+         * @return the associated view, or null
          */
         public @Nullable View getView() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
@@ -2638,13 +2644,15 @@ public class AccessibilityNodeInfoCompat {
         }
 
         /**
-         * @return A value representing the virtual descendant id of the
+         * Returns a value representing the virtual descendant id of the
          *     {@link SelectionPositionCompat}
          *
          * Compatibility:
          * <ul>
          *     <li>API &lt: 36.1: Always returns {@code -1}</li>
          * </ul>
+         *
+         * @return the virutla descendant id, or null
          */
         public int getVirtualDescendantId() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
@@ -2839,24 +2847,28 @@ public class AccessibilityNodeInfoCompat {
         }
 
         /**
-         * @return The start of the extended selection.
+         * Returns the start of the extended selection.
          *
          * Compatibility:
          * <ul>
          *     <li>API &lt: 36.1: Always returns {@code null}</li>
          * </ul>
+         *
+         * @return the start of the extended selection, or null
          */
         public @Nullable SelectionPositionCompat getStart() {
             return mStart;
         }
 
         /**
-         * @return The end of the extended selection.
+         * Returns the end of the extended selection.
          *
          * Compatibility:
          * <ul>
          *     <li>API &lt: 36.1: Always returns {@code null}</li>
          * </ul>
+         *
+         * @return the end of the extended selection, or null
          */
         public @Nullable SelectionPositionCompat getEnd() {
             return mEnd;
@@ -3873,7 +3885,7 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * @return The unwrapped {@link android.view.accessibility.AccessibilityNodeInfo}.
+     * Returns the unwrapped {@link android.view.accessibility.AccessibilityNodeInfo}.
      */
     public AccessibilityNodeInfo unwrap() {
         return mInfo;

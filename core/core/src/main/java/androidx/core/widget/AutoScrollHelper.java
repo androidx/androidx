@@ -243,7 +243,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
     }
 
     /**
-     * @return True if this helper is enabled and responding to touch events.
+     * Returns true if this helper is enabled and responding to touch events.
      */
     public boolean isEnabled() {
         return mEnabled;

@@ -162,23 +162,23 @@ public final class InputContentInfoCompat {
     }
 
     /**
-     * @return content URI with which the content can be obtained.
+     * Returns the content URI with which the content can be obtained.
      */
     public @NonNull Uri getContentUri() {
         return mImpl.getContentUri();
     }
 
     /**
-     * @return {@link ClipDescription} object that contains the metadata of {@code #getContentUri()}
-     * such as MIME type(s). {@link ClipDescription#getLabel()} can be used for accessibility
-     * purpose.
+     * Returns the {@link ClipDescription} object that contains the metadata of
+     * {@code #getContentUri()} such as MIME type(s). {@link ClipDescription#getLabel()} can be used
+     * for accessibility purpose.
      */
     public @NonNull ClipDescription getDescription() {
         return mImpl.getDescription();
     }
 
     /**
-     * @return an optional {@code http} or {@code https} URI that is related to this content.
+     * Returns an optional {@code http} or {@code https} URI that is related to this content.
      */
     public @Nullable Uri getLinkUri() {
         return mImpl.getLinkUri();
