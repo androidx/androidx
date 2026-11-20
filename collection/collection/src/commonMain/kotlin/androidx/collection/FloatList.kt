@@ -1016,10 +1016,10 @@ public class MutableFloatList(initialCapacity: Int = 16) : FloatList(initialCapa
 
 private val EmptyFloatList: FloatList = MutableFloatList(0)
 
-/** @return a read-only [FloatList] with nothing in it. */
+/** Returns a read-only [FloatList] with nothing in it. */
 public fun emptyFloatList(): FloatList = EmptyFloatList
 
-/** @return a read-only [FloatList] with nothing in it. */
+/** Returns a read-only [FloatList] with nothing in it. */
 public fun floatListOf(): FloatList = EmptyFloatList
 
 /** @return a new read-only [FloatList] with [element1] as the only item in the list. */
@@ -1040,7 +1040,7 @@ public fun floatListOf(element1: Float, element2: Float, element3: Float): Float
 public fun floatListOf(vararg elements: Float): FloatList =
     MutableFloatList(elements.size).apply { plusAssign(elements) }
 
-/** @return a new empty [MutableFloatList] with the default capacity. */
+/** Returns a new empty [MutableFloatList] with the default capacity. */
 public inline fun mutableFloatListOf(): MutableFloatList = MutableFloatList()
 
 /** @return a new [MutableFloatList] with [element1] as the only item in the list. */

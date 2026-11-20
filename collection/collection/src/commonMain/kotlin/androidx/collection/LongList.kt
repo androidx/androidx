@@ -1011,10 +1011,10 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
 
 private val EmptyLongList: LongList = MutableLongList(0)
 
-/** @return a read-only [LongList] with nothing in it. */
+/** Returns a read-only [LongList] with nothing in it. */
 public fun emptyLongList(): LongList = EmptyLongList
 
-/** @return a read-only [LongList] with nothing in it. */
+/** Returns a read-only [LongList] with nothing in it. */
 public fun longListOf(): LongList = EmptyLongList
 
 /** @return a new read-only [LongList] with [element1] as the only item in the list. */
@@ -1035,7 +1035,7 @@ public fun longListOf(element1: Long, element2: Long, element3: Long): LongList 
 public fun longListOf(vararg elements: Long): LongList =
     MutableLongList(elements.size).apply { plusAssign(elements) }
 
-/** @return a new empty [MutableLongList] with the default capacity. */
+/** Returns a new empty [MutableLongList] with the default capacity. */
 public inline fun mutableLongListOf(): MutableLongList = MutableLongList()
 
 /** @return a new [MutableLongList] with [element1] as the only item in the list. */

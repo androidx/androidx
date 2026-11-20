@@ -963,10 +963,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
 
 private val EmptyIntList: IntList = MutableIntList(0)
 
-/** @return a read-only [IntList] with nothing in it. */
+/** Returns a read-only [IntList] with nothing in it. */
 public fun emptyIntList(): IntList = EmptyIntList
 
-/** @return a read-only [IntList] with nothing in it. */
+/** Returns a read-only [IntList] with nothing in it. */
 public fun intListOf(): IntList = EmptyIntList
 
 /** @return a new read-only [IntList] with [element1] as the only item in the list. */
@@ -986,7 +986,7 @@ public fun intListOf(element1: Int, element2: Int, element3: Int): IntList =
 public fun intListOf(vararg elements: Int): IntList =
     MutableIntList(elements.size).apply { plusAssign(elements) }
 
-/** @return a new empty [MutableIntList] with the default capacity. */
+/** Returns a new empty [MutableIntList] with the default capacity. */
 public inline fun mutableIntListOf(): MutableIntList = MutableIntList()
 
 /** @return a new [MutableIntList] with [element1] as the only item in the list. */
