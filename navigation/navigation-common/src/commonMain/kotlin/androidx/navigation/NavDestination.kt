@@ -38,6 +38,8 @@ import kotlin.reflect.KClass
  * can be overridden at the time of navigation.
  *
  * NavDestinations should be created via [Navigator.createDestination].
+ *
+ * @param navigatorName The name associated with this destination's [Navigator].
  */
 public expect open class NavDestination(navigatorName: String) {
 
