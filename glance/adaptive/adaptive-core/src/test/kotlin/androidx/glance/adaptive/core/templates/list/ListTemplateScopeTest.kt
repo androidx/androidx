@@ -49,7 +49,9 @@ class ListTemplateScopeTest {
                 item("Widget Weekly Sync") {
                     sensitive("Busy")
                     subtitle("10:30 - 11:30") { sensitive("1 hr") }
-                    tertiaryText("204-Phone-Room") { sensitive("Meeting room") }
+                    tertiaryText("204-Phone-Room", icon = LOCATION_ICON) {
+                        sensitive("Meeting room")
+                    }
                     trailingChip("Now")
                     onClick(OPEN_EVENT)
                 }
@@ -68,14 +70,15 @@ class ListTemplateScopeTest {
         assertThat(template.compactTitle).isNull()
         assertThat(template.items)
             .containsExactly(
-                ListItem(
+                ListItem.Compact(
                     title = TemplateText("Widget Weekly Sync", "Busy"),
                     subtitle = TemplateText("10:30 - 11:30", "1 hr"),
                     tertiaryText = TemplateText("204-Phone-Room", "Meeting room"),
+                    tertiaryIcon = Icon(LOCATION_ICON.resId),
                     trailingChip = Badge("Now"),
                     action = OPEN_EVENT,
                 ),
-                ListItem(
+                ListItem.Compact(
                     title = TemplateText("Design Review"),
                     subtitle = TemplateText("13:00 - 14:00"),
                     trailingIcon =
@@ -145,7 +148,7 @@ class ListTemplateScopeTest {
         val template = listTemplate { items { item("Standup") } }
 
         assertThat(template.hasHeader).isFalse()
-        assertThat(template.items).containsExactly(ListItem(TemplateText("Standup")))
+        assertThat(template.items).containsExactly(ListItem.Compact(TemplateText("Standup")))
     }
 
     @Test
@@ -452,27 +455,295 @@ class ListTemplateScopeTest {
         }
         assertThat(template.isScrollable).isFalse()
         assertThat(template.items).hasSize(5)
-        assertThat(template.items[0].style).isEqualTo(ListItemStyle.Focused)
-        assertThat(template.items[0].title.isStruckThrough).isFalse()
-        assertThat(template.items[0].subtitle?.isStruckThrough).isTrue()
-        assertThat(template.items[1].style).isEqualTo(ListItemStyle.Neutral)
-        assertThat(template.items[1].leadingIcon?.icon).isEqualTo(CALENDAR_ICON.resId)
-        assertThat(template.items[2].isDivider).isTrue()
-        assertThat(template.items[2].title).isEqualTo(TemplateText("TOMORROW", "UPCOMING"))
-        assertThat(template.items[3].style).isEqualTo(ListItemStyle.Outlined)
-        assertThat(template.items[3].title.isStruckThrough).isTrue()
-        assertThat(template.items[3].subtitle?.isStruckThrough).isTrue()
-        assertThat(template.items[3].tertiaryText?.isStruckThrough).isTrue()
+        val first = template.items[0] as ListItem.Compact
+        val second = template.items[1] as ListItem.Compact
+        val third = template.items[2] as ListItem.Divider
+        val fourth = template.items[3] as ListItem.Compact
+        val fifth = template.items[4] as ListItem.Compact
+        assertThat(first.style).isEqualTo(ListItemStyle.Focused)
+        assertThat(first.title.isStruckThrough).isFalse()
+        assertThat(first.subtitle?.isStruckThrough).isTrue()
+        assertThat(second.style).isEqualTo(ListItemStyle.Neutral)
+        assertThat(second.leadingIcon?.icon).isEqualTo(CALENDAR_ICON.resId)
+        assertThat(third.title).isEqualTo(TemplateText("TOMORROW", "UPCOMING"))
+        assertThat(fourth.style).isEqualTo(ListItemStyle.Outlined)
+        assertThat(fourth.title.isStruckThrough).isTrue()
+        assertThat(fourth.subtitle?.isStruckThrough).isTrue()
+        assertThat(fourth.tertiaryText?.isStruckThrough).isTrue()
         // Explicit child strikethrough(false) opts out even when item-level strikethrough is set.
-        assertThat(template.items[4].title.isStruckThrough).isTrue()
-        assertThat(template.items[4].subtitle?.isStruckThrough).isFalse()
-        assertThat(template.items[4].tertiaryText?.isStruckThrough).isTrue()
+        assertThat(fifth.title.isStruckThrough).isTrue()
+        assertThat(fifth.subtitle?.isStruckThrough).isFalse()
+        assertThat(fifth.tertiaryText?.isStruckThrough).isTrue()
+    }
+
+    @Test
+    fun listTemplate_actionsCheckboxItemsAndRichNotes() {
+        val template = listTemplate {
+            actions {
+                action(ADD_ICON, "New note") {
+                    sensitive("New")
+                    onClick(CREATE_EVENT)
+                }
+                action(VIDEO_ICON, "New checklist") { onClick(OPEN_EVENT) }
+            }
+            items {
+                checkboxItem("Bread flour (500g)") {
+                    sensitive("Ingredient")
+                    onClick(CREATE_EVENT)
+                }
+                checkboxItem("Fine sea salt (10g)", isChecked = true)
+                checkboxItem("Keep visible", isChecked = true) { strikethrough(false) }
+                detailCard("Material Next") {
+                    sensitive("Note")
+                    body("Audit widgets for dynamic color") { sensitive("Details") }
+                    style(ListItemStyle.Focused)
+                    onClick(OPEN_EVENT)
+                }
+                detailCard("Low-Knead Bread") {
+                    checklist {
+                        item("Bread flour (500g)") { sensitive("Item") }
+                        item("Fine sea salt (10g)", isChecked = true)
+                        item("No strike", isChecked = true) { strikethrough(false) }
+                    }
+                }
+            }
+        }
+
+        assertThat(template.actions)
+            .containsExactly(
+                IconButton(ADD_ICON.resId, "New note", CREATE_EVENT, "New"),
+                IconButton(VIDEO_ICON.resId, "New checklist", OPEN_EVENT),
+            )
+            .inOrder()
+        assertThat(template.items)
+            .containsExactly(
+                ListItem.Checkbox(
+                    title = TemplateText("Bread flour (500g)", "Ingredient"),
+                    isChecked = false,
+                    action = CREATE_EVENT,
+                ),
+                ListItem.Checkbox(
+                    title = TemplateText("Fine sea salt (10g)", isStruckThrough = true),
+                    isChecked = true,
+                ),
+                ListItem.Checkbox(
+                    title = TemplateText("Keep visible", isStruckThrough = false),
+                    isChecked = true,
+                ),
+                ListItem.DetailCard(
+                    title = TemplateText("Material Next", "Note"),
+                    body = TemplateText("Audit widgets for dynamic color", "Details"),
+                    action = OPEN_EVENT,
+                    style = ListItemStyle.Focused,
+                ),
+                ListItem.DetailCard(
+                    title = TemplateText("Low-Knead Bread"),
+                    checklistItems =
+                        listOf(
+                            ListItem.DetailCard.ChecklistEntry(
+                                TemplateText("Bread flour (500g)", "Item"),
+                                false,
+                            ),
+                            ListItem.DetailCard.ChecklistEntry(
+                                TemplateText("Fine sea salt (10g)", isStruckThrough = true),
+                                true,
+                            ),
+                            ListItem.DetailCard.ChecklistEntry(
+                                TemplateText("No strike", isStruckThrough = false),
+                                true,
+                            ),
+                        ),
+                ),
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun listTemplate_actionsValidation_throws() {
+        val emptyError =
+            assertThrows(IllegalArgumentException::class.java) {
+                listTemplate {
+                    actions {}
+                    items { item("Event") }
+                }
+            }
+        assertThat(emptyError).hasMessageThat().contains("at least one action")
+
+        val blankLabelError =
+            assertThrows(IllegalArgumentException::class.java) {
+                listTemplate {
+                    actions { action(ADD_ICON, "  ") }
+                    items { item("Event") }
+                }
+            }
+        assertThat(blankLabelError).hasMessageThat().contains("action label must not be blank")
+
+        val duplicateError =
+            assertThrows(IllegalStateException::class.java) {
+                listTemplate {
+                    actions { action(ADD_ICON, "One") }
+                    actions { action(ADD_ICON, "Two") }
+                    items { item("Event") }
+                }
+            }
+        assertThat(duplicateError).hasMessageThat().contains("actions slot was already configured")
+
+        val overflowError =
+            assertThrows(IllegalArgumentException::class.java) {
+                listTemplate {
+                    actions {
+                        for (i in 1..7) {
+                            action(ADD_ICON, "Action $i")
+                        }
+                    }
+                    items { item("Event") }
+                }
+            }
+        assertThat(overflowError).hasMessageThat().contains("at most 6 actions")
+    }
+
+    @Test
+    fun listTemplate_trailingAndActionsConflict_throws() {
+        val actionsAfterTrailing =
+            assertThrows(IllegalStateException::class.java) {
+                listTemplate {
+                    trailing { iconButton(ADD_ICON, "Add") }
+                    actions { action(ADD_ICON, "New note") }
+                    items { item("Event") }
+                }
+            }
+        assertThat(actionsAfterTrailing)
+            .hasMessageThat()
+            .contains("trailing and actions slots cannot both be configured")
+
+        val trailingAfterActions =
+            assertThrows(IllegalStateException::class.java) {
+                listTemplate {
+                    actions { action(ADD_ICON, "New note") }
+                    trailing { iconButton(ADD_ICON, "Add") }
+                    items { item("Event") }
+                }
+            }
+        assertThat(trailingAfterActions)
+            .hasMessageThat()
+            .contains("trailing and actions slots cannot both be configured")
+    }
+
+    @Test
+    fun listTemplate_checkboxItemValidation_throws() {
+        val blankError =
+            assertThrows(IllegalArgumentException::class.java) {
+                listTemplate { items { checkboxItem("  ") } }
+            }
+        assertThat(blankError).hasMessageThat().contains("checkbox item title must not be blank")
+
+        val duplicateStrikeError =
+            assertThrows(IllegalStateException::class.java) {
+                listTemplate {
+                    items {
+                        checkboxItem("Milk") {
+                            strikethrough(true)
+                            strikethrough(false)
+                        }
+                    }
+                }
+            }
+        assertThat(duplicateStrikeError)
+            .hasMessageThat()
+            .contains("Checkbox strikethrough was already set")
+    }
+
+    @Test
+    fun listTemplate_detailCardValidation_throws() {
+        val blankTitleError =
+            assertThrows(IllegalArgumentException::class.java) {
+                listTemplate { items { detailCard("  ") } }
+            }
+        assertThat(blankTitleError).hasMessageThat().contains("detail card title must not be blank")
+
+        val emptyChecklistError =
+            assertThrows(IllegalArgumentException::class.java) {
+                listTemplate { items { detailCard("Bread") { checklist {} } } }
+            }
+        assertThat(emptyChecklistError).hasMessageThat().contains("at least one entry")
+
+        val overflowChecklistError =
+            assertThrows(IllegalArgumentException::class.java) {
+                listTemplate {
+                    items {
+                        detailCard("Bread") {
+                            checklist {
+                                for (i in 1..ListItem.DetailCard.MAX_CHECKLIST_ITEMS + 1) {
+                                    item("Step $i")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        assertThat(overflowChecklistError)
+            .hasMessageThat()
+            .contains("at most ${ListItem.DetailCard.MAX_CHECKLIST_ITEMS} checklist items")
+
+        val blankChecklistItemError =
+            assertThrows(IllegalArgumentException::class.java) {
+                listTemplate { items { detailCard("Bread") { checklist { item("  ") } } } }
+            }
+        assertThat(blankChecklistItemError)
+            .hasMessageThat()
+            .contains("checklist item title must not be blank")
+
+        val checklistAfterBodyError =
+            assertThrows(IllegalStateException::class.java) {
+                listTemplate {
+                    items {
+                        detailCard("Bread") {
+                            body("Mix")
+                            checklist { item("Flour") }
+                        }
+                    }
+                }
+            }
+        assertThat(checklistAfterBodyError)
+            .hasMessageThat()
+            .contains("Detail card content was already set")
+
+        val bodyAfterChecklistError =
+            assertThrows(IllegalStateException::class.java) {
+                listTemplate {
+                    items {
+                        detailCard("Bread") {
+                            checklist { item("Flour") }
+                            body("Mix")
+                        }
+                    }
+                }
+            }
+        assertThat(bodyAfterChecklistError)
+            .hasMessageThat()
+            .contains("Detail card content was already set")
+
+        val duplicateStyleError =
+            assertThrows(IllegalStateException::class.java) {
+                listTemplate {
+                    items {
+                        detailCard("Bread") {
+                            style(ListItemStyle.Focused)
+                            style(ListItemStyle.Neutral)
+                        }
+                    }
+                }
+            }
+        assertThat(duplicateStyleError)
+            .hasMessageThat()
+            .contains("Detail card style was already set")
     }
 
     private companion object {
         val CALENDAR_ICON = TemplateIcon.fromResource(1)
         val ADD_ICON = TemplateIcon.fromResource(2)
         val VIDEO_ICON = TemplateIcon.fromResource(3)
+        val LOCATION_ICON = TemplateIcon.fromResource(4)
         val CREATE_EVENT = GlanceAdaptiveAction.CallbackAction<GlanceAdaptiveActionCallback>()
         val OPEN_EVENT = GlanceAdaptiveAction.LaunchAction<Activity>()
     }

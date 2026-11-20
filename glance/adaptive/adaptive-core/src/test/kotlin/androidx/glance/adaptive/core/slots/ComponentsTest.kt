@@ -356,112 +356,213 @@ class ComponentsTest {
     }
 
     @Test
-    fun listItem_validatesTrailingExclusivityAndDividerConstraints() {
+    fun checklistEntry_hasValueEquality() {
+        val checked =
+            ListItem.DetailCard.ChecklistEntry(
+                TemplateText("Salt", isStruckThrough = true),
+                isChecked = true,
+            )
+        assertThat(checked)
+            .isEqualTo(
+                ListItem.DetailCard.ChecklistEntry(
+                    TemplateText("Salt", isStruckThrough = true),
+                    isChecked = true,
+                )
+            )
+        assertThat(checked.hashCode())
+            .isEqualTo(
+                ListItem.DetailCard.ChecklistEntry(
+                        TemplateText("Salt", isStruckThrough = true),
+                        isChecked = true,
+                    )
+                    .hashCode()
+            )
+        assertThat(checked)
+            .isNotEqualTo(
+                ListItem.DetailCard.ChecklistEntry(TemplateText("Salt"), isChecked = false)
+            )
+        assertThat(checked.toString()).contains("Salt")
+        assertThat(checked.toString()).contains("isChecked=true")
+    }
+
+    @Test
+    fun listItem_validatesSubtypeConstraintsAndDefensiveCopy() {
         assertThrows(IllegalArgumentException::class.java) {
-            ListItem(title = TemplateText("Sync"), leadingIcon = Icon(GLYPH, contained = true))
+            ListItem.Compact(
+                title = TemplateText("Sync"),
+                leadingIcon = Icon(GLYPH, contained = true),
+            )
         }
         assertThrows(IllegalArgumentException::class.java) {
-            ListItem(
+            ListItem.Compact(
+                title = TemplateText("Sync"),
+                tertiaryText = TemplateText("Room 204"),
+                tertiaryIcon = Icon(GLYPH, contained = true),
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ListItem.Compact(
                 title = TemplateText("Sync"),
                 trailingIcon = Icon(GLYPH),
                 trailingChip = Badge("Now"),
             )
         }
         assertThrows(IllegalArgumentException::class.java) {
-            ListItem(TemplateText("TOMORROW"), subtitle = TemplateText("9:00"), isDivider = true)
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            ListItem(
-                TemplateText("TOMORROW"),
-                tertiaryText = TemplateText("Room"),
-                isDivider = true,
+            ListItem.Compact(
+                title = TemplateText("Sync"),
+                tertiaryIcon = Icon(GLYPH),
             )
         }
         assertThrows(IllegalArgumentException::class.java) {
-            ListItem(TemplateText("TOMORROW"), leadingIcon = Icon(GLYPH), isDivider = true)
+            ListItem.DetailCard(
+                title = TemplateText("Bread"),
+                body = TemplateText("Mix flour"),
+                checklistItems = listOf(ListItem.DetailCard.ChecklistEntry(TemplateText("Flour"))),
+            )
         }
+        val maxEntries =
+            List(ListItem.DetailCard.MAX_CHECKLIST_ITEMS) { i ->
+                ListItem.DetailCard.ChecklistEntry(TemplateText("Step ${i + 1}"))
+            }
+        assertThat(
+                ListItem.DetailCard(title = TemplateText("Bread"), checklistItems = maxEntries)
+                    .checklistItems
+            )
+            .hasSize(ListItem.DetailCard.MAX_CHECKLIST_ITEMS)
+        val overflowError =
+            assertThrows(IllegalArgumentException::class.java) {
+                ListItem.DetailCard(
+                    title = TemplateText("Bread"),
+                    checklistItems =
+                        maxEntries + ListItem.DetailCard.ChecklistEntry(TemplateText("Extra")),
+                )
+            }
+        assertThat(overflowError)
+            .hasMessageThat()
+            .contains("at most ${ListItem.DetailCard.MAX_CHECKLIST_ITEMS} checklist items")
         assertThrows(IllegalArgumentException::class.java) {
-            ListItem(TemplateText("TOMORROW"), trailingIcon = Icon(GLYPH), isDivider = true)
+            ListItem.Divider(TemplateText("TOMORROW", isStruckThrough = true))
         }
-        assertThrows(IllegalArgumentException::class.java) {
-            ListItem(TemplateText("TOMORROW"), trailingChip = Badge("Now"), isDivider = true)
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            ListItem(TemplateText("TOMORROW"), action = ACTION, isDivider = true)
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            ListItem(TemplateText("TOMORROW"), style = ListItemStyle.Focused, isDivider = true)
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            ListItem(TemplateText("TOMORROW", isStruckThrough = true), isDivider = true)
-        }
+
+        val entries = mutableListOf(ListItem.DetailCard.ChecklistEntry(TemplateText("Flour")))
+        val card = ListItem.DetailCard(title = TemplateText("Bread"), checklistItems = entries)
+        entries.add(ListItem.DetailCard.ChecklistEntry(TemplateText("Salt"), isChecked = true))
+        assertThat(card.checklistItems)
+            .containsExactly(ListItem.DetailCard.ChecklistEntry(TemplateText("Flour")))
+        assertThat(ListItem.Divider(TemplateText("TOMORROW")).action).isNull()
     }
 
     @Test
-    fun listItem_hasValueEquality() {
-        val full =
-            ListItem(
+    fun listItem_subtypesHaveValueEquality() {
+        fun fullCompact() =
+            ListItem.Compact(
                 title = TemplateText("Sync", isStruckThrough = true),
                 subtitle = TemplateText("10:00"),
                 tertiaryText = TemplateText("Room 1"),
+                tertiaryIcon = Icon(GLYPH),
                 leadingIcon = Icon(GLYPH),
                 trailingChip = Badge("Now"),
                 action = ACTION,
                 style = ListItemStyle.Focused,
             )
-        assertThat(full)
-            .isEqualTo(
-                ListItem(
-                    title = TemplateText("Sync", isStruckThrough = true),
-                    subtitle = TemplateText("10:00"),
-                    tertiaryText = TemplateText("Room 1"),
-                    leadingIcon = Icon(GLYPH),
-                    trailingChip = Badge("Now"),
-                    action = ACTION,
-                    style = ListItemStyle.Focused,
-                )
-            )
-        assertThat(full.hashCode())
-            .isEqualTo(
-                ListItem(
-                        title = TemplateText("Sync", isStruckThrough = true),
-                        subtitle = TemplateText("10:00"),
-                        tertiaryText = TemplateText("Room 1"),
-                        leadingIcon = Icon(GLYPH),
-                        trailingChip = Badge("Now"),
-                        action = ACTION,
-                        style = ListItemStyle.Focused,
-                    )
-                    .hashCode()
-            )
-        assertThat(full).isNotEqualTo(ListItem(TemplateText("Sync")))
+
+        val full = fullCompact()
+        assertThat(full).isEqualTo(fullCompact())
+        assertThat(full.hashCode()).isEqualTo(fullCompact().hashCode())
+        assertThat(full).isNotEqualTo(ListItem.Compact(TemplateText("Sync")))
         assertThat(full.toString()).contains("Sync")
         assertThat(full.toString()).contains("Focused")
+
+        val checkbox = ListItem.Checkbox(TemplateText("Salt"), isChecked = true, action = ACTION)
+        assertThat(checkbox)
+            .isEqualTo(ListItem.Checkbox(TemplateText("Salt"), isChecked = true, action = ACTION))
+        assertThat(checkbox.hashCode())
+            .isEqualTo(
+                ListItem.Checkbox(TemplateText("Salt"), isChecked = true, action = ACTION)
+                    .hashCode()
+            )
+        assertThat(checkbox).isNotEqualTo(ListItem.Checkbox(TemplateText("Salt")))
+        assertThat(checkbox.toString()).contains("ListItem.Checkbox")
+
+        fun fullDetailCard() =
+            ListItem.DetailCard(
+                title = TemplateText("Material Next"),
+                body = TemplateText("Audit widgets"),
+                action = ACTION,
+                style = ListItemStyle.Focused,
+            )
+
+        val card = fullDetailCard()
+        assertThat(card).isEqualTo(fullDetailCard())
+        assertThat(card.hashCode()).isEqualTo(fullDetailCard().hashCode())
+        assertThat(card).isNotEqualTo(ListItem.DetailCard(TemplateText("Material Next")))
+        assertThat(card.toString()).contains("ListItem.DetailCard")
+
+        val divider = ListItem.Divider(TemplateText("TOMORROW"))
+        assertThat(divider).isEqualTo(ListItem.Divider(TemplateText("TOMORROW")))
+        assertThat(divider.hashCode())
+            .isEqualTo(ListItem.Divider(TemplateText("TOMORROW")).hashCode())
+        assertThat(divider).isNotEqualTo(ListItem.Divider(TemplateText("FRIDAY")))
+        assertThat(divider.toString()).contains("TOMORROW")
     }
 
     @Test
-    fun itemList_rejectsEmptyOrDividerOnlyAndCopiesItems() {
+    fun itemList_rejectsInvalidConfigurationsAndCopiesItems() {
         assertThrows(IllegalArgumentException::class.java) { ItemList(emptyList()) }
         assertThrows(IllegalArgumentException::class.java) {
-            ItemList(listOf(ListItem(TemplateText("TOMORROW"), isDivider = true)))
+            ItemList(listOf(ListItem.Divider(TemplateText("TOMORROW"))))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ItemList(
+                items = listOf(ListItem.Compact(TemplateText("Event 1"))),
+                isScrollable = true,
+                layoutMode = ItemListLayoutMode.ExpandFeatured,
+            )
+        }
+        val twoItems =
+            listOf(
+                ListItem.Compact(TemplateText("Event 1")),
+                ListItem.Compact(TemplateText("Event 2")),
+            )
+        assertThrows(IllegalArgumentException::class.java) {
+            ItemList(items = twoItems, layoutMode = ItemListLayoutMode.ExpandSingle)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ItemList(items = twoItems, layoutMode = ItemListLayoutMode.UncontainedSingle)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ItemList(
+                items = listOf(ListItem.Checkbox(TemplateText("Milk"))),
+                layoutMode = ItemListLayoutMode.UncontainedSingle,
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            ItemList(
+                items = listOf(ListItem.DetailCard(TemplateText("Bread"))),
+                layoutMode = ItemListLayoutMode.UncontainedSingle,
+            )
         }
 
-        val source = mutableListOf(ListItem(TemplateText("Event 1")))
+        val source = mutableListOf<ListItem>(ListItem.Compact(TemplateText("Event 1")))
         val list = ItemList(source)
-        source.add(ListItem(TemplateText("Event 2")))
-        assertThat(list.items).containsExactly(ListItem(TemplateText("Event 1")))
+        source.add(ListItem.Compact(TemplateText("Event 2")))
+        assertThat(list.items).containsExactly(ListItem.Compact(TemplateText("Event 1")))
     }
 
     @Test
     fun itemList_capabilitiesAndEquality() {
-        val textOnly = ItemList(listOf(ListItem(TemplateText("Event"))))
-        val withAction = ItemList(listOf(ListItem(TemplateText("Event"), action = ACTION)))
+        val textOnly = ItemList(listOf(ListItem.Compact(TemplateText("Event"))))
+        val withAction = ItemList(listOf(ListItem.Checkbox(TemplateText("Milk"), action = ACTION)))
         val withChip =
-            ItemList(listOf(ListItem(TemplateText("Event"), trailingChip = Badge("Now"))))
+            ItemList(listOf(ListItem.Compact(TemplateText("Event"), trailingChip = Badge("Now"))))
         val withBoth =
             ItemList(
                 listOf(
-                    ListItem(TemplateText("Event"), trailingChip = Badge("Now"), action = ACTION)
+                    ListItem.Compact(
+                        TemplateText("Event"),
+                        trailingChip = Badge("Now"),
+                        action = ACTION,
+                    )
                 )
             )
 
@@ -471,15 +572,23 @@ class ComponentsTest {
         assertThat(withBoth.capabilities)
             .containsExactly(Capability.Text, Capability.Action, Capability.Status)
 
-        val base = ItemList(listOf(ListItem(TemplateText("Event"))))
-        assertThat(base).isEqualTo(ItemList(listOf(ListItem(TemplateText("Event")))))
+        val base = ItemList(listOf(ListItem.Compact(TemplateText("Event"))))
+        assertThat(base).isEqualTo(ItemList(listOf(ListItem.Compact(TemplateText("Event")))))
         assertThat(base.hashCode())
-            .isEqualTo(ItemList(listOf(ListItem(TemplateText("Event")))).hashCode())
+            .isEqualTo(ItemList(listOf(ListItem.Compact(TemplateText("Event")))).hashCode())
         assertThat(base).isNotEqualTo(ItemList(base.items, isScrollable = true))
         assertThat(base).isNotEqualTo(ItemList(base.items, showTertiaryText = true))
-        assertThat(base).isNotEqualTo(ItemList(base.items, expandSingleItem = true))
-        assertThat(base).isNotEqualTo(ItemList(base.items, uncontainedSingleItem = true))
+        assertThat(base)
+            .isNotEqualTo(ItemList(base.items, layoutMode = ItemListLayoutMode.ExpandSingle))
+        assertThat(base)
+            .isNotEqualTo(ItemList(base.items, layoutMode = ItemListLayoutMode.UncontainedSingle))
+        assertThat(base)
+            .isNotEqualTo(ItemList(base.items, layoutMode = ItemListLayoutMode.ExpandFeatured))
         assertThat(base.toString()).contains("isScrollable=false")
+        assertThat(base.toString()).contains("layoutMode=Default")
+        assertThat(ItemListLayoutMode.ExpandSingle.toString()).isEqualTo("ExpandSingle")
+        assertThat(ItemListLayoutMode.UncontainedSingle.toString()).isEqualTo("UncontainedSingle")
+        assertThat(ItemListLayoutMode.ExpandFeatured.toString()).isEqualTo("ExpandFeatured")
     }
 
     private fun tiles(count: Int): List<IconTile> = List(count) { IconTile(GLYPH, "Tile $it") }

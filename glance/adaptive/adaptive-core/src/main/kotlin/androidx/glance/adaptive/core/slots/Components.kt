@@ -534,88 +534,284 @@ private val ListActionStatusCapabilities =
 /**
  * Single row inside an [ItemList].
  *
+ * Concrete row shapes model the design's list item variants: [Compact] rows (events, briefs),
+ * [Checkbox] rows (standalone checkable items), [DetailCard] cards (multi-line body or inline
+ * checklist preview), and [Divider] section headers.
+ *
  * @property title Primary headline text of the row.
- * @property subtitle Optional secondary line (for example, time range or status).
- * @property tertiaryText Optional third line (for example, location), shown when the row is the
- *   first item and [ItemList.showTertiaryText] is `true`.
- * @property leadingIcon Optional uncontained leading [Icon] displayed before the text column.
- * @property trailingIcon Optional trailing [Icon] (mutually exclusive with [trailingChip]).
- * @property trailingChip Optional trailing status [Badge] (mutually exclusive with [trailingIcon]).
- * @property action Optional tap action for this row.
- * @property style Container prominence style ([ListItemStyle.Default], [ListItemStyle.Focused],
- *   [ListItemStyle.Neutral], or [ListItemStyle.Outlined]).
- * @property isDivider Whether the item is a non-clickable section divider (for example,
- *   `"TOMORROW"`).
- * @throws IllegalArgumentException if [leadingIcon] is contained, both [trailingIcon] and
- *   [trailingChip] are set, or [isDivider] is `true` and [title] is struck through or any non-title
- *   property is set.
+ * @property action Optional tap action for this row (`null` on non-interactive rows such as
+ *   [Divider]).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ListItem(
-    public val title: TemplateText,
-    public val subtitle: TemplateText? = null,
-    public val tertiaryText: TemplateText? = null,
-    public val leadingIcon: Icon? = null,
-    public val trailingIcon: Icon? = null,
-    public val trailingChip: Badge? = null,
-    public val action: GlanceAdaptiveAction? = null,
-    public val style: ListItemStyle = ListItemStyle.Default,
-    public val isDivider: Boolean = false,
-) {
-    init {
-        require(leadingIcon == null || !leadingIcon.contained) {
-            "A list item leading icon must not be contained."
-        }
-        require(trailingIcon == null || trailingChip == null) {
-            "A list item cannot have both a trailingIcon and a trailingChip."
-        }
-        if (isDivider) {
-            require(
-                !title.isStruckThrough &&
-                    subtitle == null &&
-                    tertiaryText == null &&
-                    leadingIcon == null &&
-                    trailingIcon == null &&
-                    trailingChip == null &&
-                    action == null &&
-                    style == ListItemStyle.Default
-            ) {
-                "A divider list item may only set a non-struck-through title."
+public abstract class ListItem private constructor() {
+    public abstract val title: TemplateText
+
+    public open val action: GlanceAdaptiveAction?
+        get() = null
+
+    /**
+     * Standard list item row (for example, a calendar event or morning brief summary).
+     *
+     * @property title Primary headline text of the row.
+     * @property subtitle Optional secondary line (for example, time range or status).
+     * @property tertiaryText Optional third line (for example, location), shown when the row is the
+     *   first content item and [ItemList.showTertiaryText] is `true`.
+     * @property tertiaryIcon Optional small icon displayed before [tertiaryText] (requires
+     *   [tertiaryText] to be non-null).
+     * @property leadingIcon Optional uncontained leading [Icon] displayed before the text column.
+     * @property trailingIcon Optional trailing [Icon] (mutually exclusive with [trailingChip]).
+     * @property trailingChip Optional trailing status [Badge] (mutually exclusive with
+     *   [trailingIcon]).
+     * @property action Optional tap action for this row.
+     * @property style Container prominence style ([ListItemStyle.Default], [ListItemStyle.Focused],
+     *   [ListItemStyle.Neutral], or [ListItemStyle.Outlined]).
+     * @throws IllegalArgumentException if [leadingIcon] is contained, both [trailingIcon] and
+     *   [trailingChip] are set, or [tertiaryIcon] is set without [tertiaryText].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class Compact(
+        override val title: TemplateText,
+        public val subtitle: TemplateText? = null,
+        public val tertiaryText: TemplateText? = null,
+        public val tertiaryIcon: Icon? = null,
+        public val leadingIcon: Icon? = null,
+        public val trailingIcon: Icon? = null,
+        public val trailingChip: Badge? = null,
+        override val action: GlanceAdaptiveAction? = null,
+        public val style: ListItemStyle = ListItemStyle.Default,
+    ) : ListItem() {
+        init {
+            require(leadingIcon == null || !leadingIcon.contained) {
+                "A list item leading icon must not be contained."
+            }
+            require(trailingIcon == null || trailingChip == null) {
+                "A list item cannot have both a trailingIcon and a trailingChip."
+            }
+            require(tertiaryIcon == null || tertiaryText != null) {
+                "A list item cannot set a tertiaryIcon without tertiaryText."
+            }
+            require(tertiaryIcon == null || !tertiaryIcon.contained) {
+                "A list item tertiary icon must not be contained."
             }
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Compact) return false
+            return title == other.title &&
+                subtitle == other.subtitle &&
+                tertiaryText == other.tertiaryText &&
+                tertiaryIcon == other.tertiaryIcon &&
+                leadingIcon == other.leadingIcon &&
+                trailingIcon == other.trailingIcon &&
+                trailingChip == other.trailingChip &&
+                action == other.action &&
+                style == other.style
+        }
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (subtitle?.hashCode() ?: 0)
+            result = 31 * result + (tertiaryText?.hashCode() ?: 0)
+            result = 31 * result + (tertiaryIcon?.hashCode() ?: 0)
+            result = 31 * result + (leadingIcon?.hashCode() ?: 0)
+            result = 31 * result + (trailingIcon?.hashCode() ?: 0)
+            result = 31 * result + (trailingChip?.hashCode() ?: 0)
+            result = 31 * result + (action?.hashCode() ?: 0)
+            result = 31 * result + style.hashCode()
+            return result
+        }
+
+        override fun toString(): String =
+            "ListItem.Compact(title=$title, subtitle=$subtitle, tertiaryText=$tertiaryText, " +
+                "tertiaryIcon=$tertiaryIcon, leadingIcon=$leadingIcon, " +
+                "trailingIcon=$trailingIcon, trailingChip=$trailingChip, action=$action, " +
+                "style=$style)"
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ListItem) return false
-        return title == other.title &&
-            subtitle == other.subtitle &&
-            tertiaryText == other.tertiaryText &&
-            leadingIcon == other.leadingIcon &&
-            trailingIcon == other.trailingIcon &&
-            trailingChip == other.trailingChip &&
-            action == other.action &&
-            style == other.style &&
-            isDivider == other.isDivider
+    /**
+     * Standalone checkable list row (for example, a checklist or to-do item).
+     *
+     * @property title Label text of the checkable row.
+     * @property isChecked Whether the checkbox is currently checked.
+     * @property action Optional tap action invoked when toggling the row.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class Checkbox(
+        override val title: TemplateText,
+        public val isChecked: Boolean = false,
+        override val action: GlanceAdaptiveAction? = null,
+    ) : ListItem() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Checkbox) return false
+            return title == other.title && isChecked == other.isChecked && action == other.action
+        }
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + isChecked.hashCode()
+            result = 31 * result + (action?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String =
+            "ListItem.Checkbox(title=$title, isChecked=$isChecked, action=$action)"
     }
 
-    override fun hashCode(): Int {
-        var result = title.hashCode()
-        result = 31 * result + (subtitle?.hashCode() ?: 0)
-        result = 31 * result + (tertiaryText?.hashCode() ?: 0)
-        result = 31 * result + (leadingIcon?.hashCode() ?: 0)
-        result = 31 * result + (trailingIcon?.hashCode() ?: 0)
-        result = 31 * result + (trailingChip?.hashCode() ?: 0)
-        result = 31 * result + (action?.hashCode() ?: 0)
-        result = 31 * result + style.hashCode()
-        result = 31 * result + isDivider.hashCode()
-        return result
+    /**
+     * Multi-line detail card displaying a [title] with either a multi-line [body] snippet or a
+     * read-only inline [checklistItems] preview (for example, a note, message preview, or task
+     * summary card).
+     *
+     * @property title Headline text of the detail card.
+     * @property body Optional multi-line text preview (mutually exclusive with [checklistItems]).
+     * @param checklistItems Optional read-only inline [ChecklistEntry] preview rows (at most 4,
+     *   mutually exclusive with [body]), defensively copied.
+     * @property action Optional tap action opening the detail item.
+     * @property style Container prominence style ([ListItemStyle.Default], [ListItemStyle.Focused],
+     *   [ListItemStyle.Neutral], or [ListItemStyle.Outlined]).
+     * @throws IllegalArgumentException if [body] is non-null and [checklistItems] is non-empty, or
+     *   if [checklistItems] has more than 4 entries.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class DetailCard(
+        override val title: TemplateText,
+        public val body: TemplateText? = null,
+        checklistItems: List<ChecklistEntry> = emptyList(),
+        override val action: GlanceAdaptiveAction? = null,
+        public val style: ListItemStyle = ListItemStyle.Default,
+    ) : ListItem() {
+
+        /**
+         * Single read-only checkable entry inside a [DetailCard]'s inline checklist preview.
+         *
+         * @property text Display text of the checklist entry.
+         * @property isChecked Whether the entry is currently checked.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public class ChecklistEntry(
+            public val text: TemplateText,
+            public val isChecked: Boolean = false,
+        ) {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is ChecklistEntry) return false
+                return text == other.text && isChecked == other.isChecked
+            }
+
+            override fun hashCode(): Int {
+                var result = text.hashCode()
+                result = 31 * result + isChecked.hashCode()
+                return result
+            }
+
+            override fun toString(): String = "ChecklistEntry(text=$text, isChecked=$isChecked)"
+        }
+
+        /** Inline checklist preview rows, defensively copied. */
+        public val checklistItems: List<ChecklistEntry> =
+            List(checklistItems.size) { i -> checklistItems[i] }
+
+        init {
+            require(body == null || this.checklistItems.isEmpty()) {
+                "A detail card item cannot have both body text and inline checklist items."
+            }
+            require(this.checklistItems.size <= MAX_CHECKLIST_ITEMS) {
+                "A detail card item can hold at most $MAX_CHECKLIST_ITEMS checklist items, " +
+                    "was ${this.checklistItems.size}."
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is DetailCard) return false
+            return title == other.title &&
+                body == other.body &&
+                checklistItems == other.checklistItems &&
+                action == other.action &&
+                style == other.style
+        }
+
+        override fun hashCode(): Int {
+            var result = title.hashCode()
+            result = 31 * result + (body?.hashCode() ?: 0)
+            result = 31 * result + checklistItems.hashCode()
+            result = 31 * result + (action?.hashCode() ?: 0)
+            result = 31 * result + style.hashCode()
+            return result
+        }
+
+        override fun toString(): String =
+            "ListItem.DetailCard(title=$title, body=$body, checklistItems=$checklistItems, " +
+                "action=$action, style=$style)"
+
+        internal companion object {
+            /** Most inline checklist preview entries a [DetailCard] holds. */
+            const val MAX_CHECKLIST_ITEMS: Int = 4
+        }
     }
 
+    /**
+     * Non-clickable section divider row (for example, `"TOMORROW"`).
+     *
+     * @property title Section heading text (must not be struck through).
+     * @throws IllegalArgumentException if [title] is struck through.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class Divider(override val title: TemplateText) : ListItem() {
+        init {
+            require(!title.isStruckThrough) {
+                "A divider list item title must not be struck through."
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Divider) return false
+            return title == other.title
+        }
+
+        override fun hashCode(): Int = title.hashCode()
+
+        override fun toString(): String = "ListItem.Divider(title=$title)"
+    }
+}
+
+/** How an [ItemList] sizes and styles its rows within the hero slot. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class ItemListLayoutMode private constructor(private val value: Int) {
     override fun toString(): String =
-        "ListItem(title=$title, subtitle=$subtitle, tertiaryText=$tertiaryText, " +
-            "leadingIcon=$leadingIcon, trailingIcon=$trailingIcon, trailingChip=$trailingChip, " +
-            "action=$action, style=$style, isDivider=$isDivider)"
+        when (this) {
+            Default -> "Default"
+            ExpandSingle -> "ExpandSingle"
+            UncontainedSingle -> "UncontainedSingle"
+            ExpandFeatured -> "ExpandFeatured"
+            else -> "Unknown($value)"
+        }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
+        /** Standard compact rows sized to their intrinsic content. */
+        public val Default: ItemListLayoutMode = ItemListLayoutMode(0)
+
+        /** Single item fills the hero slot height and wraps its title up to two lines. */
+        public val ExpandSingle: ItemListLayoutMode = ItemListLayoutMode(1)
+
+        /**
+         * Single item fills the hero slot directly on the outer widget card without an inner
+         * container background or padding (e.g. a headerless `1×1` compact square), wrapping its
+         * title up to two lines.
+         */
+        public val UncontainedSingle: ItemListLayoutMode = ItemListLayoutMode(2)
+
+        /**
+         * Featured first content item absorbs available vertical slack in non-scrollable layouts
+         * while remaining items stay compact beneath it.
+         */
+        public val ExpandFeatured: ItemListLayoutMode = ItemListLayoutMode(3)
+    }
 }
 
 /**
@@ -625,21 +821,23 @@ public class ListItem(
  * @property isScrollable Whether host renderers should make the list vertically scrollable (e.g. on
  *   phone home screens) rather than drawing a fixed non-scrollable stack (e.g. Lockscreen, XR,
  *   Auto).
- * @property showTertiaryText Whether the first item should display its [ListItem.tertiaryText] when
- *   present.
- * @property expandSingleItem Whether a single item should expand to fill the hero slot height and
- *   wrap its title up to two lines.
- * @property uncontainedSingleItem Whether a single item should omit its inner container background
- *   and padding so its text renders directly on the outer widget card (e.g. `1x1` compact square).
- * @throws IllegalArgumentException if [items] is empty or contains only dividers.
+ * @property showTertiaryText Whether the first content item should display its
+ *   [ListItem.Compact.tertiaryText] when present.
+ * @property layoutMode How rows are sized within the hero slot (must be
+ *   [ItemListLayoutMode.Default] when [isScrollable] is `true`; [ItemListLayoutMode.ExpandSingle]
+ *   and [ItemListLayoutMode.UncontainedSingle] require exactly one item, and
+ *   [ItemListLayoutMode.UncontainedSingle] requires that item to be a [ListItem.Compact]).
+ * @throws IllegalArgumentException if [items] is empty or contains only dividers, if [isScrollable]
+ *   is `true` with a non-default [layoutMode], if a single-item [layoutMode] is used with more than
+ *   one item, or if [ItemListLayoutMode.UncontainedSingle] is used with a non-[ListItem.Compact]
+ *   item.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ItemList(
     items: List<ListItem>,
     public val isScrollable: Boolean = false,
     @get:JvmName("shouldShowTertiaryText") public val showTertiaryText: Boolean = false,
-    @get:JvmName("shouldExpandSingleItem") public val expandSingleItem: Boolean = false,
-    @get:JvmName("isUncontainedSingleItem") public val uncontainedSingleItem: Boolean = false,
+    public val layoutMode: ItemListLayoutMode = ItemListLayoutMode.Default,
 ) : HeroComponent {
 
     /** Ordered list items, defensively copied. */
@@ -649,12 +847,26 @@ public class ItemList(
         require(this.items.isNotEmpty()) { "An item list needs at least one item." }
         var hasContentItem = false
         for (i in this.items.indices) {
-            if (!this.items[i].isDivider) {
+            if (this.items[i] !is ListItem.Divider) {
                 hasContentItem = true
                 break
             }
         }
         require(hasContentItem) { "An item list needs at least one non-divider item." }
+        require(!isScrollable || layoutMode == ItemListLayoutMode.Default) {
+            "A scrollable item list must use ItemListLayoutMode.Default, was $layoutMode."
+        }
+        require(
+            (layoutMode != ItemListLayoutMode.ExpandSingle &&
+                layoutMode != ItemListLayoutMode.UncontainedSingle) || this.items.size == 1
+        ) {
+            "Single-item layout mode $layoutMode requires exactly one item, had ${this.items.size}."
+        }
+        require(
+            layoutMode != ItemListLayoutMode.UncontainedSingle || this.items[0] is ListItem.Compact
+        ) {
+            "ItemListLayoutMode.UncontainedSingle requires a ListItem.Compact item."
+        }
     }
 
     override val capabilities: Set<Capability>
@@ -664,7 +876,7 @@ public class ItemList(
             for (i in items.indices) {
                 val item = items[i]
                 if (item.action != null) hasAction = true
-                if (item.trailingChip != null) hasStatus = true
+                if (item is ListItem.Compact && item.trailingChip != null) hasStatus = true
                 if (hasAction && hasStatus) return ListActionStatusCapabilities
             }
             return when {
@@ -680,20 +892,18 @@ public class ItemList(
         return items == other.items &&
             isScrollable == other.isScrollable &&
             showTertiaryText == other.showTertiaryText &&
-            expandSingleItem == other.expandSingleItem &&
-            uncontainedSingleItem == other.uncontainedSingleItem
+            layoutMode == other.layoutMode
     }
 
     override fun hashCode(): Int {
         var result = items.hashCode()
         result = 31 * result + isScrollable.hashCode()
         result = 31 * result + showTertiaryText.hashCode()
-        result = 31 * result + expandSingleItem.hashCode()
-        result = 31 * result + uncontainedSingleItem.hashCode()
+        result = 31 * result + layoutMode.hashCode()
         return result
     }
 
     override fun toString(): String =
         "ItemList(items=$items, isScrollable=$isScrollable, showTertiaryText=$showTertiaryText, " +
-            "expandSingleItem=$expandSingleItem, uncontainedSingleItem=$uncontainedSingleItem)"
+            "layoutMode=$layoutMode)"
 }
