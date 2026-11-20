@@ -135,6 +135,7 @@ public class SchemaOperation(
     public val sparseKeyType: String? = null,
     public val sparseParameters: List<SchemaSparseParam>? = null,
     public val allowedChildren: List<String>? = null,
+    public val conditionalSkip: SchemaConditionalSkip? = null,
 ) {
     public val resolvedOpCodeName: String
         get() = opCodeName ?: ID_TO_OPCODE_NAME[id] ?: toScreamingSnakeCase(name)
@@ -194,15 +195,38 @@ public class SchemaField(
     public val offset: String? = null,
     public val lookupBit: Int? = null,
     public val strictEnum: Boolean = false,
+    public val minValue: Int? = null,
+    public val minLength: Int? = null,
     public val maxLength: Int? = null,
     public val javaLimit: String? = null,
     public val payloadKind: String? = null,
+    public val mustBeZeroBits: String? = null,
     public val conditionalTypes: List<SchemaConditionalType> = emptyList(),
     public val conditionalRoles: List<SchemaConditionalRole> = emptyList(),
 ) {
     public val effectiveLengthType: String
         get() = lengthType ?: "short"
 }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaSkipConditionBranch(
+    public val whenValue: Int,
+    public val name: String,
+    public val target: String,
+    public val op: String,
+)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaConditionalSkip(
+    public val conditionField: String,
+    public val conditionBits: String,
+    public val conditionSigned: Boolean,
+    public val valueField: String,
+    public val lengthField: String,
+    public val payloadField: String,
+    public val unknownConditionSkips: Boolean,
+    public val conditions: List<SchemaSkipConditionBranch>,
+)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SchemaConditionalBitRange(public val bit: Int, public val range: String) {

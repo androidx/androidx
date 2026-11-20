@@ -211,7 +211,49 @@
           },
           "opCodeName": { "type": "string" },
           "restrictToLibraryGroup": { "type": "boolean" },
-          "encoding": { "type": "string" }
+          "encoding": { "type": "string" },
+          "conditionalSkip": {
+            "type": "object",
+            "required": [
+              "conditionField",
+              "conditionBits",
+              "valueField",
+              "lengthField",
+              "payloadField",
+              "conditions"
+            ],
+            "properties": {
+              "conditionField": { "type": "string" },
+              "conditionBits": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.\\.[0-9]+$"
+              },
+              "conditionSigned": { "type": "boolean" },
+              "valueField": { "type": "string" },
+              "lengthField": { "type": "string" },
+              "payloadField": { "type": "string" },
+              "unknownConditionSkips": { "type": "boolean" },
+              "conditions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["when", "name", "target", "op"],
+                  "properties": {
+                    "when": { "type": "integer" },
+                    "name": { "type": "string" },
+                    "target": {
+                      "type": "string",
+                      "enum": ["apiLevel", "profiles"]
+                    },
+                    "op": {
+                      "type": "string",
+                      "enum": ["<", ">", "==", "!=", "mask_any", "mask_none"]
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -254,6 +296,10 @@
           }
         },
         "unpackBits": { "type": "boolean" },
+        "mustBeZeroBits": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.\\.[0-9]+$"
+        },
         "lengthType": {
           "type": "string",
           "enum": ["short", "ushort", "int"]
@@ -265,6 +311,8 @@
           "additionalProperties": { "type": "integer" }
         },
         "strictEnum": { "type": "boolean" },
+        "minValue": { "type": "integer" },
+        "minLength": { "type": "integer", "minimum": 0 },
         "maxLength": { "type": "integer", "minimum": 0 },
         "javaLimit": { "type": "string" },
         "payloadKind": {

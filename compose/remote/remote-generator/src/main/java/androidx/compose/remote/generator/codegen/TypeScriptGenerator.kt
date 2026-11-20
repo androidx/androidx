@@ -20,6 +20,7 @@ import androidx.compose.remote.generator.AstProperty
 import androidx.compose.remote.generator.DerivedExpr
 import androidx.compose.remote.generator.OperationSchema
 import androidx.compose.remote.generator.SchemaBitField
+import androidx.compose.remote.generator.SchemaConditionalSkip
 import androidx.compose.remote.generator.SchemaField
 import androidx.compose.remote.generator.SchemaOperation
 import androidx.compose.remote.generator.SchemaSparseParam
@@ -249,6 +250,23 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                 line("this.size = Math.max(this.size, this.index);")
             }
             line()
+            block("writeBytes(val: Uint8Array): void") {
+                line("this.ensureCapacity(val.length);")
+                line("this.buffer.set(val, this.index);")
+                line("this.index += val.length;")
+                line("this.size = Math.max(this.size, this.index);")
+            }
+            line()
+            block("readBytes(len: number): Uint8Array") {
+                block("if (len < 0)") {
+                    line("throw new Error(\"Negative byte slice length in WireBuffer\");")
+                }
+                line("this.checkRemaining(len, \"bytes\");")
+                line("const slice = this.buffer.slice(this.index, this.index + len);")
+                line("this.index += len;")
+                line("return slice;")
+            }
+            line()
             block("readBuffer(maxLength?: number): Uint8Array") {
                 line("const len = this.readInt();")
                 block("if (len < 0)") {
@@ -311,6 +329,45 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
             ) {
                 line("bytes: Uint8Array,")
                 line("maxOperations: number = RemoteDocument.MAX_OPERATION_COUNT,")
+            }
+            block("): RemoteDocument") {
+                line("return RemoteDocument.loadImpl(bytes, maxOperations, false, 0, 0);")
+            }
+            line()
+            line("/**")
+            line(" * Loads and parses a RemoteDocument evaluating conditional skip operations")
+            line(" * against the target player API level and profile bitmask.")
+            line(" */")
+            block(
+                "static loadForPlayer(",
+                openSuffix = "",
+                close = null,
+            ) {
+                line("bytes: Uint8Array,")
+                line("playerApiLevel: number,")
+                line("playerProfiles: number = 0,")
+                line("maxOperations: number = RemoteDocument.MAX_OPERATION_COUNT,")
+            }
+            block("): RemoteDocument") {
+                block("return RemoteDocument.loadImpl(", openSuffix = "", close = ");") {
+                    line("bytes,")
+                    line("maxOperations,")
+                    line("true,")
+                    line("playerApiLevel,")
+                    line("playerProfiles,")
+                }
+            }
+            line()
+            block(
+                "private static loadImpl(",
+                openSuffix = "",
+                close = null,
+            ) {
+                line("bytes: Uint8Array,")
+                line("maxOperations: number,")
+                line("evaluateSkip: boolean,")
+                line("playerApiLevel: number,")
+                line("playerProfiles: number,")
             }
             block("): RemoteDocument") {
                 line("const buffer = WireBuffer.fromBytes(bytes);")
@@ -400,7 +457,15 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                     block("if (!op)") {
                         line("throw new Error(\"Unknown opcode in RemoteDocument: \" + opByte);")
                     }
-                    line("(op as any).readFields(buffer);")
+                    block(
+                        "if (evaluateSkip && typeof (op as any).readFieldsForPlayer === \"function\")",
+                        close = null,
+                    ) {
+                        line(
+                            "(op as any).readFieldsForPlayer(buffer, playerApiLevel, playerProfiles);"
+                        )
+                    }
+                    block("} else") { line("(op as any).readFields(buffer);") }
                     line("doc.operations.push(op);")
                 }
                 line("return doc;")
@@ -539,6 +604,9 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
             }
 
             block("readFields(buffer: WireBuffer): void") {
+                if (op.conditionalSkip != null) {
+                    line("const skipTaken = true;")
+                }
                 emitTsReadBody(
                     this,
                     op.fields,
@@ -549,6 +617,57 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                 )
             }
             line()
+
+            if (op.conditionalSkip != null) {
+                val cs = op.conditionalSkip
+                val condExpr =
+                    CodegenExprUtils.extractSkipConditionExpr(
+                        cs,
+                        cs.conditionField,
+                        ExprLang.TYPESCRIPT,
+                    )
+                block(
+                    "static shouldSkip(${cs.conditionField}: number, ${cs.valueField}: number, playerApiLevel: number, playerProfiles: number): boolean"
+                ) {
+                    block("switch ($condExpr)") {
+                        for (b in cs.conditions) {
+                            val brExpr =
+                                CodegenExprUtils.evaluateSkipBranchExpr(
+                                    b,
+                                    cs.valueField,
+                                    "playerApiLevel",
+                                    "playerProfiles",
+                                    ExprLang.TYPESCRIPT,
+                                )
+                            line("case ${b.whenValue}: return $brExpr;")
+                        }
+                        line("default: return ${cs.unknownConditionSkips};")
+                    }
+                }
+                line()
+                block(
+                    "readFieldsForPlayer(buffer: WireBuffer, playerApiLevel: number, playerProfiles: number = 0): void"
+                ) {
+                    emitTsReadBody(
+                        this,
+                        op.fields,
+                        op.sparseParameters,
+                        props,
+                        op.sparseCountType,
+                        op.sparseKeyType,
+                        conditionalSkip = cs,
+                    )
+                }
+                line()
+                block(
+                    "static readForPlayer(buffer: WireBuffer, playerApiLevel: number, playerProfiles: number = 0): ${op.name}"
+                ) {
+                    line("const instance = new ${op.name}();")
+                    line("instance.readFieldsForPlayer(buffer, playerApiLevel, playerProfiles);")
+                    line("return instance;")
+                }
+                line()
+            }
 
             line("/** Reads and decodes a [${op.name}] operation from the wire buffer. */")
             block("static read(buffer: WireBuffer): ${op.name}") {
@@ -568,12 +687,31 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                     props,
                     op.sparseCountType,
                     op.sparseKeyType,
+                    op.conditionalSkip,
                 )
             }
         }
     }
 
     private fun emitTsScalarValidations(w: CodeWriter, f: SchemaField, varRef: String) {
+        if (f.minValue != null) {
+            w.block("if ($varRef < ${f.minValue})") {
+                line(
+                    "throw new Error(\"Invalid ${f.name} below minimum (${f.minValue}): \" + $varRef);"
+                )
+            }
+        }
+        if (f.mustBeZeroBits != null) {
+            val badBits =
+                CodegenExprUtils.nonZeroBitsCheckExpr(
+                    varRef,
+                    f.mustBeZeroBits,
+                    ExprLang.TYPESCRIPT,
+                )
+            w.block("if ($badBits)") {
+                line("throw new Error(\"Non-zero reserved bits in ${f.name}\");")
+            }
+        }
         emitTsStrictEnumCheck(w, f.name, varRef, f.strictEnum, f.enumValues)
         val bits = f.bits
         if (bits != null && !f.unpackBits) {
@@ -595,15 +733,32 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         val propByName = props.associateBy { it.name }
-        val localReadVars = mutableSetOf<String>()
+        val localReadVars = mutableSetOf("skipTaken")
 
         for (f in fields) {
+            if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
+                w.line(
+                    "const skipTaken = (this.constructor as any).shouldSkip(this.${conditionalSkip.conditionField}, this.${conditionalSkip.valueField}, playerApiLevel, playerProfiles);"
+                )
+            }
             val bits = f.bits
             if (bits != null && f.unpackBits) {
                 val rawVar = "raw_${f.name}"
                 w.line("const $rawVar = buffer.readInt();")
+                if (f.mustBeZeroBits != null) {
+                    val badBits =
+                        CodegenExprUtils.nonZeroBitsCheckExpr(
+                            rawVar,
+                            f.mustBeZeroBits,
+                            ExprLang.TYPESCRIPT,
+                        )
+                    w.block("if ($badBits)") {
+                        line("throw new Error(\"Non-zero reserved bits in ${f.name}\");")
+                    }
+                }
                 for (b in bits) {
                     val expr = CodegenExprUtils.extractBitExpr(rawVar, b, ExprLang.TYPESCRIPT)
                     val bRef: String
@@ -640,7 +795,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                         if (f.type.endsWith("[]")) {
                             emitTsArrayRead(this, f, "this.${f.name}", localReadVars)
                         } else {
-                            line("this.${f.name} = ${mapToTsReadExpr(f.type, f.maxLength)};")
+                            line("this.${f.name} = ${mapToTsFieldReadExpr(f, localReadVars)};")
                             emitTsScalarValidations(this, f, "this.${f.name}")
                         }
                     }
@@ -653,7 +808,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
             } else if (f.type.endsWith("[]")) {
                 emitTsArrayRead(w, f, lhsPrefix, localReadVars)
             } else {
-                w.line("$lhsPrefix = ${mapToTsReadExpr(f.type, f.maxLength)};")
+                w.line("$lhsPrefix = ${mapToTsFieldReadExpr(f, localReadVars)};")
                 val varRef = if (isLocalDerived) f.name else "this.${f.name}"
                 emitTsScalarValidations(w, f, varRef)
             }
@@ -777,6 +932,13 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
         w.block("if ($lenVar < 0)") {
             line("throw new Error(\"Invalid negative array length for ${f.name}: \" + $lenVar);")
         }
+        if (f.minLength != null && f.minLength > 0) {
+            w.block("if ($lenVar < ${f.minLength})") {
+                line(
+                    "throw new Error(\"Array length below minimum (${f.minLength}) for ${f.name}: \" + $lenVar);"
+                )
+            }
+        }
         if (f.maxLength != null) {
             w.block("if ($lenVar > ${f.maxLength})") {
                 line(
@@ -832,6 +994,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         val propByName = props.associateBy { it.name }
         val localWriteVars = mutableSetOf<String>()
@@ -872,6 +1035,18 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
             }
 
             val isNullable = propByName[f.name]?.isNullable == true
+            if (conditionalSkip != null && f.name == conditionalSkip.lengthField) {
+                w.line(
+                    "buffer.writeInt(this.${conditionalSkip.payloadField} !== null ? this.${conditionalSkip.payloadField}.length : this.${f.name});"
+                )
+                continue
+            }
+            if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
+                w.block("if (this.${f.name} !== null)") {
+                    line("buffer.writeBytes(this.${f.name});")
+                }
+                continue
+            }
             if (f.presentIf != null) {
                 val cond =
                     CodegenExprUtils.translateCondition(f.presentIf, ExprLang.TYPESCRIPT) {
@@ -938,9 +1113,19 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
             w.block("for (let i = 0; i < $varExpr.length; i++)") {
                 line("${mapToTsWriteExpr(elemType, "$varExpr[i]")};")
             }
+        } else if (f.type == "bytes" && f.countFrom != null) {
+            w.line("buffer.writeBytes($varExpr);")
         } else {
             w.line("${mapToTsWriteExpr(f.type, varExpr)};")
         }
+    }
+
+    private fun mapToTsFieldReadExpr(f: SchemaField, localReadVars: Set<String>): String {
+        if (f.type == "bytes" && f.countFrom != null) {
+            val countRef = if (f.countFrom in localReadVars) f.countFrom else "this.${f.countFrom}"
+            return "buffer.readBytes($countRef)"
+        }
+        return mapToTsReadExpr(f.type, f.maxLength)
     }
 
     private fun derivedExprToTs(expr: DerivedExpr): String {
@@ -959,7 +1144,8 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
                 type == "short[]" -> "Int16Array"
                 type == "float[]" || type == "float_or_id[]" -> "Float32Array"
                 type.endsWith("[]") -> "${mapToTsType(type.removeSuffix("[]"), false)}[]"
-                type in setOf("int", "short", "byte", "float", "color", "float_or_id") -> "number"
+                type in setOf("int", "int_id", "short", "byte", "float", "color", "float_or_id") ->
+                    "number"
                 type == "long" -> "bigint"
                 type == "boolean" -> "boolean"
                 type == "string" -> "string"
@@ -982,7 +1168,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
             type == "short[]" -> "new Int16Array(0)"
             type == "float[]" || type == "float_or_id[]" -> "new Float32Array(0)"
             type.endsWith("[]") -> "[]"
-            type in setOf("int", "short", "byte", "float", "color", "float_or_id") -> "0"
+            type in setOf("int", "int_id", "short", "byte", "float", "color", "float_or_id") -> "0"
             type == "long" -> "0n"
             type == "boolean" -> "false"
             type == "string" -> "\"\""
@@ -995,6 +1181,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
     private fun mapToTsReadExpr(type: String, maxLength: Int? = null): String =
         when (type) {
             "int",
+            "int_id",
             "color" -> "buffer.readInt()"
             "short" -> "buffer.readShort()"
             "byte" -> "buffer.readByte()"
@@ -1013,6 +1200,7 @@ internal class TypeScriptGenerator(private val schema: OperationSchema) {
     private fun mapToTsWriteExpr(type: String, varName: String): String =
         when (type) {
             "int",
+            "int_id",
             "color" -> "buffer.writeInt($varName)"
             "short" -> "buffer.writeShort($varName)"
             "byte" -> "buffer.writeByte($varName)"

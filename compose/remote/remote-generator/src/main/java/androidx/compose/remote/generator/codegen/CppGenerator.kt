@@ -20,6 +20,7 @@ import androidx.compose.remote.generator.AstProperty
 import androidx.compose.remote.generator.DerivedExpr
 import androidx.compose.remote.generator.OperationSchema
 import androidx.compose.remote.generator.SchemaBitField
+import androidx.compose.remote.generator.SchemaConditionalSkip
 import androidx.compose.remote.generator.SchemaField
 import androidx.compose.remote.generator.SchemaOperation
 import androidx.compose.remote.generator.SchemaSparseParam
@@ -165,6 +166,17 @@ internal class CppGenerator(private val schema: OperationSchema) {
                 line("WireBuffer& buffer,")
                 line("size_t maxOperations = kDefaultMaxOperations);")
             }
+            line("/**")
+            line(" * Deserializes a RemoteDocument evaluating conditional skip operations")
+            line(" * against the target player API level and profile bitmask.")
+            line(" */")
+            line("static std::shared_ptr<RemoteDocument> loadForPlayer(")
+            indent {
+                line("WireBuffer& buffer,")
+                line("int32_t playerApiLevel,")
+                line("int32_t playerProfiles = 0,")
+                line("size_t maxOperations = kDefaultMaxOperations);")
+            }
             rawLine("#if $WRITER_GUARD")
             line("/** Serializes this document into the provided buffer. */")
             line("void save(WireBuffer& buffer) const;")
@@ -236,10 +248,14 @@ internal class CppGenerator(private val schema: OperationSchema) {
     }
 
     private fun emitRemoteDocumentMethods(w: CodeWriter) {
-        w.line("std::shared_ptr<RemoteDocument> RemoteDocument::load(")
+        w.line("namespace {")
+        w.line("std::shared_ptr<RemoteDocument> loadDocumentImpl(")
         w.indent {
             line("WireBuffer& buffer,")
-            line("size_t maxOperations")
+            line("size_t maxOperations,")
+            line("bool evaluateSkip,")
+            line("int32_t playerApiLevel,")
+            line("int32_t playerProfiles")
         }
         w.block(")") {
             line("auto doc = std::make_shared<RemoteDocument>();")
@@ -262,7 +278,9 @@ internal class CppGenerator(private val schema: OperationSchema) {
                 line("doc->width = 256;")
                 line("doc->height = 256;")
                 line("int32_t numProps = buffer.readInt();")
-                block("if (numProps < 0 || static_cast<size_t>(numProps) > kMaxHeaderProperties)") {
+                block(
+                    "if (numProps < 0 || static_cast<size_t>(numProps) > RemoteDocument::kMaxHeaderProperties)"
+                ) {
                     line("throw std::runtime_error(\"Invalid numProps in header\");")
                 }
                 block("if (static_cast<size_t>(numProps) > buffer.remaining() / 4)") {
@@ -345,6 +363,26 @@ internal class CppGenerator(private val schema: OperationSchema) {
                         line("\"Document exceeds maximum allowed operation count\");")
                     }
                 }
+                for (csOp in schema.operations.filter { it.conditionalSkip != null }) {
+                    val guard = getProfileGuard(csOp)
+                    if (guard != null) {
+                        rawLine("#if $guard")
+                    }
+                    block(
+                        "if (evaluateSkip && opByte == static_cast<uint8_t>(OpCode::${csOp.name}))"
+                    ) {
+                        line("auto skipOp = std::make_shared<${csOp.name}>();")
+                        line("skipOp->readForPlayer(buffer, playerApiLevel, playerProfiles);")
+                        line("doc->operations.push_back(skipOp);")
+                        line("continue;")
+                    }
+                    if (guard != null) {
+                        rawLine("#endif")
+                    }
+                }
+                line("(void)evaluateSkip;")
+                line("(void)playerApiLevel;")
+                line("(void)playerProfiles;")
                 line("auto op = createOperation(static_cast<OpCode>(opByte));")
                 block("if (!op)") {
                     line("throw std::runtime_error(")
@@ -356,6 +394,29 @@ internal class CppGenerator(private val schema: OperationSchema) {
                 line("doc->operations.push_back(op);")
             }
             line("return doc;")
+        }
+        w.line("} // namespace")
+        w.line()
+        w.line("std::shared_ptr<RemoteDocument> RemoteDocument::load(")
+        w.indent {
+            line("WireBuffer& buffer,")
+            line("size_t maxOperations")
+        }
+        w.block(")") {
+            line("return loadDocumentImpl(buffer, maxOperations, false, 0, 0);")
+        }
+        w.line()
+        w.line("std::shared_ptr<RemoteDocument> RemoteDocument::loadForPlayer(")
+        w.indent {
+            line("WireBuffer& buffer,")
+            line("int32_t playerApiLevel,")
+            line("int32_t playerProfiles,")
+            line("size_t maxOperations")
+        }
+        w.block(")") {
+            line(
+                "return loadDocumentImpl(buffer, maxOperations, true, playerApiLevel, playerProfiles);"
+            )
         }
         w.line()
         w.rawLine("#if $WRITER_GUARD")
@@ -465,6 +526,17 @@ internal class CppGenerator(private val schema: OperationSchema) {
             line()
             line("OpCode getOpCode() const override { return OP_CODE; }")
             line("void read(WireBuffer& buffer) override;")
+            if (op.conditionalSkip != null) {
+                val cs = op.conditionalSkip
+                val condParam = sanitizeIdentifier(cs.conditionField)
+                val valParam = sanitizeIdentifier(cs.valueField)
+                line(
+                    "static bool shouldSkip(int32_t $condParam, int32_t $valParam, int32_t playerApiLevel, int32_t playerProfiles);"
+                )
+                line(
+                    "void readForPlayer(WireBuffer& buffer, int32_t playerApiLevel, int32_t playerProfiles = 0);"
+                )
+            }
             rawLine("#if $WRITER_GUARD")
             line("void write(WireBuffer& buffer) const override;")
             rawLine("#endif")
@@ -566,6 +638,9 @@ internal class CppGenerator(private val schema: OperationSchema) {
             w.rawLine("#if $guard")
         }
         w.block("void ${op.name}::read(WireBuffer& buffer)") {
+            if (op.conditionalSkip != null) {
+                line("const bool skipTaken = true;")
+            }
             emitCppReadFields(
                 this,
                 op.fields,
@@ -575,6 +650,44 @@ internal class CppGenerator(private val schema: OperationSchema) {
             )
         }
         w.line()
+        if (op.conditionalSkip != null) {
+            val cs = op.conditionalSkip
+            val condParam = sanitizeIdentifier(cs.conditionField)
+            val valParam = sanitizeIdentifier(cs.valueField)
+            val condExpr = CodegenExprUtils.extractSkipConditionExpr(cs, condParam, ExprLang.CPP)
+            w.block(
+                "bool ${op.name}::shouldSkip(int32_t $condParam, int32_t $valParam, int32_t playerApiLevel, int32_t playerProfiles)"
+            ) {
+                block("switch ($condExpr)") {
+                    for (b in cs.conditions) {
+                        val brExpr =
+                            CodegenExprUtils.evaluateSkipBranchExpr(
+                                b,
+                                valParam,
+                                "playerApiLevel",
+                                "playerProfiles",
+                                ExprLang.CPP,
+                            )
+                        line("case ${b.whenValue}: return $brExpr;")
+                    }
+                    line("default: return ${cs.unknownConditionSkips};")
+                }
+            }
+            w.line()
+            w.block(
+                "void ${op.name}::readForPlayer(WireBuffer& buffer, int32_t playerApiLevel, int32_t playerProfiles)"
+            ) {
+                emitCppReadFields(
+                    this,
+                    op.fields,
+                    op.sparseParameters,
+                    op.sparseCountType,
+                    op.sparseKeyType,
+                    conditionalSkip = cs,
+                )
+            }
+            w.line()
+        }
         w.rawLine("#if $WRITER_GUARD")
         w.block("void ${op.name}::write(WireBuffer& buffer) const") {
             line("buffer.writeByte(static_cast<uint8_t>(OP_CODE));")
@@ -585,6 +698,7 @@ internal class CppGenerator(private val schema: OperationSchema) {
                 op.astProperties,
                 op.sparseCountType,
                 op.sparseKeyType,
+                op.conditionalSkip,
             )
         }
         w.rawLine("#endif // RC_ENABLE_WRITER")
@@ -599,12 +713,33 @@ internal class CppGenerator(private val schema: OperationSchema) {
         sparseParameters: List<SchemaSparseParam>?,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         for (field in fields) {
+            if (conditionalSkip != null && field.name == conditionalSkip.payloadField) {
+                val condVar = sanitizeIdentifier(conditionalSkip.conditionField)
+                val valVar = sanitizeIdentifier(conditionalSkip.valueField)
+                w.line(
+                    "const bool skipTaken = shouldSkip($condVar, $valVar, playerApiLevel, playerProfiles);"
+                )
+            }
             val bits = field.bits
             if (bits != null && field.unpackBits) {
                 val rawVar = "raw_${sanitizeIdentifier(field.name)}"
                 w.line("int32_t $rawVar = buffer.readInt();")
+                if (field.mustBeZeroBits != null) {
+                    val badBits =
+                        CodegenExprUtils.nonZeroBitsCheckExpr(
+                            rawVar,
+                            field.mustBeZeroBits,
+                            ExprLang.CPP,
+                        )
+                    w.block("if ($badBits)") {
+                        line(
+                            "throw std::runtime_error(\"Non-zero reserved bits in ${field.name}\");"
+                        )
+                    }
+                }
                 for (b in bits) {
                     val bName = sanitizeIdentifier(b.name)
                     val extract = CodegenExprUtils.extractBitExpr(rawVar, b, ExprLang.CPP)
@@ -779,6 +914,13 @@ internal class CppGenerator(private val schema: OperationSchema) {
             w.block("if ($lenVar < 0)") {
                 line("throw std::runtime_error(\"Negative array length\");")
             }
+            if (field.minLength != null && field.minLength > 0) {
+                w.block("if ($lenVar < ${field.minLength})") {
+                    line(
+                        "throw std::runtime_error(\"Array length below minimum (${field.minLength})\");"
+                    )
+                }
+            }
             if (field.maxLength != null) {
                 w.block("if ($lenVar > ${field.maxLength})") {
                     line(
@@ -811,9 +953,34 @@ internal class CppGenerator(private val schema: OperationSchema) {
                     w.line("$targetVar.read(buffer);")
                 }
             } else {
-                val readExpr = mapToCppScalarReadExpr(field.type, field.maxLength)
+                val readExpr =
+                    if (field.type == "bytes" && field.countFrom != null) {
+                        "buffer.readBytes(static_cast<size_t>(${sanitizeIdentifier(field.countFrom)}))"
+                    } else {
+                        mapToCppScalarReadExpr(field.type, field.maxLength)
+                    }
                 w.line("$targetVar = $readExpr;")
                 val checkVar = if (isOptional) "(*$targetVar)" else targetVar
+                if (field.minValue != null) {
+                    w.block("if ($checkVar < ${field.minValue})") {
+                        line(
+                            "throw std::runtime_error(\"Invalid ${field.name} below minimum (${field.minValue})\");"
+                        )
+                    }
+                }
+                if (field.mustBeZeroBits != null) {
+                    val badBits =
+                        CodegenExprUtils.nonZeroBitsCheckExpr(
+                            checkVar,
+                            field.mustBeZeroBits,
+                            ExprLang.CPP,
+                        )
+                    w.block("if ($badBits)") {
+                        line(
+                            "throw std::runtime_error(\"Non-zero reserved bits in ${field.name}\");"
+                        )
+                    }
+                }
                 if (field.strictEnum && !field.enumValues.isNullOrEmpty()) {
                     val allowed = field.enumValues.values.distinct().sorted()
                     val cond = allowed.joinToString(" && ") { "$checkVar != $it" }
@@ -849,6 +1016,7 @@ internal class CppGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         val propByName = props.associateBy { it.name }
 
@@ -889,6 +1057,20 @@ internal class CppGenerator(private val schema: OperationSchema) {
 
             val fieldName = sanitizeIdentifier(field.name)
             val isNullable = propByName[field.name]?.isNullable == true
+
+            if (conditionalSkip != null && field.name == conditionalSkip.lengthField) {
+                val payloadVar = sanitizeIdentifier(conditionalSkip.payloadField)
+                w.line(
+                    "buffer.writeInt($payloadVar.has_value() ? static_cast<int32_t>($payloadVar->size()) : $fieldName);"
+                )
+                continue
+            }
+            if (conditionalSkip != null && field.name == conditionalSkip.payloadField) {
+                w.block("if ($fieldName.has_value())") {
+                    line("buffer.writeBytes(*$fieldName);")
+                }
+                continue
+            }
 
             if (field.presentIf != null) {
                 val cond =
@@ -971,6 +1153,8 @@ internal class CppGenerator(private val schema: OperationSchema) {
             }
         } else if (schema.structs.containsKey(field.type)) {
             w.line("$varExpr.write(buffer);")
+        } else if (field.type == "bytes" && field.countFrom != null) {
+            w.line("buffer.writeBytes($varExpr);")
         } else {
             w.line("${mapToCppScalarWriteExpr(field.type, varExpr)};")
         }
@@ -1099,6 +1283,9 @@ internal class CppGenerator(private val schema: OperationSchema) {
 
                 void writeBufferView(BufferView data);
                 BufferView readBufferView(size_t maxLength = SIZE_MAX);
+
+                void writeBytes(BufferView data);
+                BufferView readBytes(size_t length);
 
                 void writeUTF8(const std::string& value);
                 std::string readUTF8(size_t maxLength = SIZE_MAX);
@@ -1409,6 +1596,31 @@ internal class CppGenerator(private val schema: OperationSchema) {
                 return view;
             }
 
+            void WireBuffer::writeBytes(BufferView data) {
+                if (!mOwning) {
+                    throw std::runtime_error("Cannot write to non-owning WireBuffer");
+                }
+                if (!data.empty() && data.data() != nullptr) {
+                    size_t oldSize = mBuffer.size();
+                    mBuffer.resize(oldSize + data.size());
+                    std::memcpy(mBuffer.data() + oldSize, data.data(), data.size());
+                    mIndex = mBuffer.size();
+                }
+            }
+
+            BufferView WireBuffer::readBytes(size_t length) {
+                if (length > remaining()) {
+                    throw std::runtime_error(
+                        "Byte slice length exceeds remaining buffer size in WireBuffer");
+                }
+                if (length == 0) {
+                    return BufferView();
+                }
+                BufferView view(getData() + mIndex, length);
+                mIndex += length;
+                return view;
+            }
+
             void WireBuffer::writeUTF8(const std::string& value) {
                 writeStringView(value);
             }
@@ -1437,7 +1649,8 @@ internal class CppGenerator(private val schema: OperationSchema) {
         fun mapToCppType(type: String, isNullable: Boolean = false): String {
             val base =
                 when (type) {
-                    "int" -> "int32_t"
+                    "int",
+                    "int_id" -> "int32_t"
                     "short" -> "int16_t"
                     "byte" -> "uint8_t"
                     "long" -> "int64_t"
@@ -1492,7 +1705,8 @@ internal class CppGenerator(private val schema: OperationSchema) {
 
         fun mapToCppScalarReadExpr(type: String, maxLength: Int? = null): String =
             when (type) {
-                "int" -> "buffer.readInt()"
+                "int",
+                "int_id" -> "buffer.readInt()"
                 "short" -> "buffer.readShort()"
                 "byte" -> "buffer.readByte()"
                 "long" -> "buffer.readLong()"
@@ -1511,7 +1725,8 @@ internal class CppGenerator(private val schema: OperationSchema) {
 
         fun mapToCppScalarWriteExpr(type: String, varName: String): String =
             when (type) {
-                "int" -> "buffer.writeInt($varName)"
+                "int",
+                "int_id" -> "buffer.writeInt($varName)"
                 "short" -> "buffer.writeShort($varName)"
                 "byte" -> "buffer.writeByte($varName)"
                 "long" -> "buffer.writeLong($varName)"

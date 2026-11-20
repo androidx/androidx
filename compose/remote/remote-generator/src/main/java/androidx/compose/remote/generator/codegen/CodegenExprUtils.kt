@@ -18,6 +18,8 @@ package androidx.compose.remote.generator.codegen
 
 import androidx.compose.remote.generator.OperationSchema
 import androidx.compose.remote.generator.SchemaBitField
+import androidx.compose.remote.generator.SchemaConditionalSkip
+import androidx.compose.remote.generator.SchemaSkipConditionBranch
 
 internal enum class ExprLang {
     KOTLIN,
@@ -48,6 +50,7 @@ internal object CodegenExprUtils {
             "boolean" -> 1
             "short" -> 2
             "int",
+            "int_id",
             "color",
             "float",
             "float_or_id",
@@ -244,6 +247,72 @@ internal object CodegenExprUtils {
                 "(($raw) - 0x100000000 if ($raw) >= 0x80000000 else ($raw))"
             }
             ExprLang.KOTLIN -> joined
+        }
+    }
+
+    fun nonZeroBitsCheckExpr(src: String, range: String, lang: ExprLang): String {
+        val low = range.substringBefore("..").toInt()
+        val high = range.substringAfter("..", range).toInt()
+        require(low in 0..31 && high in low..31) {
+            "Invalid mustBeZeroBits range '$range'"
+        }
+        val width = high - low + 1
+        val mask = if (width >= 32) 0xFFFFFFFFL else ((1L shl width) - 1L) shl low
+        val maskHex = "0x" + mask.toString(16).uppercase()
+        return when (lang) {
+            ExprLang.KOTLIN -> "(($src.toLong() and ${maskHex}L) != 0L)"
+            ExprLang.CPP -> "((static_cast<uint32_t>($src) & ${maskHex}u) != 0u)"
+            ExprLang.RUST -> "((($src as u32) & $maskHex) != 0)"
+            ExprLang.SWIFT -> "((UInt32(bitPattern: Int32($src)) & $maskHex) != 0)"
+            ExprLang.TYPESCRIPT -> "(($src & $maskHex) !== 0)"
+            ExprLang.PYTHON -> "(($src & $maskHex) != 0)"
+        }
+    }
+
+    fun extractSkipConditionExpr(
+        cs: SchemaConditionalSkip,
+        condArg: String,
+        lang: ExprLang,
+    ): String {
+        val bit =
+            SchemaBitField(
+                name = "condition",
+                range = cs.conditionBits,
+                signed = cs.conditionSigned,
+            )
+        return extractBitExpr(condArg, bit, lang)
+    }
+
+    fun evaluateSkipBranchExpr(
+        branch: SchemaSkipConditionBranch,
+        valArg: String,
+        apiArg: String,
+        profArg: String,
+        lang: ExprLang,
+    ): String {
+        val targetExpr = if (branch.target == "apiLevel") apiArg else profArg
+        return when (branch.op) {
+            "<" -> "$targetExpr < $valArg"
+            ">" -> "$targetExpr > $valArg"
+            "==" ->
+                if (lang == ExprLang.TYPESCRIPT) "$targetExpr === $valArg"
+                else "$targetExpr == $valArg"
+            "!=" ->
+                if (lang == ExprLang.TYPESCRIPT) "$targetExpr !== $valArg"
+                else "$targetExpr != $valArg"
+            "mask_any" ->
+                when (lang) {
+                    ExprLang.KOTLIN -> "($targetExpr and $valArg) != 0"
+                    ExprLang.TYPESCRIPT -> "($targetExpr & $valArg) !== 0"
+                    else -> "($targetExpr & $valArg) != 0"
+                }
+            "mask_none" ->
+                when (lang) {
+                    ExprLang.KOTLIN -> "($targetExpr and $valArg) == 0"
+                    ExprLang.TYPESCRIPT -> "($targetExpr & $valArg) === 0"
+                    else -> "($targetExpr & $valArg) == 0"
+                }
+            else -> error("Unsupported conditionalSkip op '${branch.op}'")
         }
     }
 

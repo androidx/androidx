@@ -16,11 +16,30 @@
 
 package androidx.compose.remote.generator
 
+import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.SystemInfo
 import androidx.compose.remote.core.WireBuffer
+import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.core.operations.DataListFloat
+import androidx.compose.remote.core.operations.DataListIds
+import androidx.compose.remote.core.operations.DrawCircle
+import androidx.compose.remote.core.operations.DrawRect
+import androidx.compose.remote.core.operations.FloatFunctionCall
+import androidx.compose.remote.core.operations.ImageAttribute
+import androidx.compose.remote.core.operations.IntegerExpression
+import androidx.compose.remote.core.operations.PaintData
+import androidx.compose.remote.core.operations.ParticlesCompare
+import androidx.compose.remote.core.operations.PathAppend
 import androidx.compose.remote.core.operations.PathData
+import androidx.compose.remote.core.operations.Skip
+import androidx.compose.remote.core.operations.SoundData
+import androidx.compose.remote.core.operations.TimeAttribute
+import androidx.compose.remote.core.operations.matrix.MatrixConstant
+import androidx.compose.remote.core.operations.matrix.MatrixExpression
+import androidx.compose.remote.core.operations.matrix.MatrixVectorMath
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
@@ -54,6 +73,7 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume
@@ -1968,7 +1988,7 @@ class RemoteComposeGeneratorTest {
                         assert(doc->operations[1]->getOpCode() == OpCode::ContainerEnd);
                     }
 
-                    // AddMesh2D type=99 reads literal float mesh
+                    // AddMesh2D type=99 reads literal float mesh; ColorExpression mode=99 rejected
                     {
                         WireBuffer wb = makeV6Header();
                         wb.writeByte(static_cast<uint8_t>(OpCode::AddMesh2D));
@@ -1993,6 +2013,16 @@ class RemoteComposeGeneratorTest {
                         assert(mesh->verts.size() == 2);
                         assert(mesh->getCapSegments() == 5);
                         assert(mesh->antialiasWidth == 1.0f);
+
+                        WireBuffer badCe = makeV6Header();
+                        badCe.writeByte(static_cast<uint8_t>(OpCode::ColorExpression));
+                        badCe.writeInt(1);
+                        badCe.writeInt(99); // invalid mode > 6
+                        badCe.writeInt(0);
+                        badCe.writeInt(0);
+                        badCe.writeInt(0);
+                        WireBuffer rCe(badCe.getBytes());
+                        assertThrowsRuntime([&]() { RemoteDocument::load(rCe); });
                     }
 
                     // maxLength enforced even when buffer contains enough bytes
@@ -2273,7 +2303,7 @@ class RemoteComposeGeneratorTest {
                         assert!(matches!(doc.operations[1], Operation::ContainerEnd(_)));
                     }
 
-                    // AddMesh2D type=99 reads literal float mesh
+                    // AddMesh2D type=99 reads literal float mesh; ColorExpression mode=99 -> InvalidData
                     {
                         let mut buf = make_v6_header();
                         buf.write_u8(OpId::AddMesh2D.as_u8());
@@ -2298,6 +2328,16 @@ class RemoteComposeGeneratorTest {
                             }
                             other => panic!("Expected AddMesh2D, got {:?}", other),
                         }
+
+                        let mut bad_ce = make_v6_header();
+                        bad_ce.write_u8(OpId::ColorExpression.as_u8());
+                        bad_ce.write_i32(1);
+                        bad_ce.write_i32(99); // invalid mode > 6
+                        bad_ce.write_i32(0);
+                        bad_ce.write_i32(0);
+                        bad_ce.write_i32(0);
+                        let mut ce_reader = WireBuffer::from_bytes(bad_ce.as_bytes());
+                        assert_eq!(RemoteDocument::load(&mut ce_reader), Err(WireError::InvalidData));
                     }
 
                     // maxLength enforced even when backing buffer is large enough
@@ -2532,7 +2572,7 @@ class RemoteComposeGeneratorTest {
                 assert doc.operations[0].kerning_table == []
                 assert type(doc.operations[1]).__name__ == "ContainerEnd"
 
-                # AddMesh2D type=99 reads literal float mesh
+                # AddMesh2D type=99 reads literal float mesh; ColorExpression mode=99 rejected
                 b = make_v6_header()
                 b.write_byte(OpCode.AddMesh2D.value)
                 b.write_int(1)
@@ -2549,6 +2589,14 @@ class RemoteComposeGeneratorTest {
                 assert len(doc.operations) == 1
                 assert doc.operations[0].verts == [3.0, 4.0]
                 assert doc.operations[0].antialias_width == 1.0
+
+                bad_ce = make_v6_header()
+                bad_ce.write_byte(OpCode.ColorExpression.value)
+                bad_ce.write_int(1)
+                bad_ce.write_int(99)
+                for _ in range(3):
+                    bad_ce.write_int(0)
+                assert_raises(ValueError, lambda: RemoteDocument.load(bad_ce.get_bytes()))
 
                 # maxLength enforced even when backing buffer is large enough
                 b = make_v6_header()
@@ -2608,12 +2656,13 @@ class RemoteComposeGeneratorTest {
         assertTrue(tsCode.contains("Invalid header magic number"))
         assertTrue(tsCode.contains("_glyphsCount * 20 > buffer.remaining()"))
         assertTrue(tsCode.contains("sparseCount * 2 > buffer.remaining()"))
+        assertTrue(tsCode.contains("Invalid enum value for mode:"))
         assertTrue(tsCode.contains("Invalid enum value for attributeType:"))
         assertTrue(tsCode.contains("buffer.readUTF8(4000)"))
         assertTrue(tsCode.contains("buffer.readBuffer(800000)"))
         assertTrue(tsCode.contains("(raw_versionAndNumGlyphs >> 16)"))
         assertTrue(tsCode.contains("(this.widthAndType & 0xFFFF)"))
-        assertTrue(tsCode.contains("((this.widthAndType >>> 16) & 0xFFFF)"))
+        assertTrue(tsCode.contains("((this.widthAndType >>> 16) & 0x7FFF)"))
 
         // Swift invariants
         val swiftCode = SwiftGenerator(schema).generate()
@@ -2636,40 +2685,44 @@ class RemoteComposeGeneratorTest {
         assertTrue(swiftCode.contains("Invalid header magic number"))
         assertTrue(swiftCode.contains("guard _glyphsCount <= buffer.remaining / 20 else"))
         assertTrue(swiftCode.contains("guard sparseCount <= buffer.remaining / 2 else"))
+        assertTrue(swiftCode.contains("Invalid enum value for mode"))
         assertTrue(swiftCode.contains("Invalid enum value for attributeType"))
         assertTrue(swiftCode.contains("buffer.readUTF8(maxLength: 4000)"))
         assertTrue(swiftCode.contains("buffer.readBuffer(maxLength: 800000)"))
         assertTrue(swiftCode.contains("(raw_versionAndNumGlyphs >> 16)"))
         assertTrue(swiftCode.contains("Int32(UInt32(bitPattern: widthAndType) & 0xFFFF)"))
-        assertTrue(swiftCode.contains("Int32((UInt32(bitPattern: widthAndType) >> 16) & 0xFFFF)"))
+        assertTrue(swiftCode.contains("Int32((UInt32(bitPattern: widthAndType) >> 16) & 0x7FFF)"))
 
         // Kotlin invariants
         val ktCode = KotlinGenerator(schema).generateAstNodes()
         assertTrue(ktCode.contains("require(count <= buffer.remaining() / 20)"))
         assertTrue(ktCode.contains("require(sparseCount <= buffer.remaining() / 2)"))
+        assertTrue(ktCode.contains("Invalid ColorExpressionNode.mode:"))
         assertTrue(ktCode.contains("Invalid GraphicsLayerAttribute.attributeType:"))
         assertTrue(ktCode.contains("buffer.readUTF8(4000)"))
         assertTrue(ktCode.contains("buffer.readBuffer(800000)"))
         assertTrue(ktCode.contains("val version = (raw_versionAndNumGlyphs shr 16)"))
         assertTrue(ktCode.contains("get() = widthAndType and 0xFFFF"))
-        assertTrue(ktCode.contains("get() = (widthAndType ushr 16) and 0xFFFF"))
+        assertTrue(ktCode.contains("get() = (widthAndType ushr 16) and 0x7FFF"))
     }
 
     @Test
     fun testSchemaValidationAndSecurityMetadata() {
         val schema = loadSchema()
 
-        // BitmapData 16-bit dimensions and upper 16-bit type/encoding
+        // BitmapData 16-bit dimensions, 15-bit upper type/encoding, and bit-31 zero check
         val bitmapData = schema.operationsByName["BitmapData"]!!
         val widthAndType = bitmapData.fields.first { it.name == "widthAndType" }
         assertEquals("0..15", widthAndType.bits!!.first { it.name == "width" }.range)
-        assertEquals("16..31", widthAndType.bits!!.first { it.name == "imageType" }.range)
+        assertEquals("16..30", widthAndType.bits!!.first { it.name == "imageType" }.range)
+        assertEquals("31..31", widthAndType.mustBeZeroBits)
         val heightAndEncoding = bitmapData.fields.first { it.name == "heightAndEncoding" }
         assertEquals("0..15", heightAndEncoding.bits!!.first { it.name == "height" }.range)
         assertEquals(
-            "16..31",
+            "16..30",
             heightAndEncoding.bits!!.first { it.name == "bitmapEncoding" }.range,
         )
+        assertEquals("31..31", heightAndEncoding.mustBeZeroBits)
 
         // BitmapFontData signed version bitfield
         val bitmapFontData = schema.operationsByName["BitmapFontData"]!!
@@ -2798,9 +2851,57 @@ class RemoteComposeGeneratorTest {
         assertTrue(textStyleOp.sparseParameters!!.first { it.id == 2 }.ignored)
         assertTrue(textStyleOp.sparseParameters!!.first { it.id == 23 }.ignored)
 
-        // Nested operation payload metadata
+        // Enums & all containers closedBy ContainerEnd (C1, C5)
+        val themeEnums =
+            schema.operationsByName["Theme"]!!.fields.first { it.name == "themeId" }.enumValues!!
+        assertEquals(-3, themeEnums["LIGHT"])
+        assertEquals(-2, themeEnums["DARK"])
+        assertEquals(-1, themeEnums["UNSPECIFIED"])
+        val nvEnums =
+            schema.operationsByName["NamedVariable"]!!
+                .fields
+                .first { it.name == "varType" }
+                .enumValues!!
+        assertEquals(0, nvEnums["STRING"])
+        assertEquals(4, nvEnums["INT"])
+        assertEquals(2, nvEnums["COLOR"])
+        assertEquals(
+            1,
+            schema.operationsByName["BoxLayout"]!!
+                .fields
+                .first { it.name == "horizontalPositioning" }
+                .enumValues!!["START"],
+        )
+        assertEquals(
+            6,
+            schema.operationsByName["ConditionalOperations"]!!
+                .fields
+                .first { it.name == "type" }
+                .enumValues!!["TYPE_CHANGED"],
+        )
+        for (op in schema.operations.filter { it.isContainer }) {
+            assertEquals("ContainerEnd", op.closedBy)
+        }
+        val soundParams =
+            schema.operationsByName["SoundExpression"]!!.fields.first { it.name == "params" }
+        assertEquals(64, soundParams.maxLength)
+        assertEquals("SoundExpression.MAX_PARAMS", soundParams.javaLimit)
+
+        // Nested operation payload metadata & conditionalSkip
         val skip = schema.operationsByName["Skip"]!!
-        assertEquals("operations", skip.fields.first { it.name == "skippedBytes" }.payloadKind)
+        assertNotNull(skip.conditionalSkip)
+        assertEquals("0..15", skip.conditionalSkip!!.conditionBits)
+        assertTrue(skip.conditionalSkip!!.conditionSigned)
+        assertFalse(skip.conditionalSkip!!.unknownConditionSkips)
+        assertEquals(6, skip.conditionalSkip!!.conditions.size)
+        val skipCondType = skip.fields.first { it.name == "conditionType" }
+        assertEquals(1, skipCondType.enumValues!!["SKIP_IF_API_LESS_THAN"])
+        assertEquals(6, skipCondType.enumValues!!["SKIP_IF_PROFILE_EXCLUDES"])
+        assertEquals(0, skip.fields.first { it.name == "skipLength" }.minValue)
+        val skipBytes = skip.fields.first { it.name == "skippedBytes" }
+        assertEquals("operations", skipBytes.payloadKind)
+        assertEquals("skipLength", skipBytes.countFrom)
+        assertEquals("skipTaken", skipBytes.presentIf)
         val patternDefine = schema.operationsByName["PatternDefine"]!!
         assertEquals(
             "operations",
@@ -2808,15 +2909,158 @@ class RemoteComposeGeneratorTest {
         )
 
         // Explicit lengthType, maxLength, and javaLimit
-        for (opName in listOf("ImageAttribute", "TimeAttribute")) {
-            val args = schema.operationsByName[opName]!!.fields.first { it.name == "args" }
-            assertEquals("short", args.lengthType)
-            assertEquals(32, args.maxLength)
-            assertEquals("Limits.MAX_FUNCTION_ARGUMENTS", args.javaLimit)
-        }
+        val imageArgs =
+            schema.operationsByName["ImageAttribute"]!!.fields.first { it.name == "args" }
+        assertEquals("short", imageArgs.lengthType)
+        assertNull(imageArgs.maxLength)
+        assertNull(imageArgs.javaLimit)
+
+        val timeArgs = schema.operationsByName["TimeAttribute"]!!.fields.first { it.name == "args" }
+        assertEquals("short", timeArgs.lengthType)
+        assertEquals(32, timeArgs.maxLength)
+        assertEquals("TimeAttribute.MAX_ARG_LEN", timeArgs.javaLimit)
+
         val fontData = schema.operationsByName["FontData"]!!.fields.first { it.name == "fontData" }
         assertEquals(800000, fontData.maxLength)
         assertEquals("Limits.MAX_FONT_DATA", fontData.javaLimit)
+
+        // int_id type declaration & polymorphic conditionalTypes / conditionalRoles
+        val intIdType = schema.types["int_id"]!!
+        assertEquals("INT32", intIdType.wire)
+        assertEquals("int", intIdType.base)
+
+        val customPropRaw =
+            schema.structs["CustomProperty"]!!.fields.first { it.name == "rawValue" }
+        assertEquals(
+            "int",
+            customPropRaw.conditionalTypes!!.first { it.condition == "dataType == 0" }.type,
+        )
+        assertEquals(
+            "float_or_id",
+            customPropRaw.conditionalTypes!!
+                .first { it.condition == "dataType == 1 || dataType == 3" }
+                .type,
+        )
+        assertEquals(
+            "color",
+            customPropRaw.conditionalTypes!!.first { it.condition == "dataType == 8" }.type,
+        )
+        assertEquals(
+            "int_id",
+            customPropRaw.conditionalTypes!!
+                .first {
+                    it.condition ==
+                        "dataType == 2 || dataType == 4 || dataType == 5 || dataType == 6 || dataType == 7 || dataType == 9"
+                }
+                .type,
+        )
+        val customPropRoles = customPropRaw.conditionalRoles!!
+        assertEquals(
+            "text",
+            customPropRoles.first { it.condition == "dataType == 2 || dataType == 4" }.idKind,
+        )
+        assertEquals(
+            "int",
+            customPropRoles.first { it.condition == "dataType == 5 || dataType == 9" }.idKind,
+        )
+        assertEquals(
+            "color",
+            customPropRoles.first { it.condition == "dataType == 6 || dataType == 7" }.idKind,
+        )
+
+        val colorExprOp = schema.operationsByName["ColorExpression"]!!
+        val ceArg1 = colorExprOp.fields.first { it.name == "arg1" }
+        assertEquals(
+            "int_id",
+            ceArg1.conditionalTypes!!
+                .first { it.condition == "(flagsAndMode & 255) == 1 || (flagsAndMode & 255) == 3" }
+                .type,
+        )
+        assertEquals(
+            "color",
+            ceArg1.conditionalTypes!!
+                .first { it.condition == "(flagsAndMode & 255) == 0 || (flagsAndMode & 255) == 2" }
+                .type,
+        )
+        val ceArg2 = colorExprOp.fields.first { it.name == "arg2" }
+        assertEquals(
+            "int_id",
+            ceArg2.conditionalTypes!!
+                .first { it.condition == "(flagsAndMode & 255) == 2 || (flagsAndMode & 255) == 3" }
+                .type,
+        )
+        val textLayoutColor =
+            schema.operationsByName["TextLayout"]!!.fields.first { it.name == "color" }
+        assertEquals(
+            "int_id",
+            textLayoutColor.conditionalTypes!!
+                .first { it.condition == "(textAlign & 65536) != 0" }
+                .type,
+        )
+        assertEquals(
+            "color",
+            textLayoutColor.conditionalTypes!!
+                .first { it.condition == "(textAlign & 65536) == 0" }
+                .type,
+        )
+
+        // Direct int_id field codegen across all target generators
+        val intIdSchemaJson =
+            """
+            {
+              "schemaVersion": "1.0.0",
+              "targetApiLevel": 8,
+              "types": {
+                "int": { "wire": "INT32", "description": "32-bit int" },
+                "long": { "wire": "INT64", "description": "64-bit long" },
+                "int_id": { "wire": "INT32", "base": "int", "description": "32-bit ID" }
+              },
+              "categories": [{ "name": "Test", "description": "Test category" }],
+              "operations": [
+                {
+                  "id": 0,
+                  "name": "Header",
+                  "category": "Test",
+                  "description": "Header",
+                  "fields": [
+                    { "name": "majorVersion", "type": "int" },
+                    { "name": "minorVersion", "type": "int" },
+                    { "name": "patchVersion", "type": "int" },
+                    { "name": "width", "type": "int" },
+                    { "name": "height", "type": "int" },
+                    { "name": "capabilities", "type": "long" }
+                  ]
+                },
+                {
+                  "id": 210,
+                  "name": "IntIdOp",
+                  "category": "Test",
+                  "description": "Op with int_id field",
+                  "fields": [
+                    { "name": "targetId", "type": "int_id", "description": "Target ID" }
+                  ]
+                }
+              ]
+            }
+            """
+                .trimIndent()
+        assertEquals(emptyList<String>(), JsonSchemaParser.validate(JSONObject(intIdSchemaJson)))
+        val intIdSchema = JsonSchemaParser.parse(intIdSchemaJson.byteInputStream())
+        assertTrue(KotlinGenerator(intIdSchema).generateAstNodes().contains("val targetId: Int"))
+        assertTrue(
+            KotlinGenerator(intIdSchema).generateWriterNodes().contains("buffer.writeInt(targetId)")
+        )
+        assertTrue(CppGenerator(intIdSchema).generateHeader().contains("int32_t targetId{};"))
+        assertTrue(RustGenerator(intIdSchema).generate().contains("pub target_id: i32"))
+        assertTrue(TypeScriptGenerator(intIdSchema).generate().contains("targetId: number = 0"))
+        val swiftIntId = SwiftGenerator(intIdSchema).generate()
+        assertTrue(
+            swiftIntId.contains("public var targetId: Int32") &&
+                swiftIntId.contains("targetId: Int32 = 0")
+        )
+        assertTrue(PythonGenerator(intIdSchema).generate().contains("target_id: int = 0"))
+        assertEquals("int", JavaGenerator.mapToJavaType("int_id"))
+        assertEquals("DocumentedOperation.INT", JavaGenerator.mapToJavaDocType("int_id"))
 
         // Validator rejects invalid strictEnum, maxLength, and payloadKind
         val invalidRoot =
@@ -2854,8 +3098,33 @@ class RemoteComposeGeneratorTest {
                           "type": "int",
                           "payloadKind": "operations",
                           "description": "payloadKind on non-bytes"
+                        },
+                        {
+                          "name": "badRange",
+                          "type": "int[]",
+                          "minLength": 5,
+                          "maxLength": 2,
+                          "description": "minLength exceeds maxLength"
+                        },
+                        {
+                          "name": "badZeroBits",
+                          "type": "int",
+                          "mustBeZeroBits": "31..31",
+                          "bits": [
+                            { "name": "hi", "range": "16..31", "description": "overlaps bit 31" }
+                          ],
+                          "description": "mustBeZeroBits overlaps bitfield"
                         }
-                      ]
+                      ],
+                      "conditionalSkip": {
+                        "conditionField": "missingField",
+                        "valueField": "missingValue",
+                        "lengthField": "missingLen",
+                        "payloadField": "missingPayload",
+                        "conditions": [
+                          { "code": 1, "target": "badTarget", "op": "<" }
+                        ]
+                      }
                     }
                   ]
                 }
@@ -2874,6 +3143,18 @@ class RemoteComposeGeneratorTest {
         assertTrue(
             "Expected payloadKind validation error, got: $errors",
             errors.any { it.contains("payloadKind") },
+        )
+        assertTrue(
+            "Expected minLength > maxLength validation error, got: $errors",
+            errors.any { it.contains("minLength > maxLength") },
+        )
+        assertTrue(
+            "Expected overlapping mustBeZeroBits validation error, got: $errors",
+            errors.any { it.contains("mustBeZeroBits") && it.contains("overlaps") },
+        )
+        assertTrue(
+            "Expected conditionalSkip validation error, got: $errors",
+            errors.any { it.contains("conditionalSkip") },
         )
     }
 
@@ -3891,6 +4172,807 @@ class RemoteComposeGeneratorTest {
                 val run = ProcessBuilder(bin.absolutePath).redirectErrorStream(true).start()
                 val runOut = run.inputStream.bufferedReader().readText()
                 assertEquals("Rust modern 256x256 run failed:\n$runOut", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+    }
+
+    @Test
+    fun testRemainingWireFidelityJavaOracleAndSchemaMetadata() {
+        val schema = loadSchema()
+
+        // 1. ImageAttribute.args: Java reader accepts > 32 args (e.g. 40) and rejects < 0
+        run {
+            val wb = WireBuffer()
+            wb.writeInt(10) // id
+            wb.writeInt(20) // imageId
+            wb.writeShort(0) // type = WIDTH
+            wb.writeShort(40) // args.length = 40 (> 32)
+            repeat(40) { wb.writeInt(100 + it) }
+            wb.setIndex(0)
+            val ops = ArrayList<Operation>()
+            ImageAttribute.read(wb, ops)
+            assertEquals(1, ops.size)
+            assertFalse(wb.available())
+
+            val negWb = WireBuffer()
+            negWb.writeInt(10)
+            negWb.writeInt(20)
+            negWb.writeShort(0)
+            negWb.writeShort(-1)
+            negWb.setIndex(0)
+            try {
+                ImageAttribute.read(negWb, ArrayList())
+                fail("Expected NegativeArraySizeException for negative ImageAttribute.args length")
+            } catch (_: NegativeArraySizeException) {}
+        }
+
+        // 2. TimeAttribute.args: Java reader accepts 32 and rejects 33 via
+        // TimeAttribute.MAX_ARG_LEN
+        run {
+            val okWb = WireBuffer()
+            okWb.writeInt(10)
+            okWb.writeInt(20)
+            okWb.writeShort(0)
+            okWb.writeShort(32)
+            repeat(32) { okWb.writeInt(it) }
+            okWb.setIndex(0)
+            val ops = ArrayList<Operation>()
+            TimeAttribute.read(okWb, ops)
+            assertEquals(1, ops.size)
+
+            val badWb = WireBuffer()
+            badWb.writeInt(10)
+            badWb.writeInt(20)
+            badWb.writeShort(0)
+            badWb.writeShort(33)
+            repeat(33) { badWb.writeInt(it) }
+            badWb.setIndex(0)
+            try {
+                TimeAttribute.read(badWb, ArrayList())
+                fail("Expected RuntimeException for TimeAttribute.args > 32")
+            } catch (_: RuntimeException) {}
+        }
+
+        // 3. Skip: Java reader jumps when condition holds, decodes inline when false/unknown,
+        //    keeps only signed low 16 bits of conditionType, and rejects negative skipLength
+        run {
+            val skipStream = WireBuffer()
+            // High 16 bits non-zero (0x0007_0001), low 16 bits = SKIP_IF_API_LESS_THAN (1), value =
+            // 8
+            val offset = Skip.apply(skipStream, 1.toShort(), 8, 0)
+            skipStream.overwriteInt(1, 0x00070001)
+            DrawCircle.apply(skipStream, 10f, 20f, 30f)
+            Skip.applyEndSkip(skipStream, offset)
+            DrawRect.apply(skipStream, 1f, 2f, 3f, 4f)
+            val rawBytes = skipStream.cloneBytes()
+
+            // Player API 6 < 8 -> skips DrawCircle, decodes only DrawRect
+            val takenBuf = WireBuffer()
+            takenBuf.write(rawBytes)
+            takenBuf.setIndex(0)
+            takenBuf.setSystemInfo(SystemInfo(6, 0))
+            val map = Operations.getAllKnownOperations(8)!!
+            val takenOps = ArrayList<Operation>()
+            while (takenBuf.available()) {
+                val opId = takenBuf.readByte() and 0xFF
+                map.get(opId)!!.read(takenBuf, takenOps)
+            }
+            assertEquals(1, takenOps.size)
+            assertTrue(takenOps[0] is DrawRect)
+
+            // Player API 8 >= 8 -> does NOT skip, decodes DrawCircle then DrawRect inline
+            val inlineBuf = WireBuffer()
+            inlineBuf.write(rawBytes)
+            inlineBuf.setIndex(0)
+            inlineBuf.setSystemInfo(SystemInfo(8, 0))
+            val inlineOps = ArrayList<Operation>()
+            while (inlineBuf.available()) {
+                val opId = inlineBuf.readByte() and 0xFF
+                map.get(opId)!!.read(inlineBuf, inlineOps)
+            }
+            assertEquals(2, inlineOps.size)
+            assertTrue(inlineOps[0] is DrawCircle)
+            assertTrue(inlineOps[1] is DrawRect)
+
+            // Unknown conditionType (99) never skips
+            val unkStream = WireBuffer()
+            val unkOff = Skip.apply(unkStream, 99.toShort(), 8, 0)
+            DrawCircle.apply(unkStream, 5f, 6f, 7f)
+            Skip.applyEndSkip(unkStream, unkOff)
+            unkStream.setIndex(0)
+            unkStream.setSystemInfo(SystemInfo(1, 0))
+            val unkOps = ArrayList<Operation>()
+            while (unkStream.available()) {
+                val opId = unkStream.readByte() and 0xFF
+                map.get(opId)!!.read(unkStream, unkOps)
+            }
+            assertEquals(1, unkOps.size)
+            assertTrue(unkOps[0] is DrawCircle)
+
+            // Negative skipLength rejected even when condition is false
+            val negSkip = WireBuffer()
+            negSkip.writeInt(99) // unknown condition -> false
+            negSkip.writeInt(0)
+            negSkip.writeInt(-1) // negative skipLength
+            negSkip.setIndex(0)
+            try {
+                Skip.read(negSkip, ArrayList())
+                fail("Expected RuntimeException for negative Skip.skipLength")
+            } catch (_: RuntimeException) {}
+        }
+
+        // 4. BitmapData: bit 31 set on widthAndType or heightAndEncoding is rejected by Java reader
+        run {
+            val bmpOp = schema.operationsByName["BitmapData"]!!
+            for ((fName, bitName) in
+                listOf("widthAndType" to "imageType", "heightAndEncoding" to "bitmapEncoding")) {
+                val fld = bmpOp.fields.first { it.name == fName }
+                assertEquals("31..31", fld.mustBeZeroBits)
+                assertEquals("16..30", fld.bits!!.first { it.name == bitName }.range)
+            }
+
+            for (badWidth in listOf(true, false)) {
+                val wb = WireBuffer()
+                wb.writeInt(1) // imageId
+                wb.writeInt(if (badWidth) (0x80010010.toInt()) else 16)
+                wb.writeInt(if (badWidth) 16 else (0x80010010.toInt()))
+                wb.writeBuffer(ByteArray(4))
+                wb.setIndex(0)
+                try {
+                    BitmapData.read(wb, ArrayList())
+                    fail("Expected RuntimeException when bit 31 is set (badWidth=$badWidth)")
+                } catch (_: RuntimeException) {}
+            }
+        }
+
+        // 5. Newly audited reader limits match Java readers
+        run {
+            // ParticlesCompare accepts equation of length 40 (> 32, <= 46) and rejects 47
+            val pcOk = WireBuffer()
+            pcOk.writeInt(1) // id
+            pcOk.writeShort(0) // flags
+            pcOk.writeFloat(0f) // min
+            pcOk.writeFloat(10f) // max
+            pcOk.writeInt(40) // condition len = 40
+            repeat(40) { pcOk.writeFloat(1f) }
+            pcOk.writeInt(1) // equations1 count
+            pcOk.writeInt(40) // equations1[0] len = 40
+            repeat(40) { pcOk.writeFloat(2f) }
+            pcOk.writeInt(0) // equations2 count
+            pcOk.setIndex(0)
+            val pcOps = ArrayList<Operation>()
+            ParticlesCompare.read(pcOk, pcOps)
+            assertEquals(1, pcOps.size)
+
+            val pcBad = WireBuffer()
+            pcBad.writeInt(1)
+            pcBad.writeShort(0)
+            pcBad.writeFloat(0f)
+            pcBad.writeFloat(10f)
+            pcBad.writeInt(47)
+            repeat(47) { pcBad.writeFloat(1f) }
+            pcBad.setIndex(0)
+            try {
+                ParticlesCompare.read(pcBad, ArrayList())
+                fail("Expected RuntimeException for ParticlesCompare condition length 47 > 46")
+            } catch (_: RuntimeException) {}
+
+            // MatrixVectorMath rejects len 0 and len 5, accepts len 2
+            for (badLen in listOf(0, 5)) {
+                val mvBad = WireBuffer()
+                mvBad.writeShort(0)
+                mvBad.writeInt(1)
+                mvBad.writeInt(badLen)
+                repeat(badLen) { mvBad.writeInt(it) }
+                mvBad.writeInt(2)
+                repeat(2) { mvBad.writeFloat(1f) }
+                mvBad.setIndex(0)
+                try {
+                    MatrixVectorMath.read(mvBad, ArrayList())
+                    fail("Expected IllegalArgumentException for MatrixVectorMath lenOut=$badLen")
+                } catch (_: IllegalArgumentException) {}
+            }
+
+            // PaintData (> 1024), PathData (> 20000), IntegerExpression (> 320), DataListIds (>
+            // 2000),
+            // DataListFloat (> 2000), PathAppend (> 2000), FloatFunctionCall (> 80), SoundData (>
+            // 262144),
+            // MatrixConstant (> 16), MatrixExpression (> 32)
+            fun assertRejects(block: (WireBuffer) -> Unit) {
+                val b = WireBuffer()
+                block(b)
+                b.setIndex(0)
+                try {
+                    fail("Unreachable if block throws")
+                } catch (_: AssertionError) {}
+            }
+            val paintWb =
+                WireBuffer().apply {
+                    writeInt(1025)
+                    setIndex(0)
+                }
+            try {
+                PaintData.read(paintWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val pathWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(20001)
+                    setIndex(0)
+                }
+            try {
+                PathData.read(pathWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val intExpWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(0)
+                    writeInt(321)
+                    setIndex(0)
+                }
+            try {
+                IntegerExpression.read(intExpWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val listIdsWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(2001)
+                    setIndex(0)
+                }
+            try {
+                DataListIds.read(listIdsWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val listFltWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(2001)
+                    setIndex(0)
+                }
+            try {
+                DataListFloat.read(listFltWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val pathAppWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(2001)
+                    setIndex(0)
+                }
+            try {
+                PathAppend.read(pathAppWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val fnCallWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(81)
+                    setIndex(0)
+                }
+            try {
+                FloatFunctionCall.read(fnCallWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val sndWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(262145)
+                    setIndex(0)
+                }
+            try {
+                SoundData.read(sndWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val matConstWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(0)
+                    writeInt(17)
+                    setIndex(0)
+                }
+            try {
+                MatrixConstant.read(matConstWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+            val matExpWb =
+                WireBuffer().apply {
+                    writeInt(1)
+                    writeInt(0)
+                    writeInt(33)
+                    setIndex(0)
+                }
+            try {
+                MatrixExpression.read(matExpWb, ArrayList())
+                fail()
+            } catch (_: RuntimeException) {}
+        }
+
+        // Cross-check generated Kotlin, TypeScript, and Swift code for all fixes
+        val ktAst = KotlinGenerator(schema).generateAstNodes()
+        val tsCode = TypeScriptGenerator(schema).generate()
+        val swiftCode = SwiftGenerator(schema).generate()
+
+        // ImageAttribute has no 32 cap in Kotlin, TS, Swift
+        val ktImageSection =
+            ktAst
+                .substringAfter("public class ImageAttributeNode")
+                .substringBefore("public class TimeAttributeNode")
+        assertFalse(ktImageSection.contains("count <= 32"))
+        val tsImageSection =
+            tsCode
+                .substringAfter("export class ImageAttribute ")
+                .substringBefore("export class TimeAttribute ")
+        assertFalse(tsImageSection.contains("> 32"))
+        val swiftImageSection =
+            swiftCode
+                .substringAfter("public struct ImageAttribute:")
+                .substringBefore("public struct TimeAttribute:")
+        assertFalse(swiftImageSection.contains("<= 32"))
+
+        // Skip conditional framing & player load in Kotlin, TS, Swift
+        assertTrue(ktAst.contains("internal fun shouldSkip("))
+        assertTrue(ktAst.contains("internal fun readForPlayer("))
+        assertTrue(ktAst.contains("buffer.readBytes(skipLength)"))
+        assertTrue(tsCode.contains("static loadForPlayer("))
+        assertTrue(tsCode.contains("static shouldSkip("))
+        assertTrue(tsCode.contains("buffer.readBytes(this.skipLength)"))
+        assertTrue(swiftCode.contains("public static func loadForPlayer("))
+        assertTrue(swiftCode.contains("public static func shouldSkip("))
+        assertTrue(swiftCode.contains("buffer.readBytes(count: Int(skipLength))"))
+
+        // BitmapData bit 31 mustBeZeroBits & 16..30 upper bitfield in Kotlin, TS, Swift
+        assertTrue(ktAst.contains("0x80000000L"))
+        assertTrue(ktAst.contains("0x7FFF"))
+        assertTrue(tsCode.contains("0x80000000"))
+        assertTrue(tsCode.contains("0x7FFF"))
+        assertTrue(swiftCode.contains("0x80000000"))
+        assertTrue(swiftCode.contains("0x7FFF"))
+
+        // ParticleCompareEquation (46) & MatrixVectorMath minLength 1..4
+        assertTrue(ktAst.contains("public class ParticleCompareEquation"))
+        assertTrue(ktAst.contains("require(count <= 46)"))
+        assertTrue(ktAst.contains("require(count >= 1)"))
+        assertTrue(tsCode.contains("export class ParticleCompareEquation"))
+        assertTrue(swiftCode.contains("public struct ParticleCompareEquation:"))
+    }
+
+    @Test
+    fun testRemainingWireFidelityNativeCppRustPythonExecution() {
+        val schema = loadSchema()
+
+        // Build shared wire test streams using remote-core writers so bytes match Java wire layout
+        val img40Bytes =
+            WireBuffer()
+                .apply {
+                    DocumentHeader(1, 0, 0, 100, 100).write(this)
+                    writeByte(171) // ImageAttribute
+                    writeInt(10)
+                    writeInt(20)
+                    writeShort(0)
+                    writeShort(40)
+                    repeat(40) { writeInt(1000 + it) }
+                }
+                .cloneBytes()
+
+        val skipDocBytes =
+            WireBuffer()
+                .apply {
+                    DocumentHeader(1, 1, 0, 100, 100).write(this)
+                    val off = Skip.apply(this, Skip.SKIP_IF_API_LESS_THAN, 7, 0)
+                    // Set upper 16 bits of conditionType to non-zero (0x0003_0001) to test 16-bit
+                    // masking
+                    overwriteInt(index - 12, 0x00030001)
+                    DrawCircle.apply(this, 10f, 20f, 30f)
+                    Skip.applyEndSkip(this, off)
+                    DrawRect.apply(this, 1f, 2f, 3f, 4f)
+                }
+                .cloneBytes()
+
+        val skipUnknownDocBytes =
+            WireBuffer()
+                .apply {
+                    DocumentHeader(1, 1, 0, 100, 100).write(this)
+                    val off = Skip.apply(this, 99.toShort(), 7, 0)
+                    DrawCircle.apply(this, 5f, 6f, 7f)
+                    Skip.applyEndSkip(this, off)
+                }
+                .cloneBytes()
+
+        val skipNegBytes =
+            WireBuffer()
+                .apply {
+                    DocumentHeader(1, 1, 0, 100, 100).write(this)
+                    writeByte(241) // Skip
+                    writeInt(99) // unknown condition -> false
+                    writeInt(7)
+                    writeInt(-1) // negative skipLength
+                }
+                .cloneBytes()
+
+        val bmpBadWidthBytes =
+            WireBuffer()
+                .apply {
+                    DocumentHeader(1, 0, 0, 100, 100).write(this)
+                    writeByte(101) // BitmapData
+                    writeInt(1)
+                    writeInt(0x80010010.toInt()) // bit 31 set
+                    writeInt(16)
+                    writeBuffer(ByteArray(4))
+                }
+                .cloneBytes()
+
+        val bmpValidBytes =
+            WireBuffer()
+                .apply {
+                    DocumentHeader(1, 0, 0, 100, 100).write(this)
+                    writeByte(101) // BitmapData
+                    writeInt(1)
+                    writeInt((2 shl 16) or 32) // imageType=2, width=32
+                    writeInt((3 shl 16) or 0) // bitmapEncoding=3, height=0
+                    writeBuffer(ByteArray(0))
+                }
+                .cloneBytes()
+
+        val pc40Bytes =
+            WireBuffer()
+                .apply {
+                    DocumentHeader(1, 1, 0, 100, 100).write(this)
+                    writeByte(194) // ParticlesCompare
+                    writeInt(1)
+                    writeShort(0)
+                    writeFloat(0f)
+                    writeFloat(10f)
+                    writeInt(40)
+                    repeat(40) { writeFloat(1f) }
+                    writeInt(1)
+                    writeInt(40)
+                    repeat(40) { writeFloat(2f) }
+                    writeInt(0)
+                }
+                .cloneBytes()
+
+        fun toHexInit(bytes: ByteArray): String =
+            bytes.joinToString(", ") { "0x%02X".format(it.toInt() and 0xFF) }
+
+        // 1. C++ native execution
+        val compilerCandidates =
+            listOfNotNull(
+                findExecutableOnPath("clang++"),
+                findExecutableOnPath("g++"),
+                File(
+                    "../../../../../prebuilts/fullsdk-linux/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+                ),
+            )
+        val clangFile = compilerCandidates.firstOrNull {
+            it.exists() && it.canExecute() && canCompileCpp(it)
+        }
+        if (clangFile != null) {
+            val tmpDir = Files.createTempDirectory("rc_wire_fidelity_cpp").toFile()
+            try {
+                val cppGen = CppGenerator(schema)
+                File(tmpDir, "WireBuffer.h").writeText(cppGen.generateWireBufferHeader())
+                File(tmpDir, "WireBuffer.cpp").writeText(cppGen.generateWireBufferSource())
+                File(tmpDir, "RemoteComposeOps.h").writeText(cppGen.generateHeader())
+                File(tmpDir, "RemoteComposeOps.cpp").writeText(cppGen.generateSource())
+                val mainCpp = File(tmpDir, "main.cpp")
+                mainCpp.writeText(
+                    """
+                    #include "RemoteComposeOps.h"
+                    #include <cassert>
+                    #include <vector>
+                    using namespace androidx::compose::remote;
+                    template <typename F> void assertThrows(F&& fn) {
+                        bool threw = false;
+                        try { fn(); } catch (const std::exception&) { threw = true; }
+                        assert(threw);
+                    }
+                    int main() {
+                        // ImageAttribute with 40 args
+                        {
+                            std::vector<uint8_t> b = {${toHexInit(img40Bytes)}};
+                            WireBuffer wb(b);
+                            auto doc = RemoteDocument::load(wb);
+                            assert(doc->operations.size() == 1);
+                            auto* img = dynamic_cast<ImageAttribute*>(doc->operations[0].get());
+                            assert(img != nullptr && img->args.size() == 40);
+                        }
+                        // Skip taken (API 6 < 7) vs inline not-taken (API 8 >= 7) + byte round-trip
+                        {
+                            std::vector<uint8_t> b = {${toHexInit(skipDocBytes)}};
+                            WireBuffer wbTaken(b);
+                            auto takenDoc = RemoteDocument::loadForPlayer(wbTaken, 6, 0);
+                            assert(takenDoc->operations.size() == 2);
+                            auto* sk1 = dynamic_cast<Skip*>(takenDoc->operations[0].get());
+                            assert(sk1 != nullptr && sk1->getCondition() == 1);
+                            assert(sk1->skippedBytes.has_value() && sk1->skippedBytes->size() == 13);
+                            assert(takenDoc->operations[1]->getOpCode() == OpCode::DrawRect);
+
+                            WireBuffer wbInline(b);
+                            auto inlineDoc = RemoteDocument::loadForPlayer(wbInline, 8, 0);
+                            assert(inlineDoc->operations.size() == 3);
+                            auto* sk2 = dynamic_cast<Skip*>(inlineDoc->operations[0].get());
+                            assert(sk2 != nullptr && !sk2->skippedBytes.has_value() && sk2->skipLength == 13);
+                            assert(inlineDoc->operations[1]->getOpCode() == OpCode::DrawCircle);
+                            assert(inlineDoc->operations[2]->getOpCode() == OpCode::DrawRect);
+
+                            // Both readings re-serialize identical operation stream bytes
+                            WireBuffer out1, out2;
+                            for (const auto& op : takenDoc->operations) op->write(out1);
+                            for (const auto& op : inlineDoc->operations) op->write(out2);
+                            assert(out1.getBytes() == out2.getBytes());
+                        }
+                        // Skip unknown conditionType=99 never skips
+                        {
+                            std::vector<uint8_t> b = {${toHexInit(skipUnknownDocBytes)}};
+                            WireBuffer wb(b);
+                            auto doc = RemoteDocument::loadForPlayer(wb, 1, 0);
+                            assert(doc->operations.size() == 2);
+                            assert(doc->operations[1]->getOpCode() == OpCode::DrawCircle);
+                        }
+                        // Skip negative skipLength rejected in both load and loadForPlayer
+                        {
+                            std::vector<uint8_t> b = {${toHexInit(skipNegBytes)}};
+                            assertThrows([&]() { WireBuffer wb(b); RemoteDocument::load(wb); });
+                            assertThrows([&]() { WireBuffer wb(b); RemoteDocument::loadForPlayer(wb, 8, 0); });
+                        }
+                        // BitmapData bit 31 rejected; valid 16..30 unpacked
+                        {
+                            std::vector<uint8_t> bad = {${toHexInit(bmpBadWidthBytes)}};
+                            assertThrows([&]() { WireBuffer wb(bad); RemoteDocument::load(wb); });
+                            std::vector<uint8_t> ok = {${toHexInit(bmpValidBytes)}};
+                            WireBuffer wb(ok);
+                            auto doc = RemoteDocument::load(wb);
+                            auto* bmp = dynamic_cast<BitmapData*>(doc->operations[0].get());
+                            assert(bmp != nullptr && bmp->getWidth() == 32 && bmp->getImageType() == 2 && bmp->getBitmapEncoding() == 3);
+                        }
+                        // ParticlesCompare equation length 40 (> 32, <= 46) accepted
+                        {
+                            std::vector<uint8_t> b = {${toHexInit(pc40Bytes)}};
+                            WireBuffer wb(b);
+                            auto doc = RemoteDocument::load(wb);
+                            auto* pc = dynamic_cast<ParticlesCompare*>(doc->operations[0].get());
+                            assert(pc != nullptr && pc->condition.size() == 40 && pc->equations1[0].equation.size() == 40);
+                        }
+                        return 0;
+                    }
+                    """
+                        .trimIndent()
+                )
+                val bin = File(tmpDir, "test_cpp")
+                val comp =
+                    ProcessBuilder(
+                            clangFile.absolutePath,
+                            "-std=c++17",
+                            "-O1",
+                            File(tmpDir, "WireBuffer.cpp").absolutePath,
+                            File(tmpDir, "RemoteComposeOps.cpp").absolutePath,
+                            mainCpp.absolutePath,
+                            "-o",
+                            bin.absolutePath,
+                        )
+                        .redirectErrorStream(true)
+                        .start()
+                val compOut = comp.inputStream.bufferedReader().readText()
+                assertEquals("C++ compile failed:\n$compOut", 0, comp.waitFor())
+                val run = ProcessBuilder(bin.absolutePath).redirectErrorStream(true).start()
+                val runOut = run.inputStream.bufferedReader().readText()
+                assertEquals("C++ run failed:\n$runOut", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        // 2. Rust native execution
+        val rustc =
+            (listOf(File("../../../../../prebuilts/rust/linux-x86/1.85.1/bin/rustc")) +
+                    listOfNotNull(findExecutableOnPath("rustc")))
+                .firstOrNull { it.exists() && it.canExecute() }
+        if (rustc != null) {
+            val tmpDir = Files.createTempDirectory("rc_wire_fidelity_rust").toFile()
+            try {
+                val rustCode = RustGenerator(schema).generate()
+                val mainRs = File(tmpDir, "main.rs")
+                mainRs.writeText(
+                    """
+                    #![allow(dead_code)]
+                    $rustCode
+
+                    fn main() {
+                        // ImageAttribute with 40 args
+                        {
+                            let b: [u8; ${img40Bytes.size}] = [${toHexInit(img40Bytes)}];
+                            let mut wb = WireBuffer::from_bytes(&b);
+                            let doc = RemoteDocument::load(&mut wb).expect("ImageAttribute 40 args");
+                            match &doc.operations[0] {
+                                Operation::ImageAttribute(op) => assert_eq!(op.args.len(), 40),
+                                other => panic!("Unexpected {:?}", other),
+                            }
+                        }
+                        // Skip taken vs inline not-taken + byte round-trip
+                        {
+                            let b: [u8; ${skipDocBytes.size}] = [${toHexInit(skipDocBytes)}];
+                            let mut wb_taken = WireBuffer::from_bytes(&b);
+                            let taken = RemoteDocument::load_for_player(&mut wb_taken, 6, 0).expect("Skip taken");
+                            assert_eq!(taken.operations.len(), 2);
+                            match &taken.operations[0] {
+                                Operation::Skip(sk) => {
+                                    assert_eq!(sk.condition(), 1);
+                                    assert_eq!(sk.skipped_bytes.as_ref().unwrap().len(), 13);
+                                }
+                                other => panic!("Unexpected {:?}", other),
+                            }
+                            assert!(matches!(taken.operations[1], Operation::DrawRect(_)));
+
+                            let mut wb_inline = WireBuffer::from_bytes(&b);
+                            let inline_doc = RemoteDocument::load_for_player(&mut wb_inline, 8, 0).expect("Skip inline");
+                            assert_eq!(inline_doc.operations.len(), 3);
+                            match &inline_doc.operations[0] {
+                                Operation::Skip(sk) => {
+                                    assert!(sk.skipped_bytes.is_none());
+                                    assert_eq!(sk.skip_length, 13);
+                                }
+                                other => panic!("Unexpected {:?}", other),
+                            }
+                            assert!(matches!(inline_doc.operations[1], Operation::DrawCircle(_)));
+                            assert!(matches!(inline_doc.operations[2], Operation::DrawRect(_)));
+
+                            let mut out1 = WireBuffer::new();
+                            let mut out2 = WireBuffer::new();
+                            for op in &taken.operations { op.write(&mut out1).expect("write taken"); }
+                            for op in &inline_doc.operations { op.write(&mut out2).expect("write inline"); }
+                            assert_eq!(out1.as_bytes(), out2.as_bytes());
+                        }
+                        // Skip unknown conditionType=99 never skips
+                        {
+                            let b: [u8; ${skipUnknownDocBytes.size}] = [${toHexInit(skipUnknownDocBytes)}];
+                            let mut wb = WireBuffer::from_bytes(&b);
+                            let doc = RemoteDocument::load_for_player(&mut wb, 1, 0).expect("Skip unknown");
+                            assert_eq!(doc.operations.len(), 2);
+                            assert!(matches!(doc.operations[1], Operation::DrawCircle(_)));
+                        }
+                        // Skip negative skipLength rejected
+                        {
+                            let b: [u8; ${skipNegBytes.size}] = [${toHexInit(skipNegBytes)}];
+                            let mut wb1 = WireBuffer::from_bytes(&b);
+                            assert_eq!(RemoteDocument::load(&mut wb1), Err(WireError::InvalidData));
+                            let mut wb2 = WireBuffer::from_bytes(&b);
+                            assert_eq!(RemoteDocument::load_for_player(&mut wb2, 8, 0), Err(WireError::InvalidData));
+                        }
+                        // BitmapData bit 31 rejected; valid 16..30 unpacked
+                        {
+                            let bad: [u8; ${bmpBadWidthBytes.size}] = [${toHexInit(bmpBadWidthBytes)}];
+                            let mut wb_bad = WireBuffer::from_bytes(&bad);
+                            assert_eq!(RemoteDocument::load(&mut wb_bad), Err(WireError::InvalidData));
+
+                            let ok: [u8; ${bmpValidBytes.size}] = [${toHexInit(bmpValidBytes)}];
+                            let mut wb_ok = WireBuffer::from_bytes(&ok);
+                            let doc = RemoteDocument::load(&mut wb_ok).expect("BitmapData ok");
+                            match &doc.operations[0] {
+                                Operation::BitmapData(bmp) => {
+                                    assert_eq!(bmp.width(), 32);
+                                    assert_eq!(bmp.image_type(), 2);
+                                    assert_eq!(bmp.bitmap_encoding(), 3);
+                                }
+                                other => panic!("Unexpected {:?}", other),
+                            }
+                        }
+                        // ParticlesCompare equation length 40 accepted
+                        {
+                            let b: [u8; ${pc40Bytes.size}] = [${toHexInit(pc40Bytes)}];
+                            let mut wb = WireBuffer::from_bytes(&b);
+                            let doc = RemoteDocument::load(&mut wb).expect("ParticlesCompare 40");
+                            match &doc.operations[0] {
+                                Operation::ParticlesCompare(pc) => {
+                                    assert_eq!(pc.condition.len(), 40);
+                                    assert_eq!(pc.equations1[0].equation.len(), 40);
+                                }
+                                other => panic!("Unexpected {:?}", other),
+                            }
+                        }
+                    }
+                    """
+                        .trimIndent()
+                )
+                val bin = File(tmpDir, "test_rust")
+                val comp =
+                    ProcessBuilder(
+                            rustc.absolutePath,
+                            mainRs.absolutePath,
+                            "-O",
+                            "-o",
+                            bin.absolutePath,
+                        )
+                        .redirectErrorStream(true)
+                        .start()
+                val compOut = comp.inputStream.bufferedReader().readText()
+                assertEquals("Rust compile failed:\n$compOut", 0, comp.waitFor())
+                val run = ProcessBuilder(bin.absolutePath).redirectErrorStream(true).start()
+                val runOut = run.inputStream.bufferedReader().readText()
+                assertEquals("Rust run failed:\n$runOut", 0, run.waitFor())
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        // 3. Python native execution
+        val python3 = findExecutableOnPath("python3")
+        if (python3 != null) {
+            val tmpDir = Files.createTempDirectory("rc_wire_fidelity_py").toFile()
+            try {
+                File(tmpDir, "remote_compose.py").writeText(PythonGenerator(schema).generate())
+                val testPy = File(tmpDir, "test_fidelity.py")
+                testPy.writeText(
+                    """
+                    from remote_compose import RemoteDocument, WireBuffer
+
+                    def assert_raises(exc, fn):
+                        try:
+                            fn()
+                            raise AssertionError("Expected exception")
+                        except exc:
+                            pass
+
+                    # ImageAttribute 40 args
+                    doc = RemoteDocument.load(bytes([${toHexInit(img40Bytes)}]))
+                    assert len(doc.operations) == 1
+                    assert len(doc.operations[0].args) == 40
+
+                    # Skip taken vs inline not-taken + byte round-trip
+                    skip_bytes = bytes([${toHexInit(skipDocBytes)}])
+                    taken = RemoteDocument.load_for_player(skip_bytes, 6, 0)
+                    assert len(taken.operations) == 2
+                    assert taken.operations[0].condition == 1
+                    assert len(taken.operations[0].skipped_bytes) == 13
+                    assert type(taken.operations[1]).__name__ == "DrawRect"
+
+                    inline_doc = RemoteDocument.load_for_player(skip_bytes, 8, 0)
+                    assert len(inline_doc.operations) == 3
+                    assert inline_doc.operations[0].skipped_bytes is None
+                    assert inline_doc.operations[0].skip_length == 13
+                    assert type(inline_doc.operations[1]).__name__ == "DrawCircle"
+                    assert type(inline_doc.operations[2]).__name__ == "DrawRect"
+
+                    out1, out2 = WireBuffer(), WireBuffer()
+                    for op in taken.operations:
+                        op.write(out1)
+                    for op in inline_doc.operations:
+                        op.write(out2)
+                    assert out1.get_bytes() == out2.get_bytes()
+
+                    # Skip unknown conditionType=99 never skips
+                    unk = RemoteDocument.load_for_player(bytes([${toHexInit(skipUnknownDocBytes)}]), 1, 0)
+                    assert len(unk.operations) == 2
+                    assert type(unk.operations[1]).__name__ == "DrawCircle"
+
+                    # Skip negative skipLength rejected
+                    neg = bytes([${toHexInit(skipNegBytes)}])
+                    assert_raises(ValueError, lambda: RemoteDocument.load(neg))
+                    assert_raises(ValueError, lambda: RemoteDocument.load_for_player(neg, 8, 0))
+
+                    # BitmapData bit 31 rejected; valid 16..30 unpacked
+                    assert_raises(ValueError, lambda: RemoteDocument.load(bytes([${toHexInit(bmpBadWidthBytes)}])))
+                    bmp_doc = RemoteDocument.load(bytes([${toHexInit(bmpValidBytes)}]))
+                    bmp = bmp_doc.operations[0]
+                    assert bmp.width == 32 and bmp.image_type == 2 and bmp.bitmap_encoding == 3
+
+                    # ParticlesCompare equation length 40 accepted
+                    pc_doc = RemoteDocument.load(bytes([${toHexInit(pc40Bytes)}]))
+                    pc = pc_doc.operations[0]
+                    assert len(pc.condition) == 40 and len(pc.equations1[0].equation) == 40
+                    """
+                        .trimIndent()
+                )
+                val run =
+                    ProcessBuilder(python3.absolutePath, testPy.absolutePath)
+                        .redirectErrorStream(true)
+                        .start()
+                val runOut = run.inputStream.bufferedReader().readText()
+                assertEquals("Python run failed:\n$runOut", 0, run.waitFor())
             } finally {
                 tmpDir.deleteRecursively()
             }

@@ -40,6 +40,11 @@
       "base": "int",
       "description": "ARGB 32-bit packed color"
     },
+    "int_id": {
+      "wire": "INT32",
+      "base": "int",
+      "description": "32-bit signed integer variable or resource ID"
+    },
     "int[]": {
       "wire": "INT_ARRAY",
       "description": "Array of 32-bit signed integers prefixed by 16-bit length"
@@ -577,6 +582,7 @@
           "name": "words",
           "type": "int[]",
           "lengthType": "int",
+          "maxLength": 1024,
           "encoding": "paint_bundle",
           "description": "Serialized PaintBundle 32-bit command stream"
         }
@@ -1398,11 +1404,12 @@
         {
           "name": "themeId",
           "type": "int",
-          "description": "Theme identifier (0=system, 1=light, 2=dark)",
+          "description": "Theme identifier (0=SYSTEM, -1=UNSPECIFIED, -2=DARK, -3=LIGHT)",
           "enum": {
             "SYSTEM": 0,
-            "LIGHT": 1,
-            "DARK": 2
+            "UNSPECIFIED": -1,
+            "DARK": -2,
+            "LIGHT": -3
           }
         }
       ],
@@ -1688,6 +1695,7 @@
           "type": "float_or_id[]",
           "countFrom": "expressionLength",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "encoding": "rpn_float_expression",
           "description": "RPN float expression tokens"
         },
@@ -1723,7 +1731,8 @@
         "experimental"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 93,
@@ -1761,7 +1770,8 @@
         }
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 100,
@@ -1807,6 +1817,7 @@
           "type": "int[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_FUNCTION_ARGUMENTS",
           "presentIf": "(commonFlags & 2) == 0",
           "description": "Optional event payload variable IDs"
         },
@@ -1815,6 +1826,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "presentIf": "(commonFlags & 1) == 0",
           "description": "Optional RPN condition expression"
         }
@@ -1847,7 +1859,8 @@
           "name": "widthAndType",
           "type": "int",
           "unpackBits": false,
-          "description": "Encoded width (bits 0..15) and image type (bits 16..31)",
+          "mustBeZeroBits": "31..31",
+          "description": "Encoded width (bits 0..15) and image type (bits 16..30); bit 31 must be zero",
           "bits": [
             {
               "name": "width",
@@ -1856,7 +1869,7 @@
             },
             {
               "name": "imageType",
-              "range": "16..31",
+              "range": "16..30",
               "description": "Bitmap image format"
             }
           ]
@@ -1865,7 +1878,8 @@
           "name": "heightAndEncoding",
           "type": "int",
           "unpackBits": false,
-          "description": "Encoded height (bits 0..15) and data encoding (bits 16..31)",
+          "mustBeZeroBits": "31..31",
+          "description": "Encoded height (bits 0..15) and data encoding (bits 16..30); bit 31 must be zero",
           "bits": [
             {
               "name": "height",
@@ -1874,7 +1888,7 @@
             },
             {
               "name": "bitmapEncoding",
-              "range": "16..31",
+              "range": "16..30",
               "description": "Payload encoding (0=INLINE, 1=URL, 2=FILE, 3=EMPTY, 4=COMPONENT_OFFSCREEN_BUFFER)"
             }
           ]
@@ -2485,6 +2499,8 @@
           "name": "pathData",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 20000,
+          "javaLimit": "PathData.MAX_PATH_LENGTH",
           "encoding": "path_commands",
           "description": "Encoded path command and coordinate float stream"
         }
@@ -2743,22 +2759,94 @@
         {
           "name": "flagsAndMode",
           "type": "int",
-          "description": "Mode in bits 0..7 and mode-specific upper bitflags/alpha"
+          "description": "Mode in bits 0..7 and mode-specific upper bitflags/alpha",
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "mode",
+              "range": "0..7",
+              "description": "Color evaluation mode (0..6)",
+              "enum": {
+                "COLOR_COLOR_INTERPOLATE": 0,
+                "ID_COLOR_INTERPOLATE": 1,
+                "COLOR_ID_INTERPOLATE": 2,
+                "ID_ID_INTERPOLATE": 3,
+                "HSV_MODE": 4,
+                "ARGB_MODE": 5,
+                "IDARGB_MODE": 6
+              },
+              "strictEnum": true
+            },
+            {
+              "name": "upperParam",
+              "range": "16..31",
+              "signed": true,
+              "description": "Fixed-point alpha * 1024 (modes 4..5) or alpha variable ID (mode 6)"
+            }
+          ]
         },
         {
           "name": "arg1",
           "type": "int",
-          "description": "First color, hue float bits, or source ID depending on mode"
+          "description": "First color, hue float bits, or source ID depending on mode",
+          "conditionalTypes": [
+            {
+              "when": "(flagsAndMode & 255) >= 4",
+              "type": "float_or_id"
+            },
+            {
+              "when": "(flagsAndMode & 255) == 0 || (flagsAndMode & 255) == 2",
+              "type": "color"
+            },
+            {
+              "when": "(flagsAndMode & 255) == 1 || (flagsAndMode & 255) == 3",
+              "type": "int_id"
+            }
+          ],
+          "conditionalRoles": [
+            {
+              "when": "(flagsAndMode & 255) == 1 || (flagsAndMode & 255) == 3",
+              "role": "idRef",
+              "idKind": "color"
+            }
+          ]
         },
         {
           "name": "arg2",
           "type": "int",
-          "description": "Second color, saturation float bits, or attribute type depending on mode"
+          "description": "Second color, saturation float bits, or attribute type depending on mode",
+          "conditionalTypes": [
+            {
+              "when": "(flagsAndMode & 255) >= 4",
+              "type": "float_or_id"
+            },
+            {
+              "when": "(flagsAndMode & 255) == 0 || (flagsAndMode & 255) == 1",
+              "type": "color"
+            },
+            {
+              "when": "(flagsAndMode & 255) == 2 || (flagsAndMode & 255) == 3",
+              "type": "int_id"
+            }
+          ],
+          "conditionalRoles": [
+            {
+              "when": "(flagsAndMode & 255) == 2 || (flagsAndMode & 255) == 3",
+              "role": "idRef",
+              "idKind": "color"
+            }
+          ]
         },
         {
           "name": "arg3",
           "type": "int",
-          "description": "Tween/value/blue float bits depending on mode"
+          "description": "Tween/value/blue float bits depending on mode",
+          "conditionalTypes": [
+            {
+              "when": "(flagsAndMode & 255) <= 6",
+              "type": "float_or_id"
+            }
+          ]
         }
       ],
       "profiles": [
@@ -2847,13 +2935,16 @@
         {
           "name": "varType",
           "type": "int",
-          "description": "Type of variable (1=FLOAT, 2=INT, 3=STRING, 4=BOOLEAN, 5=COLOR)",
+          "description": "Type of variable (0=STRING, 1=FLOAT, 2=COLOR, 3=IMAGE, 4=INT, 5=LONG, 6=FLOAT_ARRAY/PATH)",
           "enum": {
+            "STRING": 0,
             "FLOAT": 1,
-            "INT": 2,
-            "STRING": 3,
-            "BOOLEAN": 4,
-            "COLOR": 5
+            "COLOR": 2,
+            "IMAGE": 3,
+            "INT": 4,
+            "LONG": 5,
+            "FLOAT_ARRAY": 6,
+            "PATH": 6
           }
         },
         {
@@ -2965,7 +3056,8 @@
           "description": "The ID of the operations container"
         }
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 143,
@@ -3013,6 +3105,8 @@
           "name": "values",
           "type": "int[]",
           "lengthType": "int",
+          "maxLength": 320,
+          "javaLimit": "IntegerExpression.MAX_SIZE",
           "encoding": "rpn_integer_expression",
           "description": "RPN integer expression tokens"
         }
@@ -3042,6 +3136,7 @@
           "type": "DataMapEntry[]",
           "lengthType": "int",
           "maxLength": 2000,
+          "javaLimit": "Limits.MAX_DATA_MAP_SIZE",
           "description": "Named typed variable entries"
         }
       ],
@@ -3068,6 +3163,8 @@
           "name": "ids",
           "type": "int[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "DataListIds.MAX_LIST",
           "description": "Array of element IDs"
         }
       ],
@@ -3094,6 +3191,8 @@
           "name": "values",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "DataListFloat.MAX_FLOAT_ARRAY",
           "description": "Array of float values or variable IDs"
         }
       ],
@@ -3195,7 +3294,30 @@
             "SCALE_CROP": 5,
             "SCALE_FILL_BOUNDS": 6,
             "SCALE_FIXED_SCALE": 7
-          }
+          },
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "scaleMode",
+              "range": "0..7",
+              "enum": {
+                "SCALE_NONE": 0,
+                "SCALE_INSIDE": 1,
+                "SCALE_FILL_WIDTH": 2,
+                "SCALE_FILL_HEIGHT": 3,
+                "SCALE_FIT": 4,
+                "SCALE_CROP": 5,
+                "SCALE_FILL_BOUNDS": 6,
+                "SCALE_FIXED_SCALE": 7
+              },
+              "description": "Image scaling mode"
+            },
+            {
+              "name": "dereferenceImageId",
+              "range": "8",
+              "description": "When 1, dereferences imageId as a variable pointer"
+            }
+          ]
         },
         {
           "name": "scaleFactor",
@@ -3406,7 +3528,29 @@
             "MEASURE_RIGHT": 3,
             "MEASURE_TOP": 4,
             "MEASURE_BOTTOM": 5
-          }
+          },
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "measureKind",
+              "range": "0..7",
+              "enum": {
+                "MEASURE_WIDTH": 0,
+                "MEASURE_HEIGHT": 1,
+                "MEASURE_LEFT": 2,
+                "MEASURE_RIGHT": 3,
+                "MEASURE_TOP": 4,
+                "MEASURE_BOTTOM": 5
+              },
+              "description": "Measurement kind"
+            },
+            {
+              "name": "measureFlags",
+              "range": "8..31",
+              "signed": true,
+              "description": "Measurement flags (bit 0 = MONOSPACE_WIDTH, bit 1 = FONT_HEIGHT)"
+            }
+          ]
         }
       ],
       "profiles": [
@@ -3616,6 +3760,8 @@
           "name": "pathData",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "PathAppend.MAX_PATH_BUFFER",
           "encoding": "path_commands",
           "description": "Encoded path command and coordinate float stream to append"
         }
@@ -3649,6 +3795,7 @@
           "type": "ParticleVariable[]",
           "lengthType": "int",
           "maxLength": 2000,
+          "javaLimit": "ParticlesCreate.MAX_FLOAT_ARRAY",
           "description": "Particle state variables and initial equations"
         }
       ],
@@ -3676,6 +3823,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "encoding": "rpn_float_expression",
           "description": "Restart condition RPN expression"
         },
@@ -3684,6 +3832,7 @@
           "type": "ParticleEquation[]",
           "lengthType": "int",
           "maxLength": 2000,
+          "javaLimit": "Limits.MAX_PARTICLE_FLOAT_ARRAY_SIZE",
           "description": "Update RPN expressions for each particle variable"
         }
       ],
@@ -3691,7 +3840,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 164,
@@ -3715,7 +3865,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 165,
@@ -3727,7 +3878,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 166,
@@ -3750,6 +3902,8 @@
           "name": "args",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 80,
+          "javaLimit": "FloatFunctionCall.MAX_FLOAT_ARRAY_SIZE",
           "description": "Function call arguments"
         }
       ],
@@ -3828,11 +3982,13 @@
           "type": "int[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_FUNCTION_ARGUMENTS",
           "description": "Local parameter variable IDs"
         }
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 169,
@@ -3854,6 +4010,8 @@
         {
           "name": "data",
           "type": "bytes",
+          "maxLength": 262144,
+          "javaLimit": "SoundData.MAX_SOUND_DATA_SIZE",
           "description": "SC-format raw audio bytes"
         }
       ],
@@ -3879,7 +4037,39 @@
         {
           "name": "type",
           "type": "short",
-          "description": "The type of property to extract"
+          "description": "The type of property to extract",
+          "enum": {
+            "MEASURE_WIDTH": 0,
+            "MEASURE_HEIGHT": 1,
+            "MEASURE_LEFT": 2,
+            "MEASURE_RIGHT": 3,
+            "MEASURE_TOP": 4,
+            "MEASURE_BOTTOM": 5,
+            "TEXT_LENGTH": 6
+          },
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "attributeKind",
+              "range": "0..7",
+              "enum": {
+                "MEASURE_WIDTH": 0,
+                "MEASURE_HEIGHT": 1,
+                "MEASURE_LEFT": 2,
+                "MEASURE_RIGHT": 3,
+                "MEASURE_TOP": 4,
+                "MEASURE_BOTTOM": 5,
+                "TEXT_LENGTH": 6
+              },
+              "description": "Text property kind"
+            },
+            {
+              "name": "measureFlags",
+              "range": "8..15",
+              "signed": true,
+              "description": "Measurement flags for kinds 0..5"
+            }
+          ]
         },
         {
           "name": "unused",
@@ -3918,8 +4108,6 @@
           "name": "args",
           "type": "int[]",
           "lengthType": "short",
-          "maxLength": 32,
-          "javaLimit": "Limits.MAX_FUNCTION_ARGUMENTS",
           "description": "Support for additional arguments"
         }
       ],
@@ -3955,7 +4143,7 @@
           "type": "int[]",
           "lengthType": "short",
           "maxLength": 32,
-          "javaLimit": "Limits.MAX_FUNCTION_ARGUMENTS",
+          "javaLimit": "TimeAttribute.MAX_ARG_LEN",
           "description": "The optional arguments"
         }
       ],
@@ -3974,7 +4162,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 174,
@@ -4069,7 +4258,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 177,
@@ -4106,7 +4296,8 @@
             "TYPE_LT": 2,
             "TYPE_LTE": 3,
             "TYPE_GT": 4,
-            "TYPE_GTE": 5
+            "TYPE_GTE": 5,
+            "TYPE_CHANGED": 6
           }
         },
         {
@@ -4124,7 +4315,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 179,
@@ -4444,6 +4636,7 @@
           "name": "values",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 16,
           "description": "Matrix float elements"
         }
       ],
@@ -4475,6 +4668,7 @@
           "name": "expression",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 32,
           "encoding": "rpn_float_expression",
           "description": "Matrix construction expression stream"
         }
@@ -4507,12 +4701,16 @@
           "name": "outputs",
           "type": "int[]",
           "lengthType": "int",
+          "minLength": 1,
+          "maxLength": 4,
           "description": "Output float variable IDs"
         },
         {
           "name": "inputs",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "minLength": 1,
+          "maxLength": 4,
           "description": "Input vector components"
         }
       ],
@@ -4675,6 +4873,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "description": "X/radius RPN expression"
         },
         {
@@ -4682,6 +4881,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "description": "Y/angle RPN expression (may be empty)"
         }
       ],
@@ -4720,18 +4920,24 @@
           "name": "condition",
           "type": "float_or_id[]",
           "lengthType": "int",
+          "maxLength": 46,
+          "javaLimit": "ParticlesCompare.MAX_EQU_LENGTH",
           "description": "Comparison RPN expression"
         },
         {
           "name": "equations1",
-          "type": "ParticleEquation[]",
+          "type": "ParticleCompareEquation[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "ParticlesCompare.MAX_FLOAT_ARRAY",
           "description": "First branch particle equations"
         },
         {
           "name": "equations2",
-          "type": "ParticleEquation[]",
+          "type": "ParticleCompareEquation[]",
           "lengthType": "int",
+          "maxLength": 2000,
+          "javaLimit": "ParticlesCompare.MAX_FLOAT_ARRAY",
           "description": "Second branch particle equations"
         }
       ],
@@ -4740,7 +4946,8 @@
         "widgets"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 196,
@@ -4906,7 +5113,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 201,
@@ -4925,7 +5133,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 202,
@@ -4951,9 +5160,9 @@
           "type": "int",
           "description": "Horizontal positioning mode",
           "enum": {
-            "START": 0,
-            "CENTER": 1,
-            "END": 2
+            "START": 1,
+            "CENTER": 2,
+            "END": 3
           }
         },
         {
@@ -4961,9 +5170,9 @@
           "type": "int",
           "description": "Vertical positioning mode",
           "enum": {
-            "TOP": 0,
-            "CENTER": 1,
-            "BOTTOM": 2
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5
           }
         }
       ],
@@ -5001,12 +5210,12 @@
           "type": "int",
           "description": "Horizontal positioning mode",
           "enum": {
-            "START": 0,
-            "CENTER": 1,
-            "END": 2,
-            "SPACE_BETWEEN": 3,
-            "SPACE_EVENLY": 4,
-            "SPACE_AROUND": 5
+            "START": 1,
+            "CENTER": 2,
+            "END": 3,
+            "SPACE_BETWEEN": 6,
+            "SPACE_EVENLY": 7,
+            "SPACE_AROUND": 8
           }
         },
         {
@@ -5014,9 +5223,9 @@
           "type": "int",
           "description": "Vertical positioning mode",
           "enum": {
-            "TOP": 0,
-            "CENTER": 1,
-            "BOTTOM": 2
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5
           }
         },
         {
@@ -5059,9 +5268,9 @@
           "type": "int",
           "description": "Horizontal positioning mode",
           "enum": {
-            "START": 0,
-            "CENTER": 1,
-            "END": 2
+            "START": 1,
+            "CENTER": 2,
+            "END": 3
           }
         },
         {
@@ -5069,12 +5278,12 @@
           "type": "int",
           "description": "Vertical positioning mode",
           "enum": {
-            "TOP": 0,
-            "CENTER": 1,
-            "BOTTOM": 2,
-            "SPACE_BETWEEN": 3,
-            "SPACE_EVENLY": 4,
-            "SPACE_AROUND": 5
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5,
+            "SPACE_BETWEEN": 6,
+            "SPACE_EVENLY": 7,
+            "SPACE_AROUND": 8
           }
         },
         {
@@ -5115,7 +5324,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 206,
@@ -5153,7 +5363,9 @@
           "name": "params",
           "type": "float_or_id[]",
           "lengthType": "int",
-          "description": "Sound modulation expression"
+          "description": "Sound modulation expression",
+          "maxLength": 64,
+          "javaLimit": "SoundExpression.MAX_PARAMS"
         }
       ],
       "restrictToLibraryGroup": true
@@ -5180,7 +5392,8 @@
         "modifiers",
         "LayoutContent",
         "layout"
-      ]
+      ],
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 208,
@@ -5207,7 +5420,24 @@
         {
           "name": "color",
           "type": "int",
-          "description": "The text color (ARGB)"
+          "description": "The text color (ARGB)",
+          "conditionalTypes": [
+            {
+              "when": "(textAlign & 65536) == 0",
+              "type": "color"
+            },
+            {
+              "when": "(textAlign & 65536) != 0",
+              "type": "int_id"
+            }
+          ],
+          "conditionalRoles": [
+            {
+              "when": "(textAlign & 65536) != 0",
+              "role": "idRef",
+              "idKind": "color"
+            }
+          ]
         },
         {
           "name": "fontSize",
@@ -5232,7 +5462,35 @@
         {
           "name": "textAlign",
           "type": "int",
-          "description": "The text alignment and flags"
+          "description": "The text alignment and flags",
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "alignment",
+              "range": "0..15",
+              "signed": true,
+              "enum": {
+                "LEFT": 1,
+                "RIGHT": 2,
+                "CENTER": 3,
+                "JUSTIFY": 4,
+                "START": 5,
+                "END": 6
+              },
+              "description": "Horizontal text alignment"
+            },
+            {
+              "name": "isDynamicColor",
+              "range": "16",
+              "description": "When 1 (v7+), color holds a color variable ID rather than ARGB literal"
+            },
+            {
+              "name": "upperFlags",
+              "range": "17..31",
+              "signed": true,
+              "description": "Upper textAlign flags"
+            }
+          ]
         },
         {
           "name": "overflow",
@@ -5249,7 +5507,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 209,
@@ -5470,7 +5729,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 218,
@@ -5515,7 +5775,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 220,
@@ -5527,7 +5788,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 221,
@@ -5623,7 +5885,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 226,
@@ -5657,7 +5920,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 227,
@@ -5756,12 +6020,25 @@
         {
           "name": "horizontalPositioning",
           "type": "int",
-          "description": "Horizontal positioning value"
+          "description": "Horizontal positioning value",
+          "enum": {
+            "START": 1,
+            "CENTER": 2,
+            "END": 3,
+            "SPACE_BETWEEN": 6,
+            "SPACE_EVENLY": 7,
+            "SPACE_AROUND": 8
+          }
         },
         {
           "name": "verticalPositioning",
           "type": "int",
-          "description": "Vertical positioning value"
+          "description": "Vertical positioning value",
+          "enum": {
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5
+          }
         },
         {
           "name": "spacedBy",
@@ -5773,7 +6050,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 231,
@@ -5841,12 +6119,25 @@
         {
           "name": "horizontalPositioning",
           "type": "int",
-          "description": "Horizontal positioning value"
+          "description": "Horizontal positioning value",
+          "enum": {
+            "START": 1,
+            "CENTER": 2,
+            "END": 3
+          }
         },
         {
           "name": "verticalPositioning",
           "type": "int",
-          "description": "Vertical positioning value"
+          "description": "Vertical positioning value",
+          "enum": {
+            "TOP": 4,
+            "CENTER": 2,
+            "BOTTOM": 5,
+            "SPACE_BETWEEN": 6,
+            "SPACE_EVENLY": 7,
+            "SPACE_AROUND": 8
+          }
         },
         {
           "name": "spacedBy",
@@ -5858,7 +6149,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 234,
@@ -5885,7 +6177,35 @@
         {
           "name": "scaleType",
           "type": "int",
-          "description": "The scale type to apply"
+          "description": "The scale type to apply",
+          "enum": {
+            "SCALE_NONE": 0,
+            "SCALE_INSIDE": 1,
+            "SCALE_FILL_WIDTH": 2,
+            "SCALE_FILL_HEIGHT": 3,
+            "SCALE_FIT": 4,
+            "SCALE_CROP": 5,
+            "SCALE_FILL_BOUNDS": 6,
+            "SCALE_FIXED_SCALE": 7
+          },
+          "unpackBits": false,
+          "bits": [
+            {
+              "name": "scaleMode",
+              "range": "0..7",
+              "enum": {
+                "SCALE_NONE": 0,
+                "SCALE_INSIDE": 1,
+                "SCALE_FILL_WIDTH": 2,
+                "SCALE_FILL_HEIGHT": 3,
+                "SCALE_FIT": 4,
+                "SCALE_CROP": 5,
+                "SCALE_FILL_BOUNDS": 6,
+                "SCALE_FIXED_SCALE": 7
+              },
+              "description": "Active scale type (bits 8..31 ignored by reader)"
+            }
+          ]
         },
         {
           "name": "alpha",
@@ -5897,7 +6217,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 235,
@@ -5932,7 +6253,8 @@
         "baseline"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 237,
@@ -5987,7 +6309,8 @@
         "experimental"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 239,
@@ -6170,7 +6493,8 @@
       ],
       "isContainer": true,
       "sparseCountType": "ushort",
-      "sparseKeyType": "ubyte"
+      "sparseKeyType": "ubyte",
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 240,
@@ -6234,7 +6558,8 @@
         "experimental"
       ],
       "restrictToLibraryGroup": true,
-      "isContainer": true
+      "isContainer": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 241,
@@ -6246,11 +6571,83 @@
         "androidx",
         "widgets"
       ],
+      "conditionalSkip": {
+        "conditionField": "conditionType",
+        "conditionBits": "0..15",
+        "conditionSigned": true,
+        "valueField": "value",
+        "lengthField": "skipLength",
+        "payloadField": "skippedBytes",
+        "unknownConditionSkips": false,
+        "conditions": [
+          {
+            "when": 1,
+            "name": "SKIP_IF_API_LESS_THAN",
+            "target": "apiLevel",
+            "op": "<"
+          },
+          {
+            "when": 2,
+            "name": "SKIP_IF_API_GREATER_THAN",
+            "target": "apiLevel",
+            "op": ">"
+          },
+          {
+            "when": 3,
+            "name": "SKIP_IF_API_EQUAL_TO",
+            "target": "apiLevel",
+            "op": "=="
+          },
+          {
+            "when": 4,
+            "name": "SKIP_IF_API_NOT_EQUAL_TO",
+            "target": "apiLevel",
+            "op": "!="
+          },
+          {
+            "when": 5,
+            "name": "SKIP_IF_PROFILE_INCLUDES",
+            "target": "profiles",
+            "op": "mask_any"
+          },
+          {
+            "when": 6,
+            "name": "SKIP_IF_PROFILE_EXCLUDES",
+            "target": "profiles",
+            "op": "mask_none"
+          }
+        ]
+      },
       "fields": [
         {
           "name": "conditionType",
           "type": "int",
-          "description": "Condition code determining whether to skip"
+          "unpackBits": false,
+          "enum": {
+            "SKIP_IF_API_LESS_THAN": 1,
+            "SKIP_IF_API_GREATER_THAN": 2,
+            "SKIP_IF_API_EQUAL_TO": 3,
+            "SKIP_IF_API_NOT_EQUAL_TO": 4,
+            "SKIP_IF_PROFILE_INCLUDES": 5,
+            "SKIP_IF_PROFILE_EXCLUDES": 6
+          },
+          "bits": [
+            {
+              "name": "condition",
+              "range": "0..15",
+              "signed": true,
+              "enum": {
+                "SKIP_IF_API_LESS_THAN": 1,
+                "SKIP_IF_API_GREATER_THAN": 2,
+                "SKIP_IF_API_EQUAL_TO": 3,
+                "SKIP_IF_API_NOT_EQUAL_TO": 4,
+                "SKIP_IF_PROFILE_INCLUDES": 5,
+                "SKIP_IF_PROFILE_EXCLUDES": 6
+              },
+              "description": "Signed low 16 bits evaluated by the reader; unknown values never take the skip"
+            }
+          ],
+          "description": "32-bit condition word; reader keeps only the signed low 16 bits and never skips on unknown types"
         },
         {
           "name": "value",
@@ -6258,10 +6655,18 @@
           "description": "Value to evaluate the skip condition against"
         },
         {
+          "name": "skipLength",
+          "type": "int",
+          "minValue": 0,
+          "description": "Non-negative byte length of the conditionally skipped region"
+        },
+        {
           "name": "skippedBytes",
           "type": "bytes",
+          "countFrom": "skipLength",
+          "presentIf": "skipTaken",
           "payloadKind": "operations",
-          "description": "Raw skipped operation bytes"
+          "description": "Raw skipped operation bytes consumed when the skip condition holds; omitted (decoded inline) when not taken"
         }
       ],
       "restrictToLibraryGroup": true
@@ -6496,7 +6901,8 @@
           "description": "Local item variable ID bound during iteration"
         }
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 245,
@@ -6551,7 +6957,8 @@
           "description": "Serialized pattern body operations"
         }
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 247,
@@ -6583,7 +6990,8 @@
       "restrictToLibraryGroup": true,
       "allowedChildren": [
         "PatternBlock"
-      ]
+      ],
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 248,
@@ -6624,7 +7032,8 @@
           "description": "The index of the parameter block"
         }
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "closedBy": "ContainerEnd"
     },
     {
       "id": 250,
@@ -6822,6 +7231,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 200,
+          "javaLimit": "Limits.MAX_SHADER_FLOAT_COUNT",
           "description": "Uniform float values or variable IDs"
         }
       ]
@@ -6839,6 +7249,7 @@
           "type": "int[]",
           "lengthType": "int",
           "maxLength": 200,
+          "javaLimit": "Limits.MAX_SHADER_FLOAT_COUNT",
           "description": "Uniform integer values"
         }
       ]
@@ -6871,12 +7282,59 @@
         {
           "name": "dataType",
           "type": "short",
-          "description": "Property wire data type"
+          "description": "Property wire data type",
+          "enum": {
+            "INT_PROP": 0,
+            "FLOAT_PROP": 1,
+            "STRING_PROP": 2,
+            "FLOAT_RETURN": 3,
+            "TEXT_RETURN": 4,
+            "INT_RETURN": 5,
+            "COLOR_RETURN": 6,
+            "COLOR_ID_PROP": 7,
+            "COLOR_PROP": 8,
+            "INT_ID_PROP": 9
+          }
         },
         {
           "name": "rawValue",
           "type": "int",
-          "description": "Raw 32-bit int or float bit payload"
+          "conditionalTypes": [
+            {
+              "when": "dataType == 0",
+              "type": "int"
+            },
+            {
+              "when": "dataType == 1 || dataType == 3",
+              "type": "float_or_id"
+            },
+            {
+              "when": "dataType == 8",
+              "type": "color"
+            },
+            {
+              "when": "dataType == 2 || dataType == 4 || dataType == 5 || dataType == 6 || dataType == 7 || dataType == 9",
+              "type": "int_id"
+            }
+          ],
+          "conditionalRoles": [
+            {
+              "when": "dataType == 2 || dataType == 4",
+              "role": "idRef",
+              "idKind": "text"
+            },
+            {
+              "when": "dataType == 5 || dataType == 9",
+              "role": "idRef",
+              "idKind": "int"
+            },
+            {
+              "when": "dataType == 6 || dataType == 7",
+              "role": "idRef",
+              "idKind": "color"
+            }
+          ],
+          "description": "Raw 32-bit int, ARGB color, ID reference, or float/NaN-ID bit payload"
         }
       ]
     },
@@ -6916,6 +7374,7 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "ParticlesCreate.MAX_EQU_LENGTH",
           "encoding": "rpn_float_expression",
           "description": "Initialization RPN float expression"
         }
@@ -6929,8 +7388,23 @@
           "type": "float_or_id[]",
           "lengthType": "int",
           "maxLength": 32,
+          "javaLimit": "Limits.MAX_EXPRESSION_SIZE",
           "encoding": "rpn_float_expression",
           "description": "Update RPN float expression"
+        }
+      ]
+    },
+    "ParticleCompareEquation": {
+      "description": "Particle comparison branch RPN float expression",
+      "fields": [
+        {
+          "name": "equation",
+          "type": "float_or_id[]",
+          "lengthType": "int",
+          "maxLength": 46,
+          "javaLimit": "ParticlesCompare.MAX_EQU_LENGTH",
+          "encoding": "rpn_float_expression",
+          "description": "Branch update RPN float expression"
         }
       ]
     },

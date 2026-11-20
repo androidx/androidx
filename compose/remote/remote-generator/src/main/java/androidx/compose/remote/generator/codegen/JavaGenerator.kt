@@ -510,6 +510,7 @@ internal class JavaGenerator(private val schema: OperationSchema) {
         private fun mapToJavaTypeName(type: String): TypeName =
             when (type) {
                 "int",
+                "int_id",
                 "color" -> TypeName.INT
                 "short" -> TypeName.SHORT
                 "byte" -> TypeName.BYTE
@@ -525,6 +526,7 @@ internal class JavaGenerator(private val schema: OperationSchema) {
         private fun mapToJavaDocTypeConst(type: String): String =
             when (type) {
                 "int",
+                "int_id",
                 "color" -> "INT"
                 "short" -> "SHORT"
                 "byte" -> "BYTE"
@@ -540,6 +542,7 @@ internal class JavaGenerator(private val schema: OperationSchema) {
         private fun mapToJavaWriteMethod(type: String): String =
             when (type) {
                 "int",
+                "int_id",
                 "color" -> "writeInt"
                 "short" -> "writeShort"
                 "byte" -> "writeByte"
@@ -555,6 +558,7 @@ internal class JavaGenerator(private val schema: OperationSchema) {
         private fun mapToJavaReadMethod(type: String): String =
             when (type) {
                 "int",
+                "int_id",
                 "color" -> "readInt"
                 "short" -> "readShort"
                 "byte" -> "readByte"
@@ -603,6 +607,7 @@ internal class JavaGenerator(private val schema: OperationSchema) {
         fun mapToJavaType(type: String): String =
             when (type) {
                 "int",
+                "int_id",
                 "color" -> "int"
                 "short" -> "short"
                 "byte" -> "byte"

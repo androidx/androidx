@@ -20,6 +20,7 @@ import androidx.compose.remote.generator.AstProperty
 import androidx.compose.remote.generator.DerivedExpr
 import androidx.compose.remote.generator.OperationSchema
 import androidx.compose.remote.generator.SchemaBitField
+import androidx.compose.remote.generator.SchemaConditionalSkip
 import androidx.compose.remote.generator.SchemaField
 import androidx.compose.remote.generator.SchemaOperation
 import androidx.compose.remote.generator.SchemaSparseParam
@@ -225,7 +226,7 @@ internal class RustGenerator(private val schema: OperationSchema) {
                 when {
                     prop.type.endsWith("[]") || prop.type == "string" || prop.type == "bytes" -> 24
                     prop.type == "long" -> 8
-                    prop.type in setOf("int", "color", "float", "float_or_id") -> 4
+                    prop.type in setOf("int", "int_id", "color", "float", "float_or_id") -> 4
                     prop.type == "short" -> 2
                     prop.type in setOf("byte", "boolean") -> 1
                     else -> 24
@@ -286,6 +287,9 @@ internal class RustGenerator(private val schema: OperationSchema) {
             line()
             line("/// Reads and decodes a [${op.name}] operation from the wire buffer.")
             block("pub fn read(buffer: &mut WireBuffer) -> Result<Self, WireError>") {
+                if (op.conditionalSkip != null) {
+                    line("let skip_taken = true;")
+                }
                 emitRustReadBody(
                     this,
                     op.fields,
@@ -294,6 +298,80 @@ internal class RustGenerator(private val schema: OperationSchema) {
                     op.sparseCountType,
                     op.sparseKeyType,
                 )
+            }
+            if (op.conditionalSkip != null) {
+                val cs = op.conditionalSkip
+                val condParam = sanitizeRustIdentifier(cs.conditionField)
+                val valParam = sanitizeRustIdentifier(cs.valueField)
+                val condExpr =
+                    CodegenExprUtils.extractSkipConditionExpr(cs, condParam, ExprLang.RUST)
+                line()
+                line("/// Evaluates whether the player should skip this block.")
+                block(
+                    "pub fn should_skip($condParam: i32, $valParam: i32, player_api_level: i32, player_profiles: i32) -> bool"
+                ) {
+                    block("match $condExpr") {
+                        for (b in cs.conditions) {
+                            val brExpr =
+                                CodegenExprUtils.evaluateSkipBranchExpr(
+                                    b,
+                                    valParam,
+                                    "player_api_level",
+                                    "player_profiles",
+                                    ExprLang.RUST,
+                                )
+                            line("${b.whenValue} => $brExpr,")
+                        }
+                        line("_ => ${cs.unknownConditionSkips},")
+                    }
+                }
+                line()
+                line(
+                    "/// Reads a [${op.name}] evaluating the skip condition against the target player."
+                )
+                block(
+                    "pub fn read_for_player(buffer: &mut WireBuffer, player_api_level: i32, player_profiles: i32) -> Result<Self, WireError>"
+                ) {
+                    emitRustReadBody(
+                        this,
+                        op.fields,
+                        op.sparseParameters,
+                        props,
+                        op.sparseCountType,
+                        op.sparseKeyType,
+                        conditionalSkip = cs,
+                    )
+                }
+            }
+            val nullableNames = props.filter { it.isNullable }.map { it.name }.toSet()
+            for ((parentName, bit) in op.computedBitProperties) {
+                val getterSnake = sanitizeRustIdentifier(bit.name)
+                val parentSnake = sanitizeRustIdentifier(parentName)
+                val parentField = op.fields.firstOrNull { it.name == parentName }
+                line()
+                if (parentName in nullableNames) {
+                    val srcExpr =
+                        if (parentField?.type == "byte" || parentField?.type == "short") {
+                            "(v as i32)"
+                        } else {
+                            "v"
+                        }
+                    val extract = CodegenExprUtils.extractBitExpr(srcExpr, bit, ExprLang.RUST)
+                    block("pub fn $getterSnake(&self) -> Option<i32>") {
+                        line("self.$parentSnake.map(|v| $extract)")
+                    }
+                } else {
+                    val srcExpr =
+                        if (parentField?.type == "byte" || parentField?.type == "short") {
+                            "(self.$parentSnake as i32)"
+                        } else {
+                            "self.$parentSnake"
+                        }
+                    val extract = CodegenExprUtils.extractBitExpr(srcExpr, bit, ExprLang.RUST)
+                    block("pub fn $getterSnake(&self) -> i32") {
+                        line(extract)
+                    }
+                }
             }
             line()
             line("#[cfg($WRITER_CFG)]")
@@ -307,6 +385,7 @@ internal class RustGenerator(private val schema: OperationSchema) {
                     props,
                     op.sparseCountType,
                     op.sparseKeyType,
+                    op.conditionalSkip,
                 )
             }
         }
@@ -325,6 +404,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
     }
 
     private fun hasRustScalarReadValidations(field: SchemaField): Boolean {
+        if (field.minValue != null) return true
+        if (field.mustBeZeroBits != null) return true
         if (field.strictEnum && !field.enumValues.isNullOrEmpty()) return true
         val bits = field.bits
         return bits != null &&
@@ -333,6 +414,24 @@ internal class RustGenerator(private val schema: OperationSchema) {
     }
 
     private fun emitRustScalarValidations(w: CodeWriter, field: SchemaField, varName: String) {
+        val intExpr =
+            if (field.type == "byte" || field.type == "short") "($varName as i32)" else varName
+        if (field.minValue != null) {
+            w.block("if $intExpr < ${field.minValue}") {
+                line("return Err(WireError::InvalidData);")
+            }
+        }
+        if (field.mustBeZeroBits != null) {
+            val badBits =
+                CodegenExprUtils.nonZeroBitsCheckExpr(
+                    intExpr,
+                    field.mustBeZeroBits,
+                    ExprLang.RUST,
+                )
+            w.block("if $badBits") {
+                line("return Err(WireError::InvalidData);")
+            }
+        }
         if (field.strictEnum && !field.enumValues.isNullOrEmpty()) {
             val allowed = field.enumValues.values.distinct().sorted().joinToString(" | ")
             w.block("if !matches!($varName, $allowed)") {
@@ -341,12 +440,10 @@ internal class RustGenerator(private val schema: OperationSchema) {
         }
         val bits = field.bits
         if (bits != null && !field.unpackBits) {
-            val srcExpr =
-                if (field.type == "byte" || field.type == "short") "($varName as i32)" else varName
             for (b in bits) {
                 if (b.strictEnum && !b.enumValues.isNullOrEmpty()) {
                     val bVar = "bit_${toSnakeCase(b.name)}"
-                    val extract = CodegenExprUtils.extractBitExpr(srcExpr, b, ExprLang.RUST)
+                    val extract = CodegenExprUtils.extractBitExpr(intExpr, b, ExprLang.RUST)
                     val allowed = b.enumValues.values.distinct().sorted().joinToString(" | ")
                     w.line("let $bVar = $extract;")
                     w.block("if !matches!($bVar, $allowed)") {
@@ -364,15 +461,34 @@ internal class RustGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         if (fields.isEmpty() && sparseParameters.isNullOrEmpty()) {
             w.line("let _ = buffer;")
         }
         for (field in fields) {
+            if (conditionalSkip != null && field.name == conditionalSkip.payloadField) {
+                val condVar = sanitizeRustIdentifier(conditionalSkip.conditionField)
+                val valVar = sanitizeRustIdentifier(conditionalSkip.valueField)
+                w.line(
+                    "let skip_taken = Self::should_skip($condVar, $valVar, player_api_level, player_profiles);"
+                )
+            }
             val bits = field.bits
             if (bits != null && field.unpackBits) {
                 val rawVar = "raw_${toSnakeCase(field.name)}"
                 w.line("let $rawVar = buffer.read_i32()?;")
+                if (field.mustBeZeroBits != null) {
+                    val badBits =
+                        CodegenExprUtils.nonZeroBitsCheckExpr(
+                            rawVar,
+                            field.mustBeZeroBits,
+                            ExprLang.RUST,
+                        )
+                    w.block("if $badBits") {
+                        line("return Err(WireError::InvalidData);")
+                    }
+                }
                 for (b in bits) {
                     val bName = sanitizeRustIdentifier(b.name)
                     val extract = CodegenExprUtils.extractBitExpr(rawVar, b, ExprLang.RUST)
@@ -406,7 +522,7 @@ internal class RustGenerator(private val schema: OperationSchema) {
                         emitRustArrayReadLines(this, field, baseSnake)
                         line("${baseSnake}_vec")
                     } else {
-                        val readExpr = mapToRustScalarReadExpr(field.type, field.maxLength)
+                        val readExpr = mapToRustFieldScalarReadExpr(field)
                         if (hasRustScalarReadValidations(field)) {
                             line("let val = $readExpr;")
                             emitRustScalarValidations(this, field, "val")
@@ -426,7 +542,7 @@ internal class RustGenerator(private val schema: OperationSchema) {
                 emitRustArrayReadLines(w, field, baseSnake)
                 w.line("let $snakeName = ${baseSnake}_vec;")
             } else {
-                w.line("let $snakeName = ${mapToRustScalarReadExpr(field.type, field.maxLength)};")
+                w.line("let $snakeName = ${mapToRustFieldScalarReadExpr(field)};")
                 emitRustScalarValidations(w, field, snakeName)
             }
         }
@@ -561,6 +677,11 @@ internal class RustGenerator(private val schema: OperationSchema) {
         }
         val elemType = field.type.removeSuffix("[]")
         val elemMinBytes = CodegenExprUtils.minWireElementBytes(elemType, schema)
+        if (field.minLength != null && field.minLength > 0) {
+            w.block("if ${baseSnake}_len < ${field.minLength}") {
+                line("return Err(WireError::InvalidData);")
+            }
+        }
         if (field.maxLength != null) {
             w.block("if ${baseSnake}_len > ${field.maxLength}") {
                 line("return Err(WireError::InvalidData);")
@@ -582,6 +703,7 @@ internal class RustGenerator(private val schema: OperationSchema) {
         props: List<AstProperty>,
         sparseCountType: String? = null,
         sparseKeyType: String? = null,
+        conditionalSkip: SchemaConditionalSkip? = null,
     ) {
         val propByName = props.associateBy { it.name }
         val localVars = mutableSetOf<String>()
@@ -632,6 +754,20 @@ internal class RustGenerator(private val schema: OperationSchema) {
 
             val snakeName = sanitizeRustIdentifier(field.name)
             val isNullable = propByName[field.name]?.isNullable == true
+
+            if (conditionalSkip != null && field.name == conditionalSkip.lengthField) {
+                val payloadSnake = sanitizeRustIdentifier(conditionalSkip.payloadField)
+                w.line(
+                    "buffer.write_i32(if let Some(ref b) = self.$payloadSnake { b.len() as i32 } else { self.$snakeName });"
+                )
+                continue
+            }
+            if (conditionalSkip != null && field.name == conditionalSkip.payloadField) {
+                w.block("if let Some(ref b) = self.$snakeName") {
+                    line("buffer.write_bytes(b);")
+                }
+                continue
+            }
 
             if (field.presentIf != null) {
                 val cond =
@@ -719,6 +855,9 @@ internal class RustGenerator(private val schema: OperationSchema) {
                     line("${mapToRustScalarWriteExpr(elemType, "item", isOwnedOrValue = true)};")
                 }
             }
+        } else if (field.type == "bytes" && field.countFrom != null) {
+            val sliceExpr = if (isRef) expr else "&$expr"
+            w.line("buffer.write_bytes($sliceExpr);")
         } else {
             val valExpr =
                 if (
@@ -732,6 +871,13 @@ internal class RustGenerator(private val schema: OperationSchema) {
                 }
             w.line("${mapToRustScalarWriteExpr(field.type, valExpr, isOwnedOrValue = !isRef)};")
         }
+    }
+
+    private fun mapToRustFieldScalarReadExpr(field: SchemaField): String {
+        if (field.type == "bytes" && field.countFrom != null) {
+            return "buffer.read_bytes(${sanitizeRustIdentifier(field.countFrom)} as usize)?"
+        }
+        return mapToRustScalarReadExpr(field.type, field.maxLength)
     }
 
     private fun derivedExprToRust(expr: DerivedExpr): String {
@@ -862,6 +1008,44 @@ internal class RustGenerator(private val schema: OperationSchema) {
             }
             line()
             line(
+                "/// Loads and deserializes a [RemoteDocument] evaluating conditional skip operations"
+            )
+            line("/// against the target player API level and profile bitmask.")
+            line("pub fn load_for_player(")
+            indent {
+                line("buffer: &mut WireBuffer,")
+                line("player_api_level: i32,")
+                line("player_profiles: i32,")
+            }
+            block(") -> Result<Self, WireError>") {
+                line("Self::load_for_player_with_limits(")
+                indent {
+                    line("buffer,")
+                    line("player_api_level,")
+                    line("player_profiles,")
+                    line("Self::MAX_OPERATION_COUNT,")
+                }
+                line(")")
+            }
+            line()
+            line(
+                "/// Loads and deserializes a [RemoteDocument] evaluating conditional skip operations"
+            )
+            line("/// with an explicit maximum operation count.")
+            line("pub fn load_for_player_with_limits(")
+            indent {
+                line("buffer: &mut WireBuffer,")
+                line("player_api_level: i32,")
+                line("player_profiles: i32,")
+                line("max_operations: usize,")
+            }
+            block(") -> Result<Self, WireError>") {
+                line(
+                    "Self::load_impl(buffer, max_operations, Some((player_api_level, player_profiles)))"
+                )
+            }
+            line()
+            line(
                 "/// Loads and deserializes a [RemoteDocument] from the wire buffer with an explicit"
             )
             line("/// maximum operation count.")
@@ -871,6 +1055,17 @@ internal class RustGenerator(private val schema: OperationSchema) {
                 line("max_operations: usize,")
             }
             block(") -> Result<Self, WireError>") {
+                line("Self::load_impl(buffer, max_operations, None)")
+            }
+            line()
+            line("fn load_impl(")
+            indent {
+                line("buffer: &mut WireBuffer,")
+                line("max_operations: usize,")
+                line("player_ctx: Option<(i32, i32)>,")
+            }
+            block(") -> Result<Self, WireError>") {
+                line("let _ = player_ctx;")
                 line("let mut doc = Self::new();")
                 block("if !buffer.available()") {
                     line("return Ok(doc);")
@@ -948,6 +1143,22 @@ internal class RustGenerator(private val schema: OperationSchema) {
                     line(
                         "let op_id = OpId::from_u8(op_byte).ok_or(WireError::UnknownOpCode(op_byte))?;"
                     )
+                    for (csOp in schema.operations.filter { it.conditionalSkip != null }) {
+                        val cfg = getRustProfileCfg(csOp)
+                        if (cfg != null) {
+                            line("#[cfg($cfg)]")
+                        }
+                        val wrapped = if (shouldBoxVariant(csOp)) "Box::new(skip_op)" else "skip_op"
+                        block("if let Some((api_lvl, prof)) = player_ctx") {
+                            block("if op_id == OpId::${csOp.name}") {
+                                line(
+                                    "let skip_op = ${csOp.name}::read_for_player(buffer, api_lvl, prof)?;"
+                                )
+                                line("doc.operations.push(Operation::${csOp.name}($wrapped));")
+                                line("continue;")
+                            }
+                        }
+                    }
                     line("let op = Operation::read(op_id, buffer)?;")
                     line("doc.operations.push(op);")
                 }
@@ -1211,6 +1422,20 @@ internal class RustGenerator(private val schema: OperationSchema) {
                     self.data.extend_from_slice(val);
                 }
 
+                pub fn write_bytes(&mut self, val: &[u8]) {
+                    self.data.extend_from_slice(val);
+                }
+
+                pub fn read_bytes(&mut self, len: usize) -> Result<Vec<u8>, WireError> {
+                    if len <= self.remaining() {
+                        let slice = &self.data[self.index..self.index + len];
+                        self.index += len;
+                        Ok(slice.to_vec())
+                    } else {
+                        Err(WireError::Underflow)
+                    }
+                }
+
                 pub fn read_buffer(&mut self) -> Result<Vec<u8>, WireError> {
                     self.read_buffer_limited(usize::MAX)
                 }
@@ -1249,7 +1474,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
     private fun mapToRustType(type: String, isNullable: Boolean = false): String {
         val base =
             when (type) {
-                "int" -> "i32"
+                "int",
+                "int_id" -> "i32"
                 "short" -> "i16"
                 "byte" -> "u8"
                 "long" -> "i64"
@@ -1303,7 +1529,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
 
     private fun mapToRustScalarReadExpr(type: String, maxLength: Int? = null): String =
         when (type) {
-            "int" -> "buffer.read_i32()?"
+            "int",
+            "int_id" -> "buffer.read_i32()?"
             "short" -> "buffer.read_i16()?"
             "byte" -> "buffer.read_u8()?"
             "long" -> "buffer.read_i64()?"
@@ -1326,7 +1553,8 @@ internal class RustGenerator(private val schema: OperationSchema) {
         isOwnedOrValue: Boolean,
     ): String =
         when (type) {
-            "int" -> "buffer.write_i32($varName)"
+            "int",
+            "int_id" -> "buffer.write_i32($varName)"
             "short" -> "buffer.write_i16($varName)"
             "byte" -> "buffer.write_u8($varName)"
             "long" -> "buffer.write_i64($varName)"
