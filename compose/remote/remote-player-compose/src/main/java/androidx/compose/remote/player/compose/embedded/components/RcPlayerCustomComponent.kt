@@ -24,6 +24,7 @@ import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.player.compose.embedded.CustomComposablePlugin
 import androidx.compose.remote.player.compose.embedded.LocalRcCustomPlugins
+import androidx.compose.remote.player.compose.embedded.LocalRcIsMeasureProbe
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.RcCustomComponent
 import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
@@ -31,6 +32,7 @@ import androidx.compose.remote.player.compose.embedded.modifier.rememberClickAct
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.util.fastFilter
 
 /** Resolves the config name of a [Custom] component. */
@@ -51,6 +53,7 @@ private fun rememberCustomConfig(layout: Custom): String {
  */
 @Composable
 internal fun rememberCustomClickHandlers(layout: Custom): ClickActionHandlers? {
+    if (LocalRcIsMeasureProbe.current) return null
     val customPlugins = LocalRcCustomPlugins.current ?: return null
     val config = rememberCustomConfig(layout)
     if (!customPlugins.handlesClick(config)) return null
@@ -73,6 +76,10 @@ internal fun RcPlayerCustom(
 
     val config = rememberCustomConfig(layout)
 
+    val isMeasureProbe = LocalRcIsMeasureProbe.current
+    val contentFocusModifier =
+        if (isMeasureProbe) Modifier.focusProperties { canFocus = false } else Modifier
+
     Box(modifier = modifier) {
         val component =
             RcCustomComponent(
@@ -85,6 +92,10 @@ internal fun RcPlayerCustom(
                 onDoubleClick = clickHandlers?.onDoubleClick,
                 onLongClick = clickHandlers?.onLongClick,
             )
-        customPlugins?.Render(component, modifier = Modifier)
+        // Sit below any intermediate ScrollModifier on `modifier` so FocusTargetNode lookup cannot
+        // stop at ScrollableNode and still see canFocus = true during FitBoxSlot.Probe.
+        Box(modifier = contentFocusModifier) {
+            customPlugins?.Render(component, modifier = Modifier)
+        }
     }
 }

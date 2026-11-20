@@ -124,3 +124,11 @@ public val LocalAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisi
     compositionLocalOf {
         null
     }
+
+/**
+ * True when composing unplaced `FitBoxSlot.Probe` measurement candidates so probe subtrees do not
+ * allocate interaction/ripple nodes or register duplicate Compose focus targets.
+ */
+internal val LocalRcIsMeasureProbe: ProvidableCompositionLocal<Boolean> = compositionLocalOf {
+    false
+}

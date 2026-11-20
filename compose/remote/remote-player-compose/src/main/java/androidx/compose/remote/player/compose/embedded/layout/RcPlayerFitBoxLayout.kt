@@ -25,6 +25,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.Component
@@ -33,6 +34,7 @@ import androidx.compose.remote.core.operations.layout.managers.CollapsibleColumn
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLayout
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
+import androidx.compose.remote.player.compose.embedded.LocalRcIsMeasureProbe
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerComponent
@@ -42,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Constraints
@@ -93,12 +96,26 @@ internal fun RcPlayerFitBoxLayout(layout: FitBoxLayout, modifier: Modifier) {
         val maxHeight = if (constraints.hasBoundedHeight) constraints.maxHeight else Int.MAX_VALUE
 
         // Phase 1 (Probe): Measure child alternatives using the parent's maximum constraints.
-        // Semantics are cleared on probe nodes so unselected nodes do not pollute accessibility.
+        // Semantics, interactions, and focus are suppressed on probe nodes so unselected probes
+        // neither pollute accessibility nor register duplicate focus targets (including unplaced
+        // targets reachable via 2D focus entry).
         val probeMeasurables =
             subcompose(FitBoxSlot.Probe) {
-                children.fastForEach { component ->
-                    Box(modifier = Modifier.clearAndSetSemantics {}) {
-                        RcPlayerComponent(component)
+                CompositionLocalProvider(LocalRcIsMeasureProbe provides true) {
+                    children.fastForEach { component ->
+                        Box(
+                            modifier =
+                                Modifier.clearAndSetSemantics {}
+                                    .focusProperties {
+                                        canFocus = false
+                                        // Block focus entering across nested ScrollableNode or
+                                        // custom FocusTarget boundaries, where canFocus stops.
+                                        onEnter = { cancelFocusChange() }
+                                    }
+                                    .focusGroup()
+                        ) {
+                            RcPlayerComponent(component)
+                        }
                     }
                 }
             }
