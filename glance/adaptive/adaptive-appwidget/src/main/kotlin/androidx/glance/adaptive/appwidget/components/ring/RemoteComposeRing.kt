@@ -142,6 +142,8 @@ private fun ProgressRingCanvas(
     containerColor: RemoteColor,
 ) {
     val clamped = progress?.coerceIn(0f, 1f) ?: 0f
+    val ringTrackColor = RemoteComposePalette.ringTrack
+    val primaryColor = RemoteComposePalette.primary
     RemoteCanvas(modifier = RemoteModifier.size(size.asRdp())) {
         val strokePx = max(width * RingDefaults.StrokeRatio.rf, 1f.rf)
         val fillRadius = max(width / 2f.rf - strokePx, 0f.rf)
@@ -158,7 +160,7 @@ private fun ProgressRingCanvas(
         drawArc(
             paint =
                 RemotePaint {
-                    color = RemoteComposePalette.ringTrack
+                    color = ringTrackColor
                     style = RemotePaintingStyle.Stroke
                     strokeCap = RemoteStrokeCap.Round
                     strokeWidth = strokePx
@@ -173,7 +175,7 @@ private fun ProgressRingCanvas(
             drawArc(
                 paint =
                     RemotePaint {
-                        color = RemoteComposePalette.primary
+                        color = primaryColor
                         style = RemotePaintingStyle.Stroke
                         strokeCap = RemoteStrokeCap.Round
                         strokeWidth = strokePx

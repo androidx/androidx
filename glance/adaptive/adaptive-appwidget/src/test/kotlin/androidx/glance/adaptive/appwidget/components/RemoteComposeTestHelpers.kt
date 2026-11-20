@@ -62,16 +62,17 @@ internal suspend fun captureAndRender(
     context: Context,
     widthDp: Int,
     heightDp: Int,
+    captureContext: Context = context,
     content: @RemoteComposable @Composable () -> Unit,
 ): RenderedDocument {
     val widthPx = widthDp.dpToPxInt(context)
     val heightPx = heightDp.dpToPxInt(context)
     val captured =
         captureSingleRemoteDocument(
-            context = context,
+            context = captureContext,
             creationDisplayInfo =
                 createRemoteCreationDisplayInfo(
-                    context = context,
+                    context = captureContext,
                     size = Size(widthPx.toFloat(), heightPx.toFloat()),
                 ),
             profile = GlanceAppWidgetProfiles.widgetsV7,

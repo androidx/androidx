@@ -17,6 +17,10 @@
 package androidx.glance.adaptive.appwidget.components
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
+import android.os.Build
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.vectorResource
@@ -38,7 +42,10 @@ import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.glance.adaptive.appwidget.components.ring.RingDefaults
@@ -58,95 +65,171 @@ private const val BAR_MUTED_ALPHA = 0.35f
 private const val TILE_SUBTITLE_ALPHA = 0.5f
 
 /**
- * Dynamic Material You palette shared by the Information Matrix RemoteCompose components.
+ * Provides dynamic Material You [RemoteColor] tokens shared by the Information Matrix components.
  *
  * Mirrors the RemoteViews matrix resources in `res/values-v31/remoteviews_colors.xml` and
  * `res/values/remoteviews_colors.xml`, encoding the light and dark `@android:color/system_*` tokens
  * directly into the document as themed [RemoteColor]s so the host resolves day/night and wallpaper
  * changes without recapturing.
+ *
+ * Workaround for `RemoteComposePlayer.setDocument()` running `applyDataOperations()` before
+ * `ThemeSupport.mapColors()` and `CoreDocument` painting ellipsized `CoreText` on Frame 1 before
+ * `VariableSupport` updates: on API 31+, the current dynamic system colors are baked in at capture
+ * time as `lightFallback`/`darkFallback` so light-mode cold start and light/dark resize (when a
+ * reused player already holds `mPaintTheme`) paint the active palette immediately. Dark-mode cold
+ * start on a fresh player still reads `lightFallback` on Frame 1 because
+ * `RemoteContext.mPaintTheme` defaults to `Theme.LIGHT`.
  */
 @SuppressLint("InlinedApi")
 internal object RemoteComposePalette {
-    val primary: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_accent1_600,
-            darkColorRes = android.R.color.system_accent1_200,
-            lightFallback = Color(0xFF6750A4),
-            darkFallback = Color(0xFFD0BCFF),
+    val primary: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_accent1_600,
+                darkColorRes = android.R.color.system_accent1_200,
+                lightFallback = Color(0xFF6750A4),
+                darkFallback = Color(0xFFD0BCFF),
+            )
+
+    val tertiary: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_accent3_600,
+                darkColorRes = android.R.color.system_accent3_200,
+                lightFallback = Color(0xFF7D5260),
+                darkFallback = Color(0xFFEFB8C8),
+            )
+
+    val onSurfaceVariant: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_neutral2_700,
+                darkColorRes = android.R.color.system_neutral2_200,
+                lightFallback = Color(0xFF49454F),
+                darkFallback = Color(0xFFCAC4D0),
+            )
+
+    val widgetBackground: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_accent2_50,
+                darkColorRes = android.R.color.system_accent2_800,
+                lightFallback = Color(0xFFE0F3FF),
+                darkFallback = Color(0xFF20333D),
+            )
+
+    val primaryContainer: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_accent1_100,
+                darkColorRes = android.R.color.system_accent1_700,
+                lightFallback = Color(0xFFEADDFF),
+                darkFallback = Color(0xFF4F378B),
+            )
+
+    val onPrimaryContainer: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_accent1_700,
+                darkColorRes = android.R.color.system_accent1_100,
+                lightFallback = Color(0xFF4F378B),
+                darkFallback = Color(0xFFEADDFF),
+            )
+
+    val secondaryContainer: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_accent2_100,
+                darkColorRes = android.R.color.system_accent2_700,
+                lightFallback = Color(0xFFE8DEF8),
+                darkFallback = Color(0xFF4A4458),
+            )
+
+    val onSecondaryContainer: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_accent2_700,
+                darkColorRes = android.R.color.system_accent2_100,
+                lightFallback = Color(0xFF4A4458),
+                darkFallback = Color(0xFFE8DEF8),
+            )
+
+    val surfaceContainerHighest: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() =
+            themedColor(
+                lightColorRes = android.R.color.system_neutral1_100,
+                darkColorRes = android.R.color.system_neutral1_800,
+                lightFallback = Color(0xFFE6E0E9),
+                darkFallback = Color(0xFF36343B),
+            )
+
+    val barMuted: RemoteColor
+        @Composable @ReadOnlyComposable get() = primary.copy(alpha = BAR_MUTED_ALPHA.rf)
+
+    val ringTrack: RemoteColor
+        @Composable @ReadOnlyComposable get() = primary.copy(alpha = RingDefaults.TrackAlpha.rf)
+
+    val supportingText: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() = lerp(widgetBackground, primary, SUPPORTING_TEXT_ALPHA.rf)
+
+    val tileSubtitle: RemoteColor
+        @Composable
+        @ReadOnlyComposable
+        get() = lerp(primaryContainer, onPrimaryContainer, TILE_SUBTITLE_ALPHA.rf)
+
+    @Composable
+    @ReadOnlyComposable
+    private fun themedColor(
+        @ColorRes lightColorRes: Int,
+        @ColorRes darkColorRes: Int,
+        lightFallback: Color,
+        darkFallback: Color,
+    ): RemoteColor {
+        val resources = LocalResources.current
+        return RemoteColor.createThemedRemoteColor(
+            lightColorRes = lightColorRes,
+            darkColorRes = darkColorRes,
+            lightFallback = resolveSystemColorOrFallback(resources, lightColorRes, lightFallback),
+            darkFallback = resolveSystemColorOrFallback(resources, darkColorRes, darkFallback),
         )
+    }
 
-    val secondaryContainer: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_accent2_100,
-            darkColorRes = android.R.color.system_accent2_700,
-            lightFallback = Color(0xFFE8DEF8),
-            darkFallback = Color(0xFF4A4458),
-        )
-
-    val tertiary: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_accent3_600,
-            darkColorRes = android.R.color.system_accent3_200,
-            lightFallback = Color(0xFF7D5260),
-            darkFallback = Color(0xFFEFB8C8),
-        )
-
-    val onSurfaceVariant: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_neutral2_700,
-            darkColorRes = android.R.color.system_neutral2_200,
-            lightFallback = Color(0xFF49454F),
-            darkFallback = Color(0xFFCAC4D0),
-        )
-
-    val widgetBackground: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_accent2_50,
-            darkColorRes = android.R.color.system_accent2_800,
-            lightFallback = Color(0xFFE0F3FF),
-            darkFallback = Color(0xFF20333D),
-        )
-
-    val primaryContainer: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_accent1_100,
-            darkColorRes = android.R.color.system_accent1_700,
-            lightFallback = Color(0xFFEADDFF),
-            darkFallback = Color(0xFF4F378B),
-        )
-
-    val onPrimaryContainer: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_accent1_700,
-            darkColorRes = android.R.color.system_accent1_100,
-            lightFallback = Color(0xFF4F378B),
-            darkFallback = Color(0xFFEADDFF),
-        )
-
-    val onSecondaryContainer: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_accent2_700,
-            darkColorRes = android.R.color.system_accent2_100,
-            lightFallback = Color(0xFF4A4458),
-            darkFallback = Color(0xFFE8DEF8),
-        )
-
-    val surfaceContainerHighest: RemoteColor =
-        RemoteColor.createThemedRemoteColor(
-            lightColorRes = android.R.color.system_neutral1_100,
-            darkColorRes = android.R.color.system_neutral1_800,
-            lightFallback = Color(0xFFE6E0E9),
-            darkFallback = Color(0xFF36343B),
-        )
-
-    val barMuted: RemoteColor = primary.copy(alpha = BAR_MUTED_ALPHA.rf)
-
-    val ringTrack: RemoteColor = primary.copy(alpha = RingDefaults.TrackAlpha.rf)
-
-    val supportingText: RemoteColor = lerp(widgetBackground, primary, SUPPORTING_TEXT_ALPHA.rf)
-
-    val tileSubtitle: RemoteColor =
-        lerp(primaryContainer, onPrimaryContainer, TILE_SUBTITLE_ALPHA.rf)
+    // TODO(b/586433578): Remove dynamic fallback resolution once the platform-bundled launcher
+    //  RemoteComposePlayer resolves ColorTheme before Frame 1.
+    @ColorInt
+    private fun resolveSystemColorOrFallback(
+        resources: Resources,
+        @ColorRes colorRes: Int,
+        fallback: Color,
+    ): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return fallback.toArgb()
+        return try {
+            resources.getColor(colorRes, null)
+        } catch (_: Resources.NotFoundException) {
+            // Non-AOSP or Robolectric resource tables may omit system Material You color entries.
+            fallback.toArgb()
+        }
+    }
 }
 
 /**

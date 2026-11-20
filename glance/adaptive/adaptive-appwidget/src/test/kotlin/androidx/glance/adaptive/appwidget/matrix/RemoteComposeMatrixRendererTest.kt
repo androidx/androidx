@@ -17,6 +17,9 @@
 package androidx.glance.adaptive.appwidget.matrix
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.res.Resources
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import androidx.collection.floatListOf
@@ -362,8 +365,16 @@ class RemoteComposeMatrixRendererTest {
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun card_coldStartLightMode_resolvesDynamicWidgetBackground() = runTest {
-        val rendered = render(MatrixCardContent(), Dimensions(176, 88))
+        val priorWallpaperBackground = 0xFF112233.toInt()
+        val captureContext =
+            contextWithSystemColors(
+                mapOf(android.R.color.system_accent2_50 to priorWallpaperBackground)
+            )
+
+        val rendered =
+            render(MatrixCardContent(), Dimensions(176, 88), captureContext = captureContext)
         val theme = checkNotNull(rendered.document.themedColors).single()
+        assertThat(theme.mLightModeFallback).isEqualTo(priorWallpaperBackground)
         val expectedBackground = context.getColor(android.R.color.system_accent2_50)
         assertThat(expectedBackground).isNotEqualTo(theme.mLightModeFallback)
         val centerPixel =
@@ -372,10 +383,40 @@ class RemoteComposeMatrixRendererTest {
         assertThat(rendered.root.list.filterIsInstance<ColorTheme>()).isEmpty()
     }
 
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun card_coldStartLightMode_firstPaintEllipsizedTextUsesDynamicPrimaryColor() = runTest {
+        val activeDynamicPrimary = 0xFF8B4A00.toInt()
+        val activeDynamicBackground = 0xFFFFEEDD.toInt()
+        val staticPrimaryFallback = 0xFF6750A4.toInt()
+        val wallpaperContext =
+            contextWithSystemColors(
+                mapOf(
+                    android.R.color.system_accent1_600 to activeDynamicPrimary,
+                    android.R.color.system_accent2_50 to activeDynamicBackground,
+                )
+            )
+
+        // captureAndRender draws Frame 1 into rendered.bitmap before any second-frame variable
+        // update pass, directly exercising CoreText's StaticLayout measure/paint on cold start.
+        val rendered =
+            render(
+                MatrixCardContent(primary = TemplateText("\u2588\u2588\u2588\u2588")),
+                Dimensions(176, 88),
+                captureContext = wallpaperContext,
+                playbackContext = wallpaperContext,
+            )
+
+        assertThat(rendered.bitmap.containsColor(activeDynamicPrimary)).isTrue()
+        assertThat(rendered.bitmap.containsColor(staticPrimaryFallback)).isFalse()
+    }
+
     private suspend fun render(
         content: MatrixContent,
         dimensions: Dimensions,
         surface: AppWidgetSurface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+        captureContext: Context = context,
+        playbackContext: Context = context,
         renderer:
             ArchetypeRenderer<
                 GlanceAdaptiveTemplate,
@@ -390,11 +431,35 @@ class RemoteComposeMatrixRendererTest {
         assertThat(output).isInstanceOf(RemoteComposeRenderOutput::class.java)
         val rcOutput = output as RemoteComposeRenderOutput
         return captureAndRender(
-            context = context,
+            context = playbackContext,
             widthDp = dimensions.widthDp,
             heightDp = dimensions.heightDp,
+            captureContext = captureContext,
             content = rcOutput.content,
         )
+    }
+
+    private fun contextWithSystemColors(colors: Map<Int, Int>): Context =
+        object : ContextWrapper(context) {
+            @Suppress("DEPRECATION")
+            private val wrappedResources =
+                object :
+                    Resources(
+                        context.resources.assets,
+                        context.resources.displayMetrics,
+                        context.resources.configuration,
+                    ) {
+                    override fun getColor(id: Int, theme: Theme?): Int =
+                        colors[id] ?: context.resources.getColor(id, theme)
+                }
+
+            override fun getResources(): Resources = wrappedResources
+        }
+
+    private fun Bitmap.containsColor(color: Int): Boolean {
+        val pixels = IntArray(width * height)
+        getPixels(pixels, 0, width, 0, 0, width, height)
+        return pixels.any { it == color }
     }
 
     private fun RenderedDocument.cardColumn() = firstLayoutChild().layoutChildren().single()
