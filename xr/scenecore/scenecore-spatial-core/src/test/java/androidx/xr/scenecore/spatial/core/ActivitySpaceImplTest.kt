@@ -20,7 +20,6 @@ import android.app.Activity
 import android.util.Size
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Matrix4
-import androidx.xr.runtime.math.Matrix4.Companion.fromPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -63,7 +62,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -576,34 +574,59 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
     }
 
     @Test
-    override fun zeroTransform_doesNotUpdatePoseOrScaleOrCallOnOriginChanged() {
-        val systemSpaceEntity = this.systemSpaceEntityImpl
-        val listener = Mockito.mock(Runnable::class.java)
-        val executor = FakeScheduledExecutorService()
-        val expectedPose = Pose(Vector3.One, Quaternion.Identity)
-        val expectedScale = Vector3(4f, 5f, 6f)
-
-        systemSpaceEntity.platformReferenceSpaceTransform.set(fromPose(expectedPose))
-        systemSpaceEntity._worldSpaceScale = expectedScale
-        systemSpaceEntity.setOnOriginChangedListener(listener, executor)
-        systemSpaceEntity.setPlatformReferenceSpaceTransform(Matrix4.Zero)
-        executor.runAll()
-
-        assertThat(systemSpaceEntity.poseInPlatformReferenceSpace).isEqualTo(expectedPose)
-        // ActivitySpace always returns Vector3.One
-        assertThat(systemSpaceEntity.worldSpaceScale).isEqualTo(Vector3.One)
-        verify(listener, never()).run()
-    }
-
-    @Test
-    override fun setPlatformReferenceSpaceTransform_updatesScale() {
+    fun setPlatformReferenceSpaceTransform_unscaledGravityAlignedTrue_keepsUnitScale() {
         val systemSpaceEntity = this.systemSpaceEntityImpl
         val matrix = Matrix4.fromScale(3.3f)
         systemSpaceEntity.setPlatformReferenceSpaceTransform(matrix)
         assertVector3(systemSpaceEntity.activitySpaceScale, Vector3.One)
-        // ActivitySpace always returns Vector3.One
         assertVector3(systemSpaceEntity.worldSpaceScale, Vector3.One)
         assertVector3(systemSpaceEntity.getScale(Space.ACTIVITY), Vector3.One)
+        assertVector3(systemSpaceEntity.getScale(Space.REAL_WORLD), Vector3.One)
+    }
+
+    @Test
+    fun setPlatformReferenceSpaceTransform_unscaledGravityAlignedFalse_updatesWorldSpaceScale() {
+        val scaledActivitySpace =
+            ActivitySpaceImpl(
+                xrExtensions.createNode(),
+                activity,
+                xrExtensions,
+                SceneNodeRegistry(),
+                { xrExtensions.getSpatialState(activity) },
+                fakeExecutor,
+                unscaledGravityAlignedActivitySpace = false,
+            )
+        // Column major, right-handed 4x4 matrix with translation (4, 8, 12), 90 deg Z rotation,
+        // and uniform scale 3.3.
+        val matrix =
+            Matrix4(
+                floatArrayOf(
+                    0f,
+                    3.3f,
+                    0f,
+                    0f,
+                    -3.3f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    3.3f,
+                    0f,
+                    4f,
+                    8f,
+                    12f,
+                    1f,
+                )
+            )
+        val expectedScale = Vector3(3.3f, 3.3f, 3.3f)
+
+        scaledActivitySpace.setPlatformReferenceSpaceTransform(matrix)
+
+        assertVector3(scaledActivitySpace.activitySpaceScale, Vector3.One)
+        assertVector3(scaledActivitySpace.worldSpaceScale, expectedScale)
+        assertVector3(scaledActivitySpace.getScale(Space.ACTIVITY), Vector3.One)
+        assertVector3(scaledActivitySpace.getScale(Space.REAL_WORLD), expectedScale)
     }
 
     @Test
