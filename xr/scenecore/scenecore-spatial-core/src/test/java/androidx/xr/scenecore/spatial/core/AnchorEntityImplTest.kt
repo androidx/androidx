@@ -259,9 +259,22 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
     @Test
     fun anchorEntityGetActivitySpaceScale_returnsInverseOfActivitySpace() {
         val activitySpaceScale = 5f
+        activitySpace =
+            ActivitySpaceImpl(
+                xrExtensions.createNode(),
+                activity,
+                xrExtensions,
+                sceneNodeRegistry,
+                { xrExtensions.getSpatialState(activity) },
+                fakeExecutor,
+                unscaledGravityAlignedActivitySpace = false,
+            )
         activitySpace.setPlatformReferenceSpaceTransform(Matrix4.fromScale(activitySpaceScale))
         val anchorEntity = createAnchorEntityWithArCoreAnchor()
-        assertVector3(anchorEntity.activitySpaceScale, Vector3.One)
+        assertVector3(
+            anchorEntity.activitySpaceScale,
+            Vector3(1f / activitySpaceScale, 1f / activitySpaceScale, 1f / activitySpaceScale),
+        )
     }
 
     @Test
@@ -526,5 +539,61 @@ class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
             runtime.destroy()
             ShadowXrExtensions.extract(xrExtensions).setApiVersion(1)
         }
+    }
+
+    @Test
+    fun setPlatformReferenceSpaceTransform_ignoresScale() {
+        val anchorEntity = createAnchorEntityWithArCoreAnchor()
+        anchorEntity.setPlatformReferenceSpaceTransform(Matrix4.fromScale(3.3f))
+
+        assertVector3(anchorEntity.activitySpaceScale, Vector3.One)
+        assertVector3(anchorEntity.worldSpaceScale, Vector3.One)
+        assertVector3(anchorEntity.getScale(Space.ACTIVITY), Vector3.One)
+        assertVector3(anchorEntity.getScale(Space.REAL_WORLD), Vector3.One)
+    }
+
+    @Test
+    fun childEntitySetScale_withIntermediateAnchorTransformScale_preservesScale() {
+        val anchorEntity = createAnchorEntityWithArCoreAnchor()
+        val childEntity = createGltfEntity()
+        anchorEntity.addChild(childEntity)
+
+        // Simulate an intermediate NodeTransform update where AnchorNode temporarily inherits
+        // activitySpace.node's inverse scale before SpaceFlinger resolves the anchor token.
+        anchorEntity.setPlatformReferenceSpaceTransform(Matrix4.fromScale(0.326f))
+
+        val targetScale = Vector3(0.3f, 0.3f, 0.3f)
+        childEntity.setScale(targetScale, Space.REAL_WORLD)
+
+        assertVector3(childEntity.getScale(Space.PARENT), targetScale)
+        assertVector3(childEntity.getScale(Space.ACTIVITY), targetScale)
+        assertVector3(childEntity.getScale(Space.REAL_WORLD), targetScale)
+    }
+
+    @Test
+    fun childEntitySetScale_withScaledActivitySpace_dividesActivityScaleByActivitySpaceScale() {
+        activitySpace =
+            ActivitySpaceImpl(
+                xrExtensions.createNode(),
+                activity,
+                xrExtensions,
+                sceneNodeRegistry,
+                { xrExtensions.getSpatialState(activity) },
+                fakeExecutor,
+                unscaledGravityAlignedActivitySpace = false,
+            )
+        activitySpace.setPlatformReferenceSpaceTransform(Matrix4.fromScale(2f))
+        val anchorEntity = createAnchorEntityWithArCoreAnchor()
+        val childEntity = createGltfEntity()
+        anchorEntity.addChild(childEntity)
+
+        anchorEntity.setPlatformReferenceSpaceTransform(Matrix4.fromScale(0.326f))
+
+        val childScale = Vector3(0.5f, 0.5f, 0.5f)
+        childEntity.setScale(childScale, Space.REAL_WORLD)
+
+        assertVector3(childEntity.getScale(Space.PARENT), childScale)
+        assertVector3(childEntity.getScale(Space.REAL_WORLD), childScale)
+        assertVector3(childEntity.getScale(Space.ACTIVITY), Vector3(0.25f, 0.25f, 0.25f))
     }
 }

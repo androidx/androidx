@@ -151,7 +151,7 @@ internal class AnchorEntityImpl(
                 )
 
             Space.ACTIVITY -> activitySpaceScale
-            Space.REAL_WORLD -> super.worldSpaceScale
+            Space.REAL_WORLD -> worldSpaceScale
             else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
         }
     }
@@ -173,6 +173,8 @@ internal class AnchorEntityImpl(
             sceneNodeRegistry.getSystemSpaceScenePoseOfType(PerceptionSpaceScenePose::class.java)[0]
         return transformPoseTo(Pose(), perceptionSpaceScenePose)
     }
+
+    override val worldSpaceScale: Vector3 = Vector3.One
 
     override val activitySpaceScale: Vector3
         get() = platformReferenceScenePoseHelper.getActivitySpaceScale(worldSpaceScale)

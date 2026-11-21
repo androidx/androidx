@@ -23,8 +23,6 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Quaternion.Companion.fromAxisAngle
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
-import androidx.xr.runtime.testing.math.assertVector3
-import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.node.FakeCloseable
 import com.android.extensions.xr.node.Mat4f
@@ -271,21 +269,19 @@ abstract class SystemSpaceEntityImplTest : AndroidXrEntityImplTest() {
     }
 
     @Test
-    open fun zeroTransform_doesNotUpdatePoseOrScaleOrCallOnOriginChanged() {
+    fun zeroMatrix_doesNotUpdatePoseOrCallOnOriginChanged() {
         val systemSpaceEntity = this.systemSpaceEntityImpl
         val listener = mock<Runnable>()
         val executor = FakeScheduledExecutorService()
         val expectedPose = Pose(Vector3.One, Quaternion.Identity)
-        val expectedScale = Vector3(4f, 5f, 6f)
 
         systemSpaceEntity.platformReferenceSpaceTransform.set(fromPose(expectedPose))
-        systemSpaceEntity._worldSpaceScale = expectedScale
         systemSpaceEntity.setOnOriginChangedListener(listener, executor)
+        // Matrix4.Zero is an invalid all-zeros singular matrix (det = 0), not Pose.Identity.
         systemSpaceEntity.setPlatformReferenceSpaceTransform(Matrix4.Zero)
         executor.runAll()
 
         Truth.assertThat(systemSpaceEntity.poseInPlatformReferenceSpace).isEqualTo(expectedPose)
-        Truth.assertThat(systemSpaceEntity.worldSpaceScale).isEqualTo(expectedScale)
         verify(listener, never()).run()
     }
 
@@ -332,40 +328,5 @@ abstract class SystemSpaceEntityImplTest : AndroidXrEntityImplTest() {
 
         systemSpaceEntity.setPlatformReferenceSpaceTransform(matrix)
         assertPose(systemSpaceEntity.poseInPlatformReferenceSpace!!, pose)
-    }
-
-    @Test
-    open fun setPlatformReferenceSpaceTransform_updatesScale() {
-        val systemSpaceEntity = this.systemSpaceEntityImpl
-        // Column major, right-handed 4x4 Transformation Matrix with translation of (4, 8, 12) and
-        // rotation 90 (@) around Z axis, and scale of 3.3.
-        val matrix =
-            Matrix4(
-                floatArrayOf(
-                    0f,
-                    3.3f,
-                    0f,
-                    0f, // --     cos(@),   sin(@), 0,  0
-                    -3.3f,
-                    0f,
-                    0f,
-                    0f, // --    -sin(@),  cos(@), 0,  0
-                    0f,
-                    0f,
-                    3.3f,
-                    0f, // --     0,        0,      1,  0
-                    4f,
-                    8f,
-                    12f,
-                    1f, // --      tx,       ty,     tz, 1
-                )
-            )
-        val scale = Vector3(3.3f, 3.3f, 3.3f)
-
-        systemSpaceEntity.setPlatformReferenceSpaceTransform(matrix)
-        // Updated to expect scale, so AnchorEntityImpl passes. ActivitySpaceImpl overrides this.
-        assertVector3(systemSpaceEntity.activitySpaceScale, scale)
-        assertVector3(systemSpaceEntity.worldSpaceScale, scale)
-        assertVector3(systemSpaceEntity.getScale(Space.ACTIVITY), scale)
     }
 }
