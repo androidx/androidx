@@ -146,6 +146,19 @@ class DefaultComponentParsers {
         p.registerComponentParser("text", (component, modifier, writer, parser) -> {
             parser.parseText(component, modifier);
         });
+        p.registerComponentParser("editabletext", (component, modifier, writer, parser) -> {
+            parser.parseText(component, modifier, /* editable= */ true);
+        });
+        p.registerComponentParser("textinput", (component, modifier, writer, parser) -> {
+            // A text input layout with explicit content: { "type": "textInput", "text": "@name",
+            //   "keyboardType": "email", ..., "children": [ ... ] }
+            int textId = parser.resolveTextId(component.get("text"));
+            int[] options = parser.parseTextInputOptions(component);
+            writer.startTextInputLayout(modifier, textId, options[0], options[1], options[2],
+                    options[3], options[4], options[5], options[6]);
+            parser.parseChildren(component.optJSONArray("children"));
+            writer.endTextInputLayout();
+        });
         p.registerComponentParser("spacer", (component, modifier, writer, parser) -> {
             if (modifier.getList().isEmpty()) {
                 modifier.horizontalWeight(1.0f);
