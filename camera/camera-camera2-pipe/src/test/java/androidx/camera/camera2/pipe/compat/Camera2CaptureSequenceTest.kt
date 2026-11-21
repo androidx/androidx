@@ -51,6 +51,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
@@ -217,6 +220,269 @@ internal class Camera2CaptureSequenceTest {
         assertThat(listener.lastStreamId).isEqualTo(stream.id)
         assertThat(listener.lastOutputId).isEqualTo(output2.id)
     }
+
+    @Test
+    fun onCaptureCompleted_singleRequest_invokesOnCaptureSequenceComplete() {
+        camera2CaptureSequence.onCaptureCompleted(
+            captureSession,
+            captureRequest,
+            mockTotalCaptureResult(frameNumber),
+        )
+
+        verify(sequenceListener).onCaptureSequenceComplete(camera2CaptureSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun onCaptureFailedWithCaptureFailure_singleRequest_invokesOnCaptureSequenceComplete() {
+        val captureFailure: CaptureFailure = mock()
+        camera2CaptureSequence.onCaptureFailed(captureSession, captureRequest, captureFailure)
+
+        verify(sequenceListener).onCaptureSequenceComplete(camera2CaptureSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun onCaptureFailedWithFrameNumber_singleRequest_invokesOnCaptureSequenceComplete() {
+        camera2CaptureSequence.onCaptureFailed(captureRequest, CameraFrameNumber(frameNumber))
+
+        verify(sequenceListener).onCaptureSequenceComplete(camera2CaptureSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun onCaptureCompleted_multiRequestBurst_invokesOnCaptureSequenceCompleteOnlyAfterLastRequest() {
+        val request1: CaptureRequest = mock()
+        val request2: CaptureRequest = mock()
+        val request3: CaptureRequest = mock()
+        val captureSequence =
+            createCaptureSequence(
+                repeating = false,
+                captureRequests = listOf(request1, request2, request3),
+            )
+
+        captureSequence.onCaptureCompleted(
+            captureSession,
+            request1,
+            mockTotalCaptureResult(frameNumber),
+        )
+        verifyNoInteractions(sequenceListener)
+
+        captureSequence.onCaptureCompleted(
+            captureSession,
+            request2,
+            mockTotalCaptureResult(frameNumber + 1),
+        )
+        verifyNoInteractions(sequenceListener)
+
+        captureSequence.onCaptureCompleted(
+            captureSession,
+            request3,
+            mockTotalCaptureResult(frameNumber + 2),
+        )
+        verify(sequenceListener).onCaptureSequenceComplete(captureSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun onCaptureFailed_multiRequestBurst_invokesOnCaptureSequenceCompleteOnlyAfterLastRequest() {
+        val request1: CaptureRequest = mock()
+        val request2: CaptureRequest = mock()
+        val request3: CaptureRequest = mock()
+        val captureFailure: CaptureFailure = mock()
+        val captureSequence =
+            createCaptureSequence(
+                repeating = false,
+                captureRequests = listOf(request1, request2, request3),
+            )
+
+        captureSequence.onCaptureFailed(captureSession, request1, captureFailure)
+        verifyNoInteractions(sequenceListener)
+
+        captureSequence.onCaptureFailed(request2, CameraFrameNumber(frameNumber + 1))
+        verifyNoInteractions(sequenceListener)
+
+        captureSequence.onCaptureFailed(captureSession, request3, captureFailure)
+        verify(sequenceListener).onCaptureSequenceComplete(captureSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun onCaptureCompletedAndFailed_multiRequestBurst_invokesOnCaptureSequenceCompleteOnFinalComplete() {
+        val request1: CaptureRequest = mock()
+        val request2: CaptureRequest = mock()
+        val request3: CaptureRequest = mock()
+        val captureFailure: CaptureFailure = mock()
+        val captureSequence =
+            createCaptureSequence(
+                repeating = false,
+                captureRequests = listOf(request1, request2, request3),
+            )
+
+        captureSequence.onCaptureCompleted(
+            captureSession,
+            request1,
+            mockTotalCaptureResult(frameNumber),
+        )
+        verifyNoInteractions(sequenceListener)
+
+        captureSequence.onCaptureFailed(captureSession, request2, captureFailure)
+        verifyNoInteractions(sequenceListener)
+
+        captureSequence.onCaptureCompleted(
+            captureSession,
+            request3,
+            mockTotalCaptureResult(frameNumber + 2),
+        )
+        verify(sequenceListener).onCaptureSequenceComplete(captureSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun onCaptureCompletedAndFailed_multiRequestBurst_invokesOnCaptureSequenceCompleteOnFinalFailure() {
+        val request1: CaptureRequest = mock()
+        val request2: CaptureRequest = mock()
+        val captureFailure: CaptureFailure = mock()
+        val captureSequence =
+            createCaptureSequence(repeating = false, captureRequests = listOf(request1, request2))
+
+        captureSequence.onCaptureCompleted(
+            captureSession,
+            request1,
+            mockTotalCaptureResult(frameNumber),
+        )
+        verifyNoInteractions(sequenceListener)
+
+        captureSequence.onCaptureFailed(captureSession, request2, captureFailure)
+        verify(sequenceListener).onCaptureSequenceComplete(captureSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun onCaptureSequenceAborted_multiRequestBurstAfterPartialCompletion_invokesOnCaptureSequenceComplete() {
+        val request1: CaptureRequest = mock()
+        val request2: CaptureRequest = mock()
+        val sequenceId = 42
+        val captureSequence =
+            createCaptureSequence(repeating = false, captureRequests = listOf(request1, request2))
+                .apply { sequenceNumber = sequenceId }
+
+        captureSequence.onCaptureCompleted(
+            captureSession,
+            request1,
+            mockTotalCaptureResult(frameNumber),
+        )
+        verifyNoInteractions(sequenceListener)
+
+        captureSequence.onCaptureSequenceAborted(captureSession, sequenceId)
+        verify(sequenceListener).onCaptureSequenceComplete(captureSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun repeatingSequence_invokesOnCaptureSequenceCompleteOnlyOnSequenceCompleted() {
+        val sequenceId = 10
+        val captureFailure: CaptureFailure = mock()
+        val repeatingSequence =
+            createCaptureSequence(repeating = true, captureRequests = listOf(captureRequest))
+                .apply { sequenceNumber = sequenceId }
+
+        repeatingSequence.onCaptureCompleted(
+            captureSession,
+            captureRequest,
+            mockTotalCaptureResult(frameNumber),
+        )
+        repeatingSequence.onCaptureCompleted(
+            captureSession,
+            captureRequest,
+            mockTotalCaptureResult(frameNumber + 1),
+        )
+        repeatingSequence.onCaptureFailed(captureSession, captureRequest, captureFailure)
+        repeatingSequence.onCaptureFailed(captureRequest, CameraFrameNumber(frameNumber + 2))
+        verifyNoInteractions(sequenceListener)
+
+        repeatingSequence.onCaptureSequenceCompleted(captureSession, sequenceId, frameNumber + 2)
+        verify(sequenceListener).onCaptureSequenceComplete(repeatingSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun repeatingSequence_invokesOnCaptureSequenceCompleteOnlyOnSequenceAborted() {
+        val sequenceId = 11
+        val captureFailure: CaptureFailure = mock()
+        val repeatingSequence =
+            createCaptureSequence(repeating = true, captureRequests = listOf(captureRequest))
+                .apply { sequenceNumber = sequenceId }
+
+        repeatingSequence.onCaptureCompleted(
+            captureSession,
+            captureRequest,
+            mockTotalCaptureResult(frameNumber),
+        )
+        repeatingSequence.onCaptureFailed(captureSession, captureRequest, captureFailure)
+        verifyNoInteractions(sequenceListener)
+
+        repeatingSequence.onCaptureSequenceAborted(captureSession, sequenceId)
+        verify(sequenceListener).onCaptureSequenceComplete(repeatingSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    @Test
+    fun repeatingBurstSequence_invokesOnCaptureSequenceCompleteOnlyOnSequenceCompleted() {
+        val request1: CaptureRequest = mock()
+        val request2: CaptureRequest = mock()
+        val sequenceId = 12
+        val repeatingBurstSequence =
+            createCaptureSequence(repeating = true, captureRequests = listOf(request1, request2))
+                .apply { sequenceNumber = sequenceId }
+
+        repeatingBurstSequence.onCaptureCompleted(
+            captureSession,
+            request1,
+            mockTotalCaptureResult(frameNumber),
+        )
+        repeatingBurstSequence.onCaptureCompleted(
+            captureSession,
+            request2,
+            mockTotalCaptureResult(frameNumber + 1),
+        )
+        verifyNoInteractions(sequenceListener)
+
+        repeatingBurstSequence.onCaptureSequenceCompleted(
+            captureSession,
+            sequenceId,
+            frameNumber + 1,
+        )
+        verify(sequenceListener).onCaptureSequenceComplete(repeatingBurstSequence)
+        verifyNoMoreInteractions(sequenceListener)
+    }
+
+    private fun createCaptureSequence(
+        repeating: Boolean = false,
+        captureRequests: List<CaptureRequest> = listOf(captureRequest),
+        requestMetadataList: List<RequestMetadata> = captureRequests.mapIndexed { index, _ ->
+            FakeRequestMetadata(
+                request = Request(listOf(streamId), listeners = listeners),
+                requestNumber = RequestNumber(index + 1L),
+                repeating = repeating,
+            )
+        },
+    ): Camera2CaptureSequence =
+        Camera2CaptureSequence(
+            cameraId = cameraId,
+            repeating = repeating,
+            captureRequestList = captureRequests,
+            captureMetadataList = requestMetadataList,
+            listeners = listeners,
+            sequenceListener = sequenceListener,
+            surfaceToStreamMap = mapOf(surface to streamId),
+            surfaceToOutputMap = mapOf(surface to outputId),
+            streamGraph = streamGraph,
+            strictMode = StrictMode(true),
+        )
+
+    private fun mockTotalCaptureResult(frameNumber: Long): TotalCaptureResult =
+        mock<TotalCaptureResult>().also { whenever(it.frameNumber).thenReturn(frameNumber) }
 
     private class FakeRequestListener : Listener {
 

@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.CameraId
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 
 /**
@@ -61,6 +62,7 @@ internal class Camera2CaptureSequence(
     CaptureSequence<CaptureRequest> {
     private val debugId = captureSequenceDebugIds.incrementAndGet()
     private val hasStarted = CompletableDeferred<Unit>()
+    private val remainingRequests = atomic(captureRequestList.size)
 
     init {
         check(captureRequestList.size == captureMetadataList.size) {
@@ -173,9 +175,7 @@ internal class Camera2CaptureSequence(
         frameNumber: CameraFrameNumber,
     ) {
         Debug.traceStart { "onCaptureCompleted" }
-        Debug.traceStart { "onCaptureSequenceComplete" }
-        sequenceListener.onCaptureSequenceComplete(this)
-        Debug.traceStop() // onCaptureSequenceComplete
+        tryCompleteCaptureSequence()
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
@@ -227,8 +227,19 @@ internal class Camera2CaptureSequence(
         frameNumber: CameraFrameNumber,
         requestFailure: RequestFailure,
     ) {
-        sequenceListener.onCaptureSequenceComplete(this)
+        tryCompleteCaptureSequence()
         invokeOnRequest(request) { it.onFailed(request, frameNumber, requestFailure) }
+    }
+
+    private fun tryCompleteCaptureSequence() {
+        // For non-repeating sequences, only mark the sequence complete once every request in the
+        // burst has reached a terminal callback (onCaptureCompleted or onCaptureFailed). Repeating
+        // sequences only complete via onCaptureSequenceCompleted or onCaptureSequenceAborted.
+        if (!repeating && remainingRequests.decrementAndGet() == 0) {
+            Debug.traceStart { "onCaptureSequenceComplete" }
+            sequenceListener.onCaptureSequenceComplete(this)
+            Debug.traceStop() // onCaptureSequenceComplete
+        }
     }
 
     override fun onCaptureFailed(captureRequest: CaptureRequest, frameNumber: CameraFrameNumber) {
