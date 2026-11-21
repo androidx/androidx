@@ -437,6 +437,16 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isLinkPerformanceOptimizationEnabled: Boolean = false
+
+    /**
+     * When `true`, text in [androidx.compose.ui.layout.LookaheadScope] lays out once during the
+     * lookahead pass. Approach passes reuse that text layout, constrain the node size, and draw at
+     * the aligned offset.
+     */
+    // TODO: Remove this flag once it has soaked (b/546240090)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isTextLookaheadOptimizationEnabled: Boolean = false
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
