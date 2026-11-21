@@ -192,7 +192,7 @@ class RemoteFontVariationTest {
     }
 
     @Test
-    fun toRemoteFontVariationSettings_convertsSettingsInOrder() {
+    fun toRemoteFontVariationSettings_convertsSettings() {
         val settings =
             FontVariation.Settings(
                     FontVariation.weight(300),
@@ -203,15 +203,14 @@ class RemoteFontVariationTest {
                 )
                 .toRemoteFontVariationSettings()
 
-        assertThat(settings)
-            .isEqualTo(
-                Settings(
-                    RemoteFontVariation.weight(300.rf),
-                    RemoteFontVariation.width(70f.rf),
-                    RemoteFontVariation.slant((-10f).rf),
-                    RemoteFontVariation.grade(150.rf),
-                    Setting("ROND", 100f.rf),
-                )
+        // FontVariation.Settings may reorder its settings, so don't check the order.
+        assertThat(settings.settings)
+            .containsExactly(
+                RemoteFontVariation.weight(300.rf),
+                RemoteFontVariation.width(70f.rf),
+                RemoteFontVariation.slant((-10f).rf),
+                RemoteFontVariation.grade(150.rf),
+                Setting("ROND", 100f.rf),
             )
         assertThat(FontVariation.Settings().toRemoteFontVariationSettings().settings).isEmpty()
     }

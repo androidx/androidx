@@ -19,6 +19,7 @@ package androidx.wear.compose.material3.tokens
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.Density
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,22 +29,29 @@ import org.junit.runners.JUnit4
 class TypographyVariableFontsTokensTest {
 
     @Test
-    fun everyToken_listsAxesInCanonicalOrder() {
+    fun everyToken_listsAxesInTheSameOrder() {
+        // Maps each ordered pair of axes to the first token that lists them in that order.
+        val firstTokenByAxisPair = mutableMapOf<Pair<String, String>, String>()
         for ((name, settings) in allTokens) {
             val axes = settings.settings.map { it.axisName }
-            assertEquals(
-                "$name must list its axes as \"wght\", \"wdth\", then any other axes",
-                axes.sortedBy { axisRank(it) },
-                axes,
-            )
+            for (i in axes.indices) {
+                for (j in i + 1 until axes.size) {
+                    val reversedIn = firstTokenByAxisPair[axes[j] to axes[i]]
+                    assertNull(
+                        "$name lists \"${axes[i]}\" before \"${axes[j]}\", but $reversedIn " +
+                            "lists them in the opposite order",
+                        reversedIn,
+                    )
+                    firstTokenByAxisPair.getOrPut(axes[i] to axes[j]) { name }
+                }
+            }
         }
     }
 
     @Test
     fun tokensWithSameAxisValues_areEqual() {
-        // FontVariation.Settings equality is order-sensitive and is used as a key in Compose's
-        // typeface caches, so tokens with the same variations must compare equal to share a
-        // typeface.
+        // FontVariation.Settings is used as a key in Compose's typeface caches, so tokens with the
+        // same variations must compare equal to share a typeface.
         allTokens
             .groupBy { (_, settings) -> settings.axisValues() }
             .values
@@ -64,13 +72,6 @@ class TypographyVariableFontsTokensTest {
                 }
             }
     }
-
-    private fun axisRank(axisName: String): Int =
-        when (axisName) {
-            "wght" -> 0
-            "wdth" -> 1
-            else -> 2
-        }
 
     private fun FontVariation.Settings.axisValues(): Set<Pair<String, Float>> =
         settings.map { it.axisName to it.toVariationValue(Density(1f)) }.toSet()

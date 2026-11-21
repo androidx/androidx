@@ -38,14 +38,14 @@ public object FontVariation {
     /**
      * A collection of settings to apply to a single font.
      *
-     * Settings must be unique on [Setting.axisName]
+     * Settings must be unique on [Setting.axisName]. The order they are passed in does not affect
+     * equality.
      */
     @Immutable
-    public class Settings
-    internal constructor(
+    public class Settings internal constructor(settings: List<Setting>) {
         /** All settings, unique by [FontVariation.Setting.axisName] */
-        public val settings: List<Setting>
-    ) {
+        public val settings: List<Setting> = settings.sortedByAxisName()
+
         /**
          * True if density is required to resolve any of these settings
          *
@@ -54,6 +54,7 @@ public object FontVariation {
         internal val needsDensity: Boolean
 
         init {
+            // Reads the unsorted constructor parameter; order doesn't matter for these checks.
             validateUniqueAxes(settings)
             var needsDensity = false
             for (i in 0 until settings.size) {
@@ -392,7 +393,8 @@ public object FontVariation {
      *   and 'ital'
      */
     public fun Settings(weight: FontWeight, style: FontStyle, vararg settings: Setting): Settings {
-        return Settings(weight(weight.weight), italic(style.value.toFloat()), *settings)
+        // 'ital' sorts before 'wght', so without other settings the list is already sorted.
+        return Settings(italic(style.value.toFloat()), weight(weight.weight), *settings)
     }
 
     private fun mergeLists(base: List<Setting>, overrides: List<Setting>): List<Setting> {
@@ -414,6 +416,22 @@ public object FontVariation {
             }
         }
         return result
+    }
+
+    /**
+     * Returns this list sorted by [Setting.axisName], so that the same variation axes in a
+     * different order result in equal [Settings] (which share a Typeface in font caches).
+     *
+     * @return This list if already sorted; otherwise, a new sorted list.
+     */
+    private fun List<Setting>.sortedByAxisName(): List<Setting> {
+        for (i in 0 until size - 1) {
+            if (this[i].axisName > this[i + 1].axisName) {
+                @Suppress("ListIterator")
+                return sortedBy { it.axisName }
+            }
+        }
+        return this
     }
 
     private fun validateUniqueAxes(settings: List<Setting>) {
