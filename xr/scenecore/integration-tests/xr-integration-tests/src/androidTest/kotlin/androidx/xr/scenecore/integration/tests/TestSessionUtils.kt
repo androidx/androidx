@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.integration.tests
 
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -37,6 +38,18 @@ internal const val DEFAULT_EPSILON = 1e-5f
  * decomposition round-trips.
  */
 internal const val COMPOSED_TRANSFORM_EPSILON = 1e-4f
+
+/**
+ * Whether binary protobuf CPM scene capture (`dumpsys spf_cpm --proto`) is enabled via the
+ * `xrSceneUseProto` instrumentation runner argument.
+ */
+// TODO(b/585229482): Remove this guard and make proto-only scene assertions unconditional once all
+// CI runners pass xrSceneUseProto=true (or proto capture becomes the default in :xr:testutils).
+internal val isProtoSceneCaptureEnabled: Boolean
+    get() =
+        InstrumentationRegistry.getArguments()
+            .getString("xrSceneUseProto")
+            .equals("true", ignoreCase = true)
 
 /**
  * Asserts that [actual] and [expected] have finite components within [translationEpsilon] per

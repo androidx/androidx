@@ -636,11 +636,10 @@ class PerceivedResolutionTest {
                 },
                 until = { candidate ->
                     val alphaRestored =
-                        candidate?.properties?.get("computedAlpha") != "0.000" &&
-                            candidate?.primarySurfaceNode?.properties?.get("computedAlpha") !=
-                                "0.000"
-                    candidate != null &&
-                        alphaRestored &&
+                        candidate != null &&
+                            candidate.hasVisibleComputedAlpha() &&
+                            candidate.primarySurfaceNode?.hasVisibleComputedAlpha() != false
+                    alphaRestored &&
                         candidate.effectiveBufferSize != null &&
                         candidate.worldExtents != null &&
                         (!requireMovable || candidate.isMovable) &&
@@ -651,6 +650,9 @@ class PerceivedResolutionTest {
                 },
             )
         )
+
+    private fun SnapshotXrSpace.hasVisibleComputedAlpha(): Boolean =
+        properties["computedAlpha"]?.toFloatOrNull()?.let { it > 0f } ?: true
 
     private data class PanelSizeSnapshot(
         val sizeInPixels: IntSize2d,

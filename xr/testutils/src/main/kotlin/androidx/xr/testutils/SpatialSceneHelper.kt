@@ -37,8 +37,9 @@ import kotlin.time.TimeSource
  * Captures a point-in-time snapshot of the spatial scene graph from `dumpsys spf_cpm`.
  *
  * When instrumentation argument `xrSceneUseProto` is `"true"`, captures from binary protobuf dumps
- * (`dumpsys spf_cpm --proto` + `--proto --renderer`), falling back automatically to the text parser
- * if binary output is unavailable. Otherwise uses the text parser over `dumpsys spf_cpm`.
+ * (`dumpsys spf_cpm --proto` + `--proto --renderer`), retrying transient empty or unparseable reads
+ * during polling and throwing [IllegalStateException] if binary output still remains empty or fails
+ * to parse. Otherwise uses the text parser over `dumpsys spf_cpm`.
  *
  * For the complete structural and keyword specification of `dumpsys spf_cpm`, see
  * `CPM_DUMPSYS_ARCHITECTURE.md` located in the `xr:testutils` root directory.

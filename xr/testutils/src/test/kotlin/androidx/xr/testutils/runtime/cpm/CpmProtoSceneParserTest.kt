@@ -16,14 +16,19 @@
 
 package androidx.xr.testutils.runtime.cpm
 
+import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.testutils.SnapshotXrScene
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.zip.GZIPInputStream
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.asin
+import kotlin.math.atan2
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -219,8 +224,8 @@ class CpmProtoSceneParserTest {
     fun parseScene_decodesImpressTransformsEulerCollidersAndSubspaceWorldExtents() {
         val expectedEulerRot =
             Quaternion.fromAxisAngle(Vector3(0f, 1f, 0f), 45f) *
-                Quaternion.fromAxisAngle(Vector3(1f, 0f, 0f), 30f) *
-                Quaternion.fromAxisAngle(Vector3(0f, 0f, 1f), 15f)
+                Quaternion.fromAxisAngle(Vector3(0f, 0f, 1f), 15f) *
+                Quaternion.fromAxisAngle(Vector3(1f, 0f, 0f), 30f)
         val cpmBytes = buildProto {
             writeMessage(2) { // Root (id=1)
                 writeVarint(1, 1L)
@@ -302,7 +307,10 @@ class CpmProtoSceneParserTest {
                     writeMessage(6) {
                         writeVec3(1, Vector3(1.2345f, 2.3456f, -3.4567f))
                         writeVec3(2, Vector3(1.5f, 1.5f, 1.5f))
-                        writeVec3(4, Vector3(30f, 45f, 15f)) // YXZ degrees
+                        writeVec3(
+                            4,
+                            Vector3(30f, 45f, 15f),
+                        ) // EulerFromQuatClamped Y * Z * X degrees
                     }
                     writeMessage(8) {
                         writeMessage(2) {
@@ -403,38 +411,215 @@ class CpmProtoSceneParserTest {
     }
 
     @Test
-    fun captureProtoSceneWithPolling_fallsBackToTextParserWhenBinaryEmpty() {
-        val textDump =
-            """
-            SPF Nodes:
-            Node Root (stateIndex=0, z=0) id=1:
-              Node space-root-task-12 (stateIndex=0, z=0) id=2:
-              visible on both (requested-vis=show) ImpNodeIsActive=true ImpNodeIsEnabled=true
-                Node panelLeash (stateIndex=0, z=0) id=3:
-                visible on both (requested-vis=show) isAppSpatialEmbeddedWindowLeash=true ImpNodeIsActive=true
-            Number of living nodes: 3
-            Total size of buffers in scene: 0
-            """
-                .trimIndent()
+    fun captureProtoSceneWithPolling_retriesTransientEmptyBinaryOutputUntilReady() {
+        val validCpmBytes = buildProto {
+            writeMessage(2) { // Root (id=1)
+                writeVarint(1, 1L)
+                writeVarint(3, 2L)
+                writeMessage(5) { writeString(17, "Root") }
+            }
+            writeMessage(2) { // space-root-task-12 (id=2)
+                writeVarint(1, 2L)
+                writeVarint(3, 3L)
+                writeVarint(4, 1L)
+                writeMessage(5) { writeString(17, "space-root-task-12") }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+            writeMessage(2) { // panelLeash (id=3)
+                writeVarint(1, 3L)
+                writeVarint(3, 4L)
+                writeVarint(4, 2L)
+                writeMessage(5) { writeString(17, "panelLeash") }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+            writeMessage(2) { // #1 2D surface child (id=4) -> marks panelLeash as embedded leash
+                writeVarint(1, 4L)
+                writeVarint(4, 3L)
+                writeMessage(5) {
+                    writeString(17, "#1")
+                    writeVarint(22, 1L)
+                }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+        }
+        val validRendererBytes = buildProto {
+            writeMessage(1) { writeString(1, "ImpRoot") }
+        }
+
+        var cpmAttempts = 0
+        var rendererAttempts = 0
+        var textSpfCalls = 0
+        var sleepCount = 0
+        var nowMs = 0L
 
         val scene =
             captureProtoSceneWithPolling(
-                binaryShellRunner = { ByteArray(0) },
+                includeRenderer = true,
+                maxWaitMs = 1_000L,
+                sleeper = { dt ->
+                    sleepCount++
+                    nowMs += dt
+                },
+                clockMs = { nowMs },
+                binaryShellRunner = { command ->
+                    when (command) {
+                        // Poll 1: empty cpmBytes -> retries
+                        // Poll 2: non-empty cpmBytes, empty rendererBytes -> retries
+                        // Poll 3: both non-empty -> succeeds
+                        "dumpsys spf_cpm --proto" -> {
+                            cpmAttempts++
+                            if (cpmAttempts == 1) ByteArray(0) else validCpmBytes
+                        }
+                        "dumpsys spf_cpm --proto --renderer" -> {
+                            rendererAttempts++
+                            if (rendererAttempts == 1) ByteArray(0) else validRendererBytes
+                        }
+                        else -> ByteArray(0)
+                    }
+                },
                 textShellRunner = { command ->
                     when (command) {
-                        "dumpsys spf_cpm" -> textDump
+                        "dumpsys spf_cpm" -> {
+                            textSpfCalls++
+                            ""
+                        }
                         "dumpsys activity activities" -> "Task{#12 visible=true A=com.example.test}"
                         else -> ""
                     }
                 },
             )
 
-        assertEquals(3, scene.stats?.attachedNodes)
-        assertEquals(0L, scene.stats?.bufferPixels)
-        val task = scene.findTaskById(12)
-        assertNotNull(task)
+        assertTrue(scene.isProtoCapture)
+        assertFalse(SnapshotXrScene(rootNodes = emptyList()).isProtoCapture)
+        assertEquals(0, textSpfCalls)
+        assertEquals(3, cpmAttempts)
+        assertEquals(2, rendererAttempts)
+        assertEquals(2, sleepCount)
+        assertEquals(4, scene.stats?.attachedNodes)
+        val task = assertNotNull(scene.findTaskById(12))
         assertEquals("com.example.test", task.packageName)
         assertNotNull(task.findNode { it.name == "panelLeash" && it.isEmbeddedWindowLeash })
+    }
+
+    @Test
+    fun captureProtoSceneWithPolling_retriesTransientUnparseableBinaryOutputUntilReady() {
+        val validCpmBytes = buildProto {
+            writeMessage(2) { // Root (id=1)
+                writeVarint(1, 1L)
+                writeVarint(3, 2L)
+                writeMessage(5) { writeString(17, "Root") }
+            }
+            writeMessage(2) { // space-root-task-12 (id=2)
+                writeVarint(1, 2L)
+                writeVarint(3, 3L)
+                writeVarint(4, 1L)
+                writeMessage(5) { writeString(17, "space-root-task-12") }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+            writeMessage(2) { // panelLeash (id=3)
+                writeVarint(1, 3L)
+                writeVarint(3, 4L)
+                writeVarint(4, 2L)
+                writeMessage(5) { writeString(17, "panelLeash") }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+            writeMessage(2) { // #1 2D surface child (id=4) -> marks panelLeash as embedded leash
+                writeVarint(1, 4L)
+                writeVarint(4, 3L)
+                writeMessage(5) {
+                    writeString(17, "#1")
+                    writeVarint(22, 1L)
+                }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+        }
+        val validRendererBytes = buildProto {
+            writeMessage(1) { writeString(1, "ImpRoot") }
+        }
+        val timeoutMessageBytes = "CPM scene dump timed out\n".encodeToByteArray()
+        // Mid-field truncated renderer NodeData (tag 0x0A, length 8, 0 payload bytes).
+        val truncatedRendererBytes = byteArrayOf(0x0A, 0x08)
+
+        var cpmAttempts = 0
+        var rendererAttempts = 0
+        var textSpfCalls = 0
+        var sleepCount = 0
+        var nowMs = 0L
+
+        val scene =
+            captureProtoSceneWithPolling(
+                includeRenderer = true,
+                maxWaitMs = 1_000L,
+                sleeper = { dt ->
+                    sleepCount++
+                    nowMs += dt
+                },
+                clockMs = { nowMs },
+                binaryShellRunner = { command ->
+                    when (command) {
+                        // Poll 1: plain-text dump timeout on --proto -> parse throws -> retries
+                        // Poll 2: valid cpmBytes, truncated rendererBytes -> parse throws ->
+                        // retries
+                        // Poll 3: both valid -> succeeds
+                        "dumpsys spf_cpm --proto" -> {
+                            cpmAttempts++
+                            if (cpmAttempts == 1) timeoutMessageBytes else validCpmBytes
+                        }
+                        "dumpsys spf_cpm --proto --renderer" -> {
+                            rendererAttempts++
+                            if (rendererAttempts == 2) {
+                                truncatedRendererBytes
+                            } else {
+                                validRendererBytes
+                            }
+                        }
+                        else -> ByteArray(0)
+                    }
+                },
+                textShellRunner = { command ->
+                    when (command) {
+                        "dumpsys spf_cpm" -> {
+                            textSpfCalls++
+                            ""
+                        }
+                        "dumpsys activity activities" -> "Task{#12 visible=true A=com.example.test}"
+                        else -> ""
+                    }
+                },
+            )
+
+        assertTrue(scene.isProtoCapture)
+        assertEquals(0, textSpfCalls)
+        assertEquals(3, cpmAttempts)
+        assertEquals(3, rendererAttempts)
+        assertEquals(2, sleepCount)
+        assertEquals(4, scene.stats?.attachedNodes)
+        val task = assertNotNull(scene.findTaskById(12))
+        assertEquals("com.example.test", task.packageName)
+        assertNotNull(task.findNode { it.name == "panelLeash" && it.isEmbeddedWindowLeash })
+    }
+
+    @Test
+    fun captureProtoSceneWithPolling_throwsIllegalStateExceptionWhenBinaryRemainsEmpty() {
+        var textSpfCalls = 0
+        var nowMs = 0L
+
+        val emptyCpmError =
+            assertFailsWith<IllegalStateException> {
+                captureProtoSceneWithPolling(
+                    includeRenderer = true,
+                    maxWaitMs = 200L,
+                    sleeper = { dt -> nowMs += dt },
+                    clockMs = { nowMs },
+                    binaryShellRunner = { ByteArray(0) },
+                    textShellRunner = { command ->
+                        if (command == "dumpsys spf_cpm") textSpfCalls++
+                        ""
+                    },
+                )
+            }
+        assertTrue(emptyCpmError.message!!.contains("dumpsys spf_cpm --proto"))
+        assertEquals(0, textSpfCalls)
 
         val nonEmptyCpmBytes = buildProto {
             writeMessage(2) {
@@ -442,29 +627,56 @@ class CpmProtoSceneParserTest {
                 writeMessage(5) { writeString(17, "Root") }
             }
         }
-        val rendererFallbackScene =
-            captureProtoSceneWithPolling(
-                includeRenderer = true,
-                binaryShellRunner = { command ->
-                    when (command) {
-                        "dumpsys spf_cpm --proto" -> nonEmptyCpmBytes
-                        "dumpsys spf_cpm --proto --renderer" -> ByteArray(0)
-                        else -> ByteArray(0)
-                    }
-                },
-                textShellRunner = { command ->
-                    when (command) {
-                        "dumpsys spf_cpm" -> textDump
-                        "dumpsys activity activities" -> "Task{#12 visible=true A=com.example.test}"
-                        else -> ""
-                    }
-                },
-            )
-        assertEquals(3, rendererFallbackScene.stats?.attachedNodes)
-        assertEquals(0L, rendererFallbackScene.stats?.bufferPixels)
-        val fallbackTask = assertNotNull(rendererFallbackScene.findTaskById(12))
-        assertEquals("com.example.test", fallbackTask.packageName)
-        assertNotNull(fallbackTask.findNode { it.name == "panelLeash" && it.isEmbeddedWindowLeash })
+        nowMs = 0L
+        val emptyRendererError =
+            assertFailsWith<IllegalStateException> {
+                captureProtoSceneWithPolling(
+                    includeRenderer = true,
+                    maxWaitMs = 200L,
+                    sleeper = { dt -> nowMs += dt },
+                    clockMs = { nowMs },
+                    binaryShellRunner = { command ->
+                        if (command == "dumpsys spf_cpm --proto") nonEmptyCpmBytes else ByteArray(0)
+                    },
+                    textShellRunner = { command ->
+                        if (command == "dumpsys spf_cpm") textSpfCalls++
+                        ""
+                    },
+                )
+            }
+        assertTrue(emptyRendererError.message!!.contains("--proto --renderer"))
+        assertEquals(0, textSpfCalls)
+    }
+
+    @Test
+    fun captureProtoSceneWithPolling_throwsIllegalStateExceptionWhenProtoUnparseable() {
+        var binaryAttempts = 0
+        var textSpfCalls = 0
+        var nowMs = 0L
+        // Truncated length-delimited field 2 (tag 0x12, length 10, 0 payload bytes).
+        val corruptProtoBytes = byteArrayOf(0x12, 0x0A)
+
+        val error =
+            assertFailsWith<IllegalStateException> {
+                captureProtoSceneWithPolling(
+                    includeRenderer = false,
+                    maxWaitMs = 200L,
+                    sleeper = { dt -> nowMs += dt },
+                    clockMs = { nowMs },
+                    binaryShellRunner = {
+                        binaryAttempts++
+                        corruptProtoBytes
+                    },
+                    textShellRunner = { command ->
+                        if (command == "dumpsys spf_cpm") textSpfCalls++
+                        ""
+                    },
+                )
+            }
+        assertTrue(error.message!!.contains("Failed to parse dumpsys spf_cpm --proto"))
+        assertNotNull(error.cause)
+        assertEquals(3, binaryAttempts)
+        assertEquals(0, textSpfCalls)
     }
 
     @Test
@@ -1728,6 +1940,162 @@ class CpmProtoSceneParserTest {
                 "4ugbldE3qqJvVEffqIm+URt9Y0n0jaXRN+qibywjNxZCJblhPXeIwFQT3tN8BEtK0GO/60tYloxmkDab",
                 "RzxamfijVezRPPooLdR58R+tTvzRmvEencYeXU0kikwJ+PdyWDZ6hKcG+JgZYBRtbf4fOHOI/JT8AAA=",
             )
+    }
+
+    @Test
+    fun parseScene_impressEulerFromQuatClamped_reconstructsThreeAxisWorldRotation() {
+        val parentQuat = Quaternion.fromEulerAngles(pitch = 30f, yaw = 40f, roll = -20f)
+        val expectedChildWorldQuat =
+            Pose(Vector3.Zero, parentQuat).getUpVectorToUpRotation(Pose.Identity)
+        val localChildQuat = parentQuat.inverse * expectedChildWorldQuat
+
+        val northQuat =
+            Quaternion.fromAxisAngle(Vector3(0f, 1f, 0f), 35f) *
+                Quaternion.fromAxisAngle(Vector3(0f, 0f, 1f), 90f) *
+                Quaternion.fromAxisAngle(Vector3(1f, 0f, 0f), 20f)
+        val southQuat =
+            Quaternion.fromAxisAngle(Vector3(0f, 1f, 0f), -25f) *
+                Quaternion.fromAxisAngle(Vector3(0f, 0f, 1f), -90f) *
+                Quaternion.fromAxisAngle(Vector3(1f, 0f, 0f), 15f)
+
+        val cpmBytes = buildProto {
+            writeMessage(2) { // Root (id=1)
+                writeVarint(1, 1L)
+                writeVarint(3, 2L)
+                writeMessage(5) { writeString(17, "Root") }
+            }
+            writeMessage(2) { // space-root-task-7 (id=2)
+                writeVarint(1, 2L)
+                writePackedVarints(3, listOf(10L, 11L, 12L))
+                writeVarint(4, 1L)
+                writeMessage(5) { writeString(17, "space-root-task-7") }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+            writeMessage(2) {
+                writeVarint(1, 10L)
+                writeVarint(4, 2L)
+                writeMessage(5) { writeString(17, "gravity_aligned_child_panel") }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+            writeMessage(2) {
+                writeVarint(1, 11L)
+                writeVarint(4, 2L)
+                writeMessage(5) { writeString(17, "north_pole_node") }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+            writeMessage(2) {
+                writeVarint(1, 12L)
+                writeVarint(4, 2L)
+                writeMessage(5) { writeString(17, "south_pole_node") }
+                writeMessage(6) { writeVarint(5, 1L) }
+            }
+        }
+
+        val rendererBytes = buildProto {
+            writeMessage(1) { // ImpRoot
+                writeString(1, "ImpRoot")
+                writeMessage(9) {
+                    writeString(1, "tilted_parent")
+                    writeMessage(6) { writeVec3(4, eulerFromQuatClamped(parentQuat)) }
+                    writeMessage(9) {
+                        writeString(1, "gravity_aligned_child_panel")
+                        writeMessage(6) { writeVec3(4, eulerFromQuatClamped(localChildQuat)) }
+                        writeMessage(8) {
+                            writeMessage(2) {
+                                writeString(
+                                    1,
+                                    "type.googleapis.com/spaceflinger.NodeStateManagerState",
+                                )
+                                writeMessage(2) { writeVarint(1, 10L) }
+                            }
+                        }
+                    }
+                }
+                writeMessage(9) {
+                    writeString(1, "north_pole_node")
+                    writeMessage(6) { writeVec3(4, eulerFromQuatClamped(northQuat)) }
+                    writeMessage(8) {
+                        writeMessage(2) {
+                            writeString(
+                                1,
+                                "type.googleapis.com/spaceflinger.NodeStateManagerState",
+                            )
+                            writeMessage(2) { writeVarint(1, 11L) }
+                        }
+                    }
+                }
+                writeMessage(9) {
+                    writeString(1, "south_pole_node")
+                    writeMessage(6) { writeVec3(4, eulerFromQuatClamped(southQuat)) }
+                    writeMessage(8) {
+                        writeMessage(2) {
+                            writeString(
+                                1,
+                                "type.googleapis.com/spaceflinger.NodeStateManagerState",
+                            )
+                            writeMessage(2) { writeVarint(1, 12L) }
+                        }
+                    }
+                }
+            }
+        }
+
+        val scene = CpmProtoSceneParser.parseScene(cpmBytes, rendererBytes)
+        assertTrue(scene.isProtoCapture)
+        val task = checkNotNull(scene.findTaskById(7))
+
+        val childNode = checkNotNull(task.findNode { it.name == "gravity_aligned_child_panel" })
+        val reconstructedUp = (childNode.rotation * Vector3.Up).toNormalized()
+        assertTrue(
+            Vector3.distance(reconstructedUp, Vector3.Up) < 1e-4f,
+            "Expected reconstructed Up near Vector3.Up, got $reconstructedUp",
+        )
+
+        val sampleVec = Vector3(0.3f, -0.7f, 0.5f)
+        val northNode = checkNotNull(task.findNode { it.name == "north_pole_node" })
+        assertTrue(
+            Vector3.distance(northNode.rotation * sampleVec, northQuat * sampleVec) < 1e-4f,
+            "Expected north pole rotation to match $northQuat, got ${northNode.rotation}",
+        )
+
+        val southNode = checkNotNull(task.findNode { it.name == "south_pole_node" })
+        assertTrue(
+            Vector3.distance(southNode.rotation * sampleVec, southQuat * sampleVec) < 1e-4f,
+            "Expected south pole rotation to match $southQuat, got ${southNode.rotation}",
+        )
+    }
+
+    /** Matches `imp::EulerFromQuatClamped` (`third_party/impress/core/math/quat.cc`). */
+    private fun eulerFromQuatClamped(q: Quaternion): Vector3 {
+        val radToDeg = (180.0 / PI).toFloat()
+        val singularity = 0.5f - 1e-6f
+        val test = q.x * q.y + q.z * q.w
+        val raw =
+            when {
+                test > singularity -> Vector3(x = 0f, y = 2f * atan2(q.x, q.w) * radToDeg, z = 90f)
+                test < -singularity ->
+                    Vector3(x = 0f, y = -2f * atan2(q.x, q.w) * radToDeg, z = -90f)
+                else -> {
+                    val sqx = q.x * q.x
+                    val sqy = q.y * q.y
+                    val sqz = q.z * q.z
+                    Vector3(
+                        x =
+                            atan2(2f * q.x * q.w - 2f * q.y * q.z, 1f - 2f * sqx - 2f * sqz) *
+                                radToDeg,
+                        y =
+                            atan2(2f * q.y * q.w - 2f * q.x * q.z, 1f - 2f * sqy - 2f * sqz) *
+                                radToDeg,
+                        z = asin((2f * test).coerceIn(-1f, 1f)) * radToDeg,
+                    )
+                }
+            }
+        fun clampNonNegative360(deg: Float): Float = ((deg % 360f) + 360f) % 360f
+        return Vector3(
+            clampNonNegative360(raw.x),
+            clampNonNegative360(raw.y),
+            clampNonNegative360(raw.z),
+        )
     }
 
     private class ProtoBuilder {
