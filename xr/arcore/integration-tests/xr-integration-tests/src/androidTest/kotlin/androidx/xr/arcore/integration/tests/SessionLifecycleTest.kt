@@ -29,7 +29,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.xr.arcore.PerceptionState
 import androidx.xr.arcore.Plane
+import androidx.xr.arcore.PlaneType
 import androidx.xr.arcore.TrackingState
 import androidx.xr.arcore.perceptionState
 import androidx.xr.runtime.AnchorPersistenceMode
@@ -47,16 +49,18 @@ import androidx.xr.runtime.SessionConfigureResult
 import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.runtime.math.Pose
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.filterSupportedPermissions
 import androidx.xr.testutils.waitUntil
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.abs
+import kotlin.math.hypot
 import kotlin.random.Random
 import kotlin.test.assertNotNull
 import kotlin.time.ComparableTimeMark
@@ -282,7 +286,15 @@ class SessionLifecycleTest {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
                 val session = createConfiguredPlaneTrackingSession(scenario)
-                val prePauseSnapshot = awaitTrackingPlanesAfter(session)
+                var current = awaitRuntimeCoreState(session)
+                repeat(MIN_PRE_PAUSE_ADVANCING_UPDATES) { step ->
+                    current =
+                        checkNotNull(awaitCoreStateAfter(session, current.timeMark)) {
+                            "Timed out after $SESSION_STATE_TIMEOUT waiting for pre-pause " +
+                                "CoreState update ${step + 1}/$MIN_PRE_PAUSE_ADVANCING_UPDATES."
+                        }
+                }
+                val prePauseSnapshot = awaitTrackingPlanes(session)
                 assumeTrue(
                     "Skipping test: No tracking planes detected before pause within timeout.",
                     prePauseSnapshot != null,
@@ -292,17 +304,14 @@ class SessionLifecycleTest {
                 val postResumeRecovery =
                     pauseResumeAndAwaitTrackingPlanes(scenario, session, recordedSnapshot)
 
-                val recoveredSnapshot =
+                val recoveredPlanes =
                     assertNotNull(
                         postResumeRecovery,
-                        "Timed out waiting for pre-pause planes to resume TRACKING.",
+                        "Timed out waiting for pre-pause planes to resume updated or sustained " +
+                            "TRACKING.",
                     )
-                val recoveredByOwner = recoveredSnapshot.trackingPlanes.associateBy { it.owner }
-                for (prePausePlane in recordedSnapshot.trackingPlanes) {
-                    // awaitTrackingPlanesAfter guarantees each recorded Plane is present and
-                    // TRACKING.
-                    val resumedPlane = recoveredByOwner.getValue(prePausePlane.owner)
-                    assertPlanePoseContinuity(resumedPlane.centerPose, prePausePlane.centerPose)
+                for (recovered in recoveredPlanes) {
+                    assertPlaneSurfaceContinuity(recovered.resumedRoot, recovered.prePausePlane)
                 }
             }
         }
@@ -314,7 +323,7 @@ class SessionLifecycleTest {
         runBlocking {
             ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
                 val initialSession = createConfiguredPlaneTrackingSession(scenario)
-                val preRecreateSnapshot = awaitTrackingPlanesAfter(initialSession)
+                val preRecreateSnapshot = awaitTrackingPlanes(initialSession)
                 assumeTrue(
                     "Skipping test: No tracking planes detected before recreate within timeout.",
                     preRecreateSnapshot != null,
@@ -325,7 +334,7 @@ class SessionLifecycleTest {
                 val recreatedBaselineState = awaitRuntimeCoreState(recreatedSession)
                 val recreatedAdvancingState =
                     awaitCoreStateAfter(recreatedSession, recreatedBaselineState.timeMark)
-                val recreatedPlanes = awaitTrackingPlanesAfter(recreatedSession)
+                val recreatedPlanes = awaitTrackingPlanes(recreatedSession)
 
                 assertThat(recreatedSession).isNotSameInstanceAs(initialSession)
                 assertNotNull(
@@ -502,6 +511,11 @@ class SessionLifecycleTest {
         val trackingPlanes: List<Plane.State>,
     )
 
+    private data class RecoveredPlane(
+        val prePausePlane: Plane.State,
+        val resumedRoot: Plane.State,
+    )
+
     private data class ConcurrentConfigureBurstOutcome(
         val concurrentConfigResults: List<SessionConfigureResult>,
         val overlappingConfigureCount: Int,
@@ -587,43 +601,114 @@ class SessionLifecycleTest {
             session.state.first { it.perceptionState != null && it.timeMark > afterMark }
         }
 
+    private fun extractTrackingPlaneSnapshot(
+        coreState: CoreState,
+        perception: PerceptionState,
+    ): PlaneSnapshot? {
+        val allTracking =
+            perception.trackableStates.filterIsInstance<Plane.State>().filter {
+                it.trackingState == TrackingState.TRACKING
+            }
+        if (allTracking.isEmpty()) return null
+        return PlaneSnapshot(
+            coreState,
+            allTracking.filter { it.subsumedBy == null }.ifEmpty { allTracking },
+        )
+    }
+
     // Observe session.state directly because Plane.subscribe uses stateIn, which conflates
     // updates when the tracked Plane set remains unchanged across frames.
-    private suspend fun awaitTrackingPlanesAfter(
+    private suspend fun awaitTrackingPlanes(
         session: Session,
-        afterMark: ComparableTimeMark? = null,
-        requiredPlanes: Set<Plane> = emptySet(),
         timeout: Duration = PERCEPTION_DISCOVERY_TIMEOUT,
     ): PlaneSnapshot? =
         withTimeoutOrNull(timeout) {
             session.state
                 .mapNotNull { coreState ->
                     val perception = coreState.perceptionState ?: return@mapNotNull null
-                    if (afterMark != null && coreState.timeMark <= afterMark) {
-                        return@mapNotNull null
-                    }
-                    val allTracking =
-                        perception.trackableStates.filterIsInstance<Plane.State>().filter {
-                            it.trackingState == TrackingState.TRACKING
-                        }
-                    if (allTracking.isEmpty()) {
-                        return@mapNotNull null
-                    }
-                    val activeTracking =
-                        allTracking.filter { it.subsumedBy == null }.ifEmpty { allTracking }
-                    if (
-                        requiredPlanes.isNotEmpty() &&
-                            !requiredPlanes.all { req -> allTracking.any { it.owner === req } }
-                    ) {
-                        return@mapNotNull null
-                    }
-                    PlaneSnapshot(
-                        coreState,
-                        if (requiredPlanes.isEmpty()) activeTracking else allTracking,
-                    )
+                    extractTrackingPlaneSnapshot(coreState, perception)
                 }
                 .first()
         }
+
+    private fun resolveRootState(
+        plane: Plane,
+        statesByOwner: Map<Plane, Plane.State>,
+    ): Plane.State? {
+        var current = plane
+        val visited = mutableSetOf(current)
+        while (true) {
+            val state = statesByOwner[current] ?: return null
+            val parent = state.subsumedBy ?: return state
+            check(visited.add(parent)) {
+                "Cycle detected in Plane.State.subsumedBy chain at $parent."
+            }
+            current = parent
+        }
+    }
+
+    private fun resolvePostResumeRoots(
+        prePausePlanes: List<Plane.State>,
+        perception: PerceptionState,
+    ): List<RecoveredPlane>? {
+        val statesByOwner =
+            perception.trackableStates.filterIsInstance<Plane.State>().associateBy { it.owner }
+        return prePausePlanes.map { pre ->
+            val resumedRoot =
+                resolveRootState(pre.owner, statesByOwner)?.takeIf {
+                    it.trackingState == TrackingState.TRACKING
+                } ?: return null
+            RecoveredPlane(prePausePlane = pre, resumedRoot = resumedRoot)
+        }
+    }
+
+    private fun hasPlaneGeometryProgressed(
+        baseline: Plane.State,
+        resumedRoot: Plane.State,
+    ): Boolean =
+        baseline.owner != resumedRoot.owner ||
+            baseline.label != resumedRoot.label ||
+            baseline.centerPose != resumedRoot.centerPose ||
+            baseline.extents != resumedRoot.extents ||
+            baseline.vertices != resumedRoot.vertices
+
+    private suspend fun awaitPostResumeTrackingPlanes(
+        session: Session,
+        afterMark: ComparableTimeMark,
+        prePausePlanes: List<Plane.State>,
+        preResumeRootsByOwner: Map<Plane, Plane.State>,
+        timeout: Duration = PERCEPTION_DISCOVERY_TIMEOUT,
+    ): List<RecoveredPlane>? {
+        var lastSeenMark = afterMark
+        var trackingSince: ComparableTimeMark? = null
+        return withTimeoutOrNull(timeout) {
+            session.state
+                .mapNotNull { coreState ->
+                    val perception = coreState.perceptionState ?: return@mapNotNull null
+                    if (coreState.timeMark <= lastSeenMark) return@mapNotNull null
+                    lastSeenMark = coreState.timeMark
+                    val recoveredPlanes = resolvePostResumeRoots(prePausePlanes, perception)
+                    if (recoveredPlanes == null) {
+                        trackingSince = null
+                        return@mapNotNull null
+                    }
+                    val now = TimeSource.Monotonic.markNow()
+                    val continuousStart = trackingSince ?: now
+                    trackingSince = continuousStart
+                    val progressed = recoveredPlanes.any { recovered ->
+                        hasPlaneGeometryProgressed(
+                            preResumeRootsByOwner.getValue(recovered.prePausePlane.owner),
+                            recovered.resumedRoot,
+                        )
+                    }
+                    if (!progressed && now - continuousStart < POST_RESUME_FRESHNESS_WINDOW) {
+                        return@mapNotNull null
+                    }
+                    recoveredPlanes
+                }
+                .first()
+        }
+    }
 
     // pause() cancels updateJob without awaiting an in-flight configurationMutex.withLock {
     // update() } frame, so drain any trailing emission before measuring paused quiescence.
@@ -683,16 +768,27 @@ class SessionLifecycleTest {
         scenario: ActivityScenario<ComponentActivity>,
         session: Session,
         prePauseSnapshot: PlaneSnapshot,
-    ): PlaneSnapshot? {
-        val recordedOwners = prePauseSnapshot.trackingPlanes.map { it.owner }.toSet()
+    ): List<RecoveredPlane>? {
         moveActivityToInactiveState(scenario, Lifecycle.State.CREATED)
         val pausedSettledMark =
             settlePausedStateAndCaptureTimeMark(session, prePauseSnapshot.coreState.timeMark)
+        val settledStatesByOwner =
+            session.state.value.perceptionState
+                ?.trackableStates
+                ?.filterIsInstance<Plane.State>()
+                ?.associateBy { it.owner }
+                .orEmpty()
+        val preResumeRootsByOwner =
+            prePauseSnapshot.trackingPlanes.associate { pre ->
+                val settledRoot = resolveRootState(pre.owner, settledStatesByOwner)
+                pre.owner to (settledRoot ?: pre)
+            }
         resumeActivityFromInactiveState(scenario)
-        return awaitTrackingPlanesAfter(
-            session,
+        return awaitPostResumeTrackingPlanes(
+            session = session,
             afterMark = pausedSettledMark,
-            requiredPlanes = recordedOwners,
+            prePausePlanes = prePauseSnapshot.trackingPlanes,
+            preResumeRootsByOwner = preResumeRootsByOwner,
         )
     }
 
@@ -878,17 +974,65 @@ class SessionLifecycleTest {
             }
         }
 
-    // Allows up to 5 cm per axis for bounding-box center shifts as plane extents refine across
-    // pause/resume, and rotation dot delta <= 2e-3 (~7.2 degrees: 2 * acos(1 - 2e-3)).
-    private fun assertPlanePoseContinuity(actual: Pose, expected: Pose) {
-        assertFinitePose(actual)
-        assertValidQuaternion(actual.rotation)
-        assertPoseEquals(
-            actual = actual,
-            expected = expected,
-            translationEpsilon = PLANE_PAUSE_TRANSLATION_EPSILON_METERS,
-            rotationDotEpsilon = PLANE_PAUSE_ROTATION_DOT_EPSILON,
-        )
+    private fun assertPlaneNormalContinuity(
+        resumedRoot: Plane.State,
+        prePausePlane: Plane.State,
+    ) {
+        val rawDot = prePausePlane.centerPose.up dot resumedRoot.centerPose.up
+        val normalDot: Float
+        val normalDotMin: Float
+        when (prePausePlane.owner.type) {
+            PlaneType.HORIZONTAL_UPWARD_FACING,
+            PlaneType.HORIZONTAL_DOWNWARD_FACING -> {
+                normalDot = rawDot
+                normalDotMin = GRAVITY_ALIGNED_NORMAL_DOT_MIN
+            }
+            PlaneType.VERTICAL -> {
+                normalDot = abs(rawDot)
+                normalDotMin = WALL_NORMAL_DOT_MIN
+            }
+            else -> throw AssertionError("Unexpected plane type: ${prePausePlane.owner.type}")
+        }
+        assertWithMessage("Plane normal dot (type=${prePausePlane.owner.type})")
+            .that(normalDot)
+            .isAtLeast(normalDotMin)
+    }
+
+    // Verify plane-surface continuity across pause/resume while allowing in-plane bounding-box
+    // center and orientation shifts from hull growth, boundary trimming, and plane merges.
+    private fun assertPlaneSurfaceContinuity(
+        resumedRoot: Plane.State,
+        prePausePlane: Plane.State,
+    ) {
+        assertThat(resumedRoot.trackingState).isEqualTo(TrackingState.TRACKING)
+        assertThat(resumedRoot.owner.type).isEqualTo(prePausePlane.owner.type)
+        assertFinitePose(resumedRoot.centerPose)
+        assertValidQuaternion(resumedRoot.centerPose.rotation)
+        assertPlaneNormalContinuity(resumedRoot, prePausePlane)
+
+        val rootLocal =
+            resumedRoot.centerPose.inverse.transformPoint(prePausePlane.centerPose.translation)
+        val orthogonalDriftMeters = abs(rootLocal.y)
+        val maxOrthogonalDriftMeters =
+            when (prePausePlane.owner.type) {
+                PlaneType.HORIZONTAL_UPWARD_FACING,
+                PlaneType.HORIZONTAL_DOWNWARD_FACING -> GRAVITY_ALIGNED_MAX_NORMAL_DRIFT_METERS
+                PlaneType.VERTICAL -> WALL_MAX_NORMAL_DRIFT_METERS
+                else -> throw AssertionError("Unexpected plane type: ${prePausePlane.owner.type}")
+            }
+        assertWithMessage("Plane orthogonal drift (type=${prePausePlane.owner.type})")
+            .that(orthogonalDriftMeters)
+            .isAtMost(maxOrthogonalDriftMeters)
+
+        val maxInPlaneShift =
+            0.5f *
+                maxOf(
+                    hypot(prePausePlane.extents.width, prePausePlane.extents.height),
+                    hypot(resumedRoot.extents.width, resumedRoot.extents.height),
+                ) + PLANE_POSE_JITTER_METERS
+        assertWithMessage("Plane in-plane shift (type=${prePausePlane.owner.type})")
+            .that(hypot(rootLocal.x, rootLocal.z))
+            .isAtMost(maxInPlaneShift)
     }
 
     // --- Helpers for deterministic config generation ---
@@ -959,12 +1103,22 @@ class SessionLifecycleTest {
     private companion object {
         private val IN_FLIGHT_UPDATE_SETTLE_TIMEOUT = 250.milliseconds
         private val PAUSED_QUIESCENCE_WINDOW = 350.milliseconds
+        private val POST_RESUME_FRESHNESS_WINDOW = 1_500.milliseconds
         private const val MAX_IN_FLIGHT_SETTLE_ATTEMPTS = 2
+        private const val MIN_PRE_PAUSE_ADVANCING_UPDATES = 2
         private const val RAPID_LIFECYCLE_CYCLES = 20
         private const val MIN_OVERLAPPING_CONFIGURE_CALLS = 5
         private const val MAX_CONCURRENT_CONFIGURE_CALLS = 10_000
         private const val RECREATION_CHURN_COUNT = 3
-        private const val PLANE_PAUSE_TRANSLATION_EPSILON_METERS = 0.05f
-        private const val PLANE_PAUSE_ROTATION_DOT_EPSILON = 2e-3f
+        // Aligns with cos(7.25 deg) from the prior 2e-3f quaternion dot tolerance (2 *
+        // acos(0.998)) for gravity-aligned planes (floors, tabletops, ceilings).
+        private const val GRAVITY_ALIGNED_NORMAL_DOT_MIN = 0.992f
+        // Gravity-aligned merges allow up to 0.25m elevation step plus 0.05m jitter, while
+        // wall merges allow abs(normal dot) >= 0.70 (~45.6 deg) and up to 2.0m depth offset
+        // plus 0.05m jitter. PLANE_POSE_JITTER_METERS also bounds half-diagonal in-plane shift.
+        private const val GRAVITY_ALIGNED_MAX_NORMAL_DRIFT_METERS = 0.30f
+        private const val WALL_NORMAL_DOT_MIN = 0.70f
+        private const val WALL_MAX_NORMAL_DRIFT_METERS = 2.05f
+        private const val PLANE_POSE_JITTER_METERS = 0.05f
     }
 }
