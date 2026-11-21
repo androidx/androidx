@@ -1395,6 +1395,99 @@
       "restrictToLibraryGroup": true
     },
     {
+      "id": 60,
+      "name": "TextInputLayout",
+      "opCodeName": "LAYOUT_TEXT_INPUT",
+      "category": "Layout Managers",
+      "description": "A box whose content displays a string the user can edit. On click, players with text input support open a platform editor over the content (aligned with the text component bound to the string when there is one) and write edits back into the string.",
+      "addedVersion": 7,
+      "fields": [
+        {
+          "name": "componentId",
+          "type": "int",
+          "description": "Unique ID for this component"
+        },
+        {
+          "name": "animationId",
+          "type": "int",
+          "description": "ID for animation purposes"
+        },
+        {
+          "name": "textId",
+          "type": "int",
+          "role": "idRef",
+          "idKind": "text",
+          "description": "Id of the edited string data"
+        }
+      ],
+      "profiles": [
+        "androidx",
+        "experimental"
+      ],
+      "restrictToLibraryGroup": true,
+      "encoding": "sparse",
+      "sparseParameters": [
+        {
+          "id": 1,
+          "name": "keyboardType",
+          "type": "int",
+          "defaultValue": "0",
+          "description": "Keyboard type: 0 unspecified, 1 text, 2 ascii, 3 number, 4 phone, 5 uri, 6 email, 7 password, 8 number password, 9 decimal"
+        },
+        {
+          "id": 2,
+          "name": "imeAction",
+          "type": "int",
+          "defaultValue": "0",
+          "description": "IME action: 0 none, 1 default, 2 go, 3 search, 4 send, 5 previous, 6 next, 7 done"
+        },
+        {
+          "id": 3,
+          "name": "inputFlags",
+          "type": "int",
+          "defaultValue": "0",
+          "description": "Bitmask: 1 single line, 2 commit on done, 4 auto correct, 8 capitalize characters, 16 capitalize words, 32 capitalize sentences"
+        },
+        {
+          "id": 4,
+          "name": "maxLength",
+          "type": "int",
+          "defaultValue": "0",
+          "description": "Maximum text length, 0 for unlimited"
+        },
+        {
+          "id": 5,
+          "name": "filter",
+          "type": "int",
+          "defaultValue": "0",
+          "description": "Input filter: 0 none, 1 digits, 2 decimal, 3 alphanumeric, 4 hexadecimal"
+        },
+        {
+          "id": 6,
+          "name": "hintId",
+          "type": "int",
+          "defaultValue": "0",
+          "description": "Id of the hint string, 0 for none"
+        },
+        {
+          "id": 7,
+          "name": "contentType",
+          "type": "int",
+          "defaultValue": "0",
+          "description": "What the string holds, for autofill and keyboard suggestions: 0 none, 1 person name, 2 first name, 3 last name, 4 email address, 5 phone number, 6 username, 7 password, 8 new password, 9 one-time code, 10 postal address, 11 postal code, 12 credit card number, 13 credit card expiration date, 14 credit card security code"
+        }
+      ],
+      "sparseCountType": "ushort",
+      "sparseKeyType": "ubyte",
+      "isContainer": true,
+      "closedBy": "ContainerEnd",
+      "allowedChildren": [
+        "modifiers",
+        "LayoutContent",
+        "layout"
+      ]
+    },
+    {
       "id": 63,
       "name": "Theme",
       "category": "Document Protocol Operations",

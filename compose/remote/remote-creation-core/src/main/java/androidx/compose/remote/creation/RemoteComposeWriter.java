@@ -4037,6 +4037,84 @@ public class RemoteComposeWriter {
         mBuffer.addContainerEnd();
     }
 
+    /**
+     * Start a text input layout: a box whose content displays the string {@code textId}, which
+     * the user can edit through a host editor. The content typically includes a text component
+     * bound to the same string, which the editor is aligned with and styled from.
+     *
+     * @param modifier the modifier
+     * @param textId id of the edited string
+     * @param keyboardType keyboard type ({@code TextInputLayout.KEYBOARD_*})
+     * @param imeAction IME action ({@code TextInputLayout.IME_ACTION_*})
+     * @param inputFlags bitmask of {@code TextInputLayout.FLAG_*}
+     * @param maxLength maximum text length, 0 for unlimited
+     * @param filter input filter ({@code TextInputLayout.FILTER_*})
+     * @param hintId id of the hint string, 0 for none
+     * @param contentType content type ({@code TextInputLayout.CONTENT_TYPE_*}), for autofill
+     */
+    public void startTextInputLayout(
+            @NonNull RecordingModifier modifier,
+            int textId,
+            int keyboardType,
+            int imeAction,
+            int inputFlags,
+            int maxLength,
+            int filter,
+            int hintId,
+            int contentType) {
+        mBuffer.addTextInputLayoutStart(
+                modifier.getComponentId(),
+                -1,
+                textId,
+                keyboardType,
+                imeAction,
+                inputFlags,
+                maxLength,
+                filter,
+                hintId,
+                contentType);
+        for (RecordingModifier.Element m : modifier.getList()) {
+            m.write(this);
+        }
+        addContentStart();
+    }
+
+    /** End a text input layout */
+    public void endTextInputLayout() {
+        mBuffer.addContainerEnd();
+        mBuffer.addContainerEnd();
+    }
+
+    /**
+     * Add a text input layout; see {@link #startTextInputLayout}.
+     *
+     * @param content the content to run
+     */
+    public void textInputLayout(
+            @NonNull RecordingModifier modifier,
+            int textId,
+            int keyboardType,
+            int imeAction,
+            int inputFlags,
+            int maxLength,
+            int filter,
+            int hintId,
+            int contentType,
+            @NonNull RemoteComposeWriterInterface content) {
+        startTextInputLayout(
+                modifier,
+                textId,
+                keyboardType,
+                imeAction,
+                inputFlags,
+                maxLength,
+                filter,
+                hintId,
+                contentType);
+        content.run();
+        endTextInputLayout();
+    }
+
     /** Start a custom native component layout */
     public void startCustom(
             @NonNull RecordingModifier modifier,

@@ -152,6 +152,7 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RcDocLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
@@ -383,6 +384,7 @@ public class Operations {
     public static final int LAYOUT_ROW = 203;
     public static final int LAYOUT_COLLAPSIBLE_ROW = 230;
     public static final int LAYOUT_FLOW = 240;
+    public static final int LAYOUT_TEXT_INPUT = 60;
     public static final int LAYOUT_COLUMN = 204;
     public static final int LAYOUT_COLLAPSIBLE_COLUMN = 233;
     public static final int LAYOUT_CANVAS = 205;
@@ -490,6 +492,7 @@ public class Operations {
     /** Experimental operations of the AndroidX profile. */
     private static final int[] PROFILE_ANDROIDX_EXPERIMENTAL_OPS = {
         LAYOUT_COMPUTE,
+        LAYOUT_TEXT_INPUT,
         LAYOUT_FLOW,
         MODIFIER_MULTI_CLICK,
         MODIFIER_DIMENSION_CONSTRAINTS,
@@ -642,6 +645,7 @@ public class Operations {
                 sAllOperationsV7.put(MACRO_BLOCK, PatternBlock::read);
                 sAllOperationsV7.put(MACRO_FOR_EACH, PatternForEach::read);
                 sAllOperationsV7.put(LAYOUT_CUSTOM, Custom::read);
+                sAllOperationsV7.put(LAYOUT_TEXT_INPUT, TextInputLayout::read);
                 sAllOperationsV7.put(DATA_SOUND, SoundData::read);
                 sAllOperationsV7.put(SOUND_EXPRESSION, SoundExpression::read);
                 sAllOperationsV7.put(PLAY_SOUND, PlaySound::read);

@@ -125,6 +125,7 @@ import androidx.compose.remote.core.operations.layout.managers.FlowLayout
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.layout.managers.TextStyle
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
@@ -539,6 +540,10 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
             GraphicsLayerModifierOperation::documentation,
         )
         operationsMap.put(Operations.MODIFIER_SCROLL, ScrollModifierOperation::documentation)
+        operationsMap.put(
+            Operations.LAYOUT_TEXT_INPUT,
+            TextInputLayout::documentation,
+        )
         operationsMap.put(Operations.MODIFIER_MARQUEE, MarqueeModifierOperation::documentation)
         operationsMap.put(Operations.MODIFIER_RIPPLE, RippleModifierOperation::documentation)
         operationsMap.put(Operations.MODIFIER_ALIGN_BY, AlignByModifierOperation::documentation)
