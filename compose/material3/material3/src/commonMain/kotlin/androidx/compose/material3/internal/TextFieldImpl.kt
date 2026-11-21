@@ -54,7 +54,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.structuralEqualityPolicy
@@ -160,19 +159,33 @@ internal fun CommonDecorationBox(
             null
         }
 
-    val placeholderAlpha =
-        if (placeholder != null) {
-            transition.placeholderOpacity(showExpandedLabel)
-        } else {
-            null
-        }
+    // Transparent components interfere with Talkback (b/261061240), so if any components below
+    // have alpha == 0, we set the component to null instead.
+    val placeholderAlpha: State<Float>?
+    val showPlaceholder: Boolean
+    if (placeholder != null) {
+        val alpha = transition.placeholderOpacity(showExpandedLabel)
+        placeholderAlpha = alpha
+        showPlaceholder =
+            remember(alpha) { derivedStateOf(structuralEqualityPolicy()) { alpha.value > 0f } }
+                .value
+    } else {
+        placeholderAlpha = null
+        showPlaceholder = false
+    }
 
-    val affixAlpha =
-        if (prefix != null || suffix != null) {
-            transition.affixOpacity(showExpandedLabel)
-        } else {
-            null
-        }
+    val affixAlpha: State<Float>?
+    val showAffix: Boolean
+    if (prefix != null || suffix != null) {
+        val alpha = transition.affixOpacity(showExpandedLabel)
+        affixAlpha = alpha
+        showAffix =
+            remember(alpha) { derivedStateOf(structuralEqualityPolicy()) { alpha.value > 0f } }
+                .value
+    } else {
+        affixAlpha = null
+        showAffix = false
+    }
 
     val decoratedLabel = label?.let { label ->
         @Composable {
@@ -191,12 +204,7 @@ internal fun CommonDecorationBox(
         }
     }
 
-    // Transparent components interfere with Talkback (b/261061240), so if any components below
-    // have alpha == 0, we set the component to null instead.
     val placeholderColor = colors.placeholderColor(enabled, isError, isFocused)
-    val showPlaceholder by remember {
-        derivedStateOf(structuralEqualityPolicy()) { (placeholderAlpha?.value ?: 0f) > 0f }
-    }
     val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
         if (placeholder != null && visualText.isEmpty() && showPlaceholder) {
             @Composable { modifier ->
@@ -211,9 +219,6 @@ internal fun CommonDecorationBox(
         } else null
 
     val prefixColor = colors.prefixColor(enabled, isError, isFocused)
-    val showAffix by remember {
-        derivedStateOf(structuralEqualityPolicy()) { (affixAlpha?.value ?: 0f) > 0f }
-    }
     val decoratedPrefix: @Composable (() -> Unit)? =
         if (prefix != null && showAffix) {
             @Composable {
@@ -1934,12 +1939,13 @@ private fun DecoratedLabel(
     bodyLarge: TextStyle,
     content: @Composable (TextFieldLabelScope.() -> Unit),
 ) {
-    val labelScope = remember {
-        object : TextFieldLabelScope {
-            override val labelMinimizedProgress: Float
-                get() = labelProgress?.value ?: 1f
+    val labelScope =
+        remember(labelProgress) {
+            object : TextFieldLabelScope {
+                override val labelMinimizedProgress: Float
+                    get() = labelProgress?.value ?: 1f
+            }
         }
-    }
 
     val labelColor = colors.labelColor(enabled, isError, isFocused)
     val labelTextStyleColor =

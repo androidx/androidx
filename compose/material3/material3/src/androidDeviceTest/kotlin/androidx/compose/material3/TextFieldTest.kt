@@ -38,10 +38,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
@@ -1345,6 +1348,74 @@ class TextFieldTest {
         rule.onNodeWithText(prefixText).assertIsDisplayed()
         rule.onNodeWithText(suffixText).assertIsDisplayed()
         rule.onNodeWithText(placeholderText).assertIsDisplayed()
+    }
+
+    @Test
+    fun testTextField_prefixAndSuffixAndPlaceholderInitiallyNull_becomeDisplayed() {
+        val prefix = mutableStateOf<String?>(null)
+        val suffix = mutableStateOf<String?>(null)
+        val placeholder = mutableStateOf<String?>(null)
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                prefix = prefix.value?.let { { Text(it, modifier = Modifier.testTag("Prefix")) } },
+                suffix = suffix.value?.let { { Text(it, modifier = Modifier.testTag("Suffix")) } },
+                placeholder =
+                    placeholder.value?.let {
+                        { Text(it, modifier = Modifier.testTag("Placeholder")) }
+                    },
+            )
+        }
+
+        rule.onNodeWithTag("Prefix", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("Suffix", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("Placeholder", useUnmergedTree = true).assertDoesNotExist()
+
+        prefix.value = "$"
+        suffix.value = "-10%"
+        placeholder.value = "Hint"
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("Prefix", useUnmergedTree = true).assertIsDisplayed()
+        rule.onNodeWithTag("Suffix", useUnmergedTree = true).assertIsDisplayed()
+        rule.onNodeWithTag("Placeholder", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun testTextField_suffixToggledNullAndBack_respectsVisibilityState() {
+        val hasSuffix = mutableStateOf(true)
+        val state = TextFieldState()
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = state,
+                label = { Text("Label") },
+                suffix =
+                    if (hasSuffix.value) {
+                        { Text("-10%", modifier = Modifier.testTag("Suffix")) }
+                    } else null,
+            )
+        }
+
+        // Empty + unfocused + expandable label -> affix is hidden.
+        rule.onNodeWithTag("Suffix", useUnmergedTree = true).assertDoesNotExist()
+
+        // Remove suffix, make text non-empty, then re-add suffix -> should become displayed.
+        hasSuffix.value = false
+        rule.waitForIdle()
+        rule.runOnIdle { state.setTextAndPlaceCursorAtEnd("ABC") }
+        hasSuffix.value = true
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("Suffix", useUnmergedTree = true).assertIsDisplayed()
+
+        // Remove suffix, clear text so label expands again, then re-add suffix -> should be hidden.
+        hasSuffix.value = false
+        rule.waitForIdle()
+        rule.runOnIdle { state.clearText() }
+        hasSuffix.value = true
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("Suffix", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
