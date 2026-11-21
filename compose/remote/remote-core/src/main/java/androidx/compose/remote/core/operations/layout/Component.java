@@ -42,6 +42,7 @@ import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation2;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -129,6 +130,10 @@ public class Component extends PaintOperation
                 if (((ScrollModifierOperation) op).isHorizontalScroll()) {
                     return true;
                 }
+            } else if (op instanceof ScrollModifierOperation2) {
+                if (((ScrollModifierOperation2) op).isHorizontalScroll()) {
+                    return true;
+                }
             } else if (op instanceof ComponentModifiers) {
                 if (((ComponentModifiers) op).hasHorizontalScroll()) {
                     return true;
@@ -151,6 +156,10 @@ public class Component extends PaintOperation
         for (Operation op : mList) {
             if (op instanceof ScrollModifierOperation) {
                 if (((ScrollModifierOperation) op).isVerticalScroll()) {
+                    return true;
+                }
+            } else if (op instanceof ScrollModifierOperation2) {
+                if (((ScrollModifierOperation2) op).isVerticalScroll()) {
                     return true;
                 }
             } else if (op instanceof ComponentModifiers) {

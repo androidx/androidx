@@ -28,9 +28,11 @@ import androidx.compose.remote.core.operations.MatrixRestore;
 import androidx.compose.remote.core.operations.MatrixSave;
 import androidx.compose.remote.core.operations.layout.ClickHandler;
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation;
+import androidx.compose.remote.core.operations.layout.ClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.DecoratorComponent;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
+import androidx.compose.remote.core.operations.layout.MultiClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.TouchHandler;
 import androidx.compose.remote.core.operations.loom.ExpansionContext;
 import androidx.compose.remote.core.operations.loom.LoomManager;
@@ -164,9 +166,21 @@ public class ComponentModifiers extends PaintOperation
                 context.translate(-tx, -ty);
                 ((ClickModifierOperation) op).paint(context);
                 context.translate(tx, ty);
+            } else if (op instanceof ClickModifierOperation2) {
+                context.translate(-tx, -ty);
+                ((ClickModifierOperation2) op).paint(context);
+                context.translate(tx, ty);
             } else if (op instanceof MultiClickModifier) {
                 context.translate(-tx, -ty);
                 ((MultiClickModifier) op).paint(context);
+                context.translate(tx, ty);
+            } else if (op instanceof MultiClickModifierOperation2) {
+                context.translate(-tx, -ty);
+                ((MultiClickModifierOperation2) op).paint(context);
+                context.translate(tx, ty);
+            } else if (op instanceof RippleModifierOperation2) {
+                context.translate(-tx, -ty);
+                ((RippleModifierOperation2) op).paint(context);
                 context.translate(tx, ty);
             } else if (op instanceof PaintOperation) {
                 ((PaintOperation) op).paint(context);
@@ -196,7 +210,13 @@ public class ComponentModifiers extends PaintOperation
             }
             if (op instanceof ClickModifierOperation) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
+            } else if (op instanceof ClickModifierOperation2) {
+                ((DecoratorComponent) op).layout(context, component, width, height);
             } else if (op instanceof MultiClickModifier) {
+                ((DecoratorComponent) op).layout(context, component, width, height);
+            } else if (op instanceof MultiClickModifierOperation2) {
+                ((DecoratorComponent) op).layout(context, component, width, height);
+            } else if (op instanceof RippleModifierOperation2) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
             } else if (op instanceof DecoratorComponent) {
                 ((DecoratorComponent) op).layout(context, component, w, h);
@@ -254,6 +274,20 @@ public class ComponentModifiers extends PaintOperation
                 float lx = x - mPaddingOffset[0];
                 float ly = y - mPaddingOffset[1];
                 if (((ClickHandler) op).onClick(context, document, component, lx, ly)) {
+                    handled = true;
+                }
+            } else if (op instanceof ClickModifierOperation2) {
+                // This click does not come from the pointer input router (for example an
+                // accessibility click), so there are no pointer events to send.
+                // TODO(b/586559163): send an event of a new type for accessibility instead,
+                //  and remove this check.
+                if (((ClickModifierOperation2) op).performClick(context, document)) {
+                    handled = true;
+                }
+            } else if (op instanceof MultiClickModifierOperation2) {
+                // TODO(b/586559163): send an event of a new type for accessibility instead,
+                //  and remove this check.
+                if (((MultiClickModifierOperation2) op).performClick(context, document)) {
                     handled = true;
                 }
             }
@@ -412,6 +446,12 @@ public class ComponentModifiers extends PaintOperation
                     return true;
                 }
             }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
+                if (scrollModifier.isHorizontalScroll()) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -425,6 +465,12 @@ public class ComponentModifiers extends PaintOperation
         for (ModifierOperation op : mList) {
             if (op instanceof ScrollModifierOperation) {
                 ScrollModifierOperation scrollModifier = (ScrollModifierOperation) op;
+                if (scrollModifier.isVerticalScroll()) {
+                    return true;
+                }
+            }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
                 if (scrollModifier.isVerticalScroll()) {
                     return true;
                 }
@@ -447,6 +493,12 @@ public class ComponentModifiers extends PaintOperation
                     scrollModifier.setHorizontalScrollDimension(hostDimension, contentDimension);
                 }
             }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
+                if (scrollModifier.isHorizontalScroll()) {
+                    scrollModifier.setHorizontalScrollDimension(hostDimension, contentDimension);
+                }
+            }
         }
     }
 
@@ -460,6 +512,12 @@ public class ComponentModifiers extends PaintOperation
         for (ModifierOperation op : mList) {
             if (op instanceof ScrollModifierOperation) {
                 ScrollModifierOperation scrollModifier = (ScrollModifierOperation) op;
+                if (scrollModifier.isVerticalScroll()) {
+                    scrollModifier.setVerticalScrollDimension(hostDimension, contentDimension);
+                }
+            }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
                 if (scrollModifier.isVerticalScroll()) {
                     scrollModifier.setVerticalScrollDimension(hostDimension, contentDimension);
                 }
@@ -480,6 +538,12 @@ public class ComponentModifiers extends PaintOperation
                     return scrollModifier.getContentDimension();
                 }
             }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
+                if (scrollModifier.isHorizontalScroll()) {
+                    return scrollModifier.getContentDimension();
+                }
+            }
         }
         return 0f;
     }
@@ -493,6 +557,12 @@ public class ComponentModifiers extends PaintOperation
         for (ModifierOperation op : mList) {
             if (op instanceof ScrollModifierOperation) {
                 ScrollModifierOperation scrollModifier = (ScrollModifierOperation) op;
+                if (scrollModifier.isVerticalScroll()) {
+                    return scrollModifier.getContentDimension();
+                }
+            }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
                 if (scrollModifier.isVerticalScroll()) {
                     return scrollModifier.getContentDimension();
                 }

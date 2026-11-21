@@ -52,6 +52,19 @@ public abstract class RemoteContext {
     @Nullable protected PaintContext mPaintContext = null;
     private final EventManager mEventManager;
     protected float mDensity = Float.NaN;
+
+    // Values that pointer input handlers use to tell gestures apart. The player sets them from
+    // the platform. These are the values used until it does.
+    // TODO(b/585249842): combine these into a single configuration class.
+    /** Touch slop in pixels. */
+    private float mTouchSlop = 8f;
+
+    /** Double tap slop in pixels. */
+    private float mDoubleTapSlop = 100f;
+
+    private long mLongPressTimeoutMillis = 400;
+    private long mDoubleTapTimeoutMillis = 300;
+
     private int mPaintTheme = -3;
     @NonNull ContextMode mMode = ContextMode.UNSET;
 
@@ -146,6 +159,80 @@ public abstract class RemoteContext {
             mDensity = density;
             loadFloat(ID_DENSITY, density);
         }
+    }
+
+    /**
+     * Returns the distance a pointer can move before the move is a drag.
+     *
+     * @return the touch slop in pixels
+     */
+    public float getTouchSlop() {
+        return mTouchSlop;
+    }
+
+    /**
+     * Sets the distance a pointer can move before the move is a drag.
+     *
+     * @param touchSlop the touch slop of the platform, in pixels
+     */
+    public void setTouchSlop(float touchSlop) {
+        mTouchSlop = touchSlop;
+    }
+
+    /**
+     * Returns the maximum distance between the two taps of a double tap.
+     *
+     * @return the double tap slop in pixels
+     */
+    public float getDoubleTapSlop() {
+        return mDoubleTapSlop;
+    }
+
+    /**
+     * Sets the maximum distance between the two taps of a double tap.
+     *
+     * @param doubleTapSlop the double tap slop of the platform, in pixels
+     */
+    public void setDoubleTapSlop(float doubleTapSlop) {
+        mDoubleTapSlop = doubleTapSlop;
+    }
+
+    /**
+     * Returns the time a pointer has to stay down for a long press.
+     *
+     * @return the long press timeout in milliseconds
+     */
+    public long getLongPressTimeoutMillis() {
+        return mLongPressTimeoutMillis;
+    }
+
+    /**
+     * Sets the time a pointer has to stay down for a long press.
+     *
+     * @param longPressTimeoutMillis the long press timeout of the platform, in milliseconds
+     */
+    public void setLongPressTimeoutMillis(long longPressTimeoutMillis) {
+        mLongPressTimeoutMillis = longPressTimeoutMillis;
+    }
+
+    /**
+     * Returns the maximum time between the first tap going up and the second tap going down for
+     * a double tap.
+     *
+     * @return the double tap timeout in milliseconds
+     */
+    public long getDoubleTapTimeoutMillis() {
+        return mDoubleTapTimeoutMillis;
+    }
+
+    /**
+     * Sets the maximum time between the first tap going up and the second tap going down for a
+     * double tap.
+     *
+     * @param doubleTapTimeoutMillis the double tap timeout of the platform, in milliseconds
+     */
+    public void setDoubleTapTimeoutMillis(long doubleTapTimeoutMillis) {
+        mDoubleTapTimeoutMillis = doubleTapTimeoutMillis;
     }
 
     /**

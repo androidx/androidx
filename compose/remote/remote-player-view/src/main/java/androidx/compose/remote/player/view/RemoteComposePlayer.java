@@ -18,6 +18,7 @@ package androidx.compose.remote.player.view;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.compose.remote.core.CoreDocument.MAJOR_VERSION;
 import static androidx.compose.remote.core.CoreDocument.MINOR_VERSION;
+import static androidx.compose.remote.core.input.PointerInputRouter.EVENT_TYPE_POINTER;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -44,6 +45,7 @@ import androidx.compose.remote.core.RcResolver;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.RemoteContextActions;
+import androidx.compose.remote.core.input.PointerInputRouter;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.RootContentBehavior;
@@ -686,6 +688,9 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         setBackgroundColor(Color.TRANSPARENT);
         mInner = new RemoteComposeView(context, attrs, defStyleAttr);
         loadMacros();
+        // TODO(b/585249842): AndroidRemoteContext should be defined here and passed to
+        //  RemoteComposeView instead of it being created within RemoteComposeView.setClock.
+        //  Then we would not need this cast. It might also be better for tests.
         if (mInner.getRemoteContext() instanceof AndroidRemoteContext) {
             ((AndroidRemoteContext) mInner.getRemoteContext())
                     .setAccessibilityAnimationEnabled(
@@ -695,6 +700,9 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         addView(mInner, layoutParams);
         mInner.setMacroCallback(mPatternCallbackInternal);
         mStateUpdater = new StateUpdaterImpl(getRemoteContext());
+
+        mInner.getRemoteContext().getEventManager().registerRouter(EVENT_TYPE_POINTER,
+                new PointerInputRouter());
     }
 
     /**

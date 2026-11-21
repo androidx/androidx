@@ -33,6 +33,7 @@ import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation2;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -490,6 +491,11 @@ public class ColumnLayout extends LayoutManager {
         if (context.getTouchVersion() != LayoutManager.FIX_TOUCH_EVENT) {
             if (!forSelf && mVerticalScrollDelegate instanceof ScrollModifierOperation) {
                 ScrollModifierOperation smo = (ScrollModifierOperation) mVerticalScrollDelegate;
+
+                value[1] += smo.getScrollY();
+            }
+            if (!forSelf && mVerticalScrollDelegate instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 smo = (ScrollModifierOperation2) mVerticalScrollDelegate;
 
                 value[1] += smo.getScrollY();
             }

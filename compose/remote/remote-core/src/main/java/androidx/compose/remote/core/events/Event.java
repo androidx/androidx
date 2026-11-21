@@ -22,48 +22,25 @@ import org.jspecify.annotations.Nullable;
 
 /** Representation of an event dispatched through the system. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Event {
-    private final int mType;
-    private final int mMetadata;
-    private final float[] mData;
-
-    /**
-     * Constructs a new Event.
-     *
-     * @param type type identifying the event
-     * @param metadata metadata value associated with the event
-     * @param data optional payload data containing event properties
-     */
-    public Event(int type, int metadata, float @Nullable [] data) {
-        mType = type;
-        mMetadata = metadata;
-        mData = data;
-    }
-
+public interface Event {
     /**
      * Returns the event type.
      *
      * @return the integer event type
      */
-    public int getType() {
-        return mType;
-    }
+    int getType();
 
     /**
      * Returns the event metadata.
      *
      * @return the integer metadata
      */
-    public int getMetadata() {
-        return mMetadata;
-    }
+    int getMetadata();
 
     /**
      * Returns the event data payload.
      *
      * @return the float array payload or null if empty
      */
-    public float @Nullable [] getData() {
-        return mData;
-    }
+    float @Nullable [] getData();
 }

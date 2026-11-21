@@ -44,6 +44,7 @@ import androidx.compose.remote.core.RcResolver;
 import androidx.compose.remote.core.RemoteClock;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SystemClock;
+import androidx.compose.remote.core.input.PointerInputRouter;
 import androidx.compose.remote.core.operations.ColorTheme;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.RootContentBehavior;
@@ -88,6 +89,7 @@ public class RemoteComposeView extends FrameLayout
     Point mActionDownPoint = new Point(0, 0);
     Point mActionCurrentPoint = new Point(0, 0);
     int mTouchSlop;
+    int mDoubleTapSlop;
     int mDoubleTapSlopSquare;
     long mLongPressTimeout;
     long mDoubleTapTimeout;
@@ -120,8 +122,8 @@ public class RemoteComposeView extends FrameLayout
     private void init(@NonNull Context context) {
         ViewConfiguration vc = ViewConfiguration.get(context);
         mTouchSlop = vc.getScaledTouchSlop();
-        int doubleTapSlop = vc.getScaledDoubleTapSlop();
-        mDoubleTapSlopSquare = doubleTapSlop * doubleTapSlop;
+        mDoubleTapSlop = vc.getScaledDoubleTapSlop();
+        mDoubleTapSlopSquare = mDoubleTapSlop * mDoubleTapSlop;
         mLongPressTimeout = ViewConfiguration.getLongPressTimeout();
         mDoubleTapTimeout = ViewConfiguration.getDoubleTapTimeout();
 
@@ -246,6 +248,11 @@ public class RemoteComposeView extends FrameLayout
         mARContext.setAndroidContext(getContext());
         mARContext.setEdgeEffectBuilder(() -> new EdgeEffect(getContext()));
         mARContext.setRcResolver(mRcResolver);
+        // The platform values for the handlers reached through the PointerInputRouter.
+        mARContext.setTouchSlop(mTouchSlop);
+        mARContext.setDoubleTapSlop(mDoubleTapSlop);
+        mARContext.setLongPressTimeoutMillis(mLongPressTimeout);
+        mARContext.setDoubleTapTimeoutMillis(mDoubleTapTimeout);
     }
 
     /** Sets the debug mode for the view. */
@@ -868,6 +875,47 @@ public class RemoteComposeView extends FrameLayout
             return mDocument.useFeature(Header.FEATURE_DISALLOW_INTERCEPT_TOUCH);
         }
         return true;
+    }
+
+    PointerInputManager mPointerInputManager = new PointerInputManager();
+
+    /**
+     * Dispatches touch events through the unified pointer input manager when enabled.
+     *
+     * @param event motion event to dispatch
+     * @return true if event was consumed, false otherwise
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+
+        if (!mDocument.useFeature(Header.FEATURE_UNIFIED_POINTER_INPUT)) {
+            return super.dispatchTouchEvent(event);
+        }
+
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_UP:
+                // Like the legacy touch path, do not limit the frame rate during a touch.
+                mLimiter.touchBoost();
+                break;
+            default:
+                break;
+        }
+
+        int eventStatus = mPointerInputManager.dispatchTouchEvent(mARContext, mDocument, event);
+        // Like Compose, claim the stream whenever it reached a pointer handler, even if nothing
+        // consumed it yet: a scroll container observes the down without consuming it and would
+        // otherwise never see the subsequent moves.
+        boolean handled =
+                (eventStatus
+                                & (PointerInputRouter.POINTER_STATUS_CONSUMED
+                                        | PointerInputRouter.POINTER_STATUS_DISPATCHED))
+                        != 0;
+        if (handled) {
+            invalidate();
+        }
+        return handled;
     }
 
     @Override

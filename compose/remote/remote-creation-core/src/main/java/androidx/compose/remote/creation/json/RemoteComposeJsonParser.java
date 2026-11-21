@@ -584,6 +584,8 @@ public class RemoteComposeJsonParser {
                 return Header.COMPRESS;
             case "scroll":
                 return Header.DOC_SCROLL;
+            case "unifiedPointerInput":
+                return Header.FEATURE_UNIFIED_POINTER_INPUT;
             default:
                 throw new JSONException("Unknown header tag: " + name);
         }

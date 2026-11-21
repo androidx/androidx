@@ -218,6 +218,22 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
     /** The object is an UTF-8 encoded string */
     private static final short DATA_TYPE_STRING = 3;
 
+    /**
+     * Controls whether the new experimental unified Pointer Input system is enabled.
+     * 0: disabled, 1: enabled.
+     *
+     * The new system uses a common pointer input router across operations like:
+     *     MODIFIER_CLICK
+     *     MODIFIER_MULTI_CLICK
+     *     MODIFIER_TOUCH_UP
+     *     MODIFIER_TOUCH_DOWN
+     *     MODIFIER_TOUCH_CANCEL
+     *     MODIFIER_RIPPLE
+     *     MODIFIER_SCROLL
+     *     TOUCH_EXPRESSION
+     */
+    public static final short FEATURE_UNIFIED_POINTER_INPUT = 33;
+
     private static final short[] KEYS = {
         DOC_WIDTH,
         DOC_HEIGHT,
@@ -242,6 +258,7 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
         FEATURE_DATA_PASS_CANVAS_OPS,
         COMPRESS,
         DOC_SCROLL,
+        FEATURE_UNIFIED_POINTER_INPUT,
     };
     private static final String[] KEY_NAMES = {
         "DOC_WIDTH",
@@ -266,7 +283,8 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
         "DISALLOW_INTERCEPT_TOUCH",
         "DATA_PASS_CANVAS_OPS",
         "COMPRESS",
-        "DOC_SCROLL"
+        "DOC_SCROLL",
+        "UNIFIED_POINTER_INPUT"
     };
 
     /** Offset of the property count in a properties header: opcode, then major, minor, patch. */

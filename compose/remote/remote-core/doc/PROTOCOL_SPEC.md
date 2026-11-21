@@ -87,3 +87,18 @@ are reserved: writers reject them and players ignore them.
   without inflating the operations. Players that predate it ignore it.
 - Writers take a `DOC_SCROLL` header tag. JSON documents take
   `"scroll": "horizontal"`, `"vertical"` or `"both"`.
+
+## Unified pointer input
+
+A document with a properties header (API level 7+) can turn on unified pointer
+input with the `FEATURE_UNIFIED_POINTER_INPUT` property (key 33, Int): `0` is
+off (the default) and `1` is on.
+
+- The wire format of the operations does not change. The property only chooses
+  which classes the player creates for the operations that handle touches, and
+  how the player sends touch events to them.
+- It is experimental. Players that predate it ignore it.
+- Writers take a `FEATURE_UNIFIED_POINTER_INPUT` header tag. JSON documents
+  take `"unifiedPointerInput": 1`.
+
+See [POINTER_INPUT.md](POINTER_INPUT.md) for the full guide.

@@ -84,8 +84,10 @@ import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.integration.view.demos.dsl.dslClickTouchDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslClock
 import androidx.compose.remote.integration.view.demos.dsl.dslDemo
+import androidx.compose.remote.integration.view.demos.dsl.dslNestedInteractionDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslRcCustomVisibilityAnimationDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayout3StatesDemo
 import androidx.compose.remote.integration.view.demos.dsl.dslRcStateLayoutRowToColumnDemo
@@ -185,6 +187,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
@@ -511,6 +514,10 @@ class ExperimentActivity : ComponentActivity() {
                 ),
             "Procedural..." to
                 listOf(
+                    getbPointerInput("DSL Click Touch Showcase") { dslClickTouchDemo(it) },
+                    getbPointerInput("DSL Nested Interaction Suite") {
+                        dslNestedInteractionDemo(it)
+                    },
                     getb("DSL Custom Visibility Anim") { dslRcCustomVisibilityAnimationDemo() },
                     getpc("JSON Custom Visibility Anim") { rcJsonCustomVisibilityDemo() },
                     getb("DSL StateLayout Row") { dslRcStateLayoutToggleDemo() },
@@ -702,6 +709,61 @@ class ExperimentActivity : ComponentActivity() {
             override fun getColor(): Color {
                 return color
             }
+
+            override fun toString(): String {
+                return name
+            }
+        }
+    }
+
+    /**
+     * Creates a [RemoteComposeFunc] generating documents with configurable unified pointer input.
+     *
+     * @param name display name for the demo function
+     * @param color background color for the demo button
+     * @param gen generator creating document byte array based on pointer input flag
+     * @return [RemoteComposeFunc] wrapping the pointer input demo
+     */
+    fun getbPointerInput(
+        name: String,
+        color: Color = toRcColor(name, 0.1f),
+        gen: (Boolean) -> ByteArray,
+    ): RemoteComposeFunc {
+        return object : RemoteComposeFunc {
+            private var buildTime: Float = 0f
+            private var bytes: ByteArray? = null
+
+            @Composable override fun Run() {}
+
+            @Composable override fun getDoc(): MutableState<CoreDocument?> = getDoc(true)
+
+            @Composable
+            override fun getDoc(unifiedPointerInput: Boolean): MutableState<CoreDocument?> {
+                val time = System.nanoTime()
+                val data = gen(unifiedPointerInput)
+                bytes = data
+                val doc = RemoteDocument(ByteArrayInputStream(data))
+                val doc2: MutableState<CoreDocument?> =
+                    remember(unifiedPointerInput) {
+                        mutableStateOf(doc.document)
+                    }
+                buildTime = (System.nanoTime() - time) * 1E-6f
+                return doc2
+            }
+
+            override fun getBuildTime(): Float {
+                return buildTime
+            }
+
+            override fun getBytes(): ByteArray {
+                return bytes ?: gen(true)
+            }
+
+            override fun getColor(): Color {
+                return color
+            }
+
+            override fun supportsUnifiedPointerInput(): Boolean = true
 
             override fun toString(): String {
                 return name
@@ -1425,17 +1487,47 @@ fun DisplayMain(
         var debugMode by remember { mutableIntStateOf(0) }
         var documentWidth by remember { mutableIntStateOf(300) }
         var documentHeight by remember { mutableIntStateOf(300) }
-        Row {
-            Spacer(modifier = Modifier.width(2.dp))
+        var unifiedPointerInput by remember { mutableStateOf(true) }
 
-            Text("RemoteComposePlayer:", Modifier.clickable { println("click RmoteComposePlayer") })
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.width(2.dp))
+                Text(
+                    "RemoteComposePlayer:",
+                    Modifier.clickable { println("click RmoteComposePlayer") },
+                )
+            }
+
+            if (func.supportsUnifiedPointerInput()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { unifiedPointerInput = !unifiedPointerInput },
+                ) {
+                    Checkbox(
+                        checked = unifiedPointerInput,
+                        onCheckedChange = { unifiedPointerInput = it },
+                    )
+                    Text(
+                        text =
+                            if (unifiedPointerInput) "Unified Pointer Input (ON)"
+                            else "Unified Pointer Input (OFF)",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (unifiedPointerInput) Color(0xFF1D4ED8) else Color(0xFF64748B),
+                    )
+                }
+            }
         }
         println("launching $func")
         if (fileReady && showOrigami) {
             Row {
                 Box(modifier = Modifier.background(Color(0xFF0FFFFF))) { // .fillMaxHeight(0.5f)) {
                     // Button(onClick = { /*TODO*/}) { Text(text = "hello world") }
-                    val currentDocument = func.getDoc() // remember(func) {  }
+                    val currentDocument = func.getDoc(unifiedPointerInput) // remember(func) {  }
 
                     AndroidView(
                         modifier = Modifier, // .size(documentWidth.dp, documentHeight.dp),
@@ -1514,6 +1606,21 @@ interface RemoteComposeFunc {
     fun getBuildTime(): Float
 
     fun getBytes(): ByteArray? = null
+
+    /**
+     * Returns whether this demo supports toggling unified pointer input.
+     *
+     * @return true if unified pointer input is supported, false otherwise
+     */
+    fun supportsUnifiedPointerInput(): Boolean = false
+
+    /**
+     * Returns the [CoreDocument] state generated with the specified pointer input mode.
+     *
+     * @param unifiedPointerInput whether to enable the unified pointer input feature flag
+     * @return mutable state containing the parsed [CoreDocument]
+     */
+    @Composable fun getDoc(unifiedPointerInput: Boolean): MutableState<CoreDocument?> = getDoc()
 }
 
 @Suppress(

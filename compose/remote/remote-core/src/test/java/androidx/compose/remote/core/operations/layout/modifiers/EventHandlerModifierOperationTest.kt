@@ -26,6 +26,7 @@ import androidx.compose.remote.core.events.Event
 import androidx.compose.remote.core.events.EventHandler
 import androidx.compose.remote.core.events.EventManager
 import androidx.compose.remote.core.events.EventRouter
+import androidx.compose.remote.core.events.TestEvent
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.TextData
@@ -226,7 +227,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 TestRemoteContext(),
                 CoreDocument(),
-                Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_2, /* data= */ null),
+                TestEvent(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_2, /* data= */ null),
             )
 
         // Assert.
@@ -250,7 +251,7 @@ class EventHandlerModifierOperationTest {
         eventHandlerModifier.onEvent(
             remoteContext,
             CoreDocument(),
-            Event(
+            TestEvent(
                 /* type = */ EVENT_TYPE_1,
                 /* metadata = */ FILTER_1,
                 /* data = */ floatArrayOf(123f),
@@ -278,7 +279,7 @@ class EventHandlerModifierOperationTest {
         eventHandlerModifier.onEvent(
             remoteContext,
             CoreDocument(),
-            Event(
+            TestEvent(
                 /* type = */ EVENT_TYPE_1,
                 /* metadata = */ FILTER_1,
                 /* data = */ floatArrayOf(123f, 456f, 789f, 101f),
@@ -308,7 +309,7 @@ class EventHandlerModifierOperationTest {
         eventHandlerModifier.onEvent(
             remoteContext,
             CoreDocument(),
-            Event(
+            TestEvent(
                 /* type = */ EVENT_TYPE_1,
                 /* metadata = */ FILTER_1,
                 /* data = */ floatArrayOf(123f, 456f),
@@ -339,7 +340,7 @@ class EventHandlerModifierOperationTest {
         eventHandlerModifier.onEvent(
             remoteContext,
             CoreDocument(),
-            Event(
+            TestEvent(
                 /* type = */ EVENT_TYPE_1,
                 /* metadata = */ FILTER_1,
                 /* data = */ floatArrayOf(123f, 456f, 789f),
@@ -371,7 +372,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(
+                TestEvent(
                     /* type = */ EVENT_TYPE_1,
                     /* metadata = */ FILTER_1,
                     /* data = */ floatArrayOf(123f, 456f),
@@ -402,7 +403,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(
+                TestEvent(
                     /* type = */ EVENT_TYPE_1,
                     /* metadata = */ FILTER_1,
                     /* data = */ floatArrayOf(123f, 456f),
@@ -435,7 +436,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(
+                TestEvent(
                     /* type = */ EVENT_TYPE_1,
                     /* metadata = */ FILTER_1,
                     /* data = */ floatArrayOf(123f, 456f),
@@ -473,7 +474,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(
+                TestEvent(
                     /* type = */ EVENT_TYPE_1,
                     /* metadata = */ FILTER_1,
                     /* data = */ floatArrayOf(123f, 456f),
@@ -514,7 +515,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(
+                TestEvent(
                     /* type = */ EVENT_TYPE_1,
                     /* metadata = */ FILTER_1,
                     /* data = */ floatArrayOf(123f, 456f),
@@ -578,7 +579,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(
+                TestEvent(
                     /* type = */ EVENT_TYPE_1,
                     /* metadata = */ FILTER_1,
                     /* data = */ floatArrayOf(123f, 456f),
@@ -612,7 +613,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
+                TestEvent(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
             )
 
         // Assert.
@@ -640,7 +641,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
+                TestEvent(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
             )
 
         // Assert.
@@ -668,7 +669,7 @@ class EventHandlerModifierOperationTest {
             eventHandlerModifier.onEvent(
                 remoteContext,
                 CoreDocument(),
-                Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
+                TestEvent(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
             )
 
         // Assert.
@@ -773,7 +774,7 @@ class EventHandlerModifierOperationTest {
             remoteContext.eventManager.dispatchEvent(
                 remoteContext,
                 document,
-                Event(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
+                TestEvent(/* type= */ EVENT_TYPE_1, /* metadata= */ FILTER_1, /* data= */ null),
             )
 
         // Assert - the action copied the text into the target variable.

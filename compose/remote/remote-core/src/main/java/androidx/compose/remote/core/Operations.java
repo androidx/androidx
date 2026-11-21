@@ -116,11 +116,13 @@ import androidx.compose.remote.core.operations.TextTransform;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
+import androidx.compose.remote.core.operations.TouchExpressionOperation2;
 import androidx.compose.remote.core.operations.UpdateDynamicFloatList;
 import androidx.compose.remote.core.operations.WakeIn;
 import androidx.compose.remote.core.operations.layout.CanvasContent;
 import androidx.compose.remote.core.operations.layout.CanvasOperations;
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation;
+import androidx.compose.remote.core.operations.layout.ClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.ComponentStart;
 import androidx.compose.remote.core.operations.layout.ContainerEnd;
 import androidx.compose.remote.core.operations.layout.ImpulseOperation;
@@ -128,10 +130,14 @@ import androidx.compose.remote.core.operations.layout.ImpulseProcess;
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
+import androidx.compose.remote.core.operations.layout.MultiClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
+import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation2;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
+import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation2;
 import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation;
+import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation2;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout;
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout;
@@ -168,9 +174,11 @@ import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierO
 import androidx.compose.remote.core.operations.layout.modifiers.OffsetModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOperation2;
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.RunActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation2;
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatExpressionChangeActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ValueIntegerChangeActionOperation;
@@ -663,6 +671,37 @@ public class Operations {
             }
             return getOperationsV7(profiles);
         }
+    }
+
+    /**
+     * Creates an operations map overriding pointer input operations with unified implementations.
+     *
+     * @param baseMap base operations map to copy
+     * @return map with alternative pointer input operation readers
+     */
+    public static @NonNull UniqueIntMap<CompanionOperation> createMapWithNewPointerInputOperations(
+            @NonNull UniqueIntMap<CompanionOperation> baseMap) {
+        UniqueIntMap<CompanionOperation> customMap = new UniqueIntMap<>();
+        customMap.putAll(baseMap);
+
+        // Replace specific opcodes with your alternative Operation readers:
+        customMap.remove(Operations.MODIFIER_CLICK);
+        customMap.put(Operations.MODIFIER_CLICK, ClickModifierOperation2::read);
+        customMap.remove(Operations.TOUCH_EXPRESSION);
+        customMap.put(Operations.TOUCH_EXPRESSION, TouchExpressionOperation2::read);
+        customMap.remove(Operations.MODIFIER_SCROLL);
+        customMap.put(Operations.MODIFIER_SCROLL, ScrollModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_MULTI_CLICK);
+        customMap.put(Operations.MODIFIER_MULTI_CLICK, MultiClickModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_RIPPLE);
+        customMap.put(Operations.MODIFIER_RIPPLE, RippleModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_TOUCH_DOWN);
+        customMap.put(Operations.MODIFIER_TOUCH_DOWN, TouchDownModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_TOUCH_UP);
+        customMap.put(Operations.MODIFIER_TOUCH_UP, TouchUpModifierOperation2::read);
+        customMap.remove(Operations.MODIFIER_TOUCH_CANCEL);
+        customMap.put(Operations.MODIFIER_TOUCH_CANCEL, TouchCancelModifierOperation2::read);
+        return customMap;
     }
 
     /**

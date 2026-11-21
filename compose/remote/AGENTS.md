@@ -13,6 +13,7 @@ When investigating this codebase or performing tasks, you MUST recursively searc
 - `DATA_FLOW.md`: Lifecycle from server creation to client playback.
 - `EXPRESSION_ENGINE.md`: RPN logic, variable scoping, and math operations.
 - `COMPRESSION.md`: Compressed documents (`COMPRESS` header flag), creation, playback, and compatibility.
+- `POINTER_INPUT.md`: Unified pointer input (`FEATURE_UNIFIED_POINTER_INPUT` header flag): routing, passes, consumption, and the pointer input operations.
 
 ### Players (`remote-player-compose/doc/`)
 - `EMBEDDED_PLAYER.md`: Design of the pure-Compose embedded player (`RcPlayer`), comparison with the View player, and per-operation support matrix.
