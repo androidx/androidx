@@ -61,8 +61,10 @@ internal fun AnnotatedString.resolveInlineContent(
     return Pair(placeholders, inlineComposables)
 }
 
-internal fun AnnotatedString.hasInlineContent(): Boolean =
-    hasStringAnnotations(INLINE_CONTENT_TAG, 0, text.length)
+internal fun AnnotatedString.hasInlineContent(
+    inlineContent: Map<String, InlineTextContent>?
+): Boolean =
+    !inlineContent.isNullOrEmpty() && hasStringAnnotations(INLINE_CONTENT_TAG, 0, text.length)
 
 @Composable
 internal fun InlineChildren(text: AnnotatedString, inlineContents: List<InlineContentRange>) {

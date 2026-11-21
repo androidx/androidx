@@ -226,7 +226,7 @@ public fun BasicText(
         } else {
             null
         }
-    val hasInlineContent = text.hasInlineContent()
+    val hasInlineContent = text.hasInlineContent(inlineContent)
     val hasLinks = text.hasLinks()
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
@@ -462,7 +462,7 @@ public fun BasicText(
         } else {
             null
         }
-    val hasInlineContent = text.hasInlineContent()
+    val hasInlineContent = text.hasInlineContent(inlineContent)
     val hasLinks = text.hasLinks()
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
