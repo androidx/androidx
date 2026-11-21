@@ -98,6 +98,23 @@ constructor(
     /** Optional compositor node and buffer totals for this scene snapshot. */
     public val stats: SpatialSceneStats? = computeSceneStats(rootNodes),
 ) {
+    /** Whether this snapshot was decoded from binary protobuf dumps (`dumpsys spf_cpm --proto`). */
+    internal var isProtoCapture: Boolean = false
+        private set
+
+    internal constructor(
+        rootNodes: List<SnapshotXrSpace>,
+        taskPackageMap: Map<Int, String> = emptyMap(),
+        stats: SpatialSceneStats? = computeSceneStats(rootNodes),
+        isProtoCapture: Boolean,
+    ) : this(
+        rootNodes = rootNodes,
+        taskPackageMap = taskPackageMap,
+        stats = stats,
+    ) {
+        this.isProtoCapture = isProtoCapture
+    }
+
     init {
         fun attach(n: SnapshotXrSpace) {
             n.scene = this

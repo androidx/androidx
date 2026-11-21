@@ -1116,6 +1116,7 @@ class SpatialSceneHelperAndroidTest {
                             "${it.name}(bounds=${it.subspaceBoundsInMeters},extents=${it.worldExtents})"
                         },
                 )
+            assertTrue(scene.isProtoCapture, "Expected proto-captured SnapshotXrScene")
 
             val task = assertNotNull(scene.findTaskByActivity(composeTestRule.activity))
             val activitySpaceNode =

@@ -76,10 +76,11 @@ import org.junit.runner.RunWith
  *   configures `ReformOptions.ALLOW_RESIZE` and reads initial dimensions from `Shape.Quad`), and
  *   emits [ResizeEvent] callbacks (`START`/`ONGOING`/`END`), while the caller applies the updated
  *   size to `surfaceEntity.shape` on the main thread.
- * - SplitEngine `SurfaceEntity` CPM nodes (`stereo_surface_panel_entity_subspace_*`) do not emit
- *   `worldHalfExtents`, and Aura SpaceFlinger renders resize highlights in Impress rather than CPM
- *   `resizeAffordanceNodes`, so interaction targeting uses `SnapshotXrSpace.subspaceNodes` and
- *   known shape extents (plus `DEFAULT_MOVE_HANDLE_MARGIN`) relative to `subspace.parent`.
+ * - Binary CPM renderer dumps (`dumpsys spf_cpm --proto --renderer`) populate
+ *   `subspaceBoundsInMeters` and `worldExtents` on `SurfaceEntity.Shape.Quad` subspaces and their
+ *   parent nodes, while Aura SpaceFlinger renders reform highlights in Impress rather than CPM
+ *   affordance child nodes; drag targeting uses `SnapshotXrSpace` nodes and known Quad shape
+ *   dimensions (plus `DEFAULT_MOVE_HANDLE_MARGIN`) relative to `subspace.parent`.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -117,6 +118,36 @@ class SurfaceEntityInteractionAndReformTest {
 
         val initialSubspace = awaitSingleSurfaceSubspaceNode()
         assertThat(initialSubspace.isVisible).isTrue()
+        if (isProtoSceneCaptureEnabled) {
+            val settledSubspace =
+                checkNotNull(
+                    waitForSpatialScene(
+                        description =
+                            "Quad(1.6, 0.9) SurfaceEntity subspace worldExtents populated",
+                        timeout = SCENE_TIMEOUT,
+                        select = { scene ->
+                            scene
+                                .findTaskByActivity(sessionRule.activity)
+                                ?.subspaceNodes
+                                ?.firstOrNull {
+                                    it.name.startsWith(SURFACE_SUBSPACE_PREFIX) && it.isVisible
+                                }
+                        },
+                        until = { node ->
+                            val extents = node?.worldExtents
+                            extents != null && extents.x > 0f && extents.y > 0f
+                        },
+                    )
+                )
+            val extents = checkNotNull(settledSubspace.worldExtents)
+            assertWithMessage(
+                    "Expected Quad(1.6, 0.9) worldExtents aspect ratio, got $extents " +
+                        "(children=${settledSubspace.children.map { it.name }})"
+                )
+                .that(extents.x / extents.y)
+                .isWithin(0.03f)
+                .of(1.6f / 0.9f)
+        }
         assertThat(created.dimensions.width).isWithin(FLOAT_TOLERANCE).of(1.6f)
         assertThat(created.dimensions.height).isWithin(FLOAT_TOLERANCE).of(0.9f)
         assertThat(created.dimensions.depth).isWithin(FLOAT_TOLERANCE).of(0.0f)
@@ -551,18 +582,27 @@ class SurfaceEntityInteractionAndReformTest {
         )
         assertThat(created.addComponent(movableComponent)).isTrue()
 
-        val movableNode = awaitSurfaceParentNode { it.isMovable }
-        val initialTranslation = created.getPose(Space.ACTIVITY).translation
-        val marginMeters =
-            if (movableNode.worldHalfExtents != null) {
-                DEFAULT_MOVE_HANDLE_MARGIN
-            } else {
-                (quadHeight / 2f) * movableNode.scale.y + DEFAULT_MOVE_HANDLE_MARGIN
-            }
-
-        movableNode.performSpatialInteraction {
-            moveNodeBy(Vector3(0.35f, 0.15f, -0.3f), marginMeters = marginMeters)
+        val movableNode = awaitSurfaceParentNode {
+            it.isMovable &&
+                (!isProtoSceneCaptureEnabled ||
+                    (it.worldExtents?.let { e -> e.x > 0f && e.y > 0f } == true))
         }
+        if (isProtoSceneCaptureEnabled) {
+            val extents = checkNotNull(movableNode.worldExtents)
+            assertWithMessage(
+                    "Expected movable Quad(1.2, $quadHeight) worldExtents aspect ratio, " +
+                        "got $extents (children=${movableNode.children.map { it.name }})"
+                )
+                .that(extents.x / extents.y)
+                .isWithin(0.03f)
+                .of(1.2f / quadHeight)
+        }
+        val initialTranslation = created.getPose(Space.ACTIVITY).translation
+        dragSurfaceBottomEdgeBy(
+            movableNode = movableNode,
+            quadHeight = quadHeight,
+            delta = Vector3(0.35f, 0.15f, -0.3f),
+        )
 
         assertThat(moveStartLatch.await(5, TimeUnit.SECONDS)).isTrue()
         assertThat(moveEndLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -628,18 +668,27 @@ class SurfaceEntityInteractionAndReformTest {
         )
         assertThat(created.addComponent(movableComponent)).isTrue()
 
-        val movableNode = awaitSurfaceParentNode { it.isMovable }
-        val initialZ = created.getPose(Space.ACTIVITY).translation.z
-        val marginMeters =
-            if (movableNode.worldHalfExtents != null) {
-                DEFAULT_MOVE_HANDLE_MARGIN
-            } else {
-                (quadHeight / 2f) * movableNode.scale.y + DEFAULT_MOVE_HANDLE_MARGIN
-            }
-
-        movableNode.performSpatialInteraction {
-            moveNodeBy(Vector3(0f, 0f, -0.6f), marginMeters = marginMeters)
+        val movableNode = awaitSurfaceParentNode {
+            it.isMovable &&
+                (!isProtoSceneCaptureEnabled ||
+                    (it.worldExtents?.let { e -> e.x > 0f && e.y > 0f } == true))
         }
+        if (isProtoSceneCaptureEnabled) {
+            val extents = checkNotNull(movableNode.worldExtents)
+            assertWithMessage(
+                    "Expected movable Quad(1.0, $quadHeight) worldExtents aspect ratio, " +
+                        "got $extents (children=${movableNode.children.map { it.name }})"
+                )
+                .that(extents.x / extents.y)
+                .isWithin(0.03f)
+                .of(1.0f / quadHeight)
+        }
+        val initialZ = created.getPose(Space.ACTIVITY).translation.z
+        dragSurfaceBottomEdgeBy(
+            movableNode = movableNode,
+            quadHeight = quadHeight,
+            delta = Vector3(0f, 0f, -0.6f),
+        )
 
         assertWithMessage("Timed out waiting for MoveEvent.onMoveStart")
             .that(moveStartLatch.await(5, TimeUnit.SECONDS))
@@ -741,6 +790,21 @@ class SurfaceEntityInteractionAndReformTest {
         assertThat(created.dimensions.height).isWithin(FLOAT_TOLERANCE).of(endEvent.newSize.height)
 
         created.removeComponent(resizableComponent)
+    }
+
+    private fun dragSurfaceBottomEdgeBy(
+        movableNode: SnapshotXrSpace,
+        quadHeight: Float,
+        delta: Vector3,
+    ) {
+        val sy = if (abs(movableNode.scale.y) > 1e-6f) movableNode.scale.y else 1.0f
+        val handleLocal = Vector3(0f, -((quadHeight / 2f) + (DEFAULT_MOVE_HANDLE_MARGIN / sy)), 0f)
+        movableNode.performSpatialInteraction {
+            pointAt(offset = handleLocal)
+            press()
+            animate { fraction -> pointAt(offset = handleLocal + (delta * fraction)) }
+            release()
+        }
     }
 
     private fun readSubspaceAlpha(subspace: SnapshotXrSpace): Float? =

@@ -172,8 +172,9 @@ internal fun readBinaryShellWithTimeout(
 
 /**
  * Polls `dumpsys spf_cpm --proto` (and optional `--proto --renderer`) until active transitions
- * clear and tasks are ready, falling back to [captureSceneWithPolling] when binary proto output is
- * empty or unparseable.
+ * clear and tasks are ready, retrying transient empty or unparseable reads (such as SpaceFlinger's
+ * plain-text dump timeout message) within [maxWaitMs] and throwing [IllegalStateException] if
+ * binary proto output remains empty or fails to parse.
  */
 internal fun captureProtoSceneWithPolling(
     uiAutomation: UiAutomation,
@@ -207,31 +208,33 @@ internal fun captureProtoSceneWithPolling(
     while (true) {
         val cpmBytes = binaryShellRunner("dumpsys spf_cpm --proto")
         if (cpmBytes.isEmpty()) {
+            if (clockMs() - startTime >= maxWaitMs) {
+                throw IllegalStateException(
+                    "dumpsys spf_cpm --proto returned empty bytes after ${maxWaitMs}ms"
+                )
+            }
             Log.w(
                 SCENE_CAPTURE_TAG,
-                "dumpsys spf_cpm --proto returned empty bytes; falling back to text parser",
+                "dumpsys spf_cpm --proto returned empty bytes; retrying",
             )
-            return captureSceneWithPolling(
-                maxWaitMs = maxWaitMs,
-                sleeper = sleeper,
-                clockMs = clockMs,
-                shellRunner = textShellRunner,
-            )
+            sleeper(100L)
+            continue
         }
         val rendererBytes =
             if (includeRenderer) {
                 val bytes = binaryShellRunner("dumpsys spf_cpm --proto --renderer")
                 if (bytes.isEmpty()) {
+                    if (clockMs() - startTime >= maxWaitMs) {
+                        throw IllegalStateException(
+                            "dumpsys spf_cpm --proto --renderer returned empty bytes after ${maxWaitMs}ms"
+                        )
+                    }
                     Log.w(
                         SCENE_CAPTURE_TAG,
-                        "dumpsys spf_cpm --proto --renderer returned empty bytes; falling back to text parser",
+                        "dumpsys spf_cpm --proto --renderer returned empty bytes; retrying",
                     )
-                    return captureSceneWithPolling(
-                        maxWaitMs = maxWaitMs,
-                        sleeper = sleeper,
-                        clockMs = clockMs,
-                        shellRunner = textShellRunner,
-                    )
+                    sleeper(100L)
+                    continue
                 }
                 bytes
             } else {
@@ -244,17 +247,21 @@ internal fun captureProtoSceneWithPolling(
                     rendererProtoBytes = rendererBytes,
                 )
             } catch (e: Exception) {
+                if (clockMs() - startTime >= maxWaitMs) {
+                    throw IllegalStateException(
+                        "Failed to parse dumpsys spf_cpm --proto after ${maxWaitMs}ms " +
+                            "(${cpmBytes.size} bytes, renderer=${rendererBytes?.size ?: 0} bytes)",
+                        e,
+                    )
+                }
                 Log.w(
                     SCENE_CAPTURE_TAG,
-                    "Failed to parse dumpsys spf_cpm --proto (${cpmBytes.size} bytes); falling back to text parser",
-                    e,
+                    "Failed to parse dumpsys spf_cpm --proto " +
+                        "(${cpmBytes.size} bytes, renderer=${rendererBytes?.size ?: 0} bytes): " +
+                        "${e::class.java.simpleName}: ${e.message}; retrying",
                 )
-                return captureSceneWithPolling(
-                    maxWaitMs = maxWaitMs,
-                    sleeper = sleeper,
-                    clockMs = clockMs,
-                    shellRunner = textShellRunner,
-                )
+                sleeper(100L)
+                continue
             }
         val taskIds = extractTaskIdsFromRoots(parsed.rootNodes)
         val currentMap = cachedTaskPackageMap
@@ -285,6 +292,7 @@ internal fun captureProtoSceneWithPolling(
                 rootNodes = parsed.rootNodes,
                 taskPackageMap = resolvedMap,
                 stats = parsed.stats,
+                isProtoCapture = true,
             )
         val hasTransition = scene.hasActiveTransition
         val isReady =
@@ -497,7 +505,11 @@ internal object CpmProtoSceneParser {
             )
         }
 
-        return SnapshotXrScene(rootNodes = rootSpaces, taskPackageMap = taskPackageMap)
+        return SnapshotXrScene(
+            rootNodes = rootSpaces,
+            taskPackageMap = taskPackageMap,
+            isProtoCapture = true,
+        )
     }
 
     private fun shouldPreferSubspace(
@@ -1287,11 +1299,13 @@ internal object CpmProtoSceneParser {
         val resolvedRot =
             quat
                 ?: eulerDeg?.let { angles ->
-                    // Impress PreciseTransform euler_angles are YXZ in degrees.
+                    // SceneSystem::SaveToData (SaveTransform) serializes TransformData.euler_angles
+                    // via imp::EulerFromQuatClamped -> imp::EulerFromQuat, which decomposes
+                    // rotations in Y * Z * X order in degrees (not YXZ).
                     // Vector3.Forward is (0, 0, -1), so pass explicit +Z axis (0, 0, 1).
                     Quaternion.fromAxisAngle(Vector3(0f, 1f, 0f), angles.y) *
-                        Quaternion.fromAxisAngle(Vector3(1f, 0f, 0f), angles.x) *
-                        Quaternion.fromAxisAngle(Vector3(0f, 0f, 1f), angles.z)
+                        Quaternion.fromAxisAngle(Vector3(0f, 0f, 1f), angles.z) *
+                        Quaternion.fromAxisAngle(Vector3(1f, 0f, 0f), angles.x)
                 }
                 ?: Quaternion.Identity
 

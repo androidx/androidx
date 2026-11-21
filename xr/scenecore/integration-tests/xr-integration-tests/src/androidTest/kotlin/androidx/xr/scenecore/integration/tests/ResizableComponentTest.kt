@@ -770,10 +770,21 @@ class ResizableComponentTest {
         val initialDimensions = surface.dimensions
 
         // Phase 1: Target the BottomRight corner affordance computed from Quad extents plus
-        // DEFAULT_MOVE_HANDLE_MARGIN (SplitEngine SurfaceEntity CPM nodes do not expose
-        // worldHalfExtents or CPM child resizeAffordanceNodes on Aura SpaceFlinger) and drag
-        // outward past maximumSize.
+        // DEFAULT_MOVE_HANDLE_MARGIN (Aura SpaceFlinger renders resize highlights in Impress rather
+        // than CPM child resizeAffordanceNodes) and drag outward past maximumSize.
         val growSurfaceNode = waitForResizableSurfaceNode()
+        val initialProtoExtents =
+            if (isProtoSceneCaptureEnabled) checkNotNull(growSurfaceNode.worldExtents) else null
+        if (initialProtoExtents != null) {
+            assertWithMessage(
+                    "Expected initial Quad(${initialDimensions.width}, ${initialDimensions.height}) " +
+                        "worldExtents aspect ratio, got $initialProtoExtents " +
+                        "(children=${growSurfaceNode.children.map { it.name }})"
+                )
+                .that(initialProtoExtents.x / initialProtoExtents.y)
+                .isWithin(0.03f)
+                .of(initialDimensions.width / initialDimensions.height)
+        }
         val growCornerLocal =
             Vector3(
                 (initialDimensions.width / 2f) + DEFAULT_MOVE_HANDLE_MARGIN,
@@ -819,7 +830,14 @@ class ResizableComponentTest {
         // minimumSize to verify lower-bound clamping.
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         resizeListener.clear()
-        val shrinkSurfaceNode = waitForResizableSurfaceNode()
+        val shrinkSurfaceNode = waitForResizableSurfaceNode { node ->
+            initialProtoExtents == null ||
+                (node.worldExtents?.let {
+                    it.x > initialProtoExtents.x && it.y > initialProtoExtents.y
+                } == true)
+        }
+        val grownProtoExtents =
+            if (isProtoSceneCaptureEnabled) checkNotNull(shrinkSurfaceNode.worldExtents) else null
         val shrinkCornerLocal =
             Vector3(
                 (grownDimensions.width / 2f) + DEFAULT_MOVE_HANDLE_MARGIN,
@@ -860,6 +878,13 @@ class ResizableComponentTest {
         assertThat(shrunkDimensions.height).isWithin(0.06f).of(minSize.height)
         assertThat(shrunkDimensions.width).isAtLeast(minSize.width - BOUND_CLAMP_TOLERANCE)
         assertThat(shrunkDimensions.height).isAtLeast(minSize.height - BOUND_CLAMP_TOLERANCE)
+        if (grownProtoExtents != null) {
+            waitForResizableSurfaceNode { node ->
+                node.worldExtents?.let {
+                    it.x < grownProtoExtents.x && it.y < grownProtoExtents.y
+                } == true
+            }
+        }
     }
 
     @Ignore(
@@ -1879,7 +1904,9 @@ class ResizableComponentTest {
             )
         )
 
-    private fun waitForResizableSurfaceNode(): SnapshotXrSpace =
+    private fun waitForResizableSurfaceNode(
+        predicate: (SnapshotXrSpace) -> Boolean = { true }
+    ): SnapshotXrSpace =
         checkNotNull(
             waitForSpatialScene(
                 description = "Resizable SurfaceEntity parent SnapshotXrSpace ready",
@@ -1892,7 +1919,12 @@ class ResizableComponentTest {
                     subspace?.parent
                 },
                 until = { parentNode ->
-                    parentNode != null && parentNode.isVisible && parentNode.isResizable
+                    parentNode != null &&
+                        parentNode.isVisible &&
+                        parentNode.isResizable &&
+                        (!isProtoSceneCaptureEnabled ||
+                            (parentNode.worldExtents?.let { it.x > 0f && it.y > 0f } == true)) &&
+                        predicate(parentNode)
                 },
             )
         )

@@ -54,7 +54,6 @@ import androidx.xr.scenecore.VertexLayout
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
-import androidx.xr.testutils.captureSpatialScene
 import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
@@ -396,7 +395,57 @@ class CustomMeshEntityIntegrationTest {
         assertThat(frontAdded).isTrue()
         assertThat(sentinelAdded).isTrue()
 
-        val task = awaitVisibleMeshSubspaceCount(expectedCount = 2)
+        val initialTask = awaitVisibleMeshSubspaceCount(expectedCount = 2)
+        val task =
+            if (isProtoSceneCaptureEnabled) {
+                val (settledTask, meshSubspaces) =
+                    checkNotNull(
+                        waitForSpatialScene(
+                            description =
+                                "interactable MeshEntity BoxCollider worldExtents populated",
+                            timeout = SCENE_TIMEOUT,
+                            select = { scene ->
+                                val candidateTask = scene.findTaskByActivity(sessionRule.activity)
+                                val subspaces =
+                                    candidateTask
+                                        ?.subspaceNodes
+                                        ?.filter {
+                                            it.name.startsWith(MESH_SUBSPACE_PREFIX) && it.isVisible
+                                        }
+                                        .orEmpty()
+                                candidateTask?.let { it to subspaces }
+                            },
+                            until = { pair ->
+                                pair != null &&
+                                    pair.second.size == 2 &&
+                                    pair.second.all { subspace ->
+                                        val extents = subspace.worldExtents
+                                        extents != null && extents.x > 0f && extents.y > 0f
+                                    }
+                            },
+                        )
+                    )
+                for (sub in meshSubspaces) {
+                    val extents = checkNotNull(sub.worldExtents)
+                    assertWithMessage(
+                            "Expected square BoxCollider worldExtents on ${sub.name}, " +
+                                "got $extents (children=${sub.children.map { it.name }})"
+                        )
+                        .that(extents.x / extents.y)
+                        .isWithin(0.02f)
+                        .of(1.0f)
+                }
+                val widths = meshSubspaces.map { checkNotNull(it.worldExtents).x }.sorted()
+                assertWithMessage(
+                        "Expected sentinel/front BoxCollider width ratio ~ 2.0/1.2, got $widths"
+                    )
+                    .that(widths[1] / widths[0])
+                    .isWithin(0.05f)
+                    .of(2.0f / 1.2f)
+                settledTask
+            } else {
+                initialTask
+            }
 
         // Phase 1: Hover + drag click on front mesh, then aim off mesh for HOVER_EXIT.
         val startPoint = Vector3(0f, 0f, -1.5f)
@@ -564,15 +613,35 @@ class CustomMeshEntityIntegrationTest {
         }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
-        val postDetachScene = captureSpatialScene()
-        val postDetachTask =
-            checkNotNull(postDetachScene.findTaskByActivity(sessionRule.activity)) {
-                "Expected active SpatialTask after detaching reform components"
-            }
-        val postDetachSubspace = findSingleVisibleMeshSubspace(postDetachTask)
+        val (postDetachTask, postDetachSubspace) =
+            checkNotNull(
+                waitForSpatialScene(
+                    description = "MeshEntity subspace settled after detaching reform components",
+                    timeout = SCENE_TIMEOUT,
+                    select = { scene ->
+                        val candidateTask = scene.findTaskByActivity(sessionRule.activity)
+                        val subspace = candidateTask?.let(::findSingleVisibleMeshSubspaceOrNull)
+                        if (candidateTask != null && subspace != null) {
+                            candidateTask to subspace
+                        } else {
+                            null
+                        }
+                    },
+                    until = { pair ->
+                        pair != null &&
+                            !pair.second.isMovable &&
+                            !pair.second.isResizable &&
+                            (!isProtoSceneCaptureEnabled ||
+                                pair.second.subspaceBoundsInMeters == null)
+                    },
+                )
+            )
         assertThat(postDetachSubspace.isVisible).isTrue()
         assertThat(postDetachSubspace.isMovable).isFalse()
         assertThat(postDetachSubspace.isResizable).isFalse()
+        if (isProtoSceneCaptureEnabled) {
+            assertThat(postDetachSubspace.subspaceBoundsInMeters).isNull()
+        }
 
         val interactable =
             InteractableComponent.create(session = session) { event ->
@@ -585,8 +654,46 @@ class CustomMeshEntityIntegrationTest {
         assertThat(postDetachAdded).isTrue()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
+        val targetTask =
+            if (isProtoSceneCaptureEnabled) {
+                val (settledTask, interactableSubspace) =
+                    checkNotNull(
+                        waitForSpatialScene(
+                            description =
+                                "post-detach InteractableComponent BoxCollider worldExtents populated",
+                            timeout = SCENE_TIMEOUT,
+                            select = { scene ->
+                                val candidateTask = scene.findTaskByActivity(sessionRule.activity)
+                                val subspace =
+                                    candidateTask?.let(::findSingleVisibleMeshSubspaceOrNull)
+                                if (candidateTask != null && subspace != null) {
+                                    candidateTask to subspace
+                                } else {
+                                    null
+                                }
+                            },
+                            until = { pair ->
+                                val extents = pair?.second?.worldExtents
+                                extents != null && extents.x > 0f && extents.y > 0f
+                            },
+                        )
+                    )
+                val extents = checkNotNull(interactableSubspace.worldExtents)
+                assertWithMessage(
+                        "Expected square BoxCollider worldExtents on " +
+                            "${interactableSubspace.name}, got $extents " +
+                            "(children=${interactableSubspace.children.map { it.name }})"
+                    )
+                    .that(extents.x / extents.y)
+                    .isWithin(0.02f)
+                    .of(1.0f)
+                settledTask
+            } else {
+                postDetachTask
+            }
+
         val postDetachEnd = initialPos + Vector3(-0.35f, 0f, 0f)
-        postDetachTask.performSpatialInteraction {
+        targetTask.performSpatialInteraction {
             moveOriginTo(Vector3.Zero)
             pointAt(offset = initialPos)
             press()
@@ -918,7 +1025,12 @@ class CustomMeshEntityIntegrationTest {
         )
 
     private fun findSingleVisibleMeshSubspace(task: SnapshotXrSpace): SnapshotXrSpace =
-        task.subspaceNodes.single { it.name.startsWith(MESH_SUBSPACE_PREFIX) && it.isVisible }
+        checkNotNull(findSingleVisibleMeshSubspaceOrNull(task)) {
+            "Expected single visible $MESH_SUBSPACE_PREFIX node in task ${task.name}"
+        }
+
+    private fun findSingleVisibleMeshSubspaceOrNull(task: SnapshotXrSpace): SnapshotXrSpace? =
+        task.subspaceNodes.singleOrNull { it.name.startsWith(MESH_SUBSPACE_PREFIX) && it.isVisible }
 
     private data class CreatedMeshFixture(
         val pbrMaterial: KhronosPbrMaterial,

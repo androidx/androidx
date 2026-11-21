@@ -30,6 +30,7 @@ android {
     defaultConfig {
         applicationId = "androidx.xr.scenecore.integration.tests"
         minSdk { version = release(34) }
+        testInstrumentationRunnerArguments["xrSceneUseProto"] = "true"
     }
     buildTypes {
         release {
