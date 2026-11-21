@@ -28,6 +28,7 @@ import android.view.SurfaceView;
 import android.view.ViewStub;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -105,6 +106,8 @@ public final class SurfaceViewRenderSurface {
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
                 Surface surface = holder.getSurface();
+                Pair<Surface, SurfaceControl> previousSurfaceInfo = null;
+                ListenableFuture<Void> detachFuture = null;
 
                 // Tries to use SurfaceControl to avoid the surface-destroyed problem on devices
                 // which have buggy EGL implementation (for example, Cuttlefish).
@@ -112,18 +115,21 @@ public final class SurfaceViewRenderSurface {
                     Pair<Surface, SurfaceControl> surfaceInfoPair =
                             createSurfaceControlSurfaceAndReparent(surfaceView, format, width,
                                     height);
-
                     if (surfaceInfoPair != null) {
                         surface = surfaceInfoPair.first;
-                        if (surfaceInfoReference.get() != null) {
-                            surfaceInfoReference.get().first.release();
+                        previousSurfaceInfo = surfaceInfoReference.getAndSet(surfaceInfoPair);
+                        if (previousSurfaceInfo != null) {
+                            detachFuture = renderer.detachOutputSurface();
                         }
-                        surfaceInfoReference.set(surfaceInfoPair);
                     }
                 }
 
+                if (detachFuture != null) {
+                    releaseSurfaceInfoAfterDetach(previousSurfaceInfo, detachFuture);
+                }
+
                 renderer.attachOutputSurface(surface, new Size(width, height),
-                        Surfaces.toSurfaceRotationDegrees(surfaceView.getDisplay().getRotation()));
+                        resolveSurfaceRotation(surfaceView.getDisplay()));
             }
 
             @Override
@@ -153,16 +159,33 @@ public final class SurfaceViewRenderSurface {
                     }
                 }
 
-                Pair<Surface, SurfaceControl> surfaceInfoPair = surfaceInfoReference.get();
-                if (Build.VERSION.SDK_INT >= 29 && surfaceInfoPair != null) {
-                    Api29Impl.reparent(surfaceInfoPair.second, null);
-                    detachFuture.addListener(surfaceInfoPair.first::release,
-                            command -> command.run());
+                Pair<Surface, SurfaceControl> surfaceInfoPair =
+                        surfaceInfoReference.getAndSet(null);
+                if (surfaceInfoPair != null) {
+                    releaseSurfaceInfoAfterDetach(surfaceInfoPair, detachFuture);
                 }
             }
         });
 
         return surfaceView;
+    }
+
+    @VisibleForTesting
+    static void releaseSurfaceInfoAfterDetach(
+            @NonNull Pair<Surface, SurfaceControl> surfaceInfoPair,
+            @NonNull ListenableFuture<Void> detachFuture) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            detachFuture.addListener(
+                    () -> Api29Impl.unparentAndRelease(surfaceInfoPair.first,
+                            surfaceInfoPair.second),
+                    Runnable::run);
+        }
+    }
+
+    @VisibleForTesting
+    static int resolveSurfaceRotation(@Nullable Display display) {
+        return Surfaces.toSurfaceRotationDegrees(
+                display != null ? display.getRotation() : Surface.ROTATION_0);
     }
 
     private static void warnOnKnownBuggyNonBlockingDevice() {
@@ -223,9 +246,21 @@ public final class SurfaceViewRenderSurface {
             return surfaceView.getSurfaceControl();
         }
 
-        static void reparent(SurfaceControl sc, SurfaceControl newParent) {
-            SurfaceControl.Transaction transaction = new SurfaceControl.Transaction();
-            transaction.reparent(sc, newParent).setVisibility(sc, true).apply();
+        static void unparentAndRelease(Surface surface, SurfaceControl sc) {
+            try {
+                if (sc.isValid()) {
+                    reparent(sc, null);
+                }
+            } finally {
+                surface.release();
+                sc.release();
+            }
+        }
+
+        static void reparent(SurfaceControl sc, @Nullable SurfaceControl newParent) {
+            try (SurfaceControl.Transaction transaction = new SurfaceControl.Transaction()) {
+                transaction.reparent(sc, newParent).setVisibility(sc, newParent != null).apply();
+            }
         }
     }
 }
