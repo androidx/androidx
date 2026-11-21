@@ -22,6 +22,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.appcompat.view.WindowCallbackWrapper
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -102,6 +103,7 @@ class AppCompatWindowCallbackWrapperTest {
                     AppCompatDelegateImpl.PanelFeatureState(Window.FEATURE_CONTEXT_MENU).apply {
                         isOpen = true
                         decorView = v
+                        setMenu(MenuBuilder(activity))
                     }
                 activity.windowManager.addView(
                     v,
