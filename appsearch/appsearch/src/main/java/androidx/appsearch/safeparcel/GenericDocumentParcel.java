@@ -274,6 +274,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
         private int mScore;
         private Map<String, PropertyParcel> mPropertyMap;
         private @Nullable List<String> mParentTypes;
+        private boolean mBuilt = false;
 
         /**
          * Creates a new {@link GenericDocumentParcel.Builder}.
@@ -431,6 +432,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
         @CanIgnoreReturnValue
         public @NonNull Builder clearProperty(@NonNull String name) {
             Objects.requireNonNull(name);
+            ensurePropertyMapNotBuilt();
             mPropertyMap.remove(name);
             return this;
         }
@@ -511,8 +513,18 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
         public @NonNull Builder putInPropertyMap(@NonNull String name,
                 @NonNull PropertyParcel value) {
             Objects.requireNonNull(value);
+            ensurePropertyMapNotBuilt();
             mPropertyMap.put(name, value);
             return this;
+        }
+
+        private void ensurePropertyMapNotBuilt() {
+            if (mBuilt) {
+                Map<String, PropertyParcel> newPropertyMap = new ArrayMap<>(mPropertyMap.size());
+                newPropertyMap.putAll(mPropertyMap);
+                mPropertyMap = newPropertyMap;
+                mBuilt = false;
+            }
         }
 
         /** Builds the {@link GenericDocument} object. */
@@ -521,6 +533,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
             if (mCreationTimestampMillis == INVALID_CREATION_TIMESTAMP_MILLIS) {
                 mCreationTimestampMillis = System.currentTimeMillis();
             }
+            mBuilt = true;
             return new GenericDocumentParcel(
                     mNamespace,
                     mId,
@@ -529,6 +542,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
                     mTtlMillis,
                     mScore,
                     new ArrayList<>(mPropertyMap.values()),
+                    mPropertyMap,
                     mParentTypes);
         }
     }

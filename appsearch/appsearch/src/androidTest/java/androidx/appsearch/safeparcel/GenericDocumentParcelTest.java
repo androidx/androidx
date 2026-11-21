@@ -219,6 +219,52 @@ public class GenericDocumentParcelTest {
     }
 
     @Test
+    public void testGenericDocumentParcel_reusesPropertyMapWithCopyOnWrite() {
+        long[] longArray = new long[]{1L, 2L, 3L};
+        String[] stringArray = new String[]{"hello", "world"};
+        GenericDocumentParcel.Builder builder =
+                new GenericDocumentParcel.Builder("namespace", "id", "schemaType")
+                        .setCreationTimestampMillis(100L)
+                        .setScore(10)
+                        .setTtlMillis(20L)
+                        .putInPropertyMap("longArray", longArray)
+                        .putInPropertyMap("stringArray", stringArray);
+
+        GenericDocumentParcel firstParcel = builder.build();
+        GenericDocumentParcel secondParcelWithoutMutation = builder.build();
+        assertThat(firstParcel).isEqualTo(secondParcelWithoutMutation);
+        assertThat(firstParcel.hashCode()).isEqualTo(secondParcelWithoutMutation.hashCode());
+        assertThat(firstParcel.getPropertyMap())
+                .isSameInstanceAs(secondParcelWithoutMutation.getPropertyMap());
+
+        // Mutating the builder after build() must copy-on-write and leave prior parcels intact.
+        builder.clearProperty("longArray");
+        builder.putInPropertyMap("stringArray", new String[]{"updated"});
+        builder.putInPropertyMap("extraKey", new boolean[]{true});
+        GenericDocumentParcel mutatedParcel = builder.build();
+
+        PropertyParcel expectedLongProp =
+                new PropertyParcel.Builder("longArray").setLongValues(longArray).build();
+        PropertyParcel expectedStringProp =
+                new PropertyParcel.Builder("stringArray").setStringValues(stringArray).build();
+        PropertyParcel updatedStringProp =
+                new PropertyParcel.Builder("stringArray")
+                        .setStringValues(new String[]{"updated"})
+                        .build();
+        PropertyParcel extraBoolProp =
+                new PropertyParcel.Builder("extraKey")
+                        .setBooleanValues(new boolean[]{true})
+                        .build();
+
+        assertThat(firstParcel.getPropertyMap())
+                .containsExactly("longArray", expectedLongProp, "stringArray", expectedStringProp);
+        assertThat(mutatedParcel.getPropertyMap())
+                .containsExactly("stringArray", updatedStringProp, "extraKey", extraBoolProp);
+        assertThat(mutatedParcel.getProperties())
+                .containsExactly(updatedStringProp, extraBoolProp);
+    }
+
+    @Test
     public void testRecreateFromParcelWithParentTypes() {
         String[] stringArray = new String[]{"Hello", "world"};
         long[] longArray = new long[]{1L, 2L};
