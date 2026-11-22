@@ -123,6 +123,32 @@ class SnapshotStateListTests {
     }
 
     @Test
+    fun validateIterator_previous_remove_keepsCursor() {
+        validate(mutableStateListOf(0, 1, 2, 3, 4)) { normalList ->
+            val iterator = normalList.listIterator(normalList.size)
+            assertEquals(4, iterator.previous())
+            iterator.remove()
+            assertEquals(4, iterator.nextIndex())
+            assertEquals(3, iterator.previous())
+            assertEquals(2, iterator.previous())
+            iterator.remove()
+            assertEquals(2, iterator.nextIndex())
+            assertEquals(3, iterator.next())
+        }
+    }
+
+    @Test
+    fun validateIterator_removeWhileIteratingBackwards() {
+        validate(mutableStateListOf(0, 2, 4, 5, 6, 8)) { normalList ->
+            val iterator = normalList.listIterator(normalList.size)
+            while (iterator.hasPrevious()) {
+                if (iterator.previous() % 2 == 0) iterator.remove()
+            }
+            expected(listOf(5), normalList)
+        }
+    }
+
+    @Test
     fun validateLastIndexOf() {
         val list = mutableStateListOf(0, 1, 2, 3, 4, 0, 1, 2, 3, 4)
         (0..4).forEach { assertEquals(it + 5, list.lastIndexOf(it)) }

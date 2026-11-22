@@ -328,7 +328,9 @@ internal class StateListIterator<T>(val stateList: SnapshotStateList<T>, offset:
     override fun remove() {
         validateModification()
         stateList.removeAt(lastRequested)
-        index--
+        // After next() the removed element was at index; after previous() it was at index + 1
+        // and the cursor has already moved past it, so derive the new cursor from it.
+        index = lastRequested - 1
         lastRequested = -1
         list = stateList.toList()
         structure = stateList.structure
