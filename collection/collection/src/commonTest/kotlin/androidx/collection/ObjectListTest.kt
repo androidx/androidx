@@ -1153,6 +1153,34 @@ class ObjectListTest {
         assertEquals(3, l2[0])
     }
 
+    @Test
+    fun asListEqualsAndHashCode() {
+        val l = mutableObjectListOf("a", null, "b")
+        val expected = arrayListOf("a", null, "b")
+        val view = l.asList()
+        assertTrue(view == expected)
+        assertTrue(expected == view)
+        assertEquals(expected.hashCode(), view.hashCode())
+        assertTrue(view == mutableObjectListOf("a", null, "b").asList())
+        assertFalse(view == listOf("a", null))
+        assertFalse(view == listOf("a", "b", null))
+        assertFalse(view == setOf("a", null, "b"))
+        assertTrue(objectListOf<String>().asList() == emptyList<String>())
+        assertEquals(emptyList<String>().hashCode(), objectListOf<String>().asList().hashCode())
+    }
+
+    @Test
+    fun subListEqualsAndHashCode() {
+        val l = mutableObjectListOf(1, 2, 3, 4, 5).asMutableList()
+        val subList = l.subList(1, 4)
+        assertTrue(subList == listOf(2, 3, 4))
+        assertTrue(listOf(2, 3, 4) == subList)
+        assertEquals(listOf(2, 3, 4).hashCode(), subList.hashCode())
+        assertFalse(subList == listOf(2, 3))
+        assertTrue(subList.subList(1, 3) == listOf(3, 4))
+        assertEquals(listOf(3, 4).hashCode(), subList.subList(1, 3).hashCode())
+    }
+
     @Suppress("KotlinConstantConditions", "RedundantSuppression")
     @Test
     fun list_outOfBounds_Get_Below() {

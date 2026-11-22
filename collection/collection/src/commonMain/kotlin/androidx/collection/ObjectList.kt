@@ -1411,6 +1411,10 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
             checkSubIndex(fromIndex, toIndex)
             return SubList(this, fromIndex, toIndex)
         }
+
+        override fun equals(other: Any?): Boolean = listEquals(other)
+
+        override fun hashCode(): Int = listHashCode()
     }
 
     /**
@@ -1552,6 +1556,10 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
             checkSubIndex(fromIndex, toIndex)
             return SubList(this, fromIndex, toIndex)
         }
+
+        override fun equals(other: Any?): Boolean = listEquals(other)
+
+        override fun hashCode(): Int = listHashCode()
     }
 }
 
@@ -1584,6 +1592,27 @@ private fun List<*>.checkSubIndex(fromIndex: Int, toIndex: Int) {
     if (toIndex > size) {
         throwIndexOutOfBoundsException("toIndex ($toIndex) is more than than the list size ($size)")
     }
+}
+
+// equals() and hashCode() for the MutableList views follow the List contract, so that they
+// compare equal to, and hash like, any other List with the same elements in the same order.
+
+private fun List<*>.listEquals(other: Any?): Boolean {
+    if (other === this) return true
+    if (other !is List<*> || other.size != size) return false
+    val otherIterator = other.iterator()
+    for (i in 0 until size) {
+        if (this[i] != otherIterator.next()) return false
+    }
+    return true
+}
+
+private fun List<*>.listHashCode(): Int {
+    var hashCode = 1
+    for (i in 0 until size) {
+        hashCode = 31 * hashCode + this[i].hashCode()
+    }
+    return hashCode
 }
 
 // Empty array used when nothing is allocated
