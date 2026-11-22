@@ -632,6 +632,9 @@ public constructor(
             candidate = if (previousIndex != NodeInvalidLink) previousIndex else tail
         }
 
+        // The list can be empty while count > 0: put() links a new entry only after trimming
+        if (candidate == NodeInvalidLink) return NodeInvalidLink
+
         val previousIndex = nodes[candidate].previousNode
         hand = if (previousIndex != NodeInvalidLink) previousIndex else NodeInvalidLink
 

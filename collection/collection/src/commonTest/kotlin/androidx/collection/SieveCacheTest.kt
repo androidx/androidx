@@ -887,6 +887,63 @@ class SieveCacheTest {
     }
 
     @Test
+    fun putEntryLargerThanMaxSize() {
+        val evicted = mutableListOf<String>()
+        val cache =
+            SieveCache<String, String>(
+                4,
+                sizeOf = { _, value -> value.length },
+                onEntryRemoved = { key, _, _, wasEvicted -> if (wasEvicted) evicted += key },
+            )
+
+        // Into an empty cache
+        assertNull(cache.put("a", "xxxxxx"))
+        assertEquals(1, cache.count)
+        assertEquals(6, cache.size)
+        assertEquals("xxxxxx", cache["a"])
+
+        // The next insertion evicts the oversized entry, even though it was visited
+        cache["b"] = "x"
+        assertEquals(listOf("a"), evicted)
+        assertEquals(1, cache.count)
+        assertEquals(1, cache.size)
+
+        // Into a cache that has entries, one of them visited
+        cache["c"] = "x"
+        assertEquals("x", cache["b"])
+        cache["d"] = "xxxxx"
+        assertEquals(listOf("a", "c", "b"), evicted)
+        assertEquals(1, cache.count)
+        assertEquals(5, cache.size)
+        assertTrue("d" in cache)
+
+        cache["e"] = "xx"
+        assertEquals(listOf("a", "c", "b", "d"), evicted)
+        assertEquals(1, cache.count)
+        assertEquals(2, cache.size)
+        assertEquals("xx", cache["e"])
+    }
+
+    @Test
+    fun createdValueLargerThanMaxSize() {
+        val cache =
+            SieveCache<String, String>(
+                2,
+                sizeOf = { _, value -> value.length },
+                createValueFromKey = { key -> key + key + key },
+            )
+
+        assertEquals("aaa", cache["a"])
+        assertEquals(1, cache.count)
+        assertEquals(3, cache.size)
+
+        cache.put("b", "x")
+        assertFalse("a" in cache)
+        assertEquals(1, cache.count)
+        assertEquals(1, cache.size)
+    }
+
+    @Test
     fun sequentialHashCollisions() {
         val cache = SieveCache<BadHashKey, Int>(24, 24)
 
