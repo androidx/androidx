@@ -104,6 +104,23 @@ class SnapshotStateSetTests {
     }
 
     @Test
+    fun validateIterator_nullElement() {
+        val set = mutableStateSetOf<Int?>(0, null, 2)
+        assertEquals(listOf(0, null, 2), set.iterator().asSequence().toList())
+        assertEquals(listOf(null, 1), mutableStateSetOf<Int?>(null, 1).toList())
+    }
+
+    @Test
+    fun validateIterator_removeNullElement() {
+        val set = mutableStateSetOf<Int?>(0, null, 2)
+        val iterator = set.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next() == null) iterator.remove()
+        }
+        assertEquals(listOf(0, 2), set.toList())
+    }
+
+    @Test
     fun validateIterator_orderedAfterRemove() {
         val set = mutableStateSetOf(0, 1, 2, 3, 4)
         set.remove(2)

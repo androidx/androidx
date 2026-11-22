@@ -211,6 +211,10 @@ internal class StateSetIterator<T>(val set: SnapshotStateSet<T>, val iterator: I
     MutableIterator<T> {
     var current: T? = null
     @JsName("var_next") var next: T? = null
+    // The set may contain null, so whether current and next hold an element is tracked
+    // separately instead of being inferred from a null value.
+    private var hasCurrent = false
+    private var hasNextElement = false
     var modification = set.modification
 
     init {
@@ -218,21 +222,22 @@ internal class StateSetIterator<T>(val set: SnapshotStateSet<T>, val iterator: I
     }
 
     override fun hasNext(): Boolean {
-        return next != null
+        return hasNextElement
     }
 
     override fun next(): T {
         validateModification()
         advance()
-        return current ?: throw IllegalStateException()
+        if (!hasCurrent) throw IllegalStateException()
+        @Suppress("UNCHECKED_CAST")
+        return current as T
     }
 
     override fun remove() = modify {
-        val value = current
-
-        if (value != null) {
-            set.remove(value)
+        if (hasCurrent) {
+            @Suppress("UNCHECKED_CAST") set.remove(current as T)
             current = null
+            hasCurrent = false
         } else {
             throw IllegalStateException()
         }
@@ -240,7 +245,9 @@ internal class StateSetIterator<T>(val set: SnapshotStateSet<T>, val iterator: I
 
     private fun advance() {
         current = next
-        next = if (iterator.hasNext()) iterator.next() else null
+        hasCurrent = hasNextElement
+        hasNextElement = iterator.hasNext()
+        next = if (hasNextElement) iterator.next() else null
     }
 
     private inline fun <T> modify(block: () -> T): T {
