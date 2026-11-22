@@ -399,6 +399,21 @@ class SnapshotStateListTests {
     }
 
     @Test
+    fun validate_subList_removeAll_duplicates() {
+        val list = mutableStateListOf(0, 1, 1, 2, 1, 3, 1)
+        val normalList = mutableListOf(0, 1, 1, 2, 1, 3, 1)
+
+        val subList = list.subList(1, 5)
+        assertTrue(subList.removeAll(listOf(1)))
+        val normalSubList = normalList.subList(1, 5)
+        normalSubList.removeAll(listOf(1))
+
+        expected(normalSubList, subList)
+        expected(normalList, list)
+        expected(listOf(0, 2, 3, 1), list)
+    }
+
+    @Test
     fun validate_subList_removeAt() {
         val list = mutableStateListOf(0, 1, 2, 3, 4, 5, 6)
         val normalList = mutableListOf(0, 1, 2, 3, 4, 5, 6)

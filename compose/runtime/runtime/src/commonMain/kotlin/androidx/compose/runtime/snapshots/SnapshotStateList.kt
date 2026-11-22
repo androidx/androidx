@@ -467,9 +467,14 @@ internal class SubList<T>(val parentList: SnapshotStateList<T>, fromIndex: Int, 
     }
 
     override fun removeAll(elements: Collection<T>): Boolean {
+        validateModification()
         var removed = false
-        for (element in elements) {
-            removed = remove(element) || removed
+        // Remove every occurrence, not just the first one, as required by MutableList.removeAll.
+        for (index in size - 1 downTo 0) {
+            if (elements.contains(get(index))) {
+                removeAt(index)
+                removed = true
+            }
         }
         return removed
     }
