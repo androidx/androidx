@@ -374,11 +374,14 @@ private class StateMapMutableEntriesIterator<K, V>(
                 override val key = current!!.key
                 override var value = current!!.value
 
+                // The block must not `return` from setValue directly: modify() is inline, so a
+                // non-local return would skip updating the iterator's modification count and the
+                // next setValue() or remove() would throw ConcurrentModificationException.
                 override fun setValue(newValue: V): V = modify {
                     val result = value
                     map[key] = newValue
                     value = newValue
-                    return result
+                    result
                 }
             }
         } else {

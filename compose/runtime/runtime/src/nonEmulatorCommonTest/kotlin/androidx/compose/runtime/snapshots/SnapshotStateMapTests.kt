@@ -158,6 +158,27 @@ class SnapshotStateMapTests {
     }
 
     @Test
+    fun validateEntriesSetValue() {
+        validateWrite { map ->
+            for (entry in map.entries) {
+                entry.setValue(entry.value * 10)
+            }
+        }
+    }
+
+    @Test
+    fun validateEntriesSetValueThenRemove() {
+        validateWrite { map ->
+            val iterator = map.entries.iterator()
+            iterator.next().setValue(100f)
+            iterator.remove()
+            iterator.next().setValue(200f)
+            iterator.next()
+            iterator.remove()
+        }
+    }
+
+    @Test
     fun validateEntriesContains() {
         validateRead { map, normalMap ->
             val one = map.entries.first()
