@@ -105,6 +105,21 @@ public class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
                 true
             } == true
 
+    // Unlike `remove(key) != null`, these also work for keys mapped to `null`.
+    internal fun removeKey(key: K): Boolean = mutate {
+        if (it.containsKey(key)) {
+            it.remove(key)
+            true
+        } else false
+    }
+
+    internal fun removeEntry(key: K, value: V): Boolean = mutate {
+        if (it.containsKey(key) && it[key] == value) {
+            it.remove(key)
+            true
+        } else false
+    }
+
     @Suppress("UNCHECKED_CAST")
     internal val readable: StateMapStateRecord<K, V>
         get() = (firstStateRecord as StateMapStateRecord<K, V>).readable(this)
@@ -233,12 +248,13 @@ private class SnapshotMapEntrySet<K, V>(map: SnapshotStateMap<K, V>) :
     override fun iterator(): MutableIterator<MutableMap.MutableEntry<K, V>> =
         StateMapMutableEntriesIterator(map, map.readable.map.entries.iterator())
 
-    override fun remove(element: MutableMap.MutableEntry<K, V>) = map.remove(element.key) != null
+    override fun remove(element: MutableMap.MutableEntry<K, V>) =
+        map.removeEntry(element.key, element.value)
 
     override fun removeAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
         var removed = false
         for (element in elements) {
-            removed = map.remove(element.key) != null || removed
+            removed = map.removeEntry(element.key, element.value) || removed
         }
         return removed
     }
@@ -249,7 +265,8 @@ private class SnapshotMapEntrySet<K, V>(map: SnapshotStateMap<K, V>) :
     }
 
     override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean {
-        return map[element.key] == element.value
+        val current = map.readable.map
+        return current.containsKey(element.key) && current[element.key] == element.value
     }
 
     override fun containsAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
@@ -264,11 +281,11 @@ private class SnapshotMapKeySet<K, V>(map: SnapshotStateMap<K, V>) : SnapshotMap
 
     override fun iterator() = StateMapMutableKeysIterator(map, map.readable.map.entries.iterator())
 
-    override fun remove(element: K): Boolean = map.remove(element) != null
+    override fun remove(element: K): Boolean = map.removeKey(element)
 
     override fun removeAll(elements: Collection<K>): Boolean {
         var removed = false
-        elements.forEach { removed = map.remove(it) != null || removed }
+        elements.forEach { removed = map.removeKey(it) || removed }
         return removed
     }
 

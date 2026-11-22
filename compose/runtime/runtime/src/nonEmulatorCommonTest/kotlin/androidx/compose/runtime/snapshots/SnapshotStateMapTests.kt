@@ -216,6 +216,35 @@ class SnapshotStateMapTests {
         validateWrite { map -> map.entries.remove(map.entries.first()) }
     }
 
+    @Test
+    fun validateEntriesRemove_differentValue() {
+        val map = mutableStateMapOf(1 to 1f, 2 to 2f)
+        assertFalse(map.entries.remove(entryOf(1, 5f)))
+        assertEquals(1f, map[1])
+        assertTrue(map.entries.remove(entryOf(1, 1f)))
+        assertFalse(map.containsKey(1))
+        assertEquals(1, map.size)
+    }
+
+    @Test
+    fun validateEntriesRemoveAll_differentValue() {
+        val map = mutableStateMapOf(1 to 1f, 2 to 2f, 3 to 3f)
+        assertTrue(map.entries.removeAll(listOf(entryOf(1, 1f), entryOf(2, 5f))))
+        assertEquals(mapOf(2 to 2f, 3 to 3f), map.toMap())
+        assertFalse(map.entries.removeAll(listOf(entryOf(3, 5f))))
+        assertEquals(mapOf(2 to 2f, 3 to 3f), map.toMap())
+    }
+
+    @Test
+    fun validateEntries_nullValue() {
+        val map = mutableStateMapOf<Int, Float?>(1 to null, 2 to 2f)
+        assertTrue(map.entries.contains(entryOf(1, null)))
+        assertFalse(map.entries.contains(entryOf(3, null)))
+        assertFalse(map.entries.remove(entryOf(3, null)))
+        assertTrue(map.entries.remove(entryOf(1, null)))
+        assertEquals(mapOf<Int, Float?>(2 to 2f), map.toMap())
+    }
+
     // TODO: b/409727470
     // TODO: https://youtrack.jetbrains.com/issue/CMP-7397
     @Test
@@ -307,6 +336,16 @@ class SnapshotStateMapTests {
     @Test
     fun validateKeysRemoveAll() {
         validateWrite { map -> map.keys.removeAll(map.keys.filter { it % 2 == 0 }) }
+    }
+
+    @Test
+    fun validateKeysRemove_nullValue() {
+        val map = mutableStateMapOf<Int, Float?>(1 to null, 2 to 2f, 3 to null)
+        assertTrue(map.keys.remove(1))
+        assertFalse(map.keys.remove(1))
+        assertTrue(map.keys.removeAll(listOf(3, 4)))
+        assertFalse(map.keys.removeAll(listOf(3, 4)))
+        assertEquals(mapOf<Int, Float?>(2 to 2f), map.toMap())
     }
 
     @Test
@@ -634,6 +673,14 @@ class SnapshotStateMapTests {
             assertEquals(map[entry.key], entry.value)
         }
     }
+
+    private fun <K, V> entryOf(key: K, value: V) =
+        object : MutableMap.MutableEntry<K, V> {
+            override val key = key
+            override val value = value
+
+            override fun setValue(newValue: V) = error("not supported")
+        }
 
     private fun defaultMap() =
         mutableStateMapOf(1 to 1f, 2 to 2f, 3 to 3f, 4 to 4f, 5 to 1f, 6 to 2f, 7 to 3f, 8 to 4f)
