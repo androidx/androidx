@@ -961,6 +961,10 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
 }
 
 private class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V> {
+    override fun equals(other: Any?): Boolean = entryEquals(this, other)
+
+    override fun hashCode(): Int = entryHashCode(this)
+
     override fun toString(): String = "$key=$value"
 }
 
@@ -985,6 +989,10 @@ private class Entries<K, V>(private val parent: ScatterMap<K, V>) : Set<Map.Entr
 
     override fun contains(element: Map.Entry<K, V>): Boolean = parent.containsEntry(element)
 
+    override fun equals(other: Any?): Boolean = this === other || parent.entriesEqual(other)
+
+    override fun hashCode(): Int = parent.hashCode()
+
     override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 }
 
@@ -1001,6 +1009,10 @@ private class Keys<K, V>(private val parent: ScatterMap<K, V>) : Set<K> {
     }
 
     override fun contains(element: K): Boolean = parent.containsKey(element)
+
+    override fun equals(other: Any?): Boolean = this === other || parent.keysEqual(other)
+
+    override fun hashCode(): Int = parent.keysHashCode()
 
     override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 }
@@ -1096,6 +1108,10 @@ private class MutableMapEntry<K, V>(
     @Suppress("UNCHECKED_CAST")
     override val value: V
         get() = values[index] as V
+
+    override fun equals(other: Any?): Boolean = entryEquals(this, other)
+
+    override fun hashCode(): Int = entryHashCode(this)
 }
 
 private class MutableEntries<K, V>(private val parent: MutableScatterMap<K, V>) :
@@ -1141,6 +1157,10 @@ private class MutableEntries<K, V>(private val parent: MutableScatterMap<K, V>) 
 
     override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean =
         parent.containsEntry(element)
+
+    override fun equals(other: Any?): Boolean = this === other || parent.entriesEqual(other)
+
+    override fun hashCode(): Int = parent.hashCode()
 
     override fun addAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
         throw UnsupportedOperationException()
@@ -1266,6 +1286,10 @@ private class MutableKeys<K, V>(private val parent: MutableScatterMap<K, V>) : M
     }
 
     override fun contains(element: K): Boolean = parent.containsKey(element)
+
+    override fun equals(other: Any?): Boolean = this === other || parent.keysEqual(other)
+
+    override fun hashCode(): Int = parent.keysHashCode()
 }
 
 private class MutableValues<K, V>(private val parent: MutableScatterMap<K, V>) :
@@ -1377,4 +1401,39 @@ private class MutableMapWrapper<K, V>(private val parent: MutableScatterMap<K, V
 private fun <K, V> ScatterMap<K, V>.containsEntry(entry: Map.Entry<K, V>): Boolean {
     val index = findKeyIndex(entry.key)
     return index >= 0 && values[index] == entry.value
+}
+
+// equals() and hashCode() for the asMap() views follow the Map.Entry and Set contracts, so that
+// they compare equal to, and hash like, the entries and keys of any other Map.
+
+private fun entryEquals(entry: Map.Entry<*, *>, other: Any?): Boolean =
+    other is Map.Entry<*, *> && entry.key == other.key && entry.value == other.value
+
+private fun entryHashCode(entry: Map.Entry<*, *>): Int =
+    entry.key.hashCode() xor entry.value.hashCode()
+
+@Suppress("UNCHECKED_CAST")
+private fun <K, V> ScatterMap<K, V>.entriesEqual(other: Any?): Boolean {
+    if (other !is Set<*> || other.size != _size) return false
+    for (element in other) {
+        if (element !is Map.Entry<*, *>) return false
+        val index = findKeyIndex(element.key as K)
+        if (index < 0 || values[index] != element.value) return false
+    }
+    return true
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <K, V> ScatterMap<K, V>.keysEqual(other: Any?): Boolean {
+    if (other !is Set<*> || other.size != _size) return false
+    for (element in other) {
+        if (findKeyIndex(element as K) < 0) return false
+    }
+    return true
+}
+
+private fun <K, V> ScatterMap<K, V>.keysHashCode(): Int {
+    var hash = 0
+    forEachKey { key -> hash += key.hashCode() }
+    return hash
 }

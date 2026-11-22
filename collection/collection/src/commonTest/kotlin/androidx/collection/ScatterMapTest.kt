@@ -1044,6 +1044,52 @@ class ScatterMapTest {
     }
 
     @Test
+    fun asMapKeysEqualsAndHashCode() {
+        val map = MutableScatterMap<String?, String?>()
+        map["Hello"] = "World"
+        map[null] = "Monde"
+        map["Bonjour"] = null
+        val expected =
+            hashMapOf<String?, String?>("Hello" to "World", null to "Monde", "Bonjour" to null)
+
+        for (keys in listOf(map.asMap().keys, map.asMutableMap().keys)) {
+            assertTrue(keys == expected.keys)
+            assertTrue(expected.keys == keys)
+            assertEquals(expected.keys.hashCode(), keys.hashCode())
+            assertTrue(keys == map.asMap().keys)
+            assertFalse(keys == setOf("Hello", null, "Hallo"))
+            assertFalse(keys == setOf("Hello", null))
+        }
+    }
+
+    @Test
+    fun asMapEntriesEqualsAndHashCode() {
+        val map = MutableScatterMap<String?, String?>()
+        map["Hello"] = "World"
+        map[null] = "Monde"
+        map["Bonjour"] = null
+        val expected =
+            hashMapOf<String?, String?>("Hello" to "World", null to "Monde", "Bonjour" to null)
+
+        for (entries in listOf(map.asMap().entries, map.asMutableMap().entries)) {
+            assertTrue(entries == expected.entries)
+            assertTrue(expected.entries == entries)
+            assertEquals(expected.entries.hashCode(), entries.hashCode())
+            assertTrue(entries == map.asMap().entries)
+            assertFalse(entries == HashMap(expected).apply { put("Bonjour", "") }.entries)
+            assertFalse(entries == setOf<Any?>("Hello", null, "Bonjour"))
+
+            for (entry in entries) {
+                val other = expected.entries.single { it.key == entry.key }
+                assertTrue(entry == other)
+                assertEquals(other.hashCode(), entry.hashCode())
+            }
+            val hashed = entries.toHashSet()
+            assertTrue(expected.entries.all { it in hashed })
+        }
+    }
+
+    @Test
     fun asMapToList() {
         val map = mutableScatterMapOf<Int, Int>()
         map[0] = 0
