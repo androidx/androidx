@@ -1134,6 +1134,188 @@ class SeparatorsTest {
             )
     }
 
+    /**
+     * RemoteMediator's REFRESH returning endOfPaginationReached = true completes prepend and append
+     * in the same [PageEvent.LoadStateUpdate]. Both the header and the footer must be added.
+     */
+    @Test
+    fun remoteRefreshEndOfPaginationReached_singleUpdate_fullyComplete() = runTest {
+        assertThat(
+                flowOf(
+                        remoteLoadStateUpdate(refreshRemote = Loading),
+                        remoteLoadStateUpdate(refreshLocal = Loading, refreshRemote = Loading),
+                        remoteRefresh(
+                            pages = listOf(listOf("a1")).toTransformablePages(),
+                            placeholdersBefore = 1,
+                            placeholdersAfter = 1,
+                            source =
+                                loadStates(
+                                    append = NotLoading.Complete,
+                                    prepend = NotLoading.Complete,
+                                ),
+                        ),
+                        remoteLoadStateUpdate(
+                            appendLocal = NotLoading.Complete,
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete,
+                        ),
+                    )
+                    .insertEventSeparators(
+                        terminalSeparatorType = FULLY_COMPLETE,
+                        generator = LETTER_SEPARATOR_GENERATOR,
+                    )
+                    .toList()
+            )
+            .isEqualTo(
+                listOf(
+                    remoteLoadStateUpdate(refreshRemote = Loading),
+                    remoteLoadStateUpdate(refreshLocal = Loading, refreshRemote = Loading),
+                    remoteRefresh(
+                        pages = listOf(listOf("a1")).toTransformablePages(),
+                        placeholdersBefore = 1,
+                        placeholdersAfter = 1,
+                        source =
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
+                    ),
+                    remotePrepend(
+                        pages =
+                            listOf(
+                                TransformablePage(
+                                    originalPageOffsets = intArrayOf(0),
+                                    data = listOf("A"),
+                                    hintOriginalIndices = listOf(0),
+                                    hintOriginalPageOffset = 0,
+                                )
+                            ),
+                        placeholdersBefore = 1,
+                        source =
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
+                        mediator =
+                            loadStates(
+                                prepend = NotLoading.Complete,
+                                append = NotLoading.Complete,
+                            ),
+                    ),
+                    remoteAppend(
+                        pages =
+                            listOf(
+                                TransformablePage(
+                                    originalPageOffsets = intArrayOf(0),
+                                    data = listOf("END"),
+                                    hintOriginalIndices = listOf(0),
+                                    hintOriginalPageOffset = 0,
+                                )
+                            ),
+                        placeholdersAfter = 1,
+                        source =
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
+                        mediator =
+                            loadStates(
+                                prepend = NotLoading.Complete,
+                                append = NotLoading.Complete,
+                            ),
+                    ),
+                )
+            )
+    }
+
+    @Test
+    fun remoteRefreshEndOfPaginationReached_singleUpdate_emptyList() = runTest {
+        assertThat(
+                flowOf(
+                        remoteRefresh(
+                            pages = listOf(listOf<String>()).toTransformablePages(),
+                            source =
+                                loadStates(
+                                    append = NotLoading.Complete,
+                                    prepend = NotLoading.Complete,
+                                ),
+                        ),
+                        remoteLoadStateUpdate(
+                            appendLocal = NotLoading.Complete,
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete,
+                        ),
+                    )
+                    .insertEventSeparators(
+                        terminalSeparatorType = FULLY_COMPLETE,
+                        generator = LETTER_SEPARATOR_GENERATOR,
+                    )
+                    .toList()
+            )
+            .isEqualTo(
+                listOf(
+                    remoteRefresh(
+                        pages = listOf(listOf<String>()).toTransformablePages(),
+                        source =
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
+                    ),
+                    remotePrepend(
+                        pages = listOf(),
+                        source =
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
+                        mediator =
+                            loadStates(
+                                prepend = NotLoading.Complete,
+                                append = NotLoading.Complete,
+                            ),
+                    ),
+                    remoteAppend(
+                        pages =
+                            listOf(
+                                TransformablePage(
+                                    originalPageOffsets = intArrayOf(0),
+                                    data = listOf("END"),
+                                    hintOriginalIndices = listOf(0),
+                                    hintOriginalPageOffset = 0,
+                                )
+                            ),
+                        source =
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
+                        mediator =
+                            loadStates(
+                                prepend = NotLoading.Complete,
+                                append = NotLoading.Complete,
+                            ),
+                    ),
+                )
+            )
+    }
+
+    @Test
+    fun remoteRefreshEndOfPaginationReached_singleUpdate_chained() = runTest {
+        val events =
+            flowOf(
+                    remoteRefresh(
+                        pages = listOf(listOf("a1")).toTransformablePages(),
+                        source =
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
+                    ),
+                    remoteLoadStateUpdate(
+                        appendLocal = NotLoading.Complete,
+                        prependLocal = NotLoading.Complete,
+                        prependRemote = NotLoading.Complete,
+                        appendRemote = NotLoading.Complete,
+                    ),
+                )
+                .insertEventSeparators(terminalSeparatorType = FULLY_COMPLETE) { before, after ->
+                    if (before == null && after != null) "header" else null
+                }
+                .insertEventSeparators(terminalSeparatorType = FULLY_COMPLETE) { before, after ->
+                    if (before != null && after == null) "footer" else null
+                }
+                .toList()
+
+        val items = mutableListOf<String>()
+        events.filterIsInstance<PageEvent.Insert<String>>().forEach { insert ->
+            val data = insert.pages.flatMap { it.data }
+            if (insert.loadType == PREPEND) items.addAll(0, data) else items.addAll(data)
+        }
+        assertEquals(listOf("header", "a1", "footer"), items)
+    }
+
     @Test
     fun remotePrependEndOfPaginationReached_fullyComplete() = runTest {
         assertThat(

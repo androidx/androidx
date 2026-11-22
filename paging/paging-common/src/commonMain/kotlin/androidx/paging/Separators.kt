@@ -26,7 +26,7 @@ import androidx.paging.PageEvent.StaticList
 import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import androidx.paging.TerminalSeparatorType.SOURCE_COMPLETE
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
 
 /**
  * Mode for configuring when terminal separators (header and footer) would be displayed by the
@@ -210,6 +210,15 @@ private class SeparatorState<R : Any, T : R>(
 
     var footerAdded = false
     var headerAdded = false
+
+    /**
+     * Terminal append insert queued by [onLoadStateUpdate] when a single [LoadStateUpdate] reports
+     * both prepend and append as complete, to be sent right after the prepend insert.
+     */
+    private var pendingAppendTerminalInsert: Insert<T>? = null
+
+    fun takePendingAppendTerminalInsert(): Insert<T>? =
+        pendingAppendTerminalInsert.also { pendingAppendTerminalInsert = null }
 
     @Suppress("UNCHECKED_CAST")
     suspend fun onEvent(event: PageEvent<T>): PageEvent<R> =
@@ -532,9 +541,12 @@ private class SeparatorState<R : Any, T : R>(
         // Transform terminal load state updates into empty inserts for header + footer support
         // when used with RemoteMediator. In cases where we defer adding a terminal separator,
         // RemoteMediator can report endOfPaginationReached via LoadStateUpdate event, which
-        // isn't possible to add a separator to. Note: Adding a separate insert event also
-        // doesn't work in the case where .insertSeparators() is called multiple times on the
-        // same page event stream - we have to transform the terminating LoadStateUpdate event.
+        // isn't possible to add a separator to. Note: Emitting a separate insert event next to
+        // the LoadStateUpdate doesn't work in the case where .insertSeparators() is called
+        // multiple times on the same page event stream - we have to transform the terminating
+        // LoadStateUpdate event itself. If one update completes both ends, it becomes the
+        // prepend insert, and the append insert is queued and sent right after it through this
+        // same SeparatorState, so later stages see both as regular inserts.
         if (
             event.mediator != null &&
                 event.mediator.prepend.endOfPaginationReached &&
@@ -547,6 +559,21 @@ private class SeparatorState<R : Any, T : R>(
                     sourceLoadStates = event.source,
                     mediatorLoadStates = event.mediator,
                 )
+            // A single update can complete both ends, e.g. when RemoteMediator's REFRESH returns
+            // endOfPaginationReached = true. The prepend insert can't carry the footer, so queue
+            // a terminal append insert to be sent right after it.
+            if (
+                event.mediator.append.endOfPaginationReached &&
+                    prevMediator?.append != event.mediator.append
+            ) {
+                pendingAppendTerminalInsert =
+                    Insert.Append(
+                        pages = emptyList(),
+                        placeholdersAfter = placeholdersAfter,
+                        sourceLoadStates = event.source,
+                        mediatorLoadStates = event.mediator,
+                    )
+            }
             return onInsert(prependTerminalInsert)
         } else if (
             event.mediator != null &&
@@ -614,5 +641,8 @@ internal fun <T : R, R : Any> Flow<PageEvent<T>>.insertEventSeparators(
 ): Flow<PageEvent<R>> {
     val separatorState =
         SeparatorState(terminalSeparatorType) { before: T?, after: T? -> generator(before, after) }
-    return map { separatorState.onEvent(it) }
+    return transform { event ->
+        emit(separatorState.onEvent(event))
+        separatorState.takePendingAppendTerminalInsert()?.let { emit(separatorState.onEvent(it)) }
+    }
 }
