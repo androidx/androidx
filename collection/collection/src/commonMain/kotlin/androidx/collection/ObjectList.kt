@@ -1393,7 +1393,17 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
 
         override fun remove(element: T): Boolean = objectList.remove(element)
 
-        override fun removeAll(elements: Collection<T>): Boolean = objectList.removeAll(elements)
+        override fun removeAll(elements: Collection<T>): Boolean {
+            // MutableList.removeAll removes every occurrence, while MutableObjectList.removeAll
+            // only removes one occurrence per element, so it can't be used here.
+            val initialSize = objectList.size
+            for (i in objectList.lastIndex downTo 0) {
+                if (objectList[i] in elements) {
+                    objectList.removeAt(i)
+                }
+            }
+            return initialSize != objectList.size
+        }
 
         override fun removeAt(index: Int): T {
             checkIndex(index)
@@ -1520,7 +1530,12 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
 
         override fun removeAll(elements: Collection<T>): Boolean {
             val originalEnd = end
-            elements.forEach { remove(it) }
+            for (i in end - 1 downTo start) {
+                if (list[i] in elements) {
+                    list.removeAt(i)
+                    end--
+                }
+            }
             return originalEnd != end
         }
 

@@ -1098,6 +1098,23 @@ class ObjectListTest {
     }
 
     @Test
+    fun asMutableListRemoveAllRemovesEveryOccurrence() {
+        val l = mutableObjectListOf(0, 1, 1, 2, 1, 3, 1)
+        assertTrue(l.asMutableList().removeAll(listOf(1, 3)))
+        assertEquals(l, mutableObjectListOf(0, 2))
+        assertFalse(l.asMutableList().removeAll(listOf(1, 3)))
+    }
+
+    @Test
+    fun subListRemoveAllRemovesEveryOccurrence() {
+        val l = mutableObjectListOf(0, 1, 1, 2, 1, 3, 1)
+        val l2 = l.asMutableList().subList(1, 5)
+        assertTrue(l2.removeAll(listOf(1)))
+        assertEquals(1, l2.size)
+        assertEquals(l, mutableObjectListOf(0, 2, 3, 1))
+    }
+
+    @Test
     fun subListRemoveAll() {
         val l = mutableObjectListOf(1, 2, 3, 4, 5)
         val l2 = l.asMutableList().subList(1, 4)
