@@ -793,13 +793,30 @@ class OrderedScatterSetTest {
     @Test
     fun hashCodeAddValues() {
         val set = mutableOrderedScatterSetOf<String?>()
-        assertEquals(217, set.hashCode())
+        assertEquals(0, set.hashCode())
         set += null
-        assertEquals(218, set.hashCode())
+        assertEquals(0, set.hashCode())
         set += "Hello"
         val h1 = set.hashCode()
         set += "World"
         assertNotEquals(h1, set.hashCode())
+    }
+
+    @Test
+    fun hashCodeDoesNotUseCapacity() {
+        val set1 = MutableOrderedScatterSet<String>(initialCapacity = 10)
+        set1 += "Hello"
+        val set2 = MutableOrderedScatterSet<String>(initialCapacity = 100)
+        set2 += "Hello"
+        assertEquals(set1, set2)
+        assertEquals(set1.hashCode(), set2.hashCode())
+    }
+
+    @Test
+    fun hashCodeMatchesSet() {
+        val set = mutableOrderedScatterSetOf("Hello", null, "World")
+        assertEquals(hashSetOf("Hello", null, "World").hashCode(), set.hashCode())
+        assertEquals(hashSetOf("Hello", null, "World").hashCode(), set.asSet().hashCode())
     }
 
     @Test
@@ -1025,11 +1042,11 @@ class OrderedScatterSetTest {
     @Test
     fun asSetHashCodeAddValues() {
         val set = mutableOrderedScatterSetOf<String?>()
-        assertEquals(217, set.asSet().hashCode())
-        assertEquals(217, set.asMutableSet().hashCode())
+        assertEquals(0, set.asSet().hashCode())
+        assertEquals(0, set.asMutableSet().hashCode())
         set += null
-        assertEquals(218, set.asSet().hashCode())
-        assertEquals(218, set.asMutableSet().hashCode())
+        assertEquals(0, set.asSet().hashCode())
+        assertEquals(0, set.asMutableSet().hashCode())
 
         set += "Hello"
         val h1 = set.hashCode()

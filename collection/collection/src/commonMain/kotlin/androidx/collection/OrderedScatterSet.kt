@@ -474,8 +474,7 @@ public sealed class OrderedScatterSet<E> {
      * zero.
      */
     public override fun hashCode(): Int {
-        var hash = _capacity
-        hash = 31 * hash + _size
+        var hash = 0
 
         unorderedForEach { element ->
             if (element != this) {
