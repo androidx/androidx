@@ -900,6 +900,55 @@ class ObjectListTest {
     }
 
     @Test
+    fun listIteratorRemoveAfterPrevious() {
+        val l = mutableObjectListOf(1, 2, 3, 4, 5)
+        val iterator = l.asMutableList().listIterator(5)
+        assertEquals(5, iterator.previous())
+        assertEquals(4, iterator.previous())
+        iterator.remove()
+        assertEquals(l, mutableObjectListOf(1, 2, 3, 5))
+        assertEquals(3, iterator.nextIndex())
+        assertEquals(2, iterator.previousIndex())
+        assertEquals(5, iterator.next())
+    }
+
+    @Test
+    fun listIteratorRemoveWhileIteratingBackwards() {
+        val l = mutableObjectListOf(0, 2, 4, 5, 6, 8)
+        val iterator = l.asMutableList().listIterator(l.size)
+        while (iterator.hasPrevious()) {
+            if (iterator.previous() % 2 == 0) {
+                iterator.remove()
+            }
+        }
+        assertEquals(l, mutableObjectListOf(5))
+    }
+
+    @Test
+    fun listIteratorSetAfterPrevious() {
+        val l = mutableObjectListOf(1, 2, 3, 4, 5)
+        val iterator = l.asMutableList().listIterator(5)
+        while (iterator.hasPrevious()) {
+            iterator.set(iterator.previous() * 10)
+        }
+        assertEquals(l, mutableObjectListOf(10, 20, 30, 40, 50))
+    }
+
+    @Test
+    fun reverseLargeList() {
+        // Large enough that the JVM reverses the list through a ListIterator using previous() and
+        // set() instead of swapping by index.
+        val l = MutableObjectList<Int>()
+        for (i in 0 until 20) {
+            l.add(i)
+        }
+        l.asMutableList().reverse()
+        for (i in 0 until 20) {
+            assertEquals(19 - i, l[i])
+        }
+    }
+
+    @Test
     fun listIteratorInitialIndex() {
         val iterator = list.asMutableList().listIterator(2)
         assertEquals(2, iterator.nextIndex())

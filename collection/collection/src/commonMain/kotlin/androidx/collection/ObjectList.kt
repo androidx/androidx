@@ -1313,17 +1313,23 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
         MutableListIterator<T> {
         private var prevIndex = index - 1
 
+        // The index of the element last returned by next() or previous(). After next() this is
+        // prevIndex, but after previous() it is prevIndex + 1, so remove() and set() can't use
+        // prevIndex directly.
+        private var lastIndex = -1
+
         override fun hasNext(): Boolean {
             return prevIndex < list.size - 1
         }
 
         override fun next(): T {
-            return list[++prevIndex]
+            lastIndex = ++prevIndex
+            return list[lastIndex]
         }
 
         override fun remove() {
-            list.removeAt(prevIndex)
-            prevIndex--
+            list.removeAt(lastIndex)
+            prevIndex = lastIndex - 1
         }
 
         override fun hasPrevious(): Boolean {
@@ -1335,7 +1341,8 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
         }
 
         override fun previous(): T {
-            return list[prevIndex--]
+            lastIndex = prevIndex--
+            return list[lastIndex]
         }
 
         override fun previousIndex(): Int {
@@ -1347,7 +1354,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
         }
 
         override fun set(element: T) {
-            list[prevIndex] = element
+            list[lastIndex] = element
         }
     }
 
