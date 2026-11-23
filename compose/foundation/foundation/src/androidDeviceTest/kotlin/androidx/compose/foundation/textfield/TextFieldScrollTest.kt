@@ -19,6 +19,8 @@
 package androidx.compose.foundation.textfield
 
 import android.os.Build
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -30,8 +32,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.CoreTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TextFieldScrollerPosition
@@ -82,6 +86,7 @@ import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
@@ -344,6 +349,153 @@ class TextFieldScrollTest : FocusedWindowTest {
         restorationTester.emulateSavedInstanceStateRestore()
 
         rule.runOnIdle { assertThat(scrollerPosition!!.offset).isEqualTo(swipePosition) }
+    }
+
+    @Test
+    fun textFieldScroll_restoresWithDifferentOrientation_verticalToHorizontal_doesNotCrash() {
+        val restorationTester = StateRestorationTester(rule)
+        var singleLine = false
+
+        restorationTester.setContent {
+            BasicTextField(
+                value = longText,
+                onValueChange = {},
+                singleLine = singleLine,
+                modifier = Modifier.size(width = 300.dp, height = 50.dp).testTag(TextfieldTag),
+            )
+        }
+
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        singleLine = true
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.onNodeWithTag(TextfieldTag).assertIsDisplayed()
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeLeft() }
+        rule.waitForIdle()
+
+        // Restoring again with matching orientation should continue working cleanly.
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.onNodeWithTag(TextfieldTag).assertIsDisplayed()
+    }
+
+    @Test
+    fun textFieldScroll_restoresWithDifferentOrientation_horizontalToVertical_doesNotCrash() {
+        val restorationTester = StateRestorationTester(rule)
+        var singleLine = true
+
+        restorationTester.setContent {
+            BasicTextField(
+                value = longText,
+                onValueChange = {},
+                singleLine = singleLine,
+                modifier = Modifier.size(width = 300.dp, height = 50.dp).testTag(TextfieldTag),
+            )
+        }
+
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeLeft() }
+        rule.waitForIdle()
+
+        singleLine = false
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.onNodeWithTag(TextfieldTag).assertIsDisplayed()
+        rule.onNodeWithTag(TextfieldTag).performTouchInput { swipeUp() }
+        rule.waitForIdle()
+
+        // Restoring again with matching orientation should continue working cleanly.
+        restorationTester.emulateSavedInstanceStateRestore()
+        rule.onNodeWithTag(TextfieldTag).assertIsDisplayed()
+    }
+
+    @Test
+    fun textFieldScroll_restoresInLoopWithChangedItems_doesNotCrash() {
+        val restorationTester = StateRestorationTester(rule)
+        var singleLineFlags = listOf(false, true)
+
+        restorationTester.setContent {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                singleLineFlags.forEachIndexed { index, isSingleLine ->
+                    BasicTextField(
+                        value = longText,
+                        onValueChange = {},
+                        singleLine = isSingleLine,
+                        modifier =
+                            Modifier.size(width = 300.dp, height = 50.dp)
+                                .testTag("$TextfieldTag-$index"),
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        // Remove the multiline field before restore so the single-line field consumes the first
+        // saved entry (which was saved with Orientation.Vertical).
+        singleLineFlags = listOf(true)
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.onNodeWithTag("$TextfieldTag-0").assertIsDisplayed()
+    }
+
+    @Test
+    fun coreTextField_explicitTextScrollerPositionWithMismatchingOrientation_throws() {
+        var thrown: IllegalArgumentException? = null
+        try {
+            rule.setTextFieldTestContent {
+                CoreTextField(
+                    value = TextFieldValue(longText),
+                    onValueChange = {},
+                    softWrap = false,
+                    maxLines = 1,
+                    imeOptions = ImeOptions(singleLine = true),
+                    textScrollerPosition = TextFieldScrollerPosition(Orientation.Vertical),
+                )
+            }
+        } catch (e: IllegalArgumentException) {
+            thrown = e
+        }
+        assertThat(thrown).isNotNull()
+        assertThat(thrown)
+            .hasMessageThat()
+            .contains("Mismatching scroller orientation; single-line, non-wrap text fields")
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun textFieldScroll_restoresWithDifferentOrientation_flagDisabled_throws() {
+        val originalFlag = ComposeFoundationFlags.isTextFieldScrollerOrientationRestoreFixEnabled
+        ComposeFoundationFlags.isTextFieldScrollerOrientationRestoreFixEnabled = false
+        try {
+            val restorationTester = StateRestorationTester(rule)
+            var singleLine = false
+
+            restorationTester.setContent {
+                BasicTextField(
+                    value = longText,
+                    onValueChange = {},
+                    singleLine = singleLine,
+                    modifier = Modifier.size(width = 300.dp, height = 50.dp).testTag(TextfieldTag),
+                )
+            }
+
+            rule.waitForIdle()
+
+            singleLine = true
+            var thrown: IllegalArgumentException? = null
+            try {
+                restorationTester.emulateSavedInstanceStateRestore()
+            } catch (e: IllegalArgumentException) {
+                thrown = e
+            }
+            assertThat(thrown).isNotNull()
+            assertThat(thrown)
+                .hasMessageThat()
+                .contains("Mismatching scroller orientation; single-line, non-wrap text fields")
+        } finally {
+            ComposeFoundationFlags.isTextFieldScrollerOrientationRestoreFixEnabled = originalFlag
+        }
     }
 
     @Test

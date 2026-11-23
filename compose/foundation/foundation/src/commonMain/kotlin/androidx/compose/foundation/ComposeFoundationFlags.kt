@@ -447,6 +447,17 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isTextLookaheadOptimizationEnabled: Boolean = false
+
+    /**
+     * Controls whether [androidx.compose.foundation.text.BasicTextField] validates the saved scroll
+     * orientation when restoring its internal scroller state. When enabled, restoring a scroller
+     * position whose orientation does not match the current single-line configuration falls back to
+     * a fresh scroller instead of throwing [IllegalArgumentException].
+     */
+    // TODO: Remove this flag once it has soaked (b/587839174)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isTextFieldScrollerOrientationRestoreFixEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */

@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.runtime.saveable.SaverScope
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -128,5 +129,48 @@ class TextFieldScrollerPositionTest {
             containerSize = SmallContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(32f)
+    }
+
+    @Test
+    fun saver_matchingOrientation_restoresOffsetAndOrientation() {
+        val saverScope = SaverScope { true }
+        val verticalSaver = TextFieldScrollerPosition.saver(Orientation.Vertical)
+        val verticalSaved =
+            with(verticalSaver) {
+                saverScope.save(TextFieldScrollerPosition(Orientation.Vertical, 42f))
+            }!!
+        val restoredVertical = verticalSaver.restore(verticalSaved)
+        assertThat(restoredVertical).isNotNull()
+        assertThat(restoredVertical!!.orientation).isEqualTo(Orientation.Vertical)
+        assertThat(restoredVertical.offset).isEqualTo(42f)
+
+        val horizontalSaver = TextFieldScrollerPosition.saver(Orientation.Horizontal)
+        val horizontalSaved =
+            with(horizontalSaver) {
+                saverScope.save(TextFieldScrollerPosition(Orientation.Horizontal, 24f))
+            }!!
+        val restoredHorizontal = horizontalSaver.restore(horizontalSaved)
+        assertThat(restoredHorizontal).isNotNull()
+        assertThat(restoredHorizontal!!.orientation).isEqualTo(Orientation.Horizontal)
+        assertThat(restoredHorizontal.offset).isEqualTo(24f)
+    }
+
+    @Test
+    fun saver_mismatchingOrientation_returnsNull() {
+        val saverScope = SaverScope { true }
+        val verticalSaver = TextFieldScrollerPosition.saver(Orientation.Vertical)
+        val horizontalSaver = TextFieldScrollerPosition.saver(Orientation.Horizontal)
+
+        val verticalSaved =
+            with(verticalSaver) {
+                saverScope.save(TextFieldScrollerPosition(Orientation.Vertical, 42f))
+            }!!
+        assertThat(horizontalSaver.restore(verticalSaved)).isNull()
+
+        val horizontalSaved =
+            with(horizontalSaver) {
+                saverScope.save(TextFieldScrollerPosition(Orientation.Horizontal, 24f))
+            }!!
+        assertThat(verticalSaver.restore(horizontalSaved)).isNull()
     }
 }
