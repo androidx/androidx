@@ -172,9 +172,10 @@ private constructor(
          *
          * @param presentationModes The Set of PresentationMode values to check.
          * @return `true` if all the specified PresentationModes are present, `false` otherwise.
+         *   Returns `true` if [presentationModes] is empty.
          */
         public fun hasPresentationMode(presentationModes: Set<PresentationMode>): Boolean =
-            presentationModes.containsAll(presentationModes)
+            this.presentationModes.containsAll(presentationModes)
     }
 
     /**
