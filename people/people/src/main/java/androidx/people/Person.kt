@@ -19,10 +19,8 @@
 package androidx.people
 
 import android.net.Uri
-import androidx.annotation.RestrictTo
 
 /** Creates a [Person] initialized with [id] and configured by [block]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @JvmOverloads
 public fun person(
     id: PersonId,
@@ -35,7 +33,6 @@ public fun person(
  * Query results wrap each person in a [PersonMatch], which also reports the query criteria that
  * matched it.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Person
 internal constructor(
     /** Unique compound identifier for this person record. */
@@ -94,7 +91,6 @@ internal constructor(
  * @param id Unique compound identifier for this person record.
  */
 @PeopleQueryDsl
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PersonScope
 internal constructor(
     /** Unique compound identifier for this person record. */

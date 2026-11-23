@@ -16,8 +16,6 @@
 
 package androidx.people
 
-import androidx.annotation.RestrictTo
-
 /**
  * Outcome of looking up a single [Criterion] in one People Directory application.
  *
@@ -35,7 +33,6 @@ import androidx.annotation.RestrictTo
  *
  * @param T the match type, such as [PersonMatch] or [GroupMatch]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public sealed class MatchResult<out T> private constructor() {
 
     /**
@@ -43,6 +40,7 @@ public sealed class MatchResult<out T> private constructor() {
      * which is empty when no record matched.
      *
      * @param T the match type, such as [PersonMatch] or [GroupMatch]
+     * @param matches the records that matched the criterion, or an empty set if none matched
      */
     public class Handled<out T>(matches: Set<T>) : MatchResult<T>() {
         /**

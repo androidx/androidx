@@ -18,7 +18,6 @@
 
 package androidx.people
 
-import androidx.annotation.RestrictTo
 import androidx.people.PeopleDirectoryContentProvider.DirectoryPersonQuery
 import androidx.people.internal.addNonEmpty
 import androidx.people.internal.directoryPersonQuery
@@ -35,7 +34,6 @@ import androidx.people.internal.directoryPersonQuery
  * }
  * ```
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PersonQuery
 internal constructor(
     /** The criteria addressed to each People Directory application, keyed by package name. */
@@ -103,7 +101,6 @@ internal fun personQueryOf(criteriaByPackage: Map<String, Set<Criterion>>): Pers
  * Used by [PersonQueryScope.directories] and [personQuery] to send the same criteria to several
  * directories. [PersonCriteriaScope] adds the criteria that only make sense within one directory.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
 public open class SharedPersonCriteriaScope internal constructor() {
     internal val criteria = mutableSetOf<Criterion>()
@@ -159,7 +156,6 @@ public open class SharedPersonCriteriaScope internal constructor() {
  * keys. Used by [PersonQueryScope.directory], [personQuery], and
  * [PeopleDirectoryContentProvider.notifyPersonsChanged].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
 public class PersonCriteriaScope internal constructor() : SharedPersonCriteriaScope() {
 
@@ -201,7 +197,6 @@ public class PersonCriteriaScope internal constructor() : SharedPersonCriteriaSc
 }
 
 /** Receiver scope for choosing the People Directory applications of a [PersonQuery]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
 public class PersonQueryScope internal constructor() {
     private val criteriaByPackage = mutableMapOf<String, MutableSet<Criterion>>()
@@ -266,7 +261,6 @@ public class PersonQueryScope internal constructor() {
  * @throws IllegalArgumentException if [block] adds no directory, or adds a directory without
  *   criteria.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun personQuery(block: PersonQueryScope.() -> Unit): PersonQuery =
     PersonQueryScope().apply(block).build()
 
@@ -275,7 +269,6 @@ public fun personQuery(block: PersonQueryScope.() -> Unit): PersonQuery =
  *
  * @throws IllegalArgumentException if [block] adds no criterion.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun personQuery(
     directoryPackage: String,
     block: PersonCriteriaScope.() -> Unit,
@@ -287,7 +280,6 @@ public fun personQuery(
  * @throws IllegalArgumentException if [directoryPackages] is empty, or if [block] adds no
  *   criterion.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun personQuery(
     directoryPackages: Iterable<String>,
     block: SharedPersonCriteriaScope.() -> Unit,

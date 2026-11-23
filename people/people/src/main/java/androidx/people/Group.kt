@@ -18,10 +18,7 @@
 
 package androidx.people
 
-import androidx.annotation.RestrictTo
-
 /** Creates a [Group] initialized with [id] and configured by [block]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @JvmOverloads
 public fun group(
     id: GroupId,
@@ -34,7 +31,6 @@ public fun group(
  * Query results wrap each group in a [GroupMatch], which also reports the query criteria that
  * matched it.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Group
 internal constructor(
     /** Unique compound identifier for this group record. */
@@ -62,7 +58,6 @@ internal constructor(
  * @param id Unique compound identifier for this group record.
  */
 @PeopleQueryDsl
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GroupScope
 internal constructor(
     /** Unique compound identifier for this group record. */

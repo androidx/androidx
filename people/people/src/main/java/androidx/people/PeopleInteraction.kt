@@ -15,13 +15,13 @@
  */
 
 @file:JvmName("PeopleInteractions")
+@file:Suppress("ActionValue")
 
 package androidx.people
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.core.content.IntentCompat
 import androidx.people.internal.directoryPersonQuery
 import androidx.people.internal.platform.PeopleContractCompat
@@ -47,7 +47,6 @@ import androidx.people.internal.platform.personCriteriaFor
  * }
  * ```
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PeopleInteraction
 internal constructor(
     /** Package name of the People Directory application that handles the interaction. */
@@ -167,7 +166,6 @@ internal constructor(
  * @param personId The person to communicate with.
  * @param capability The requested mode of communication.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun peopleInteraction(personId: PersonId, capability: Capability): PeopleInteraction =
     PeopleInteraction(
         personId.directoryPackage,
@@ -181,7 +179,6 @@ public fun peopleInteraction(personId: PersonId, capability: Capability): People
  * @param groupId The group to communicate with.
  * @param capability The requested mode of communication.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun peopleInteraction(groupId: GroupId, capability: Capability): PeopleInteraction =
     PeopleInteraction(
         groupId.directoryPackage,
@@ -203,7 +200,6 @@ public fun peopleInteraction(groupId: GroupId, capability: Capability): PeopleIn
  * @param block adds the criteria identifying the recipient.
  * @throws IllegalArgumentException if [directoryPackage] is empty or [block] adds no criterion.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun peopleInteraction(
     directoryPackage: String,
     capability: Capability,

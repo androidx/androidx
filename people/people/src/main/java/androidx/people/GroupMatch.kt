@@ -16,8 +16,6 @@
 
 package androidx.people
 
-import androidx.annotation.RestrictTo
-
 /**
  * A [group] returned by a query, together with the query [criteria] it matched.
  *
@@ -26,7 +24,6 @@ import androidx.annotation.RestrictTo
  *
  * @throws IllegalArgumentException if [criteria] is empty.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GroupMatch(
     /** The matched group. */
     public val group: Group,

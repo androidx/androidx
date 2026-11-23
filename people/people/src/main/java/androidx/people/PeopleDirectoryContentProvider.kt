@@ -26,7 +26,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
 import androidx.annotation.CallSuper
-import androidx.annotation.RestrictTo
 import androidx.people.internal.PeopleBackendResolver
 import androidx.people.internal.directoryGroupQuery
 import androidx.people.internal.directoryPersonQuery
@@ -75,7 +74,6 @@ import androidx.people.internal.platform.toCursor
  * changes, so that the internal database is invalidated and clients observing the data are
  * notified.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class PeopleDirectoryContentProvider : ContentProvider() {
 
     private val uriMatcher: UriMatcher = UriMatcher(UriMatcher.NO_MATCH)

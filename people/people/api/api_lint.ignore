@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ActionValue: androidx.people.PeopleInteraction#ACTION_START_INTERACTION:
+    Inconsistent action value; expected `androidx.people.action.START_INTERACTION`, was `android.provider.action.START_PEOPLE_INTERACTION`

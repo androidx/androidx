@@ -16,8 +16,6 @@
 
 package androidx.people
 
-import androidx.annotation.RestrictTo
-
 /**
  * Result of a [PersonQuery].
  *
@@ -41,7 +39,6 @@ import androidx.annotation.RestrictTo
  * Each [PersonMatch] identifies its People Directory application through
  * [PersonId.directoryPackage].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PersonQueryResult
 internal constructor(
     /**
