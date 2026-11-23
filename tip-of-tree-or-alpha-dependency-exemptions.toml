@@ -481,8 +481,8 @@ reason = "b/TODO - <reason>"
 [[exemption]]
 library = "androidx.security:security-state-provider"
 dependsOn = "androidx.security:security-state"
-validThroughLibraryVersion = "1.0.0"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/572886215 - Uses unreleased UpdateCheckResult per-component check timestamp constructor (aosp/4445646, aosp/4445647)"
 
 [[exemption]]
 library = "androidx.wear.compose.remote:remote-material3"
