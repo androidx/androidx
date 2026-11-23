@@ -83,11 +83,11 @@ androidXMultiplatform {
             implementation(libs.kotlinReflect)
             implementation(project(":compose:animation:animation-tooling-internal"))
             implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-            implementation(project(":compose:runtime:runtime-livedata"))
+            implementation("androidx.compose.runtime:runtime-livedata:1.13.0")
             // Required to test expanded previews of Wear OS lists
-            implementation(project(":wear:compose:compose-foundation"))
-            implementation(project(":wear:compose:compose-material-core"))
-            implementation(project(":wear:compose:compose-material3"))
+            implementation("androidx.wear.compose:compose-foundation:1.7.2")
+            implementation("androidx.wear.compose:compose-material-core:1.7.2")
+            implementation("androidx.wear.compose:compose-material3:1.7.2")
         }
     }
 }
