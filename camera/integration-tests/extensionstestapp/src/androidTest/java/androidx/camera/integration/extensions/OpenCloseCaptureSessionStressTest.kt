@@ -22,6 +22,7 @@ import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
@@ -42,7 +43,7 @@ import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +57,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+
+private const val SESSION_TIMEOUT_MILLIS = 10_000L
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -130,7 +133,9 @@ class OpenCloseCaptureSessionStressTest(
                         cameraMonitor.onClosedSession()
                     }
 
-                    override fun onConfigureFailed(session: CameraCaptureSession) {}
+                    override fun onConfigureFailed(session: CameraCaptureSession) {
+                        cameraMonitor.onSessionFailure("CameraCaptureSession.onConfigureFailed")
+                    }
 
                     override fun onReady(session: CameraCaptureSession) {}
 
@@ -154,9 +159,13 @@ class OpenCloseCaptureSessionStressTest(
                         cameraMonitor.onClosedSession()
                     }
 
-                    override fun onDisconnected(device: CameraDevice) {}
+                    override fun onDisconnected(device: CameraDevice) {
+                        cameraMonitor.onDeviceDiagnostic("CameraDevice.onDisconnected")
+                    }
 
-                    override fun onError(device: CameraDevice, error: Int) {}
+                    override fun onError(device: CameraDevice, error: Int) {
+                        cameraMonitor.onDeviceDiagnostic("CameraDevice.onError($error)")
+                    }
                 }
             )
     }
@@ -200,7 +209,7 @@ class OpenCloseCaptureSessionStressTest(
         repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ): Unit = runBlocking {
         for (i in 1..repeatCount) {
-            // Arrange: resets the camera session monitor
+            // Arrange: starts a fresh per-iteration monitor state
             cameraSessionMonitor.reset()
 
             withContext<Unit>(Dispatchers.Main) {
@@ -215,14 +224,15 @@ class OpenCloseCaptureSessionStressTest(
                 )
             }
 
-            // Assert: checks the camera session is opened.
-            cameraSessionMonitor.awaitSessionOpenedAndAssert()
+            // Assert: checks the camera session is opened without configuration or device errors.
+            cameraSessionMonitor.awaitSessionOpenedAndAssert(i)
 
-            // Act: unbinds all use cases
+            // Act: marks unbind requested and unbinds all use cases.
+            cameraSessionMonitor.markUnbindRequested()
             withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
 
-            // Assert: checks the camera session is closed.
-            cameraSessionMonitor.awaitSessionClosedAndAssert()
+            // Assert: checks the camera session is closed without device errors.
+            cameraSessionMonitor.awaitSessionClosedAndAssert(i)
         }
     }
 
@@ -236,30 +246,82 @@ class OpenCloseCaptureSessionStressTest(
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
-    /** To monitor whether the camera is closed or opened. */
+    /** Monitors whether each iteration's camera capture session opens and closes cleanly. */
     private class CameraSessionMonitor {
-        private var sessionEnabledLatch = CountDownLatch(1)
-        private var sessionDisabledLatch = CountDownLatch(1)
+        private val lock = Any()
+        @GuardedBy("lock") private var sessionOpenedLatch = CountDownLatch(1)
+        @GuardedBy("lock") private var sessionClosedLatch = CountDownLatch(1)
+        @GuardedBy("lock") private var isOpened = false
+        @GuardedBy("lock") private var unbindRequested = false
+        @GuardedBy("lock") private var failureReason: String? = null
+        @GuardedBy("lock") private val deviceDiagnostics = mutableListOf<String>()
+
+        fun reset() =
+            synchronized(lock) {
+                sessionOpenedLatch = CountDownLatch(1)
+                sessionClosedLatch = CountDownLatch(1)
+                isOpened = false
+                unbindRequested = false
+                failureReason = null
+                deviceDiagnostics.clear()
+            }
+
+        fun markUnbindRequested() = synchronized(lock) { unbindRequested = true }
 
         fun onOpenedSession() {
-            sessionEnabledLatch.countDown()
+            val latch =
+                synchronized(lock) {
+                    isOpened = true
+                    sessionOpenedLatch
+                }
+            latch.countDown()
         }
 
         fun onClosedSession() {
-            sessionDisabledLatch.countDown()
+            val latch =
+                synchronized(lock) {
+                    if (isOpened && unbindRequested) sessionClosedLatch else null
+                }
+            latch?.countDown()
         }
 
-        fun reset() {
-            sessionEnabledLatch = CountDownLatch(1)
-            sessionDisabledLatch = CountDownLatch(1)
+        fun onDeviceDiagnostic(diagnostic: String) =
+            synchronized(lock) { deviceDiagnostics.add(diagnostic) }.let {}
+
+        fun onSessionFailure(reason: String) {
+            val (openedLatch, closedLatch) =
+                synchronized(lock) {
+                    if (failureReason == null) {
+                        failureReason = reason
+                    }
+                    sessionOpenedLatch to sessionClosedLatch
+                }
+            openedLatch.countDown()
+            closedLatch.countDown()
         }
 
-        fun awaitSessionOpenedAndAssert() {
-            assertThat(sessionEnabledLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
-        }
+        fun awaitSessionOpenedAndAssert(iteration: Int) =
+            awaitLatchAndAssert(iteration, phase = "open") { sessionOpenedLatch }
 
-        fun awaitSessionClosedAndAssert() {
-            assertThat(sessionDisabledLatch.await(3000, TimeUnit.MILLISECONDS)).isTrue()
+        fun awaitSessionClosedAndAssert(iteration: Int) =
+            awaitLatchAndAssert(iteration, phase = "close") { sessionClosedLatch }
+
+        private fun awaitLatchAndAssert(
+            iteration: Int,
+            phase: String,
+            latchSelector: () -> CountDownLatch,
+        ) {
+            val latch = synchronized(lock) { latchSelector() }
+            val completedInTime = latch.await(SESSION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+            val (failure, diagnostics) =
+                synchronized(lock) { failureReason to deviceDiagnostics.toList() }
+            assertWithMessage(
+                    "Iteration $iteration: capture session did not $phase cleanly within " +
+                        "${SESSION_TIMEOUT_MILLIS}ms (completedInTime=$completedInTime, " +
+                        "failure=$failure, deviceDiagnostics=$diagnostics)"
+                )
+                .that(completedInTime && failure == null)
+                .isTrue()
         }
     }
 }
