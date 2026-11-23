@@ -35,6 +35,8 @@ internal expect class AtomicInt(value: Int) {
 
     fun add(amount: Int): Int
 
+    fun getAndSet(value: Int): Int
+
     fun compareAndSet(expect: Int, newValue: Int): Boolean
 }
 
@@ -47,5 +49,5 @@ internal value class AtomicBoolean(private val wrapped: AtomicInt = AtomicInt(0)
 
     fun set(value: Boolean) = wrapped.set(if (value) 1 else 0)
 
-    fun getAndSet(newValue: Boolean): Boolean = wrapped.compareAndSet(1, if (newValue) 1 else 0)
+    fun getAndSet(newValue: Boolean): Boolean = wrapped.getAndSet(if (newValue) 1 else 0) != 0
 }
