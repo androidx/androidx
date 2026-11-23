@@ -353,12 +353,33 @@ When directed to an index page, directory list, or guide linking to sub-guides
       stream state or `Camera2ExtensionsSessionProcessor` extension-mode
       `MutableLiveData`) cannot conflate away intermediate states needed by
       async `@MainThread` observers.
-  - **Must-Have Legacy Hunk Discipline & Post-Fix Holistic Simplification**:
-    Every hunk modifying working existing code must be causally required for
-    the fix (revert speculative "nice-to-have" churn). After multi-round review
-    fixes (`R2+`) and before upload, audit the full `base..HEAD` diff (`git log
-    -p` per commit across stacks) once to collapse patch-on-patch scaffolding
-    and intermediate self-churn.
+  - **Pre-Finalization File-by-File & Hunk-by-Hunk Causal Necessity Gate
+    (`Hunk-Necessity Gate`) & Post-Fix Holistic Simplification**: Before
+    launching final Mode 1 sign-off (and after `R2+` edits), classify modified
+    files/hunks across `base..HEAD` (`git diff` / `git log -p`; typo-only and
+    mechanical `ktfmt`/rename diffs exempt; scratch-table & A/B ablation
+    workflow in [`references/COMMIT_AND_AMEND.md`][commit-ref] Stage 1 item 6),
+    collapsing patch-on-patch scaffolding and intermediate self-churn:
+    1. **(a) Causally Required**: Deleting it breaks the requested requirement
+       or target root cause (e.g., `Before` fails -> `After` passes).
+    2. **(b) Required Regression / Spec Guard**: Prevents a real contract,
+       lifecycle, or hardware regression caused by `(a)` itself or the original
+       defect (not a **Self-Inflicted Cascade** patching another removable
+       hunk's side effect; never auto-delete `(b)` guards without checking unit
+       tests, `git --no-lazy-fetch blame`, and public/hardware contracts).
+    3. **(c) Removable / Out-of-Scope -> Revert or Split**: (i) **Self-Inflicted
+       Cascade** triggers and downstream patches (test deleting both together),
+       (ii) cross-module (`camera-camera2-pipe` when solvable in
+       `camera-core`/`camera-camera2`) or constructor/Dagger DI plumbing
+       avoidable via module-local instantiation, (iii) unrelated lock, cleanup,
+       or formatting churn outside edited blocks on existing prod, test, Gradle,
+       or `.md` files (formatter rewraps of edited paragraphs are not `(c)`;
+       split unrelated churn per `Strict Scope Isolation`), (iv) speculative
+       state machines or sibling-flow policy changes, and (v) dead branches on
+       target SDK/config, test-only seams, duplicate constants, or tautological
+       draft tests already passing on `base` without exercising `(a)`/`(b)`
+       (`PATCHED_PENDING_REAUDIT` on strip; on reviewer-locked CLs, propose
+       splits and mark `ESCALATED`).
 - **Dependency & Constructor Simplification**: For lightweight compatibility
   layers, wrappers, or utility classes, prefer instantiating internal helper
   dependencies internally (rather than passing them as constructor parameters)
@@ -403,11 +424,12 @@ When directed to an index page, directory list, or guide linking to sub-guides
   Never skip verification or declare a task complete without executing both
   stages (full checklist in [`references/COMMIT_AND_AMEND.md`][commit-ref]):
   - **Stage 1 (Deep Self-Review & Multi-Model Verification Loop)**: Audit wide
-    structural design/"object job", concurrency/latches, resource cleanup,
-    modern APIs, line lengths (80 md / 72 commit / 100 kt), and run the Step 6
-    convergence loop (`camerax-code-review/SKILL.md`) to `0` `OPEN`, `0`
-    `REGRESSED`, `0` `PATCHED_PENDING_REAUDIT`, and `0` unadjudicated
-    `DISMISSED_WITH_PROOF` items (looping back if Stage 2 makes semantic edits).
+    structural design/"object job", the `Hunk-Necessity Gate`,
+    concurrency/latches, resource cleanup, modern APIs, line lengths (80 md / 72
+    commit / 100 kt), and run the Step 6 convergence loop
+    (`camerax-code-review/SKILL.md`) to `0` `OPEN`, `0` `REGRESSED`, `0`
+    `PATCHED_PENDING_REAUDIT`, and `0` unadjudicated `DISMISSED_WITH_PROOF`
+    items (looping back if Stage 2 makes semantic edits).
   - **Stage 2 (Pre-Upload Tooling & Repohook Gate)**: Run `:ktCheckFile
     --format --file <f>`, `<project>:javaFormat` (`--no-watch-fs` if needed),
     `runErrorProneRelease`, host/device tests, and

@@ -75,7 +75,24 @@ stages:
      `@Suppress("DEPRECATION")` when modern replacements exist.
   5. *Strict Line Lengths:* 80 chars for markdown, 72 chars for commit body,
      100 chars for Kotlin.
-  6. *Default Multi-Model Verification Loop (Step 6 Checkpoint 1 & Checkpoint
+  6. *Pre-Finalization Hunk-Necessity Gate:* Before final Mode 1 sign-off (and
+     after `R2+` edits), run `camerax-guidelines-governance/SKILL.md`
+     (`Hunk-Necessity Gate`) across `base..HEAD` (`git diff` / `git log -p` per
+     commit; typo-only and mechanical `ktfmt`/rename diffs exempt). On
+     behavior-changing or non-typo doc diffs with `>= 2` hunks or any cross-
+     file/DI/module touch, write a 1-line-per-hunk table in
+     `<scratch_or_tmp>/hunk_necessity_matrix.md` (**never** pass this author
+     matrix into verifier briefs; verifiers classify `(a)` causal, `(b)`
+     required guard, or `(c)` removable/cascade/out-of-scope cold). When hunk
+     necessity is ambiguous, run a targeted unit/device A/B ablation (`(a)+(b)`
+     core vs. full diff), never auto-deleting `(b)` guards solely because 1
+     repro test passes without checking unit tests, `git --no-lazy-fetch blame`,
+     and public/hardware contracts. Stripping/splitting `(c)` hunks is a
+     semantic edit (`PATCHED_PENDING_REAUDIT`): re-run unit + original failing
+     tests and a fresh clean-context pass (on human-reviewer-locked CLs,
+     propose `(c)` splits/reverts and mark `ESCALATED` rather than rewriting
+     unilaterally).
+  7. *Default Multi-Model Verification Loop (Step 6 Checkpoint 1 & Checkpoint
      2):* Run deterministic checks (`ktfmt`, compile, unit tests) before
      spawning verifiers and execute the canonical Step 6 autonomous convergence
      loop (cross-family verifiers, zero-priming briefs, two-turn read barrier,
