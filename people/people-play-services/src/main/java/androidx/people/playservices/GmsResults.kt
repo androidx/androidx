@@ -41,7 +41,7 @@ import com.google.android.gms.people.peopleprovider.PeopleProviderPerson
 // Converts Google Play services People Provider results into androidx.people models.
 
 internal fun PeopleProviderDirectory.toDirectoryInfo(): DirectoryInfo =
-    DirectoryInfo(packageName = packageName, authority = authority)
+    DirectoryInfo(packageName = packageName, providerAuthority = authority)
 
 /**
  * Returns the matches in these records.

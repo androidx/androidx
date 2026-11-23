@@ -146,8 +146,10 @@ class FakePlatformPeopleProvider : ContentProvider() {
     }
 
     /** Convenience overload to create and add a single [DirectoryInfo] record. */
-    fun addDirectory(packageName: String, authority: String) {
-        directories.add(DirectoryInfo(packageName = packageName, authority = authority))
+    fun addDirectory(packageName: String, providerAuthority: String) {
+        directories.add(
+            DirectoryInfo(packageName = packageName, providerAuthority = providerAuthority)
+        )
     }
 
     /** Clears all stored records and recorded interaction state. */
@@ -271,7 +273,8 @@ class FakePlatformPeopleProvider : ContentProvider() {
                 columns.map { column ->
                     when (column) {
                         PeopleContractCompat.Directory.PACKAGE_NAME -> directory.packageName
-                        PeopleContractCompat.Directory.DIRECTORY_AUTHORITY -> directory.authority
+                        PeopleContractCompat.Directory.DIRECTORY_AUTHORITY ->
+                            directory.providerAuthority
                         else -> null
                     }
                 }
