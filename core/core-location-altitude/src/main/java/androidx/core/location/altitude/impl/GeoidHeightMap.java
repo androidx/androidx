@@ -199,7 +199,7 @@ final class GeoidHeightMap {
         }
         Bitmap bitmap;
         try (InputStream inputStream = byteString.newInput()) {
-            bitmap = BitmapFactory.decodeStream(inputStream);
+            bitmap = BitmapFactory.decodeStream(inputStream, null, new BitmapFactory.Options());
         }
         if (bitmap == null) {
             return;
