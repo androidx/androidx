@@ -60,7 +60,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.flagging.Flags;
 import androidx.core.hardware.display.DisplayManagerCompat;
 import androidx.core.util.Function;
 import androidx.core.util.Pair;
@@ -193,8 +192,6 @@ import java.util.concurrent.Executor;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
                 && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
-                && Flags.getBooleanFlagValue(
-                        MediaRouterFlags.NAMESPACE, MediaRouterFlags.ENABLE_SUGGESTED_DEVICE_API)
                 && mMr2Provider != null) {
             mDeviceSuggestionsImpl = mMr2Provider;
         } else {
