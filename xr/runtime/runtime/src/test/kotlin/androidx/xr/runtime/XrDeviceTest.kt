@@ -119,6 +119,13 @@ class XrDeviceTest {
     }
 
     @Test
+    fun context_returnsContextPassedToGetCurrentDevice() {
+        val device = XrDevice.getCurrentDevice(activity)
+
+        assertThat(device.context).isSameInstanceAs(activity)
+    }
+
+    @Test
     fun formFactor_deviceWithoutXrFeatures_returnsHandheld() {
         // Robolectric devices report no features.
         val device = XrDevice.getCurrentDevice(activity)

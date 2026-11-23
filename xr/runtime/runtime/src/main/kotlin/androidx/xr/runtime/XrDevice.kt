@@ -38,6 +38,13 @@ import kotlinx.coroutines.launch
 /** Device hardware capabilities. */
 public class XrDevice
 private constructor(
+    /**
+     * The [Context] associated with this device.
+     *
+     * Can be passed to [Session.create] or used to access device-specific system services (such as
+     * [android.hardware.camera2.CameraManager] or [android.media.AudioManager]).
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val context: Context,
     private val xrDeviceCapabilityProvider: XrDeviceCapabilityProvider?,
     /**
      * The [FormFactor] of this device (such as [FormFactor.HEAD_MOUNTED] or [FormFactor.HANDHELD]).
@@ -103,6 +110,7 @@ private constructor(
             // TODO(b/525421830): Make xrDeviceCapabilityProvider non-nullable.
             val device =
                 XrDevice(
+                    context,
                     xrDeviceCapabilityProviderFactory?.create(
                         context,
                         coroutineContext,
