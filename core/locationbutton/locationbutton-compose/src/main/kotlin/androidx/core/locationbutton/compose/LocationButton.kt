@@ -36,6 +36,11 @@ private const val TAG = "LocationButton"
 internal val MinPadding: Dp = 4.dp
 internal val MaxPadding: Dp = 8.dp
 
+// The system clamps the requested button size to these bounds before rendering it. The client
+// applies the same bounds so that its layout matches what is actually rendered.
+internal val MinTouchTargetSize: Dp = 48.dp
+internal val MaxButtonHeight: Dp = 136.dp
+
 /**
  * Represents the text that can be displayed on the [LocationButton].
  *
@@ -71,6 +76,13 @@ public value class LocationButtonTextType private constructor(public val value: 
  * Uses remote rendering on [Build.VERSION_CODES.CINNAMON_BUN] and later. Falls back to a local
  * Compose implementation on platforms before [Build.VERSION_CODES.CINNAMON_BUN] or if remote
  * rendering fails.
+ *
+ * The button wraps its content unless [modifier] gives it a specific size, for example through
+ * `Modifier.size` or `Modifier.fillMaxWidth`. Being placed in a container such as a `Column` or
+ * `Scaffold` only sets an upper limit, and does not stretch the button to fill it.
+ *
+ * When the button wraps its content, its size is kept within the bounds the system enforces, which
+ * are a minimum touch target of 48dp and a maximum height of 136dp.
  *
  * @param modifier Optional [Modifier] for the button layout.
  * @param backgroundColor Optional background color.
