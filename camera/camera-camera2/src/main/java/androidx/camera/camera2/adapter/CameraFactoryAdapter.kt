@@ -25,6 +25,8 @@ import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.internal.CameraSelectionOptimizer
+import androidx.camera.camera2.internal.toDoNotDisturbCameraUnavailableExceptionOrNull
+import androidx.camera.camera2.internal.toDoNotDisturbInitializationExceptionOrNull
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.SystemTimeSource
@@ -35,6 +37,7 @@ import androidx.camera.common.CameraId
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.InitializationException
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
@@ -139,27 +142,34 @@ internal class CameraFactoryAdapter(
         if (isShutdown.get()) {
             return emptyList()
         }
-        // Call the shared helper and return the result as a list
-        return calculateAvailableCameraIds(cameraIds).toList()
+        return try {
+            calculateAvailableCameraIds(cameraIds).toList()
+        } catch (e: InitializationException) {
+            Camera2Logger.warn(e) { "Unable to get available camera IDs." }
+            emptyList()
+        }
     }
 
     /** A new private helper that contains the shared filtering logic. */
-    private fun calculateAvailableCameraIds(cameraIds: List<String>): Set<String> {
-        val optimizedIds =
-            CameraSelectionOptimizer.getSelectedAvailableCameraIds(
-                appComponent,
-                availableCamerasSelector,
-                cameraIds.toList(),
-                streamSpecsCalculator,
-            )
+    private fun calculateAvailableCameraIds(cameraIds: List<String>): Set<String> =
+        try {
+            val optimizedIds =
+                CameraSelectionOptimizer.getSelectedAvailableCameraIds(
+                    appComponent,
+                    availableCamerasSelector,
+                    cameraIds.toList(),
+                    streamSpecsCalculator,
+                )
 
-        return LinkedHashSet(
-            CameraCompatibilityFilter.getBackwardCompatibleCameraIds(
-                appComponent.getCameraDevices(),
-                optimizedIds,
+            LinkedHashSet(
+                CameraCompatibilityFilter.getBackwardCompatibleCameraIds(
+                    appComponent.getCameraDevices(),
+                    optimizedIds,
+                )
             )
-        )
-    }
+        } catch (e: Exception) {
+            throw e.toDoNotDisturbInitializationExceptionOrNull() ?: e
+        }
 
     /**
      * The [getCamera] method is responsible for providing CameraInternal object based on cameraId.
@@ -169,14 +179,16 @@ internal class CameraFactoryAdapter(
         if (isShutdown.get()) {
             throw CameraUpdateException("CameraFactory has been shut down.")
         }
-        val cameraInternal =
+        return try {
             appComponent
                 .cameraBuilder()
                 .config(CameraConfig(CameraId(cameraId)))
                 .streamSpecsCalculator(streamSpecsCalculator)
                 .build()
                 .getCameraInternal()
-        return cameraInternal
+        } catch (e: Exception) {
+            throw e.toDoNotDisturbCameraUnavailableExceptionOrNull() ?: e
+        }
     }
 
     override fun getAvailableCameraIds(): Set<String> =

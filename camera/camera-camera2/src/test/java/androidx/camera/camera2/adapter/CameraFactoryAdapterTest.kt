@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.DoNotDisturbException
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -37,7 +38,10 @@ import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.common.CameraId
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraUnavailableException
+import androidx.camera.core.CameraUnavailableException.CAMERA_UNAVAILABLE_DO_NOT_DISTURB
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.InitializationException
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -50,6 +54,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -301,6 +306,164 @@ class CameraFactoryAdapterTest {
             repository.deviceStateCallback.onClosed(stillOpenDevice)
             assertThat(closedCount).isEqualTo(1)
         }
+
+    @Test
+    fun providerNewInstance_mapsCompatibilityFilterDoNotDisturbWithoutShuttingSharedPipe() {
+        setFingerprint("fake-fingerprint")
+        var sharedPipeShutdownCalled = false
+        val dndDevices =
+            object : CameraDevices by fakeCameraDevices {
+                override fun awaitCameraMetadata(
+                    cameraId: CameraId,
+                    cameraBackendId: CameraBackendId?,
+                ): androidx.camera.camera2.pipe.CameraMetadata? {
+                    if (cameraId == CameraId("2")) {
+                        throw DoNotDisturbException("DND on compatibility filter camera 2")
+                    }
+                    return fakeCameraDevices.awaitCameraMetadata(cameraId, cameraBackendId)
+                }
+
+                override fun awaitCameraMetadata(cameraId: CameraId) =
+                    awaitCameraMetadata(cameraId, null)
+            }
+        val pipe =
+            object : CameraPipe by fakeCameraPipe {
+                override fun cameras(): CameraDevices = dndDevices
+
+                override fun shutdown() {
+                    sharedPipeShutdownCalled = true
+                }
+            }
+
+        val thrown =
+            assertThrows(InitializationException::class.java) {
+                CameraFactoryProvider(sharedCameraPipe = pipe)
+                    .newInstance(
+                        ApplicationProvider.getApplicationContext(),
+                        threadConfig,
+                        null,
+                        -1L,
+                        CameraXConfig.Builder().build(),
+                        NO_OP_STREAM_SPECS_CALCULATOR,
+                    )
+            }
+        val cause = thrown.cause as CameraUnavailableException
+        assertThat(cause.reason).isEqualTo(CAMERA_UNAVAILABLE_DO_NOT_DISTURB)
+        assertThat(cause.cause).isInstanceOf(DoNotDisturbException::class.java)
+        assertThat(sharedPipeShutdownCalled).isFalse()
+    }
+
+    @Test
+    fun providerNewInstance_mapsDoNotDisturbWhenOwnedCameraPipeCreated() {
+        setFingerprint("fake-fingerprint")
+        val dndSelector =
+            CameraSelector.Builder()
+                .addCameraFilter { throw DoNotDisturbException("DND during camera selection") }
+                .build()
+
+        val thrown =
+            assertThrows(InitializationException::class.java) {
+                CameraFactoryProvider()
+                    .newInstance(
+                        ApplicationProvider.getApplicationContext(),
+                        threadConfig,
+                        dndSelector,
+                        -1L,
+                        CameraXConfig.Builder().build(),
+                        NO_OP_STREAM_SPECS_CALCULATOR,
+                    )
+            }
+        val cause = thrown.cause as CameraUnavailableException
+        assertThat(cause.reason).isEqualTo(CAMERA_UNAVAILABLE_DO_NOT_DISTURB)
+        assertThat(cause.cause).isInstanceOf(DoNotDisturbException::class.java)
+    }
+
+    @Test
+    fun providerNewInstance_mapsSelectorMetadataDoNotDisturbWithoutDuplicateQuery() {
+        var metadataQueryCount = 0
+        val dndDevices =
+            object : CameraDevices by fakeCameraDevices {
+                override fun awaitCameraMetadata(
+                    cameraId: CameraId,
+                    cameraBackendId: CameraBackendId?,
+                ): androidx.camera.camera2.pipe.CameraMetadata? {
+                    if (cameraId == CameraId("0")) {
+                        metadataQueryCount++
+                        throw DoNotDisturbException("DND on metadata 0")
+                    }
+                    return fakeCameraDevices.awaitCameraMetadata(cameraId, cameraBackendId)
+                }
+
+                override fun awaitCameraMetadata(cameraId: CameraId) =
+                    awaitCameraMetadata(cameraId, null)
+            }
+        val pipe =
+            object : CameraPipe by fakeCameraPipe {
+                override fun cameras(): CameraDevices = dndDevices
+            }
+
+        val thrown =
+            assertThrows(InitializationException::class.java) {
+                CameraFactoryProvider(sharedCameraPipe = pipe)
+                    .newInstance(
+                        ApplicationProvider.getApplicationContext(),
+                        threadConfig,
+                        CameraSelector.DEFAULT_BACK_CAMERA,
+                        -1L,
+                        CameraXConfig.Builder().build(),
+                        NO_OP_STREAM_SPECS_CALCULATOR,
+                    )
+            }
+        val cause = thrown.cause as CameraUnavailableException
+        assertThat(cause.reason).isEqualTo(CAMERA_UNAVAILABLE_DO_NOT_DISTURB)
+        assertThat(cause.cause).isInstanceOf(DoNotDisturbException::class.java)
+        assertThat(metadataQueryCount).isEqualTo(1)
+    }
+
+    @Test
+    fun getCameraAndOnCameraIdsUpdated_mapDoNotDisturbAndPreserveUnrelatedExceptions() {
+        var failureToThrow: RuntimeException? = null
+        val dndDevices =
+            object : CameraDevices by fakeCameraDevices {
+                override fun awaitCameraMetadata(
+                    cameraId: CameraId,
+                    cameraBackendId: CameraBackendId?,
+                ): androidx.camera.camera2.pipe.CameraMetadata? {
+                    failureToThrow?.let { throw it }
+                    return fakeCameraDevices.awaitCameraMetadata(cameraId, cameraBackendId)
+                }
+
+                override fun awaitCameraMetadata(cameraId: CameraId) =
+                    awaitCameraMetadata(cameraId, null)
+            }
+        val pipe =
+            object : CameraPipe by fakeCameraPipe {
+                override fun cameras(): CameraDevices = dndDevices
+            }
+        setFingerprint("fake-fingerprint")
+        val factory = createCameraFactoryAdapter(null, pipe)
+        failureToThrow = DoNotDisturbException("DND in getCamera")
+
+        val getCameraError =
+            assertThrows(CameraUnavailableException::class.java) { factory.getCamera("0") }
+        assertThat(getCameraError.reason).isEqualTo(CAMERA_UNAVAILABLE_DO_NOT_DISTURB)
+        assertThat(getCameraError.cause).isInstanceOf(DoNotDisturbException::class.java)
+
+        val updateError =
+            assertThrows(InitializationException::class.java) {
+                factory.onCameraIdsUpdated(listOf("0", "1", "2"))
+            }
+        val updateCause = updateError.cause as CameraUnavailableException
+        assertThat(updateCause.reason).isEqualTo(CAMERA_UNAVAILABLE_DO_NOT_DISTURB)
+        assertThat(updateCause.cause).isInstanceOf(DoNotDisturbException::class.java)
+        assertThat(factory.getAvailableCameraIds(listOf("0", "1", "2"))).isEmpty()
+
+        val unrelated = IllegalArgumentException("Unrelated failure")
+        failureToThrow = unrelated
+        val rawThrown =
+            assertThrows(IllegalArgumentException::class.java) { factory.getCamera("0") }
+        assertThat(rawThrown).isSameInstanceAs(unrelated)
+    }
 
     private fun setFingerprint(fingerprint: String) {
         ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", fingerprint)

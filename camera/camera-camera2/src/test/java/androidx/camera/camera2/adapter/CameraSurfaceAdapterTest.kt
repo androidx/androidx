@@ -32,6 +32,8 @@ import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.common.CameraId
+import androidx.camera.core.CameraUnavailableException
+import androidx.camera.core.CameraUnavailableException.CAMERA_UNAVAILABLE_DO_NOT_DISTURB
 import androidx.camera.core.InitializationException
 import androidx.camera.core.impl.CameraUpdateException
 import androidx.test.core.app.ApplicationProvider
@@ -99,10 +101,37 @@ class CameraSurfaceAdapterTest {
         val failingCameraDevices = ThrowingCameraDevices(failingId = CameraId("1"))
         whenever(mockCameraAppComponent.getCameraDevices()).thenReturn(failingCameraDevices)
 
-        // Act & Assert: The constructor should fail and throw an InitializationException.
-        assertThrows<InitializationException> {
-            CameraSurfaceAdapter(context, mockCameraAppComponent, setOf("0", "1"))
-        }
+        // Act & Assert: The constructor should fail and unwrap DoNotDisturbException into
+        // CameraUnavailableException(CAMERA_UNAVAILABLE_DO_NOT_DISTURB).
+        val initException =
+            org.junit.Assert.assertThrows(InitializationException::class.java) {
+                CameraSurfaceAdapter(context, mockCameraAppComponent, setOf("0", "1"))
+            }
+        assertThat(initException.cause).isInstanceOf(CameraUnavailableException::class.java)
+        val unavailable = initException.cause as CameraUnavailableException
+        assertThat(unavailable.reason).isEqualTo(CAMERA_UNAVAILABLE_DO_NOT_DISTURB)
+        assertThat(unavailable.cause).isInstanceOf(DoNotDisturbException::class.java)
+    }
+
+    @Test
+    fun constructor_preservesCameraUpdateExceptionCause_forNonDoNotDisturbFailure() {
+        val nonDndDevices =
+            object : CameraDevices by fakeCameraDevices {
+                override fun awaitCameraMetadata(
+                    cameraId: CameraId,
+                    cameraBackendId: CameraBackendId?,
+                ): CameraMetadata? = throw IllegalStateException("Non-DND metadata failure")
+
+                override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? =
+                    awaitCameraMetadata(cameraId, null)
+            }
+        whenever(mockCameraAppComponent.getCameraDevices()).thenReturn(nonDndDevices)
+
+        val initException =
+            org.junit.Assert.assertThrows(InitializationException::class.java) {
+                CameraSurfaceAdapter(context, mockCameraAppComponent, setOf("0"))
+            }
+        assertThat(initException.cause).isInstanceOf(CameraUpdateException::class.java)
     }
 
     @Test
