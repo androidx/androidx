@@ -45,6 +45,7 @@ import androidx.camera.core.Logger
 import androidx.camera.core.SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.Timebase
+import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_720P
 import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
 import androidx.camera.video.MediaSpec.OutputFormat
@@ -388,6 +389,69 @@ public object VideoConfigUtil {
         }
         Logger.d(TAG, debugString)
         return resolvedBitrate
+    }
+
+    // Base video bitrate configurations for [getDefaultVideoBitrate], derived from Android CDD
+    // §5.2.
+    //
+    // The base configs are anchored at 720p (1280x720 @ 30fps, 8-bit):
+    // - AVC (§5.2.2), VP8 (§5.2.3), VP9 (§5.2.4), HEVC (§5.2.5): 4 Mbps. Using 4 Mbps prevents
+    //   overloading software encoder rate-control buffers on entry-level devices (e.g., libvpx
+    //   assertion failure in b/559568631).
+    // - AV1 (§5.2.6): 8 Mbps.
+    // - H.263 / MPEG-4: Although CDD §5.2 does not define a table for these legacy formats,
+    //   anchoring them at 4 Mbps for 720p scales down cleanly to ~1.5 Mbps at SD (720x480) and ~110
+    //   Kbps at QCIF (176x144 @ 15fps), which satisfies CDD §5.2.1 H.263 Baseline Profile Level 45
+    //   (max 128 Kbps).
+    private const val DEFAULT_VIDEO_BASE_BITRATE = 4_000_000
+    private const val DEFAULT_VIDEO_BASE_BITRATE_AV1 = 8_000_000
+    private const val DEFAULT_VIDEO_BASE_FRAME_RATE = 30
+    private const val DEFAULT_VIDEO_BASE_BIT_DEPTH = 8
+    private val DEFAULT_VIDEO_BASE_SIZE = RESOLUTION_720P
+
+    /**
+     * Returns a default video bitrate for when no other bitrate information is available.
+     *
+     * The bitrate is scaled from a base bitrate of the mime type, anchored at 720p @ 30fps and
+     * 8-bit, to the given size, frame rate and bit depth. See [scaleBitrate].
+     *
+     * @param mimeType the video mime type.
+     * @param size the video size.
+     * @param frameRate the video frame rate.
+     * @param bitDepth the video bit depth, e.g. 8 or 10.
+     * @return the default video bitrate.
+     */
+    @JvmStatic
+    public fun getDefaultVideoBitrate(
+        mimeType: String,
+        size: Size,
+        frameRate: Int,
+        bitDepth: Int,
+    ): Int {
+        val baseBitrate =
+            when (mimeType) {
+                MediaFormat.MIMETYPE_VIDEO_AV1 -> DEFAULT_VIDEO_BASE_BITRATE_AV1
+                MediaFormat.MIMETYPE_VIDEO_AVC,
+                MediaFormat.MIMETYPE_VIDEO_HEVC,
+                // Dolby Vision profile 8 is HEVC based.
+                MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION,
+                MediaFormat.MIMETYPE_VIDEO_VP8,
+                MediaFormat.MIMETYPE_VIDEO_VP9,
+                MediaFormat.MIMETYPE_VIDEO_H263,
+                MediaFormat.MIMETYPE_VIDEO_MPEG4 -> DEFAULT_VIDEO_BASE_BITRATE
+                else -> DEFAULT_VIDEO_BASE_BITRATE
+            }
+        return scaleBitrate(
+            baseBitrate = baseBitrate,
+            actualBitDepth = bitDepth,
+            baseBitDepth = DEFAULT_VIDEO_BASE_BIT_DEPTH,
+            actualFrameRate = frameRate,
+            baseFrameRate = DEFAULT_VIDEO_BASE_FRAME_RATE,
+            actualWidth = size.width,
+            baseWidth = DEFAULT_VIDEO_BASE_SIZE.width,
+            actualHeight = size.height,
+            baseHeight = DEFAULT_VIDEO_BASE_SIZE.height,
+        )
     }
 
     /**

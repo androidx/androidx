@@ -424,6 +424,54 @@ class VideoConfigUtilTest {
         }
     }
 
+    @Test
+    fun getDefaultVideoBitrate_avc720p30fps8Bit_returnsBaseBitrate() {
+        assertThat(
+                VideoConfigUtil.getDefaultVideoBitrate(MIMETYPE_VIDEO_AVC, Size(1280, 720), 30, 8)
+            )
+            .isEqualTo(4_000_000)
+    }
+
+    @Test
+    fun getDefaultVideoBitrate_dolbyVision_returnsHevcBaseBitrate() {
+        assertThat(
+                VideoConfigUtil.getDefaultVideoBitrate(
+                    MIMETYPE_VIDEO_DOLBY_VISION,
+                    Size(1280, 720),
+                    30,
+                    8,
+                )
+            )
+            .isEqualTo(4_000_000)
+    }
+
+    @Test
+    fun getDefaultVideoBitrate_av1_returnsAv1BaseBitrate() {
+        assertThat(
+                VideoConfigUtil.getDefaultVideoBitrate(MIMETYPE_VIDEO_AV1, Size(1280, 720), 30, 8)
+            )
+            .isEqualTo(8_000_000)
+    }
+
+    @Test
+    fun getDefaultVideoBitrate_isScaledBySizeFrameRateAndBitDepth() {
+        // 1080p: (1920 / 1280) * (1080 / 720) = 2.25
+        assertThat(
+                VideoConfigUtil.getDefaultVideoBitrate(MIMETYPE_VIDEO_HEVC, Size(1920, 1080), 30, 8)
+            )
+            .isEqualTo(9_000_000)
+        // 60fps: 60 / 30 = 2
+        assertThat(
+                VideoConfigUtil.getDefaultVideoBitrate(MIMETYPE_VIDEO_HEVC, Size(1280, 720), 60, 8)
+            )
+            .isEqualTo(8_000_000)
+        // 10-bit: 10 / 8 = 1.25
+        assertThat(
+                VideoConfigUtil.getDefaultVideoBitrate(MIMETYPE_VIDEO_HEVC, Size(1280, 720), 30, 10)
+            )
+            .isEqualTo(5_000_000)
+    }
+
     companion object {
         fun createFakeEncoderProfiles(videoProfileProxies: List<VideoProfileProxy>) =
             VideoValidatedEncoderProfilesProxy.create(

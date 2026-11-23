@@ -29,12 +29,8 @@ import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.video.Quality
 import androidx.camera.video.Quality.ConstantQuality
-import androidx.camera.video.Quality.FHD
-import androidx.camera.video.Quality.HD
-import androidx.camera.video.Quality.QHD
 import androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR
-import androidx.camera.video.Quality.SD
-import androidx.camera.video.Quality.UHD
+import androidx.camera.video.internal.config.VideoConfigUtil
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 
 /**
@@ -90,7 +86,13 @@ public class DefaultEncoderProfilesProvider(
                 resolveVideoProfile(
                     width = size.width,
                     height = size.height,
-                    bitrate = qualityObj.getTypicalBitrate(),
+                    bitrate =
+                        VideoConfigUtil.getDefaultVideoBitrate(
+                            mimeType = DEFAULT_VIDEO_MIME_TYPE,
+                            size = size,
+                            frameRate = DEFAULT_VIDEO_FRAME_RATE,
+                            bitDepth = DEFAULT_VIDEO_BIT_DEPTH,
+                        ),
                 )
 
             if (videoProfile != null) {
@@ -189,22 +191,6 @@ public class DefaultEncoderProfilesProvider(
         return AudioProfileProxy.create(codec, mimeType, bitRate, sampleRate, channels, profile)
     }
 
-    /**
-     * Returns common bitrate for 30 fps video for each [Quality].
-     *
-     * See https://source.android.com/static/docs/compatibility/5.1/android-5.1-cdd.pdf, 5.2. Video
-     * Encoding.
-     */
-    private fun Quality.getTypicalBitrate(): Int =
-        when (this) {
-            UHD -> DEFAULT_VIDEO_BITRATE_UHD
-            QHD -> DEFAULT_VIDEO_BITRATE_QHD
-            FHD -> DEFAULT_VIDEO_BITRATE_FHD
-            HD -> DEFAULT_VIDEO_BITRATE_HD
-            SD -> DEFAULT_VIDEO_BITRATE_SD
-            else -> throw IllegalArgumentException("Undefined bitrate for quality: $this")
-        }
-
     private fun List<Quality>.find(quality: Int): ConstantQuality? =
         find { (it as ConstantQuality).getQualityValue(QUALITY_SOURCE_REGULAR) == quality }
             as? ConstantQuality
@@ -221,14 +207,6 @@ public class DefaultEncoderProfilesProvider(
         internal const val DEFAULT_VIDEO_BIT_DEPTH = VideoProfileProxy.BIT_DEPTH_8
         internal const val DEFAULT_VIDEO_CHROMA_SUBSAMPLING = EncoderProfiles.VideoProfile.YUV_420
         internal const val DEFAULT_VIDEO_HDR_FORMAT = EncoderProfiles.VideoProfile.HDR_NONE
-
-        internal const val DEFAULT_VIDEO_BITRATE_UHD =
-            40_000_000 // 40 Mbps, scaled by FHD. See VideoConfigUtil.scaleBitrate()
-        internal const val DEFAULT_VIDEO_BITRATE_QHD =
-            18_000_000 // 18 Mbps, scaled by FHD. See VideoConfigUtil.scaleBitrate()
-        internal const val DEFAULT_VIDEO_BITRATE_FHD = 10_000_000 // 10 Mbps
-        internal const val DEFAULT_VIDEO_BITRATE_HD = 4_000_000 // 4 Mbps
-        internal const val DEFAULT_VIDEO_BITRATE_SD = 2_000_000 // 2 Mbps
 
         internal const val DEFAULT_AUDIO_CODEC: Int = MediaRecorder.AudioEncoder.AAC
         internal const val DEFAULT_AUDIO_MIME_TYPE: String = MediaFormat.MIMETYPE_AUDIO_AAC

@@ -40,11 +40,6 @@ import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.
 import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_AUDIO_CODEC
 import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_AUDIO_PROFILE
 import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_AUDIO_SAMPLE_RATE
-import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_VIDEO_BITRATE_FHD
-import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_VIDEO_BITRATE_HD
-import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_VIDEO_BITRATE_QHD
-import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_VIDEO_BITRATE_SD
-import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_VIDEO_BITRATE_UHD
 import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_VIDEO_BIT_DEPTH
 import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_VIDEO_CHROMA_SUBSAMPLING
 import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider.Companion.DEFAULT_VIDEO_CODEC
@@ -91,7 +86,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_2160P.width,
             RESOLUTION_2160P.height,
-            DEFAULT_VIDEO_BITRATE_UHD,
+            BITRATE_UHD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -109,7 +104,7 @@ class DefaultEncoderProfilesProviderTest {
             DefaultEncoderProfilesProvider(
                 fakeCameraInfo,
                 targetQualities,
-                FakeVideoEncoderInfoFinder(DEFAULT_VIDEO_BITRATE_FHD),
+                FakeVideoEncoderInfoFinder(BITRATE_FHD),
             )
 
         // Act.
@@ -120,7 +115,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_2160P.width,
             RESOLUTION_2160P.height,
-            DEFAULT_VIDEO_BITRATE_FHD,
+            BITRATE_FHD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -168,7 +163,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_QHD.width,
             RESOLUTION_QHD.height,
-            DEFAULT_VIDEO_BITRATE_QHD,
+            BITRATE_QHD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -187,7 +182,7 @@ class DefaultEncoderProfilesProviderTest {
             DefaultEncoderProfilesProvider(
                 fakeCameraInfo,
                 targetQualities,
-                FakeVideoEncoderInfoFinder(DEFAULT_VIDEO_BITRATE_FHD),
+                FakeVideoEncoderInfoFinder(BITRATE_FHD),
             )
 
         // Act.
@@ -198,7 +193,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_QHD.width,
             RESOLUTION_QHD.height,
-            DEFAULT_VIDEO_BITRATE_FHD,
+            BITRATE_FHD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -240,7 +235,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_1080P.width,
             RESOLUTION_1080P.height,
-            DEFAULT_VIDEO_BITRATE_FHD,
+            BITRATE_FHD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -253,7 +248,7 @@ class DefaultEncoderProfilesProviderTest {
             DefaultEncoderProfilesProvider(
                 fakeCameraInfo,
                 targetQualities,
-                FakeVideoEncoderInfoFinder(DEFAULT_VIDEO_BITRATE_HD),
+                FakeVideoEncoderInfoFinder(BITRATE_HD),
             )
 
         // Act.
@@ -264,7 +259,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_1080P.width,
             RESOLUTION_1080P.height,
-            DEFAULT_VIDEO_BITRATE_HD,
+            BITRATE_HD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -306,7 +301,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_720P.width,
             RESOLUTION_720P.height,
-            DEFAULT_VIDEO_BITRATE_HD,
+            BITRATE_HD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -319,7 +314,7 @@ class DefaultEncoderProfilesProviderTest {
             DefaultEncoderProfilesProvider(
                 fakeCameraInfo,
                 targetQualities,
-                FakeVideoEncoderInfoFinder(DEFAULT_VIDEO_BITRATE_SD),
+                FakeVideoEncoderInfoFinder(BITRATE_SD),
             )
 
         // Act.
@@ -330,7 +325,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_720P.width,
             RESOLUTION_720P.height,
-            DEFAULT_VIDEO_BITRATE_SD,
+            BITRATE_SD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -372,7 +367,7 @@ class DefaultEncoderProfilesProviderTest {
             encoderProfiles,
             RESOLUTION_480P.width,
             RESOLUTION_480P.height,
-            DEFAULT_VIDEO_BITRATE_SD,
+            BITRATE_SD,
         )
         verifyAudioProfile(encoderProfiles)
     }
@@ -381,7 +376,7 @@ class DefaultEncoderProfilesProviderTest {
     fun getSdProfileWithUnsupportedBitrate_verifyClampedBitrate() {
         // Arrange.
         fakeCameraInfo.setSupportedResolutions(RESOLUTION_480P)
-        val maxSupportedBitrate = DEFAULT_VIDEO_BITRATE_SD / 2
+        val maxSupportedBitrate = BITRATE_SD / 2
         defaultEncoderProfilesProvider =
             DefaultEncoderProfilesProvider(
                 fakeCameraInfo,
@@ -466,3 +461,11 @@ class DefaultEncoderProfilesProviderTest {
             )
     }
 }
+
+// Default bitrates: 4 Mbps at 720p scaled by the number of pixels. See
+// VideoConfigUtil.getDefaultVideoBitrate().
+private const val BITRATE_UHD = 36_000_000
+private const val BITRATE_QHD = 16_000_000
+private const val BITRATE_FHD = 9_000_000
+private const val BITRATE_HD = 4_000_000
+private const val BITRATE_SD = 1_500_000
