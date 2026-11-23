@@ -1,11 +1,15 @@
 // Baseline format: 1.0
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/AnimatedPaneOverride from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverride from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/PaneScaffoldHorizontalOrder from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/ThreePaneScaffoldHorizontalOrder from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/LocalAnimatedPaneOverride from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/LocalThreePaneScaffoldOverride from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_AnimatedPaneOverrideScope$stableprop from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_ThreePaneScaffoldHorizontalOrder$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_ThreePaneScaffoldOverrideScope$stableprop from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_AnimatedPaneOverrideScope$stableprop_getter() from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_ThreePaneScaffoldHorizontalOrder$stableprop_getter() from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_ThreePaneScaffoldOverrideScope$stableprop_getter() from androidx.compose.material
