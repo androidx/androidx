@@ -108,6 +108,10 @@ class AuthenticationResultTestActivity : FragmentActivity() {
                         PromptContentItemBulletedText("test item2"),
                     ),
                 )
+            } else if (binding.common.moreOptionsButtonContent.isChecked) {
+                AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton(
+                    "Description with more options"
+                )
             } else {
                 null
             }
@@ -159,6 +163,20 @@ class AuthenticationResultTestActivity : FragmentActivity() {
                         }
                     )
                     setIsConfirmationRequired(binding.common.requireConfirmationCheckbox.isChecked)
+                    if (binding.common.logoResButton.isChecked) {
+                        setLogoRes(android.R.drawable.ic_dialog_info)
+                        setLogoDescription("Test logo description")
+                    } else if (binding.common.logoBitmapButton.isChecked) {
+                        val bitmap =
+                            android.graphics.Bitmap.createBitmap(
+                                48,
+                                48,
+                                android.graphics.Bitmap.Config.ARGB_8888,
+                            )
+                        bitmap.eraseColor(android.graphics.Color.BLUE)
+                        setLogoBitmap(bitmap)
+                        setLogoDescription("Test bitmap logo description")
+                    }
                 }
             }
 
@@ -210,8 +228,12 @@ class AuthenticationResultTestActivity : FragmentActivity() {
         // < API 35, non-plain text body content is not supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             binding.common.verticalListContent.isEnabled = false
+            binding.common.moreOptionsButtonContent.isEnabled = false
         }
-        if (!binding.common.verticalListContent.isEnabled) {
+        if (
+            !binding.common.verticalListContent.isEnabled &&
+                !binding.common.moreOptionsButtonContent.isEnabled
+        ) {
             binding.common.plainTextContent.isChecked = true
         }
     }

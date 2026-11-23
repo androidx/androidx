@@ -530,7 +530,6 @@ includeProject(":biometric:biometric-compose", [BuildType.COMPOSE])
 includeProject(":biometric:biometric-compose:biometric-compose-samples", "biometric/biometric-compose/samples", [BuildType.COMPOSE])
 includeProject(":biometric:biometric-stubs", [BuildType.MAIN])
 includeProject(":biometric:integration-tests:testapp", [BuildType.MAIN])
-includeProject(":biometric:integration-tests:testapp-compose", [BuildType.MAIN])
 includeProject(":browser:browser", [BuildType.MAIN])
 includeProject(":buildSrc-tests", [BuildType.MAIN, BuildType.TOOLS])
 // these projects intentionally fail to compile unless androidx.useMaxDepVersions is enabled
