@@ -45,7 +45,7 @@ android {
             }
         }
     }
-    compileSdk { version = release(35) }
+    compileSdk { version = release(36) }
 }
 
 androidx {

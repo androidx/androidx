@@ -65,6 +65,7 @@ dependencies {
 }
 
 android {
+    compileSdk { version = release(36) }
     namespace = "androidx.xr.runtime.testing"
 }
 
