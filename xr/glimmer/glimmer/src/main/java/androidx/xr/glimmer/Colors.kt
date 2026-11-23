@@ -47,7 +47,20 @@ public class Colors(
     public val surface: Color = Color(0xFF303030),
 ) {
 
-    /** Returns a copy of this Colors, optionally overriding some of the values. */
+    /**
+     * Returns a copy of this [Colors], optionally overriding some of the values.
+     *
+     * @param primary Accent color used for brand expression, typically used with text and icons for
+     *   emphasis, or with borders to accentuate a particular component
+     * @param secondary Accent color used for brand expression, typically used with text and icons
+     *   for emphasis, or with borders to accentuate a particular component
+     * @param positive Color that indicates positive or affirmative actions
+     * @param negative Color that indicates negative actions
+     * @param background Color that appears behind components
+     * @param surface Color that's applied to surfaces of components, such as buttons, cards, and
+     *   list items.
+     * @return a copy of this instance
+     */
     public fun copy(
         primary: Color = this.primary,
         secondary: Color = this.secondary,
