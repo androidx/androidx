@@ -16,10 +16,15 @@
 
 package androidx.camera.video.internal;
 
+import static androidx.camera.core.DynamicRange.SDR;
 import static androidx.camera.core.internal.utils.SizeUtil.findNearestHigherFor;
 import static androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR;
 import static androidx.camera.video.internal.utils.DynamicRangeUtil.isHdrSettingsMatched;
+import static androidx.camera.video.internal.utils.EncoderProfilesUtil.createDefaultEncoderProfiles;
+import static androidx.camera.video.internal.utils.EncoderProfilesUtil.createDefaultVideoProfile;
+import static androidx.camera.video.internal.utils.EncoderProfilesUtil.deriveHdrVideoProfile;
 import static androidx.camera.video.internal.utils.EncoderProfilesUtil.deriveVideoProfile;
+import static androidx.camera.video.internal.utils.EncoderProfilesUtil.validateOrAdapt;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
@@ -41,6 +46,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,18 +55,32 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * An implementation that provides the {@link EncoderProfilesProxy} with additional quality added.
+ * An implementation that provides the {@link EncoderProfilesProxy} with the missing video profiles
+ * of the target qualities and dynamic ranges added.
  *
- * <p>The basic EncoderProfilesProvider references to {@link android.media.CamcorderProfile}.
- * This class explores more camera and codec supported qualities in addition to CamcorderProfile.
- * When a quality is explored, the corresponding profile will be derived from a nearest higher
- * supported profile.
+ * <p>For each target quality, a video profile is explored for each target dynamic range that the
+ * base provider doesn't provide. The first of the following candidates that is supported by a video
+ * encoder is used:
+ * <ol>
+ *     <li>Derived from the nearest higher profile of the same dynamic range, with the size scaled.
+ *     A profile of the same dynamic range usually gives the best reference.
+ *     <li>For a 10-bit HDR dynamic range, derived from the SDR profile of the same quality.
+ *     <li>Created from default values, see
+ *     {@code EncoderProfilesUtil.createDefaultVideoProfile()}.
+ * </ol>
+ *
+ * <p>An explored profile uses the size of the existing profiles of the quality. If the quality has
+ * no profile, the first typical size of the quality that is supported by the camera and a video
+ * encoder is used. The audio profiles, duration and file format are taken from the existing
+ * profiles of the quality, or the profiles used as the reference, or default values in this order.
+ *
+ * <p>Qualities that are not target qualities are provided by the base provider as is.
  */
 public class QualityExploredEncoderProfilesProvider implements EncoderProfilesProvider {
     private final EncoderProfilesProvider mBaseEncoderProfilesProvider;
     private final Set<Quality> mTargetQualities;
     private final Set<Size> mCameraSupportedResolutions;
-    private final Set<DynamicRange> mTargetDynamicRanges;
+    private final List<DynamicRange> mTargetDynamicRanges;
     private final VideoEncoderInfo.Finder mVideoEncoderInfoFinder;
     private final Map<Integer, EncoderProfilesProxy> mEncoderProfilesCache = new HashMap<>();
     private final Map<DynamicRange, CapabilitiesByQuality> mDynamicRangeToCapabilitiesMap =
@@ -85,7 +105,10 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
         checkFullySpecifiedOrThrow(targetDynamicRanges);
         mBaseEncoderProfilesProvider = baseProvider;
         mTargetQualities = new HashSet<>(targetQualities);
-        mTargetDynamicRanges = new HashSet<>(targetDynamicRanges);
+        mTargetDynamicRanges = new ArrayList<>(targetDynamicRanges);
+        // Explore SDR first, so an HDR profile can be derived from an explored SDR profile.
+        Collections.sort(mTargetDynamicRanges,
+                (dr1, dr2) -> Boolean.compare(dr1.is10BitHdr(), dr2.is10BitHdr()));
         mCameraSupportedResolutions = new HashSet<>(cameraSupportedResolutions);
         mVideoEncoderInfoFinder = videoEncoderInfoFinder;
     }
@@ -107,7 +130,7 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
         EncoderProfilesProxy profiles = mBaseEncoderProfilesProvider.getAll(qualityValue);
         Quality.ConstantQuality quality = findQualityInTargetQualities(qualityValue);
         if (quality != null && !hasMatchedVideoProfileForAllTargetDynamicRanges(profiles)) {
-            profiles = mergeEncoderProfiles(profiles, exploreProfiles(quality));
+            profiles = mergeEncoderProfiles(profiles, exploreProfiles(quality, profiles));
         }
         mEncoderProfilesCache.put(qualityValue, profiles);
         return profiles;
@@ -128,49 +151,56 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
     }
 
     private @Nullable EncoderProfilesProxy exploreProfiles(
-            Quality.@NonNull ConstantQuality quality) {
+            Quality.@NonNull ConstantQuality quality,
+            @Nullable EncoderProfilesProxy qualityMappedProfiles) {
         checkArgument(mTargetQualities.contains(quality));
-        EncoderProfilesProxy qualityMappedProfiles =
-                mBaseEncoderProfilesProvider.getAll(
-                        quality.getQualityValue(QUALITY_SOURCE_REGULAR));
-        for (Size size : quality.getTypicalSizes()) {
-            if (!mCameraSupportedResolutions.contains(size)) {
-                continue;
-            }
+        List<VideoProfileProxy> existingVideoProfiles = qualityMappedProfiles != null
+                ? qualityMappedProfiles.getVideoProfiles() : Collections.emptyList();
+        for (Size size : getTargetSizes(quality, existingVideoProfiles)) {
             TreeMap<Size, EncoderProfilesProxy> areaSortedSizeToEncoderProfilesMap = new TreeMap<>(
                     new CompareSizesByArea());
             List<VideoProfileProxy> generatedVideoProfiles = new ArrayList<>();
             for (DynamicRange dynamicRange : mTargetDynamicRanges) {
-                if (hasMatchedVideoProfileForDynamicRange(qualityMappedProfiles, dynamicRange)) {
+                // Different target dynamic ranges may match the same video profile, e.g. HDR10 and
+                // its SMPTE ST 2094-50 variant, so also check the generated video profiles.
+                if (hasMatchedVideoProfileForDynamicRange(qualityMappedProfiles, dynamicRange)
+                        || hasMatchedVideoProfileForDynamicRange(
+                                generatedVideoProfiles, dynamicRange)) {
                     continue;
                 }
+                VideoProfileProxy videoProfile = null;
                 // Find a nearest higher EncoderProfiles by the target dynamic range.
-                VideoValidatedEncoderProfilesProxy encoderProfiles =
+                VideoValidatedEncoderProfilesProxy referenceProfiles =
                         getCapabilitiesByQualityFor(dynamicRange)
                                 .findNearestHigherSupportedEncoderProfilesFor(size);
-                if (encoderProfiles == null) {
-                    continue;
+                if (referenceProfiles != null) {
+                    videoProfile = deriveFromReference(referenceProfiles, size);
+                    if (videoProfile != null) {
+                        // Add the reference to the candidates of base EncoderProfiles.
+                        areaSortedSizeToEncoderProfilesMap.put(
+                                referenceProfiles.getDefaultVideoProfile().getResolution(),
+                                referenceProfiles);
+                    }
                 }
-                VideoProfileProxy baseVideoProfile = encoderProfiles.getDefaultVideoProfile();
-                VideoEncoderInfo encoderInfo = mVideoEncoderInfoFinder.find(
-                        baseVideoProfile.getMediaType());
-                // Check if size is valid for the Encoder.
-                if (encoderInfo == null || !encoderInfo.isSizeSupportedAllowSwapping(
-                        size.getWidth(), size.getHeight())) {
-                    continue;
+                if (videoProfile == null) {
+                    List<VideoProfileProxy> videoProfiles = new ArrayList<>(existingVideoProfiles);
+                    videoProfiles.addAll(generatedVideoProfiles);
+                    videoProfile = deriveFromSdr(dynamicRange, videoProfiles);
                 }
-                // Add the encoderProfiles to the candidates of base EncoderProfiles.
-                areaSortedSizeToEncoderProfilesMap.put(baseVideoProfile.getResolution(),
-                        encoderProfiles);
-                // Generate VideoProfile from base VideoProfile and new size.
-                generatedVideoProfiles.add(
-                        deriveVideoProfile(baseVideoProfile, size,
-                                encoderInfo.getSupportedBitrateRange()));
+                if (videoProfile == null) {
+                    videoProfile = createFromDefaults(dynamicRange, size);
+                }
+                if (videoProfile != null) {
+                    generatedVideoProfiles.add(videoProfile);
+                }
             }
             if (!generatedVideoProfiles.isEmpty()) {
                 // Use the nearest higher EncoderProfiles as base EncoderProfiles.
-                EncoderProfilesProxy baseProfiles = requireNonNull(
-                        findNearestHigherFor(size, areaSortedSizeToEncoderProfilesMap));
+                EncoderProfilesProxy baseProfiles =
+                        findNearestHigherFor(size, areaSortedSizeToEncoderProfilesMap);
+                if (baseProfiles == null) {
+                    return createDefaultEncoderProfiles(generatedVideoProfiles);
+                }
                 return ImmutableEncoderProfilesProxy.create(
                         baseProfiles.getDefaultDurationSeconds(),
                         baseProfiles.getRecommendedFileFormat(),
@@ -179,6 +209,61 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
             }
         }
         return null;
+    }
+
+    private @NonNull List<Size> getTargetSizes(Quality.@NonNull ConstantQuality quality,
+            @NonNull List<VideoProfileProxy> existingVideoProfiles) {
+        List<Size> sizes = new ArrayList<>();
+        // Use the size of the existing profiles, so all profiles of a quality have the same size.
+        if (!existingVideoProfiles.isEmpty()) {
+            sizes.add(existingVideoProfiles.get(0).getResolution());
+            return sizes;
+        }
+        for (Size size : quality.getTypicalSizes()) {
+            if (mCameraSupportedResolutions.contains(size)) {
+                sizes.add(size);
+            }
+        }
+        return sizes;
+    }
+
+    /**
+     * Derives a video profile of the given size from the default video profile of
+     * {@code referenceProfiles}.
+     */
+    private @Nullable VideoProfileProxy deriveFromReference(
+            @NonNull VideoValidatedEncoderProfilesProxy referenceProfiles, @NonNull Size size) {
+        VideoProfileProxy baseVideoProfile = referenceProfiles.getDefaultVideoProfile();
+        VideoEncoderInfo encoderInfo = mVideoEncoderInfoFinder.find(
+                baseVideoProfile.getMediaType());
+        if (encoderInfo == null) {
+            return null;
+        }
+        // Generate VideoProfile from base VideoProfile and new size, and check if it is valid for
+        // the encoder.
+        return validateOrAdapt(
+                deriveVideoProfile(baseVideoProfile, size, encoderInfo.getSupportedBitrateRange()),
+                mVideoEncoderInfoFinder);
+    }
+
+    /** Derives a 10-bit HDR video profile from the SDR profile in {@code videoProfiles}. */
+    private @Nullable VideoProfileProxy deriveFromSdr(@NonNull DynamicRange dynamicRange,
+            @NonNull List<VideoProfileProxy> videoProfiles) {
+        if (!dynamicRange.is10BitHdr()) {
+            return null;
+        }
+        VideoProfileProxy sdrProfile = findMatchedVideoProfile(videoProfiles, SDR);
+        if (sdrProfile == null) {
+            return null;
+        }
+        return validateOrAdapt(deriveHdrVideoProfile(sdrProfile, dynamicRange),
+                mVideoEncoderInfoFinder);
+    }
+
+    private @Nullable VideoProfileProxy createFromDefaults(@NonNull DynamicRange dynamicRange,
+            @NonNull Size size) {
+        return validateOrAdapt(createDefaultVideoProfile(size, dynamicRange),
+                mVideoEncoderInfoFinder);
     }
 
     private Quality.@Nullable ConstantQuality findQualityInTargetQualities(int qualityValue) {
@@ -208,8 +293,8 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
     private static @Nullable EncoderProfilesProxy mergeEncoderProfiles(
             @Nullable EncoderProfilesProxy baseProfiles,
             @Nullable EncoderProfilesProxy profilesToMerge) {
-        if (baseProfiles == null && profilesToMerge == null) {
-            return null;
+        if (profilesToMerge == null) {
+            return baseProfiles;
         }
         int duration = baseProfiles != null ? baseProfiles.getDefaultDurationSeconds() :
                 profilesToMerge.getDefaultDurationSeconds();
@@ -238,12 +323,23 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
         if (encoderProfiles == null) {
             return false;
         }
-        for (VideoProfileProxy videoProfile : encoderProfiles.getVideoProfiles()) {
+        return hasMatchedVideoProfileForDynamicRange(encoderProfiles.getVideoProfiles(),
+                dynamicRange);
+    }
+
+    private static boolean hasMatchedVideoProfileForDynamicRange(
+            @NonNull List<VideoProfileProxy> videoProfiles, @NonNull DynamicRange dynamicRange) {
+        return findMatchedVideoProfile(videoProfiles, dynamicRange) != null;
+    }
+
+    private static @Nullable VideoProfileProxy findMatchedVideoProfile(
+            @NonNull List<VideoProfileProxy> videoProfiles, @NonNull DynamicRange dynamicRange) {
+        for (VideoProfileProxy videoProfile : videoProfiles) {
             if (isHdrSettingsMatched(videoProfile, dynamicRange)) {
-                return true;
+                return videoProfile;
             }
         }
-        return false;
+        return null;
     }
 
     private static void checkFullySpecifiedOrThrow(

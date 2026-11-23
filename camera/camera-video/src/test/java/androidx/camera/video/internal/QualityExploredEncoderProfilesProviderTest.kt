@@ -22,15 +22,25 @@ import android.media.CamcorderProfile.QUALITY_480P
 import android.media.CamcorderProfile.QUALITY_720P
 import android.media.CamcorderProfile.QUALITY_HIGH
 import android.media.CamcorderProfile.QUALITY_LOW
+import android.media.CamcorderProfile.QUALITY_QHD
 import android.media.EncoderProfiles.VideoProfile.HDR_HDR10
 import android.media.EncoderProfiles.VideoProfile.HDR_HLG
+import android.media.MediaCodecInfo.CodecProfileLevel
+import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
+import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
+import android.media.MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION
+import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
 import android.media.MediaRecorder.OutputFormat.MPEG_4
 import android.media.MediaRecorder.OutputFormat.THREE_GPP
 import android.media.MediaRecorder.OutputFormat.WEBM
+import android.media.MediaRecorder.VideoEncoder.DOLBY_VISION
 import android.media.MediaRecorder.VideoEncoder.H263
 import android.media.MediaRecorder.VideoEncoder.MPEG_4_SP
+import android.os.Build
 import android.util.Range
+import android.util.Size
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
 import androidx.camera.core.DynamicRange.HDR10_10_BIT
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
@@ -44,6 +54,7 @@ import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_480P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_QHD
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeAudioProfileProxy
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeVideoProfileProxy
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
@@ -51,8 +62,11 @@ import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
 import androidx.camera.video.Quality
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
+import androidx.camera.video.Quality.QHD
+import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
 import androidx.camera.video.internal.utils.DynamicRangeUtil.isHdrSettingsMatched
+import androidx.camera.video.internal.utils.EncoderProfilesUtil
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
@@ -119,7 +133,7 @@ class QualityExploredEncoderProfilesProviderTest {
     }
 
     @Test
-    fun canNotExploreQualities_whenNoBaseProfile() {
+    fun createDefaultProfiles_whenNoBaseProfile() {
         // Arrange: a provider doesn't have any supported qualities.
         val emptyProvider = FakeEncoderProfilesProvider.Builder().build()
 
@@ -134,8 +148,115 @@ class QualityExploredEncoderProfilesProviderTest {
                 unlimitedVideoEncoderInfo
             }
 
+        // Assert: all qualities supported by the camera are created from default values.
+        verifyQualitiesAreSupported(
+            provider,
+            SDR,
+            QUALITY_2160P,
+            QUALITY_1080P,
+            QUALITY_720P,
+            QUALITY_480P,
+        )
+        val profiles = provider.getAll(QUALITY_1080P)!!
+        assertThat(profiles.defaultDurationSeconds)
+            .isEqualTo(EncoderProfilesUtil.DEFAULT_DURATION_SECONDS)
+        assertThat(profiles.recommendedFileFormat)
+            .isEqualTo(EncoderProfilesUtil.DEFAULT_OUTPUT_FORMAT)
+        assertThat(profiles.audioProfiles.single().mediaType).isEqualTo(MIMETYPE_AUDIO_AAC)
+        val videoProfile = profiles.videoProfiles.single()
+        assertThat(videoProfile.mediaType).isEqualTo(MIMETYPE_VIDEO_AVC)
+        assertThat(videoProfile.resolution).isEqualTo(RESOLUTION_1080P)
+        // 4 Mbps at 720p scaled to 1080p.
+        assertThat(videoProfile.bitrate).isEqualTo(9_000_000)
+    }
+
+    @Test
+    fun createDefaultProfiles_qhd() {
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                FakeEncoderProfilesProvider.Builder().build(),
+                setOf(QHD),
+                setOf(SDR),
+                setOf(RESOLUTION_QHD),
+            ) {
+                unlimitedVideoEncoderInfo
+            }
+
+        // Assert: 4 Mbps at 720p scaled to 1440p.
+        val videoProfile = provider.getAll(QUALITY_QHD)!!.videoProfiles.single()
+        assertThat(videoProfile.resolution).isEqualTo(RESOLUTION_QHD)
+        assertThat(videoProfile.bitrate).isEqualTo(16_000_000)
+    }
+
+    @Test
+    fun createDefaultProfiles_usesNextTypicalSize_whenCameraNotSupportFirstTypicalSize() {
+        // Arrange: camera supports 640x480 but not 720x480, the first typical size of SD.
+        val resolutionVga = Size(640, 480)
+
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                FakeEncoderProfilesProvider.Builder().build(),
+                setOf(SD),
+                setOf(SDR),
+                setOf(resolutionVga),
+            ) {
+                unlimitedVideoEncoderInfo
+            }
+
         // Assert.
-        verifyAllQualitiesAreNotSupported(provider, SDR)
+        assertThat(provider.getAll(QUALITY_480P)!!.videoProfiles.single().resolution)
+            .isEqualTo(resolutionVga)
+    }
+
+    @Test
+    fun canNotCreateDefaultProfiles_whenEncoderNotSupportSize() {
+        // Arrange: encoder supports up to 1080p.
+        val videoEncoderInfo =
+            FakeVideoEncoderInfo(
+                supportedWidths = Range.create(1, RESOLUTION_1080P.width),
+                supportedHeights = Range.create(1, RESOLUTION_1080P.height),
+            )
+
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                FakeEncoderProfilesProvider.Builder().build(),
+                setOf(UHD, FHD),
+                setOf(SDR),
+                defaultCameraResolutions,
+            ) {
+                videoEncoderInfo
+            }
+
+        // Assert.
+        assertThat(provider.hasProfile(QUALITY_2160P)).isFalse()
+        assertThat(provider.hasProfile(QUALITY_1080P)).isTrue()
+    }
+
+    @Test
+    fun createDefaultProfiles_bitrateIsClamped() {
+        // Arrange: a provider doesn't have any supported qualities.
+        val emptyProvider = FakeEncoderProfilesProvider.Builder().build()
+        val maxBitrate = 1000
+        val videoEncoderInfo =
+            FakeVideoEncoderInfo(supportedBitrateRange = Range.create(0, maxBitrate))
+
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                emptyProvider,
+                setOf(FHD),
+                setOf(SDR),
+                defaultCameraResolutions,
+            ) {
+                videoEncoderInfo
+            }
+
+        // Assert.
+        assertThat(provider.getAll(QUALITY_1080P)!!.videoProfiles.single().bitrate)
+            .isEqualTo(maxBitrate)
     }
 
     @Test
@@ -185,23 +306,196 @@ class QualityExploredEncoderProfilesProviderTest {
     }
 
     @Test
-    fun canNotExploreQuality_whenNoBaseProfileForTargetDynamicRange() {
-        // Arrange.
-        val targetDynamicRange = HLG_10_BIT
-
+    fun deriveHdrProfileFromSdr_whenNoProfileOfSameDynamicRange() {
         // Act.
         val provider =
             QualityExploredEncoderProfilesProvider(
                 providerSupportOnlySdrFhd,
                 allQualities,
-                setOf(targetDynamicRange),
+                setOf(SDR, HLG_10_BIT),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
+
+        // Assert: HLG10 profiles are derived from the SDR profiles.
+        verifyQualitiesAreSupported(
+            provider,
+            HLG_10_BIT,
+            QUALITY_2160P,
+            QUALITY_1080P,
+            QUALITY_720P,
+            QUALITY_480P,
+        )
+        val videoProfiles = provider.getAll(QUALITY_1080P)!!.videoProfiles
+        val sdrProfile = videoProfiles.single { isHdrSettingsMatched(it, SDR) }
+        val hlgProfile = videoProfiles.single { isHdrSettingsMatched(it, HLG_10_BIT) }
+        assertThat(hlgProfile.mediaType).isEqualTo(MIMETYPE_VIDEO_HEVC)
+        assertThat(hlgProfile.resolution).isEqualTo(sdrProfile.resolution)
+        assertThat(hlgProfile.bitrate).isEqualTo(sdrProfile.bitrate * 10 / 8)
+    }
+
+    @Test
+    fun canNotExploreHdrProfile_whenEncoderIsSoftware() {
+        // Act: a software encoder doesn't support 10-bit HDR.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                allQualities,
+                setOf(SDR, HLG_10_BIT),
+                defaultCameraResolutions,
+            ) {
+                FakeVideoEncoderInfo(isHardwareAccelerated = false)
+            }
+
+        // Assert.
+        verifyAllQualitiesAreNotSupported(provider, HLG_10_BIT)
+        verifyQualitiesAreSupported(
+            provider,
+            SDR,
+            QUALITY_2160P,
+            QUALITY_1080P,
+            QUALITY_720P,
+            QUALITY_480P,
+        )
+    }
+
+    @Test
+    fun preferProfileOfSameDynamicRange_overSdrProfile() {
+        // Arrange: FHD has an SDR profile and UHD has an HLG10 profile.
+        val profilesUhdHlg =
+            createEncoderProfiles(
+                createFakeVideoProfileProxy(
+                    RESOLUTION_2160P,
+                    videoMediaType = MIMETYPE_VIDEO_HEVC,
+                    bitrate = 40_000_000,
+                    videoBitDepth = BIT_DEPTH_10,
+                    videoHdrFormat = HDR_HLG,
+                )
+            )
+        val profilesFhdSdr =
+            createEncoderProfiles(createFakeVideoProfileProxy(RESOLUTION_1080P, bitrate = 1_000))
+        val baseProvider =
+            FakeEncoderProfilesProvider.Builder()
+                .add(QUALITY_2160P, profilesUhdHlg)
+                .add(QUALITY_1080P, profilesFhdSdr)
+                .build()
+
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                baseProvider,
+                setOf(FHD),
+                setOf(SDR, HLG_10_BIT),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
+
+        // Assert: FHD HLG10 is scaled from UHD HLG10 instead of derived from FHD SDR.
+        val hlgProfile =
+            provider.getAll(QUALITY_1080P)!!.videoProfiles.single {
+                isHdrSettingsMatched(it, HLG_10_BIT)
+            }
+        assertThat(hlgProfile.resolution).isEqualTo(RESOLUTION_1080P)
+        assertThat(hlgProfile.bitrate).isEqualTo(10_000_000)
+    }
+
+    @Test
+    fun createDefaultHdrProfile_whenNoProfileToDeriveFrom() {
+        // Arrange: a provider doesn't have any supported qualities.
+        val emptyProvider = FakeEncoderProfilesProvider.Builder().build()
+
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                emptyProvider,
+                setOf(FHD),
+                setOf(HLG_10_BIT),
                 defaultCameraResolutions,
             ) {
                 unlimitedVideoEncoderInfo
             }
 
         // Assert.
-        verifyAllQualitiesAreNotSupported(provider, targetDynamicRange)
+        val videoProfile = provider.getAll(QUALITY_1080P)!!.videoProfiles.single()
+        assertThat(isHdrSettingsMatched(videoProfile, HLG_10_BIT)).isTrue()
+        assertThat(videoProfile.mediaType).isEqualTo(MIMETYPE_VIDEO_HEVC)
+        assertThat(videoProfile.profile).isEqualTo(CodecProfileLevel.HEVCProfileMain10)
+        assertThat(videoProfile.resolution).isEqualTo(RESOLUTION_1080P)
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun deriveDolbyVisionProfileFromSdr() {
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                setOf(FHD),
+                setOf(SDR, DOLBY_VISION_10_BIT),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
+
+        // Assert.
+        val dvProfile =
+            provider.getAll(QUALITY_1080P)!!.videoProfiles.single {
+                isHdrSettingsMatched(it, DOLBY_VISION_10_BIT)
+            }
+        assertThat(dvProfile.codec).isEqualTo(DOLBY_VISION)
+        assertThat(dvProfile.mediaType).isEqualTo(MIMETYPE_VIDEO_DOLBY_VISION)
+        assertThat(dvProfile.profile).isEqualTo(CodecProfileLevel.DolbyVisionProfileDvheSt)
+    }
+
+    @Test
+    fun nonTargetQuality_returnsBaseProfiles() {
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                providerSupportOnlySdrFhd,
+                allQualities,
+                setOf(SDR, HLG_10_BIT),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
+
+        // Assert.
+        assertThat(provider.getAll(QUALITY_HIGH))
+            .isSameInstanceAs(providerSupportOnlySdrFhd.getAll(QUALITY_HIGH))
+    }
+
+    @Test
+    fun allTargetDynamicRangesExist_returnsBaseProfiles() {
+        // Arrange: FHD has both SDR and HLG10 profiles.
+        val profilesFhd =
+            createEncoderProfiles(
+                createFakeVideoProfileProxy(RESOLUTION_1080P),
+                createFakeVideoProfileProxy(
+                    RESOLUTION_1080P,
+                    videoMediaType = MIMETYPE_VIDEO_HEVC,
+                    videoBitDepth = BIT_DEPTH_10,
+                    videoHdrFormat = HDR_HLG,
+                ),
+            )
+        val baseProvider =
+            FakeEncoderProfilesProvider.Builder().add(QUALITY_1080P, profilesFhd).build()
+
+        // Act.
+        val provider =
+            QualityExploredEncoderProfilesProvider(
+                baseProvider,
+                allQualities,
+                setOf(SDR, HLG_10_BIT),
+                defaultCameraResolutions,
+            ) {
+                unlimitedVideoEncoderInfo
+            }
+
+        // Assert.
+        assertThat(provider.getAll(QUALITY_1080P)).isSameInstanceAs(profilesFhd)
     }
 
     @Test
@@ -213,6 +507,7 @@ class QualityExploredEncoderProfilesProviderTest {
             createFakeVideoProfileProxy(
                 RESOLUTION_720P,
                 videoCodec = H263,
+                videoMediaType = MIMETYPE_VIDEO_HEVC,
                 videoBitDepth = BIT_DEPTH_10,
                 videoHdrFormat = HDR_HDR10,
             )
@@ -221,6 +516,7 @@ class QualityExploredEncoderProfilesProviderTest {
             createFakeVideoProfileProxy(
                 RESOLUTION_480P,
                 videoCodec = MPEG_4_SP,
+                videoMediaType = MIMETYPE_VIDEO_HEVC,
                 videoBitDepth = BIT_DEPTH_10,
                 videoHdrFormat = HDR_HLG,
             )
@@ -302,6 +598,7 @@ class QualityExploredEncoderProfilesProviderTest {
         val videoProfileHdHdr10 =
             createFakeVideoProfileProxy(
                 RESOLUTION_720P,
+                videoMediaType = MIMETYPE_VIDEO_HEVC,
                 videoBitDepth = BIT_DEPTH_10,
                 videoHdrFormat = HDR_HDR10,
             )
@@ -482,4 +779,14 @@ class QualityExploredEncoderProfilesProviderTest {
         quality: Int,
         dynamicRange: DynamicRange,
     ): Boolean = getMatchedDynamicRangeProfileCount(quality, dynamicRange) > 0
+
+    private fun createEncoderProfiles(
+        vararg videoProfiles: EncoderProfilesProxy.VideoProfileProxy
+    ): EncoderProfilesProxy =
+        EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+            DEFAULT_DURATION,
+            DEFAULT_OUTPUT_FORMAT,
+            listOf(createFakeAudioProfileProxy()),
+            videoProfiles.toList(),
+        )
 }
