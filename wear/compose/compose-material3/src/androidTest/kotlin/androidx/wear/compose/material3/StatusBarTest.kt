@@ -52,6 +52,12 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -4261,6 +4267,1151 @@ class StatusBarTest {
         composeTestRule.onNodeWithTag(testTag).assertIsDisplayed()
     }
 
+    @Test
+    fun multipleAppScaffoldsInSameWindow_replacedDuringScrollAway_preservesBaselineAndShowsStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        val hiddenInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), false).build()
+
+        val fragmentView1 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+            }
+        val fragmentView2 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+            }
+        val fragmentView3 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+            }
+
+        var activeScreen by mutableIntStateOf(1)
+        val scrollInProgress = mutableStateOf(false)
+        val mockScrollInfo = TestScrollInfoProvider(scrollInProgress)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                when (activeScreen) {
+                    1 ->
+                        CompositionLocalProvider(LocalView provides fragmentView1) {
+                            AppScaffold {
+                                ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
+                                    Box(modifier = Modifier.fillMaxSize())
+                                }
+                            }
+                        }
+                    2 ->
+                        CompositionLocalProvider(LocalView provides fragmentView2) {
+                            AppScaffold {
+                                ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                            }
+                        }
+                    3 ->
+                        CompositionLocalProvider(LocalView provides fragmentView3) {
+                            AppScaffold {
+                                ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                            }
+                        }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // 1. Screen 1 (e.g. Folder List) scrolls down -> status bar hides on the shared window
+        composeTestRule.runOnUiThread {
+            scrollInProgress.value = true
+            fragmentView1.mockRootWindowInsets = hiddenInsets
+            fragmentView2.mockRootWindowInsets = hiddenInsets
+            fragmentView3.mockRootWindowInsets = hiddenInsets
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+
+        // 2. Navigate to Screen 2 (e.g. Sent folder) while status bar is still hidden from scroll.
+        // Screen 2 must NOT mistake Screen 1's scroll-away hide for the window's initial baseline.
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread { activeScreen = 2 }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(
+            "Screen 2 should show the status bar",
+            decorView.testController.showCount > 0,
+        )
+        Assert.assertEquals(
+            "Screen 2 must not hide the status bar",
+            0,
+            decorView.testController.hideCount,
+        )
+
+        // 3. Navigate on to Screen 3 (e.g. Primary folder).
+        // Disposing Screen 2 must NOT restore a poisoned false baseline and hide the status bar.
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread { activeScreen = 3 }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Disposing Screen 2 when navigating to Screen 3 must not hide the status bar",
+            0,
+            decorView.testController.hideCount,
+        )
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_stackedDuringScrollAwayAndPopped_keepsStatusBarVisible() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        val hiddenInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), false).build()
+
+        val primaryFragmentView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+            }
+        val detailFragmentView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+            }
+
+        var showDetailFragment by mutableStateOf(false)
+        val scrollInProgress = mutableStateOf(false)
+        val mockScrollInfo = TestScrollInfoProvider(scrollInProgress)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                // Underlying Fragment 1 (e.g. Primary inbox) remains in composition
+                CompositionLocalProvider(LocalView provides primaryFragmentView) {
+                    AppScaffold {
+                        ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+
+                // Stacked Fragment 2 (e.g. Conversation view) added via FragmentTransaction.add()
+                if (showDetailFragment) {
+                    CompositionLocalProvider(LocalView provides detailFragmentView) {
+                        AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // 1. Scroll down on Primary screen -> status bar is hidden
+        composeTestRule.runOnUiThread {
+            scrollInProgress.value = true
+            primaryFragmentView.mockRootWindowInsets = hiddenInsets
+            detailFragmentView.mockRootWindowInsets = hiddenInsets
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+
+        // 2. Tap an item -> scroll stops and Detail Fragment is stacked on top while status bar is
+        // hidden
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            scrollInProgress.value = false
+            showDetailFragment = true
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Detail fragment should show the status bar on the shared window",
+            1,
+            decorView.testController.showCount,
+        )
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // 3. Advance clock past IDLE_DELAY (2000ms) while Detail Fragment is open so Primary
+        // returns to ScreenStage.Idle in the background
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.mainClock.advanceTimeBy(3000)
+        composeTestRule.mainClock.autoAdvance = true
+        composeTestRule.waitForIdle()
+
+        // 4. Pop Detail Fragment (navigate back to Primary) -> status bar must stay visible!
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread { showDetailFragment = false }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Popping Detail fragment back to Primary must NOT hide the status bar",
+            0,
+            decorView.testController.hideCount,
+        )
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_backgroundIdleDoesNotOverrideForegroundSuppression() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        var showSuppressedOverlayScaffold by mutableStateOf(false)
+        val scrollInProgress = mutableStateOf(false)
+        val mockScrollInfo = TestScrollInfoProvider(scrollInProgress)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides decorView,
+            ) {
+                AppScaffold {
+                    ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+                if (showSuppressedOverlayScaffold) {
+                    AppScaffold(timeText = {}) {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+
+        // 1. Background scaffold starts scrolling -> hides status bar, then stops scrolling and
+        // opens a foreground AppScaffold that disables status bar (timeText = {})
+        composeTestRule.runOnUiThread { scrollInProgress.value = true }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            scrollInProgress.value = false
+            showSuppressedOverlayScaffold = true
+        }
+        composeTestRule.waitForIdle()
+
+        // 2. Background scaffold's IDLE_DELAY (2000ms) elapses while foreground scaffold is on top.
+        // Background scaffold must NOT show the status bar over the foreground suppressed scaffold.
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.mainClock.advanceTimeBy(3000)
+        composeTestRule.mainClock.autoAdvance = true
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Background AppScaffold idle timeout must not override foreground AppScaffold hide",
+            0,
+            decorView.testController.showCount,
+        )
+
+        // 3. When foreground suppressed AppScaffold is dismissed, background AppScaffold's idle
+        // show() state is immediately applied.
+        composeTestRule.runOnUiThread { showSuppressedOverlayScaffold = false }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Dismissing foreground suppressed AppScaffold should restore background AppScaffold show state",
+            1,
+            decorView.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_localScreenIsActiveTogglesPrecedence() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        val sharedLifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        decorView.setViewTreeLifecycleOwner(sharedLifecycle)
+        var activeScaffold by mutableIntStateOf(1)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides decorView,
+                LocalLifecycleOwner provides sharedLifecycle,
+            ) {
+                CompositionLocalProvider(LocalScreenIsActive provides (activeScaffold == 1)) {
+                    AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
+                }
+                CompositionLocalProvider(LocalScreenIsActive provides (activeScaffold == 2)) {
+                    AppScaffold(timeText = {}) {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // Switch active screen to AppScaffold 2 (which disables status bar)
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread { activeScaffold = 2 }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+
+        // Switch active screen back to AppScaffold 1 (which enables status bar)
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread { activeScaffold = 1 }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // Pausing the shared Activity lifecycle while AppScaffold 2 has LocalScreenIsActive = false
+        // must NOT fall back to AppScaffold 2 and hide the status bar.
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            sharedLifecycle.registry.currentState = Lifecycle.State.STARTED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Pausing lifecycle must still respect LocalScreenIsActive and keep AppScaffold 1 winning",
+            0,
+            decorView.testController.hideCount,
+        )
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_startedFragmentDoesNotOverrideResumedFragment() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        val fragment1Lifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        // Offscreen ViewPager2 fragment is composed in STARTED state after the RESUMED fragment
+        val fragment2Lifecycle = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+        val fragmentView1 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+                setViewTreeLifecycleOwner(fragment1Lifecycle)
+            }
+        val fragmentView2 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+                setViewTreeLifecycleOwner(fragment2Lifecycle)
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                CompositionLocalProvider(
+                    LocalView provides fragmentView1,
+                    LocalLifecycleOwner provides fragment1Lifecycle,
+                ) {
+                    AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
+                }
+                CompositionLocalProvider(
+                    LocalView provides fragmentView2,
+                    LocalLifecycleOwner provides fragment2Lifecycle,
+                ) {
+                    AppScaffold(timeText = {}) {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        // Even though Fragment 2 (disabled status bar) was composed last, Fragment 1 is RESUMED
+        // while Fragment 2 is only STARTED, so Fragment 1 must stay in control.
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // Swipe to Fragment 2 -> Fragment 1 moves to STARTED, Fragment 2 moves to RESUMED
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            fragment1Lifecycle.registry.currentState = Lifecycle.State.STARTED
+            fragment2Lifecycle.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+        Assert.assertEquals(0, decorView.testController.showCount)
+
+        // Swipe back to Fragment 1 -> Fragment 2 moves to STARTED, Fragment 1 moves to RESUMED
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            fragment2Lifecycle.registry.currentState = Lifecycle.State.STARTED
+            fragment1Lifecycle.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+    }
+
+    @Test
+    fun appScaffold_localScreenIsActiveStartsFalseBeforeAttach_retriesWhenActiveAndInsetsArrive() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+
+        // Start unattached with no insets
+        val composeView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = false
+                mockRootView = this
+                mockRootWindowInsets = null
+                controllerProvider = { null }
+            }
+
+        var isActive by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides composeView,
+                LocalScreenIsActive provides isActive,
+            ) {
+                AppScaffold(timeText = {}) {
+                    ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // Screen becomes active before view is attached/laid out with insets
+        composeTestRule.runOnUiThread { isActive = true }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // Now view attaches and lays out with insets -> hide() should retry and succeed
+        composeTestRule.runOnUiThread {
+            composeView.mockIsAttachedToWindow = true
+            composeView.mockRootView = decorView
+            composeView.mockRootWindowInsets = visibleInsets
+            composeView.controllerProvider = { decorView.testController }
+            composeView.simulateAttach()
+            composeView.simulateLayout()
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+    }
+
+    @Test
+    fun appScaffold_singleScaffoldLocalScreenIsActiveBrieflyFlipsFalse_doesNotFlashInitialState() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        var isActive by mutableStateOf(true)
+        var inComposition by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides decorView,
+                LocalScreenIsActive provides isActive,
+            ) {
+                if (inComposition) {
+                    AppScaffold(timeText = {}) {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+        Assert.assertEquals(0, decorView.testController.showCount)
+
+        // Briefly flip LocalScreenIsActive to false and back to true while AppScaffold is still
+        // the only scaffold in composition -> must NOT reset WindowInsetsController to initial
+        // visible state and flash the status bar.
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread { isActive = false }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Single AppScaffold briefly becoming inactive must not flash status bar back to initial state",
+            0,
+            decorView.testController.showCount,
+        )
+
+        composeTestRule.runOnUiThread { isActive = true }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // When AppScaffold actually leaves composition, it must restore the initial visible state.
+        composeTestRule.runOnUiThread { inComposition = false }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_viewDetachedBeforeDispose_stillHandsOffAndRestoresBaseline() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+
+        val fragmentView1 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+            }
+        val fragmentView2 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+            }
+
+        var showFragment1 by mutableStateOf(true)
+        var showFragment2 by mutableStateOf(true)
+        val scrollInProgress = mutableStateOf(false)
+        val mockScrollInfo = TestScrollInfoProvider(scrollInProgress)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                if (showFragment1) {
+                    CompositionLocalProvider(LocalView provides fragmentView1) {
+                        AppScaffold {
+                            ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                }
+                if (showFragment2) {
+                    CompositionLocalProvider(LocalView provides fragmentView2) {
+                        AppScaffold(timeText = {}) {
+                            ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        // Fragment 2 is on top and hides the status bar
+        Assert.assertEquals(1, decorView.testController.hideCount)
+
+        // Simulate Android detaching Fragment 2's ComposeView from DecorView BEFORE Compose runs
+        // DisposableEffect.onDispose
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            fragmentView2.mockIsAttachedToWindow = false
+            fragmentView2.mockRootView = fragmentView2
+            fragmentView2.mockRootWindowInsets = null
+            fragmentView2.controllerProvider = { null }
+            fragmentView2.simulateDetach()
+            showFragment2 = false
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Detached Fragment 2 must still unregister and hand off to Fragment 1 (show)",
+            1,
+            decorView.testController.showCount,
+        )
+
+        // Have Fragment 1 hide the status bar via scroll-away first
+        composeTestRule.runOnUiThread { scrollInProgress.value = true }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+
+        // Now detach and remove Fragment 1 after it hides the status bar -> must restore baseline
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            fragmentView1.mockIsAttachedToWindow = false
+            fragmentView1.mockRootView = fragmentView1
+            fragmentView1.mockRootWindowInsets = null
+            fragmentView1.controllerProvider = { null }
+            fragmentView1.simulateDetach()
+            showFragment1 = false
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Detached last Fragment must still restore the window's initial visible baseline",
+            1,
+            decorView.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_sharedLifecyclePauseAndResume_doesNotFlicker() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+
+        // Start in STARTED (e.g. Activity during onStart() before onResume())
+        val sharedLifecycle = TestLifecycleOwner(Lifecycle.State.STARTED)
+        val view1 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+                setViewTreeLifecycleOwner(sharedLifecycle)
+            }
+        val view2 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+                setViewTreeLifecycleOwner(sharedLifecycle)
+            }
+
+        var showOverlay by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalLifecycleOwner provides sharedLifecycle,
+            ) {
+                // Background scaffold wants status bar shown
+                CompositionLocalProvider(LocalView provides view1) {
+                    AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
+                }
+                // Foreground overlay scaffold wants status bar hidden
+                if (showOverlay) {
+                    CompositionLocalProvider(LocalView provides view2) {
+                        AppScaffold(timeText = {}) {
+                            ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        // Registered while both are inactive (STARTED): after view1's initial show(), foreground
+        // scaffold (view2) is appended after view1 and wins by hiding the status bar.
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(1, decorView.testController.hideCount)
+
+        // Transition shared lifecycle STARTED -> RESUMED -> STARTED -> RESUMED:
+        // Background scaffold (view1) must never momentarily win and cause a show()/hide() flicker!
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            sharedLifecycle.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Resuming shared lifecycle must not flicker show() from background scaffold",
+            0,
+            decorView.testController.showCount,
+        )
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        composeTestRule.runOnUiThread {
+            sharedLifecycle.registry.currentState = Lifecycle.State.STARTED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Pausing shared lifecycle must not flicker show() from background scaffold",
+            0,
+            decorView.testController.showCount,
+        )
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        composeTestRule.runOnUiThread {
+            sharedLifecycle.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Re-resuming shared lifecycle must not flicker show() from background scaffold",
+            0,
+            decorView.testController.showCount,
+        )
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // Dismiss overlay while RESUMED -> background scaffold (view1) shows status bar.
+        // Then pause shared lifecycle to STARTED, add overlay back while STARTED, and resume:
+        // overlay (view2) must retain foreground precedence over background (view1) once RESUMED.
+        composeTestRule.runOnUiThread { showOverlay = false }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            sharedLifecycle.registry.currentState = Lifecycle.State.STARTED
+            showOverlay = true
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.runOnUiThread {
+            sharedLifecycle.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Foreground overlay added while shared lifecycle was paused must win once resumed",
+            1,
+            decorView.testController.hideCount,
+        )
+        Assert.assertEquals(0, decorView.testController.showCount)
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_handoffToHandleThatDidNotMutate_restoresBaselineWhenLastLeaves() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        var showScaffold1 by mutableStateOf(true)
+        var showScaffold2 by mutableStateOf(true)
+        var scaffold2Active by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides decorView,
+            ) {
+                if (showScaffold1) {
+                    AppScaffold(timeText = {}) {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+                if (showScaffold2) {
+                    CompositionLocalProvider(LocalScreenIsActive provides scaffold2Active) {
+                        AppScaffold(timeText = {}) {
+                            ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        // Scaffold 1 mutated the window to hidden; Scaffold 2 registered while inactive
+        Assert.assertEquals(1, decorView.testController.hideCount)
+        Assert.assertEquals(0, decorView.testController.showCount)
+
+        // Scaffold 1 leaves composition -> hands off to Scaffold 2 (which also wants hidden, so no
+        // new platform call is needed)
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            scaffold2Active = true
+            showScaffold1 = false
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, decorView.testController.showCount)
+
+        // Now Scaffold 2 leaves composition as the last handle on the window -> must restore the
+        // window's initial visible baseline even though Scaffold 1 performed the original hide()!
+        composeTestRule.runOnUiThread { showScaffold2 = false }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Last handle leaving after handoff must restore the window's initial visible baseline",
+            1,
+            decorView.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_offscreenViewPager2PageAndActivityPause_keepsPreviouslyResumedPageWinning() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        val fragment1Lifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        // Pre-composed offscreen ViewPager2 neighbor starts in STARTED
+        val fragment2Lifecycle = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+        val fragmentView1 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+                setViewTreeLifecycleOwner(fragment1Lifecycle)
+            }
+        val fragmentView2 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+                setViewTreeLifecycleOwner(fragment2Lifecycle)
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                CompositionLocalProvider(
+                    LocalView provides fragmentView1,
+                    LocalLifecycleOwner provides fragment1Lifecycle,
+                ) {
+                    AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
+                }
+                CompositionLocalProvider(
+                    LocalView provides fragmentView2,
+                    LocalLifecycleOwner provides fragment2Lifecycle,
+                ) {
+                    AppScaffold(timeText = {}) {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // Activity pauses (e.g. system overlay) -> Fragment 1 also drops to STARTED.
+        // Pre-composed offscreen Fragment 2 (never RESUMED) must NOT take over and hide the bar!
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            fragment1Lifecycle.registry.currentState = Lifecycle.State.STARTED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Pre-composed STARTED ViewPager2 page must not override previously RESUMED page when Activity pauses",
+            0,
+            decorView.testController.hideCount,
+        )
+    }
+
+    @Test
+    fun standaloneSuppressStatusBarWithoutAppScaffold_offscreenStartedFragment_doesNotOverrideResumedAppScaffold() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        val fragment1Lifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val fragment2Lifecycle = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+        val fragmentView1 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+                setViewTreeLifecycleOwner(fragment1Lifecycle)
+            }
+        val fragmentView2 =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootView = decorView
+                mockRootWindowInsets = visibleInsets
+                controllerProvider = { decorView.testController }
+                setViewTreeLifecycleOwner(fragment2Lifecycle)
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                // Fragment 1: RESUMED with AppScaffold showing status bar
+                CompositionLocalProvider(
+                    LocalView provides fragmentView1,
+                    LocalLifecycleOwner provides fragment1Lifecycle,
+                ) {
+                    AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
+                }
+                // Fragment 2: Offscreen STARTED Fragment with NO AppScaffold (standalone
+                // ScreenScaffold with Modifier.suppressStatusBar())
+                CompositionLocalProvider(
+                    LocalView provides fragmentView2,
+                    LocalLifecycleOwner provides fragment2Lifecycle,
+                ) {
+                    ScreenScaffold(modifier = Modifier.suppressStatusBar()) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(
+            "Offscreen STARTED standalone ScreenScaffold without AppScaffold must not override RESUMED AppScaffold",
+            0,
+            decorView.testController.hideCount,
+        )
+
+        // When user swipes to Fragment 2 (Fragment 1 -> STARTED, Fragment 2 -> RESUMED),
+        // standalone ScreenScaffold suppression takes effect
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            fragment1Lifecycle.registry.currentState = Lifecycle.State.STARTED
+            fragment2Lifecycle.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_sameViewDifferentLocalLifecycleOwners_respectsPerDestinationLifecycle() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        // Host Activity ViewTreeLifecycleOwner stays RESUMED throughout (as in Compose Navigation
+        // where all NavBackStackEntry destinations share one ComposeView).
+        val activityLifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        decorView.setViewTreeLifecycleOwner(activityLifecycle)
+
+        val destination1Lifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val destination2Lifecycle = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides decorView,
+            ) {
+                CompositionLocalProvider(LocalLifecycleOwner provides destination1Lifecycle) {
+                    AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
+                }
+                CompositionLocalProvider(LocalLifecycleOwner provides destination2Lifecycle) {
+                    AppScaffold(timeText = {}) {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        // Destination 2 is composed last on the exact same View (whose ViewTreeLifecycleOwner is
+        // RESUMED), but Destination 2's LocalLifecycleOwner is STARTED while Destination 1 is
+        // RESUMED -> Destination 1 must stay in control.
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // Navigate to Destination 2 (Destination 1 -> STARTED, Destination 2 -> RESUMED)
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            destination1Lifecycle.registry.currentState = Lifecycle.State.STARTED
+            destination2Lifecycle.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+        Assert.assertEquals(0, decorView.testController.showCount)
+
+        // Navigate back to Destination 1 (Destination 2 -> STARTED, Destination 1 -> RESUMED)
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            destination2Lifecycle.registry.currentState = Lifecycle.State.STARTED
+            destination1Lifecycle.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+    }
+
+    @Test
+    fun statusBarOrchestrator_doesNotLeakViewReferenceWithLifecycleObserver() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val weakView = createWeakViewAndRegisterOrchestratorWithLifecycle(targetContext)
+
+        var gcAttempts = 0
+        while (weakView.get() != null && gcAttempts < 10) {
+            Runtime.getRuntime().gc()
+            System.runFinalization()
+            android.os.SystemClock.sleep(50)
+            gcAttempts++
+        }
+
+        Assert.assertNull(
+            "View registered with StatusBarOrchestrator and attached LifecycleOwner must be " +
+                "garbage collectable when external strong references are cleared (no cyclic " +
+                "WeakHashMap value-to-key leak)",
+            weakView.get(),
+        )
+    }
+
+    private fun createWeakViewAndRegisterOrchestratorWithLifecycle(
+        context: Context
+    ): java.lang.ref.WeakReference<View> {
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val testView =
+            TestView(context).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets = visibleInsets
+                setViewTreeLifecycleOwner(lifecycleOwner)
+            }
+        // Mirror Compose's WindowRecomposer observer capturing the View strongly inside the
+        // LifecycleRegistry.
+        lifecycleOwner.registry.addObserver(
+            LifecycleEventObserver { _, _ -> testView.isAttachedToWindow }
+        )
+        // Intentionally do NOT call restoreInitialStatusBarState() or dispose() so both
+        // activeHandles and lifecycle refs remain populated when the handle goes unreachable.
+        val handle = StatusBarOrchestrator(testView)
+        handle.update(visible = false, isScreenActive = true, lifecycle = lifecycleOwner.lifecycle)
+        return java.lang.ref.WeakReference(testView)
+    }
+
+    @Test
+    fun statusBarOrchestrator_untouchedHandleRestoreAfterDispose_doesNotSpuriouslyRestoreBaseline() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+
+        val handle1 = StatusBarOrchestrator(decorView)
+        handle1.hide()
+        Assert.assertEquals(1, decorView.testController.hideCount)
+
+        // Dispose handle1 without restoring baseline (leaves hasMutatedStatusBar = true).
+        handle1.dispose()
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+
+        // An untouched handle that was never added to activeHandles must not spuriously restore the
+        // window baseline when restoreInitialStatusBarState() is called.
+        val untouchedHandle = StatusBarOrchestrator(decorView)
+        untouchedHandle.restoreInitialStatusBarState()
+        Assert.assertEquals(0, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_destroyedOverlayLifecycle_doesNotRevertToActive() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val visibleInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        decorView.mockRootWindowInsets = visibleInsets
+
+        val activityLifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        decorView.setViewTreeLifecycleOwner(activityLifecycle)
+
+        val destination1Lifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val destination2Lifecycle = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides decorView,
+            ) {
+                CompositionLocalProvider(LocalLifecycleOwner provides destination1Lifecycle) {
+                    AppScaffold { ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) } }
+                }
+                CompositionLocalProvider(LocalLifecycleOwner provides destination2Lifecycle) {
+                    AppScaffold(timeText = {}) {
+                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(1, decorView.testController.showCount)
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        // Destroy Destination 2's lifecycle while still in composition: its handle must unregister
+        // its observer and remain inactive (isResumed == false), neither reverting to `true` nor
+        // falling back to the host View's RESUMED ViewTreeLifecycleOwner.
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            destination2Lifecycle.registry.currentState = Lifecycle.State.DESTROYED
+            decorView.simulateLayout()
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, decorView.testController.hideCount)
+        Assert.assertEquals(0, destination2Lifecycle.registry.observerCount)
+    }
+
+    @Test
+    fun multipleAppScaffoldsInSameWindow_resumingLifecycle_doesNotPromoteInactiveSiblingHandle() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+
+        val lifecycle1 = TestLifecycleOwner(Lifecycle.State.STARTED)
+        val lifecycle2 = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+        val handle1 = StatusBarOrchestrator(decorView)
+        val handle2 = StatusBarOrchestrator(decorView)
+        val handle3 = StatusBarOrchestrator(decorView)
+
+        // Order: [handle1(L1, screenActive=false, hide), handle2(L2, screenActive=false, show),
+        //         handle3(L1, screenActive=true, hide)]
+        composeTestRule.runOnUiThread {
+            handle1.update(
+                visible = false,
+                isScreenActive = false,
+                lifecycle = lifecycle1.lifecycle,
+            )
+            handle2.update(visible = true, isScreenActive = false, lifecycle = lifecycle2.lifecycle)
+            handle3.update(visible = false, isScreenActive = true, lifecycle = lifecycle1.lifecycle)
+
+            // Resuming lifecycle1 must promote only active handle3, keeping inactive handle1 behind
+            // handle2 in fallback order.
+            lifecycle1.registry.currentState = Lifecycle.State.RESUMED
+        }
+        composeTestRule.waitForIdle()
+
+        // Remove handle3 and pause lifecycle1: handle1 and handle2 are both inactive and
+        // never-active,
+        // so fallback order must still pick handle2 (show) over handle1 (hide).
+        decorView.testController.showCount = 0
+        decorView.testController.hideCount = 0
+        composeTestRule.runOnUiThread {
+            lifecycle1.registry.currentState = Lifecycle.State.STARTED
+            handle3.restoreInitialStatusBarState()
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "Inactive sibling handle1 must remain behind handle2 after lifecycle1 resumes",
+            1,
+            decorView.testController.showCount,
+        )
+        Assert.assertEquals(0, decorView.testController.hideCount)
+
+        handle1.dispose()
+        handle2.dispose()
+    }
+
     private class TestWindowInsetsController : WindowInsetsController {
         var showCount = 0
         var hideCount = 0
@@ -4365,6 +5516,25 @@ class StatusBarTest {
                 listener.onLayoutChange(this, 0, 0, 100, 100, 0, 0, 0, 0)
             }
         }
+    }
+
+    private class TestLifecycleOwner(initialState: Lifecycle.State = Lifecycle.State.RESUMED) :
+        LifecycleOwner {
+        val registry = LifecycleRegistry.createUnsafe(this).apply { currentState = initialState }
+        override val lifecycle: Lifecycle
+            get() = registry
+    }
+
+    private class TestScrollInfoProvider(
+        private val scrollInProgress: androidx.compose.runtime.State<Boolean>
+    ) : ScrollInfoProvider {
+        override val anchorItemOffset: Float = 50f
+        override val isScrollAwayValid: Boolean = true
+        override val isScrollInProgress: Boolean
+            get() = scrollInProgress.value
+
+        override val isScrollable: Boolean = true
+        override val lastItemOffset: Float = 0f
     }
 }
 
