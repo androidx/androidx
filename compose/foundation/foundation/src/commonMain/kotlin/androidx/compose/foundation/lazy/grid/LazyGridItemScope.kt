@@ -40,10 +40,8 @@ public sealed interface LazyGridItemScope {
      * subcomposing items, so this property returns the resolved count (always at least `1`) on the
      * first frame.
      *
-     * Backed by snapshot [androidx.compose.runtime.State]: reading this property during item
-     * composition, layout (such as [androidx.compose.ui.layout.layout]), or draw (such as
-     * [androidx.compose.ui.draw.drawBehind]) invalidates only that phase when the resolved count
-     * changes (for example, when resizing a [GridCells.Adaptive] grid).
+     * Backed by snapshot [androidx.compose.runtime.State], so readers automatically update when the
+     * resolved count changes (for example, when resizing a [GridCells.Adaptive] grid).
      *
      * @sample androidx.compose.foundation.samples.LazyGridCrossAxisCellCountSample
      */
