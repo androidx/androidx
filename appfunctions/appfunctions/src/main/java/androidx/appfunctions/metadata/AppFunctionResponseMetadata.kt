@@ -48,13 +48,6 @@ constructor(
     override fun toString(): String {
         return "AppFunctionResponseMetadata(valueType=$valueType, description=$description)"
     }
-
-    internal fun toAppFunctionResponseMetadataDocument(): AppFunctionResponseMetadataDocument {
-        return AppFunctionResponseMetadataDocument(
-            valueType = valueType.toAppFunctionDataTypeMetadataDocument(),
-            description = description,
-        )
-    }
 }
 
 /** Represents the persistent storage format of [AppFunctionResponseMetadata]. */

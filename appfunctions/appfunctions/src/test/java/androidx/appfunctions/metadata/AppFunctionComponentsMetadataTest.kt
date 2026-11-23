@@ -43,39 +43,6 @@ class AppFunctionComponentsMetadataTest {
     }
 
     @Test
-    fun toAppFunctionComponentsMetadataDocument_returnsCorrectDocument() {
-        val primitiveType1 = AppFunctionIntTypeMetadata(false)
-        val primitiveType2 = AppFunctionStringTypeMetadata(true)
-        val components =
-            AppFunctionComponentsMetadata(
-                mapOf("dataType1" to primitiveType1, "dataType2" to primitiveType2)
-            )
-
-        val appFunctionComponentsMetadataDocument =
-            components.toAppFunctionComponentsMetadataDocument()
-
-        assertThat(appFunctionComponentsMetadataDocument.dataTypes)
-            .containsExactly(
-                AppFunctionNamedDataTypeMetadataDocument(
-                    name = "dataType1",
-                    dataTypeMetadata =
-                        AppFunctionDataTypeMetadataDocument(
-                            type = AppFunctionDataTypeMetadata.TYPE_INT,
-                            isNullable = false,
-                        ),
-                ),
-                AppFunctionNamedDataTypeMetadataDocument(
-                    name = "dataType2",
-                    dataTypeMetadata =
-                        AppFunctionDataTypeMetadataDocument(
-                            type = AppFunctionDataTypeMetadata.TYPE_STRING,
-                            isNullable = true,
-                        ),
-                ),
-            )
-    }
-
-    @Test
     fun componentsMetadataDocument_toAppFunctionComponentsMetadata_returnsCorrectMetadata() {
         val appFunctionComponentsMetadataDocument =
             AppFunctionComponentsMetadataDocument(

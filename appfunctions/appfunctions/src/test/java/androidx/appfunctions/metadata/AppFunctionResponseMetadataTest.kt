@@ -23,29 +23,6 @@ import org.junit.Test
 class AppFunctionResponseMetadataTest {
 
     @Test
-    fun appFunctionResponseMetadata_toAppFunctionResponseMetadataDocument_returnsCorrectDocument() {
-        val responseMetadata =
-            AppFunctionResponseMetadata(
-                valueType = AppFunctionIntTypeMetadata(isNullable = false),
-                description = "Test response description",
-            )
-
-        val responseMetadataDocument = responseMetadata.toAppFunctionResponseMetadataDocument()
-
-        assertThat(responseMetadataDocument)
-            .isEqualTo(
-                AppFunctionResponseMetadataDocument(
-                    valueType =
-                        AppFunctionDataTypeMetadataDocument(
-                            type = AppFunctionDataTypeMetadata.TYPE_INT,
-                            isNullable = false,
-                        ),
-                    description = "Test response description",
-                )
-            )
-    }
-
-    @Test
     fun appFunctionResponseMetadataDocument_toAppFunctionResponseMetadata_returnsCorrectMetadata() {
         val responseMetadataDocument =
             AppFunctionResponseMetadataDocument(

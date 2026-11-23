@@ -69,29 +69,6 @@ class AppFunctionBehaviorHintsMetadataTest {
     }
 
     @Test
-    fun toAppFunctionBehaviorHintsMetadataDocument_returnCorrectDocument() {
-        val metadata =
-            AppFunctionBehaviorHintsMetadata(
-                isReadOnly = true,
-                isDestructive = false,
-                isIdempotent = true,
-                isOpenWorld = false,
-            )
-
-        val document = metadata.toAppFunctionBehaviorHintsMetadataDocument()
-
-        assertThat(document)
-            .isEqualTo(
-                AppFunctionBehaviorHintsMetadataDocument(
-                    isReadOnly = true,
-                    isDestructive = false,
-                    isIdempotent = true,
-                    isOpenWorld = false,
-                )
-            )
-    }
-
-    @Test
     fun toAppFunctionBehaviorHintsMetadata_returnCorrectMetadata() {
         val document =
             AppFunctionBehaviorHintsMetadataDocument(
