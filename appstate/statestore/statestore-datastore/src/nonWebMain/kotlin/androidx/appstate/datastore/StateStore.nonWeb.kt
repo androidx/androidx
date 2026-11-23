@@ -31,12 +31,14 @@ import okio.SYSTEM
 
 /**
  * Tracks changes to [StateStore] and persists keys implementing [PersistToDataStore] to a
- * [androidx.datastore.core.DataStore] backed by a file.
+ * [androidx.datastore.core.DataStore] backed by a UTF-8 JSON file via [StateStoreSerializer].
  *
  * Keys must implement [PersistToDataStore] to be saved.
  *
  * @sample androidx.appstate.datastore.samples.SyncStateStoreDataStorePathSample
- * @param path the file path to save and restore state from
+ * @param path the file path to save and restore state from. On Android, DataStore files are
+ *   conventionally stored under the `datastore/` subdirectory of `Context.filesDir` (for example,
+ *   `context.filesDir.resolve("datastore/state_store.json").absolutePath`).
  * @param coroutineScope the [CoroutineScope] used for the [androidx.datastore.core.DataStore]
  */
 @Suppress("PairedRegistration")
