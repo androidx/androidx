@@ -72,6 +72,7 @@
     <string name="one_handed_gesture_primary_action_accessibility_text">Double-pinch gesture to %s</string>
     <!-- Accessibility text for dismiss gesture -->
     <string name="one_handed_gesture_dismiss_action_accessibility_text">Wrist-turn gesture to %s</string>
+    <string description="Accessibility announcement describing which gesture performs an action. %1$s is the gesture name provided by the system, for example 'Double pinch'. %2$s is the action, for example 'confirm'. [CHAR_LIMIT=NONE]" name="one_handed_gesture_accessibility_text">%1$s gesture to %2$s</string>
     <!-- Accessibility text for dismiss gesture in AlertDialog -->
     <string name="one_handed_gesture_alert_dialog_dismiss_action_accessibility_text">dismiss</string>
     <!-- Accessibility text for primary gesture for Confirm Button in AlertDialog -->

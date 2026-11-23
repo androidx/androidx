@@ -125,6 +125,7 @@ import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.startsWith
 import org.junit.Rule
 import org.junit.Test
@@ -185,7 +186,7 @@ class OneHandedGestureTest {
         // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
         rule.mainClock.advanceTimeBy(3000)
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(true, gestured)
             assertEquals(true, indicatorShown)
@@ -235,7 +236,7 @@ class OneHandedGestureTest {
             }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(false, gestured)
             assertThat(hapticResults).hasSize(0)
@@ -300,7 +301,7 @@ class OneHandedGestureTest {
         // It takes at least a second for indicator to be shown. Fast-forward 3s to allow some delay
         rule.mainClock.advanceTimeBy(3000)
 
-        sdkGestureInputManager.performGesture(sdkActionDismiss)
+        sdkGestureInputManager.performGesture(SDK_ACTION_DISMISS)
 
         rule.runOnIdle {
             assertEquals(true, gestured)
@@ -319,6 +320,261 @@ class OneHandedGestureTest {
                 gestureLabel,
             )
         onView(withContentDescription(expectedText)).checkExists()
+    }
+
+    /** Verifies that the system-provided gesture name is used for the primary gesture */
+    @Test
+    fun primary_gesture_uses_system_gesture_name() {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureNames = mapOf(SDK_GESTURE_DOUBLE_PINCH to "Custom pinch")
+            )
+
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Primary) {
+            "click"
+        }
+
+        onView(withContentDescription(systemGestureText("Custom pinch", "click"))).checkExists()
+        onView(
+                withContentDescription(
+                    gestureText(
+                        R.string.one_handed_gesture_primary_action_accessibility_text,
+                        "click",
+                    )
+                )
+            )
+            .checkDoesNotExist()
+    }
+
+    /** Verifies that the system-provided gesture name is used for the dismiss gesture */
+    @Test
+    fun dismiss_gesture_uses_system_gesture_name() {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureNames = mapOf(SDK_GESTURE_WRIST_TURN to "Custom turn")
+            )
+
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Dismiss) {
+            "dismiss"
+        }
+
+        onView(withContentDescription(systemGestureText("Custom turn", "dismiss"))).checkExists()
+        onView(
+                withContentDescription(
+                    gestureText(
+                        R.string.one_handed_gesture_dismiss_action_accessibility_text,
+                        "dismiss",
+                    )
+                )
+            )
+            .checkDoesNotExist()
+    }
+
+    /** Verifies that the system-provided name of the gesture bound to the action is used */
+    @Test
+    fun system_gesture_name_for_other_gesture() {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureForAction = mapOf(SDK_ACTION_PRIMARY to SDK_GESTURE_OTHER),
+                gestureNames =
+                    mapOf(
+                        SDK_GESTURE_OTHER to "Single pinch",
+                        SDK_GESTURE_DOUBLE_PINCH to "Double pinch",
+                    ),
+            )
+
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Primary) {
+            "click"
+        }
+
+        onView(withContentDescription(systemGestureText("Single pinch", "click"))).checkExists()
+        onView(withContentDescription(systemGestureText("Double pinch", "click")))
+            .checkDoesNotExist()
+    }
+
+    /**
+     * Verifies that a gesture without a system name or library string is not announced, rather than
+     * announcing the action's default gesture
+     */
+    @Test
+    fun other_gesture_without_name_is_not_announced() {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureForAction = mapOf(SDK_ACTION_DISMISS to SDK_GESTURE_OTHER)
+            )
+
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Dismiss) {
+            "dismiss"
+        }
+
+        onView(withContentDescription(containsString("dismiss"))).checkDoesNotExist()
+    }
+
+    /** Verifies the fallback to the library string when the system name is null, empty or blank */
+    @Test
+    fun missing_system_gesture_name_falls_back_to_library_string(
+        @TestParameter missingName: MissingGestureName
+    ) {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureNames = mapOf(SDK_GESTURE_DOUBLE_PINCH to missingName.value)
+            )
+
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Primary) {
+            "click"
+        }
+
+        onView(
+                withContentDescription(
+                    gestureText(
+                        R.string.one_handed_gesture_primary_action_accessibility_text,
+                        "click",
+                    )
+                )
+            )
+            .checkExists()
+    }
+
+    /**
+     * Verifies that the fallback library string describes the gesture bound to the action. Primary
+     * action is bound to wrist turn gesture (instead of the default double pinch) so that the two
+     * are distinguishable.
+     */
+    @Test
+    fun fallback_uses_library_string_of_bound_gesture() {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureForAction = mapOf(SDK_ACTION_PRIMARY to SDK_GESTURE_WRIST_TURN)
+            )
+
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Primary) {
+            "click"
+        }
+
+        onView(
+                withContentDescription(
+                    gestureText(
+                        R.string.one_handed_gesture_dismiss_action_accessibility_text,
+                        "click",
+                    )
+                )
+            )
+            .checkExists()
+        onView(
+                withContentDescription(
+                    gestureText(
+                        R.string.one_handed_gesture_primary_action_accessibility_text,
+                        "click",
+                    )
+                )
+            )
+            .checkDoesNotExist()
+    }
+
+    /** Verifies that nothing is announced when the bound gesture is unknown */
+    @Test
+    fun unknown_bound_gesture_is_not_announced() {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureForAction = mapOf(SDK_ACTION_PRIMARY to SDK_GESTURE_UNKNOWN),
+                gestureNames = mapOf(SDK_GESTURE_DOUBLE_PINCH to "Custom pinch"),
+            )
+
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Primary) {
+            "click"
+        }
+
+        onView(withContentDescription(containsString("click"))).checkDoesNotExist()
+    }
+
+    /** Verifies that an existing announcement is cleared when the bound gesture becomes unknown */
+    @Test
+    fun announcement_is_cleared_when_bound_gesture_becomes_unknown() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        var gestureLabel by mutableStateOf("click")
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Primary) {
+            gestureLabel
+        }
+        onView(
+                withContentDescription(
+                    gestureText(
+                        R.string.one_handed_gesture_primary_action_accessibility_text,
+                        "click",
+                    )
+                )
+            )
+            .checkExists()
+
+        // Gestures are re-evaluated when the modifier is updated, here through a label change.
+        sdkGestureInputManager.gestureForAction = mapOf(SDK_ACTION_PRIMARY to SDK_GESTURE_UNKNOWN)
+        gestureLabel = "share"
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        onView(withContentDescription(containsString("click"))).checkDoesNotExist()
+        onView(withContentDescription(containsString("share"))).checkDoesNotExist()
+    }
+
+    /** Verifies updating onGestureLabel when the system-provided gesture name is used */
+    @Test
+    fun updating_onGestureLabel_with_system_gesture_name() {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureNames = mapOf(SDK_GESTURE_DOUBLE_PINCH to "Custom pinch")
+            )
+        var gestureLabel by mutableStateOf<String?>("click")
+
+        setOneHandedGestureContent(sdkGestureInputManager, OneHandedGestureAction.Primary) {
+            gestureLabel
+        }
+
+        onView(withContentDescription(systemGestureText("Custom pinch", "click"))).checkExists()
+
+        gestureLabel = "share"
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        onView(withContentDescription(systemGestureText("Custom pinch", "share"))).checkExists()
+        onView(withContentDescription(systemGestureText("Custom pinch", "click")))
+            .checkDoesNotExist()
+
+        // Passing onGestureLabel = null suppresses the announcement.
+        gestureLabel = null
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        onView(withContentDescription(systemGestureText("Custom pinch", "share")))
+            .checkDoesNotExist()
+    }
+
+    /** Verifies that the AlertDialog default label is combined with the system gesture name */
+    @Test
+    fun alert_dialog_default_label_uses_system_gesture_name() {
+        val sdkGestureInputManager =
+            SdkGestureInputManagerMock(
+                gestureNames = mapOf(SDK_GESTURE_DOUBLE_PINCH to "Custom pinch")
+            )
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    title = {},
+                    confirmButton = { AlertDialogDefaults.ConfirmButton(onClick = {}) },
+                )
+            }
+        }
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val defaultConfirmLabel =
+            context.getString(
+                R.string.one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text
+            )
+        onView(withContentDescription(systemGestureText("Custom pinch", defaultConfirmLabel)))
+            .checkExists()
     }
 
     /** Verifies that Clickable priority is higher than Scrollable */
@@ -403,7 +659,7 @@ class OneHandedGestureTest {
         // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
         rule.mainClock.advanceTimeBy(3000)
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(false, scrollIndicatorShown)
             assertEquals(false, scrollGestured)
@@ -489,7 +745,7 @@ class OneHandedGestureTest {
         // It takes at least a second for indicator to be shown. Wait for 3s to allow some delay
         rule.mainClock.advanceTimeBy(3000)
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(false, tlcGestured)
             // Since all Texts have the same priority, verify that all of them have been gestured
@@ -726,7 +982,7 @@ class OneHandedGestureTest {
         }
 
         repeat(numberOfPages) {
-            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
             rule.onNodeWithTag("Pager").performTouchInput { swipeLeft() }
         }
 
@@ -801,7 +1057,7 @@ class OneHandedGestureTest {
             }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
 
         rule.runOnIdle {
             // By default, 2nd button has higher priority and should be gestured
@@ -811,7 +1067,7 @@ class OneHandedGestureTest {
         rule.onNodeWithTag("InvertPriorityButton").performClick()
         rule.waitForIdle()
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             // After inverting priority, first button should be gestured. Number of gestures
             // performed on the second button should not change
@@ -870,7 +1126,7 @@ class OneHandedGestureTest {
             }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(1, gesturedCount)
             assertEquals(1, pressCount)
@@ -927,7 +1183,7 @@ class OneHandedGestureTest {
             rule.runOnIdle { assertEquals(1, gestureAvailableCount) }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(1, gestureCount)
             assertEquals(0, firstSourcePressCount)
@@ -1006,7 +1262,7 @@ class OneHandedGestureTest {
             }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(true, gestured)
             gestured = false
@@ -1017,7 +1273,7 @@ class OneHandedGestureTest {
         rule.waitForIdle()
 
         // Verify that the gesture is still registered after the move.
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(true, gestured) }
     }
 
@@ -1053,7 +1309,7 @@ class OneHandedGestureTest {
 
         // Scroll through alert dialog with one-handed gestures until confirm button is gestured
         for (i in 0..10) {
-            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
             rule.waitForIdle()
             if (confirmButtonClicked) {
                 break
@@ -1098,7 +1354,7 @@ class OneHandedGestureTest {
         // Scroll through alert dialog with one-handed gestures; with gestureVisibilityThreshold =
         // 0f, the confirm button gesture is disabled and should never trigger.
         for (i in 0..10) {
-            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
             rule.waitForIdle()
         }
         rule.runOnIdle { assertEquals(false, confirmButtonClicked) }
@@ -1127,7 +1383,7 @@ class OneHandedGestureTest {
 
         // When fully visible (offsetX = 0.dp), gestureVisibilityThreshold = 0f disables the
         // gesture.
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, confirmButtonClicked) }
 
         // Shift the 63.dp-wide ConfirmButton left by 21.dp across the left window edge (x = 0) so
@@ -1136,14 +1392,14 @@ class OneHandedGestureTest {
         offsetX = (-21).dp
         gestureVisibilityThreshold = 0.9f
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, confirmButtonClicked) }
 
         // Lowering gestureVisibilityThreshold to 0.5f at the same -21.dp offset activates the
         // gesture.
         gestureVisibilityThreshold = 0.5f
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(true, confirmButtonClicked)
             confirmButtonClicked = false
@@ -1153,7 +1409,7 @@ class OneHandedGestureTest {
         // 0.5f threshold.
         offsetX = (-42).dp
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, confirmButtonClicked) }
 
         // Returning the button to full visibility (offsetX = 0.dp) with threshold = 0.9f activates
@@ -1161,7 +1417,7 @@ class OneHandedGestureTest {
         offsetX = 0.dp
         gestureVisibilityThreshold = 0.9f
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(true, confirmButtonClicked) }
     }
 
@@ -1183,7 +1439,7 @@ class OneHandedGestureTest {
             }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
     }
 
@@ -1223,7 +1479,7 @@ class OneHandedGestureTest {
             }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(true, edgeButtonClicked) }
     }
 
@@ -1375,13 +1631,13 @@ class OneHandedGestureTest {
         }
 
         // First gesture should scroll down while EdgeButton is hidden, not click EdgeButton.
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
 
         // Continue scrolling through alert dialog with one-handed gestures until edge button is
         // gestured.
         for (i in 1..10) {
-            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
             rule.waitForIdle()
             if (edgeButtonClicked) {
                 break
@@ -1409,7 +1665,7 @@ class OneHandedGestureTest {
         }
 
         // gestureVisibilityThreshold = 0f disables the gesture even at non-zero height.
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
 
         // At 16.dp total height (10.dp inner button height after 6.dp vertical padding, ~14.3% of
@@ -1417,7 +1673,7 @@ class OneHandedGestureTest {
         // activates the gesture.
         gestureVisibilityThreshold = 0.1f
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(true, edgeButtonClicked)
             edgeButtonClicked = false
@@ -1437,14 +1693,14 @@ class OneHandedGestureTest {
             }
         gestureVisibilityThreshold = 0.5f
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
 
         // Lowering gestureVisibilityThreshold to 0.4f at the same 50% inner height activates the
         // gesture (exceeds threshold).
         gestureVisibilityThreshold = 0.4f
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(true, edgeButtonClicked)
             edgeButtonClicked = false
@@ -1453,7 +1709,7 @@ class OneHandedGestureTest {
         // Raising gestureVisibilityThreshold to 1.0f at 50% inner height deactivates the gesture.
         gestureVisibilityThreshold = 1.0f
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
 
         // At full height, gestureVisibilityThreshold = 1.0f activates the gesture.
@@ -1466,7 +1722,7 @@ class OneHandedGestureTest {
                     .toDp()
             }
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle {
             assertEquals(true, edgeButtonClicked)
             edgeButtonClicked = false
@@ -1476,7 +1732,7 @@ class OneHandedGestureTest {
         // the gesture.
         gestureVisibilityThreshold = AlertDialogDefaults.GestureDisabled
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
     }
 
@@ -1667,7 +1923,7 @@ class OneHandedGestureTest {
         rule.waitForIdle()
 
         rule.runOnIdle {
-            assertEquals(sdkActionPrimary, sdkGestureInputManager.lastNotifiedSdkGestureAction)
+            assertEquals(SDK_ACTION_PRIMARY, sdkGestureInputManager.lastNotifiedSdkGestureAction)
             assertNotNull(sdkGestureInputManager.lastNotifiedGestureId)
         }
     }
@@ -1758,7 +2014,7 @@ class OneHandedGestureTest {
                     expectedIndex[iteration % expectedIndex.size],
                     listState.centerItemIndex,
                 )
-                sdkGestureInputManager.performGesture(sdkActionPrimary)
+                sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
             }
         }
     }
@@ -1807,7 +2063,7 @@ class OneHandedGestureTest {
         repeat(numberOfItems * 2) {
             rule.runOnIdle {
                 assertEquals(expectedIndex, listState.centerItemIndex)
-                sdkGestureInputManager.performGesture(sdkActionPrimary)
+                sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
                 if (expectedIndex == numberOfItems - 1) {
                     if (wrap) expectedIndex = 1
                 } else {
@@ -1859,7 +2115,7 @@ class OneHandedGestureTest {
                     expectedIndex[iteration % expectedIndex.size],
                     listState.anchorItemIndex,
                 )
-                sdkGestureInputManager.performGesture(sdkActionPrimary)
+                sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
             }
         }
     }
@@ -1909,7 +2165,7 @@ class OneHandedGestureTest {
             trackedItemIndex = trackedItem.index
             offsetBefore = trackedItem.unadjustedOffset
             expectedScroll = listState.layoutInfo.viewportSize.height * scrollFraction
-            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         }
 
         rule.runOnIdle {
@@ -1972,7 +2228,7 @@ class OneHandedGestureTest {
             trackedItemIndex = trackedItem.index
             offsetBefore = trackedItem.offset
             expectedScroll = viewportHeight * scrollFraction
-            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         }
 
         rule.runOnIdle {
@@ -2032,7 +2288,7 @@ class OneHandedGestureTest {
         repeat(numberOfItems * 2) {
             rule.waitForIdle()
             assertEquals(expectedIndex, listState.anchorItemIndex)
-            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
             if (expectedIndex == numberOfItems - 5 /* last 4 items can't be scrolled */) {
                 if (wrap) {
                     expectedIndex = initialAnchorIndex
@@ -2042,11 +2298,11 @@ class OneHandedGestureTest {
 
                     // Step 1: Scroll a few pixels to ensure the list hits its physical end and the
                     // last item is fully visible
-                    sdkGestureInputManager.performGesture(sdkActionPrimary)
+                    sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
                     rule.waitForIdle()
 
                     // Step 2: Scroll back up to the first (0th) item.
-                    sdkGestureInputManager.performGesture(sdkActionPrimary)
+                    sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
                     rule.waitForIdle()
                 }
             } else {
@@ -2097,7 +2353,7 @@ class OneHandedGestureTest {
             assertThat(listState.anchorItemScrollOffset).isLessThan(0)
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
 
         rule.runOnIdle { assertEquals(1, listState.anchorItemIndex) }
     }
@@ -2139,7 +2395,7 @@ class OneHandedGestureTest {
         repeat(numberOfPages * 2) {
             rule.runOnIdle {
                 assertEquals(expectedIndex, pagerState.currentPage)
-                sdkGestureInputManager.performGesture(sdkActionPrimary)
+                sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
                 if (expectedIndex == numberOfPages - 1) {
                     if (wrap) expectedIndex = 0
                 } else {
@@ -2202,12 +2458,12 @@ class OneHandedGestureTest {
             }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(false, gestured) }
 
         enabled = true
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
 
         rule.runOnIdle { assertEquals(true, gestured) }
     }
@@ -2239,13 +2495,13 @@ class OneHandedGestureTest {
             }
         }
 
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
         rule.runOnIdle { assertEquals(true, gestured) }
 
         gestured = false
         enabled = false
         rule.waitForIdle()
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        sdkGestureInputManager.performGesture(SDK_ACTION_PRIMARY)
 
         rule.runOnIdle { assertEquals(false, gestured) }
     }
@@ -3009,7 +3265,10 @@ class OneHandedGestureTest {
         rule.runOnIdle {
             if (expectShown) {
                 assertEquals(gestureConfig.gestureId, sdkGestureInputManager.lastNotifiedGestureId)
-                assertEquals(sdkActionPrimary, sdkGestureInputManager.lastNotifiedSdkGestureAction)
+                assertEquals(
+                    SDK_ACTION_PRIMARY,
+                    sdkGestureInputManager.lastNotifiedSdkGestureAction,
+                )
             } else {
                 assertEquals(null, sdkGestureInputManager.lastNotifiedGestureId)
                 assertEquals(null, sdkGestureInputManager.lastNotifiedSdkGestureAction)
@@ -3049,6 +3308,39 @@ class OneHandedGestureTest {
         image.assertContainsColor(expectedContentColor)
     }
 
+    /**
+     * Sets content with a single [oneHandedGesture] for [action] and waits until the gesture has
+     * been announced for accessibility.
+     */
+    private fun setOneHandedGestureContent(
+        sdkGestureInputManager: SdkGestureInputManager,
+        action: OneHandedGestureAction,
+        onGestureLabel: () -> String?,
+    ) {
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                val gestureConfig = rememberOneHandedGestureConfiguration(action = action)
+                Box(
+                    Modifier.size(50.dp).oneHandedGesture(
+                        gestureConfiguration = gestureConfig,
+                        onGestureLabel = onGestureLabel(),
+                    ) {}
+                )
+            }
+        }
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+    }
+
+    /** Returns the expected accessibility text for a system-provided [gestureName]. */
+    private fun systemGestureText(gestureName: String, onGestureLabel: String): String =
+        ApplicationProvider.getApplicationContext<Context>()
+            .getString(R.string.one_handed_gesture_accessibility_text, gestureName, onGestureLabel)
+
+    /** Returns the expected accessibility text for a library fallback [stringId]. */
+    private fun gestureText(stringId: Int, onGestureLabel: String): String =
+        ApplicationProvider.getApplicationContext<Context>().getString(stringId, onGestureLabel)
+
     @Composable
     private fun MockSdkGestureInputManager(
         sdkGestureInputManager: SdkGestureInputManager,
@@ -3079,8 +3371,17 @@ class OneHandedGestureTest {
         }
     }
 
-    private class SdkGestureInputManagerMock(private val showIndicator: Boolean = true) :
-        SdkGestureInputManager {
+    private class SdkGestureInputManagerMock(
+        private val showIndicator: Boolean = true,
+        /** Maps SDK gesture actions to the SDK gestures bound to them. */
+        var gestureForAction: Map<Int, Int> =
+            mapOf(
+                SDK_ACTION_PRIMARY to SDK_GESTURE_DOUBLE_PINCH,
+                SDK_ACTION_DISMISS to SDK_GESTURE_WRIST_TURN,
+            ),
+        /** Maps SDK gestures to their system-provided accessibility names. */
+        private val gestureNames: Map<Int, CharSequence?> = emptyMap(),
+    ) : SdkGestureInputManager {
         override fun isAvailable(context: Context): Boolean = true
 
         override fun subscribeToSdkGestureAction(
@@ -3115,6 +3416,12 @@ class OneHandedGestureTest {
         fun performGesture(sdkGestureAction: Int) {
             gestureConsumers[sdkGestureAction]?.invoke(sdkGestureAction)
         }
+
+        override fun getGestureForAction(sdkGestureAction: Int): Int =
+            gestureForAction[sdkGestureAction] ?: SDK_GESTURE_UNKNOWN
+
+        override fun getGestureAccessibilityName(sdkGesture: Int): CharSequence? =
+            gestureNames[sdkGesture]
 
         private val gestureConsumers = mutableMapOf<Int, (Int) -> Unit>()
     }
@@ -3169,14 +3476,28 @@ class OneHandedGestureTest {
 
     private fun ViewInteraction.checkDoesNotExist(): ViewInteraction = this.check(doesNotExist())
 
-    /* Copy from com.google.wear.input.GestureEvent class */
-    private val sdkActionDismiss = 2
-    private val sdkActionPrimary = 1
-
     enum class TestParamScalingLazyListAnchorType(val type: ScalingLazyListAnchorType) {
         ItemStart(ScalingLazyListAnchorType.ItemStart),
         ItemCenter(ScalingLazyListAnchorType.ItemCenter),
     }
 
-    private val GESTURE_AVAILABLE_DELAY = 3000L
+    /** System-provided gesture names that should be treated as missing. */
+    enum class MissingGestureName(val value: String?) {
+        Null(null),
+        Empty(""),
+        Whitespace(" "),
+    }
+
+    private companion object {
+        const val GESTURE_AVAILABLE_DELAY = 3000L
+
+        /* Copy from com.google.wear.input.GestureEvent class */
+        const val SDK_ACTION_DISMISS = 2
+        const val SDK_ACTION_PRIMARY = 1
+        const val SDK_GESTURE_UNKNOWN = -1
+        const val SDK_GESTURE_DOUBLE_PINCH = 1
+        const val SDK_GESTURE_WRIST_TURN = 2
+        // Any gesture without a library fallback string
+        const val SDK_GESTURE_OTHER = 3
+    }
 }
