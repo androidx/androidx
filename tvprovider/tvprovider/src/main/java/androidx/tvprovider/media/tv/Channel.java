@@ -99,7 +99,7 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#_ID} for the channel.
+     * Returns the value of {@link Channels#_ID} for the channel.
      */
     public long getId() {
         Long l = mValues.getAsLong(Channels._ID);
@@ -107,56 +107,56 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_PACKAGE_NAME} for the channel.
+     * Returns the value of {@link Channels#COLUMN_PACKAGE_NAME} for the channel.
      */
     public String getPackageName() {
         return mValues.getAsString(Channels.COLUMN_PACKAGE_NAME);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INPUT_ID} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INPUT_ID} for the channel.
      */
     public String getInputId() {
         return mValues.getAsString(Channels.COLUMN_INPUT_ID);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_TYPE} for the channel.
+     * Returns the value of {@link Channels#COLUMN_TYPE} for the channel.
      */
     public @Channels.Type String getType() {
         return mValues.getAsString(Channels.COLUMN_TYPE);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_DISPLAY_NUMBER} for the channel.
+     * Returns the value of {@link Channels#COLUMN_DISPLAY_NUMBER} for the channel.
      */
     public String getDisplayNumber() {
         return mValues.getAsString(Channels.COLUMN_DISPLAY_NUMBER);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_DISPLAY_NAME} for the channel.
+     * Returns the value of {@link Channels#COLUMN_DISPLAY_NAME} for the channel.
      */
     public String getDisplayName() {
         return mValues.getAsString(Channels.COLUMN_DISPLAY_NAME);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_DESCRIPTION} for the channel.
+     * Returns the value of {@link Channels#COLUMN_DESCRIPTION} for the channel.
      */
     public String getDescription() {
         return mValues.getAsString(Channels.COLUMN_DESCRIPTION);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_VIDEO_FORMAT} for the channel.
+     * Returns the value of {@link Channels#COLUMN_VIDEO_FORMAT} for the channel.
      */
     public @VideoFormat String getVideoFormat() {
         return mValues.getAsString(Channels.COLUMN_VIDEO_FORMAT);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_ORIGINAL_NETWORK_ID} for the channel.
+     * Returns the value of {@link Channels#COLUMN_ORIGINAL_NETWORK_ID} for the channel.
      */
     public int getOriginalNetworkId() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_ORIGINAL_NETWORK_ID);
@@ -164,7 +164,7 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_TRANSPORT_STREAM_ID} for the channel.
+     * Returns the value of {@link Channels#COLUMN_TRANSPORT_STREAM_ID} for the channel.
      */
     public int getTransportStreamId() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_TRANSPORT_STREAM_ID);
@@ -172,7 +172,7 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_SERVICE_ID} for the channel.
+     * Returns the value of {@link Channels#COLUMN_SERVICE_ID} for the channel.
      */
     public int getServiceId() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_SERVICE_ID);
@@ -180,14 +180,14 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_APP_LINK_TEXT} for the channel.
+     * Returns the value of {@link Channels#COLUMN_APP_LINK_TEXT} for the channel.
      */
     public String getAppLinkText() {
         return mValues.getAsString(Channels.COLUMN_APP_LINK_TEXT);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_APP_LINK_COLOR} for the channel.
+     * Returns the value of {@link Channels#COLUMN_APP_LINK_COLOR} for the channel.
      */
     public int getAppLinkColor() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_APP_LINK_COLOR);
@@ -195,7 +195,7 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_APP_LINK_ICON_URI} for the channel.
+     * Returns the value of {@link Channels#COLUMN_APP_LINK_ICON_URI} for the channel.
      */
     public Uri getAppLinkIconUri() {
         String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_ICON_URI);
@@ -203,7 +203,7 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_APP_LINK_POSTER_ART_URI} for the channel.
+     * Returns the value of {@link Channels#COLUMN_APP_LINK_POSTER_ART_URI} for the channel.
      */
     public Uri getAppLinkPosterArtUri() {
         String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_POSTER_ART_URI);
@@ -211,7 +211,7 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the channel.
+     * Returns the value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the channel.
      */
     public Uri getAppLinkIntentUri() {
         String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_INTENT_URI);
@@ -219,7 +219,7 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the program.
+     * Returns the value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the program.
      */
     public Intent getAppLinkIntent() throws URISyntaxException {
         String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_INTENT_URI);
@@ -227,14 +227,14 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_NETWORK_AFFILIATION} for the channel.
+     * Returns the value of {@link Channels#COLUMN_NETWORK_AFFILIATION} for the channel.
      */
     public String getNetworkAffiliation() {
         return mValues.getAsString(Channels.COLUMN_NETWORK_AFFILIATION);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_SEARCHABLE} for the channel.
+     * Returns the value of {@link Channels#COLUMN_SEARCHABLE} for the channel.
      */
     public boolean isSearchable() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_SEARCHABLE);
@@ -242,14 +242,14 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_DATA} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_DATA} for the channel.
      */
     public byte[] getInternalProviderDataByteArray() {
         return mValues.getAsByteArray(Channels.COLUMN_INTERNAL_PROVIDER_DATA);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_SERVICE_TYPE} for the channel.
+     * Returns the value of {@link Channels#COLUMN_SERVICE_TYPE} for the channel.
      *
      * <p>Returns {@link Channels#SERVICE_TYPE_AUDIO}, {@link Channels#SERVICE_TYPE_AUDIO_VIDEO}, or
      * {@link Channels#SERVICE_TYPE_OTHER}.
@@ -259,42 +259,42 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG1} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG1} for the channel.
      */
     public Long getInternalProviderFlag1() {
         return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG1);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG2} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG2} for the channel.
      */
     public Long getInternalProviderFlag2() {
         return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG2);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG3} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG3} for the channel.
      */
     public Long getInternalProviderFlag3() {
         return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG3);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG4} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG4} for the channel.
      */
     public Long getInternalProviderFlag4() {
         return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG4);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_ID} for the channel.
+     * Returns the value of {@link Channels#COLUMN_INTERNAL_PROVIDER_ID} for the channel.
      */
     public String getInternalProviderId() {
         return mValues.getAsString(Channels.COLUMN_INTERNAL_PROVIDER_ID);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_TRANSIENT} for the channel.
+     * Returns the value of {@link Channels#COLUMN_TRANSIENT} for the channel.
      */
     public boolean isTransient() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_TRANSIENT);
@@ -302,7 +302,7 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_BROWSABLE} for the channel.
+     * Returns the value of {@link Channels#COLUMN_BROWSABLE} for the channel.
      */
     public boolean isBrowsable() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_BROWSABLE);
@@ -319,28 +319,28 @@ public final class Channel {
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_CONFIGURATION_DISPLAY_ORDER} for the channel.
+     * Returns the value of {@link Channels#COLUMN_CONFIGURATION_DISPLAY_ORDER} for the channel.
      */
     public int getConfigurationDisplayOrder() {
         return mValues.getAsInteger(Channels.COLUMN_CONFIGURATION_DISPLAY_ORDER);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_SYSTEM_CHANNEL_KEY} for the channel.
+     * Returns the value of {@link Channels#COLUMN_SYSTEM_CHANNEL_KEY} for the channel.
      */
     public String getSystemChannelKey() {
         return mValues.getAsString(Channels.COLUMN_SYSTEM_CHANNEL_KEY);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_GLOBAL_CONTENT_ID} for the channel.
+     * Returns the value of {@link Channels#COLUMN_GLOBAL_CONTENT_ID} for the channel.
      */
     public @Nullable String getGlobalContentId() {
         return mValues.getAsString(Channels.COLUMN_GLOBAL_CONTENT_ID);
     }
 
     /**
-     * @return The value of {@link Channels#COLUMN_LOCKED} for the channel.
+     * Returns the value of {@link Channels#COLUMN_LOCKED} for the channel.
      */
     public boolean isLocked() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_LOCKED);
@@ -365,7 +365,7 @@ public final class Channel {
     }
 
     /**
-     * @return The fields of the Channel in the ContentValues format to be easily inserted into the
+     * Returns the fields of the Channel in the ContentValues format to be easily inserted into the
      * TV Input Framework database.
      */
     public ContentValues toContentValues() {

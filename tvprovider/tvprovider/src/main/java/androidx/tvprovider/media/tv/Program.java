@@ -89,7 +89,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_CHANNEL_ID} for the program.
+     * Returns the value of {@link Programs#COLUMN_CHANNEL_ID} for the program.
      */
     public long getChannelId() {
         Long l = mValues.getAsLong(Programs.COLUMN_CHANNEL_ID);
@@ -97,7 +97,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_START_TIME_UTC_MILLIS} for the program.
+     * Returns the value of {@link Programs#COLUMN_START_TIME_UTC_MILLIS} for the program.
      */
     public long getStartTimeUtcMillis() {
         Long l = mValues.getAsLong(Programs.COLUMN_START_TIME_UTC_MILLIS);
@@ -105,7 +105,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_END_TIME_UTC_MILLIS} for the program.
+     * Returns the value of {@link Programs#COLUMN_END_TIME_UTC_MILLIS} for the program.
      */
     public long getEndTimeUtcMillis() {
         Long l = mValues.getAsLong(Programs.COLUMN_END_TIME_UTC_MILLIS);
@@ -113,14 +113,14 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_BROADCAST_GENRE} for the program.
+     * Returns the value of {@link Programs#COLUMN_BROADCAST_GENRE} for the program.
      */
     public String[] getBroadcastGenres() {
         return Programs.Genres.decode(mValues.getAsString(Programs.COLUMN_BROADCAST_GENRE));
     }
 
     /**
-     * @return The value of {@link Programs#COLUMN_RECORDING_PROHIBITED} for the program.
+     * Returns the value of {@link Programs#COLUMN_RECORDING_PROHIBITED} for the program.
      */
     public boolean isRecordingProhibited() {
         Integer i = mValues.getAsInteger(Programs.COLUMN_RECORDING_PROHIBITED);
@@ -371,7 +371,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
         }
 
         /**
-         * @return A new Program with values supplied by the Builder.
+         * Returns a new Program with values supplied by the Builder.
          */
         public Program build() {
             return new Program(this);

@@ -94,7 +94,7 @@ public final class PreviewProgram extends BasePreviewProgram {
     }
 
     /**
-     * @return The value of {@link PreviewPrograms#COLUMN_CHANNEL_ID} for the program.
+     * Returns the value of {@link PreviewPrograms#COLUMN_CHANNEL_ID} for the program.
      */
     public long getChannelId() {
         Long l = mValues.getAsLong(PreviewPrograms.COLUMN_CHANNEL_ID);
@@ -102,7 +102,7 @@ public final class PreviewProgram extends BasePreviewProgram {
     }
 
     /**
-     * @return The value of {@link PreviewPrograms#COLUMN_WEIGHT} for the program.
+     * Returns the value of {@link PreviewPrograms#COLUMN_WEIGHT} for the program.
      */
     public int getWeight() {
         Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_WEIGHT);
@@ -240,7 +240,7 @@ public final class PreviewProgram extends BasePreviewProgram {
         }
 
         /**
-         * @return A new Program with values supplied by the Builder.
+         * Returns a new Program with values supplied by the Builder.
          */
         public PreviewProgram build() {
             return new PreviewProgram(this);
