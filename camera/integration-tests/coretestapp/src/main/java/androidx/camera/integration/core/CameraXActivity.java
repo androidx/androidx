@@ -1693,7 +1693,9 @@ public class CameraXActivity extends AppCompatActivity {
                     // there would stop an in-progress recording with ERROR_SOURCE_INACTIVE.
                     boolean isSizeChanged = (right - left) != (oldRight - oldLeft)
                             || (bottom - top) != (oldBottom - oldTop);
-                    if (isSizeChanged) {
+                    if (isSizeChanged && (mUseCases == null || !mDisableViewPort)) {
+                        // With ViewPort disabled, viewfinder bounds only gate initial binding;
+                        // rebinding on SystemUI/insets resizes would abort active recordings.
                         tryBindUseCases();
                     }
 
