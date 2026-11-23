@@ -392,6 +392,10 @@ public final class Status implements TimeDependentText {
          * calling this method) that has all required fields is used.
          * If no template is specified, a default template that concatenates all parts separated
          * by space is used.
+         * <p>
+         * Only the plain text of the template is used. Any styling (for example spans in a
+         * {@link android.text.Spanned} such as the result of
+         * {@code HtmlCompat.fromHtml()}) is dropped when the status is sent to the system.
          *
          * @param template the template to be added
          * @return this builder, to chain calls.
