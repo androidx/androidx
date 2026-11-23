@@ -118,6 +118,7 @@ class VideoCaptureDeviceTest(
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var cameraInfo: CameraInfoInternal
+    private lateinit var videoCapabilities: VideoCapabilities
 
     @Before
     fun setUp() {
@@ -133,6 +134,7 @@ class VideoCaptureDeviceTest(
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
         cameraInfo = cameraUseCaseAdapter.cameraInfo as CameraInfoInternal
+        videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
     }
 
     @After
@@ -206,7 +208,6 @@ class VideoCaptureDeviceTest(
     fun addUseCases_setSupportedQuality_getCorrectResolution() = runBlocking {
         assumeExtraCroppingQuirk(implName)
 
-        val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
         videoCapabilities.supportedDynamicRanges.forEach { dynamicRange ->
             assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
             // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
@@ -220,7 +221,6 @@ class VideoCaptureDeviceTest(
                     createTestVideoOutput(
                         mediaSpec =
                             createMediaSpec(qualitySelector = QualitySelector.from(quality)),
-                        videoCapabilities = videoCapabilities,
                         // Use custom VideoEncoderInfoFinder which always returns default
                         // FakeVideoEncoderInfo, which tolerance typical resolutions.
                         videoEncoderInfoFinder = { FakeVideoEncoderInfo() },
@@ -360,7 +360,7 @@ class VideoCaptureDeviceTest(
     fun dynamicRangeHlg_selectsHlg(): Unit = runBlocking {
         assumeTrue(
             "Device does not support HLG10",
-            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT),
+            videoCapabilities.supportedDynamicRanges.contains(HLG_10_BIT),
         )
 
         testDynamicRangeSelection(requestedDynamicRange = HLG_10_BIT) { selectedDynamicRange ->
@@ -373,7 +373,7 @@ class VideoCaptureDeviceTest(
     fun dynamicRangeHlg_withoutPreview_canReceiveFrame(): Unit = runBlocking {
         assumeTrue(
             "Device does not support HLG10",
-            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT),
+            videoCapabilities.supportedDynamicRanges.contains(HLG_10_BIT),
         )
 
         // Arrange.
@@ -399,7 +399,7 @@ class VideoCaptureDeviceTest(
     fun dynamicRange_isSetInSessionConfig(): Unit = runBlocking {
         assumeTrue(
             "Device does not support HLG10",
-            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT),
+            videoCapabilities.supportedDynamicRanges.contains(HLG_10_BIT),
         )
 
         // Arrange.
@@ -420,7 +420,7 @@ class VideoCaptureDeviceTest(
     @Test
     fun dynamicRangeHdrUnspecified10Bit_selectsHdr10Bit(): Unit = runBlocking {
         val supported10BitDynamicRanges =
-            cameraInfo.supportedDynamicRanges.filter { it.bitDepth == BIT_DEPTH_10_BIT }
+            videoCapabilities.supportedDynamicRanges.filter { it.bitDepth == BIT_DEPTH_10_BIT }
         assumeFalse(
             "Device does not support any 10-bit dynamic ranges",
             supported10BitDynamicRanges.isEmpty(),
@@ -437,7 +437,7 @@ class VideoCaptureDeviceTest(
     fun dynamicRangeHlg_selectsAndAppliesHlgForConcurrentPreview(): Unit = runBlocking {
         assumeTrue(
             "Device does not support HLG10",
-            cameraInfo.supportedDynamicRanges.contains(HLG_10_BIT),
+            videoCapabilities.supportedDynamicRanges.contains(HLG_10_BIT),
         )
 
         // Arrange.
@@ -490,7 +490,6 @@ class VideoCaptureDeviceTest(
         streamInfo: StreamInfo =
             StreamInfo.of(StreamInfo.STREAM_ID_ANY, StreamInfo.StreamState.ACTIVE),
         mediaSpec: MediaSpec = createMediaSpec(),
-        videoCapabilities: VideoCapabilities = Recorder.getVideoCapabilities(cameraInfo),
         videoEncoderInfoFinder: VideoEncoderInfo.Finder? = null,
     ): TestVideoOutput {
         return TestVideoOutput(streamInfo, mediaSpec, videoCapabilities, videoEncoderInfoFinder)

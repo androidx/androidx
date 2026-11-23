@@ -99,6 +99,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -1600,10 +1601,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return;
         }
 
-        DynamicRange requestedDynamicRange = config.getDynamicRange();
         int sessionType = getSessionType(config);
         Range<Integer> targetFrameRate = getTargetFrameRate(config);
         VideoCapabilities videoCapabilities = getVideoCapabilities(cameraInfo, sessionType);
+        DynamicRange requestedDynamicRange = getRequestedDynamicRangeOrThrow(config,
+                videoCapabilities);
         EncoderProfilesResolver profilesResolver = getEncoderProfilesResolver(cameraInfo,
                 sessionType);
         Logger.d(TAG, "Update custom order resolutions: "
@@ -1676,6 +1678,31 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         return qualities.isEmpty() ? null : QualitySelector.fromOrderedList(qualities);
+    }
+
+    /**
+     * Gets the requested dynamic range from the config.
+     *
+     * <p>The check is skipped if the {@link VideoOutput} doesn't report any supported dynamic
+     * range, e.g. a custom {@link VideoOutput} that doesn't provide {@link VideoCapabilities}.
+     *
+     * @throws IllegalArgumentException if the requested dynamic range is not supported by the
+     *                                  {@link VideoOutput}.
+     */
+    @NonNull
+    private DynamicRange getRequestedDynamicRangeOrThrow(
+            @NonNull VideoCaptureConfig<T> config,
+            @NonNull VideoCapabilities videoCapabilities
+    ) throws IllegalArgumentException {
+        DynamicRange requestedDynamicRange = config.getDynamicRange();
+        Set<DynamicRange> supportedDynamicRanges = videoCapabilities.getSupportedDynamicRanges();
+        if (!supportedDynamicRanges.isEmpty()
+                && !DynamicRanges.canResolve(requestedDynamicRange, supportedDynamicRanges)) {
+            throw new IllegalArgumentException("Dynamic range " + requestedDynamicRange
+                    + " is not supported by the VideoOutput. Supported dynamic ranges: "
+                    + supportedDynamicRanges);
+        }
+        return requestedDynamicRange;
     }
 
     @NonNull
@@ -2279,6 +2306,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * the {@link androidx.camera.video.VideoCapabilities} returned by
          * {@link Recorder#getVideoCapabilities(CameraInfo)} via
          * {@link androidx.camera.video.VideoCapabilities#getSupportedDynamicRanges()}.
+         *
+         * <p>If the dynamic range is not supported by the {@link VideoOutput}, binding the use
+         * case will throw an {@link IllegalArgumentException}.
          *
          * <p>It is possible to choose a high dynamic range (HDR) with unspecified encoding by
          * providing {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}.

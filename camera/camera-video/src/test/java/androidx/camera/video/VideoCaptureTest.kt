@@ -36,6 +36,7 @@ import android.media.CamcorderProfile.QUALITY_QHD
 import android.media.EncoderProfiles
 import android.media.MediaFormat.MIMETYPE_VIDEO_AV1
 import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
+import android.media.MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION
 import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
 import android.media.MediaFormat.MIMETYPE_VIDEO_VP8
 import android.media.MediaRecorder.OutputFormat.WEBM
@@ -504,6 +505,111 @@ class VideoCaptureTest {
             // Act.
             addAndAttachUseCases(videoCapture)
         }
+    }
+
+    @Test
+    fun addUseCases_dynamicRangeNotSupportedByVideoOutput_throwException() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput =
+            createVideoOutput(
+                videoCapabilities =
+                    createVideoCapabilitiesWithDynamicRanges(
+                        setOf(DynamicRange.SDR, DynamicRange.HLG_10_BIT)
+                    )
+            )
+        val videoCapture =
+            createVideoCapture(videoOutput, dynamicRange = DynamicRange.DOLBY_VISION_10_BIT)
+
+        // Assert.
+        val exception =
+            assertThrows(CameraUseCaseAdapter.CameraException::class.java) {
+                // Act.
+                addAndAttachUseCases(videoCapture)
+            }
+        assertThat(exception.cause).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.cause!!.message).contains("is not supported by the VideoOutput")
+    }
+
+    @Test
+    fun addUseCases_hdrUnspecifiedNotSupportedByVideoOutput_throwException() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput =
+            createVideoOutput(
+                videoCapabilities =
+                    createVideoCapabilitiesWithDynamicRanges(setOf(DynamicRange.SDR))
+            )
+        val videoCapture =
+            createVideoCapture(videoOutput, dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT)
+
+        // Assert.
+        val exception =
+            assertThrows(CameraUseCaseAdapter.CameraException::class.java) {
+                // Act.
+                addAndAttachUseCases(videoCapture)
+            }
+        assertThat(exception.cause).isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun addUseCases_hdrOnlyMimeTypeWithDefaultDynamicRange_throwException() {
+        // Arrange: the video MIME type only supports Dolby Vision, and the default dynamic range
+        // (SDR) is requested.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput =
+            createVideoOutput(
+                mediaSpec = createMediaSpec(videoMimeType = MIMETYPE_VIDEO_DOLBY_VISION),
+                videoCapabilities =
+                    createVideoCapabilitiesWithDynamicRanges(
+                        setOf(DynamicRange.DOLBY_VISION_10_BIT)
+                    ),
+            )
+        val videoCapture = createVideoCapture(videoOutput)
+
+        // Assert.
+        val exception =
+            assertThrows(CameraUseCaseAdapter.CameraException::class.java) {
+                // Act.
+                addAndAttachUseCases(videoCapture)
+            }
+        assertThat(exception.cause).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.cause!!.message).contains("is not supported by the VideoOutput")
+    }
+
+    @Test
+    fun addUseCases_dynamicRangeSupportedByMimeType_doesNotThrow() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput =
+            createVideoOutput(
+                mediaSpec = createMediaSpec(videoMimeType = MIMETYPE_VIDEO_DOLBY_VISION),
+                videoCapabilities =
+                    createVideoCapabilitiesWithDynamicRanges(
+                        setOf(DynamicRange.DOLBY_VISION_10_BIT)
+                    ),
+            )
+        val videoCapture =
+            createVideoCapture(videoOutput, dynamicRange = DynamicRange.DOLBY_VISION_10_BIT)
+
+        // Act & Assert: no exception.
+        addAndAttachUseCases(videoCapture)
+    }
+
+    @Test
+    fun addUseCases_videoOutputReportsNoDynamicRange_doesNotThrow() {
+        // Arrange: e.g. a custom VideoOutput that doesn't provide VideoCapabilities.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput = createVideoOutput(videoCapabilities = VideoCapabilities.EMPTY)
+        val videoCapture = createVideoCapture(videoOutput)
+
+        // Act & Assert: no exception.
+        addAndAttachUseCases(videoCapture)
     }
 
     @Test
@@ -1442,6 +1548,10 @@ class VideoCaptureTest {
         testSurfaceRequestContainsExpected(
             requestedDynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT,
             expectedDynamicRange = DynamicRange.HLG_10_BIT,
+            videoCapabilities =
+                createVideoCapabilitiesWithDynamicRanges(
+                    setOf(DynamicRange.SDR, DynamicRange.HLG_10_BIT)
+                ),
         )
     }
 
@@ -1450,6 +1560,10 @@ class VideoCaptureTest {
         testSurfaceRequestContainsExpected(
             requestedDynamicRange = DynamicRange.HLG_10_BIT_SMPTE_2094_50,
             expectedDynamicRange = DynamicRange.HLG_10_BIT_SMPTE_2094_50,
+            videoCapabilities =
+                createVideoCapabilitiesWithDynamicRanges(
+                    setOf(DynamicRange.SDR, DynamicRange.HLG_10_BIT_SMPTE_2094_50)
+                ),
         )
     }
 
@@ -2356,6 +2470,7 @@ class VideoCaptureTest {
         expectedFrameRate: Range<Int> = SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED,
         requestedDynamicRange: DynamicRange? = null,
         expectedDynamicRange: DynamicRange? = null,
+        videoCapabilities: VideoCapabilities = CAMERA_0_VIDEO_CAPABILITIES,
     ) {
         // Arrange.
         setupCamera()
@@ -2368,7 +2483,10 @@ class VideoCaptureTest {
         )
         var surfaceRequest: SurfaceRequest? = null
         val videoOutput =
-            createVideoOutput(surfaceRequestListener = { request, _ -> surfaceRequest = request })
+            createVideoOutput(
+                videoCapabilities = videoCapabilities,
+                surfaceRequestListener = { request, _ -> surfaceRequest = request },
+            )
         val videoCapture =
             createVideoCapture(
                 videoOutput,
@@ -2694,6 +2812,15 @@ class VideoCaptureTest {
         )
     }
 
+    /** Creates [VideoCapabilities] that report [dynamicRanges] and delegate the rest. */
+    private fun createVideoCapabilitiesWithDynamicRanges(
+        dynamicRanges: Set<DynamicRange>,
+        delegate: VideoCapabilities = CAMERA_0_VIDEO_CAPABILITIES,
+    ): VideoCapabilities =
+        object : VideoCapabilities by delegate {
+            override fun getSupportedDynamicRanges(): Set<DynamicRange> = dynamicRanges
+        }
+
     private fun createVideoOutput(
         streamInfo: StreamInfo = createStreamInfo(),
         mediaSpec: MediaSpec? = createMediaSpec(),
@@ -2738,12 +2865,14 @@ class VideoCaptureTest {
         outputFormat: Int? = null,
         qualitySelector: QualitySelector = DEFAULT_QUALITY_SELECTOR,
         @AspectRatio.Ratio aspectRatio: Int? = null,
+        videoMimeType: String? = null,
     ): MediaSpec {
         return MediaSpec.builder()
             .apply { outputFormat?.let { setOutputFormat(it) } }
             .configureVideo { config ->
                 config.setQualitySelector(qualitySelector)
                 aspectRatio?.let { config.setAspectRatio(it) }
+                videoMimeType?.let { config.setMimeType(it) }
             }
             .build()
     }
