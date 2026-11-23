@@ -37,13 +37,15 @@ import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 @Preview(name = "Phone", device = PHONE, showSystemUi = true)
 @Preview(
     name = "Phone - Landscape",
-    device = "spec:width=411dp,height=891dp,orientation=landscape,dpi=420",
+    device =
+        "spec:width=411dp,height=891dp,orientation=landscape,dpi=420,windowPosture=flat,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=near",
     showSystemUi = true,
 )
 @Preview(name = "Unfolded Foldable", device = FOLDABLE, showSystemUi = true)
 @Preview(
     name = "Tablet",
-    device = "spec:width=1280dp,height=800dp,dpi=240,orientation=portrait",
+    device =
+        "spec:width=1280dp,height=800dp,dpi=240,orientation=portrait,windowPosture=flat,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=medium",
     showSystemUi = true,
 )
 @Preview(name = "Tablet - Landscape", device = TABLET, showSystemUi = true)

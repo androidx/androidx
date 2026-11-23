@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#DESKTOP:
+    Binary breaking change: Field androidx.compose.ui.tooling.preview.Devices.DESKTOP has changed value from "spec:width=1920dp,height=1080dp,dpi=160" to "spec:width=1920dp,height=1080dp,dpi=160,windowPosture=flat,pointerPrecision=fine,keyboardKind=physical,hasCamera=true,hasMicrophone=true,viewingDistance=medium"
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#FOLDABLE:
+    Binary breaking change: Field androidx.compose.ui.tooling.preview.Devices.FOLDABLE has changed value from "spec:width=673dp,height=841dp" to "spec:width=673dp,height=841dp,windowPosture=tabletop,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=near"
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#PHONE:
+    Binary breaking change: Field androidx.compose.ui.tooling.preview.Devices.PHONE has changed value from "spec:width=411dp,height=891dp" to "spec:width=411dp,height=891dp,windowPosture=flat,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=near"
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#TABLET:
+    Binary breaking change: Field androidx.compose.ui.tooling.preview.Devices.TABLET has changed value from "spec:width=1280dp,height=800dp,dpi=240" to "spec:width=1280dp,height=800dp,dpi=240,windowPosture=flat,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=medium"
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#TV_1080p:
+    Binary breaking change: Field androidx.compose.ui.tooling.preview.Devices.TV_1080p has changed value from "spec:width=1920dp,height=1080dp" to "spec:width=1920dp,height=1080dp,windowPosture=flat,pointerPrecision=none,keyboardKind=virtual,hasCamera=false,hasMicrophone=true,viewingDistance=far"
+ChangedValue: androidx.compose.ui.tooling.preview.Devices#TV_720p:
+    Binary breaking change: Field androidx.compose.ui.tooling.preview.Devices.TV_720p has changed value from "spec:width=1280dp,height=720dp" to "spec:width=1280dp,height=720dp,windowPosture=flat,pointerPrecision=none,keyboardKind=virtual,hasCamera=false,hasMicrophone=true,viewingDistance=far"

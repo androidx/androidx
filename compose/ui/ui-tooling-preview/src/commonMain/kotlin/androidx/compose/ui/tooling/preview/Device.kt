@@ -90,14 +90,20 @@ public object Devices {
     public const val WEAR_OS_RECT: String = "id:wearos_rect"
 
     // Reference devices
-    public const val PHONE: String = "spec:width=411dp,height=891dp"
-    public const val FOLDABLE: String = "spec:width=673dp,height=841dp"
-    public const val TABLET: String = "spec:width=1280dp,height=800dp,dpi=240"
-    public const val DESKTOP: String = "spec:width=1920dp,height=1080dp,dpi=160"
+    public const val PHONE: String =
+        "spec:width=411dp,height=891dp,windowPosture=flat,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=near"
+    public const val FOLDABLE: String =
+        "spec:width=673dp,height=841dp,windowPosture=tabletop,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=near"
+    public const val TABLET: String =
+        "spec:width=1280dp,height=800dp,dpi=240,windowPosture=flat,pointerPrecision=coarse,keyboardKind=virtual,hasCamera=true,hasMicrophone=true,viewingDistance=medium"
+    public const val DESKTOP: String =
+        "spec:width=1920dp,height=1080dp,dpi=160,windowPosture=flat,pointerPrecision=fine,keyboardKind=physical,hasCamera=true,hasMicrophone=true,viewingDistance=medium"
 
     // TV devices (not adding 4K since it will be very heavy for preview)
-    public const val TV_720p: String = "spec:width=1280dp,height=720dp"
-    public const val TV_1080p: String = "spec:width=1920dp,height=1080dp"
+    public const val TV_720p: String =
+        "spec:width=1280dp,height=720dp,windowPosture=flat,pointerPrecision=none,keyboardKind=virtual,hasCamera=false,hasMicrophone=true,viewingDistance=far"
+    public const val TV_1080p: String =
+        "spec:width=1920dp,height=1080dp,windowPosture=flat,pointerPrecision=none,keyboardKind=virtual,hasCamera=false,hasMicrophone=true,viewingDistance=far"
 }
 
 /** Annotation for defining the [Preview] device to use. */
