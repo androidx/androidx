@@ -17,15 +17,19 @@
 package androidx.camera.testing.impl
 
 import androidx.camera.testing.impl.RequireForegroundRule.Companion.ForegroundOccupiedError
+import androidx.camera.testing.impl.activity.ForegroundTestActivity
 import androidx.test.runner.lifecycle.Stage
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
+import org.junit.Assert.assertThrows
 import org.junit.AssumptionViolatedException
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
@@ -462,5 +466,47 @@ class RequireForegroundRuleTest {
 
         assertThat(scheduledCount).isEqualTo(0)
         assertThat(midTestOccupier.get()).isNull()
+    }
+
+    @Test
+    fun foregroundTestActivity_awaitDestroyed_timesOutUntilOnDestroyRuns() {
+        val controller = Robolectric.buildActivity(ForegroundTestActivity::class.java).setup()
+        val activity = controller.get()
+
+        // Pausing and stopping alone must not release awaitDestroyed().
+        controller.pause().stop()
+        assertThat(activity.awaitDestroyed(20L)).isFalse()
+
+        // Destroying signals mDestroyedLatch immediately.
+        controller.destroy()
+        assertThat(activity.awaitDestroyed(0L)).isTrue()
+    }
+
+    @Test
+    fun foregroundTestActivity_awaitDestroyed_unblocksAsyncWaiterOnDestroy() {
+        val controller = Robolectric.buildActivity(ForegroundTestActivity::class.java).setup()
+        val activity = controller.get()
+        val executor = Executors.newSingleThreadExecutor()
+        try {
+            val awaitFuture = executor.submit<Boolean> { activity.awaitDestroyed(5000L) }
+            controller.pause().stop().destroy()
+            assertThat(awaitFuture.get()).isTrue()
+        } finally {
+            executor.shutdownNow()
+        }
+    }
+
+    @Test
+    fun foregroundTestActivity_awaitDestroyed_throwsInterruptedExceptionWhenInterrupted() {
+        val controller = Robolectric.buildActivity(ForegroundTestActivity::class.java).setup()
+        val activity = controller.get()
+
+        Thread.currentThread().interrupt()
+        try {
+            assertThrows(InterruptedException::class.java) { activity.awaitDestroyed(5000L) }
+        } finally {
+            Thread.interrupted()
+            controller.pause().stop().destroy()
+        }
     }
 }
