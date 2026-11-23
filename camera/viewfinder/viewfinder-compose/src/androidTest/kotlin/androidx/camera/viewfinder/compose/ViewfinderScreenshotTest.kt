@@ -36,9 +36,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ViewfinderScreenshotTest {
 
-    @get:Rule val composeTestRule = createComposeRule()
+    // Evaluate screenshotRule before composeTestRule so non-supported devices skip without
+    // launching ComponentActivity.
+    @get:Rule(order = 0)
+    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_COMPOSE)
 
-    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_COMPOSE)
+    @get:Rule(order = 1) val composeTestRule = createComposeRule()
 
     @Test
     fun embeddedImplementationDrawsUpright_from0DegreeSource() = runBlocking {
