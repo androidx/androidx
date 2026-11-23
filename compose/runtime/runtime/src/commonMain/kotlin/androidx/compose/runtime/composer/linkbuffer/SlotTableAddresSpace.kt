@@ -632,7 +632,7 @@ internal class SlotTableAddressSpace(
         // Try to grow in place. If the slots we need immediately after the current range are all
         // Composer.Empty then this range can grow in place.
         val needed = newSize - currentSize
-        if (slots.allUnallocated(address + currentSize, needed)) {
+        if (slots.allUnallocated(start = address + currentSize, end = address + newSize)) {
             if (newSize > SLOT_TABLE_SLOT_MAX_SMALL_SIZE) {
                 largeSizes[address] = newSize
             }
@@ -910,7 +910,7 @@ internal class SlotMoveManager(val source: Array<Any?>, var destination: Array<A
                 return
             }
             val destinationEnd = destinationOffset + (endIndex - startIndex)
-            if (!destination.allUnallocated(destinationOffset, destinationEnd)) {
+            if (!destination.allUnallocated(start = destinationOffset, end = destinationEnd)) {
                 // One or more slots are allocated, we need to copy before proceeding
                 destination = source.copyOf()
             }
@@ -1129,9 +1129,8 @@ internal fun SlotTableAddressSpace.buildTrace(
     return traceBuilder.trace()
 }
 
-private inline fun Array<Any?>.allUnallocated(start: Int, size: Int): Boolean {
-    val end = start + size
-    if (end >= this.size) return false
+private inline fun Array<Any?>.allUnallocated(start: Int, end: Int): Boolean {
+    if (end > this.size) return false
     for (i in start until end) {
         if (this[i] !== Unallocated) return false
     }
