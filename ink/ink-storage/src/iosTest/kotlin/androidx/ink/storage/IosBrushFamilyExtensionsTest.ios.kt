@@ -365,4 +365,57 @@ class IosBrushFamilyExtensionsTest {
         val expectedUiImage2 = textureIdToUIImage[textureId2]!!
         assertThat(actualUiImage2.imagePixelData()).isEqualTo(expectedUiImage2.imagePixelData())
     }
+
+    @Test
+    fun encode_textureImageStoreGetEncodedTextureId_writesEncodedTextureIds() {
+        val renamingTextureImageStore =
+            object : TextureImageStore {
+                override fun get(clientTextureId: String): UIImage? =
+                    textureIdToUIImage[clientTextureId.removePrefix("renamed/")]
+
+                override fun getEncodedTextureId(clientTextureId: String): String =
+                    clientTextureId.removePrefix("renamed/")
+            }
+        val family =
+            BrushFamily(
+                paint =
+                    BrushPaint(
+                        textureLayers =
+                            listOf(
+                                TilingTexture(
+                                    clientTextureId = "renamed/$textureId1",
+                                    sizeX = 1f,
+                                    sizeY = 4f,
+                                )
+                            )
+                    )
+            )
+
+        val encoded = family.encode(renamingTextureImageStore)
+
+        val decodedTextureImageStore = mutableMapOf<String, UIImage?>()
+        val decodeCallback = OnDecodeTextureUiImage { id: String, uiImage: UIImage? ->
+            decodedTextureImageStore[id] = uiImage
+            id
+        }
+        assertThat(BrushFamily.decode(encoded, onDecodeTexture = decodeCallback))
+            .isEqualTo(
+                BrushFamily(
+                    paint =
+                        BrushPaint(
+                            textureLayers =
+                                listOf(
+                                    TilingTexture(
+                                        clientTextureId = textureId1,
+                                        sizeX = 1f,
+                                        sizeY = 4f,
+                                    )
+                                )
+                        )
+                )
+            )
+        assertThat(decodedTextureImageStore.keys).containsExactly(textureId1)
+        assertThat(decodedTextureImageStore[textureId1]!!.imagePixelData())
+            .isEqualTo(testBitmap1.imagePixelData())
+    }
 }

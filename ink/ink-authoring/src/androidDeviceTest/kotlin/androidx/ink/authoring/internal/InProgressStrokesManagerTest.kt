@@ -2102,7 +2102,7 @@ internal class InProgressStrokesManagerTest {
     @Test
     fun startAddAndFinishStroke_whenSystemClockBehindMotionEventTime_updatesWithNonNegativeMonotonicDurations() {
         // Clock starts at 300ms while MotionEvent.eventTime is 313ms (13ms ahead).
-        val clock = FakeClock(300_000_000L)
+        val clock = FakeClock(300_000_000L) // clock = 300ms
         val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
         val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
         manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
@@ -2117,32 +2117,36 @@ internal class InProgressStrokesManagerTest {
                 FakeShapeSpec(),
                 0f,
             )
-        val durationAfterStart = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
-        assertThat(durationAfterStart).isAtLeast(0L)
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(300L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
 
-        // Advance clock by 5ms (to 305ms, still behind 313ms) and add input.
-        clock.advanceByMillis(5L)
+        // Advance clock to 305ms (still behind 313ms) and add input. Shape duration advances
+        // immediately from the anchored start time instead of stalling at 0ms.
+        clock.advanceByMillis(5L) // clock = 305ms
         val moveEvent = MotionEvent.obtain(313L, 318L, MotionEvent.ACTION_MOVE, 30f, 40f, 0)
         manager.addToStroke(moveEvent, moveEvent.getPointerId(0), strokeId, null)
-        val durationAfterMove = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
-        assertThat(durationAfterMove).isAtLeast(durationAfterStart)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(5L)
 
-        // Advance clock by 20ms (to 325ms, now past 313ms) and finish stroke.
-        clock.advanceByMillis(20L)
+        // Advance clock to 325ms (now past 313ms) and finish stroke.
+        clock.advanceByMillis(20L) // clock = 325ms
         val upEvent = MotionEvent.obtain(313L, 325L, MotionEvent.ACTION_UP, 50f, 60f, 0)
         manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
-        val durationAfterFinish = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
-        assertThat(durationAfterFinish).isAtLeast(durationAfterMove)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(25L)
 
         manager.onStrokeCohortHandoffToHwuiComplete()
         assertThat(finishedStrokes).hasSize(1)
-        assertThat(finishedStrokes[0].stroke.size).isEqualTo(3)
+        val completedInputs = finishedStrokes[0].stroke
+        assertThat(completedInputs.size).isEqualTo(3)
+        // Intra-stroke input timestamps remain relative to downEvent.eventTime (313ms).
+        assertThat(completedInputs[0].elapsedTimeMillis).isEqualTo(0L)
+        assertThat(completedInputs[1].elapsedTimeMillis).isEqualTo(5L)
+        assertThat(completedInputs[2].elapsedTimeMillis).isEqualTo(12L)
     }
 
     // Regression test for b/552666754.
     @Test
     fun finishStroke_whileSystemClockStillBehindMotionEventTime_updatesWithNonNegativeDuration() {
-        val clock = FakeClock(300_000_000L)
+        val clock = FakeClock(300_000_000L) // clock = 300ms
         val (manager, renderHelper, runUiThreadToEndOfFrame) =
             makeAsyncManagerAndHelper(LatencyDataRecorder(), clock)
         val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
@@ -2160,23 +2164,274 @@ internal class InProgressStrokesManagerTest {
             )
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
-        val durationAfterStart = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
-        assertThat(durationAfterStart).isAtLeast(0L)
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(300L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
 
-        // Finish while clock is at 304ms, still behind downEvent.eventTime (313ms).
-        clock.advanceByMillis(4L)
+        // Finish while clock is at 304ms, still behind downEvent.eventTime (313ms) and
+        // upEvent.eventTime (317ms). With 0ms debounce, handoff completes immediately without
+        // waiting
+        // for the system clock to reach upEvent.eventTime.
+        clock.advanceByMillis(4L) // clock = 304ms
         val upEvent = MotionEvent.obtain(313L, 317L, MotionEvent.ACTION_UP, 20f, 30f, 0)
         manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
         renderHelper.runRenderThreadToIdle()
         runUiThreadToEndOfFrame()
-        val durationAfterFinish = checkNotNull(renderHelper.lastUpdateShapeDurationMillis)
-        assertThat(durationAfterFinish).isAtLeast(durationAfterStart)
-
-        // Advance clock past upEvent.eventTime so any debounce window clears and handoff completes.
-        clock.advanceByMillis(20L)
-        runUiThreadToEndOfFrame()
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(4L)
         assertThat(finishedStrokes).hasSize(1)
-        assertThat(finishedStrokes[0].stroke.size).isEqualTo(2)
+        val completedInputs = finishedStrokes[0].stroke
+        assertThat(completedInputs.size).isEqualTo(2)
+        assertThat(completedInputs[0].elapsedTimeMillis).isEqualTo(0L)
+        assertThat(completedInputs[1].elapsedTimeMillis).isEqualTo(4L)
+    }
+
+    @Test
+    fun startAddAndFinishStroke_withSyntheticMotionEventsStartingAtZero_anchorsShapeTimeToSystemClock() {
+        // System clock is at 5_000_000ms of uptime while synthetic MotionEvents start at 0ms.
+        val clock = FakeClock(5_000_000_000_000L) // clock = 5_000_000ms
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent1 = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId1 =
+            manager.startStroke(
+                downEvent1,
+                downEvent1.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(5_000_000L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+
+        clock.advanceByMillis(12L) // clock = 5_000_012ms
+        val moveEvent1 = MotionEvent.obtain(0L, 10L, MotionEvent.ACTION_MOVE, 30f, 40f, 0)
+        manager.addToStroke(moveEvent1, moveEvent1.getPointerId(0), strokeId1, null)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(12L)
+
+        clock.advanceByMillis(10L) // clock = 5_000_022ms
+        val upEvent1 = MotionEvent.obtain(0L, 20L, MotionEvent.ACTION_UP, 50f, 60f, 0)
+        manager.finishStroke(upEvent1, upEvent1.getPointerId(0), strokeId1)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(22L)
+        manager.onStrokeCohortHandoffToHwuiComplete()
+
+        // Start a second synthetic stroke also using a 0-based epoch (e.g., eventTime = 1000L).
+        clock.advanceByMillis(100L) // clock = 5_000_122ms
+        val downEvent2 = MotionEvent.obtain(1000L, 1000L, MotionEvent.ACTION_DOWN, 70f, 80f, 0)
+        val strokeId2 =
+            manager.startStroke(
+                downEvent2,
+                downEvent2.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(5_000_122L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+
+        clock.advanceByMillis(15L) // clock = 5_000_137ms
+        val upEvent2 = MotionEvent.obtain(1000L, 1015L, MotionEvent.ACTION_UP, 90f, 100f, 0)
+        manager.finishStroke(upEvent2, upEvent2.getPointerId(0), strokeId2)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(15L)
+        manager.onStrokeCohortHandoffToHwuiComplete()
+
+        assertThat(finishedStrokes).hasSize(2)
+        val stroke1Inputs = finishedStrokes[0].stroke
+        assertThat(stroke1Inputs.size).isEqualTo(3)
+        assertThat(stroke1Inputs[0].elapsedTimeMillis).isEqualTo(0L)
+        assertThat(stroke1Inputs[1].elapsedTimeMillis).isEqualTo(10L)
+        assertThat(stroke1Inputs[2].elapsedTimeMillis).isEqualTo(20L)
+        val stroke2Inputs = finishedStrokes[1].stroke
+        assertThat(stroke2Inputs.size).isEqualTo(2)
+        assertThat(stroke2Inputs[0].elapsedTimeMillis).isEqualTo(0L)
+        assertThat(stroke2Inputs[1].elapsedTimeMillis).isEqualTo(15L)
+    }
+
+    @Test
+    fun addToStroke_withPredictionWhenSystemClockBehindMotionEventTime_keepsPredictionInEventTimeBase() {
+        val clock = FakeClock(300_000_000L) // clock = 300ms
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+
+        val downEvent = MotionEvent.obtain(313L, 313L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(300L)
+
+        clock.advanceByMillis(5L) // clock = 305ms
+        val moveEvent = MotionEvent.obtain(313L, 318L, MotionEvent.ACTION_MOVE, 30f, 40f, 0)
+        val predictedEvent = MotionEvent.obtain(313L, 326L, MotionEvent.ACTION_MOVE, 45f, 55f, 0)
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), strokeId, predictedEvent)
+
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(5L)
+        val predictedInputs = renderHelper.lastEnqueuedPredictedInputs
+        assertThat(predictedInputs.size).isEqualTo(1)
+        // Predicted input timestamp stays relative to downEvent.eventTime (326 - 313 = 13ms).
+        assertThat(predictedInputs[0].elapsedTimeMillis).isEqualTo(13L)
+    }
+
+    @Test
+    fun startStroke_whenSubsequentMotionEventHasEarlierTimestamp_keepsShapeStartMonotonic() {
+        val clock = FakeClock(500_000_000L) // clock = 500ms
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent1 = MotionEvent.obtain(500L, 500L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId1 =
+            manager.startStroke(
+                downEvent1,
+                downEvent1.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(500L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+
+        // Advance system clock to 510ms, then start a second stroke whose MotionEvent.eventTime
+        // (480ms)
+        // precedes the first stroke's start time (e.g., from another input device or synthetic
+        // event).
+        clock.advanceByMillis(10L) // clock = 510ms
+        val downEvent2 = MotionEvent.obtain(480L, 480L, MotionEvent.ACTION_DOWN, 100f, 120f, 0)
+        val strokeId2 =
+            manager.startStroke(
+                downEvent2,
+                downEvent2.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(510L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+
+        clock.advanceByMillis(10L) // clock = 520ms
+        val moveEvent2 = MotionEvent.obtain(480L, 490L, MotionEvent.ACTION_MOVE, 110f, 130f, 0)
+        manager.addToStroke(moveEvent2, moveEvent2.getPointerId(0), strokeId2, null)
+        val upEvent1 = MotionEvent.obtain(500L, 520L, MotionEvent.ACTION_UP, 20f, 30f, 0)
+        manager.finishStroke(upEvent1, upEvent1.getPointerId(0), strokeId1)
+        val upEvent2 = MotionEvent.obtain(480L, 500L, MotionEvent.ACTION_UP, 120f, 140f, 0)
+        manager.finishStroke(upEvent2, upEvent2.getPointerId(0), strokeId2)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(10L)
+
+        manager.onStrokeCohortHandoffToHwuiComplete()
+        assertThat(finishedStrokes).hasSize(2)
+        val stroke2Inputs = finishedStrokes[1].stroke
+        assertThat(stroke2Inputs.size).isEqualTo(3)
+        // Stroke 2 inputs remain relative to downEvent2.eventTime (480ms).
+        assertThat(stroke2Inputs[0].elapsedTimeMillis).isEqualTo(0L)
+        assertThat(stroke2Inputs[1].elapsedTimeMillis).isEqualTo(10L)
+        assertThat(stroke2Inputs[2].elapsedTimeMillis).isEqualTo(20L)
+    }
+
+    @Test
+    fun startStroke_withStrokeInputAfterSkewedMotionEvent_keepsShapeStartMonotonic() {
+        val clock = FakeClock(300_000_000L) // clock = 300ms
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent = MotionEvent.obtain(313L, 313L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId1 =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(300L)
+
+        // Advance system clock to 305ms (still behind 313ms) and start a StrokeInput-based stroke.
+        clock.advanceByMillis(5L) // clock = 305ms
+        val downInput =
+            StrokeInput.create(
+                x = 50f,
+                y = 60f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 0L,
+            )
+        val strokeId2 = manager.startStroke(downInput, FakeShapeSpec(), Matrix())
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(305L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+
+        clock.advanceByMillis(20L) // clock = 325ms
+        val upEvent = MotionEvent.obtain(313L, 325L, MotionEvent.ACTION_UP, 20f, 30f, 0)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId1)
+        val upInput =
+            StrokeInput.create(
+                x = 60f,
+                y = 70f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 20L,
+            )
+        manager.finishStroke(upInput, strokeId2)
+        manager.onStrokeCohortHandoffToHwuiComplete()
+        assertThat(finishedStrokes).hasSize(2)
+    }
+
+    @Test
+    fun startStroke_whenSystemClockMovesBackwardBetweenStrokes_anchorsNewStrokeToCurrentSystemClock() {
+        val clock = FakeClock(500_000_000L) // clock = 500ms
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent1 = MotionEvent.obtain(500L, 500L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId1 =
+            manager.startStroke(
+                downEvent1,
+                downEvent1.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(500L)
+        val upEvent1 = MotionEvent.obtain(500L, 500L, MotionEvent.ACTION_UP, 15f, 25f, 0)
+        manager.finishStroke(upEvent1, upEvent1.getPointerId(0), strokeId1)
+        manager.onStrokeCohortHandoffToHwuiComplete()
+
+        // Simulate the system clock stepping backward before the next stroke starts.
+        clock.timeNanos = 490_000_000L // clock = 490ms
+        val downEvent2 = MotionEvent.obtain(490L, 490L, MotionEvent.ACTION_DOWN, 30f, 40f, 0)
+        val strokeId2 =
+            manager.startStroke(
+                downEvent2,
+                downEvent2.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(490L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(490L)
+
+        clock.timeNanos = 515_000_000L // clock = 515ms
+        val upEvent2 = MotionEvent.obtain(490L, 515L, MotionEvent.ACTION_UP, 50f, 60f, 0)
+        manager.finishStroke(upEvent2, upEvent2.getPointerId(0), strokeId2)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(25L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(515L)
+
+        manager.onStrokeCohortHandoffToHwuiComplete()
+        assertThat(finishedStrokes).hasSize(2)
+        val stroke2Inputs = finishedStrokes[1].stroke
+        assertThat(stroke2Inputs.size).isEqualTo(2)
+        assertThat(stroke2Inputs[0].elapsedTimeMillis).isEqualTo(0L)
+        assertThat(stroke2Inputs[1].elapsedTimeMillis).isEqualTo(25L)
     }
 
     // Regression test for b/552666754.
@@ -2187,7 +2442,7 @@ internal class InProgressStrokesManagerTest {
         val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
         manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
 
-        val downEvent = MotionEvent.obtain(490L, 490L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val downEvent = MotionEvent.obtain(500L, 500L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
         val strokeId =
             manager.startStroke(
                 downEvent,
@@ -2197,22 +2452,349 @@ internal class InProgressStrokesManagerTest {
                 FakeShapeSpec(),
                 0f,
             )
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(500L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+
+        // Advance clock forward by 10ms (to 510ms -> shapeDurationMillis = 10ms).
+        clock.timeNanos = 510_000_000L
+        val moveEvent1 = MotionEvent.obtain(500L, 510L, MotionEvent.ACTION_MOVE, 20f, 30f, 0)
+        manager.addToStroke(moveEvent1, moveEvent1.getPointerId(0), strokeId, null)
         assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(10L)
 
-        // Simulate clock stepping backward by 5ms (to 495ms, which would yield 5ms < 10ms).
-        clock.timeNanos = 495_000_000L
-        val moveEvent = MotionEvent.obtain(490L, 498L, MotionEvent.ACTION_MOVE, 30f, 40f, 0)
-        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), strokeId, null)
+        // Simulate clock stepping backward by 5ms (to 505ms, which would yield 5ms < 10ms).
+        clock.timeNanos = 505_000_000L
+        val moveEvent2 = MotionEvent.obtain(500L, 515L, MotionEvent.ACTION_MOVE, 30f, 40f, 0)
+        manager.addToStroke(moveEvent2, moveEvent2.getPointerId(0), strokeId, null)
         assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(10L)
 
-        // Advance clock forward to 520ms (30ms elapsed) and finish.
+        // Advance clock forward to 520ms (20ms elapsed since start) and finish.
         clock.timeNanos = 520_000_000L
-        val upEvent = MotionEvent.obtain(490L, 515L, MotionEvent.ACTION_UP, 50f, 60f, 0)
+        val upEvent = MotionEvent.obtain(500L, 520L, MotionEvent.ACTION_UP, 50f, 60f, 0)
         manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
-        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(30L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(20L)
 
         manager.onStrokeCohortHandoffToHwuiComplete()
         assertThat(finishedStrokes).hasSize(1)
+    }
+
+    @Test
+    fun startAddAndFinishStroke_withNonZeroInitialStrokeInputElapsedTime_alignsShapeDurationToInputTime() {
+        val clock = FakeClock(500_000_000L) // clock = 500ms
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downInput =
+            StrokeInput.create(
+                x = 10f,
+                y = 20f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 50L,
+            )
+        val strokeId = manager.startStroke(downInput, FakeShapeSpec(), Matrix())
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(450L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(50L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(500L)
+
+        clock.advanceByMillis(20L) // clock = 520ms
+        val moveInput =
+            StrokeInput.create(
+                x = 30f,
+                y = 40f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 70L,
+            )
+        val moveInputs = MutableStrokeInputBatch().apply { add(moveInput) }.toImmutable()
+        manager.addToStroke(moveInputs, strokeId, ImmutableStrokeInputBatch.EMPTY)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(70L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(520L)
+
+        clock.advanceByMillis(30L) // clock = 550ms
+        val upInput =
+            StrokeInput.create(
+                x = 50f,
+                y = 60f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 100L,
+            )
+        manager.finishStroke(upInput, strokeId)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(100L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(550L)
+
+        manager.onStrokeCohortHandoffToHwuiComplete()
+        assertThat(finishedStrokes).hasSize(1)
+        val completedInputs = finishedStrokes[0].stroke
+        assertThat(completedInputs.size).isEqualTo(3)
+        assertThat(completedInputs[0].elapsedTimeMillis).isEqualTo(50L)
+        assertThat(completedInputs[1].elapsedTimeMillis).isEqualTo(70L)
+        assertThat(completedInputs[2].elapsedTimeMillis).isEqualTo(100L)
+    }
+
+    @Test
+    fun startStroke_withNonZeroStrokeInputElapsedTimeExceedingGapSincePreviousStroke_offsetsStartBeforePreviousStroke() {
+        val clock = FakeClock(500_000_000L) // clock = 500ms
+        val (manager, renderHelper) = makeSyncManagerAndHelper(LatencyDataRecorder(), clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downInput1 =
+            StrokeInput.create(
+                x = 10f,
+                y = 20f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 0L,
+            )
+        val strokeId1 = manager.startStroke(downInput1, FakeShapeSpec(), Matrix())
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(500L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+
+        // Advance clock by 10ms (to 510ms), then start a second stroke whose initial
+        // elapsedTimeMillis
+        // (50ms) places its T=0 start time at 460ms < 500ms.
+        clock.advanceByMillis(10L) // clock = 510ms
+        val downInput2 =
+            StrokeInput.create(
+                x = 50f,
+                y = 60f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 50L,
+            )
+        val strokeId2 = manager.startStroke(downInput2, FakeShapeSpec(), Matrix())
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(460L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(50L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(510L)
+
+        clock.advanceByMillis(20L) // clock = 530ms
+        val upInput1 =
+            StrokeInput.create(
+                x = 20f,
+                y = 30f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 30L,
+            )
+        manager.finishStroke(upInput1, strokeId1)
+        val upInput2 =
+            StrokeInput.create(
+                x = 60f,
+                y = 70f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 70L,
+            )
+        manager.finishStroke(upInput2, strokeId2)
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(460L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(70L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(530L)
+
+        manager.onStrokeCohortHandoffToHwuiComplete()
+        assertThat(finishedStrokes).hasSize(2)
+        val stroke2Inputs = finishedStrokes[1].stroke
+        assertThat(stroke2Inputs.size).isEqualTo(2)
+        assertThat(stroke2Inputs[0].elapsedTimeMillis).isEqualTo(50L)
+        assertThat(stroke2Inputs[1].elapsedTimeMillis).isEqualTo(70L)
+    }
+
+    @Test
+    fun startStroke_onRecycledShapeWithLargeInitialElapsedTime_allowsDecreasingAndNegativeStartTime() {
+        val clock = FakeClock(20_000_000L) // clock = 20ms
+        val pool = FakeInProgressStrokePool()
+        val (manager, renderHelper) =
+            makeSyncManagerAndHelper(LatencyDataRecorder(), clock, inProgressStrokePool = pool)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downInput1 =
+            StrokeInput.create(
+                x = 10f,
+                y = 20f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 0L,
+            )
+        val strokeId1 = manager.startStroke(downInput1, FakeShapeSpec(), Matrix())
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(20L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(0L)
+
+        clock.advanceByMillis(5L) // clock = 25ms
+        val upInput1 =
+            StrokeInput.create(
+                x = 15f,
+                y = 25f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 5L,
+            )
+        manager.finishStroke(upInput1, strokeId1)
+        assertThat(pool.obtainCount).isEqualTo(1)
+        assertThat(pool.recycleCount).isEqualTo(1)
+
+        // Start a second stroke at 30ms with elapsedTimeMillis = 50ms, reusing the pooled shape
+        // instance with a negative start time (-20ms < 20ms).
+        clock.advanceByMillis(5L) // clock = 30ms
+        val downInput2 =
+            StrokeInput.create(
+                x = 50f,
+                y = 60f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 50L,
+            )
+        val strokeId2 = manager.startStroke(downInput2, FakeShapeSpec(), Matrix())
+        assertThat(pool.obtainCount).isEqualTo(2)
+        assertThat(renderHelper.lastStartSystemElapsedTimeMillis).isEqualTo(-20L)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(50L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(30L)
+
+        clock.advanceByMillis(15L) // clock = 45ms
+        val upInput2 =
+            StrokeInput.create(
+                x = 60f,
+                y = 70f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 65L,
+            )
+        manager.finishStroke(upInput2, strokeId2)
+        assertThat(renderHelper.lastUpdateShapeDurationMillis).isEqualTo(65L)
+        assertThat(renderHelper.lastUpdateSystemElapsedTimeMillis).isEqualTo(45L)
+        assertThat(finishedStrokes).hasSize(2)
+    }
+
+    @Test
+    fun finishStroke_withDebounceAndMotionEventAheadOfSystemClock_debouncesUsingSystemClock() {
+        val clock = FakeClock(300_000_000L) // clock = 300ms
+        val (manager, renderHelper, runUiThreadToEndOfFrame) =
+            makeAsyncManagerAndHelper(LatencyDataRecorder(), clock)
+        manager.setHandoffDebounceDurationMs(50L)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent = MotionEvent.obtain(320L, 320L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+
+        // Finish at clock = 310ms while upEvent.eventTime is 330ms (20ms ahead of system clock).
+        clock.advanceByMillis(10L) // clock = 310ms
+        val upEvent = MotionEvent.obtain(320L, 330L, MotionEvent.ACTION_UP, 20f, 30f, 0)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).isEmpty()
+
+        // Just before 50ms of system time have elapsed since finish (359ms < 310ms + 50ms): still
+        // held.
+        clock.advanceByMillis(49L) // clock = 359ms
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).isEmpty()
+
+        // At 360ms (50ms after system finish time, still before upEvent.eventTime + 50ms = 380ms):
+        // debounce expires and handoff runs.
+        clock.advanceByMillis(1L) // clock = 360ms
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).hasSize(1)
+    }
+
+    @Test
+    fun finishStroke_withDebounceAndSyntheticMotionEventStartingAtZero_respectsDebounceDuration() {
+        val clock = FakeClock(5_000_000_000_000L) // clock = 5_000_000ms
+        val (manager, renderHelper, runUiThreadToEndOfFrame) =
+            makeAsyncManagerAndHelper(LatencyDataRecorder(), clock)
+        manager.setHandoffDebounceDurationMs(50L)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_DOWN, 10f, 20f, 0)
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+
+        // Finish at clock = 5_000_020ms with 0-based upEvent.eventTime = 20ms. Debounce must not be
+        // bypassed by comparing system uptime against upEvent.eventTime + 50ms.
+        clock.advanceByMillis(20L) // clock = 5_000_020ms
+        val upEvent = MotionEvent.obtain(0L, 20L, MotionEvent.ACTION_UP, 30f, 40f, 0)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).isEmpty()
+
+        clock.advanceByMillis(49L) // clock = 5_000_069ms
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).isEmpty()
+
+        clock.advanceByMillis(1L) // clock = 5_000_070ms
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).hasSize(1)
+    }
+
+    @Test
+    fun finishStroke_withDebounceInMixedCohort_debouncesFromLatestSystemFinishTime() {
+        val clock = FakeClock(5_000_000_000_000L) // clock = 5_000_000ms
+        val (manager, renderHelper, runUiThreadToEndOfFrame) =
+            makeAsyncManagerAndHelper(LatencyDataRecorder(), clock)
+        manager.setHandoffDebounceDurationMs(50L)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downInput =
+            StrokeInput.create(
+                x = 10f,
+                y = 20f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 0L,
+            )
+        val strokeInputId = manager.startStroke(downInput, FakeShapeSpec(), Matrix())
+        val downEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_DOWN, 50f, 60f, 0)
+        val motionEventId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+
+        // Finish the StrokeInput stroke at 5_000_010ms, then finish the synthetic 0-based
+        // MotionEvent
+        // stroke at 5_000_025ms. Cohort debounce must run until 5_000_075ms.
+        clock.advanceByMillis(10L) // clock = 5_000_010ms
+        val upInput =
+            StrokeInput.create(
+                x = 20f,
+                y = 30f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 10L,
+            )
+        manager.finishStroke(upInput, strokeInputId)
+
+        clock.advanceByMillis(15L) // clock = 5_000_025ms
+        val upEvent = MotionEvent.obtain(0L, 25L, MotionEvent.ACTION_UP, 70f, 80f, 0)
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), motionEventId)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).isEmpty()
+
+        clock.advanceByMillis(49L) // clock = 5_000_074ms
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).isEmpty()
+
+        clock.advanceByMillis(1L) // clock = 5_000_075ms
+        runUiThreadToEndOfFrame()
+        assertThat(finishedStrokes).hasSize(2)
     }
 
     @Test
@@ -2393,10 +2975,16 @@ private class FakeRenderHelper(
     var lastModifiedRegion: ImmutableBox? = null
         private set
 
+    var lastStartSystemElapsedTimeMillis: Long? = null
+        private set
+
     var lastUpdateSystemElapsedTimeMillis: Long? = null
         private set
 
     var lastUpdateShapeDurationMillis: Long? = null
+        private set
+
+    var lastEnqueuedPredictedInputs: ImmutableStrokeInputBatch = ImmutableStrokeInputBatch.EMPTY
         private set
 
     var startCohortCount = 0
@@ -2467,8 +3055,10 @@ private class FakeRenderHelper(
     ) {
         assertOnRenderThread()
         drawCount++
+        lastStartSystemElapsedTimeMillis = inProgressShape.startSystemElapsedTimeMillis
         lastUpdateSystemElapsedTimeMillis = inProgressShape.lastUpdateSystemElapsedTimeMillis
         lastUpdateShapeDurationMillis = inProgressShape.lastUpdateShapeDurationMillis
+        lastEnqueuedPredictedInputs = inProgressShape.lastEnqueuedPredictedInputs
     }
 
     override fun afterDrawInModifiedRegion() {

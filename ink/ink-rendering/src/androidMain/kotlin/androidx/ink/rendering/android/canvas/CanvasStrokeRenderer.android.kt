@@ -94,7 +94,7 @@ public interface CanvasStrokeRenderer {
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
     public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: AffineTransform) {
-        draw(canvas, stroke, strokeToScreenTransform, 0L)
+        drawInternal(canvas, stroke, strokeToScreenTransform, 0L)
     }
 
     /**
@@ -112,7 +112,6 @@ public interface CanvasStrokeRenderer {
      * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
      * blurry or aliased.
      */
-    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     public fun draw(
@@ -120,7 +119,9 @@ public interface CanvasStrokeRenderer {
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
         animatorClockStateMillis: Long,
-    )
+    ) {
+        drawInternal(canvas, stroke, strokeToScreenTransform, animatorClockStateMillis)
+    }
 
     /**
      * Render a single [stroke] on the provided [canvas].
@@ -136,7 +137,7 @@ public interface CanvasStrokeRenderer {
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
     public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix) {
-        draw(canvas, stroke, strokeToScreenTransform, 0L)
+        drawInternal(canvas, stroke, strokeToScreenTransform, 0L)
     }
 
     /**
@@ -154,7 +155,6 @@ public interface CanvasStrokeRenderer {
      * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
      * appear blurry or aliased.
      */
-    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     public fun draw(
@@ -162,7 +162,9 @@ public interface CanvasStrokeRenderer {
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
         animatorClockStateMillis: Long,
-    )
+    ) {
+        drawInternal(canvas, stroke, strokeToScreenTransform, animatorClockStateMillis)
+    }
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas].
@@ -178,7 +180,7 @@ public interface CanvasStrokeRenderer {
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
     ) {
-        draw(canvas, inProgressStroke, strokeToScreenTransform, 0L)
+        drawInternal(canvas, inProgressStroke, strokeToScreenTransform, 0L)
     }
 
     /**
@@ -193,7 +195,6 @@ public interface CanvasStrokeRenderer {
      * [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may appear
      * blurry or aliased.
      */
-    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     public fun draw(
@@ -201,7 +202,9 @@ public interface CanvasStrokeRenderer {
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
         animatorClockStateMillis: Long,
-    )
+    ) {
+        drawInternal(canvas, inProgressStroke, strokeToScreenTransform, animatorClockStateMillis)
+    }
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas].
@@ -217,7 +220,7 @@ public interface CanvasStrokeRenderer {
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
     ) {
-        draw(canvas, inProgressStroke, strokeToScreenTransform, 0L)
+        drawInternal(canvas, inProgressStroke, strokeToScreenTransform, 0L)
     }
 
     /**
@@ -232,10 +235,51 @@ public interface CanvasStrokeRenderer {
      * the [canvas] during an app’s drawing logic. If this transform is inaccurate, strokes may
      * appear blurry or aliased.
      */
-    @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     public fun draw(
+        canvas: Canvas,
+        inProgressStroke: InProgressStroke,
+        strokeToScreenTransform: Matrix,
+        animatorClockStateMillis: Long,
+    ) {
+        drawInternal(canvas, inProgressStroke, strokeToScreenTransform, animatorClockStateMillis)
+    }
+
+    @Suppress("HiddenAbstractMethodInInterface")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
+    public fun drawInternal(
+        canvas: Canvas,
+        stroke: Stroke,
+        strokeToScreenTransform: AffineTransform,
+        animatorClockStateMillis: Long,
+    )
+
+    @Suppress("HiddenAbstractMethodInInterface")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
+    public fun drawInternal(
+        canvas: Canvas,
+        stroke: Stroke,
+        strokeToScreenTransform: Matrix,
+        animatorClockStateMillis: Long,
+    )
+
+    @Suppress("HiddenAbstractMethodInInterface")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
+    public fun drawInternal(
+        canvas: Canvas,
+        inProgressStroke: InProgressStroke,
+        strokeToScreenTransform: AffineTransform,
+        animatorClockStateMillis: Long,
+    )
+
+    @Suppress("HiddenAbstractMethodInInterface")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
+    public fun drawInternal(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,

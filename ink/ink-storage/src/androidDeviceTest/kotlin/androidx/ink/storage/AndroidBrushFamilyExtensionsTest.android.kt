@@ -26,6 +26,7 @@ import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.BrushTip
 import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.IntegralNode
@@ -48,7 +49,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalInkBrushCompatibilityApi::class)
+@OptIn(ExperimentalInkBrushCompatibilityApi::class, ExperimentalInkCustomBrushApi::class)
 class AndroidBrushFamilyExtensionsTest {
 
     private val textureId1: String = "texture_id_1"
@@ -567,5 +568,125 @@ class AndroidBrushFamilyExtensionsTest {
         assertEquals(decodedTextureBitmapStore.size, 2)
         assertTrue(decodedTextureBitmapStore[textureId1]!!.sameAs(textureBitmapStore[textureId1]))
         assertTrue(decodedTextureBitmapStore[textureId2]!!.sameAs(textureBitmapStore[textureId2]))
+    }
+
+    @Test
+    fun encode_textureBitmapStoreGetEncodedTextureId_writesEncodedTextureIds() {
+        val renamingTextureBitmapStore =
+            object : TextureBitmapStore {
+                override fun get(clientTextureId: String): Bitmap? =
+                    textureBitmapStore[clientTextureId.removePrefix("renamed/")]
+
+                override fun getEncodedTextureId(clientTextureId: String): String =
+                    clientTextureId.removePrefix("renamed/")
+            }
+        val renamedFamily =
+            BrushFamily(
+                paint =
+                    BrushPaint(
+                        textureLayers =
+                            listOf(
+                                TilingTexture(
+                                    clientTextureId = "renamed/$textureId1",
+                                    sizeX = 1f,
+                                    sizeY = 4f,
+                                )
+                            )
+                    )
+            )
+
+        val encoded =
+            ByteArrayOutputStream().use {
+                renamedFamily.encode(it, renamingTextureBitmapStore)
+                it.toByteArray()
+            }
+
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap?>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            decodedTextureBitmapStore[id] = bitmap
+            id
+        }
+        ByteArrayInputStream(encoded).use {
+            assertThat(BrushFamily.decode(it, decodeCallback))
+                .isEqualTo(
+                    BrushFamily(
+                        paint =
+                            BrushPaint(
+                                textureLayers =
+                                    listOf(
+                                        TilingTexture(
+                                            clientTextureId = textureId1,
+                                            sizeX = 1f,
+                                            sizeY = 4f,
+                                        )
+                                    )
+                            )
+                    )
+                )
+        }
+        assertThat(decodedTextureBitmapStore.keys).containsExactly(textureId1)
+        assertTrue(decodedTextureBitmapStore[textureId1]!!.sameAs(testBitmap1x4))
+    }
+
+    @Test
+    fun encode_textureBitmapStoreGetEncodedTextureId_writesEncodedTextureIds_staticApi() {
+        val renamingTextureBitmapStore =
+            object : TextureBitmapStore {
+                override fun get(clientTextureId: String): Bitmap? =
+                    textureBitmapStore[clientTextureId.removePrefix("renamed/")]
+
+                override fun getEncodedTextureId(clientTextureId: String): String =
+                    clientTextureId.removePrefix("renamed/")
+            }
+        val renamedFamily =
+            BrushFamily(
+                paint =
+                    BrushPaint(
+                        textureLayers =
+                            listOf(
+                                TilingTexture(
+                                    clientTextureId = "renamed/$textureId1",
+                                    sizeX = 1f,
+                                    sizeY = 4f,
+                                )
+                            )
+                    )
+            )
+
+        val encoded =
+            ByteArrayOutputStream().use {
+                AndroidBrushFamilySerialization.encode(
+                    renamedFamily,
+                    it,
+                    renamingTextureBitmapStore,
+                )
+                it.toByteArray()
+            }
+
+        val decodedTextureBitmapStore = mutableMapOf<String, Bitmap?>()
+        val decodeCallback = BrushFamilyDecodeCallback { id: String, bitmap: Bitmap? ->
+            decodedTextureBitmapStore[id] = bitmap
+            id
+        }
+        ByteArrayInputStream(encoded).use {
+            assertThat(AndroidBrushFamilySerialization.decode(it, decodeCallback))
+                .isEqualTo(
+                    BrushFamily(
+                        paint =
+                            BrushPaint(
+                                textureLayers =
+                                    listOf(
+                                        TilingTexture(
+                                            clientTextureId = textureId1,
+                                            sizeX = 1f,
+                                            sizeY = 4f,
+                                        )
+                                    )
+                            )
+                    )
+                )
+        }
+        assertThat(decodedTextureBitmapStore.keys).containsExactly(textureId1)
+        assertTrue(decodedTextureBitmapStore[textureId1]!!.sameAs(testBitmap1x4))
     }
 }

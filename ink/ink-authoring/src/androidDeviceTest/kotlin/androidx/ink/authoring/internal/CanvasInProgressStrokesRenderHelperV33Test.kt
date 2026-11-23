@@ -20,6 +20,7 @@ import android.graphics.Matrix
 import android.os.Build
 import android.os.SystemClock
 import android.view.SurfaceView
+import android.widget.FrameLayout
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalInkLatencyDataApi
@@ -307,6 +308,58 @@ class CanvasInProgressStrokesRenderHelperV33Test {
         withActivity { activity ->
             activity.rootView.removeView(activity.mainView)
             assertThat(activity.mainView.childCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun surfaceChanged_withNewBounds_reusesRenderThread() {
+        withActivity { activity ->
+            assertThat(activity.fakeThreads.renderThreadExecutorFactoryCallCount).isEqualTo(1)
+            assertThat(activity.fakeThreads.renderThreadIsShutdown()).isFalse()
+            activity.mainView.layoutParams =
+                FrameLayout.LayoutParams(activity.mainView.width / 2, activity.mainView.height / 2)
+        }
+
+        onIdle()
+
+        for (i in 0 until 3) {
+            onIdle()
+            withActivity { activity -> activity.fakeThreads.runRenderThreadToIdle() }
+            SystemClock.sleep(250)
+        }
+
+        withActivity { activity ->
+            assertThat(activity.fakeThreads.renderThreadExecutorFactoryCallCount).isEqualTo(1)
+            assertThat(activity.fakeThreads.renderThreadIsShutdown()).isFalse()
+        }
+    }
+
+    @Test
+    fun onViewDetachedFromWindow_shutsDownRenderThreadAfterCleanup() {
+        withActivity { activity ->
+            assertThat(activity.fakeThreads.renderThreadExecutorFactoryCallCount).isEqualTo(1)
+            assertThat(activity.fakeThreads.renderThreadIsShutdown()).isFalse()
+            activity.rootView.removeView(activity.mainView)
+        }
+
+        for (i in 0 until 3) {
+            var isShutdown = false
+            onIdle()
+            withActivity { activity ->
+                activity.fakeThreads.runRenderThreadToIdle()
+                isShutdown = activity.fakeThreads.renderThreadIsShutdown()
+            }
+            if (isShutdown) {
+                break
+            }
+            SystemClock.sleep(250)
+        }
+
+        withActivity { activity ->
+            assertThat(activity.fakeThreads.renderThreadIsShutdown()).isTrue()
+            activity.rootView.addView(activity.mainView)
+            assertThat(activity.fakeThreads.renderThreadExecutorFactoryCallCount).isEqualTo(2)
+            assertThat(activity.fakeThreads.renderThreadIsShutdown()).isFalse()
         }
     }
 

@@ -23,6 +23,7 @@ import android.graphics.BitmapFactory
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.Version
 import java.io.ByteArrayOutputStream
@@ -44,7 +45,8 @@ public fun interface BrushFamilyDecodeCallback {
      * @return The client texture ID for this texture in the in-memory format of the [BrushFamily].
      *   This can be different from [clientTextureId], in particular when there are naming
      *   collisions in the [TextureBitmapStore] or when the texture store uses its own scheme for
-     *   ensuring unique names.
+     *   ensuring unique names. In that case, override [TextureBitmapStore.getEncodedTextureId] to
+     *   write [clientTextureId] back when the [BrushFamily] is encoded again.
      */
     public fun onDecodeTexture(clientTextureId: String, bitmap: Bitmap?): String
 }
@@ -59,7 +61,8 @@ public fun interface BrushFamilyDecodeCallback {
  * @param textureBitmapStore The [TextureBitmapStore] to use to encode the texture images within the
  *   encoded [BrushFamily]. If this is not desired behavior, e.g. if the application has a static
  *   set of texture images that it includes as resources, then this can be a [TextureBitmapStore]
- *   that always returns `null`.
+ *   that always returns `null`. Texture IDs are written as returned by
+ *   [TextureBitmapStore.getEncodedTextureId].
  * @receiver The [BrushFamily] object to encode.
  */
 public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureBitmapStore) {
@@ -80,7 +83,8 @@ public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureB
  * @param textureBitmapStore The [TextureBitmapStore] to use to encode the texture images within the
  *   encoded [BrushFamily]s. If this is not desired behavior, e.g. if the application has a static
  *   set of texture images that it includes as resources, then this can be a [TextureBitmapStore]
- *   that always returns `null`.
+ *   that always returns `null`. Texture IDs are written as returned by
+ *   [TextureBitmapStore.getEncodedTextureId].
  * @receiver The [List] of [BrushFamily] objects to encode.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
@@ -176,7 +180,8 @@ public object AndroidBrushFamilySerialization {
      * @param textureBitmapStore The [TextureBitmapStore] to use to encode the texture images within
      *   the encoded [BrushFamily]. If this is not desired behavior, e.g. if the application has a
      *   static set of texture images that it includes as resources, then this can be a
-     *   [TextureBitmapStore] that always returns `null`.
+     *   [TextureBitmapStore] that always returns `null`. Texture IDs are written as returned by
+     *   [TextureBitmapStore.getEncodedTextureId].
      */
     @JvmStatic
     @Throws(IOException::class)
@@ -240,7 +245,8 @@ public object AndroidBrushFamilySerialization {
      * @param textureBitmapStore The [TextureBitmapStore] to use to encode the texture images within
      *   the encoded [BrushFamily]s. If this is not desired behavior, e.g. if the application has a
      *   static set of texture images that it includes as resources, then this can be a
-     *   [TextureBitmapStore] that always returns `null`.
+     *   [TextureBitmapStore] that always returns `null`. Texture IDs are written as returned by
+     *   [TextureBitmapStore.getEncodedTextureId].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBrushCompatibilityApi
@@ -297,9 +303,14 @@ public object AndroidBrushFamilySerialization {
     ): List<BrushFamily> = decodeMultiple(input, Version.MAX_SUPPORTED, getClientTextureId)
 }
 
+@OptIn(ExperimentalInkCustomBrushApi::class)
 private fun TextureBitmapStore.toTexturePngBytesLookup(): TexturePngBytesLookup =
-    TexturePngBytesLookup { textureId: String ->
-        this[textureId]?.toPngBytes()
+    object : TexturePngBytesLookup {
+        override fun getTexturePngBytes(clientTextureId: String): ByteArray? =
+            this@toTexturePngBytesLookup[clientTextureId]?.toPngBytes()
+
+        override fun getEncodedTextureId(clientTextureId: String): String =
+            this@toTexturePngBytesLookup.getEncodedTextureId(clientTextureId)
     }
 
 private fun Bitmap.toPngBytes(): ByteArray =

@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.annotation.RestrictTo
 import platform.UIKit.UIImage
 
 /**
@@ -42,4 +43,28 @@ public fun interface TextureImageStore {
      * @return The texture image, if any, associated with the given ID.
      */
     public operator fun get(clientTextureId: String): UIImage?
+
+    /**
+     * Returns the texture ID to write in place of [clientTextureId] when a `BrushFamily` is encoded
+     * with this store using `androidx.ink.storage`. By default, texture IDs are written unchanged.
+     * This is not used for rendering.
+     *
+     * Override this to undo any change made to texture IDs when decoding (in
+     * `androidx.ink.storage.OnDecodeTextureUiImage.onDecodeTexture`), for example to remove a
+     * prefix that was added to keep texture IDs unique within this store, so that re-encoding a
+     * decoded `BrushFamily` writes the texture IDs that it was originally serialized with.
+     *
+     * This is called whether or not [get] returns an image for [clientTextureId]. The result may be
+     * cached by consumers, so this should return a deterministic result for a given input. If two
+     * different client texture IDs used in the same `BrushFamily` return the same encoded ID, their
+     * layers will share that encoded ID in the serialized form and only the first texture's image
+     * will be stored. If `BrushFamily.hasFallbacks` is true for a `BrushFamily` that is encoded on
+     * its own, its stored serialized form, which already has the original texture IDs, is written
+     * instead, so this has no effect.
+     *
+     * @param clientTextureId The texture ID used by the `BrushFamily` being encoded.
+     * @return The texture ID to write into the serialized `BrushFamily`.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public fun getEncodedTextureId(clientTextureId: String): String = clientTextureId
 }

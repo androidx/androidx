@@ -23,6 +23,7 @@ import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.BrushTip
 import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.IntegralNode
 import androidx.ink.brush.behavior.OutOfRange
@@ -43,7 +44,7 @@ import kotlin.test.Test
  * this just covers basic plumbing, the tests for detailed error behavior are in the KMP-common
  * tests.
  */
-@OptIn(ExperimentalInkBrushCompatibilityApi::class)
+@OptIn(ExperimentalInkBrushCompatibilityApi::class, ExperimentalInkCustomBrushApi::class)
 class JvmBrushFamilyExtensionsTest {
 
     private val textureId1: String = "texture_id_1"
@@ -541,5 +542,63 @@ class JvmBrushFamilyExtensionsTest {
 
         assertThat(decodedTextureBitmapStore).containsKey(unknownId)
         assertThat(decodedTextureBitmapStore[unknownId]).isNull()
+    }
+
+    @Test
+    fun withTextures_getEncodedTextureId_roundTrip() {
+        val removePrefix =
+            object : TexturePngBytesLookup {
+                override fun getTexturePngBytes(clientTextureId: String): ByteArray? =
+                    textureIdToPngBytes[clientTextureId.removePrefix("renamed/")]
+
+                override fun getEncodedTextureId(clientTextureId: String): String =
+                    clientTextureId.removePrefix("renamed/")
+            }
+        val family =
+            BrushFamily(
+                paint =
+                    BrushPaint(
+                        textureLayers =
+                            listOf(
+                                TilingTexture(
+                                    clientTextureId = "renamed/$textureId1",
+                                    sizeX = 1f,
+                                    sizeY = 4f,
+                                )
+                            )
+                    )
+            )
+
+        val encoded =
+            ByteArrayOutputStream().use {
+                family.encode(it, removePrefix)
+                it.toByteArray()
+            }
+
+        val decodedTextureBitmapStore = mutableMapOf<String, ByteArray?>()
+        val decodeCallback = OnDecodeTexturePngBytes { id: String, pngBytes: ByteArray? ->
+            decodedTextureBitmapStore[id] = pngBytes
+            id
+        }
+        ByteArrayInputStream(encoded).use {
+            assertThat(BrushFamily.decode(it, onDecodeTexture = decodeCallback))
+                .isEqualTo(
+                    BrushFamily(
+                        paint =
+                            BrushPaint(
+                                textureLayers =
+                                    listOf(
+                                        TilingTexture(
+                                            clientTextureId = textureId1,
+                                            sizeX = 1f,
+                                            sizeY = 4f,
+                                        )
+                                    )
+                            )
+                    )
+                )
+        }
+        assertThat(decodedTextureBitmapStore.keys).containsExactly(textureId1)
+        assertThat(decodedTextureBitmapStore[textureId1]).isEqualTo(testBitmap1)
     }
 }

@@ -63,9 +63,12 @@ public interface InProgressShape<in ShapeSpecT : Any, out CompletedShapeT : Any>
      * valid until [prepareToRecycle] is called.
      *
      * @param shapeSpec The [ShapeSpecT] to apply as stylus configuration to the upcoming inputs.
-     * @param systemElapsedTimeMillis The system time in the [android.os.SystemClock] time base
-     *   corresponding to a timestamp of 0 in [enqueueInputs] and [update]. It is monotonically
-     *   non-decreasing. Most implementations shouldn't use this and should instead rely on the
+     * @param systemElapsedTimeMillis The system time (in the [System.nanoTime] /
+     *   [android.os.SystemClock.uptimeMillis] time base) corresponding to an elapsed time of 0 in
+     *   [enqueueInputs] and [update] for this shape. Because a shape may be started with a non-zero
+     *   initial [androidx.ink.strokes.StrokeInput.elapsedTimeMillis] whose zero point lies in the
+     *   past, this value may decrease across calls to [start] (including on a recycled instance)
+     *   and may be negative. Most implementations shouldn't use this and should instead rely on the
      *   relative timestamps in [enqueueInputs] and [update], but this value can be added to those
      *   if a more "absolute" timestamp is needed, e.g. when aligning with animations in the rest of
      *   an application, similar to how [android.view.Choreographer.FrameCallback] timestamps are
@@ -107,11 +110,13 @@ public interface InProgressShape<in ShapeSpecT : Any, out CompletedShapeT : Any>
      * passed to [enqueueInputs] since the last call to [update]. Will be called exactly once for
      * each call to [InProgressShapeRenderer.draw].
      *
-     * @param shapeDurationMillis The current timestamp that is directly comparable to those in the
-     *   [StrokeInputBatch] objects provided to [enqueueInputs], which is the time since the first
-     *   input event for this stroke. This timestamp is monotonically non-decreasing. It is derived
-     *   from a value that is aligned with frame timestamps, similar to
-     *   [android.view.Choreographer.FrameCallback.doFrame], so that time-based effects on shapes
+     * @param shapeDurationMillis The current elapsed time in milliseconds relative to the zero
+     *   point of the [androidx.ink.strokes.StrokeInput.elapsedTimeMillis] values in the
+     *   [StrokeInputBatch] objects provided to [enqueueInputs] (which is typically, though not
+     *   necessarily, the time of the first input event for this shape). Within a single shape
+     *   (between [start] and [prepareToRecycle]), this value is non-negative and monotonically
+     *   non-decreasing. It is derived from a value that is aligned with frame timestamps, similar
+     *   to [android.view.Choreographer.FrameCallback.doFrame], so that time-based effects on shapes
      *   are updated in sync with animations throughout the entire system. This relative timestamp
      *   is suitable (and preferred) for most calculations, but if the more absolute system
      *   timestamp is needed for animation synchronization, add this value to the timestamp passed

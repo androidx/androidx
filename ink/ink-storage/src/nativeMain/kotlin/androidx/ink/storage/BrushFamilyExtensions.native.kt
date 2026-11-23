@@ -55,14 +55,18 @@ actual internal object BrushFamilySerializationNative {
     /**
      * Serializes a [androidx.ink.brush.BrushFamily] to a [ByteArray] using the provided texture map
      * represented in corresponding arrays of keys (client texture IDs) and values (PNG bytes).
+     * Client texture IDs that are keys in [encodedTextureIds] are written as the corresponding
+     * values instead.
      */
     actual fun encode(
         nativeBrushFamilyPointer: Long,
         textureMap: Map<String, ByteArray>?,
+        encodedTextureIds: Map<String, String>?,
     ): ByteArray = memScoped {
         val scope = this@memScoped
         ByteArrayAlloc(scope).let { byteArrayAlloc ->
             val nativeTextureMap = textureMap?.let { NativeTextureMap(scope, it) }
+            val nativeEncodedTextureIds = encodedTextureIds?.let { NativeStringMap(scope, it) }
             byteArrayAlloc.get(
                 BrushFamilySerializationNative_encode(
                     byteArrayAlloc.scopedStableRef.asCPointer(),
@@ -71,6 +75,9 @@ actual internal object BrushFamilySerializationNative {
                     nativeTextureMap?.bitmaps,
                     nativeTextureMap?.bitmapLengths,
                     textureMap?.size ?: 0,
+                    nativeEncodedTextureIds?.keys,
+                    nativeEncodedTextureIds?.values,
+                    encodedTextureIds?.size ?: 0,
                     allocByteArrayCallback,
                 )
             )
@@ -80,10 +87,12 @@ actual internal object BrushFamilySerializationNative {
     actual fun encodeMultiple(
         nativeBrushFamilyPointers: LongArray,
         textureMap: Map<String, ByteArray>?,
+        encodedTextureIds: Map<String, String>?,
     ): ByteArray = memScoped {
         val scope = this@memScoped
         ByteArrayAlloc(scope).let { byteArrayAlloc ->
             val nativeTextureMap = textureMap?.let { NativeTextureMap(scope, it) }
+            val nativeEncodedTextureIds = encodedTextureIds?.let { NativeStringMap(scope, it) }
             byteArrayAlloc.get(
                 BrushFamilySerializationNative_encodeMultiple(
                     byteArrayAlloc.scopedStableRef.asCPointer(),
@@ -93,6 +102,9 @@ actual internal object BrushFamilySerializationNative {
                     nativeTextureMap?.bitmaps,
                     nativeTextureMap?.bitmapLengths,
                     textureMap?.size ?: 0,
+                    nativeEncodedTextureIds?.keys,
+                    nativeEncodedTextureIds?.values,
+                    encodedTextureIds?.size ?: 0,
                     allocByteArrayCallback,
                 )
             )
@@ -222,4 +234,12 @@ private class NativeTextureMap(scope: AutofreeScope, textureMap: Map<String, Byt
             bitmapLengths[i] = bytes.size
         }
     }
+}
+
+/** Corresponding C string arrays of the keys and values of a [Map] of strings. */
+@OptIn(ExperimentalForeignApi::class)
+private class NativeStringMap(scope: AutofreeScope, map: Map<String, String>) {
+    private val entries = map.entries.toList()
+    val keys: CPointer<CPointerVar<ByteVar>> = entries.map { it.key }.toCStringArray(scope)
+    val values: CPointer<CPointerVar<ByteVar>> = entries.map { it.value }.toCStringArray(scope)
 }

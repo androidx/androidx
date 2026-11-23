@@ -22,7 +22,6 @@ import androidx.annotation.IntRange
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
-import kotlin.math.roundToLong
 
 /**
  * Controls animated paint textures for rendered strokes. Typically a single
@@ -60,13 +59,13 @@ public fun interface StrokePaintAnimationClock {
         public fun calculateBasePaintAnimationPhaseForNewStroke(
             clockStateMillis: Long,
             @IntRange(from = 0, to = 1 shl 24) brushFamilyLoopDurationMillis: Long,
-        ): Float =
-            if (brushFamilyLoopDurationMillis == 0L) {
-                0.0f
-            } else {
-                (-clockStateMillis).mod(brushFamilyLoopDurationMillis).toFloat() /
-                    brushFamilyLoopDurationMillis.toFloat()
-            }
+        ): Float {
+            require(brushFamilyLoopDurationMillis >= 0L)
+            return StrokePaintAnimationClockNative.calculateBasePaintAnimationPhase(
+                clockStateMillis,
+                brushFamilyLoopDurationMillis,
+            )
+        }
 
         /**
          * Given a stroke's base paint animation phase, and its `BrushFamily`'s paint animation loop
@@ -87,16 +86,32 @@ public fun interface StrokePaintAnimationClock {
             @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
             strokeBasePaintAnimationPhase: Float,
         ): Float {
+            require(brushPaintLoopDurationMillis >= 0L)
             require(brushFamilyLoopDurationMillis >= brushPaintLoopDurationMillis)
-            if (brushPaintLoopDurationMillis == 0L) {
-                return 0.0f
-            }
-            require(brushFamilyLoopDurationMillis.mod(brushPaintLoopDurationMillis) == 0L)
-            return (clockStateMillis +
-                    (strokeBasePaintAnimationPhase * brushFamilyLoopDurationMillis.toDouble())
-                        .roundToLong())
-                .mod(brushPaintLoopDurationMillis)
-                .toFloat() / brushPaintLoopDurationMillis.toFloat()
+            require(
+                brushPaintLoopDurationMillis == 0L ||
+                    brushFamilyLoopDurationMillis.mod(brushPaintLoopDurationMillis) == 0L
+            )
+            return StrokePaintAnimationClockNative.calculateCurrentAnimationPhase(
+                clockStateMillis,
+                brushFamilyLoopDurationMillis,
+                brushPaintLoopDurationMillis,
+                strokeBasePaintAnimationPhase,
+            )
         }
     }
+}
+
+expect internal object StrokePaintAnimationClockNative {
+    fun calculateBasePaintAnimationPhase(
+        clockStateMillis: Long,
+        brushFamilyLoopDurationMillis: Long,
+    ): Float
+
+    fun calculateCurrentAnimationPhase(
+        clockStateMillis: Long,
+        brushFamilyLoopDurationMillis: Long,
+        brushPaintLoopDurationMillis: Long,
+        strokeBasePaintAnimationPhase: Float,
+    ): Float
 }

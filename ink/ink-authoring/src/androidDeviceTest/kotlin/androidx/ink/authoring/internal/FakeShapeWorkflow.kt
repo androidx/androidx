@@ -33,6 +33,7 @@ import androidx.ink.strokes.StrokeInputBatch
 @ExperimentalInkCustomShapeWorkflowApi
 internal class FakeShapeWorkflow :
     ShapeWorkflow<FakeShapeSpec, FakeInProgressShape, ImmutableStrokeInputBatch> {
+
     override fun getShapeType(shapeSpec: FakeShapeSpec): Int {
         // Pretend there is some recycling benefit to treating these different parameter categories
         // as
@@ -74,10 +75,15 @@ internal class FakeShapeSpec(
 @ExperimentalInkCustomShapeWorkflowApi
 internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStrokeInputBatch> {
     private var shapeSpec: FakeShapeSpec? = null
-    private var startSystemElapsedTimeMillis = Long.MIN_VALUE
+    internal var startSystemElapsedTimeMillis: Long = Long.MIN_VALUE
+        private set
 
     private val updatedRealInputs = MutableStrokeInputBatch()
     private val pendingRealInputs = MutableStrokeInputBatch()
+    internal var lastEnqueuedPredictedInputs: ImmutableStrokeInputBatch =
+        ImmutableStrokeInputBatch.EMPTY
+        private set
+
     internal var lastUpdateSystemElapsedTimeMillis: Long? = null
     internal var lastUpdateShapeDurationMillis: Long? = null
     private var forcedCompletion = false
@@ -93,6 +99,7 @@ internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStr
 
         updatedRealInputs.clear()
         pendingRealInputs.clear()
+        lastEnqueuedPredictedInputs = ImmutableStrokeInputBatch.EMPTY
         lastUpdateSystemElapsedTimeMillis = null
         lastUpdateShapeDurationMillis = null
         forcedCompletion = false
@@ -103,6 +110,7 @@ internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStr
 
     override fun enqueueInputs(realInputs: StrokeInputBatch, predictedInputs: StrokeInputBatch) {
         pendingRealInputs.add(realInputs)
+        lastEnqueuedPredictedInputs = predictedInputs.toImmutable()
     }
 
     override fun changesWithTime(): Boolean =

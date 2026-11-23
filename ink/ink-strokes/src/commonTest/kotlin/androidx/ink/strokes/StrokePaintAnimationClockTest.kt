@@ -19,6 +19,7 @@ package androidx.ink.strokes
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.kruth.assertThat
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 @OptIn(ExperimentalInkAnimationApi::class)
 class StrokePaintAnimationClockTest {
@@ -107,5 +108,43 @@ class StrokePaintAnimationClockTest {
                 )
             )
             .isEqualTo(0.25f)
+    }
+
+    @Test
+    fun calculateBasePaintAnimationPhaseForNewStroke_throwsOnNegativeLoopDuration() {
+        assertFailsWith<IllegalArgumentException> {
+            StrokePaintAnimationClock.calculateBasePaintAnimationPhaseForNewStroke(
+                clockStateMillis = 1000,
+                brushFamilyLoopDurationMillis = -1,
+            )
+        }
+    }
+
+    @Test
+    fun calculateCurrentAnimationPhaseForBrushPaint_throwsOnInvalidLoopDurations() {
+        assertFailsWith<IllegalArgumentException> {
+            StrokePaintAnimationClock.calculateCurrentAnimationPhaseForBrushPaint(
+                clockStateMillis = 1000,
+                brushFamilyLoopDurationMillis = 500,
+                brushPaintLoopDurationMillis = -1,
+                strokeBasePaintAnimationPhase = 0.0f,
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            StrokePaintAnimationClock.calculateCurrentAnimationPhaseForBrushPaint(
+                clockStateMillis = 1000,
+                brushFamilyLoopDurationMillis = 500,
+                brushPaintLoopDurationMillis = 1000,
+                strokeBasePaintAnimationPhase = 0.0f,
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            StrokePaintAnimationClock.calculateCurrentAnimationPhaseForBrushPaint(
+                clockStateMillis = 1000,
+                brushFamilyLoopDurationMillis = 1000,
+                brushPaintLoopDurationMillis = 300,
+                strokeBasePaintAnimationPhase = 0.0f,
+            )
+        }
     }
 }

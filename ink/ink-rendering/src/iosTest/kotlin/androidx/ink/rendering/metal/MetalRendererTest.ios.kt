@@ -94,11 +94,32 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
     private val checkerboardUIImage: UIImage by lazy {
         UIImage(contentsOfFile = findPathForResource("checkerboard", "png"))
     }
+    private val circleUIImage: UIImage by lazy {
+        UIImage(contentsOfFile = findPathForResource("circle", "png"))
+    }
+    private val airplaneEmojiUIImage: UIImage by lazy {
+        UIImage(contentsOfFile = findPathForResource("airplane_emoji", "png"))
+    }
+    private val poopEmojiUIImage: UIImage by lazy {
+        UIImage(contentsOfFile = findPathForResource("poop_emoji", "png"))
+    }
     private val defaultTextureStore = TextureImageStore { id ->
         when (id) {
-            "checkerboard" -> checkerboardUIImage
+            TEXTURE_ID_CHECKERBOARD -> checkerboardUIImage
+            TEXTURE_ID_CIRCLE -> circleUIImage
+            TEXTURE_ID_AIRPLANE_EMOJI -> airplaneEmojiUIImage
+            TEXTURE_ID_POOP_EMOJI -> poopEmojiUIImage
             else -> null
         }
+    }
+    private val defaultRenderer by lazy {
+        MetalRenderer(
+            device,
+            MTLPixelFormatBGRA8Unorm_sRGB,
+            MTLPixelFormatDepth32Float_Stencil8,
+            sampleCount = null,
+            textureImageStore = defaultTextureStore,
+        )
     }
 
     fun MTLTextureProtocol.toImage(): UIImage {
@@ -137,13 +158,17 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         block: (MetalRenderer, MTLRenderCommandEncoderProtocol) -> Unit,
     ): UIImage {
         val renderer =
-            MetalRenderer(
-                device,
-                MTLPixelFormatBGRA8Unorm_sRGB,
-                MTLPixelFormatDepth32Float_Stencil8,
-                sampleCount = null,
-                textureImageStore = textureStore,
-            )
+            if (textureStore === defaultTextureStore) {
+                defaultRenderer
+            } else {
+                MetalRenderer(
+                    device,
+                    MTLPixelFormatBGRA8Unorm_sRGB,
+                    MTLPixelFormatDepth32Float_Stencil8,
+                    sampleCount = null,
+                    textureImageStore = textureStore,
+                )
+            }
         val colorTexture =
             checkNotNull(
                 device.newTextureWithDescriptor(
@@ -303,7 +328,8 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
     private fun assertImage(image: UIImage, goldenName: String) {
         // As a smoke-test that can deal with the lack of Jetpack image-diff test infra that works
         // on Kotlin-native / iOS, we compare the rendered image to an empty image.
-        assertThat(UIImagePNGRepresentation(image)!!).isNotEqualTo(emptyImageData)
+        val pngData = checkNotNull(UIImagePNGRepresentation(image))
+        assertThat(pngData).isNotEqualTo(emptyImageData)
 
         // TODO(b/542290747): Specific image-diff assertion is currently upstream only.
     }

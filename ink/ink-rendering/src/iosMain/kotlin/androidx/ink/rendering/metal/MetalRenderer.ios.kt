@@ -16,6 +16,7 @@
 
 package androidx.ink.rendering.metal
 
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
 import androidx.ink.brush.TextureImageStore
 import androidx.ink.geometry.AffineTransform
@@ -54,7 +55,11 @@ import platform.Metal.MTLRenderCommandEncoderProtocol
  * @param textureImageStore An optional callback for retrieving texture images by ID.
  */
 @ExperimentalInkCrossPlatformRenderingApi
-@OptIn(InkInternalOnlyApi::class, ExperimentalForeignApi::class)
+@OptIn(
+    InkInternalOnlyApi::class,
+    ExperimentalForeignApi::class,
+    ExperimentalInkAnimationApi::class,
+)
 public class MetalRenderer(
     device: MTLDeviceProtocol,
     colorPixelFormat: MTLPixelFormat,
@@ -120,6 +125,41 @@ public class MetalRenderer(
         textureHeight: Double,
         strokeToScreenTransform: AffineTransform,
     ) {
+        draw(
+            renderEncoder,
+            inProgressStroke,
+            textureWidth,
+            textureHeight,
+            strokeToScreenTransform,
+            animatorClockStateMillis = 0L,
+        )
+    }
+
+    /**
+     * Draws an in-progress stroke using the given render encoder, using the specified
+     * [animatorClockStateMillis] value for the stroke's animated textures, if any.
+     *
+     * @param renderEncoder `MTLRenderCommandEncoder` to draw with.
+     * @param inProgressStroke The in-progress stroke to draw.
+     * @param textureWidth Width of the texture [renderEncoder] is drawing to, used to compute the
+     *   projection transform.
+     * @param textureHeight Height of the texture [renderEncoder] is drawing to, used to compute the
+     *   projection transform.
+     * @param strokeToScreenTransform Affine transform from stroke coordinates to view coordinates.
+     * @param animatorClockStateMillis If any of the stroke's [androidx.ink.brush.BrushPaint]
+     *   elements has animated textures, the state of the animation clock at the point in time that
+     *   is currently being rendered; typically comes from `CADisplayLink` or
+     *   `CALayer.convertTime(CACurrentMediaTime(), fromLayer = null)` converted to milliseconds.
+     */
+    @ExperimentalInkAnimationApi
+    public fun draw(
+        renderEncoder: MTLRenderCommandEncoderProtocol,
+        inProgressStroke: InProgressStroke,
+        textureWidth: Double,
+        textureHeight: Double,
+        strokeToScreenTransform: AffineTransform,
+        animatorClockStateMillis: Long,
+    ) {
         MetalRendererNative_drawInProgressStroke(
             nativePointer,
             interpretCPointer<COpaque>(renderEncoder.objcPtr()),
@@ -132,6 +172,7 @@ public class MetalRenderer(
             strokeToScreenTransform.m01,
             strokeToScreenTransform.m11,
             strokeToScreenTransform.m21,
+            animatorClockStateMillis,
         )
     }
 
@@ -153,6 +194,41 @@ public class MetalRenderer(
         textureHeight: Double,
         strokeToScreenTransform: AffineTransform,
     ) {
+        draw(
+            renderEncoder,
+            stroke,
+            textureWidth,
+            textureHeight,
+            strokeToScreenTransform,
+            animatorClockStateMillis = 0L,
+        )
+    }
+
+    /**
+     * Draws a completed stroke using the given render encoder, using the specified
+     * [animatorClockStateMillis] value for the stroke's animated textures, if any.
+     *
+     * @param renderEncoder `MTLRenderCommandEncoder` to draw with.
+     * @param stroke The stroke to draw.
+     * @param textureWidth Width of the texture [renderEncoder] is drawing to, used to compute the
+     *   projection transform.
+     * @param textureHeight Height of the texture [renderEncoder] is drawing to, used to compute the
+     *   projection transform.
+     * @param strokeToScreenTransform Affine transform from stroke coordinates to view coordinates.
+     * @param animatorClockStateMillis If any of the stroke's [androidx.ink.brush.BrushPaint]
+     *   elements has animated textures, the state of the animation clock at the point in time that
+     *   is currently being rendered; typically comes from `CADisplayLink` or
+     *   `CALayer.convertTime(CACurrentMediaTime(), fromLayer = null)` converted to milliseconds.
+     */
+    @ExperimentalInkAnimationApi
+    public fun draw(
+        renderEncoder: MTLRenderCommandEncoderProtocol,
+        stroke: Stroke,
+        textureWidth: Double,
+        textureHeight: Double,
+        strokeToScreenTransform: AffineTransform,
+        animatorClockStateMillis: Long,
+    ) {
         MetalRendererNative_drawStroke(
             nativePointer,
             interpretCPointer<COpaque>(renderEncoder.objcPtr()),
@@ -165,6 +241,7 @@ public class MetalRenderer(
             strokeToScreenTransform.m01,
             strokeToScreenTransform.m11,
             strokeToScreenTransform.m21,
+            animatorClockStateMillis,
         )
     }
 }
