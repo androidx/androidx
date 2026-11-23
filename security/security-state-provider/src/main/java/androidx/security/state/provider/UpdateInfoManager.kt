@@ -41,7 +41,10 @@ import kotlinx.serialization.json.Json
  *
  * Typical usage involves an update client (like GOTA (Google Over-The-Air) or Play Store)
  * registering new updates via [registerUpdate] when they are discovered, and the
- * [UpdateInfoService] querying [getAllUpdates] to return them to consumers.
+ * [UpdateInfoService] querying [getAllUpdates] to return them to consumers. An update client that
+ * checks more than one component also records the time of each check with
+ * `setLastCheckTimeMillis(component, timestampMillis)`, so that consumers can tell which components
+ * were checked.
  */
 public class UpdateInfoManager
 @VisibleForTesting
@@ -66,6 +69,7 @@ internal constructor(
         private const val UPDATE_INFO_PREFS = "UPDATE_INFO_PREFS"
         private const val METADATA_PREFS = "UPDATE_INFO_METADATA_PREFS"
         private const val KEY_LAST_CHECK_TIME = "last_check_time_millis"
+        private const val KEY_COMPONENT_LAST_CHECK_TIME_PREFIX = "last_check_time_millis_component_"
         // Use a dynamic ThreadPoolExecutor with corePoolSize = 0 and keepAliveTime to
         // allow the thread to terminate when idle. This prevents classloader leaks
         // when this class is loaded dynamically (e.g., inside dynamic feature modules
@@ -150,30 +154,124 @@ internal constructor(
      * This metadata is stored separately from the update list. The value represents "Wall Clock
      * Time" to ensure it remains meaningful across device reboots.
      *
+     * The result is the latest of the provider-wide check time and any check times recorded for
+     * individual components with `setLastCheckTimeMillis(component, timestampMillis)`. If no
+     * component check time has been recorded, it is the provider-wide check time.
+     *
      * @return The time of the last check in milliseconds since the epoch
      *   ([System.currentTimeMillis]), or 0 if no check has ever occurred.
      */
     public fun getLastCheckTimeMillis(): Long {
         val prefs = appContext.getSharedPreferences(METADATA_PREFS, Context.MODE_PRIVATE)
-        return prefs.getLong(KEY_LAST_CHECK_TIME, 0L)
+        val globalCheckTime = prefs.getLong(KEY_LAST_CHECK_TIME, 0L).coerceAtLeast(0L)
+        val maxComponentCheckTime = getComponentLastCheckTimesMillis().values.maxOrNull() ?: 0L
+        return maxOf(globalCheckTime, maxComponentCheckTime)
     }
 
     /**
-     * Updates the timestamp of the last successful update check.
+     * Returns the last successful check time recorded for [component], in milliseconds since the
+     * epoch.
+     *
+     * Only times recorded with `setLastCheckTimeMillis(component, timestampMillis)` are returned.
+     * The provider-wide check time and the check times of registered updates are not used.
+     *
+     * @param component component identifier, such as [SecurityPatchState.COMPONENT_SYSTEM] or
+     *   [SecurityPatchState.COMPONENT_SYSTEM_MODULES]
+     * @return last check time recorded for [component] in milliseconds since the epoch
+     *   ([System.currentTimeMillis]), or 0 if none has been recorded
+     */
+    public fun getLastCheckTimeMillis(@SecurityPatchState.Component component: String): Long {
+        if (component.isEmpty()) return 0L
+        val prefs = appContext.getSharedPreferences(METADATA_PREFS, Context.MODE_PRIVATE)
+        return prefs
+            .getLong("$KEY_COMPONENT_LAST_CHECK_TIME_PREFIX$component", 0L)
+            .coerceAtLeast(0L)
+    }
+
+    /**
+     * Returns the last successful check time recorded for each component, in milliseconds since the
+     * epoch, keyed by component identifier.
+     *
+     * A component is omitted if no positive time has been recorded for it with
+     * `setLastCheckTimeMillis(component, timestampMillis)`.
+     */
+    internal fun getComponentLastCheckTimesMillis(): Map<String, Long> {
+        val prefs = appContext.getSharedPreferences(METADATA_PREFS, Context.MODE_PRIVATE)
+        val allEntries = prefs.all ?: return emptyMap()
+        return buildMap {
+            for ((key, value) in allEntries) {
+                if (
+                    key.startsWith(KEY_COMPONENT_LAST_CHECK_TIME_PREFIX) &&
+                        key.length > KEY_COMPONENT_LAST_CHECK_TIME_PREFIX.length &&
+                        value is Long &&
+                        value > 0L
+                ) {
+                    put(key.removePrefix(KEY_COMPONENT_LAST_CHECK_TIME_PREFIX), value)
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates the provider-wide timestamp of the last successful update check.
      *
      * **Usage Note for Hosts:** The [UpdateInfoService] base class automatically calls this method
      * after a successful network fetch triggered by a client request. Host applications should only
      * call this method manually if they are performing out-of-band synchronizations (e.g., via a
      * background `JobService` or `WorkManager`).
      *
+     * A host that checks more than one component should instead record each check with
+     * `setLastCheckTimeMillis(component, timestampMillis)`, so that clients can tell which
+     * component was checked. `getLastCheckTimeMillis()` takes those per-component times into
+     * account.
+     *
      * @param timestampMillis The current time in milliseconds ([System.currentTimeMillis]).
      */
     public fun setLastCheckTimeMillis(timestampMillis: Long) {
         val sharedPreferences =
             appContext.getSharedPreferences(METADATA_PREFS, Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putLong(KEY_LAST_CHECK_TIME, timestampMillis)
-        editor.apply()
+        synchronized(writeLock) {
+            val editor = sharedPreferences.edit()
+            editor.putLong(KEY_LAST_CHECK_TIME, timestampMillis)
+            editor.apply()
+        }
+    }
+
+    /**
+     * Updates or clears the time of the last successful update check for [component].
+     *
+     * A host that checks more than one component should call this after every successful check of
+     * [component], including checks that find no update, so that a check of one component is not
+     * mistaken for a check of another. [registerUpdate] and [unregisterUpdate] do not record a
+     * check time for the component.
+     *
+     * Passing 0 removes the recorded check time for [component], so that it is omitted from
+     * [androidx.security.state.UpdateCheckResult.componentLastCheckTimesMillis].
+     *
+     * @param component component identifier, such as [SecurityPatchState.COMPONENT_SYSTEM] or
+     *   [SecurityPatchState.COMPONENT_SYSTEM_MODULES]
+     * @param timestampMillis wall-clock time of the check in milliseconds
+     *   ([System.currentTimeMillis]), or 0 to clear the recorded time for [component]
+     * @throws IllegalArgumentException if [component] is empty or [timestampMillis] is negative
+     */
+    public fun setLastCheckTimeMillis(
+        @SecurityPatchState.Component component: String,
+        timestampMillis: Long,
+    ) {
+        require(component.isNotEmpty()) { "Component must not be empty." }
+        require(timestampMillis >= 0L) { "Timestamp must be non-negative: $timestampMillis" }
+        val sharedPreferences =
+            appContext.getSharedPreferences(METADATA_PREFS, Context.MODE_PRIVATE)
+        val key = "$KEY_COMPONENT_LAST_CHECK_TIME_PREFIX$component"
+        synchronized(writeLock) {
+            val editor = sharedPreferences.edit()
+            if (timestampMillis == 0L) {
+                editor.remove(key)
+            } else {
+                editor.putLong(key, timestampMillis)
+            }
+            editor.apply()
+        }
     }
 
     // internal for testing

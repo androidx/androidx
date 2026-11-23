@@ -47,6 +47,11 @@ public abstract class ListenableFutureUpdateInfoService : UpdateInfoService() {
      * **Preconditions:** This method is only called if [shouldFetchUpdates] returns `true` and
      * [shouldThrottle] returns `false` (the rate limiter allows the request).
      *
+     * **Check Times:** When the returned future completes successfully, the base class records the
+     * provider-wide check time only. A host that checks more than one component should record each
+     * of them, including components with no update, by calling
+     * `UpdateInfoManager.setLastCheckTimeMillis(component, timestampMillis)`.
+     *
      * @return A [ListenableFuture] containing a list of [UpdateInfo] objects currently available
      *   for the device.
      */

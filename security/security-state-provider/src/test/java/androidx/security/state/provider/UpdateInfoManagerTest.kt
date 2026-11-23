@@ -20,12 +20,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.state.SecurityPatchState
 import androidx.security.state.SecurityPatchState.Companion.COMPONENT_SYSTEM
+import androidx.security.state.SecurityPatchState.Companion.COMPONENT_SYSTEM_MODULES
 import androidx.security.state.SerializableUpdateInfo
 import androidx.security.state.UpdateInfo
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.util.concurrent.Executor
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -94,6 +97,26 @@ class UpdateInfoManagerTest {
     fun setUp() {
         `when`(mockContext.applicationContext).thenReturn(mockContext)
         manager = UpdateInfoManager(mockContext, mockSecurityState, Executor { it.run() })
+    }
+
+    /** Returns the real metadata storage that [UpdateInfoManager] writes check times to. */
+    private fun realMetadataPrefs(): SharedPreferences =
+        ApplicationProvider.getApplicationContext<Context>()
+            .getSharedPreferences("UPDATE_INFO_METADATA_PREFS", Context.MODE_PRIVATE)
+
+    /**
+     * Returns a manager that reads and writes real storage instead of [mockPrefs] and
+     * [mockMetadataPrefs], starting from empty storage.
+     */
+    private fun createManagerWithRealStorage(): UpdateInfoManager {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context
+            .getSharedPreferences("UPDATE_INFO_PREFS", Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
+        realMetadataPrefs().edit().clear().commit()
+        return UpdateInfoManager(context, mockSecurityState, Executor { it.run() })
     }
 
     @Test
@@ -176,6 +199,99 @@ class UpdateInfoManagerTest {
 
         // 3. Verify Isolation: Ensure we NEVER write metadata to the update list file
         Mockito.verify(mockEditor, Mockito.never()).putLong(Mockito.anyString(), Mockito.anyLong())
+    }
+
+    @Test
+    fun testComponentLastCheckTime_withRealStorage_tracksEachComponentSeparately() {
+        // GIVEN a provider-wide check time recorded before any component check time
+        val realManager = createManagerWithRealStorage()
+        realManager.setLastCheckTimeMillis(1000L)
+
+        // WHEN a later check is recorded for SYSTEM_MODULES only
+        realManager.setLastCheckTimeMillis(COMPONENT_SYSTEM_MODULES, 3000L)
+
+        // THEN only SYSTEM_MODULES reports that check, and the provider-wide time follows it
+        assertEquals(3000L, realManager.getLastCheckTimeMillis(COMPONENT_SYSTEM_MODULES))
+        assertEquals(0L, realManager.getLastCheckTimeMillis(COMPONENT_SYSTEM))
+        assertEquals(
+            mapOf(COMPONENT_SYSTEM_MODULES to 3000L),
+            realManager.getComponentLastCheckTimesMillis(),
+        )
+        assertEquals(3000L, realManager.getLastCheckTimeMillis())
+        // AND the stored key keeps this name, because later library versions read it back
+        assertTrue(realMetadataPrefs().contains("last_check_time_millis_component_SYSTEM_MODULES"))
+    }
+
+    @Test
+    fun testSetComponentLastCheckTime_withRealStorage_zeroRemovesRecordedTime() {
+        // GIVEN a provider-wide check time and a later SYSTEM_MODULES check time
+        val realManager = createManagerWithRealStorage()
+        realManager.setLastCheckTimeMillis(1000L)
+        realManager.setLastCheckTimeMillis(COMPONENT_SYSTEM_MODULES, 3000L)
+
+        // WHEN the SYSTEM_MODULES check time is cleared
+        realManager.setLastCheckTimeMillis(COMPONENT_SYSTEM_MODULES, 0L)
+
+        // THEN the component is no longer reported and the provider-wide time falls back
+        assertEquals(0L, realManager.getLastCheckTimeMillis(COMPONENT_SYSTEM_MODULES))
+        assertTrue(realManager.getComponentLastCheckTimesMillis().isEmpty())
+        assertEquals(1000L, realManager.getLastCheckTimeMillis())
+        assertFalse(realMetadataPrefs().contains("last_check_time_millis_component_SYSTEM_MODULES"))
+    }
+
+    @Test
+    fun testGetComponentLastCheckTimes_withRealStorage_omitsNonPositiveStoredTimes() {
+        // GIVEN stored component check times that the manager itself would never write
+        val realManager = createManagerWithRealStorage()
+        realMetadataPrefs()
+            .edit()
+            .putLong("last_check_time_millis_component_SYSTEM_MODULES", 3000L)
+            .putLong("last_check_time_millis_component_VENDOR", 0L)
+            .putLong("last_check_time_millis_component_KERNEL", -5L)
+            .commit()
+
+        // THEN only the positive check time is reported
+        assertEquals(
+            mapOf(COMPONENT_SYSTEM_MODULES to 3000L),
+            realManager.getComponentLastCheckTimesMillis(),
+        )
+        assertEquals(0L, realManager.getLastCheckTimeMillis("VENDOR"))
+        assertEquals(0L, realManager.getLastCheckTimeMillis("KERNEL"))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testSetComponentLastCheckTime_withEmptyComponent_throwsException() {
+        manager.setLastCheckTimeMillis("", 1000L)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testSetComponentLastCheckTime_withNegativeTimestamp_throwsException() {
+        manager.setLastCheckTimeMillis(COMPONENT_SYSTEM, -1L)
+    }
+
+    @Test
+    fun testRegisterUpdate_withRealStorage_doesNotRecordComponentCheckTime() {
+        // GIVEN an update that carries its own check time
+        `when`(mockSecurityState.getDeviceSecurityPatchLevel(COMPONENT_SYSTEM))
+            .thenReturn(SecurityPatchState.DateBasedSecurityPatchLevel(2020, 1, 1))
+        val realManager = createManagerWithRealStorage()
+        val checkedUpdate =
+            UpdateInfo.Builder()
+                .setComponent(COMPONENT_SYSTEM)
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2022-01-01")
+                )
+                .setPublishedDateMillis(publishedDateMillis)
+                .setLastCheckTimeMillis(2500L)
+                .build()
+
+        // WHEN it is registered
+        realManager.registerUpdate(checkedUpdate)
+
+        // THEN the update is stored with its check time, but no component check time is recorded
+        assertEquals(listOf(checkedUpdate), realManager.getAllUpdates())
+        assertEquals(0L, realManager.getLastCheckTimeMillis(COMPONENT_SYSTEM))
+        assertTrue(realManager.getComponentLastCheckTimesMillis().isEmpty())
     }
 
     @Test
