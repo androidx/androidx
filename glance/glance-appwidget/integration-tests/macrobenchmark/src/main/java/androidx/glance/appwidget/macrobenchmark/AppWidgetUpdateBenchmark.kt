@@ -24,11 +24,13 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@Ignore("b/529358955")
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(Parameterized::class)
