@@ -55,8 +55,9 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
     private static final String TAG = "SurfaceViewImpl";
 
-    // Wait for 100ms for a screenshot. It usually takes <10ms on Pixel 6a / OS 14.
-    private static final int SCREENSHOT_TIMEOUT_MILLIS = 100;
+    // Wait up to 500ms for PixelCopy. Fast devices usually finish in <10ms, while heavy
+    // pipelines (e.g., StreamSharing + CameraEffect on mid-range GPUs) can take ~170-200ms.
+    private static final int SCREENSHOT_TIMEOUT_MILLIS = 500;
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
@@ -190,6 +191,9 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         // ContentRotationLayer. Copy the unrotated content instead, which is transformed the same
         // way as a TextureView screenshot.
         Surface contentSurface = mSurfaceRequestCallback.getContentSurface();
+        if (contentSurface != null && !contentSurface.isValid()) {
+            return null;
+        }
 
         Semaphore screenshotLock = new Semaphore(0);
 
