@@ -24,6 +24,8 @@ internal val RemoteDemos =
         "Remote Compose Glimmer Demos",
         listOf(
             ComposableDemo("Remote Box") { RemoteBoxDemo() },
+            RemoteThemeDemos,
             RemoteSurfaceDemos,
+            ComposableDemo("Remote Icon") { RemoteIconDemo() },
         ),
     )

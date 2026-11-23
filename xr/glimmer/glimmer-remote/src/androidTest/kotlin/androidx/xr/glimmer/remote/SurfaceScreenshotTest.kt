@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.rb
@@ -142,7 +143,8 @@ class SurfaceScreenshotTest {
     @RemoteComposable
     private fun ContentWrapper(content: @Composable () -> Unit) {
         RemoteBox(
-            modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc).padding(12.rdp),
+            modifier =
+                RemoteModifier.size(300.rdp, 150.rdp).background(Color.Black.rc).padding(12.rdp),
             contentAlignment = RemoteAlignment.Center,
             content = { content() },
         )

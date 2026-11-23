@@ -19,9 +19,11 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.capture.createRemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -39,7 +41,7 @@ import androidx.test.screenshot.matchers.MSSIMMatcher
 
 internal fun RcPlayerTestRule.setRemoteContent(
     context: Context,
-    size: DpSize = DpSize(300.dp, 150.dp),
+    size: DpSize = DpSize(480.dp, 480.dp),
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     setRemoteContent(
@@ -49,10 +51,25 @@ internal fun RcPlayerTestRule.setRemoteContent(
                 size = with(Density(context)) { size.toSize() },
             ),
         playComposableWrapper = { player ->
-            Box(modifier = Modifier.size(size).testTag(ROOT_TEST_TAG)) { player() }
+            Box(modifier = Modifier.testTag(ROOT_TEST_TAG)) { player() }
         },
         content = content,
     )
+}
+
+/** Same as [setRemoteContent], but wraps [content] in a [RemoteGlimmerTheme]. */
+internal fun RcPlayerTestRule.setRemoteGlimmerThemeContent(
+    context: Context,
+    size: DpSize = DpSize(480.dp, 480.dp),
+    content: @Composable @RemoteComposable () -> Unit,
+) {
+    setRemoteContent(context, size) {
+        RemoteGlimmerTheme {
+            RemoteBox(RemoteModifier.background(RemoteGlimmerTheme.colors.background)) {
+                content()
+            }
+        }
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
