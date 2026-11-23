@@ -18,7 +18,6 @@
 package androidx.binarycompatibilityvalidator
 
 import java.io.File
-import kotlin.text.removeSuffix
 import org.jetbrains.kotlin.library.abi.AbiClass
 import org.jetbrains.kotlin.library.abi.AbiClassifierReference.ClassReference
 import org.jetbrains.kotlin.library.abi.AbiClassifierReference.TypeParameterReference
@@ -669,8 +668,7 @@ fun AbiType.asString(): String =
             val builder = StringBuilder()
             when (val classifier = classifierReference) {
                 is ClassReference -> {
-                    // b/493871877
-                    builder.append(classifier.className.toString().removeSuffix("..."))
+                    builder.append(classifier.className.toString())
                     if (arguments.isNotEmpty()) {
                         builder.append("<")
                         builder.append(
@@ -936,7 +934,3 @@ fun AbiFunction.contextReceiverParametersCount(): Int = valueParameters.count {
 private fun AbiFunction.hasExtensionReceiverParameter() = valueParameters.any {
     it.kind == AbiValueParameterKind.EXTENSION_RECEIVER
 }
-
-// b/493871877
-private val AbiValueParameter.effectiveIsVararg
-    get() = isVararg || type.className.toString().endsWith("...")
