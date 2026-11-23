@@ -16,15 +16,12 @@
 
 package androidx.people
 
-import androidx.annotation.RestrictTo
-
 /**
  * Result of a [GroupQuery], split into [handledQuery] and [unhandledQuery] as described on
  * [PersonQueryResult].
  *
  * Each [GroupMatch] identifies its People Directory application through [GroupId.directoryPackage].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GroupQueryResult
 internal constructor(
     /**

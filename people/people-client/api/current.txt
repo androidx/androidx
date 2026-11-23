@@ -1,2 +1,23 @@
 // Signature format: 5.0
 // - surface=public
+package androidx.people.client {
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface PeopleDirectoryClient {
+    method public static androidx.people.client.PeopleDirectoryClient create(android.content.Context context);
+    method public suspend Object? createInteractionRequest(androidx.people.PeopleInteraction interaction, kotlin.coroutines.Continuation<? super android.app.PendingIntent?>);
+    method public suspend Object? isAvailable(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.people.DirectoryInfo>> observeDirectories();
+    method public kotlinx.coroutines.flow.Flow<androidx.people.GroupQueryResult> observeGroups(androidx.people.GroupQuery query);
+    method public kotlinx.coroutines.flow.Flow<androidx.people.PersonQueryResult> observePersons(androidx.people.PersonQuery query);
+    method public suspend Object? queryDirectories(kotlin.coroutines.Continuation<? super java.util.List<androidx.people.DirectoryInfo>>);
+    method public suspend Object? queryGroups(androidx.people.GroupQuery query, kotlin.coroutines.Continuation<? super androidx.people.GroupQueryResult>);
+    method public suspend Object? queryPersons(androidx.people.PersonQuery query, kotlin.coroutines.Continuation<? super androidx.people.PersonQueryResult>);
+    field public static final androidx.people.client.PeopleDirectoryClient.Companion Companion;
+  }
+
+  public static final class PeopleDirectoryClient.Companion {
+    method public androidx.people.client.PeopleDirectoryClient create(android.content.Context context);
+  }
+
+}
+

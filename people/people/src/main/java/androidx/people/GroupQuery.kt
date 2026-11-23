@@ -18,7 +18,6 @@
 
 package androidx.people
 
-import androidx.annotation.RestrictTo
 import androidx.people.PeopleDirectoryContentProvider.DirectoryGroupQuery
 import androidx.people.internal.addNonEmpty
 import androidx.people.internal.directoryGroupQuery
@@ -32,7 +31,6 @@ import androidx.people.internal.directoryGroupQuery
  * val query = groupQuery("com.example.voip") { addLookupKeys("group-1", "group-2") }
  * ```
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GroupQuery
 internal constructor(
     /** The criteria addressed to each People Directory application, keyed by package name. */
@@ -99,7 +97,6 @@ internal fun groupQueryOf(criteriaByPackage: Map<String, Set<Criterion>>): Group
  * Used by [GroupQueryScope.directory], [groupQuery], and
  * [PeopleDirectoryContentProvider.notifyGroupsChanged].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
 public class GroupCriteriaScope internal constructor() {
     private val criteria = mutableSetOf<Criterion>()
@@ -131,7 +128,6 @@ public class GroupCriteriaScope internal constructor() {
 }
 
 /** Receiver scope for choosing the People Directory applications of a [GroupQuery]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
 public class GroupQueryScope internal constructor() {
     private val criteriaByPackage = mutableMapOf<String, MutableSet<Criterion>>()
@@ -160,7 +156,6 @@ public class GroupQueryScope internal constructor() {
  * @throws IllegalArgumentException if [block] adds no directory, or adds a directory without
  *   criteria.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun groupQuery(block: GroupQueryScope.() -> Unit): GroupQuery =
     GroupQueryScope().apply(block).build()
 
@@ -169,7 +164,6 @@ public fun groupQuery(block: GroupQueryScope.() -> Unit): GroupQuery =
  *
  * @throws IllegalArgumentException if [block] adds no criterion.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun groupQuery(
     directoryPackage: String,
     block: GroupCriteriaScope.() -> Unit,

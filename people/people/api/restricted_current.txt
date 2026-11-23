@@ -1,2 +1,341 @@
 // Signature format: 5.0
 // - surface=restricted-atomic-group
+package androidx.people {
+
+  public final class Capability {
+    field public static final androidx.people.Capability.Companion Companion;
+    field public static final androidx.people.Capability MESSAGE;
+    field public static final androidx.people.Capability VIDEO;
+    field public static final androidx.people.Capability VOICE;
+  }
+
+  public static final class Capability.Companion {
+    property public androidx.people.Capability MESSAGE;
+    property public androidx.people.Capability VIDEO;
+    property public androidx.people.Capability VOICE;
+  }
+
+  public abstract class Criterion {
+  }
+
+  public static final class Criterion.Email extends androidx.people.Criterion {
+    ctor public Criterion.Email(String address);
+    method @InaccessibleFromKotlin public String getAddress();
+    property public String address;
+  }
+
+  public static final class Criterion.GroupLookupKey extends androidx.people.Criterion {
+    ctor public Criterion.GroupLookupKey(String key);
+    method @InaccessibleFromKotlin public String getKey();
+    property public String key;
+  }
+
+  public static final class Criterion.PersonLookupKey extends androidx.people.Criterion {
+    ctor public Criterion.PersonLookupKey(String key);
+    method @InaccessibleFromKotlin public String getKey();
+    property public String key;
+  }
+
+  public static final class Criterion.Phone extends androidx.people.Criterion {
+    ctor public Criterion.Phone(String number);
+    method @InaccessibleFromKotlin public String getNumber();
+    property public String number;
+  }
+
+  public final class DirectoryInfo {
+    ctor public DirectoryInfo(String packageName, String providerAuthority);
+    method @InaccessibleFromKotlin public String getPackageName();
+    method @InaccessibleFromKotlin public String getProviderAuthority();
+    property public String packageName;
+    property public String providerAuthority;
+  }
+
+  public final class Group {
+    method public androidx.people.Group copy(kotlin.jvm.functions.Function1<? super androidx.people.GroupScope,kotlin.Unit> block);
+    method @InaccessibleFromKotlin public String? getDisplayName();
+    method @InaccessibleFromKotlin public androidx.people.GroupId getId();
+    property public String? displayName;
+    property public androidx.people.GroupId id;
+  }
+
+  @androidx.people.PeopleQueryDsl public final class GroupCriteriaScope {
+    method public void addLookupKeys(Iterable<java.lang.String> lookupKeys);
+    method public void addLookupKeys(java.lang.String... lookupKeys);
+  }
+
+  public final class GroupId {
+    ctor public GroupId(String directoryPackage, String lookupKey);
+    method @InaccessibleFromKotlin public String getDirectoryPackage();
+    method @InaccessibleFromKotlin public String getLookupKey();
+    property public String directoryPackage;
+    property public String lookupKey;
+  }
+
+  public final class GroupMatch {
+    ctor public GroupMatch(androidx.people.Group group, java.util.Set<? extends androidx.people.Criterion> criteria);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Criterion> getCriteria();
+    method @InaccessibleFromKotlin public androidx.people.Group getGroup();
+    property public java.util.Set<androidx.people.Criterion> criteria;
+    property public androidx.people.Group group;
+  }
+
+  public final class GroupQueries {
+    method public static androidx.people.GroupQuery groupQuery(String directoryPackage, kotlin.jvm.functions.Function1<? super androidx.people.GroupCriteriaScope,kotlin.Unit> block);
+    method public static androidx.people.GroupQuery groupQuery(kotlin.jvm.functions.Function1<? super androidx.people.GroupQueryScope,kotlin.Unit> block);
+  }
+
+  public final class GroupQuery {
+    method public java.util.Set<androidx.people.Criterion> criteriaFor(String directoryPackage);
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getDirectoryPackages();
+    method public boolean isEmpty();
+    property public java.util.Set<java.lang.String> directoryPackages;
+  }
+
+  public final class GroupQueryResult {
+    method @InaccessibleFromKotlin public androidx.people.GroupQuery getHandledQuery();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.GroupMatch> getMatches();
+    method public androidx.people.MatchResult<androidx.people.GroupMatch> getResultFor(String directoryPackage, androidx.people.Criterion criterion);
+    method @InaccessibleFromKotlin public androidx.people.GroupQuery getUnhandledQuery();
+    property public androidx.people.GroupQuery handledQuery;
+    property public java.util.Set<androidx.people.GroupMatch> matches;
+    property public androidx.people.GroupQuery unhandledQuery;
+  }
+
+  @androidx.people.PeopleQueryDsl public final class GroupQueryScope {
+    method public void directory(String directoryPackage, kotlin.jvm.functions.Function1<? super androidx.people.GroupCriteriaScope,kotlin.Unit> block);
+  }
+
+  @androidx.people.PeopleQueryDsl public final class GroupScope {
+    method @InaccessibleFromKotlin public String? getDisplayName();
+    method @InaccessibleFromKotlin public androidx.people.GroupId getId();
+    method @InaccessibleFromKotlin public void setDisplayName(String?);
+    property public String? displayName;
+    property public androidx.people.GroupId id;
+  }
+
+  public final class Groups {
+    method public static androidx.people.Group group(androidx.people.GroupId id);
+    method public static androidx.people.Group group(androidx.people.GroupId id, optional kotlin.jvm.functions.Function1<? super androidx.people.GroupScope,kotlin.Unit> block);
+    method @BytecodeOnly public static androidx.people.Group! group$default(androidx.people.GroupId!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public abstract sealed exhaustive class MatchResult<T> {
+  }
+
+  public static final class MatchResult.Handled<T> extends androidx.people.MatchResult<T> {
+    ctor public MatchResult.Handled(java.util.Set<? extends T> matches);
+    method @InaccessibleFromKotlin public java.util.Set<T> getMatches();
+    property public java.util.Set<T> matches;
+  }
+
+  public static final class MatchResult.Unhandled extends androidx.people.MatchResult {
+    field public static final androidx.people.MatchResult.Unhandled INSTANCE;
+  }
+
+  public abstract class PeopleDirectoryContentProvider extends android.content.ContentProvider {
+    ctor public PeopleDirectoryContentProvider();
+    method public int delete(android.net.Uri uri, String? selection, String[]? selectionArgs);
+    method public static final androidx.people.PeopleDirectoryContentProvider.DirectoryGroupResult directoryGroupResult(kotlin.jvm.functions.Function1<? super androidx.people.PeopleDirectoryContentProvider.DirectoryGroupResultScope,kotlin.Unit> block);
+    method public static final androidx.people.PeopleDirectoryContentProvider.DirectoryPersonResult directoryPersonResult(kotlin.jvm.functions.Function1<? super androidx.people.PeopleDirectoryContentProvider.DirectoryPersonResultScope,kotlin.Unit> block);
+    method public String? getType(android.net.Uri uri);
+    method public android.net.Uri? insert(android.net.Uri uri, android.content.ContentValues? values);
+    method public static final suspend Object? notifyGroupsChanged(android.content.Context context, kotlin.jvm.functions.Function1<? super androidx.people.GroupCriteriaScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public static final suspend Object? notifyPersonsChanged(android.content.Context context, kotlin.jvm.functions.Function1<? super androidx.people.PersonCriteriaScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method @CallSuper public boolean onCreate();
+    method public android.database.Cursor? query(android.net.Uri uri, String[]? projection, String? selection, String[]? selectionArgs, String? sortOrder);
+    method public abstract androidx.people.PeopleDirectoryContentProvider.DirectoryGroupResult queryGroups(androidx.people.PeopleDirectoryContentProvider.DirectoryGroupQuery query, android.os.CancellationSignal? cancellationSignal);
+    method public abstract androidx.people.PeopleDirectoryContentProvider.DirectoryPersonResult queryPersons(androidx.people.PeopleDirectoryContentProvider.DirectoryPersonQuery query, android.os.CancellationSignal? cancellationSignal);
+    method public static final suspend Object? requestRefresh(android.content.Context context, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public int update(android.net.Uri uri, android.content.ContentValues? values, String? selection, String[]? selectionArgs);
+    field public static final androidx.people.PeopleDirectoryContentProvider.Companion Companion;
+    field public static final String PROPERTY_NAME = "android.content.PeopleDirectory";
+  }
+
+  public static final class PeopleDirectoryContentProvider.Companion {
+    method public androidx.people.PeopleDirectoryContentProvider.DirectoryGroupResult directoryGroupResult(kotlin.jvm.functions.Function1<? super androidx.people.PeopleDirectoryContentProvider.DirectoryGroupResultScope,kotlin.Unit> block);
+    method public androidx.people.PeopleDirectoryContentProvider.DirectoryPersonResult directoryPersonResult(kotlin.jvm.functions.Function1<? super androidx.people.PeopleDirectoryContentProvider.DirectoryPersonResultScope,kotlin.Unit> block);
+    method public suspend Object? notifyGroupsChanged(android.content.Context context, kotlin.jvm.functions.Function1<? super androidx.people.GroupCriteriaScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? notifyPersonsChanged(android.content.Context context, kotlin.jvm.functions.Function1<? super androidx.people.PersonCriteriaScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? requestRefresh(android.content.Context context, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    property public static String PROPERTY_NAME;
+  }
+
+  public static final class PeopleDirectoryContentProvider.DirectoryGroupQuery {
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Criterion> getCriteria();
+    property public java.util.Set<androidx.people.Criterion> criteria;
+  }
+
+  public static final class PeopleDirectoryContentProvider.DirectoryGroupResult {
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.GroupMatch> getMatches();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Criterion> getUnhandledCriteria();
+    property public java.util.Set<androidx.people.GroupMatch> matches;
+    property public java.util.Set<androidx.people.Criterion> unhandledCriteria;
+  }
+
+  @androidx.people.PeopleQueryDsl public static final class PeopleDirectoryContentProvider.DirectoryGroupResultScope {
+    method public void addMatch(androidx.people.Group group, androidx.people.Criterion criterion, androidx.people.Criterion... moreCriteria);
+    method public void addMatch(androidx.people.Group group, Iterable<? extends androidx.people.Criterion> criteria);
+    method public void addMatches(androidx.people.GroupMatch... matches);
+    method public void addMatches(Iterable<androidx.people.GroupMatch> matches);
+    method public void addUnhandled(androidx.people.Criterion... criteria);
+    method public void addUnhandled(Iterable<? extends androidx.people.Criterion> criteria);
+  }
+
+  public static final class PeopleDirectoryContentProvider.DirectoryPersonQuery {
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Criterion> getCriteria();
+    property public java.util.Set<androidx.people.Criterion> criteria;
+  }
+
+  public static final class PeopleDirectoryContentProvider.DirectoryPersonResult {
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.PersonMatch> getMatches();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Criterion> getUnhandledCriteria();
+    property public java.util.Set<androidx.people.PersonMatch> matches;
+    property public java.util.Set<androidx.people.Criterion> unhandledCriteria;
+  }
+
+  @androidx.people.PeopleQueryDsl public static final class PeopleDirectoryContentProvider.DirectoryPersonResultScope {
+    method public void addMatch(androidx.people.Person person, androidx.people.Criterion criterion, androidx.people.Criterion... moreCriteria);
+    method public void addMatch(androidx.people.Person person, Iterable<? extends androidx.people.Criterion> criteria);
+    method public void addMatches(androidx.people.PersonMatch... matches);
+    method public void addMatches(Iterable<androidx.people.PersonMatch> matches);
+    method public void addUnhandled(androidx.people.Criterion... criteria);
+    method public void addUnhandled(Iterable<? extends androidx.people.Criterion> criteria);
+  }
+
+  public final class PeopleInteraction {
+    method @InaccessibleFromKotlin public androidx.people.Capability getCapability();
+    method @InaccessibleFromKotlin public String getDirectoryPackage();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Criterion> getTargetCriteria();
+    method @InaccessibleFromKotlin public androidx.people.GroupId? getTargetGroupId();
+    method @InaccessibleFromKotlin public androidx.people.PersonId? getTargetPersonId();
+    method public static androidx.people.PeopleInteraction? parse(android.content.Context context, android.content.Intent intent);
+    property public androidx.people.Capability capability;
+    property public String directoryPackage;
+    property public java.util.Set<androidx.people.Criterion> targetCriteria;
+    property public androidx.people.GroupId? targetGroupId;
+    property public androidx.people.PersonId? targetPersonId;
+    field public static final String ACTION_START_INTERACTION = "android.provider.action.START_PEOPLE_INTERACTION";
+    field public static final androidx.people.PeopleInteraction.Companion Companion;
+  }
+
+  public static final class PeopleInteraction.Companion {
+    method public androidx.people.PeopleInteraction? parse(android.content.Context context, android.content.Intent intent);
+    property public static String ACTION_START_INTERACTION;
+  }
+
+  public final class PeopleInteractions {
+    method public static androidx.people.PeopleInteraction peopleInteraction(androidx.people.GroupId groupId, androidx.people.Capability capability);
+    method public static androidx.people.PeopleInteraction peopleInteraction(androidx.people.PersonId personId, androidx.people.Capability capability);
+    method public static androidx.people.PeopleInteraction peopleInteraction(String directoryPackage, androidx.people.Capability capability, kotlin.jvm.functions.Function1<? super androidx.people.PersonCriteriaScope,kotlin.Unit> block);
+  }
+
+  @kotlin.DslMarker @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PeopleQueryDsl {
+  }
+
+  public final class Person {
+    method public androidx.people.Person copy(kotlin.jvm.functions.Function1<? super androidx.people.PersonScope,kotlin.Unit> block);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Capability> getCapabilities();
+    method @InaccessibleFromKotlin public String? getDisplayName();
+    method @InaccessibleFromKotlin public androidx.people.PersonId getId();
+    method @InaccessibleFromKotlin public android.net.Uri? getPhotoUri();
+    method @InaccessibleFromKotlin public boolean isKnown();
+    method @InaccessibleFromKotlin public boolean isMessageSupported();
+    method @InaccessibleFromKotlin public boolean isVideoSupported();
+    method @InaccessibleFromKotlin public boolean isVoiceSupported();
+    property public java.util.Set<androidx.people.Capability> capabilities;
+    property public String? displayName;
+    property public androidx.people.PersonId id;
+    property public boolean isKnown;
+    property public boolean isMessageSupported;
+    property public boolean isVideoSupported;
+    property public boolean isVoiceSupported;
+    property public android.net.Uri? photoUri;
+  }
+
+  @androidx.people.PeopleQueryDsl public final class PersonCriteriaScope extends androidx.people.SharedPersonCriteriaScope {
+    method public void addGroupLookupKeys(Iterable<java.lang.String> groupLookupKeys);
+    method public void addGroupLookupKeys(java.lang.String... groupLookupKeys);
+    method public void addLookupKeys(Iterable<java.lang.String> lookupKeys);
+    method public void addLookupKeys(java.lang.String... lookupKeys);
+  }
+
+  public final class PersonId {
+    ctor public PersonId(String directoryPackage, String lookupKey);
+    method @InaccessibleFromKotlin public String getDirectoryPackage();
+    method @InaccessibleFromKotlin public String getLookupKey();
+    property public String directoryPackage;
+    property public String lookupKey;
+  }
+
+  public final class PersonMatch {
+    ctor public PersonMatch(androidx.people.Person person, java.util.Set<? extends androidx.people.Criterion> criteria);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Criterion> getCriteria();
+    method @InaccessibleFromKotlin public androidx.people.Person getPerson();
+    property public java.util.Set<androidx.people.Criterion> criteria;
+    property public androidx.people.Person person;
+  }
+
+  public final class PersonQueries {
+    method public static androidx.people.PersonQuery personQuery(Iterable<java.lang.String> directoryPackages, kotlin.jvm.functions.Function1<? super androidx.people.SharedPersonCriteriaScope,kotlin.Unit> block);
+    method public static androidx.people.PersonQuery personQuery(String directoryPackage, kotlin.jvm.functions.Function1<? super androidx.people.PersonCriteriaScope,kotlin.Unit> block);
+    method public static androidx.people.PersonQuery personQuery(kotlin.jvm.functions.Function1<? super androidx.people.PersonQueryScope,kotlin.Unit> block);
+  }
+
+  public final class PersonQuery {
+    method public java.util.Set<androidx.people.Criterion> criteriaFor(String directoryPackage);
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getDirectoryPackages();
+    method public boolean isEmpty();
+    property public java.util.Set<java.lang.String> directoryPackages;
+  }
+
+  public final class PersonQueryResult {
+    method @InaccessibleFromKotlin public androidx.people.PersonQuery getHandledQuery();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.PersonMatch> getMatches();
+    method public androidx.people.MatchResult<androidx.people.PersonMatch> getResultFor(String directoryPackage, androidx.people.Criterion criterion);
+    method @InaccessibleFromKotlin public androidx.people.PersonQuery getUnhandledQuery();
+    property public androidx.people.PersonQuery handledQuery;
+    property public java.util.Set<androidx.people.PersonMatch> matches;
+    property public androidx.people.PersonQuery unhandledQuery;
+  }
+
+  @androidx.people.PeopleQueryDsl public final class PersonQueryScope {
+    method public void directories(Iterable<java.lang.String> directoryPackages, kotlin.jvm.functions.Function1<? super androidx.people.SharedPersonCriteriaScope,kotlin.Unit> block);
+    method public void directories(String[] directoryPackages, kotlin.jvm.functions.Function1<? super androidx.people.SharedPersonCriteriaScope,kotlin.Unit> block);
+    method public void directory(String directoryPackage, kotlin.jvm.functions.Function1<? super androidx.people.PersonCriteriaScope,kotlin.Unit> block);
+  }
+
+  @androidx.people.PeopleQueryDsl public final class PersonScope {
+    method public void addCapabilities(androidx.people.Capability... capabilities);
+    method public void addCapabilities(Iterable<androidx.people.Capability> capabilities);
+    method public void addCapability(androidx.people.Capability capability);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.people.Capability> getCapabilities();
+    method @InaccessibleFromKotlin public String? getDisplayName();
+    method @InaccessibleFromKotlin public androidx.people.PersonId getId();
+    method @InaccessibleFromKotlin public android.net.Uri? getPhotoUri();
+    method @InaccessibleFromKotlin public boolean isKnown();
+    method @InaccessibleFromKotlin public void setCapabilities(java.util.Set<androidx.people.Capability>);
+    method @InaccessibleFromKotlin public void setDisplayName(String?);
+    method @InaccessibleFromKotlin public void setKnown(boolean);
+    method @InaccessibleFromKotlin public void setPhotoUri(android.net.Uri?);
+    property public java.util.Set<androidx.people.Capability> capabilities;
+    property public String? displayName;
+    property public androidx.people.PersonId id;
+    property public boolean isKnown;
+    property public android.net.Uri? photoUri;
+  }
+
+  public final class Persons {
+    method public static androidx.people.Person person(androidx.people.PersonId id);
+    method public static androidx.people.Person person(androidx.people.PersonId id, optional kotlin.jvm.functions.Function1<? super androidx.people.PersonScope,kotlin.Unit> block);
+    method @BytecodeOnly public static androidx.people.Person! person$default(androidx.people.PersonId!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  @androidx.people.PeopleQueryDsl public class SharedPersonCriteriaScope {
+    method public final void addEmails(Iterable<java.lang.String> emails);
+    method public final void addEmails(java.lang.String... emails);
+    method public final void addPhones(Iterable<java.lang.String> phones);
+    method public final void addPhones(java.lang.String... phones);
+  }
+
+}
+

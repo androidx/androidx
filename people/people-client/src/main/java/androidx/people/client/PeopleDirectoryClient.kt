@@ -18,7 +18,6 @@ package androidx.people.client
 
 import android.app.PendingIntent
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.people.DirectoryInfo
 import androidx.people.GroupQuery
 import androidx.people.GroupQueryResult
@@ -64,7 +63,6 @@ import kotlinx.coroutines.flow.Flow
  * This interface is not intended to be implemented outside the library; new members may be added in
  * future releases.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @JvmDefaultWithCompatibility
 public interface PeopleDirectoryClient {
 
