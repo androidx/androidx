@@ -348,4 +348,11 @@ public class FlagsTest {
                 .isEqualTo("com.android.appsearch.flags."
                         + "enable_schema_visible_to_package_with_tags");
     }
+
+    @Test
+    public void testFlagValue_enableHandleZeroFilledMagicRecovery() {
+        assertThat(Flags.FLAG_ENABLE_HANDLE_ZERO_FILLED_MAGIC_RECOVERY)
+                .isEqualTo("com.android.appsearch.flags."
+                        + "enable_handle_zero_filled_magic_recovery");
+    }
 }
