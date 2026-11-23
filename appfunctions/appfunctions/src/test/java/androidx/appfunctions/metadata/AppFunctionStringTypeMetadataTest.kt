@@ -129,38 +129,42 @@ class AppFunctionStringTypeMetadataTest {
     }
 
     @Test
-    fun toDocumentAndBack_preservesPatterns() {
-        val metadata =
-            AppFunctionStringTypeMetadata(
+    fun toAppFunctionDataTypeMetadata_preservesPatterns() {
+        val document =
+            AppFunctionDataTypeMetadataDocument(
+                type = AppFunctionDataTypeMetadata.TYPE_STRING,
                 isNullable = false,
-                patternMatchers =
+                patterns =
                     listOf(
-                        PatternMatcher("content:", PatternMatcher.PATTERN_PREFIX),
-                        PatternMatcher(".png", PatternMatcher.PATTERN_SUFFIX),
-                        PatternMatcher("[0-9]+", PatternMatcher.PATTERN_ADVANCED_GLOB),
+                        AppFunctionStringPatternDocument(
+                            value = "content:",
+                            type = PatternMatcher.PATTERN_PREFIX.toLong(),
+                        ),
+                        AppFunctionStringPatternDocument(
+                            value = ".png",
+                            type = PatternMatcher.PATTERN_SUFFIX.toLong(),
+                        ),
+                        AppFunctionStringPatternDocument(
+                            value = "[0-9]+",
+                            type = PatternMatcher.PATTERN_ADVANCED_GLOB.toLong(),
+                        ),
                     ),
                 format = "uri",
             )
 
-        val document = metadata.toAppFunctionDataTypeMetadataDocument()
-
-        assertThat(document.patterns)
-            .containsExactly(
-                AppFunctionStringPatternDocument(
-                    value = "content:",
-                    type = PatternMatcher.PATTERN_PREFIX.toLong(),
-                ),
-                AppFunctionStringPatternDocument(
-                    value = ".png",
-                    type = PatternMatcher.PATTERN_SUFFIX.toLong(),
-                ),
-                AppFunctionStringPatternDocument(
-                    value = "[0-9]+",
-                    type = PatternMatcher.PATTERN_ADVANCED_GLOB.toLong(),
-                ),
+        assertThat(document.toAppFunctionDataTypeMetadata())
+            .isEqualTo(
+                AppFunctionStringTypeMetadata(
+                    isNullable = false,
+                    patternMatchers =
+                        listOf(
+                            PatternMatcher("content:", PatternMatcher.PATTERN_PREFIX),
+                            PatternMatcher(".png", PatternMatcher.PATTERN_SUFFIX),
+                            PatternMatcher("[0-9]+", PatternMatcher.PATTERN_ADVANCED_GLOB),
+                        ),
+                    format = "uri",
+                )
             )
-            .inOrder()
-        assertThat(document.toAppFunctionDataTypeMetadata()).isEqualTo(metadata)
     }
 
     @Test

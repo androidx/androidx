@@ -34,16 +34,6 @@ class AppFunctionDeprecationMetadataTest {
     }
 
     @Test
-    fun toAppFunctionDeprecationMetadataDocument_returnCorrectDocument() {
-        val message = "Deprecation Message"
-        val metadata = AppFunctionDeprecationMetadata(message)
-
-        val document = metadata.toAppFunctionDeprecationMetadataDocument()
-
-        assertThat(document).isEqualTo(AppFunctionDeprecationMetadataDocument(message = message))
-    }
-
-    @Test
     fun toAppFunctionDeprecationMetadata_returnCorrectMetadata() {
         val message = "Deprecation Message"
         val document = AppFunctionDeprecationMetadataDocument(message = message)

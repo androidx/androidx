@@ -61,15 +61,6 @@ constructor(
             "description=$description" +
             ")"
     }
-
-    internal fun toAppFunctionParameterMetadataDocument(): AppFunctionParameterMetadataDocument {
-        return AppFunctionParameterMetadataDocument(
-            name = name,
-            isRequired = isRequired,
-            dataTypeMetadata = dataType.toAppFunctionDataTypeMetadataDocument(),
-            description = description,
-        )
-    }
 }
 
 /** Represents the persistent storage format of [AppFunctionParameterMetadata]. */

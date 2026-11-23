@@ -35,8 +35,6 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.ACCESS_LEVEL_ANDROID_TRUSTED
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
 import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
-import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.accessLevelToAccessLevelXmlValue
-import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.scopeToScopeXmlValue
 import androidx.appsearch.annotation.Document
 import java.util.Objects
 
@@ -637,15 +635,6 @@ internal constructor(
                 else -> throw IllegalStateException("Unexpected value: $xmlValue")
             }
         }
-
-        internal fun accessLevelToAccessLevelXmlValue(@AccessLevel accessLevel: Int): String? {
-            return when (accessLevel) {
-                ACCESS_LEVEL_ANDROID_TRUSTED -> PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED
-                ACCESS_LEVEL_SELF -> PROPERTY_VALUE_ACCESS_LEVEL_SELF
-                ACCESS_LEVEL_SYSTEM -> PROPERTY_VALUE_ACCESS_LEVEL_SYSTEM
-                else -> throw IllegalStateException("Unexpected value: $accessLevel")
-            }
-        }
     }
 }
 
@@ -736,29 +725,6 @@ public data class CompileTimeAppFunctionMetadata(
             isCompatEnforcementEnabled =
                 isCompatEnforcementEnabled ?: this.isCompatEnforcementEnabled,
             behaviorHints = behaviorHints ?: this.behaviorHints,
-        )
-    }
-
-    /**
-     * Converts the [CompileTimeAppFunctionMetadata] to an [AppFunctionMetadataDocument].
-     *
-     * This method is used to persist the [CompileTimeAppFunctionMetadata] in a database.
-     */
-    internal fun toAppFunctionMetadataDocument(): AppFunctionMetadataDocument {
-        return AppFunctionMetadataDocument(
-            id = id,
-            isEnabledByDefault = isEnabledByDefault,
-            schemaName = schema?.name,
-            schemaCategory = schema?.category,
-            schemaVersion = schema?.version,
-            parameters = parameters.map { it.toAppFunctionParameterMetadataDocument() },
-            response = response.toAppFunctionResponseMetadataDocument(),
-            description = description,
-            deprecation = deprecation?.toAppFunctionDeprecationMetadataDocument(),
-            scope = scopeToScopeXmlValue(scope),
-            accessLevel = accessLevelToAccessLevelXmlValue(accessLevel),
-            isCompatEnforcementEnabled = isCompatEnforcementEnabled,
-            behaviorHints = behaviorHints?.toAppFunctionBehaviorHintsMetadataDocument(),
         )
     }
 }

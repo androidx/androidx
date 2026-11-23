@@ -41,28 +41,6 @@ class AppFunctionParameterMetadataTest {
     }
 
     @Test
-    fun toAppFunctionParameterMetadataDocument_returnsCorrectDocument() {
-        val dataType = AppFunctionIntTypeMetadata(false)
-        val parameter = AppFunctionParameterMetadata("param1", false, dataType, "Test description")
-
-        val document = parameter.toAppFunctionParameterMetadataDocument()
-
-        assertThat(document)
-            .isEqualTo(
-                AppFunctionParameterMetadataDocument(
-                    name = "param1",
-                    isRequired = false,
-                    dataTypeMetadata =
-                        AppFunctionDataTypeMetadataDocument(
-                            type = AppFunctionDataTypeMetadata.TYPE_INT,
-                            isNullable = false,
-                        ),
-                    description = "Test description",
-                )
-            )
-    }
-
-    @Test
     fun document_toAppFunctionParameterMetadata_returnsCorrectMetadata() {
         val document =
             AppFunctionParameterMetadataDocument(

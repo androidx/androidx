@@ -67,15 +67,6 @@ public class AppFunctionBehaviorHintsMetadata(
      */
     public val isOpenWorld: Boolean,
 ) {
-    internal fun toAppFunctionBehaviorHintsMetadataDocument():
-        AppFunctionBehaviorHintsMetadataDocument {
-        return AppFunctionBehaviorHintsMetadataDocument(
-            isReadOnly = isReadOnly,
-            isDestructive = isDestructive,
-            isIdempotent = isIdempotent,
-            isOpenWorld = isOpenWorld,
-        )
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -17,7 +17,6 @@
 
 package androidx.appfunctions.metadata
 
-import android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_GLOBAL
 import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import com.google.common.truth.Truth.assertThat
@@ -150,68 +149,6 @@ class AppFunctionMetadataTest {
     }
 
     @Test
-    fun appFunctionMetadata_toAppFunctionMetadataDocument_returnsCorrectDocument() {
-        val id = "fakeFunctionIdentifier"
-        val isEnabledByDefault = true
-        val schemaMetadata =
-            AppFunctionSchemaMetadata(category = "testCategory", name = "testName", version = 1L)
-        val primitiveTypeInt = AppFunctionIntTypeMetadata(true)
-        val primitiveTypeLong = AppFunctionLongTypeMetadata(true)
-        val parameters =
-            listOf<AppFunctionParameterMetadata>(
-                AppFunctionParameterMetadata(
-                    name = "prop1",
-                    isRequired = false,
-                    dataType = primitiveTypeInt,
-                    description = "test int parameter",
-                ),
-                AppFunctionParameterMetadata(
-                    name = "prop2",
-                    isRequired = true,
-                    dataType = primitiveTypeLong,
-                    description = "test long parameter",
-                ),
-            )
-        val response =
-            AppFunctionResponseMetadata(
-                valueType = AppFunctionStringTypeMetadata(false),
-                description = "The response description",
-            )
-        val description = "The function's description"
-        val deprecation = AppFunctionDeprecationMetadata(message = "Function is deprecated")
-        val appFunctionMetadata =
-            CompileTimeAppFunctionMetadata(
-                id = id,
-                isEnabledByDefault = isEnabledByDefault,
-                schema = schemaMetadata,
-                parameters = parameters,
-                response = response,
-                description = description,
-                deprecation = deprecation,
-            )
-
-        val actualAppFunctionMetadataDocument = appFunctionMetadata.toAppFunctionMetadataDocument()
-
-        val expectedAppFunctionMetadataDocument =
-            AppFunctionMetadataDocument(
-                id = id,
-                isEnabledByDefault = isEnabledByDefault,
-                schemaName = schemaMetadata.name,
-                schemaCategory = schemaMetadata.category,
-                schemaVersion = schemaMetadata.version,
-                parameters = parameters.map { it.toAppFunctionParameterMetadataDocument() },
-                response = response.toAppFunctionResponseMetadataDocument(),
-                description = description,
-                deprecation = deprecation.toAppFunctionDeprecationMetadataDocument(),
-                scope = PROPERTY_VALUE_SCOPE_GLOBAL,
-                accessLevel = PROPERTY_VALUE_ACCESS_LEVEL_ANDROID_TRUSTED,
-                isCompatEnforcementEnabled = true,
-                behaviorHints = null,
-            )
-        assertThat(actualAppFunctionMetadataDocument).isEqualTo(expectedAppFunctionMetadataDocument)
-    }
-
-    @Test
     fun appFunctionMetadata_accessLevel_equalsAndHashCode() {
         val name = AppFunctionName(packageName = "testPackage", functionIdentifier = "id")
         val response =
@@ -270,32 +207,6 @@ class AppFunctionMetadataTest {
         assertThat(metadata1.hashCode()).isEqualTo(metadata2.hashCode())
         assertThat(metadata1).isNotEqualTo(metadataDifferentLevel)
         assertThat(metadata1).isNotEqualTo(metadataDifferentCompat)
-    }
-
-    @Test
-    fun appFunctionMetadata_toAppFunctionMetadataDocument_customAccessLevel() {
-        val id = "selfFunction"
-        val isEnabledByDefault = true
-        val response =
-            AppFunctionResponseMetadata(
-                valueType = AppFunctionStringTypeMetadata(false),
-                description = "The response description",
-            )
-        val appFunctionMetadata =
-            CompileTimeAppFunctionMetadata(
-                id = id,
-                isEnabledByDefault = isEnabledByDefault,
-                schema = null,
-                parameters = emptyList(),
-                response = response,
-                accessLevel = AppFunctionMetadata.ACCESS_LEVEL_SELF,
-                isCompatEnforcementEnabled = true,
-            )
-
-        val actualDocument = appFunctionMetadata.toAppFunctionMetadataDocument()
-
-        assertThat(actualDocument.accessLevel).isEqualTo(PROPERTY_VALUE_ACCESS_LEVEL_SELF)
-        assertThat(actualDocument.isCompatEnforcementEnabled).isTrue()
     }
 
     @Test

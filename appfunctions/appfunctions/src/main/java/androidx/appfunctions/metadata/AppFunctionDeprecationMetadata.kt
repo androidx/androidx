@@ -23,10 +23,6 @@ public class AppFunctionDeprecationMetadata(
     /** The message explaining the deprecation and recommending an alternative API to use. */
     public val message: String
 ) {
-    internal fun toAppFunctionDeprecationMetadataDocument():
-        AppFunctionDeprecationMetadataDocument {
-        return AppFunctionDeprecationMetadataDocument(message = message)
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

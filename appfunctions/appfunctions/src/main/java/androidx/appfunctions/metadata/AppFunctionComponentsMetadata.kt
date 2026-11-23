@@ -51,23 +51,6 @@ constructor(
     override fun toString(): String {
         return "AppFunctionComponentsMetadata(dataTypes=$dataTypes)"
     }
-
-    /**
-     * Converts the [AppFunctionComponentsMetadata] to a [AppFunctionComponentsMetadataDocument].
-     *
-     * @return the [AppFunctionComponentsMetadataDocument] representation of the metadata.
-     */
-    internal fun toAppFunctionComponentsMetadataDocument(): AppFunctionComponentsMetadataDocument {
-        return AppFunctionComponentsMetadataDocument(
-            dataTypes =
-                dataTypes.map { (name, dataType) ->
-                    AppFunctionNamedDataTypeMetadataDocument(
-                        name = name,
-                        dataTypeMetadata = dataType.toAppFunctionDataTypeMetadataDocument(),
-                    )
-                }
-        )
-    }
 }
 
 /** Represents the persistent storage format of [AppFunctionComponentsMetadata]. */

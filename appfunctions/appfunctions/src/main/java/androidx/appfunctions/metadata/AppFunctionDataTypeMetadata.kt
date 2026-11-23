@@ -58,9 +58,6 @@ internal constructor(
     /** A description of the data type and its intended use. */
     public val description: String,
 ) {
-    /** Converts this [AppFunctionDataTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
-    internal abstract fun toAppFunctionDataTypeMetadataDocument():
-        AppFunctionDataTypeMetadataDocument
 
     /**
      * Converts this [AppFunctionDataTypeMetadata] to a [Bundle].
@@ -303,16 +300,6 @@ constructor(
         bundle.putBundle(KEY_ITEM_TYPE, itemType.toBundle(depth + 1))
     }
 
-    /** Converts this [AppFunctionArrayTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            itemType = itemType.toAppFunctionDataTypeMetadataDocument(),
-            type = TYPE,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
-    }
-
     public companion object {
         /** Array type. The schema of the array is defined in a [AppFunctionArrayTypeMetadata] */
         internal const val TYPE: Int = TYPE_ARRAY
@@ -450,17 +437,6 @@ constructor(
         if (qualifiedName != null) {
             bundle.putString(KEY_QUALIFIED_NAME, qualifiedName)
         }
-    }
-
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        val allOfDocuments = matchAll.map { it.toAppFunctionDataTypeMetadataDocument() }
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE,
-            allOf = allOfDocuments,
-            isNullable = isNullable,
-            objectQualifiedName = qualifiedName,
-            description = description.ifEmpty { null },
-        )
     }
 
     /** Gets a pseudo [AppFunctionObjectTypeMetadata] by merging the [matchAll] data types. */
@@ -650,15 +626,6 @@ constructor(
         )
         bundle.putString(KEY_QUALIFIED_NAME, qualifiedName)
     }
-
-    override fun toAppFunctionDataTypeMetadataDocument() =
-        AppFunctionDataTypeMetadataDocument(
-            type = TYPE,
-            oneOf = matchOneOf.map { it.toAppFunctionDataTypeMetadataDocument() },
-            isNullable = isNullable,
-            objectQualifiedName = qualifiedName,
-            description = description.ifEmpty { null },
-        )
 
     override fun equals(other: Any?): Boolean {
         if (!super.equals(other)) return false
@@ -865,26 +832,6 @@ constructor(
         }
     }
 
-    /**
-     * Converts this [AppFunctionObjectTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
-     */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        val properties = properties.map { (name, dataType) ->
-            AppFunctionNamedDataTypeMetadataDocument(
-                name = checkNotNull(name),
-                dataTypeMetadata = dataType.toAppFunctionDataTypeMetadataDocument(),
-            )
-        }
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE,
-            properties = properties,
-            required = required,
-            objectQualifiedName = qualifiedName,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
-    }
-
     override fun internalRequireSemanticallyEquivalentTo(
         other: AppFunctionDataTypeMetadata,
         thisComponent: AppFunctionComponentsMetadata,
@@ -1000,15 +947,6 @@ constructor(
         bundle.putString(KEY_DATA_TYPE_REFERENCE, referenceDataType)
     }
 
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE,
-            dataTypeReference = referenceDataType,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
-    }
-
     override fun internalRequireSemanticallyEquivalentTo(
         other: AppFunctionDataTypeMetadata,
         thisComponent: AppFunctionComponentsMetadata,
@@ -1095,15 +1033,6 @@ constructor(
         }
     }
 
-    /** Converts this [AppFunctionIntTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_INT,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
-    }
-
     override fun internalRequireSemanticallyEquivalentTo(
         other: AppFunctionDataTypeMetadata,
         thisComponent: AppFunctionComponentsMetadata,
@@ -1167,15 +1096,6 @@ constructor(
         bundle.putInt(KEY_TYPE, TYPE_LONG)
     }
 
-    /** Converts this [AppFunctionLongTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_LONG,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AppFunctionLongTypeMetadata) return false
@@ -1224,15 +1144,6 @@ constructor(
 
     override fun writeToBundle(bundle: Bundle, depth: Int) {
         bundle.putInt(KEY_TYPE, TYPE_FLOAT)
-    }
-
-    /** Converts this [AppFunctionFloatTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_FLOAT,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1287,15 +1198,6 @@ constructor(
         bundle.putInt(KEY_TYPE, TYPE_UNIT)
     }
 
-    /** Converts this [AppFunctionUnitTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_UNIT,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AppFunctionUnitTypeMetadata) return false
@@ -1344,17 +1246,6 @@ constructor(
 
     override fun writeToBundle(bundle: Bundle, depth: Int) {
         bundle.putInt(KEY_TYPE, TYPE_BOOLEAN)
-    }
-
-    /**
-     * Converts this [AppFunctionBooleanTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
-     */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_BOOLEAN,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1407,15 +1298,6 @@ constructor(
         bundle.putInt(KEY_TYPE, TYPE_BYTES)
     }
 
-    /** Converts this [AppFunctionBytesTypeMetadata] to an [AppFunctionDataTypeMetadataDocument]. */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_BYTES,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AppFunctionBytesTypeMetadata) return false
@@ -1464,17 +1346,6 @@ constructor(
 
     override fun writeToBundle(bundle: Bundle, depth: Int) {
         bundle.putInt(KEY_TYPE, TYPE_DOUBLE)
-    }
-
-    /**
-     * Converts this [AppFunctionDoubleTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
-     */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_DOUBLE,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1648,23 +1519,6 @@ constructor(
         }
     }
 
-    /**
-     * Converts this [AppFunctionStringTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
-     */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_STRING,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-            enumValues = enumValues?.toList() ?: emptyList(),
-            patterns =
-                patternMatchers.orEmpty().map {
-                    AppFunctionStringPatternDocument(value = it.path, type = it.type.toLong())
-                },
-            format = format,
-        )
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AppFunctionStringTypeMetadata) return false
@@ -1769,14 +1623,6 @@ constructor(
         bundle.putInt(KEY_TYPE, TYPE_PARCELABLE)
         bundle.putString(KEY_QUALIFIED_NAME, qualifiedName)
     }
-
-    override fun toAppFunctionDataTypeMetadataDocument() =
-        AppFunctionDataTypeMetadataDocument(
-            type = TYPE_PARCELABLE,
-            isNullable = isNullable,
-            description = description.ifEmpty { null },
-            objectQualifiedName = qualifiedName,
-        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
