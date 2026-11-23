@@ -57,10 +57,12 @@ import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /** Implementation of focus and metering controls exposed by [CameraControlInternal]. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -74,7 +76,7 @@ constructor(
     private val threads: UseCaseThreads,
     private val zoomCompat: ZoomCompat,
 ) : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
-    private var _requestControl: UseCaseCameraRequestControl? = null
+    @Volatile private var _requestControl: UseCaseCameraRequestControl? = null
 
     override var requestControl: UseCaseCameraRequestControl?
         get() = _requestControl
@@ -97,7 +99,10 @@ constructor(
 
     override fun reset() {
         previewAspectRatio = null
-        cancelFocusAndMeteringAsync()
+        // UseCaseManager clears requestControl before reset() on close()/full unbind.
+        pendingCancelSignal.getAndSet(null)?.setCancelException("Camera is not active.")
+        runningFocusAction.getAndSet(null)?.cancel("Camera is not active.")
+        resetFocusMetering3A()
     }
 
     private var previewAspectRatio: Rational? = null
@@ -122,12 +127,8 @@ constructor(
             AfMode.fromIntOrNull(it)
         }
 
-    private var updateSignal: CompletableDeferred<FocusMeteringResult>? = null
-    private var cancelSignal: CompletableDeferred<Result3A?>? = null
-
-    private var focusTimeoutJob: Job? = null
-    private var autoCancelJob: Job? = null
-    private val activeFocusMetering3Result = AtomicReference<Deferred<Result3A>?>(null)
+    private val runningFocusAction = AtomicReference<RunningFocusAction?>(null)
+    private val pendingCancelSignal = AtomicReference<CompletableDeferred<Result3A?>?>(null)
 
     public fun startFocusAndMetering(
         action: FocusMeteringAction,
@@ -136,14 +137,6 @@ constructor(
         val signal = CompletableDeferred<FocusMeteringResult>()
 
         requestControl?.let { requestControl ->
-            focusTimeoutJob?.cancel()
-            autoCancelJob?.cancel()
-            cancelSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
-            updateSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
-            activeFocusMetering3Result.getAndSet(null)?.cancel()
-
-            updateSignal = signal
-
             val aeRectangles =
                 meteringRegionsFromMeteringPoints(
                     action.meteringPointsAe,
@@ -180,6 +173,13 @@ constructor(
                 )
                 return signal.asListenableFuture()
             }
+
+            pendingCancelSignal
+                .getAndSet(null)
+                ?.setCancelException("Cancelled by another startFocusAndMetering()")
+            runningFocusAction
+                .getAndSet(null)
+                ?.cancel("Cancelled by another startFocusAndMetering()")
 
             val aeLockBehavior =
                 if (
@@ -333,8 +333,6 @@ constructor(
                     )
                 }
 
-            activeFocusMetering3Result.set(deferredResult3A)
-
             deferredResult3A.propagateToFocusMeteringResultDeferred(
                 resultDeferred = signal,
                 shouldTriggerAf = afRectangles.isNotEmpty(),
@@ -343,15 +341,29 @@ constructor(
             // camera-pipe core layer invokes timeout when there is a new frame result from
             // camera, this is not precise enough for CameraX since it may allow auto-cancel to
             // be triggered first for same or very close timeout values
-            triggerFocusTimeout(autoFocusTimeoutMs, signal)
-
-            if (action.isAutoCancelEnabled) {
-                triggerAutoCancel(
-                    action.autoCancelDurationInMillis,
-                    signal,
-                    deferredResult3A,
-                    requestControl,
+            val runningAction =
+                RunningFocusAction(
+                    signal = signal,
+                    result3A = deferredResult3A,
+                    focusTimeoutJob = triggerFocusTimeout(autoFocusTimeoutMs, signal),
+                    autoCancelJob =
+                        if (action.isAutoCancelEnabled) {
+                            triggerAutoCancel(action.autoCancelDurationInMillis, signal)
+                        } else {
+                            null
+                        },
                 )
+            runningFocusAction
+                .getAndSet(runningAction)
+                ?.cancel("Cancelled by another startFocusAndMetering()")
+            if (
+                this.requestControl == null && runningFocusAction.compareAndSet(runningAction, null)
+            ) {
+                runningAction.cancel("Camera is not active.")
+                resetFocusMetering3A()
+            } else {
+                // Start timers only after publishing so their ownership check cannot miss.
+                runningAction.startTimers()
             }
         }
             ?: run {
@@ -391,32 +403,42 @@ constructor(
     private fun triggerAutoCancel(
         delayMillis: Long,
         resultToCancel: CompletableDeferred<FocusMeteringResult>,
-        actionResult3A: Deferred<Result3A>,
-        requestControl: UseCaseCameraRequestControl,
-    ) {
-        autoCancelJob?.cancel()
-
-        autoCancelJob = threads.confineLaunch {
+    ): Job =
+        threads.sequentialScope.launch(start = CoroutineStart.LAZY) {
             delay(delayMillis)
+            val currentAction = runningFocusAction.get()
+            if (
+                currentAction?.signal !== resultToCancel ||
+                    !runningFocusAction.compareAndSet(currentAction, null)
+            ) {
+                return@launch
+            }
             Camera2Logger.debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
-            cancelFocusAndMeteringNowAsync(requestControl, resultToCancel, actionResult3A)
+            currentAction.cancel("Cancelled by cancelFocusAndMetering()")
+            resetFocusMetering3A()
         }
-    }
 
     private fun triggerFocusTimeout(
         delayMillis: Long,
         resultToComplete: CompletableDeferred<FocusMeteringResult>,
-    ) {
-        focusTimeoutJob?.cancel()
-
-        focusTimeoutJob = threads.confineLaunch {
+    ): Job =
+        threads.sequentialScope.launch(start = CoroutineStart.LAZY) {
             delay(delayMillis)
+            if (runningFocusAction.get()?.signal !== resultToComplete) {
+                return@launch
+            }
             Camera2Logger.debug {
                 "triggerFocusTimeout:" +
                     " completing with focus result unsuccessful after $delayMillis ms"
             }
             resultToComplete.complete(FocusMeteringResult.create(false))
         }
+
+    /** Unlocks 3A on the live session, or clears sticky AF mode when detached. */
+    private fun resetFocusMetering3A() {
+        // Read requestControl at call time so @CameraScope never retains a closed session.
+        requestControl?.let { cancel3ALocksAndResetMode(it) }
+            ?: state3AControl.setPreferredFocusModeAsync(null)
     }
 
     private fun cancel3ALocksAndResetMode(
@@ -524,14 +546,14 @@ constructor(
     public fun cancelFocusAndMeteringAsync(): Deferred<Result3A?> {
         val signal = CompletableDeferred<Result3A?>()
         requestControl?.let { requestControl ->
-            cancelSignal?.setCancelException("Cancelled by another cancelFocusAndMetering()")
-            cancelSignal = signal
-            cancelFocusAndMeteringNowAsync(
-                    requestControl,
-                    updateSignal,
-                    activeFocusMetering3Result.get(),
-                )
-                .invokeOnCompletion { signal.complete(null) }
+            pendingCancelSignal
+                .getAndSet(signal)
+                ?.setCancelException("Cancelled by another cancelFocusAndMetering()")
+            runningFocusAction.getAndSet(null)?.cancel("Cancelled by cancelFocusAndMetering()")
+            cancel3ALocksAndResetMode(requestControl).invokeOnCompletion {
+                pendingCancelSignal.compareAndSet(signal, null)
+                signal.complete(null)
+            }
         }
             ?: run {
                 signal.completeExceptionally(OperationCanceledException("Camera is not active."))
@@ -540,17 +562,23 @@ constructor(
         return signal
     }
 
-    private fun cancelFocusAndMeteringNowAsync(
-        requestControl: UseCaseCameraRequestControl,
-        signalToCancel: CompletableDeferred<FocusMeteringResult>?,
-        result3AToCancel: Deferred<Result3A>?,
-    ): Deferred<Result3A> {
-        focusTimeoutJob?.cancel()
-        autoCancelJob?.cancel()
-        signalToCancel?.setCancelException("Cancelled by cancelFocusAndMetering()")
-        result3AToCancel?.cancel()
-        activeFocusMetering3Result.compareAndSet(result3AToCancel, null)
-        return cancel3ALocksAndResetMode(requestControl)
+    private class RunningFocusAction(
+        val signal: CompletableDeferred<FocusMeteringResult>,
+        val result3A: Deferred<Result3A>,
+        val focusTimeoutJob: Job,
+        val autoCancelJob: Job?,
+    ) {
+        fun startTimers() {
+            focusTimeoutJob.start()
+            autoCancelJob?.start()
+        }
+
+        fun cancel(message: String) {
+            focusTimeoutJob.cancel()
+            autoCancelJob?.cancel()
+            signal.completeExceptionally(OperationCanceledException(message))
+            result3A.cancel()
+        }
     }
 
     private fun <T> CompletableDeferred<T>.setCancelException(message: String) {
