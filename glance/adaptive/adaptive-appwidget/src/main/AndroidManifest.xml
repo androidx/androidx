@@ -38,5 +38,27 @@
             android:name=".RequestPinCallbackReceiver"
             android:exported="false"
             android:enabled="true" />
+
+        <!-- Backs scrollable ListView widgets on API 24-31. -->
+        <service
+            android:name=".components.list.AdaptiveListRemoteViewsService"
+            android:exported="true"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <!-- Dispatches ListView item clicks for activity-launching or mixed lists. -->
+        <activity
+            android:name=".components.list.AdaptiveListClickActivity"
+            android:exported="false"
+            android:enabled="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay" />
+
+        <!-- Dispatches ListView item clicks for callback-only lists without starting an activity. -->
+        <receiver
+            android:name=".components.list.AdaptiveListClickReceiver"
+            android:exported="false"
+            android:enabled="true" />
     </application>
 </manifest>
