@@ -27,8 +27,8 @@ import androidx.navigation.Navigator
 public class DynamicExtras
 @JvmOverloads
 constructor(
-    /** @return The [DynamicInstallMonitor] used. */
+    /** Returns the [DynamicInstallMonitor] used. */
     public val installMonitor: DynamicInstallMonitor? = null,
-    /** @return [Navigator.Extras] associated with these [DynamicExtras]. */
+    /** Returns [Navigator.Extras] associated with these [DynamicExtras]. */
     public val destinationExtras: Navigator.Extras? = null,
 ) : Navigator.Extras

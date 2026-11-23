@@ -215,7 +215,7 @@ public expect class NavOptions {
             saveState: Boolean = false,
         ): Builder
 
-        /** @return a constructed NavOptions */
+        /** Returns a constructed NavOptions */
         public fun build(): NavOptions
     }
 }
