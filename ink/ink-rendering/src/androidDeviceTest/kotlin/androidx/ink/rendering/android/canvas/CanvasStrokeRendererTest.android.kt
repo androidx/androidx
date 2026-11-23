@@ -59,6 +59,7 @@ import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import kotlin.math.PI
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ErrorCollector
 import org.junit.runner.RunWith
 
 /** Emulator-based screenshot test of [CanvasStrokeRenderer] for Stroke and InProgressStroke. */
@@ -70,6 +71,8 @@ class CanvasStrokeRendererTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+
+    @get:Rule val errorCollector = ErrorCollector()
 
     @SuppressWarnings("ImmutableEnumChecker")
     enum class TestCase(val stroke: InProgressStroke, val transform: Matrix = Matrix()) {
@@ -580,6 +583,7 @@ class CanvasStrokeRendererTest {
     private fun assertMatchesGolden(bitmap: Bitmap, name: String) =
         ImageDiffer.diffBitmapWithGolden(
             screenshotRule,
+            errorCollector,
             this::class.simpleName,
             bitmap,
             name,
@@ -641,7 +645,7 @@ class CanvasStrokeRendererTest {
     private val textureStore = TextureBitmapStore { id ->
         when (id) {
             TEXTURE_ID_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
-            TEXTURE_ID_CHECKERBOARD -> R.drawable.checkerboard
+            TEXTURE_ID_CHECKERBOARD -> androidx.ink.rendering.test.R.drawable.checkerboard
             TEXTURE_ID_CIRCLE -> R.drawable.circle
             TEXTURE_ID_POOP_EMOJI -> R.drawable.poop_emoji
             else -> null

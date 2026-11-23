@@ -47,6 +47,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ErrorCollector
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
@@ -71,6 +72,7 @@ class StockBrushesTest(val brushName: String) {
     val helper = StockBrushesTestHelper(context)
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+    @get:Rule val errorCollector = ErrorCollector()
 
     companion object {
         private val families =
@@ -121,6 +123,7 @@ class StockBrushesTest(val brushName: String) {
     fun assertStrokesMatchGolden(strokes: List<List<List<Stroke>>>, name: String) =
         ImageDiffer.diffBitmapWithGolden(
             screenshotRule,
+            errorCollector,
             this::class.simpleName,
             helper.drawToBitmap(strokes),
             name,

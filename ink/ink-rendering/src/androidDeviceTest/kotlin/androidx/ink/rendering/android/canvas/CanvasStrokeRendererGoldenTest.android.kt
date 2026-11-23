@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.graphics.withMatrix
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
@@ -35,12 +36,15 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.Rule
+import org.junit.rules.ErrorCollector
 
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalInkCustomBrushApi::class)
+@OptIn(ExperimentalInkCustomBrushApi::class, ExperimentalInkAnimationApi::class)
 class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+
+    @get:Rule val errorCollector = ErrorCollector()
 
     override fun loadCursiveHelloInputs(): ImmutableStrokeInputBatch {
         val appContext = ApplicationProvider.getApplicationContext<Context>()
@@ -56,6 +60,7 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
             TEXTURE_ID_CIRCLE -> R.drawable.circle
             TEXTURE_ID_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
             TEXTURE_ID_POOP_EMOJI -> R.drawable.poop_emoji
+            TEXTURE_ID_NUMBERS_32X32_60FRAMES -> R.drawable.numbers_32x32_60frames
             else -> null
         }?.let { BitmapFactory.decodeResource(context.resources, it) }
     }
@@ -67,14 +72,18 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
         imageWidth: Int,
         imageHeight: Int,
         goldenName: String,
+        animatorClockStateMillis: Long,
     ) {
         val matrix = transform.toMatrix()
         val bitmap =
             ImageDiffer.createBitmap(imageWidth, imageHeight, DEFAULT_BACKGROUND_COLOR) { canvas ->
-                canvas.withMatrix(matrix) { renderer.draw(canvas, stroke, matrix) }
+                canvas.withMatrix(matrix) {
+                    renderer.draw(canvas, stroke, matrix, animatorClockStateMillis)
+                }
             }
         ImageDiffer.diffBitmapWithGolden(
             screenshotRule,
+            errorCollector,
             this::class.simpleName,
             bitmap,
             goldenName,
@@ -87,14 +96,18 @@ class CanvasStrokeRendererGoldenTest : AbstractStrokeRendererTest() {
         imageWidth: Int,
         imageHeight: Int,
         goldenName: String,
+        animatorClockStateMillis: Long,
     ) {
         val matrix = transform.toMatrix()
         val bitmap =
             ImageDiffer.createBitmap(imageWidth, imageHeight, DEFAULT_BACKGROUND_COLOR) { canvas ->
-                canvas.withMatrix(matrix) { renderer.draw(canvas, inProgressStroke, matrix) }
+                canvas.withMatrix(matrix) {
+                    renderer.draw(canvas, inProgressStroke, matrix, animatorClockStateMillis)
+                }
             }
         ImageDiffer.diffBitmapWithGolden(
             screenshotRule,
+            errorCollector,
             this::class.simpleName,
             bitmap,
             goldenName,

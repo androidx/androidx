@@ -250,7 +250,7 @@ public class ShapeGestureCallback<ShapeSpecT : Any>(
  *   stroke.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomShapeWorkflowApi
+@ExperimentalInkGestureHandlingApi
 public class StrokeGestureCallback(
     private val inProgressStrokesView: InProgressStrokesView,
     public var brushForNewStrokes: Brush,

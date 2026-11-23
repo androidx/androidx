@@ -30,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ErrorCollector
 
 /** Emulator-based screenshot test of brushes defined by [StockBrushes] */
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
@@ -41,6 +42,7 @@ class StockBrushesConsistencyTest() {
     val helper = StockBrushesTestHelper(context)
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
+    @get:Rule val errorCollector = ErrorCollector()
 
     companion object {
         private val families =
@@ -60,6 +62,7 @@ class StockBrushesConsistencyTest() {
     fun assertStrokesMatchGolden(strokes: List<List<List<Stroke>>>, name: String) =
         ImageDiffer.diffBitmapWithGolden(
             screenshotRule,
+            errorCollector,
             this::class.simpleName,
             helper.drawToBitmap(strokes),
             name,
