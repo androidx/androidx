@@ -36,9 +36,10 @@ public object SpatialWindow {
      * same task, the ratio is not applied to the new activity. Also, while the activity is in Full
      * Space, the preference is ignored.
      *
-     * If the activity's current aspect ratio differs from the `preferredRatio`, the panel is
-     * automatically resized. This resizing preserves the panel's area. To avoid runtime resizing,
-     * consider specifying the desired aspect ratio in your
+     * If the activity's current aspect ratio differs from the [preferredRatio], the panel is
+     * automatically resized. This resizing prioritizes preserving the panel's height while
+     * adjusting the width to match the new aspect ratio. To avoid runtime resizing, consider
+     * specifying the desired aspect ratio in your
      * [application's manifest file](https://developer.android.com/guide/topics/manifest/manifest-intro).
      * This ensures your activity launches with the preferred aspect ratio from the start.
      *

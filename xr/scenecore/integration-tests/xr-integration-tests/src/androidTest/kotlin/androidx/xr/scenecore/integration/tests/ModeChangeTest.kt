@@ -297,18 +297,23 @@ class ModeChangeTest {
     fun setPreferredAspectRatio_inHomeSpace_resizesMainPanelToPortraitAndLandscape() {
         // CUJ: Click "Request HSM".
         sessionRule.requestHomeSpace()
+        waitUntil("bounded activity space bounds to be reported", SPACE_MODE_TIMEOUT) {
+            !scene.activitySpace.bounds.isUnbounded()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        val initialHeight = awaitMainPanelLayout().height
         val session = sessionRule.session
         val activity = sessionRule.activity
 
-        // TODO(b/584749431): Also check how the resize changes the main panel area, once
-        // setPreferredAspectRatio and its KDoc agree.
         // CUJ: Click the "Portrait" radio button.
         SpatialWindow.setPreferredAspectRatio(session, activity, HSM_PORTRAIT_ASPECT_RATIO)
-        awaitMainPanelAspectRatio(HSM_PORTRAIT_ASPECT_RATIO)
+        val portraitSize = awaitMainPanelAspectRatio(HSM_PORTRAIT_ASPECT_RATIO)
+        assertThat(portraitSize.height).isEqualTo(initialHeight)
 
         // CUJ: Click the "Landscape" radio button.
         SpatialWindow.setPreferredAspectRatio(session, activity, HSM_LANDSCAPE_ASPECT_RATIO)
-        awaitMainPanelAspectRatio(HSM_LANDSCAPE_ASPECT_RATIO)
+        val landscapeSize = awaitMainPanelAspectRatio(HSM_LANDSCAPE_ASPECT_RATIO)
+        assertThat(landscapeSize.height).isEqualTo(initialHeight)
     }
 
     /** Blocks until this activity reaches the lifecycle [state]. */
@@ -370,28 +375,48 @@ class ModeChangeTest {
     }
 
     /**
+     * Blocks until the main panel reports a non-empty size matching [until] and the content of its
+     * window is laid out at that same size, returning the settled pixel dimensions. The main panel
+     * reads its size from the WindowManager, which applies a new size asynchronously.
+     */
+    private fun awaitMainPanelLayout(
+        description: String = "main panel and its window layout to settle",
+        until: (IntSize2d) -> Boolean = { true },
+    ): IntSize2d {
+        var settledSize = IntSize2d(0, 0)
+        waitUntil(description, WINDOW_RESIZE_TIMEOUT) {
+            val size = scene.mainPanelEntity.sizeInPixels
+            val isSettled =
+                size.width > 0 &&
+                    size.height > 0 &&
+                    until(size) &&
+                    sessionRule.onMainThread {
+                        val decorView = activity.window.decorView
+                        decorView.width == size.width && decorView.height == size.height
+                    }
+            if (isSettled) {
+                settledSize = size
+            }
+            isSettled
+        }
+        return settledSize
+    }
+
+    /**
      * Blocks until the main panel reports [expected] pixels and the content of its window is laid
-     * out at that size. The main panel reads its size from the WindowManager, which applies a new
-     * size asynchronously.
+     * out at that size.
      */
     private fun awaitMainPanelSize(expected: IntSize2d) {
-        waitUntil("main panel and its window to be resized to $expected", WINDOW_RESIZE_TIMEOUT) {
-            scene.mainPanelEntity.sizeInPixels == expected &&
-                sessionRule.onMainThread {
-                    val decorView = activity.window.decorView
-                    decorView.width == expected.width && decorView.height == expected.height
-                }
+        awaitMainPanelLayout("main panel and its window to be resized to $expected") {
+            it == expected
         }
     }
 
     /** Blocks until the main panel, and the window content it hosts, have the [expected] ratio. */
-    private fun awaitMainPanelAspectRatio(expected: Float) {
-        waitUntil("main panel aspect ratio to be $expected", WINDOW_RESIZE_TIMEOUT) {
-            abs(scene.mainPanelEntity.sizeInPixels.aspectRatio() - expected) <=
-                ASPECT_RATIO_TOLERANCE
+    private fun awaitMainPanelAspectRatio(expected: Float): IntSize2d =
+        awaitMainPanelLayout("main panel aspect ratio to be $expected") {
+            abs(it.aspectRatio() - expected) <= ASPECT_RATIO_TOLERANCE
         }
-        awaitMainPanelSize(scene.mainPanelEntity.sizeInPixels)
-    }
 
     /**
      * Loads `BlueSkybox.zip` as the app environment and blocks until the sky turns blue.

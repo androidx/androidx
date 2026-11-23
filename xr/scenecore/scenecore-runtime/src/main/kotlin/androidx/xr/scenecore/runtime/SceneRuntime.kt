@@ -335,18 +335,19 @@ public interface SceneRuntime : JxrRuntime {
     public fun setFullSpaceModeWithEnvironmentInherited(bundle: Bundle): Bundle
 
     /**
-     * Sets a preferred main panel aspect ratio for home space mode.
+     * Sets a preferred main panel aspect ratio for Home Space.
      *
-     * The ratio is only applied to the activity. If the activity launches another activity in the
-     * same task, the ratio is not applied to the new activity. Also, while the activity is in full
-     * space mode, the preference is temporarily removed.
+     * The ratio is only applied to the [Activity]. If the activity launches another activity in the
+     * same task, the ratio is not applied to the new activity. Also, while the activity is in Full
+     * Space, the preference is temporarily removed.
      *
-     * If the activity's current aspect ratio differs from the {@code preferredRatio}, the panel is
-     * automatically resized. This resizing preserves the panel's area. To avoid runtime resizing,
-     * consider specifying the desired aspect ratio in your {@code AndroidManifest.xml}. This
-     * ensures your activity launches with the preferred aspect ratio from the start.
+     * If the activity's current aspect ratio differs from the [preferredRatio], the panel is
+     * automatically resized. This resizing prioritizes preserving the panel's height while
+     * adjusting the width to match the new aspect ratio. To avoid runtime resizing, consider
+     * specifying the desired aspect ratio in your `AndroidManifest.xml`. This ensures your activity
+     * launches with the preferred aspect ratio from the start.
      *
-     * @param activity the activity to set the preference.
+     * @param activity the activity for which to set the preference.
      * @param preferredRatio the aspect ratio determined by taking the panel's width over its
      *   height. A value <= 0.0f means there are no preferences.
      */
