@@ -21,16 +21,16 @@
     <string name="wear_m3c_time_picker_minute" msgid="2847700380677127030">"Phút"</string>
     <string name="wear_m3c_time_picker_second" msgid="5551916170669814925">"Giây"</string>
     <plurals name="wear_m3c_time_picker_hours_content_description" formatted="false" msgid="7688673698789346225">
+      <item quantity="one">%d Hours</item>
       <item quantity="other">%d giờ</item>
-      <item quantity="one">%d giờ</item>
     </plurals>
     <plurals name="wear_m3c_time_picker_minutes_content_description" formatted="false" msgid="8268405448590438607">
+      <item quantity="one">%d Minutes</item>
       <item quantity="other">%d phút</item>
-      <item quantity="one">%d phút</item>
     </plurals>
     <plurals name="wear_m3c_time_picker_seconds_content_description" formatted="false" msgid="1073969431850983434">
+      <item quantity="one">%d Seconds</item>
       <item quantity="other">%d giây</item>
-      <item quantity="one">%d giây</item>
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Khoảng thời gian"</string>
     <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Cuộn để đặt giờ"</string>
@@ -38,16 +38,16 @@
     <string name="wear_m3c_duration_picker_minutes" msgid="6759764208576885024">"Phút"</string>
     <string name="wear_m3c_duration_picker_seconds" msgid="5624751791165971941">"Giây"</string>
     <plurals name="wear_m3c_duration_picker_hours_content_description" formatted="false" msgid="2486089619879985882">
+      <item quantity="one">%d Hours</item>
       <item quantity="other">%d giờ</item>
-      <item quantity="one">%d giờ</item>
     </plurals>
     <plurals name="wear_m3c_duration_picker_minutes_content_description" formatted="false" msgid="2507197697775462986">
+      <item quantity="one">%d Minutes</item>
       <item quantity="other">%d phút</item>
-      <item quantity="one">%d phút</item>
     </plurals>
     <plurals name="wear_m3c_duration_picker_seconds_content_description" formatted="false" msgid="6578662344009900525">
+      <item quantity="one">%d Seconds</item>
       <item quantity="other">%d giây</item>
-      <item quantity="one">%d giây</item>
     </plurals>
     <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"Di chuyển để đặt thời lượng"</string>
     <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"Thời lượng phải trong khoảng từ %1$s đến %2$s."</string>
