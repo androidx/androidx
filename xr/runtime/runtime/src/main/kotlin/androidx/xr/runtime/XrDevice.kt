@@ -24,6 +24,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.runtime.interfaces.DisplayBlendMode as InternalDisplayBlendMode
+import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
 import androidx.xr.runtime.internal.XrInstanceManager
@@ -36,7 +37,13 @@ import kotlinx.coroutines.launch
 
 /** Device hardware capabilities. */
 public class XrDevice
-private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityProvider?) {
+private constructor(
+    private val xrDeviceCapabilityProvider: XrDeviceCapabilityProvider?,
+    /**
+     * The [FormFactor] of this device (such as [FormFactor.HEAD_MOUNTED] or [FormFactor.HANDHELD]).
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val formFactor: FormFactor,
+) {
 
     /**
      * Returns this XrDevice's [Lifecycle].
@@ -100,7 +107,8 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
                         context,
                         coroutineContext,
                         XrInstanceManager.getProvider(context),
-                    )
+                    ),
+                    features.toFormFactor(),
                 )
             synchronized(deviceCache) { deviceCache[context] = device }
             if (context is LifecycleOwner) {
@@ -252,6 +260,21 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
             )
     }
 }
+
+/**
+ * Returns the [FormFactor] of a device with these [Feature]s. Projected devices and devices with
+ * the Android XR spatial APIs, such as headsets, are head-mounted. All other devices are handheld.
+ *
+ * [Feature.OPEN_XR] isn't used because it doesn't identify a head-mounted device: handheld devices
+ * can support OpenXR too, and it applies to every context in the process, including the host's.
+ */
+internal fun Set<Feature>.toFormFactor(): FormFactor =
+    // TODO(b/589837935): Get the device type from a reliable source instead of device features.
+    if (contains(Feature.PROJECTED) || contains(Feature.SPATIAL)) {
+        FormFactor.HEAD_MOUNTED
+    } else {
+        FormFactor.HANDHELD
+    }
 
 private fun DisplayBlendMode.Companion.fromInternalDisplayBlendMode(
     value: InternalDisplayBlendMode
