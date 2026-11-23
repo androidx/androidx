@@ -112,17 +112,26 @@ internal object EncoderProfilesProviderResolver {
                 videoEncoderInfoFinder,
             )
 
-        // Explore all qualities supported by the camera and a video encoder
+        // Explore all qualities and HDR dynamic ranges supported by the camera and a video encoder
         if (videoCapabilitiesSource == Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES) {
-            provider = explore(provider, Quality.getSortedQualities(), setOf(DynamicRange.SDR))
+            provider =
+                explore(
+                    provider,
+                    Quality.getSortedQualities(),
+                    getCodecExploredDynamicRanges(cameraInfo),
+                )
         }
 
         // Modify matching resolutions based on camera support
         provider = QualityResolutionModifiedEncoderProfilesProvider(provider, deviceQuirks)
 
-        // Add an HLG10 profile to every quality that has a video profile. Qualities without a
-        // video profile are not targeted, so no quality is added.
-        if (cameraInfo.isHlg10Supported) {
+        // Camcorder profile source: add an HLG10 profile to every quality that has a video profile.
+        // Qualities without a video profile are not targeted, so no quality is added. The codec
+        // capabilities source explores HLG10 above together with the other HDR formats.
+        if (
+            videoCapabilitiesSource == Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE &&
+                cameraInfo.isHlg10Supported
+        ) {
             provider =
                 explore(
                     provider,
@@ -137,12 +146,47 @@ internal object EncoderProfilesProviderResolver {
         return provider
     }
 
+    /**
+     * Returns the dynamic ranges to explore for
+     * [Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES]: SDR, and HLG10, HDR10, HDR10+ and
+     * Dolby Vision 10-bit if supported by the camera.
+     *
+     * Only the dynamic ranges that have an [android.media.EncoderProfiles.VideoProfile] HDR format
+     * are explored. The SMPTE ST 2094-50 variants of HLG10 and HDR10 use the same HDR format, so a
+     * camera supporting such a variant explores HLG10 or HDR10.
+     */
+    private fun getCodecExploredDynamicRanges(cameraInfo: CameraInfoInternal): Set<DynamicRange> =
+        buildSet {
+            add(DynamicRange.SDR)
+            if (cameraInfo.isHlg10Supported) {
+                add(DynamicRange.HLG_10_BIT)
+            }
+            if (cameraInfo.isHdr10Supported) {
+                add(DynamicRange.HDR10_10_BIT)
+            }
+            val cameraSupportedDynamicRanges = cameraInfo.supportedDynamicRanges
+            if (DynamicRange.HDR10_PLUS_10_BIT in cameraSupportedDynamicRanges) {
+                add(DynamicRange.HDR10_PLUS_10_BIT)
+            }
+            if (DynamicRange.DOLBY_VISION_10_BIT in cameraSupportedDynamicRanges) {
+                add(DynamicRange.DOLBY_VISION_10_BIT)
+            }
+        }
+
     /** Returns the qualities in [Quality.getSortedQualities] that have a video profile. */
     private fun EncoderProfilesProvider.getQualitiesWithProfile(): List<Quality> =
         Quality.getSortedQualities().filter {
             val qualityValue =
                 (it as Quality.ConstantQuality).getQualityValue(Quality.QUALITY_SOURCE_REGULAR)
             !getAll(qualityValue)?.videoProfiles.isNullOrEmpty()
+        }
+
+    /** Extension property to check HDR10 support from supported dynamic ranges. */
+    private val CameraInfoInternal.isHdr10Supported: Boolean
+        get() = supportedDynamicRanges.any {
+            (it.encoding == DynamicRange.ENCODING_HDR10 ||
+                it.encoding == DynamicRange.ENCODING_HDR10_SMPTE_2094_50) &&
+                it.bitDepth == DynamicRange.BIT_DEPTH_10_BIT
         }
 
     /** Extension property to check HLG10 support from supported dynamic ranges. */
