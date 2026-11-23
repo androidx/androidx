@@ -994,6 +994,7 @@ public class AnchoredDraggableState<T>(initialValue: T) {
 
     private var dragTarget: T? by mutableStateOf(null)
 
+    /** The anchors of the state. Use [updateAnchors] to update the anchors. */
     public var anchors: DraggableAnchors<T> by mutableStateOf(emptyDraggableAnchors())
         private set
 
