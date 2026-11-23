@@ -30,6 +30,7 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
@@ -55,7 +56,9 @@ class PreviewTest(
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
 
-    @get:Rule
+    @get:Rule(order = 0) val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+
+    @get:Rule(order = 1)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             PreTestCameraIdList(Camera2Config.defaultConfig())
