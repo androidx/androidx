@@ -2,10 +2,13 @@
 
 This companion reference to
 `camera/.agents/skills/camerax-code-review/SKILL.md` (Step 6) defines
-orchestrator/coordinator trigger scope, cross-family routing, live model
-discovery, quota-floor routing, user notifications, and raw evidence/draft
-handoff mechanics. Read-only leaf verifiers skip this file and read
-`camerax-code-review/SKILL.md` directly.
+orchestrator/coordinator trigger scope, 4-role model routing, fail-closed
+execution runner gates, live model discovery, billing-aware effort and
+quota-floor policies, user notifications, and raw evidence/draft handoff
+mechanics. Read-only leaf verifiers skip this file and read
+`camerax-code-review/SKILL.md` directly; delegated `runner` workers read
+only the *Phase-Matched Search, Fail-Closed Test Runner & `architect`
+Authoring* bullet below alongside the fail-closed contract in their brief.
 
 *   **Smart & Flexible Trigger Scope (When to Auto-Invoke vs. Skip):**
     - **Auto-Trigger at Both Investigation/Design Time AND Pre-Delivery Time
@@ -65,46 +68,99 @@ handoff mechanics. Read-only leaf verifiers skip this file and read
       across genuinely distinct model families. Fall back to same-family
       reasoning tiers only when cross-family model selection is unavailable
       in the current environment.
-    - **Author vs. Verifier Model Specialization & Opposite-Family-First
-      Routing:** Read-only post-hoc reviews alone cannot turn a flawed
-      initial architecture into clean code if the primary authoring model
-      repeatedly patches around its own design. When multiple model families
-      are available in the harness (see `AGENTS_INTERNAL.md` when
-      configured):
-      1. *Phase-Matched Search vs. Complex Code Authoring (Design -> Author
-         Escalation Gate):* Use high-throughput search/tool models first for
-         fast codebase exploration, log/query ingestion, and test runner
-         execution. Then, after the Mandatory Pre-Coding Study &
-         Solution-Cooking Gate (`camerax-guidelines-governance`) and *before*
-         designing and writing non-trivial multi-class, concurrency, or
-         lifecycle state-machine code—check live cross-family quota and switch
-         the active coordinator model in-place (or delegate code authoring to a
-         dedicated architect/author worker) on the strongest available
-         coding/architecture model family whenever healthy.
-      2. *Opposite-Family-First Round 1 (`R1`):* Never start Round 1 (`R1`)
-         on the **same** model family as the active code/draft author when a
-         cross-family model has available quota. Always assign Round 1
-         (`verifier-r1`) at both Checkpoint 1 and Checkpoint 2 to the
-         **opposite** model family from the author so correlated same-family
-         blind spots are broken immediately on the first pass.
-    - **Zero-Cost Live Catalog, Auto-Discovery & Quota-Floor Stability:**
-      When the harness provides a lightweight model-catalog or quota query
-      (zero token cost), always query the live catalog before Round 1 to
-      dynamically discover and select the highest-capability available
-      frontier model in each model family without hardcoding static model
-      versions. Gate eligibility using boolean quota health floors rather
-      than sorting by fluctuating remaining-quota percentages, and order
-      eligible frontier candidates deterministically by capability tier,
-      semantic generation, and output token capacity (strictly excluding
-      lightweight/lite, image, non-thinking, or untiered redirect aliases)
-      so default selections remain stable across runs for reproducible
-      comparison. For daily quota-limited model families, match the
-      reasoning tier to task complexity: select a high-reasoning tier for
-      complex code changes, concurrency/lifecycle audits, deep root-cause
-      investigations, or architectural plans, and select a medium/standard
-      tier for routine or lightweight tasks (e.g., documentation edits,
-      simple test/quirk updates, or numeric test report fact-checking),
-      while avoiding quota-heavy maximum tiers unless explicitly requested.
+    - **Zero-Cost Live Catalog, 4-Role Definitions, Billing-Aware Effort &
+      Quota-Floor Stability:** When the harness provides a lightweight
+      model-catalog or quota query (zero token cost), always query the live
+      catalog before Round 1 to dynamically discover and select, **per role and
+      per model family**, the highest-capability healthy model within that
+      role's capability class without hardcoding static model versions or
+      codenames:
+      1. `monitor` *(high-throughput utility class)*: Periodic board/task
+         liveness watchdog (`0` code/triage decisions; never extra-high
+         effort).
+      2. `runner` *(high-throughput utility class)*: Mechanical `./gradlew`
+         builds, test execution, and raw log collection (`0` fault attribution
+         or code edits).
+      3. `architect` *(frontier class)*: Architecture design, state-machine
+         implementation, non-PASS test-failure attribution, and code fixes.
+      4. `verifier-r{1..5}` *(frontier class)*: Clean-context cross-vendor
+         reviewers (with same-family tier fallback when cross-vendor is
+         unavailable) for zero-priming Mode 1–5 audits and convergence
+         adjudication.
+      - *Eligibility & Deterministic Ordering:* Gate eligibility using boolean
+        quota health floors rather than sorting by fluctuating remaining-quota
+        percentages, honor explicit operator model-preference overrides first at
+        rank `#0` within each role's healthy pool, and order remaining
+        candidates deterministically by capability tier, semantic generation,
+        and output token capacity—strictly excluding lite, image, non-thinking,
+        router/compaction, or untiered redirect aliases across all roles (and,
+        for frontier `architect` / `verifier-*` roles, also excluding
+        utility-class models)—so default selections remain stable across runs
+        for reproducible comparison.
+      - *Billing-Aware Reasoning Effort:* On per-call/request-billed utility
+        pools, `runner` defaults to `high` effort because `high` consumes the
+        same single call unit as lower tiers while improving command/log
+        fidelity (and may opt into extra-high effort when deep multi-log
+        synthesis outweighs latency; on token-weighted utility pools, down-tier
+        `runner` to `medium` for routine builds). On token-weighted frontier
+        pools and daily quota-limited model families, `architect` and
+        `verifier-*` select `high` effort for complex code changes,
+        concurrency/lifecycle audits, deep root-cause investigations, or
+        architectural plans, down-tier to `medium` for conserving quota or
+        routine/lightweight tasks (e.g., documentation edits, simple test/quirk
+        updates, or numeric test report fact-checking), and reserve opt-in
+        extra-high effort strictly for bounded single-turn adjudication or
+        synthesis (`0` multi-turn file-read loops; never auto-select maximum
+        tiers unless explicitly requested).
+    - **Role Specialization, Fail-Closed `runner` & Opposite-Vendor-First
+      Routing:** Read-only post-hoc reviews alone cannot turn a flawed initial
+      architecture into clean code if the primary authoring model repeatedly
+      patches around its own design (see `AGENTS_INTERNAL.md` when configured):
+      1. *Phase-Matched Search, Fail-Closed Test Runner & `architect`
+         Authoring:*
+         - When distinct utility and frontier capability tiers/classes or model
+           families are available, use fast high-throughput utility models
+           first for codebase exploration and log/query ingestion while keeping
+           single-command checks inline on the coordinator. For long
+           multi-module/device `./gradlew` runs or bulk log collection, you may
+           delegate mechanical execution to a healthy `runner` worker under a
+           single-flight workspace lock (no workspace edits or concurrent
+           builds while `runner` runs), arming a watchdog scaled to expected
+           build time (e.g., `600s`) and confirming it has stalled (not
+           actively compiling or running tests) before any recovery or kill
+           action. On `PASS` (`0` exit code, and `> 0` executed tests for test
+           tasks), `runner` returns concise pass counts and the raw CLI log
+           path without frontier escalation.
+         - *Fail-Closed Escalation:* Include this fail-closed contract
+           verbatim in every delegated `runner` brief. Any non-PASS test
+           status, `0` executed tests on a test task, or non-zero exit code
+           escalates deterministically to the frontier `architect` role with
+           verbatim exit codes and raw CLI/test log file paths (never replacing
+           raw logs with a summary, and allowing at most `1` retry on an
+           explicit device-busy allocation timeout on the exact same requested
+           device without swapping device models). `runner` never classifies,
+           attributes, or fixes failures; `architect` owns root-cause
+           attribution and fixes, then re-verifies via a fresh `runner` pass.
+         - *Frontier Code-Authoring Escalation Gate:* After the Mandatory
+           Pre-Coding Study & Solution-Cooking Gate
+           (`camerax-guidelines-governance`) and *before* designing and writing
+           non-trivial multi-class, concurrency, or lifecycle state-machine
+           code—whenever a stronger frontier-class coding model than the active
+           coordinator is healthy—check live quota (preferring cross-vendor
+           strongest coding/architecture families when healthy) and switch the
+           coordinator model in-place (or delegate code authoring to a dedicated
+           `architect` worker).
+      2. *Opposite-Vendor-First (`Opposite-Family-First`) Round 1 (`R1`) &
+         Vendor Diversity:* When multiple vendor model families are available,
+         distinct quota buckets from one vendor provide quota isolation only,
+         **never** cross-vendor review diversity. Never start Round 1 (`R1`) on
+         the **same** vendor as the active code/draft author when a
+         cross-vendor model has available quota; always assign Round 1
+         (`verifier-r1`) at both Checkpoint 1 and Checkpoint 2 to an
+         **opposite-vendor** model family from the author so correlated
+         same-vendor blind spots are broken on the first pass (when only one
+         vendor has quota, still prefer a distinct model family/bucket for
+         `R1`).
     - **Automatic User Notification:** Inform the user of the active
       verification mode and the models/tiers selected:
       - `CROSS_FAMILY_MULTI_MODEL` (`MULTI_MODEL`): Spawning independent
@@ -118,11 +174,12 @@ handoff mechanics. Read-only leaf verifiers skip this file and read
         in-context verification.
     - **Model-Pinning Authorization Note:** Because `camera/AGENTS.md` and
       this skill are the user-authored project workflow rules for CameraX,
-      their `CROSS_FAMILY_MULTI_MODEL` requirement constitutes explicit
-      project authorization to pin verifier workers to cross-family models
-      when supported by the runtime (overriding generic harness tool-schema
-      defaults to leave `model` unset, which apply only to unconfigured
-      projects).
+      their cross-family verification and 4-role routing rules constitute
+      explicit project authorization to pin `verifier-*` and `architect`
+      workers to frontier models and pin execution `runner` / `monitor`
+      workers to high-throughput utility models when supported by the runtime
+      (overriding generic harness tool-schema defaults to leave `model` unset,
+      which apply only to unconfigured projects).
 *   **Evidence & Draft Handoff Mechanism for Non-Diff Tasks:**
     Because clean-context verifiers start with zero conversation history:
     - For **Code Review (Mode 1)**, if a target CL or commit is not checked

@@ -27,11 +27,16 @@ CameraX involves complex hardware interactions, making robust testing essential.
   ensure more reliable and maintainable tests.
 - **Testing Libraries**: Utilize `camera-testing`, `camera-common-testing`, and
   `camera-camera2-pipe-testing` for writing robust fakes.
-- **Log Management**: To prevent context bloat from excessive tool output, run
-  large test suites with minimal verbosity (e.g., using `-q` or redirecting
-  output to a file). Only re-run specific failing tests with verbose logging
-  when necessary for debugging. Always remove any temporary files (e.g., `.log`
-  files) created during the process before finalizing your work.
+- **Log Management & Fail-Closed Runner Delegation**: To prevent context bloat
+  from excessive tool output, run large test suites with minimal verbosity
+  (e.g., using `-q` or redirecting output to a file). For long multi-module or
+  device test runs, coordinators may delegate execution to a high-throughput
+  `runner` worker with fail-closed escalation to `architect` on any non-PASS
+  result or `0` executed tests (see
+  `camera/.agents/skills/camerax-code-review/MULTI_MODEL_HARNESS.md`).
+  Only re-run specific failing tests with verbose logging when necessary for
+  debugging, and always remove any temporary files (e.g., `.log` files) created
+  during the process before finalizing your work.
 - **Robolectric Configuration**: When writing Robolectric tests, avoid
   hardcoding `minSdk` values (e.g., `@Config(minSdk = 21)`). Instead, use
   `@Config(sdk = [Config.TARGET_SDK])` for standard tests or
