@@ -229,8 +229,11 @@ public class RemoteComposeWriterAdapter(public val delegate: RemoteComposeWriter
 
     override fun addText(text: String): RemoteStringId = RemoteStringId(delegate.addText(text))
 
-    override fun addMutableText(initialValue: String): RemoteStringId =
-        RemoteStringId(delegate.addText(initialValue))
+    override fun addMutableText(initialValue: String): RemoteStringId {
+        val id = delegate.nextId()
+        delegate.buffer.addText(id, initialValue)
+        return RemoteStringId(id)
+    }
 
     override fun addNamedString(name: String, initialValue: String): RemoteStringId =
         RemoteStringId(delegate.addNamedString(name, initialValue))
