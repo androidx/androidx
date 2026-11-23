@@ -1616,13 +1616,18 @@ class TextFieldStateTest {
     }
 
     @Test
-    fun saver_withNullOnTextChanged_savesSameFormatAsSaver() {
+    fun saver_withOnTextChanged_savesSameFormatAsObjectSaver() {
         val original = TextFieldState("hello", TextRange(1, 2))
+        val calls = mutableListOf<String>()
+        val callbackSaver = TextFieldState.Saver { calls += it.toString() }
 
-        val saved = with(TextFieldState.Saver) { SaverScope { true }.save(original) }
-        val savedWithNull = with(TextFieldState.Saver(null)) { SaverScope { true }.save(original) }
+        val savedByObject = with(TextFieldState.Saver) { SaverScope { true }.save(original) }
+        val savedByFactory = with(callbackSaver) { SaverScope { true }.save(original) }
 
-        assertThat(savedWithNull).isEqualTo(saved)
+        assertThat(savedByFactory).isEqualTo(savedByObject)
+        val restoredFromObjectSaved = callbackSaver.restore(savedByObject!!)!!
+        restoredFromObjectSaved.edit { replace(length, length, "!") }
+        assertThat(calls).containsExactly("hello!")
     }
 
     // endregion

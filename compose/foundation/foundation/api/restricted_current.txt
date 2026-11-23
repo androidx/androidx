@@ -3528,7 +3528,7 @@ package androidx.compose.foundation.text.input {
 
   @androidx.compose.runtime.Stable public final class TextFieldState {
     ctor @KotlinOnly @androidx.compose.runtime.annotation.RememberInComposition public TextFieldState(optional String initialText, optional androidx.compose.ui.text.TextRange initialSelection);
-    ctor @KotlinOnly @androidx.compose.runtime.annotation.RememberInComposition public TextFieldState(optional String initialText, optional androidx.compose.ui.text.TextRange initialSelection, kotlin.jvm.functions.Function1<java.lang.CharSequence,kotlin.Unit>? onTextChanged);
+    ctor @KotlinOnly @androidx.compose.runtime.annotation.RememberInComposition public TextFieldState(optional String initialText, optional androidx.compose.ui.text.TextRange initialSelection, kotlin.jvm.functions.Function1<java.lang.CharSequence,kotlin.Unit> onTextChanged);
     ctor @BytecodeOnly public TextFieldState(String!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public TextFieldState(String!, long, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public TextFieldState(String!, long, kotlin.jvm.functions.Function1!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -3547,10 +3547,14 @@ package androidx.compose.foundation.text.input {
     property public CharSequence text;
     property public androidx.compose.foundation.text.input.TextFieldTextStyles textStyles;
     property public androidx.compose.foundation.text.input.UndoState undoState;
+    field public static final androidx.compose.foundation.text.input.TextFieldState.Companion Companion;
+  }
+
+  public static final class TextFieldState.Companion {
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text.input.TextFieldState,java.lang.Object> Saver(kotlin.jvm.functions.Function1<? super java.lang.CharSequence,kotlin.Unit> onTextChanged);
   }
 
   public static final class TextFieldState.Saver implements androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text.input.TextFieldState,java.lang.Object> {
-    method public operator androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text.input.TextFieldState,java.lang.Object> invoke(kotlin.jvm.functions.Function1<? super java.lang.CharSequence,kotlin.Unit>? onTextChanged);
     method public androidx.compose.foundation.text.input.TextFieldState? restore(Object value);
     method public Object? save(androidx.compose.runtime.saveable.SaverScope, androidx.compose.foundation.text.input.TextFieldState value);
     field public static final androidx.compose.foundation.text.input.TextFieldState.Saver INSTANCE;
@@ -3559,8 +3563,8 @@ package androidx.compose.foundation.text.input {
   public final class TextFieldStateKt {
     method public static void clearText(androidx.compose.foundation.text.input.TextFieldState);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState(optional String initialText, optional androidx.compose.ui.text.TextRange initialSelection);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState(optional String initialText, optional androidx.compose.ui.text.TextRange initialSelection, kotlin.jvm.functions.Function1<java.lang.CharSequence,kotlin.Unit>? onTextChanged);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState-JDhZC5Q(String?, long, kotlin.jvm.functions.Function1<? super java.lang.CharSequence!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState(optional String initialText, optional androidx.compose.ui.text.TextRange initialSelection, kotlin.jvm.functions.Function1<java.lang.CharSequence,kotlin.Unit> onTextChanged);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState-JDhZC5Q(String?, long, kotlin.jvm.functions.Function1<? super java.lang.CharSequence!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState-Le-punE(String?, long, androidx.compose.runtime.Composer?, int, int);
     method public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text.input.TextFieldState, String text);
     method public static void setTextAndSelectAll(androidx.compose.foundation.text.input.TextFieldState, String text);
