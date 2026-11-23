@@ -336,6 +336,8 @@ public interface IcingOptionsConfig {
                         Flags.enableQuantizationScoringOptimization())
                 .setEnableTermIndexFlushFix(Flags.enableIcingTermIndexFlushFix())
                 .setEnableOfflineObservers(Flags.enableOfflineObservers())
+                .setEnableHandleZeroFilledMagicRecovery(
+                        Flags.enableHandleZeroFilledMagicRecovery())
                 .build();
     }
 }

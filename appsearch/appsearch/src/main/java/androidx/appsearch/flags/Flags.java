@@ -358,6 +358,13 @@ public final class Flags {
     public static final String FLAG_ENABLE_SCHEMA_VISIBLE_TO_PACKAGE_WITH_TAGS =
             FLAG_PREFIX + "enable_schema_visible_to_package_with_tags";
 
+    /**
+     * Whether to truncate the document log and continue with partial data loss when encountering a
+     * zero-filled entry during Icing document store recovery.
+     */
+    public static final String FLAG_ENABLE_HANDLE_ZERO_FILLED_MAGIC_RECOVERY =
+            FLAG_PREFIX + "enable_handle_zero_filled_magic_recovery";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -782,5 +789,14 @@ public final class Flags {
      */
     public static boolean enableSchemaVisibleToPackageWithTags() {
         return true;
+    }
+
+    /**
+     * Whether to truncate the document log and continue with partial data loss when encountering a
+     * zero-filled entry during Icing document store recovery.
+     */
+    public static boolean enableHandleZeroFilledMagicRecovery() {
+        // TODO(b/518301754): Enable this once the fix is rolled out to Nextfood in platform.
+        return false;
     }
 }
