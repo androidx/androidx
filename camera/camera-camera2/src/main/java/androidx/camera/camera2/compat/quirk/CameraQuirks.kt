@@ -20,6 +20,7 @@ import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.QuirkSettingsHolder
@@ -78,7 +79,12 @@ constructor(
                 CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata),
             )
         ) {
-            quirks.add(CamcorderProfileResolutionQuirk(streamConfigurationMapCompat))
+            quirks.add(
+                CamcorderProfileResolutionQuirk(
+                    streamConfigurationMapCompat,
+                    isLegacy = cameraMetadata.isHardwareLevelLegacy,
+                )
+            )
         }
         if (
             quirkSettings.shouldEnableQuirk(
