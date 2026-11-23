@@ -77,6 +77,9 @@ public class PreviewChannelHelper {
     private final int mUrlReadTimeoutMillis;
     private final Context mContext;
 
+    /**
+     * @param context the Context object that holds the channels
+     */
     public PreviewChannelHelper(Context context) {
         this(context, DEFAULT_URL_CONNNECTION_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
     }
