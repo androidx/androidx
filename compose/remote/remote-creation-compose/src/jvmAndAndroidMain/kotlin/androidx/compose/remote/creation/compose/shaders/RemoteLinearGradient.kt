@@ -20,7 +20,6 @@
 package androidx.compose.remote.creation.compose.shaders
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -30,9 +29,9 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.util.fastMap
+import androidx.compose.remote.document.RemotePaintWriter
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import kotlin.collections.toFloatArray
 
 /**
  * Creates a linear gradient with the provided colors along the given start and end coordinates. The
@@ -272,7 +271,7 @@ public class RemoteLinearShader(
     public val positions: List<RemoteFloat>?,
     public val tileMode: RemoteTileMode,
 ) : RemoteShader() {
-    override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
+    override fun apply(creationState: RemoteComposeCreationState, paintWriter: RemotePaintWriter) {
         var mask = 0
         val colorsArray =
             IntArray(colors.size) { i ->
@@ -285,16 +284,17 @@ public class RemoteLinearShader(
                     creationState.getId(color)
                 }
             }
-        val positionsArray = positions?.fastMap { creationState.getFloatId(it) }?.toFloatArray()
+        @Suppress("PrimitiveInCollection")
+        val stopsList = positions?.fastMap { creationState.getMaybeVariableFloat(it) }
 
-        paintBundle.setLinearGradient(
+        paintWriter.setLinearGradient(
             colorsArray,
             mask,
-            positionsArray,
-            creationState.getFloatId(x0),
-            creationState.getFloatId(y0),
-            creationState.getFloatId(x1),
-            creationState.getFloatId(y1),
+            stopsList,
+            creationState.getMaybeVariableFloat(x0),
+            creationState.getMaybeVariableFloat(y0),
+            creationState.getMaybeVariableFloat(x1),
+            creationState.getMaybeVariableFloat(y1),
             tileMode.value,
         )
     }

@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.document.RemoteDocumentWriter
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
@@ -40,7 +41,7 @@ public open class RemoteComposeCaptureState : RemoteComposeCreationState, Intern
     public override fun resolveComponentToken(): RemoteComponentToken? =
         super<RemoteComposeCreationState>.resolveComponentToken()
 
-    public override var document: RemoteComposeWriter
+    public override var document: RemoteDocumentWriter
         get() = super<RemoteComposeCreationState>.document
         set(value) {
             super<RemoteComposeCreationState>.document = value
@@ -69,7 +70,10 @@ public open class RemoteComposeCaptureState : RemoteComposeCreationState, Intern
     ) : super() {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerCallback)
+        document =
+            RemoteComposeWriterAdapter(
+                profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerCallback)
+            )
         this.remoteDensity = remoteDensity
         this.layoutDirection = layoutDirection
         this.densityBehavior = creationDisplayInfo.densityBehavior
@@ -82,7 +86,23 @@ public open class RemoteComposeCaptureState : RemoteComposeCreationState, Intern
     ) : super() {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
+        document =
+            RemoteComposeWriterAdapter(
+                profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
+            )
+        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
+        this.layoutDirection = RemoteLayoutDirection.Ltr
+        this.densityBehavior = creationDisplayInfo.densityBehavior
+    }
+
+    public constructor(
+        creationDisplayInfo: RemoteCreationDisplayInfo,
+        profile: Profile,
+        writer: RemoteDocumentWriter,
+    ) : super() {
+        this.creationDisplayInfo = creationDisplayInfo
+        this.profile = profile
+        this.document = writer
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
         this.layoutDirection = RemoteLayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior
@@ -92,14 +112,7 @@ public open class RemoteComposeCaptureState : RemoteComposeCreationState, Intern
         creationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile,
         writer: RemoteComposeWriter,
-    ) : super() {
-        this.creationDisplayInfo = creationDisplayInfo
-        this.profile = profile
-        this.document = writer
-        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.layoutDirection = RemoteLayoutDirection.Ltr
-        this.densityBehavior = creationDisplayInfo.densityBehavior
-    }
+    ) : this(creationDisplayInfo, profile, RemoteComposeWriterAdapter(writer))
 }
 
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -113,6 +126,10 @@ public val RemoteComposeCreationState.profile: Profile
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val RemoteComposeCreationState.platform: RcPlatformServices
     get() = profile.platform
+
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val RemoteComposeCreationState.writer: RemoteComposeWriter
+    get() = (this.document as RemoteComposeWriterAdapter).delegate
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteComposeCreationState(
@@ -141,6 +158,13 @@ public fun RemoteComposeCreationState(
         contentDescription,
         profile,
     )
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteComposeCreationState(
+    creationDisplayInfo: RemoteCreationDisplayInfo,
+    profile: Profile,
+    writer: RemoteDocumentWriter,
+): RemoteComposeCaptureState = RemoteComposeCaptureState(creationDisplayInfo, profile, writer)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteComposeCreationState(

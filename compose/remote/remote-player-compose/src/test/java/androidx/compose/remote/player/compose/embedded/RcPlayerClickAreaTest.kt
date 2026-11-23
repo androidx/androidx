@@ -60,7 +60,7 @@ class RcPlayerClickAreaTest {
                     topLeft = RemoteOffset(10f.rf, 20f.rf),
                     size = RemoteSize(50f.rf, 30f.rf),
                 )
-                document.addClickArea(7, "Tap me", 10f, 20f, 60f, 50f, "metadata")
+                document.legacyWriter.addClickArea(7, "Tap me", 10f, 20f, 60f, 50f, "metadata")
             }
         }
         rule.onNodeWithContentDescription("Tap me").performClick()
@@ -72,7 +72,7 @@ class RcPlayerClickAreaTest {
     fun clickAreaCoversItsBounds() {
         rule.setRemoteContent {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                document.addClickArea(1, "Area", 10f, 20f, 60f, 50f, null)
+                document.legacyWriter.addClickArea(1, "Area", 10f, 20f, 60f, 50f, null)
             }
         }
 
@@ -90,8 +90,8 @@ class RcPlayerClickAreaTest {
         rule.setRemoteContent {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                 // 30 + 30 = 60: the same bounds as above, with the right edge computed.
-                val right = document.floatExpression(30f, 30f, ADD)
-                document.addClickArea(1, "Area", 10f, 20f, right, 50f, null)
+                val right = document.addFloatExpression(30f, 30f, ADD).toNanFloat()
+                document.legacyWriter.addClickArea(1, "Area", 10f, 20f, right, 50f, null)
             }
         }
 

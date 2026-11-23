@@ -26,9 +26,9 @@ package androidx.compose.remote.creation.compose.state
  */
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.easing.CubicEasing
+import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.core.operations.utilities.easing.MonotonicSpline
 import kotlin.math.PI
 import kotlin.math.abs
@@ -674,7 +674,7 @@ public fun animateRemoteFloat(
     initialValue: Float = Float.NaN,
     wrap: Float = Float.NaN,
 ): RemoteFloat {
-    var anim = RemoteComposeBuffer.packAnimation(duration, type, spec, initialValue, wrap)
+    var anim = FloatAnimation.packToFloatArray(duration, type, spec, initialValue, wrap)
     if (anim.isEmpty()) {
         anim = floatArrayOf(duration)
     }

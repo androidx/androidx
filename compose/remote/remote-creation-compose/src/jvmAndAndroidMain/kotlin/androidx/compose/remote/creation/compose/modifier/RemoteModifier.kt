@@ -18,11 +18,13 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.LogCategory
+import androidx.compose.remote.creation.compose.capture.RemoteComposeWriterAdapter
 import androidx.compose.remote.creation.compose.capture.platform
 import androidx.compose.remote.creation.compose.layout.OverriddenScope
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.document.RemoteDocumentWriter
 import androidx.compose.runtime.Stable
 
 /**
@@ -160,6 +162,25 @@ public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): Recor
     val recordingModifier = with(modifier) { toRecordingModifier() }
     val overriddenScope = this as? OverriddenScope ?: return recordingModifier
     return overriddenScope.node.attachComponentTokenFlush(creationState, recordingModifier)
+}
+
+/**
+ * Evaluates [modifier] in this [RemoteStateScope] eagerly (preserving expression emission order
+ * prior to container start) and returns a callback that emits the modifier elements into a
+ * [RemoteDocumentWriter].
+ */
+internal fun RemoteStateScope.prepareModifiers(
+    modifier: RemoteModifier
+): (RemoteDocumentWriter) -> Unit {
+    val recordingModifier = toRecordingModifier(modifier)
+    return { writer ->
+        val adapter =
+            writer as? RemoteComposeWriterAdapter
+                ?: throw UnsupportedOperationException(
+                    "Direct RemoteModifier emission not yet implemented for $writer"
+                )
+        adapter.writeRecordingModifier(recordingModifier)
+    }
 }
 
 // Workaround for b/563261712: Modifier element types that do not support multiple instances

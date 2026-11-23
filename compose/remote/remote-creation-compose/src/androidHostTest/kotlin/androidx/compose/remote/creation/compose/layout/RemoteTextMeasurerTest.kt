@@ -254,7 +254,7 @@ class RemoteTextMeasurerTest {
         assertThat(creationState.getFloatId(paintBounds.right).isNaN()).isTrue()
         assertThat(creationState.getFloatId(paintBounds.bottom).isNaN()).isTrue()
         assertThat(creationState.getFloatId(monospaceWidth).isNaN()).isTrue()
-        assertThat(creationState.document.bufferSize()).isGreaterThan(0)
+        assertThat(creationState.document.bytesWritten).isGreaterThan(0)
     }
 
     @Test

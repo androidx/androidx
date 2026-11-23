@@ -18,9 +18,7 @@ package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
 import androidx.collection.MutableObjectIntMap
-import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.remote.creation.compose.state.MutableRemoteValue
 import androidx.compose.remote.creation.compose.state.RemoteNamedCacheKey
@@ -29,6 +27,10 @@ import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
 import androidx.compose.remote.creation.compose.state.requireRemoteValueAccess
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.RemoteDocumentWriter
+import androidx.compose.remote.document.RemoteFloatId
+import androidx.compose.remote.document.RemoteIntId
 
 /** Provider for resolving a layout component's [RemoteComponentToken] during rendering. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -37,10 +39,10 @@ public fun interface RemoteComponentTokenProvider {
     public fun getOrCreateComponentToken(): RemoteComponentToken?
 }
 
-/** Scope providing access to a [RemoteComposeWriter] document. */
+/** Scope providing access to a [RemoteDocumentWriter] document. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RemoteDocumentScope {
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val document: RemoteComposeWriter
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val document: RemoteDocumentWriter
 
     /** Resolves the active [RemoteComponentToken] for this scope, or `null` if none is bound. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -50,7 +52,7 @@ public interface RemoteDocumentScope {
 /** Base state for remote creation, holding expression caches and variable ID mappings. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteComposeCreationState : RemoteDocumentScope {
-    public override lateinit var document: RemoteComposeWriter
+    public override lateinit var document: RemoteDocumentWriter
     public open lateinit var remoteDensity: RemoteDensity
 
     /**
@@ -141,8 +143,8 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
             if ((state.emittedMask and bit) != 0) continue
             val existingId = state.variableIds[propIndex]
             if (existingId != TokenComponentState.NO_VARIABLE_ID) {
-                document.buffer.addComponentValue(
-                    existingId,
+                document.bindComponentValue(
+                    RemoteFloatId(existingId),
                     RemoteComponentToken.toComponentValueType(propIndex),
                 )
                 state.emittedMask = state.emittedMask or bit
@@ -156,8 +158,8 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
     /**
      * Disables direct `ComponentValue` emission for [token] before child components are rendered.
      *
-     * Rendering child components updates `document.buffer.lastComponentId` to each child's ID, so
-     * any [getComponentValue] call for [token] triggered lazily while rendering descendants must
+     * Rendering child components updates `document.lastComponentId` to each child's ID, so any
+     * [getComponentValue] call for [token] triggered lazily while rendering descendants must
      * reserve a float variable ID instead of emitting directly, leaving the `ComponentValue`
      * operation to be emitted in [endComponentContent] inside [token]'s own container body.
      */
@@ -178,12 +180,7 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
             val reservedId = state.variableIds[propIndex]
             if (reservedId != TokenComponentState.NO_VARIABLE_ID) {
                 val type = RemoteComponentToken.toComponentValueType(propIndex)
-                val buffer = document.buffer
-                if (state.componentId == -1 || buffer.lastComponentId == state.componentId) {
-                    buffer.addComponentValue(reservedId, type)
-                } else {
-                    ComponentValue.apply(buffer.buffer, type, state.componentId, reservedId)
-                }
+                document.bindComponentValue(RemoteFloatId(reservedId), type, state.componentId)
                 state.emittedMask = state.emittedMask or bit
             }
         }
@@ -196,8 +193,9 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
      * Reuses the existing variable ID if already allocated in this [document]. Otherwise, if the
      * writer is currently directly inside [token]'s body ([TokenComponentState.canEmitDirectly]),
      * emits the `ComponentValue` operation immediately; if called before [beginComponentContent] or
-     * while rendering descendants, reserves a float variable via `reserveFloatVariable()` so
-     * [beginComponentContent] or [endComponentContent] binds it to [token]'s component body.
+     * while rendering descendants, reserves a float variable via
+     * [RemoteDocumentWriter.allocateFloatId] so [beginComponentContent] or [endComponentContent]
+     * binds it to [token]'s component body.
      */
     internal fun getComponentValue(token: RemoteComponentToken, propIndex: Int): Float {
         token.markRequested(propIndex)
@@ -211,7 +209,7 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
                 state.emittedMask = state.emittedMask or (1 shl propIndex)
                 emitDirectComponentValueId(propIndex)
             } else {
-                Utils.idFromNan(document.reserveFloatVariable())
+                document.allocateFloatId().id
             }
         state.variableIds[propIndex] = allocatedId
         return Utils.asNan(allocatedId)
@@ -219,22 +217,10 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
 
     /**
      * Emits the `ComponentValue` operation for [propIndex] onto [document]'s current component via
-     * `RemoteComposeWriter.addComponent*Value()` (which returns a NaN-encoded float variable ID)
-     * and decodes the returned NaN value to its integer variable ID via [Utils.idFromNan].
+     * [RemoteDocumentWriter.addComponentValue] and returns its integer variable ID.
      */
-    private fun emitDirectComponentValueId(propIndex: Int): Int {
-        val nanEncodedId =
-            when (propIndex) {
-                RemoteComponentToken.PROP_WIDTH -> document.addComponentWidthValue()
-                RemoteComponentToken.PROP_HEIGHT -> document.addComponentHeightValue()
-                RemoteComponentToken.PROP_X -> document.addComponentXValue()
-                RemoteComponentToken.PROP_Y -> document.addComponentYValue()
-                RemoteComponentToken.PROP_ROOT_X -> document.addComponentRootXValue()
-                RemoteComponentToken.PROP_ROOT_Y -> document.addComponentRootYValue()
-                else -> throw IllegalArgumentException("Unknown property index: $propIndex")
-            }
-        return Utils.idFromNan(nanEncodedId)
-    }
+    private fun emitDirectComponentValueId(propIndex: Int): Int =
+        document.addComponentValue(RemoteComponentToken.toComponentValueType(propIndex)).id
 
     @PublishedApi
     internal fun recordNamedVariable(key: RemoteStateCacheKey) {
@@ -293,8 +279,8 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
     internal inline fun getOrPutFloatExpressionId(
         array: FloatArray,
         animation: FloatArray?,
-        crossinline write: () -> Int,
-    ): Int = floatExpressionIds.getOrPut(LoweredFloatExpressionKey(array, animation)) { write() }
+        crossinline write: () -> RemoteFloatId,
+    ): Int = floatExpressionIds.getOrPut(LoweredFloatExpressionKey(array, animation)) { write().id }
 
     /**
      * Returns the id of an integer expression with the same lowered [array] that was already
@@ -302,8 +288,8 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
      */
     internal inline fun getOrPutIntExpressionId(
         array: LongArray,
-        crossinline write: () -> Int,
-    ): Int = intExpressionIds.getOrPut(LoweredIntExpressionKey(array)) { write() }
+        crossinline write: () -> RemoteIntId,
+    ): Int = intExpressionIds.getOrPut(LoweredIntExpressionKey(array)) { write().id }
 
     /** Clears all caches tied to the current [document]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -374,6 +360,14 @@ public open class RemoteComposeCreationState : RemoteDocumentScope {
     @JvmName("getCreationStateFloatId")
     public fun getFloatId(value: RemoteValue<*>): Float =
         value.requireRemoteValueAccess().getFloatId(this)
+
+    /**
+     * Returns [value] as a [MaybeVariableFloat] (either a literal float or a variable reference)
+     * for this [RemoteComposeCreationState].
+     */
+    @JvmName("getCreationStateMaybeVariableFloat")
+    public fun getMaybeVariableFloat(value: RemoteValue<*>): MaybeVariableFloat =
+        value.requireRemoteValueAccess().getMaybeVariableFloat(this)
 
     /** Returns the underlying encoded [RemoteValue] representation for [value]. */
     public fun asEncoded(value: RemoteValue<*>): RemoteValue<*> =

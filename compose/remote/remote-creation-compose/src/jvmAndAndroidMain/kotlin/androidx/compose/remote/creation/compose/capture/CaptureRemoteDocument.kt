@@ -228,7 +228,7 @@ private fun captureRemoteDocumentImpl(
             remoteDensity = remoteDensity,
             layoutDirection = layoutDirection,
         )
-    val initialSize = creationState.document.buffer.buffer.size()
+    val initialSize = creationState.document.bytesWritten
 
     emitAll(
         headlessRenderFlow(
@@ -264,15 +264,17 @@ private fun captureRemoteDocumentImpl(
             // composition left untouched (checked below). Later renders need a fresh document.
             if (renderIndex > 0) {
                 creationState.document =
-                    profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerCallback)
+                    RemoteComposeWriterAdapter(
+                        profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerCallback)
+                    )
                 creationState.clearDocumentCaches()
             }
             val remoteCanvas = RemoteCanvas(creationState)
 
             if (enforceCleanRecomposition) {
-                check(creationState.document.buffer.buffer.size() == initialSize) {
+                check(creationState.document.bytesWritten == initialSize) {
                     "Document was written to during composition. Expected size $initialSize, " +
-                        "got ${creationState.document.buffer.buffer.size()}"
+                        "got ${creationState.document.bytesWritten}"
                 }
             }
 
@@ -282,7 +284,7 @@ private fun captureRemoteDocumentImpl(
             }
 
             tracer.trace(lazyLabel = { "$traceName:encodeToByteArray" }) {
-                creationState.document.encodeToByteArray()
+                creationState.document.toByteArray()
             }
         }
     )

@@ -17,10 +17,10 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloat
 import androidx.compose.remote.creation.compose.state.remoteSpring
+import androidx.compose.remote.document.mvf
 
 /**
  * A class that provides access to remote-specific utilities.
@@ -126,7 +126,12 @@ public class RemoteAccess(private val scope: RemoteDrawScope) {
     ) {
         val document = scope.remoteComposeCreationState.document
         val loopIndex = document.addFloatConstant(0f)
-        document.startLoop(Utils.idFromNan(loopIndex), from, step, until)
+        document.startLoop(
+            loopIndex.id,
+            from.mvf,
+            step.mvf,
+            until.mvf,
+        )
         content.invoke(scope, RemoteFloat(loopIndex))
         document.endLoop()
     }

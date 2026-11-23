@@ -21,9 +21,17 @@ import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_HEIGHT
 import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_WIDTH
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.RemoteBitmapId
+import androidx.compose.remote.document.floatArrayOf
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import kotlin.reflect.KClass
+
+/** Provides a [RemoteBitmapId] for a [RemoteImageBitmap] when written into [creationState]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun interface BitmapIdProvider {
+    public fun provide(creationState: RemoteComposeCreationState): RemoteBitmapId
+}
 
 /**
  * Read-only supertype for all remote bitmap representations in Compose Remote.
@@ -55,7 +63,7 @@ public sealed interface RemoteImageBitmap : RemoteValue<Any> {
             RemoteImageBitmapImpl(
                 constantValueOrNull = null,
                 cacheKey = RemoteStateIdKey(id),
-                idProvider = { id },
+                idProvider = { RemoteBitmapId(id) },
             )
 
         /**
@@ -103,13 +111,13 @@ public sealed interface RemoteImageBitmap : RemoteValue<Any> {
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
                 idProvider = { creationState ->
-                    val id = creationState.document.addBitmapUrl(url, width, height)
+                    val bitmapId = creationState.document.addBitmapUrl(url, width, height)
                     creationState.document.setNamedVariable(
-                        id,
+                        bitmapId.id,
                         domain.prefixed(name),
                         NamedVariable.IMAGE_TYPE,
                     )
-                    id
+                    bitmapId
                 },
             )
 
@@ -150,8 +158,8 @@ private abstract class BaseRemoteImageBitmap(cacheKey: RemoteStateCacheKey) :
             ) { creationState ->
                 floatArrayOf(
                     creationState.document.bitmapAttribute(
-                        getId(creationState),
-                        IMAGE_WIDTH,
+                        RemoteBitmapId(getId(creationState)),
+                        IMAGE_WIDTH.toInt(),
                     )
                 )
             }
@@ -164,8 +172,8 @@ private abstract class BaseRemoteImageBitmap(cacheKey: RemoteStateCacheKey) :
             ) { creationState ->
                 floatArrayOf(
                     creationState.document.bitmapAttribute(
-                        getId(creationState),
-                        IMAGE_HEIGHT,
+                        RemoteBitmapId(getId(creationState)),
+                        IMAGE_HEIGHT.toInt(),
                     )
                 )
             }
@@ -174,10 +182,10 @@ private abstract class BaseRemoteImageBitmap(cacheKey: RemoteStateCacheKey) :
 private class RemoteImageBitmapImpl(
     override val constantValueOrNull: Any?,
     cacheKey: RemoteStateCacheKey,
-    private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
+    private val idProvider: BitmapIdProvider,
 ) : BaseRemoteImageBitmap(cacheKey) {
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
-        idProvider(creationState)
+        idProvider.provide(creationState).id
 }
 
 /**
@@ -202,7 +210,7 @@ public sealed interface MutableRemoteImageBitmap : RemoteImageBitmap, MutableRem
                 cacheKey = RemoteStateIdKey(id),
                 constantValueOrNull = null,
             ) {
-                id
+                RemoteBitmapId(id)
             }
     }
 }
@@ -210,10 +218,10 @@ public sealed interface MutableRemoteImageBitmap : RemoteImageBitmap, MutableRem
 private class MutableRemoteImageBitmapImpl(
     cacheKey: RemoteStateCacheKey,
     override val constantValueOrNull: Any?,
-    private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
+    private val idProvider: BitmapIdProvider,
 ) : BaseRemoteImageBitmap(cacheKey), MutableRemoteImageBitmap {
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
-        idProvider(creationState)
+        idProvider.provide(creationState).id
 }
 
 /**
@@ -225,7 +233,7 @@ private class MutableRemoteImageBitmapImpl(
 public fun MutableRemoteImageBitmap(
     constantValueOrNull: Any?,
     cacheKey: RemoteStateCacheKey? = null,
-    idProvider: (creationState: RemoteComposeCreationState) -> Int,
+    idProvider: BitmapIdProvider,
 ): MutableRemoteImageBitmap =
     MutableRemoteImageBitmapImpl(
         cacheKey = cacheKey ?: RemoteStateInstanceKey(),

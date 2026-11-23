@@ -273,7 +273,11 @@ public sealed interface RemoteInt : RemoteValue<Int> {
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
             ) { creationState ->
-                longArrayOf(creationState.document.addNamedInt(domain.prefixed(name), defaultValue))
+                longArrayOf(
+                    creationState.document
+                        .addNamedInt(domain.prefixed(name), defaultValue)
+                        .toLongEncodedId()
+                )
             }
         }
     }
@@ -551,7 +555,7 @@ private fun RemoteInt.writeIntToDocument(creationState: RemoteComposeCreationSta
         return Utils.idFromLong(array[0]).toInt()
     }
     return creationState.getOrPutIntExpressionId(array) {
-        Utils.idFromLong(creationState.document.integerExpression(*array)).toInt()
+        creationState.document.addIntegerExpression(*array)
     }
 }
 
@@ -1196,7 +1200,9 @@ public fun MutableRemoteInt(initialValue: Int): MutableRemoteInt =
     MutableRemoteIntImpl(
         constantValueOrNull = null,
         cacheKey = RemoteStateInstanceKey(),
-        idProvider = { creationState -> creationState.document.addInteger(initialValue) },
+        idProvider = { creationState ->
+            creationState.document.addMutableInt(initialValue).toLongEncodedId()
+        },
     )
 
 /**

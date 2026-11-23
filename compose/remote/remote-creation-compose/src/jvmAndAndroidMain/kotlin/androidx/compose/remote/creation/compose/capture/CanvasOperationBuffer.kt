@@ -17,12 +17,9 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.collection.MutableObjectIntMap
-import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.CustomPropertyEntry
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
+import androidx.compose.remote.creation.compose.modifier.prepareModifiers
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
@@ -31,6 +28,9 @@ import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.RemoteCustomProperty
+import androidx.compose.remote.document.RemoteDocumentWriter
 
 /**
  * Represents a pending matrix transformation operation that can potentially be optimized.
@@ -42,7 +42,7 @@ import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
  */
 internal sealed class PendingOp {
     /** Flushes this transformation to the [writer]. */
-    abstract fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState)
+    abstract fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCreationState)
 
     /** Returns true if this transformation is a no-op identity transform. */
     abstract val isIdentity: Boolean
@@ -52,10 +52,13 @@ internal sealed class PendingOp {
         override val isIdentity: Boolean
             get() = dx.constantValueOrNull == 0f && dy.constantValueOrNull == 0f
 
-        override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
-            writer.addMatrixTranslate(
-                creationState.getFloatId(dx),
-                creationState.getFloatId(dy),
+        override fun write(
+            writer: RemoteDocumentWriter,
+            creationState: RemoteComposeCreationState,
+        ) {
+            writer.translate(
+                creationState.getMaybeVariableFloat(dx),
+                creationState.getMaybeVariableFloat(dy),
             )
         }
     }
@@ -70,12 +73,15 @@ internal sealed class PendingOp {
         override val isIdentity: Boolean
             get() = sx.constantValueOrNull == 1f && sy.constantValueOrNull == 1f
 
-        override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
-            writer.addMatrixScale(
-                creationState.getFloatId(sx),
-                creationState.getFloatId(sy),
-                px?.let { creationState.getFloatId(it) } ?: Float.NaN,
-                py?.let { creationState.getFloatId(it) } ?: Float.NaN,
+        override fun write(
+            writer: RemoteDocumentWriter,
+            creationState: RemoteComposeCreationState,
+        ) {
+            writer.scale(
+                creationState.getMaybeVariableFloat(sx),
+                creationState.getMaybeVariableFloat(sy),
+                px?.let { creationState.getMaybeVariableFloat(it) } ?: MaybeVariableFloat.NaN,
+                py?.let { creationState.getMaybeVariableFloat(it) } ?: MaybeVariableFloat.NaN,
             )
         }
     }
@@ -85,11 +91,14 @@ internal sealed class PendingOp {
         override val isIdentity: Boolean
             get() = angle.constantValueOrNull == 0f
 
-        override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
-            writer.addMatrixRotate(
-                creationState.getFloatId(angle),
-                px?.let { creationState.getFloatId(it) } ?: Float.NaN,
-                py?.let { creationState.getFloatId(it) } ?: Float.NaN,
+        override fun write(
+            writer: RemoteDocumentWriter,
+            creationState: RemoteComposeCreationState,
+        ) {
+            writer.rotate(
+                creationState.getMaybeVariableFloat(angle),
+                px?.let { creationState.getMaybeVariableFloat(it) } ?: MaybeVariableFloat.NaN,
+                py?.let { creationState.getMaybeVariableFloat(it) } ?: MaybeVariableFloat.NaN,
             )
         }
     }
@@ -99,10 +108,13 @@ internal sealed class PendingOp {
         override val isIdentity: Boolean
             get() = sx.constantValueOrNull == 0f && sy.constantValueOrNull == 0f
 
-        override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
-            writer.addMatrixSkew(
-                creationState.getFloatId(sx),
-                creationState.getFloatId(sy),
+        override fun write(
+            writer: RemoteDocumentWriter,
+            creationState: RemoteComposeCreationState,
+        ) {
+            writer.skew(
+                creationState.getMaybeVariableFloat(sx),
+                creationState.getMaybeVariableFloat(sy),
             )
         }
     }
@@ -112,11 +124,11 @@ internal sealed class PendingOp {
  * Represents an operation in the structured canvas recording buffer.
  *
  * These operations are optimized (elided, flattened, fused) before being flushed to the actual
- * [RemoteComposeWriter] during serialization.
+ * [RemoteDocumentWriter] during serialization.
  */
 internal sealed class CanvasOp {
     /** Flushes this operation (and its children, if any) to the [writer]. */
-    abstract fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState)
+    abstract fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState)
 
     /** Returns true if this operation modifies the canvas transform or clip state. */
     open fun hasTransformsOrClips(): Boolean = false
@@ -147,7 +159,7 @@ internal sealed class CanvasOp {
 
     /**
      * Returns true if this operation is or encloses any operation that emits wire commands
-     * (`writer.xxx()`) to the [RemoteComposeWriter] (such as [Draw], [Clip], or [Transform]).
+     * (`writer.xxx()`) to the [RemoteDocumentWriter] (such as [Draw], [Clip], or [Transform]).
      *
      * This returns false for non-operational metadata or variable declarations ([Expression]) and
      * empty scopes. During optimization, conditional blocks ([DrawConditionally]) check
@@ -212,11 +224,11 @@ internal sealed class CanvasOp {
     }
 
     /** Represents an actual drawing or state-setting operation (e.g., drawRect). */
-    class Draw(val switchesCanvas: Boolean = false, val action: (RemoteComposeWriter) -> Unit) :
+    class Draw(val switchesCanvas: Boolean = false, val action: (RemoteDocumentWriter) -> Unit) :
         CanvasOp() {
-        constructor(action: (RemoteComposeWriter) -> Unit) : this(false, action)
+        constructor(action: (RemoteDocumentWriter) -> Unit) : this(false, action)
 
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
+        override fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState) {
             action(writer)
         }
 
@@ -232,8 +244,8 @@ internal sealed class CanvasOp {
     }
 
     /** Represents a clipping operation. */
-    class Clip(val action: (RemoteComposeWriter) -> Unit) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
+    class Clip(val action: (RemoteDocumentWriter) -> Unit) : CanvasOp() {
+        override fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState) {
             action(writer)
         }
 
@@ -254,8 +266,8 @@ internal sealed class CanvasOp {
      * @property op The underlying [PendingOp] transformation.
      */
     class Transform(val op: PendingOp) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
-            op.write(writer.buffer, creationState)
+        override fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState) {
+            op.write(writer, creationState)
         }
 
         override fun hasTransformsOrClips(): Boolean = true
@@ -263,15 +275,15 @@ internal sealed class CanvasOp {
         // State modification only; does not draw pixels directly.
         override fun containsDrawingPrimitives(): Boolean = false
 
-        // Emits a matrix transformation wire command (`writer.buffer.addXxx()`) to the document.
+        // Emits a matrix transformation wire command (`writer.translate()` etc.) to the document.
         override fun emitsWireCommands(): Boolean = true
 
         override fun toString(): String = "Transform(${op::class.simpleName})"
     }
 
     /**
-     * Represents a save/restore group (corresponding to [RemoteComposeWriter.save] and
-     * [RemoteComposeWriter.restore]).
+     * Represents a save/restore group (corresponding to [RemoteDocumentWriter.save] and
+     * [RemoteDocumentWriter.restore]).
      *
      * @property parent The parent [SaveRestore] scope, or null if this is the root scope.
      * @property children The list of child operations inside this save/restore block.
@@ -418,7 +430,7 @@ internal sealed class CanvasOp {
             }
         }
 
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
+        override fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState) {
             when (elisionMode) {
                 ElisionMode.DISCARD -> {}
                 ElisionMode.INLINE -> {
@@ -441,7 +453,7 @@ internal sealed class CanvasOp {
 
     /** Represents an expression evaluation (hoisted variable assignment). */
     class Expression(val key: RemoteOperationCacheKey, val state: RemoteValue<*>) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
+        override fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState) {
             creationState.getId(state)
         }
 
@@ -465,9 +477,9 @@ internal sealed class CanvasOp {
     class DrawConditionally(
         val condition: RemoteBoolean,
         val childSpan: CanvasOperationBuffer.Span,
-        val action: (RemoteComposeWriter, RemoteComposeCaptureState) -> Unit,
+        val action: (RemoteDocumentWriter, RemoteComposeCaptureState) -> Unit,
     ) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
+        override fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState) {
             action(writer, creationState)
         }
 
@@ -506,16 +518,14 @@ internal sealed class CanvasOp {
         val properties: List<CustomPropertyEntry>,
         val childSpan: CanvasOperationBuffer.Span?,
     ) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
-            val corePropList = ArrayList<CustomProperty>(properties.size)
+        override fun write(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState) {
+            val corePropList = ArrayList<RemoteCustomProperty>(properties.size)
             for (i in properties.indices) {
                 corePropList.add(properties[i].toCustomProperty(creationState))
             }
-            val recordingModifier = creationState.toRecordingModifier(modifier)
-            if (recordingModifier.componentId == -1) {
-                recordingModifier.componentId(writer.nextId())
-            }
-            writer.startCustom(recordingModifier, config, corePropList)
+            val writeModifiers = creationState.prepareModifiers(modifier)
+            val componentId = writer.allocateId()
+            writer.startCustom(config, corePropList, componentId) { writeModifiers(writer) }
             childSpan?.record(writer, creationState)
             writer.endCustom()
         }
@@ -624,9 +634,13 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
          * to [writer] on first use, and later uses with identical path data and winding reuse its
          * ID.
          */
-        fun getOrPutPathData(writer: RemoteComposeWriter, pathData: FloatArray, winding: Int): Int =
+        fun getOrPutPathData(
+            writer: RemoteDocumentWriter,
+            pathData: FloatArray,
+            winding: Int,
+        ): Int =
             pathDataIds.getOrPut(PathDataKey(pathData, winding)) {
-                writer.addPathData(pathData, winding)
+                writer.addPathData(pathData, winding).id
             }
 
         fun createChildSpan(): Span {
@@ -657,7 +671,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             }
         }
 
-        fun record(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
+        fun record(writer: RemoteDocumentWriter, creationState: RemoteComposeCaptureState) {
             for (i in 0 until operations.size) {
                 operations[i].op.write(writer, creationState)
             }

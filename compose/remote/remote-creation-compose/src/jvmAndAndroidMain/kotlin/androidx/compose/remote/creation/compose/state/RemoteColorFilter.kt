@@ -17,15 +17,16 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.RemoteColorId
+import androidx.compose.remote.document.RemotePaintWriter
 
 /** Represents a color filter that can be used with remote paint. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface RemoteColorFilter {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun applyToPaintBundle(
-        paintBundle: PaintBundle,
+    public fun applyToPaint(
+        paintWriter: RemotePaintWriter,
         creationState: RemoteComposeCreationState,
     )
 }
@@ -41,16 +42,16 @@ public class RemoteBlendModeColorFilter(
     public val color: RemoteColor,
     public val blendMode: RemoteBlendMode,
 ) : RemoteColorFilter {
-    override fun applyToPaintBundle(
-        paintBundle: PaintBundle,
+    override fun applyToPaint(
+        paintWriter: RemotePaintWriter,
         creationState: RemoteComposeCreationState,
     ) {
         val constantColor = color.constantValueOrNull
         if (constantColor != null) {
-            paintBundle.setColorFilter(constantColor, blendMode.value)
+            paintWriter.setColorFilter(constantColor, blendMode.value)
         } else {
-            val colorId = creationState.getId(color)
-            paintBundle.setColorFilterId(colorId, blendMode.value)
+            val colorId = RemoteColorId(creationState.getId(color))
+            paintWriter.setColorFilterId(colorId, blendMode.value)
         }
     }
 

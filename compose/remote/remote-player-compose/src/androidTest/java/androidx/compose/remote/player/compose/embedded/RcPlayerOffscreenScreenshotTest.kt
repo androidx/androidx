@@ -94,9 +94,10 @@ class RcPlayerOffscreenScreenshotTest {
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(120.rdp, 88.rdp).drawWithContent {
-                                document.rcPaint.setAlpha(0.5f).commit()
-                                document.drawComponentContent()
-                                document.rcPaint.setAlpha(1f).commit()
+                                val writer = document.legacyWriter
+                                writer.rcPaint.setAlpha(0.5f).commit()
+                                writer.drawComponentContent()
+                                writer.rcPaint.setAlpha(1f).commit()
                             }
                     ) {
                         RemoteBox(
@@ -144,34 +145,35 @@ class RcPlayerOffscreenScreenshotTest {
                         RemoteModifier.fillMaxSize()
                             .background(Color.LightGray.rc)
                             .drawWithContent {
-                                val outerId = document.createBitmap(160, 100)
-                                val innerId = document.createBitmap(56, 56)
+                                val writer = document.legacyWriter
+                                val outerId = writer.createBitmap(160, 100)
+                                val innerId = writer.createBitmap(56, 56)
 
                                 // Redirect to outer offscreen bitmap and fill with blue.
-                                document.drawOnBitmap(outerId, 0, Color(0xFF1E88E5).toArgb())
+                                writer.drawOnBitmap(outerId, 0, Color(0xFF1E88E5).toArgb())
 
                                 // Nested redirect to inner offscreen bitmap and fill with red +
                                 // yellow
                                 // square.
-                                document.drawOnBitmap(innerId, 0, Color(0xFFE53935).toArgb())
-                                document.rcPaint.setColor(Color.Yellow.toArgb()).commit()
-                                document.drawRect(14f, 14f, 42f, 42f)
+                                writer.drawOnBitmap(innerId, 0, Color(0xFFE53935).toArgb())
+                                writer.rcPaint.setColor(Color.Yellow.toArgb()).commit()
+                                writer.drawRect(14f, 14f, 42f, 42f)
 
                                 // Pop inner offscreen target back to outer bitmap and stamp innerId
                                 // twice (full size + mini) alongside a green bar.
-                                document.drawOnBitmap(0)
-                                document.rcPaint.setColor(Color.White.toArgb()).commit()
-                                document.drawBitmap(innerId, 12f, 22f, 68f, 78f, "inner1")
-                                document.drawBitmap(innerId, 80f, 34f, 112f, 66f, "inner2")
-                                document.rcPaint.setColor(Color.Green.toArgb()).commit()
-                                document.drawRect(124f, 22f, 148f, 78f)
+                                writer.drawOnBitmap(0)
+                                writer.rcPaint.setColor(Color.White.toArgb()).commit()
+                                writer.drawBitmap(innerId, 12f, 22f, 68f, 78f, "inner1")
+                                writer.drawBitmap(innerId, 80f, 34f, 112f, 66f, "inner2")
+                                writer.rcPaint.setColor(Color.Green.toArgb()).commit()
+                                writer.drawRect(124f, 22f, 148f, 78f)
 
                                 // Pop outer offscreen target back to root canvas and stamp outerId
                                 // twice (large on the left + miniature twin on the right).
-                                document.drawOnBitmap(0)
-                                document.rcPaint.setColor(Color.White.toArgb()).commit()
-                                document.drawBitmap(outerId, 16f, 20f, 256f, 180f, "outerLarge")
-                                document.drawBitmap(outerId, 276f, 52f, 412f, 148f, "outerMini")
+                                writer.drawOnBitmap(0)
+                                writer.rcPaint.setColor(Color.White.toArgb()).commit()
+                                writer.drawBitmap(outerId, 16f, 20f, 256f, 180f, "outerLarge")
+                                writer.drawBitmap(outerId, 276f, 52f, 412f, 148f, "outerMini")
                             }
                 )
             }

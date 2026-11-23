@@ -60,7 +60,7 @@ class RemoteCanvasPathTest {
     private fun inflateOperations(): ArrayList<Operation> {
         remoteCanvas.flush()
         recordingBuffer.writeToBuffer()
-        val buffer = creationState.document.buffer
+        val buffer = creationState.writer.buffer
         buffer.buffer.index = 0
         val operations = ArrayList<Operation>()
         buffer.inflateFromBuffer(operations)

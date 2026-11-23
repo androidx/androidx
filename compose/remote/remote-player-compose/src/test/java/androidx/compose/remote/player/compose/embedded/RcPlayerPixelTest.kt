@@ -326,8 +326,8 @@ class RcPlayerPixelTest {
     fun writeToDocumentEmitsRawWriterOps() {
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
-                document.rcPaint.setColor(AndroidColor.RED).commit()
-                document.drawRect(0f, 0f, 100f, 100f)
+                document.legacyWriter.rcPaint.setColor(AndroidColor.RED).commit()
+                document.legacyWriter.drawRect(0f, 0f, 100f, 100f)
             }
         }
         val px = bmp.getPixel(50, 50)

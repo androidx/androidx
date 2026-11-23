@@ -16,29 +16,47 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.document.RemoteDocumentWriter
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import java.lang.reflect.Proxy
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(TestParameterInjector::class)
 class RemoteFloatOperationTest {
     private val context = TestRemoteContext()
+    private val rawBuffer = RemoteComposeBuffer().apply { header(100, 100, 1f, 0L) }
+    private var nextId = 42
+    private val testWriter: RemoteDocumentWriter =
+        Proxy.newProxyInstance(
+            RemoteDocumentWriter::class.java.classLoader,
+            arrayOf(RemoteDocumentWriter::class.java),
+        ) { _, method, args ->
+            if (method.name.startsWith("addFloatExpression")) {
+                val values = args[0] as FloatArray
+                val id = nextId++
+                rawBuffer.addAnimatedFloat(id, values, null)
+                id
+            } else {
+                throw UnsupportedOperationException(method.name)
+            }
+        } as RemoteDocumentWriter
+
     private val creationState =
         RemoteComposeCreationState().apply {
-            document = RemoteComposeWriter(RcPlatformServices.None)
+            document = testWriter
             remoteDensity = RemoteDensity(1f.rf, 1f.rf)
         }
 
@@ -298,9 +316,8 @@ class RemoteFloatOperationTest {
 
     private fun evaluateCoreDocument() =
         CoreDocument().apply {
-            val buffer = creationState.document.buffer
-            buffer.buffer.index = 0
-            initFromBuffer(buffer)
+            rawBuffer.buffer.index = 0
+            initFromBuffer(rawBuffer)
             initializeContext(context)
         }
 

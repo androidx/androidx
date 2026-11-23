@@ -385,7 +385,6 @@ package androidx.compose.remote.creation.compose.layout {
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.layout.RemoteOffset getCenter();
     method @BytecodeOnly public androidx.compose.remote.creation.compose.capture.RemoteDensity getDensity();
     method @BytecodeOnly public int getDensityBehavior-mlTm0_4();
-    method @BytecodeOnly public androidx.compose.remote.creation.RemoteComposeWriter getDocument();
     method @BytecodeOnly public float getFloatId(androidx.compose.remote.creation.compose.state.RemoteValue<? extends java.lang.Object!>);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getHeight();
     method @BytecodeOnly public int getId(androidx.compose.remote.creation.compose.state.RemoteValue<? extends java.lang.Object!>);
@@ -408,7 +407,6 @@ package androidx.compose.remote.creation.compose.layout {
     property public final androidx.compose.remote.creation.compose.layout.RemoteOffset center;
     property public androidx.compose.remote.creation.compose.capture.RemoteDensity density;
     property public androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior densityBehavior;
-    property public androidx.compose.remote.creation.RemoteComposeWriter document;
     property public float androidx.compose.remote.creation.compose.state.RemoteValue<? extends java.lang.Object?>.floatId;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat height;
     property public int androidx.compose.remote.creation.compose.state.RemoteValue<? extends java.lang.Object?>.id;

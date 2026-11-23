@@ -56,7 +56,8 @@ class RcPlayerHapticTest {
         var hostView: View? = null
         play(onView = { hostView = it }) {
             RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                document.impulse(10f, 0f) { document.performHaptic(3) }
+                val writer = document.legacyWriter
+                writer.impulse(10f, 0f) { writer.performHaptic(3) }
             }
         }
         val view = requireNotNull(hostView)

@@ -18,9 +18,11 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.document.RemoteArrayId
+import androidx.compose.remote.document.floatArrayOf
+import androidx.compose.remote.document.mvf
 import androidx.compose.runtime.annotation.RememberInComposition
 import kotlin.reflect.KClass
 
@@ -90,7 +92,7 @@ private class RemoteMutableFloatArrayImpl(override val size: Int) :
     private var generation = 0
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        return Utils.idFromNan(creationState.document.addDynamicFloatArray(size.toFloat()))
+        return creationState.document.addDynamicFloatArray(size.toFloat().mvf).id
     }
 
     override fun get(v: Int): RemoteFloat = get(RemoteInt(v))
@@ -116,7 +118,7 @@ private class RemoteMutableFloatArrayImpl(override val size: Int) :
             maybeWritePendingSets(currentGeneration, creationState)
 
             floatArrayOf(
-                creationState.document.floatExpression(
+                creationState.document.addFloatExpression(
                     *arrayForCreationState(creationState),
                     creationState.getFloatId(v),
                     AnimatedFloatExpression.A_DEREF,
@@ -148,9 +150,9 @@ private class RemoteMutableFloatArrayImpl(override val size: Int) :
             if (element.generation <= upTo) {
                 iterator.remove()
                 creationState.document.setArrayValue(
-                    getId(creationState),
-                    creationState.getFloatId(element.index),
-                    creationState.getFloatId(element.value),
+                    RemoteArrayId(getId(creationState)),
+                    creationState.getMaybeVariableFloat(element.index),
+                    creationState.getMaybeVariableFloat(element.value),
                 )
             }
         }

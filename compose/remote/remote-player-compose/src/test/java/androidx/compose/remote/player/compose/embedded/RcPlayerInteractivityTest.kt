@@ -54,7 +54,6 @@ import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.lambdaAction
 import androidx.compose.remote.creation.compose.action.valueChangeAction
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
@@ -1426,7 +1425,7 @@ class RcPlayerInteractivityTest {
             val touchPercent = remember {
                 RemoteFloat {
                     val touchId =
-                        document.addTouch(
+                        document.legacyWriter.addTouch(
                             -1f,
                             -1f,
                             100f,
@@ -2063,7 +2062,7 @@ class RcPlayerInteractivityTest {
                 if (hasTouchExpression) {
                     val touchYFloat = remember { MutableRemoteFloat(0f) }
                     RemoteCanvas(modifier = RemoteModifier.size(150.rdp, 300.rdp)) {
-                        val doc = remoteComposeCreationState.document
+                        val doc = remoteComposeCreationState.document.legacyWriter
                         val outputId =
                             Utils.idFromNan(remoteComposeCreationState.getFloatId(touchYFloat))
                         doc.buffer.addTouchExpression(
@@ -2116,7 +2115,7 @@ class RcPlayerInteractivityTest {
                                 contentDescription = "ChartCanvas".rs
                             }
                     ) {
-                        val doc = remoteComposeCreationState.document
+                        val doc = remoteComposeCreationState.document.legacyWriter
                         val outputId =
                             Utils.idFromNan(remoteComposeCreationState.getFloatId(selectedFraction))
                         val rootX = doc.addComponentRootXValue()
@@ -2213,7 +2212,7 @@ class RcPlayerInteractivityTest {
                             contentDescription = "VerticalCanvas".rs
                         }
                 ) {
-                    val doc = remoteComposeCreationState.document
+                    val doc = remoteComposeCreationState.document.legacyWriter
                     val outputId =
                         Utils.idFromNan(remoteComposeCreationState.getFloatId(touchValue))
                     val rootY = doc.addComponentRootYValue()
@@ -2293,7 +2292,7 @@ class RcPlayerInteractivityTest {
                             RemoteModifier.size(200.rdp, 100.rdp)
                                 .semantics { contentDescription = "DrawWithContentBox".rs }
                                 .drawWithContent {
-                                    val doc = remoteComposeCreationState.document
+                                    val doc = remoteComposeCreationState.document.legacyWriter
                                     val outputId =
                                         Utils.idFromNan(
                                             remoteComposeCreationState.getFloatId(touchFraction)
@@ -2376,7 +2375,7 @@ class RcPlayerInteractivityTest {
                                 val rootX = this.getFloatId(component.positionInRoot.x)
                                 val width = this.getFloatId(component.width)
                                 val touchId =
-                                    document.addTouch(
+                                    document.legacyWriter.addTouch(
                                         -1f,
                                         0f,
                                         1f,
@@ -2449,7 +2448,7 @@ class RcPlayerInteractivityTest {
                                 val rootX = this.getFloatId(component.positionInRoot.x)
                                 val width = this.getFloatId(component.width)
                                 val touchId =
-                                    document.addTouch(
+                                    document.legacyWriter.addTouch(
                                         -1f,
                                         0f,
                                         1f,
@@ -2527,7 +2526,7 @@ class RcPlayerInteractivityTest {
                                     contentDescription = "LegacyCanvas".rs
                                 }
                         ) {
-                            val doc = remoteComposeCreationState.document
+                            val doc = remoteComposeCreationState.document.legacyWriter
                             val outputId =
                                 Utils.idFromNan(
                                     remoteComposeCreationState.getFloatId(touchFraction)
@@ -2613,7 +2612,7 @@ class RcPlayerInteractivityTest {
                                 contentDescription = "LegacyCanvas".rs
                             }
                     ) {
-                        val doc = remoteComposeCreationState.document
+                        val doc = remoteComposeCreationState.document.legacyWriter
                         val outputId =
                             Utils.idFromNan(remoteComposeCreationState.getFloatId(touchFraction))
                         val rootX = doc.addComponentRootXValue()
@@ -2748,7 +2747,7 @@ class RcPlayerInteractivityTest {
                             contentDescription = "MultiTouchCanvas".rs
                         }
                 ) {
-                    val doc = remoteComposeCreationState.document
+                    val doc = remoteComposeCreationState.document.legacyWriter
                     val outputId =
                         Utils.idFromNan(remoteComposeCreationState.getFloatId(touchFraction))
                     val width = doc.addComponentWidthValue()
@@ -2815,11 +2814,10 @@ class RcPlayerInteractivityTest {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val capturedDocument =
                 captureSingleRemoteDocument(context = context) {
-                    val creationState = LocalRemoteComposeCreationState.current
                     val directVal = remember {
                         RemoteFloat {
                             val touchId =
-                                document.addTouch(
+                                document.legacyWriter.addTouch(
                                     0f,
                                     0f,
                                     200f,
@@ -2850,7 +2848,7 @@ class RcPlayerInteractivityTest {
                                     contentDescription = "CanvasTarget".rs
                                 }
                         ) {
-                            val doc = remoteComposeCreationState.document
+                            val doc = remoteComposeCreationState.document.legacyWriter
                             val id =
                                 Utils.idFromNan(remoteComposeCreationState.getFloatId(canvasVal))
                             doc.buffer.addTouchExpression(
@@ -2871,7 +2869,7 @@ class RcPlayerInteractivityTest {
                                 RemoteModifier.size(200.rdp, 80.rdp)
                                     .semantics { contentDescription = "DrawContentTarget".rs }
                                     .drawWithContent {
-                                        val doc = remoteComposeCreationState.document
+                                        val doc = remoteComposeCreationState.document.legacyWriter
                                         val id =
                                             Utils.idFromNan(
                                                 remoteComposeCreationState.getFloatId(
@@ -3018,7 +3016,7 @@ class RcPlayerInteractivityTest {
                     val directVal = remember {
                         RemoteFloat {
                             val touchId =
-                                document.addTouch(
+                                document.legacyWriter.addTouch(
                                     0f,
                                     0f,
                                     200f,
@@ -3099,7 +3097,7 @@ class RcPlayerInteractivityTest {
                             contentDescription = "HorizontalSlider".rs
                         }
                 ) {
-                    val doc = remoteComposeCreationState.document
+                    val doc = remoteComposeCreationState.document.legacyWriter
                     val outputId =
                         Utils.idFromNan(remoteComposeCreationState.getFloatId(sliderFraction))
                     val width = doc.addComponentWidthValue()

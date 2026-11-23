@@ -85,6 +85,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -117,6 +118,8 @@ import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.document.RemoteFontId
+import androidx.compose.remote.document.mvf
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.runtime.remember
@@ -295,58 +298,44 @@ class RcPlayerPrimitivesTest {
     }
 
     @Test
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     fun testDrawBitmapInt() {
-        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
-        try {
-            val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-            bitmap.eraseColor(AndroidColor.RED)
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(AndroidColor.RED)
 
-            rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
-                val state = LocalRemoteComposeCreationState.current
-                state.document.drawBitmap(bitmap, 10, 10, "Test Bitmap")
+        rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                val imageId = document.addBitmap(bitmap)
+                document.drawBitmapInt(imageId, 0, 0, 10, 10, 0, 0, 10, 10, "Test Bitmap")
             }
-
-            rule.mainClock.advanceTimeBy(100)
-
-            rule.onNodeWithTag("canvasParent").assertExists()
-        } finally {
-            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
         }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithTag("canvasParent").assertExists()
     }
 
     @Test
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     fun testDrawBitmapScaled() {
-        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
-        try {
-            val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-            bitmap.eraseColor(AndroidColor.RED)
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(AndroidColor.RED)
+        val remoteBitmap = bitmap.asImageBitmap().rb
 
-            rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
-                val state = LocalRemoteComposeCreationState.current
-                state.document.drawScaledBitmap(
-                    bitmap,
-                    0f,
-                    0f,
-                    10f,
-                    10f,
-                    0f,
-                    0f,
-                    100f,
-                    100f,
-                    0,
-                    1f,
-                    "Test Bitmap",
+        rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                drawScaledBitmap(
+                    image = remoteBitmap,
+                    srcOffset = RemoteOffset.Zero,
+                    srcSize = RemoteSize(10f.rf, 10f.rf),
+                    dstOffset = RemoteOffset.Zero,
+                    dstSize = RemoteSize(100f.rf, 100f.rf),
+                    contentDescription = "Test Bitmap",
                 )
             }
-
-            rule.mainClock.advanceTimeBy(100)
-
-            rule.onNodeWithTag("canvasParent").assertExists()
-        } finally {
-            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
         }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithTag("canvasParent").assertExists()
     }
 
     @Test
@@ -561,79 +550,73 @@ class RcPlayerPrimitivesTest {
     }
 
     @Test
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     fun testDrawBitmapFontText() {
-        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
-        try {
-            rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
-                val state = LocalRemoteComposeCreationState.current
-                val textId = state.document.textCreateId("Hello")
-                state.document.drawBitmapFontTextRun(textId, 42, 0, 5, 10f, 50f, 0f)
+        val remoteString = RemoteString("Hello")
+        val bitmapFont = RemoteBitmapFont(emptyList())
+
+        rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                remoteCanvas.drawBitmapFontTextRun(
+                    text = remoteString,
+                    bitmapFont = bitmapFont,
+                    start = 0,
+                    end = 5,
+                    x = 10f.rf,
+                    y = 50f.rf,
+                    glyphSpacing = 0f.rf,
+                )
             }
-
-            rule.mainClock.advanceTimeBy(100)
-
-            rule.onNodeWithTag("canvasParent").assertExists()
-        } finally {
-            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
         }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithTag("canvasParent").assertExists()
     }
 
     @Test
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     fun testDrawBitmapFontTextOnPath() {
-        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
-        try {
-            val path = RemotePath("M 0 50 L 100 50")
+        val path = RemotePath("M 0 50 L 100 50")
+        val remoteString = RemoteString("Hello")
+        val bitmapFont = RemoteBitmapFont(emptyList())
 
-            rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
-                val state = LocalRemoteComposeCreationState.current
-                val textId = state.document.textCreateId("Hello")
-                state.document.drawBitmapFontTextRunOnPath(
-                    textId,
-                    42,
-                    path,
-                    0,
-                    5,
-                    0f,
-                    0f,
+        rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                remoteCanvas.drawBitmapFontTextRunOnPath(
+                    text = remoteString,
+                    bitmapFont = bitmapFont,
+                    path = path,
+                    start = 0,
+                    end = 5,
+                    yAdj = 0f,
+                    glyphSpacing = 0f,
                 )
             }
-
-            rule.mainClock.advanceTimeBy(100)
-
-            rule.onNodeWithTag("canvasParent").assertExists()
-        } finally {
-            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
         }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithTag("canvasParent").assertExists()
     }
 
     @Test
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     fun testDrawBitmapTextAnchored() {
-        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
-        try {
-            rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
-                val state = LocalRemoteComposeCreationState.current
-                state.document.drawBitmapTextAnchored(
-                    "Hello",
-                    42,
-                    0f,
-                    5f,
-                    10f,
-                    50f,
-                    0f,
-                    0f,
-                    0f,
+        rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                val textId = document.addText("Hello")
+                document.drawBitmapTextAnchored(
+                    textId = textId,
+                    bitmapFontId = RemoteFontId(42),
+                    start = 0f.mvf,
+                    end = 5f.mvf,
+                    x = 10f.mvf,
+                    y = 50f.mvf,
                 )
             }
-
-            rule.mainClock.advanceTimeBy(100)
-
-            rule.onNodeWithTag("canvasParent").assertExists()
-        } finally {
-            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
         }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithTag("canvasParent").assertExists()
     }
 
     @Test
@@ -796,37 +779,14 @@ class RcPlayerPrimitivesTest {
     }
 
     @Test
-    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     fun testLayoutText() {
-        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
-        try {
-            rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
-                val state = LocalRemoteComposeCreationState.current
-                val textId = state.document.textCreateId("Hello TextLayout")
-                val modifier = RemoteModifier
-                val recordingModifier = with(modifier) { state.toRecordingModifier() }
-                state.document.startTextComponent(
-                    recordingModifier,
-                    textId,
-                    0xff000000.toInt(), // color
-                    14f, // fontSize
-                    0, // fontStyle
-                    400f, // fontWeight
-                    null, // fontFamily
-                    0.toShort(), // flags
-                    0.toShort(), // textAlign
-                    0, // overflow
-                    Int.MAX_VALUE, // maxLines
-                )
-                state.document.endTextComponent()
-            }
-
-            rule.mainClock.advanceTimeBy(100)
-
-            rule.onNodeWithTag("canvasParent").assertExists()
-        } finally {
-            RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
+        rule.setRemoteContent(profile = LauncherWidgetTestProfiles.WIDGETS_V6) {
+            RemoteText("Hello TextLayout".rs)
         }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithText("Hello TextLayout").assertExists()
     }
 
     @Test
@@ -835,43 +795,14 @@ class RcPlayerPrimitivesTest {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         try {
             rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
-                val state = LocalRemoteComposeCreationState.current
-                val textId = state.document.textCreateId("Hello Styled Text")
+                val doc = LocalRemoteComposeCreationState.current.document
+                val textId = doc.addText("Hello Styled Text")
                 val styleId =
-                    state.document.addTextStyle(
-                        0xff000000.toInt(), // color
-                        null, // colorId
-                        16f, // fontSize
-                        null,
-                        null, // min/max fontSize
-                        0, // fontStyle
-                        400f, // fontWeight
-                        null, // fontFamily
-                        0, // textAlign
-                        0, // overflow
-                        Int.MAX_VALUE, // maxLines
-                        0f, // letterSpacing
-                        0f, // lineHeightAdd
-                        1f, // lineHeightMultiplier
-                        0, // lineBreakStrategy
-                        0, // hyphenationFrequency
-                        0, // justificationMode
-                        false, // underline
-                        false, // strikethrough
-                        null, // fontAxis
-                        null, // fontAxisValues
-                        false, // autosize
-                        0, // parentId
+                    doc.addTextStyle(
+                        color = 0xff000000.toInt(),
+                        fontSize = 16f.mvf,
                     )
-                val modifier = RemoteModifier
-                val recordingModifier = with(modifier) { state.toRecordingModifier() }
-                state.document.startTextComponent(
-                    recordingModifier,
-                    textId,
-                    styleId,
-                    0, // flags
-                )
-                state.document.endTextComponent()
+                doc.textComponent(textId = textId, styleId = styleId)
             }
 
             rule.mainClock.advanceTimeBy(100)

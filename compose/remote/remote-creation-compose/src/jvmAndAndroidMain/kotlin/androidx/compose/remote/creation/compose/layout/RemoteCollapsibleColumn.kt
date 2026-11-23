@@ -20,8 +20,9 @@ import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriori
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.CollapsiblePriorityModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
+import androidx.compose.remote.creation.compose.modifier.prepareModifiers
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.document.mvf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -56,15 +57,15 @@ internal class RemoteCollapsibleColumnNode : RemoteLayoutNode() {
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(remoteCanvas)
-        val recordingModifier = scope.toRecordingModifier(modifier)
-        (verticalArrangement as? RemoteSpaced)?.let {
-            recordingModifier.spacedBy(it.getSpacingFloatId(scope))
-        }
+        val writeModifiers = scope.prepareModifiers(modifier)
+        val spacedBy = (verticalArrangement as? RemoteSpaced)?.getSpacing(scope) ?: 0f.mvf
         creationState.document.startCollapsibleColumn(
-            recordingModifier,
             horizontalAlignment.toRemote(layoutDirection),
             verticalArrangement.toRemote(),
-        )
+            spacedBy,
+        ) {
+            writeModifiers(creationState.document)
+        }
         renderChildren(creationState, remoteCanvas)
         creationState.document.endCollapsibleColumn()
     }

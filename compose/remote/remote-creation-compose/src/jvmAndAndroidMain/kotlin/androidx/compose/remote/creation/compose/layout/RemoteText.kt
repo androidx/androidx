@@ -23,7 +23,7 @@ import androidx.compose.remote.creation.compose.capture.LocalFontWeightAdjustmen
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
+import androidx.compose.remote.creation.compose.modifier.prepareModifiers
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -41,6 +41,9 @@ import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.combineFontSettings
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.RemoteStringId
+import androidx.compose.remote.document.mvf
 import androidx.compose.runtime.Composable
 
 /**
@@ -211,18 +214,20 @@ internal class RemoteTextNode : RemoteComposeNode() {
     var fontVariationSettings: RemoteFontVariation.Settings? = null
     var fontFeatureSettings: String? = null
 
+    @Suppress("PrimitiveInCollection")
     private fun extractFontSettings(
         settings: List<RemoteFontVariation.Setting>?,
         creationState: RemoteComposeCreationState,
-    ): Pair<Array<String>?, FloatArray?> {
+    ): Pair<Array<String>?, List<MaybeVariableFloat>?> {
         val size = settings?.size ?: return Pair(null, null)
 
         val fontAxisNames = Array(size) { settings[it].axisName }
-        val fontAxisValues = FloatArray(size) { creationState.getFloatId(settings[it].value) }
+        val fontAxisValues = List(size) { creationState.getMaybeVariableFloat(settings[it].value) }
 
         return Pair(fontAxisNames, fontAxisValues)
     }
 
+    @Suppress("PrimitiveInCollection")
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val textIdValue = creationState.getId(text)
 
@@ -238,10 +243,10 @@ internal class RemoteTextNode : RemoteComposeNode() {
         val (fontAxisNames, fontAxisValues) =
             extractFontSettings(combinedSettings?.settings, creationState)
 
-        val fontSizePxId = creationState.getFloatId(fontSize.toPx(remoteDensity))
+        val fontSizePx = creationState.getMaybeVariableFloat(fontSize.toPx(remoteDensity))
 
-        val letterSpacingId = creationState.getFloatId(letterSpacing)
-        val lineHeightMultiplyId = creationState.getFloatId(lineHeightMultiply)
+        val letterSpacingValue = creationState.getMaybeVariableFloat(letterSpacing)
+        val lineHeightMultiplyValue = creationState.getMaybeVariableFloat(lineHeightMultiply)
 
         val scope = overriddenScope(remoteCanvas)
         val resolvedTextAlign =
@@ -261,35 +266,37 @@ internal class RemoteTextNode : RemoteComposeNode() {
                 else -> textAlign
             }
 
-        val unadjustedFontWeight = creationState.getFloatId(fontWeight)
+        val unadjustedFontWeight = creationState.getMaybeVariableFloat(fontWeight)
         val adjustedFontWeight =
-            if (unadjustedFontWeight.isNaN()) {
+            if (unadjustedFontWeight.isVariable) {
                 // If it's a variable, we currently don't support host-side adjustment.
                 unadjustedFontWeight
             } else {
-                unadjustedFontWeight
-                    .plus(fontWeightAdjustment)
-                    .coerceIn(FONT_WEIGHT_MIN, FONT_WEIGHT_MAX)
+                (unadjustedFontWeight.floatValue + fontWeightAdjustment)
+                    .coerceIn(
+                        FONT_WEIGHT_MIN,
+                        FONT_WEIGHT_MAX,
+                    )
+                    .mvf
             }
 
-        creationState.document.startTextComponent(
-            scope.toRecordingModifier(modifier),
-            textIdValue,
-            -1,
+        val writeModifiers = scope.prepareModifiers(modifier)
+        creationState.document.textComponent(
+            RemoteStringId(textIdValue),
             colorInt,
             colorId,
-            fontSizePxId,
-            minFontSize ?: -1f,
-            maxFontSize ?: -1f,
+            fontSizePx,
+            minFontSize?.let { it.mvf },
+            maxFontSize?.let { it.mvf },
             fontStyle.value,
             adjustedFontWeight,
             fontFamily,
             resolvedTextAlign.value,
             overflow.value,
             maxLines,
-            letterSpacingId,
-            lineHeightAdd ?: 0f,
-            lineHeightMultiplyId,
+            letterSpacingValue,
+            (lineHeightAdd ?: 0f).mvf,
+            lineHeightMultiplyValue,
             lineBreakStrategy,
             hyphenationFrequency,
             0, // justificationMode
@@ -299,8 +306,9 @@ internal class RemoteTextNode : RemoteComposeNode() {
             fontAxisValues,
             false, // autosize
             0, // flags
-        )
-        creationState.document.endTextComponent()
+        ) {
+            writeModifiers(creationState.document)
+        }
     }
 }
 

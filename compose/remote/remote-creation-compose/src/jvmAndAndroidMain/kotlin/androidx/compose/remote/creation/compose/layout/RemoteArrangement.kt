@@ -23,7 +23,7 @@ import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
-import androidx.compose.remote.creation.compose.state.densityBehavior
+import androidx.compose.remote.document.MaybeVariableFloat
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
@@ -390,7 +390,7 @@ internal data class HorizontalOrVerticalArrangement(val type: Int) :
 }
 
 internal interface RemoteSpaced {
-    fun getSpacingFloatId(scope: RemoteStateScope): Float
+    fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat
 }
 
 internal data class RemoteSpacedArrangement(val space: RemoteDp) :
@@ -400,12 +400,12 @@ internal data class RemoteSpacedArrangement(val space: RemoteDp) :
 
     fun toRemoteVertical(): Int = ColumnLayout.TOP
 
-    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+    override fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat =
         with(scope as InternalRemoteStateScope) {
             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                space.value.floatId
+                space.value.maybeVariableFloat
             } else {
-                space.toPx().floatId
+                space.toPx().maybeVariableFloat
             }
         }
 }
@@ -417,12 +417,12 @@ internal data class RemoteFloatSpacedArrangement(val space: RemoteFloat) :
 
     fun toRemoteVertical(): Int = ColumnLayout.TOP
 
-    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+    override fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat =
         with(scope as InternalRemoteStateScope) {
             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                (space / density.density).floatId
+                (space / density.density).maybeVariableFloat
             } else {
-                space.floatId
+                space.maybeVariableFloat
             }
         }
 }
@@ -434,12 +434,12 @@ internal data class RemoteSpacedHorizontalArrangement(
 
     fun toRemote(layoutDirection: RemoteLayoutDirection): Int = alignment.toRemote(layoutDirection)
 
-    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+    override fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat =
         with(scope as InternalRemoteStateScope) {
             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                space.value.floatId
+                space.value.maybeVariableFloat
             } else {
-                space.toPx().floatId
+                space.toPx().maybeVariableFloat
             }
         }
 }
@@ -451,12 +451,12 @@ internal data class RemoteFloatSpacedHorizontalArrangement(
 
     fun toRemote(layoutDirection: RemoteLayoutDirection): Int = alignment.toRemote(layoutDirection)
 
-    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+    override fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat =
         with(scope as InternalRemoteStateScope) {
             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                (space / density.density).floatId
+                (space / density.density).maybeVariableFloat
             } else {
-                space.floatId
+                space.maybeVariableFloat
             }
         }
 }
@@ -468,12 +468,12 @@ internal data class RemoteSpacedAbsoluteHorizontalArrangement(
 
     fun toRemote(layoutDirection: RemoteLayoutDirection): Int = alignment.toRemote(layoutDirection)
 
-    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+    override fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat =
         with(scope as InternalRemoteStateScope) {
             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                space.value.floatId
+                space.value.maybeVariableFloat
             } else {
-                space.toPx().floatId
+                space.toPx().maybeVariableFloat
             }
         }
 }
@@ -485,12 +485,12 @@ internal data class RemoteFloatSpacedAbsoluteHorizontalArrangement(
 
     fun toRemote(layoutDirection: RemoteLayoutDirection): Int = alignment.toRemote(layoutDirection)
 
-    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+    override fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat =
         with(scope as InternalRemoteStateScope) {
             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                (space / density.density).floatId
+                (space / density.density).maybeVariableFloat
             } else {
-                space.floatId
+                space.maybeVariableFloat
             }
         }
 }
@@ -502,12 +502,12 @@ internal data class RemoteSpacedVerticalArrangement(
 
     fun toRemote(): Int = alignment.toRemote()
 
-    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+    override fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat =
         with(scope as InternalRemoteStateScope) {
             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                space.value.floatId
+                space.value.maybeVariableFloat
             } else {
-                space.toPx().floatId
+                space.toPx().maybeVariableFloat
             }
         }
 }
@@ -519,12 +519,12 @@ internal data class RemoteFloatSpacedVerticalArrangement(
 
     fun toRemote(): Int = alignment.toRemote()
 
-    override fun getSpacingFloatId(scope: RemoteStateScope): Float =
+    override fun getSpacing(scope: RemoteStateScope): MaybeVariableFloat =
         with(scope as InternalRemoteStateScope) {
             if (densityBehavior == RemoteDensityBehavior.Dp) {
-                (space / density.density).floatId
+                (space / density.density).maybeVariableFloat
             } else {
-                space.floatId
+                space.maybeVariableFloat
             }
         }
 }

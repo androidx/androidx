@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.document.RemoteIntId
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import kotlin.enums.EnumEntries
@@ -154,14 +155,13 @@ private abstract class BaseRemoteEnum<T : Enum<T>>(override val enumEntries: Enu
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
                     val strings = stringArray.constantValueOrNull!!
-                    val stringIds =
-                        IntArray(strings.size) {
-                            creationState.getId(strings[it])
-                        }
-                    return creationState.document.textLookup(
-                        creationState.document.addStringList(*stringIds),
-                        creationState.getId(intValue),
-                    )
+                    val stringIds = IntArray(strings.size) { creationState.getId(strings[it]) }
+                    return creationState.document
+                        .textLookup(
+                            creationState.document.addIdList(stringIds),
+                            RemoteIntId(creationState.getId(intValue)),
+                        )
+                        .id
                 }
 
                 override fun computeRequiredCodePointSet(

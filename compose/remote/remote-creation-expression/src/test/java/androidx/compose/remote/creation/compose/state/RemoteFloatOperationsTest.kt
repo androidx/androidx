@@ -272,7 +272,7 @@ class RemoteFloatOperationsTest {
         val seed = 12345f
 
         // Seed PRNG via lower-level floatExpression API with RAND_SEED
-        creationState.document.floatExpression(seed, AnimatedFloatExpression.RAND_SEED, 0f)
+        creationState.document.addFloatExpression(seed, AnimatedFloatExpression.RAND_SEED, 0f)
 
         val r = rand()
         val resultId = creationState.getId(r)
@@ -297,7 +297,7 @@ class RemoteFloatOperationsTest {
         val to = 50f
 
         // Seed PRNG via lower-level floatExpression API with RAND_SEED
-        creationState.document.floatExpression(seed, AnimatedFloatExpression.RAND_SEED, 0f)
+        creationState.document.addFloatExpression(seed, AnimatedFloatExpression.RAND_SEED, 0f)
 
         val r = randRange(from.rf, to.rf)
         val resultId = creationState.getId(r)

@@ -16,7 +16,6 @@
 package androidx.compose.remote.creation.compose.shaders
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -24,6 +23,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.util.fastMap
+import androidx.compose.remote.document.RemotePaintWriter
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
@@ -111,7 +111,7 @@ internal class RemoteSweepShader(
     val positions: List<RemoteFloat>?,
 ) : RemoteShader() {
 
-    override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
+    override fun apply(creationState: RemoteComposeCreationState, paintWriter: RemotePaintWriter) {
         var mask = 0
         val colorsArray =
             IntArray(colors.size) { i ->
@@ -124,14 +124,15 @@ internal class RemoteSweepShader(
                     creationState.getId(color)
                 }
             }
-        val positionsArray = positions?.fastMap { creationState.getFloatId(it) }?.toFloatArray()
+        @Suppress("PrimitiveInCollection")
+        val stopsList = positions?.fastMap { creationState.getMaybeVariableFloat(it) }
 
-        paintBundle.setSweepGradient(
+        paintWriter.setSweepGradient(
             colorsArray,
             mask,
-            positionsArray,
-            creationState.getFloatId(centerX),
-            creationState.getFloatId(centerY),
+            stopsList,
+            creationState.getMaybeVariableFloat(centerX),
+            creationState.getMaybeVariableFloat(centerY),
         )
     }
 }

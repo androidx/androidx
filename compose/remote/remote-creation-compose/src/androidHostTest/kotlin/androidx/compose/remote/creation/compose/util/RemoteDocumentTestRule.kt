@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureStat
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.capture.writer
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -94,7 +95,7 @@ class RemoteDocumentTestRule : ExternalResource() {
 
     fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
-            val buffer = creationState.document.buffer
+            val buffer = creationState.writer.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
             paint(context, 0)

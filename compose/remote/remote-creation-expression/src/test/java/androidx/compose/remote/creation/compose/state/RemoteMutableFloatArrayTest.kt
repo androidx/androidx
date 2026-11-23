@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.document.mvf
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -118,21 +119,32 @@ class RemoteMutableFloatArrayTest {
                 )
             }
         val creationState =
-            testCreationState(document = profile.create(CreationDisplayInfo(100, 100, 160), null))
-        creationState.document.conditionalOperations(ConditionalOperations.TYPE_EQ, 0f, 0f)
-        val remoteFloatArray = RemoteMutableFloatArray(4)
-        val index = createNamedRemoteInt("testInt", 2)
+            testCreationState(
+                document =
+                    TestRemoteDocumentWriter(
+                        profile.create(CreationDisplayInfo(100, 100, 160), null)
+                    )
+            )
+        var resultId1 = -1
+        var resultId2 = -1
+        creationState.document.conditionalOperations(
+            ConditionalOperations.TYPE_EQ.toInt(),
+            0f.mvf,
+            0f.mvf,
+        ) {
+            val remoteFloatArray = RemoteMutableFloatArray(4)
+            val index = createNamedRemoteInt("testInt", 2)
 
-        remoteFloatArray[index] = 1234.rf
-        val result1 = remoteFloatArray[2]
-        val resultId1 = creationState.getId(result1)
-        val resultFloatId1 = creationState.getFloatId(result1)
-        remoteFloatArray[index] = 5678.rf
-        val result2 = remoteFloatArray[2]
-        val resultId2 = creationState.getId(result2)
-        val resultFloatId2 = creationState.getFloatId(result2)
-        creationState.document.translate(resultFloatId1, resultFloatId2)
-        creationState.document.endConditionalOperations()
+            remoteFloatArray[index] = 1234.rf
+            val result1 = remoteFloatArray[2]
+            resultId1 = creationState.getId(result1)
+            val resultFloatId1 = creationState.getMaybeVariableFloat(result1)
+            remoteFloatArray[index] = 5678.rf
+            val result2 = remoteFloatArray[2]
+            resultId2 = creationState.getId(result2)
+            val resultFloatId2 = creationState.getMaybeVariableFloat(result2)
+            creationState.document.translate(resultFloatId1, resultFloatId2)
+        }
 
         recordingBuffer.writeToBuffer()
 

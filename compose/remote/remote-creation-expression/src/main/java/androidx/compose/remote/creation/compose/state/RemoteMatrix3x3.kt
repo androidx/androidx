@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.MatrixOperations
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.runtime.Stable
@@ -207,7 +206,7 @@ private class RemoteMatrix3x3Impl(
         get() = null
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
-        Utils.idFromNan(creationState.document.matrixExpression(*arrayProvider(creationState)))
+        creationState.document.matrixExpression(*arrayProvider(creationState)).id
 
     override fun times(other: RemoteMatrix3x3): RemoteMatrix3x3 {
         val key = RemoteOperationCacheKey.create(MatrixOperationKey.MUL, this, other)

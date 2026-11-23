@@ -41,6 +41,7 @@ import androidx.compose.remote.creation.compose.capture.CanvasOperationBuffer
 import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPaintChanges
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteComposeWriterAdapter
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteOutline
@@ -84,6 +85,7 @@ import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.document.RemoteDocumentWriter
 import androidx.compose.remote.player.compose.test.utils.TestPlayer
 import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -97,6 +99,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+
+private val RemoteDocumentWriter.buffer: RemoteComposeBuffer
+    get() = (this as RemoteComposeWriterAdapter).delegate.buffer
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
@@ -147,8 +152,8 @@ class RemoteCanvasTest {
             )
         val paint = RemotePaint { fontVariationSettings = settings }
 
-        val wghtId = creationState.document.addText("wght")
-        val wdthId = creationState.document.addText("wdth")
+        val wghtId = creationState.document.addText("wght").id
+        val wdthId = creationState.document.addText("wdth").id
         context.loadText(wghtId, "wght")
         context.loadText(wdthId, "wdth")
 
@@ -1269,22 +1274,22 @@ class RemoteCanvasTest {
             }
 
         val properties = scope.entries.map { it.toCustomProperty(creationState) }
-        assertThat(properties[0].mDataType).isEqualTo(CustomProperty.INT_PROP)
-        assertThat(properties[1].mDataType).isEqualTo(CustomProperty.COLOR_PROP)
-        assertThat(properties[2].mDataType).isEqualTo(CustomProperty.FLOAT_PROP)
-        assertThat(properties[3].mDataType).isEqualTo(CustomProperty.STRING_PROP)
-        assertThat(properties[4].mDataType).isEqualTo(CustomProperty.INT_PROP)
-        assertThat(properties[5].mDataType).isEqualTo(CustomProperty.FLOAT_PROP)
-        assertThat(properties[6].mDataType).isEqualTo(CustomProperty.FLOAT_PROP)
-        assertThat(properties[7].mDataType).isEqualTo(CustomProperty.STRING_PROP)
-        assertThat(properties[8].mDataType).isEqualTo(CustomProperty.INT_PROP)
-        assertThat(properties[9].mDataType).isEqualTo(CustomProperty.COLOR_PROP)
-        assertThat(properties[10].mDataType).isEqualTo(CustomProperty.INT_PROP)
-        assertThat(properties[11].mDataType).isEqualTo(CustomProperty.FLOAT_RETURN)
-        assertThat(properties[12].mDataType).isEqualTo(CustomProperty.TEXT_RETURN)
-        assertThat(properties[13].mDataType).isEqualTo(CustomProperty.INT_RETURN)
-        assertThat(properties[14].mDataType).isEqualTo(CustomProperty.INT_RETURN)
-        assertThat(properties[15].mDataType).isEqualTo(CustomProperty.COLOR_RETURN)
+        assertThat(properties[0].type).isEqualTo(CustomProperty.INT_PROP)
+        assertThat(properties[1].type).isEqualTo(CustomProperty.COLOR_PROP)
+        assertThat(properties[2].type).isEqualTo(CustomProperty.FLOAT_PROP)
+        assertThat(properties[3].type).isEqualTo(CustomProperty.STRING_PROP)
+        assertThat(properties[4].type).isEqualTo(CustomProperty.INT_PROP)
+        assertThat(properties[5].type).isEqualTo(CustomProperty.FLOAT_PROP)
+        assertThat(properties[6].type).isEqualTo(CustomProperty.FLOAT_PROP)
+        assertThat(properties[7].type).isEqualTo(CustomProperty.STRING_PROP)
+        assertThat(properties[8].type).isEqualTo(CustomProperty.INT_PROP)
+        assertThat(properties[9].type).isEqualTo(CustomProperty.COLOR_PROP)
+        assertThat(properties[10].type).isEqualTo(CustomProperty.INT_PROP)
+        assertThat(properties[11].type).isEqualTo(CustomProperty.FLOAT_RETURN)
+        assertThat(properties[12].type).isEqualTo(CustomProperty.TEXT_RETURN)
+        assertThat(properties[13].type).isEqualTo(CustomProperty.INT_RETURN)
+        assertThat(properties[14].type).isEqualTo(CustomProperty.INT_RETURN)
+        assertThat(properties[15].type).isEqualTo(CustomProperty.COLOR_RETURN)
     }
 
     @Test
@@ -1544,7 +1549,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(optimizingBuffer.calls)
                 .containsExactly(
@@ -1640,7 +1645,7 @@ class RemoteCanvasTest {
 
             // 4. Flush operations to document
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // 5. Regression verification: verify that both outer matrixRestore operations are
             // preserved after returning from drawToOffscreenBitmap and are not inlined or absorbed
@@ -1770,7 +1775,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             val bitmap42Id = canvas.creationState.getId(remoteBitmap42)
             val bitmap43Id = canvas.creationState.getId(remoteBitmap43)
@@ -2541,7 +2546,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls).isEmpty()
         }
@@ -2559,7 +2564,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls).contains("addMatrixTranslate(20.0, 20.0)")
         }
@@ -2578,7 +2583,7 @@ class RemoteCanvasTest {
             canvas.drawRect(10f.rf, 10f.rf, 20f.rf, 20f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // Consecutive translations inside the preserved save block must fuse.
             assertThat(buffer.calls)
@@ -2601,7 +2606,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly("addPaint", "addDrawRect(0.0, 0.0, 50.0, 50.0)")
@@ -2616,7 +2621,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly("addPaint", "addDrawRect(0.0, 0.0, 50.0, 50.0)")
@@ -2631,7 +2636,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly("addPaint", "addDrawRect(0.0, 0.0, 50.0, 50.0)")
@@ -2646,7 +2651,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly("addPaint", "addDrawRect(0.0, 0.0, 50.0, 50.0)")
@@ -2667,7 +2672,7 @@ class RemoteCanvasTest {
             canvas.buffer.spanTreeRoot.operations.add(extraOp)
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // If only pendingSpanOps.last() is replaced during fusing, T1 (10.0, 20.0) is not
             // replaced
@@ -2689,7 +2694,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2709,7 +2714,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2729,7 +2734,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2750,7 +2755,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2771,7 +2776,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2800,7 +2805,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2827,7 +2832,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint()) // Draw C
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2849,7 +2854,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2868,7 +2873,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls).isEmpty()
         }
@@ -2883,7 +2888,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2907,7 +2912,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -2932,7 +2937,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // They should be fused into a single rotate.
             assertThat(buffer.calls)
@@ -2957,7 +2962,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // They should be fused into a single scale.
             assertThat(buffer.calls)
@@ -2982,7 +2987,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls).isEmpty()
         }
@@ -2997,7 +3002,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -3025,7 +3030,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls).isEmpty()
         }
@@ -3046,7 +3051,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -3082,7 +3087,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -3116,7 +3121,7 @@ class RemoteCanvasTest {
             canvas.drawText(str, 20f.rf, 20f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -3146,7 +3151,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls).isEmpty()
         }
@@ -3164,7 +3169,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls).isEmpty()
         }
@@ -3192,7 +3197,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -3228,7 +3233,7 @@ class RemoteCanvasTest {
             }
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             assertThat(buffer.calls)
                 .containsExactly(
@@ -3254,7 +3259,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // Scale(2, 3, 5, 5) -> Translate(10, 20) => Translate(20, 60) -> Scale(2, 3, 5, 5)
             assertThat(buffer.calls)
@@ -3275,7 +3280,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // Currently we do not fuse rotations with different pivots.
             assertThat(buffer.calls)
@@ -3298,7 +3303,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             val pxIdVal = Utils.idFromNan(canvas.creationState.getFloatId(varPx))
             val pyIdVal = Utils.idFromNan(canvas.creationState.getFloatId(varPy))
@@ -3324,11 +3329,11 @@ class RemoteCanvasTest {
             canvas.flush()
 
             // First encode
-            val bytes1 = canvas.document.encodeToByteArray()
+            val bytes1 = canvas.document.toByteArray()
             val calls1 = ArrayList(buffer.calls)
 
             // Second encode (without recording anything new)
-            val bytes2 = canvas.document.encodeToByteArray()
+            val bytes2 = canvas.document.toByteArray()
             val calls2 = ArrayList(buffer.calls)
 
             // The calls recorded in the buffer should be identical (no new calls appended)
@@ -3346,7 +3351,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // The save/restore should be inlined, but setTheme(42) must be preserved.
             assertThat(buffer.calls).containsExactly("setTheme(42)")
@@ -3362,7 +3367,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // The save/restore and translate should be completely discarded.
             // Only the drawRect (and its paint) should be present.
@@ -3381,7 +3386,7 @@ class RemoteCanvasTest {
             // No drawing after it, so it will be inlined.
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // The save/restore should be inlined.
             // The translate and clip should be in the correct order.
@@ -3409,7 +3414,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // First save scope must be preserved to contain translate(10, 10).
             // Second save scope is at the tail, so its save/restore is inlined.
@@ -3438,7 +3443,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // Even at the absolute tail of the root span, a save block containing a conditional
             // switch must not be inlined.
@@ -3466,7 +3471,7 @@ class RemoteCanvasTest {
             canvas.restore()
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // Inlined save scope flattens translate(10, 10), which fuses with root translate(5, 5).
             assertThat(buffer.calls)
@@ -3486,7 +3491,7 @@ class RemoteCanvasTest {
             canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // Skews should not be fused.
             assertThat(buffer.calls)
@@ -3510,7 +3515,7 @@ class RemoteCanvasTest {
             canvas.drawRect(10f.rf, 10f.rf, 15f.rf, 15f.rf, paint2) // Drawing after!
 
             canvas.flush()
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
 
             // The save/restore should be inlined because it contains no transforms or clips.
             assertThat(buffer.calls).doesNotContain("addMatrixSave")
@@ -3541,14 +3546,14 @@ class RemoteCanvasTest {
         val calls = ArrayList<String>()
         val testBuffer = OptimizingTestRemoteComposeBuffer(calls)
         val optimizingWriter = TestRemoteComposeWriter(RcPlatformProfiles.ANDROIDX, testBuffer)
-        localCreationState.document = optimizingWriter
+        localCreationState.document = RemoteComposeWriterAdapter(optimizingWriter)
 
         localCanvas.save()
         localCanvas.translate(10f.rf, 20f.rf)
         localCanvas.restore()
 
         localCanvas.flush()
-        localCanvas.document.encodeToByteArray()
+        localCanvas.document.toByteArray()
 
         // Since optimizations are off by default, we expect the save/restore and translate to be
         // preserved.
@@ -3635,7 +3640,7 @@ class RemoteCanvasTest {
             // 5. Call flush() and verify the recorded operations on the underlying buffer.
             canvas.flush()
             assertThat(canvas.saveCount).isEqualTo(1)
-            canvas.document.encodeToByteArray()
+            canvas.document.toByteArray()
         }
     }
 

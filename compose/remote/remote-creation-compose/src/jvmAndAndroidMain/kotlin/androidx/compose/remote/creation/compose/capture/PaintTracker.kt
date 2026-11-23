@@ -28,6 +28,10 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.combineFontSettings
+import androidx.compose.remote.document.MaybeVariableFloat
+import androidx.compose.remote.document.RemoteColorId
+import androidx.compose.remote.document.RemotePaintWriter
+import androidx.compose.remote.document.mvf
 
 /** Tracks the state of a [RemotePaint] to optimize serialization by only sending deltas. */
 internal class PaintTracker {
@@ -36,8 +40,8 @@ internal class PaintTracker {
     var remoteColor: RemoteColor? = null
     var colorValue: Int = -1
     var colorIsId: Boolean = false
-    var strokeWidth: Float = -1f
-    var textSize: Float = -1f
+    var strokeWidth: MaybeVariableFloat = (-1f).mvf
+    var textSize: MaybeVariableFloat = (-1f).mvf
     var strokeCap: Int = -1
     var strokeJoin: Int = -1
     var style: Int = -1
@@ -64,20 +68,21 @@ internal class PaintTracker {
     }
 
     private inline fun updateFloatIfChanged(
-        newValue: Float,
-        currentValue: Float,
-        update: (Float) -> Unit,
-    ): Float {
-        if (force || newValue.toRawBits() != currentValue.toRawBits()) {
+        newValue: MaybeVariableFloat,
+        currentValue: MaybeVariableFloat,
+        update: (MaybeVariableFloat) -> Unit,
+    ): MaybeVariableFloat {
+        if (force || newValue != currentValue) {
             update(newValue)
             isChanged = true
         }
         return newValue
     }
 
+    @Suppress("PrimitiveInCollection")
     fun updateWithPaint(
         newPaint: RemotePaint,
-        paintBundle: PaintBundle,
+        paintWriter: RemotePaintWriter,
         creationState: RemoteComposeCreationState,
     ) {
 
@@ -104,45 +109,45 @@ internal class PaintTracker {
             this.colorIsId = colorIsId
             this.remoteColor = targetRemoteColor
             if (colorIsId) {
-                paintBundle.setColorId(colorVal)
+                paintWriter.setColorId(RemoteColorId(colorVal))
             } else {
-                paintBundle.setColor(colorVal)
+                paintWriter.setColor(colorVal)
             }
             isChanged = true
         }
 
         strokeWidth =
             updateFloatIfChanged(
-                creationState.getFloatId(newPaint.strokeWidth),
+                creationState.getMaybeVariableFloat(newPaint.strokeWidth),
                 strokeWidth,
             ) {
-                paintBundle.setStrokeWidth(it)
+                paintWriter.setStrokeWidth(it)
             }
 
         val targetCap = newPaint.strokeCap.value
         updateIfChanged(targetCap, strokeCap) {
             strokeCap = targetCap
-            paintBundle.setStrokeCap(targetCap)
+            paintWriter.setStrokeCap(targetCap)
         }
 
         val targetJoin = newPaint.strokeJoin.value
         updateIfChanged(targetJoin, strokeJoin) {
             strokeJoin = targetJoin
-            paintBundle.setStrokeJoin(targetJoin)
+            paintWriter.setStrokeJoin(targetJoin)
         }
 
         val targetStyle = newPaint.style.value
         updateIfChanged(targetStyle, style) {
             style = targetStyle
-            paintBundle.setStyle(targetStyle)
+            paintWriter.setStyle(targetStyle)
         }
 
         textSize =
             updateFloatIfChanged(
-                creationState.getFloatId(newPaint.textSize),
+                creationState.getMaybeVariableFloat(newPaint.textSize),
                 textSize,
             ) {
-                paintBundle.setTextSize(it)
+                paintWriter.setTextSize(it)
             }
 
         val paintTypeface = newPaint.typeface
@@ -164,7 +169,7 @@ internal class PaintTracker {
             typefaceId = targetTypefaceId
             typefaceWeight = targetWeight
             typefaceIsItalic = targetIsItalic
-            paintBundle.setTextStyle(targetTypefaceId, targetWeight, targetIsItalic)
+            paintWriter.setTextStyle(targetTypefaceId, targetWeight, targetIsItalic)
             isChanged = true
         }
 
@@ -187,12 +192,12 @@ internal class PaintTracker {
                 if (fontAxisNames != null && fontAxisValues != null) {
                     val axisTags =
                         IntArray(fontAxisNames.size) { i ->
-                            creationState.document.addText(fontAxisNames[i])
+                            creationState.document.addText(fontAxisNames[i]).id
                         }
-                    paintBundle.setTextAxis(axisTags, fontAxisValues)
+                    paintWriter.setTextAxis(axisTags, fontAxisValues)
                 }
             } else {
-                paintBundle.setTextAxis(intArrayOf(), floatArrayOf())
+                paintWriter.setTextAxis(intArrayOf(), emptyList())
             }
         }
 
@@ -202,43 +207,45 @@ internal class PaintTracker {
             colorFilter = targetColorFilter
             if (targetColorFilter == null) {
                 if (wasSet || force) {
-                    paintBundle.clearColorFilter()
+                    paintWriter.clearColorFilter()
                 }
             } else {
-                targetColorFilter.applyToPaintBundle(paintBundle, creationState)
+                targetColorFilter.applyToPaint(paintWriter, creationState)
             }
         }
 
         val targetBlendMode = newPaint.blendMode
         updateIfChanged(targetBlendMode, blendMode) {
             blendMode = targetBlendMode
-            paintBundle.setBlendMode(targetBlendMode.value)
+            paintWriter.setBlendMode(targetBlendMode.value)
         }
 
         val targetFilterQuality = newPaint.filterQuality
         updateIfChanged(targetFilterQuality, filterQuality) {
             filterQuality = targetFilterQuality
-            paintBundle.setFilterBitmap(targetFilterQuality != RemoteFilterQuality.None)
+            paintWriter.setFilterBitmap(targetFilterQuality != RemoteFilterQuality.None)
         }
 
         val targetShader = newPaint.shader
         if (force || this.shader != targetShader) {
             this.shader = targetShader
             if (targetShader != null) {
-                targetShader.apply(creationState, paintBundle)
+                targetShader.apply(creationState, paintWriter)
                 val remoteMatrix3x3 = targetShader.remoteMatrix3x3
                 when {
                     !remoteMatrix3x3.isIdentity -> {
-                        paintBundle.setShaderMatrix(creationState.getFloatId(remoteMatrix3x3))
+                        paintWriter.setShaderMatrix(
+                            creationState.getMaybeVariableFloat(remoteMatrix3x3)
+                        )
                         usingShaderMatrix = true
                     }
                     usingShaderMatrix -> {
-                        paintBundle.setShaderMatrix(0f)
+                        paintWriter.setShaderMatrix(0f.mvf)
                         usingShaderMatrix = false
                     }
                 }
             } else {
-                paintBundle.setShader(0)
+                paintWriter.setShader(0)
             }
             isChanged = true
         }
@@ -261,20 +268,21 @@ internal class PaintTracker {
                     "serif" -> PaintBundle.FONT_TYPE_SERIF
                     "monospace" -> PaintBundle.FONT_TYPE_MONOSPACE
                     "default" -> PaintBundle.FONT_TYPE_DEFAULT
-                    else -> creationState.document.addText(paintTypeface.name)
+                    else -> creationState.document.addText(paintTypeface.name).id
                 }
             }
         }
     }
 
+    @Suppress("PrimitiveInCollection")
     private fun extractFontSettings(
         settings: List<RemoteFontVariation.Setting>?,
         creationState: RemoteComposeCreationState,
-    ): Pair<Array<String>?, FloatArray?> {
+    ): Pair<Array<String>?, List<MaybeVariableFloat>?> {
         val size = settings?.size ?: return Pair(null, null)
 
         val fontAxisNames = Array(size) { settings[it].axisName }
-        val fontAxisValues = FloatArray(size) { creationState.getFloatId(settings[it].value) }
+        val fontAxisValues = List(size) { creationState.getMaybeVariableFloat(settings[it].value) }
 
         return Pair(fontAxisNames, fontAxisValues)
     }

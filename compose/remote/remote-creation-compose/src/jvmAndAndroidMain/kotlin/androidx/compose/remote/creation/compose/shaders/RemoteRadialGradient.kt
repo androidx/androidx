@@ -18,7 +18,6 @@
 
 package androidx.compose.remote.creation.compose.shaders
 
-import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -27,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.util.fastMap
+import androidx.compose.remote.document.RemotePaintWriter
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
@@ -143,7 +143,7 @@ internal class RemoteRadialShader(
     val tileMode: RemoteTileMode,
 ) : RemoteShader() {
 
-    override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
+    override fun apply(creationState: RemoteComposeCreationState, paintWriter: RemotePaintWriter) {
         var mask = 0
         val colorsArray =
             IntArray(colors.size) { i ->
@@ -156,15 +156,16 @@ internal class RemoteRadialShader(
                     creationState.getId(color)
                 }
             }
-        val positionsArray = positions?.fastMap { creationState.getFloatId(it) }?.toFloatArray()
+        @Suppress("PrimitiveInCollection")
+        val stopsList = positions?.fastMap { creationState.getMaybeVariableFloat(it) }
 
-        paintBundle.setRadialGradient(
+        paintWriter.setRadialGradient(
             colorsArray,
             mask,
-            positionsArray,
-            creationState.getFloatId(centerX),
-            creationState.getFloatId(centerY),
-            creationState.getFloatId(radius),
+            stopsList,
+            creationState.getMaybeVariableFloat(centerX),
+            creationState.getMaybeVariableFloat(centerY),
+            creationState.getMaybeVariableFloat(radius),
             tileMode.value,
         )
     }
