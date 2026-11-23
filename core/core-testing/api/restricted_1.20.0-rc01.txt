@@ -1,0 +1,12 @@
+// Signature format: 5.0
+// - surface=restricted-non-atomic-group
+package androidx.core.testing.util {
+
+  public final class TestConsumer<T> implements androidx.core.util.Consumer<T> {
+    ctor public TestConsumer();
+    method public void accept(T t);
+    method public void assertValues(java.util.List<? extends T> values);
+  }
+
+}
+
