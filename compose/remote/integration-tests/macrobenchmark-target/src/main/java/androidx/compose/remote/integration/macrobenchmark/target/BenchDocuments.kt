@@ -17,13 +17,17 @@
 package androidx.compose.remote.integration.macrobenchmark.target
 
 import android.content.Context
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.withGlobalScope
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +39,15 @@ import kotlinx.coroutines.withContext
  */
 object BenchDocuments {
     private val memoryCache = HashMap<String, ByteArray>()
+
+    private val benchProfile =
+        Profile(
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            AndroidxRcPlatformServices(),
+        ) { creationDisplayInfo, profile, callback ->
+            RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+        }
 
     suspend fun getOrCapture(
         context: Context,
@@ -87,7 +100,7 @@ object BenchDocuments {
     ): ByteArray {
         if (!globalScope) {
             return captureSingleRemoteDocument(
-                    profile = RcPlatformProfiles.ANDROIDX,
+                    profile = benchProfile,
                     context = context,
                     content = content,
                 )
@@ -97,7 +110,7 @@ object BenchDocuments {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
         return try {
             captureSingleRemoteDocument(
-                    profile = RcPlatformProfiles.ANDROIDX,
+                    profile = benchProfile,
                     context = context,
                     content = content,
                 )

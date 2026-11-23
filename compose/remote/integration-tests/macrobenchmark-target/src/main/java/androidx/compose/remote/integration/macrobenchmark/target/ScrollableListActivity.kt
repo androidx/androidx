@@ -90,17 +90,21 @@ class ScrollableListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mode = intent.getStringExtra(BENCHMARK_MODE_ARG)
-        if (mode != null) {
-            RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = playerVariantFromMode(mode).second
-        }
         when (mode) {
             MODE_COMPOSE -> setContent { LiveCompose() }
             MODE_WEB_VIEW -> setWebViewContent()
             MODE_REMOTE_VIEW -> setRemoteViewsScrollContent()
-            MODE_EMBEDDED_PLAYER -> setContent { RemoteCompose(playerMode = MODE_EMBEDDED_PLAYER) }
-            MODE_JAVA_PLAYER -> setContent { RemoteCompose(playerMode = MODE_JAVA_PLAYER) }
-            MODE_VIEW_PLAYER -> setContent { RemoteCompose(playerMode = MODE_VIEW_PLAYER) }
-            else -> setContent { RemoteCompose() }
+            MODE_EMBEDDED_PLAYER,
+            MODE_JAVA_PLAYER,
+            MODE_VIEW_PLAYER -> {
+                RemoteComposePlayerFlags.isEmbeddedPlayerEnabled =
+                    playerVariantFromMode(mode).second
+                setContent { RemoteCompose(playerMode = mode) }
+            }
+            else -> {
+                RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = false
+                setContent { RemoteCompose() }
+            }
         }
     }
 

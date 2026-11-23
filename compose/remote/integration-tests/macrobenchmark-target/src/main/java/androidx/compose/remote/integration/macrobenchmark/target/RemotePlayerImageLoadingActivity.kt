@@ -150,6 +150,8 @@ class RemotePlayerImageLoadingActivity : ComponentActivity() {
                                     createNamedRemoteImageBitmap(
                                         name = "img_$i",
                                         url = "color://$hex",
+                                        width = 100,
+                                        height = 100,
                                     )
                                 }
                                 RemoteImage(
@@ -168,6 +170,8 @@ class RemotePlayerImageLoadingActivity : ComponentActivity() {
                                     createNamedRemoteImageBitmap(
                                         name = "img_$i",
                                         url = "color://$hex",
+                                        width = 100,
+                                        height = 100,
                                     )
                                 }
                                 RemoteImage(
