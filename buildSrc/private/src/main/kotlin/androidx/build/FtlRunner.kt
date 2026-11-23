@@ -122,6 +122,14 @@ abstract class FtlRunner : DefaultTask() {
     )
     abstract val excludeAnnotations: ListProperty<String>
 
+    @get:Optional
+    @get:Input
+    @get:Option(
+        option = "instrumentInPcc",
+        description = "true if Private Compute Core (PCC) sandbox testing should be used",
+    )
+    abstract val instrumentInPcc: Property<String>
+
     @get:Input abstract val device: ListProperty<String>
 
     @TaskAction
@@ -165,6 +173,22 @@ abstract class FtlRunner : DefaultTask() {
         val filters = filterList.joinToString(separator = ",")
 
         val shouldPull = pullScreenshots.isPresent && pullScreenshots.get() == "true"
+        val isPccRequested = instrumentInPcc.isPresent && instrumentInPcc.get() == "true"
+        val devices = device.get().ifEmpty { readApis() }
+        val instrumentInPcc =
+            if (isPccRequested) {
+                if (devices.isNotEmpty() && devices.all { it == PHYSICAL_PIXEL11_PRO }) {
+                    true
+                } else {
+                    logger.warn(
+                        "Ignoring --instrumentInPcc: PCC testing is only supported on " +
+                            "$PHYSICAL_PIXEL11_PRO, but found: ${devices.ifEmpty { listOf("none") }}"
+                    )
+                    false
+                }
+            } else {
+                false
+            }
 
         val needsBeta = shardCount.isPresent
         execOperations.printCommandAndExec {
@@ -199,6 +223,7 @@ abstract class FtlRunner : DefaultTask() {
                     if (shardCount.isPresent) shardCount.get() else null,
                     if (instrumentationArgs.isPresent) "--environment-variables" else null,
                     if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
+                    if (instrumentInPcc) "--instrument-in-private-compute-core=true" else null,
                 ) + getDeviceArguments()
             )
         }
@@ -231,6 +256,7 @@ private const val HWCOR = "HWCOR,version=27"
 private const val Q2Q = "q2q,version=31"
 
 private const val PHYSICAL_PIXEL9 = "tokay,version=34"
+private const val PHYSICAL_PIXEL11_PRO = "grizzly,version=37"
 private const val MEDIUM_PHONE_37 = "MediumPhone_ps16k.arm,version=37"
 private const val MEDIUM_PHONE_36 = "MediumPhone.arm,version=36"
 private const val MEDIUM_PHONE_35 = "MediumPhone.arm,version=35"
@@ -261,6 +287,7 @@ private val devicesToRunOn =
     listOf(
         FTL_ON_APIS_NAME to listOf(), // instead read devices via repeatable --api
         "ftlphysicalpixel9api34" to listOf(PHYSICAL_PIXEL9),
+        "ftlphysicalpixel11proapi37" to listOf(PHYSICAL_PIXEL11_PRO),
         "ftlmediumphoneapi37" to listOf(MEDIUM_PHONE_37),
         "ftlmediumphoneapi36" to listOf(MEDIUM_PHONE_36),
         "ftlmediumphoneapi35" to listOf(MEDIUM_PHONE_35),
