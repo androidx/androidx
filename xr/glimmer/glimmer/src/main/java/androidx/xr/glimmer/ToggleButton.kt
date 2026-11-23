@@ -350,7 +350,20 @@ public class ToggleButtonColors(
         return if (checked) focusedCheckedBackgroundColor else focusedBackgroundColor
     }
 
-    /** Returns a copy of this [ToggleButtonColors], optionally overriding some of the values. */
+    /**
+     * Returns a copy of this [ToggleButtonColors], optionally overriding some of the values.
+     *
+     * @param backgroundColor the background color when the button is unchecked and unfocused
+     * @param focusedBackgroundColor the background color when the button is unchecked and focused
+     * @param checkedBackgroundColor the background color when the button is checked and unfocused
+     * @param focusedCheckedBackgroundColor the background color when the button is checked and
+     *   focused
+     * @param contentColor the content color when the button is unchecked and unfocused
+     * @param focusedContentColor the content color when the button is unchecked and focused
+     * @param checkedContentColor the content color when the button is checked and unfocused
+     * @param focusedCheckedContentColor the content color when the button is checked and focused
+     * @return a copy of this instance
+     */
     public fun copy(
         backgroundColor: Color = this.backgroundColor,
         focusedBackgroundColor: Color = this.focusedBackgroundColor,

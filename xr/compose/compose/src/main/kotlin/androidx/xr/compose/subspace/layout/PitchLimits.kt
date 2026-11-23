@@ -79,6 +79,12 @@ public value class PitchLimits internal constructor(private val packedValue: Lon
     /**
      * Returns a copy of this PitchLimits instance optionally overriding the minimumPitch or
      * maximumPitch parameter.
+     *
+     * @param minimumPitch The minimum allowed pitch angle in degrees. Must be in the range
+     *   [-90.0, 90.0].
+     * @param maximumPitch The maximum allowed pitch angle in degrees. Must be in the range
+     *   [-90.0, 90.0].
+     * @return a copy of this instance
      */
     public fun copy(
         @FloatRange(from = -90.0, to = 90.0) minimumPitch: Float = this.minimumPitch,

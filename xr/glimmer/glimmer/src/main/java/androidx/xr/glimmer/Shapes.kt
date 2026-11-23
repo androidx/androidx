@@ -41,7 +41,18 @@ public class Shapes(
     public val large: Shape = CircleShape,
 ) {
 
-    /** Returns a copy of this Shapes, optionally overriding some of the values. */
+    /**
+     * Returns a copy of this Shapes, optionally overriding some of the values.
+     *
+     * @param small a shape with 4 same-sized corners whose size are smaller than [medium]. This
+     *   shape is used for components such as cards.
+     * @param medium a shape with 4 same-sized corners whose size are bigger than [small] and
+     *   smaller than [large]. This is the most commonly used shape, and is used in [surface] by
+     *   default.
+     * @param large a shape with 4 fully rounded corners. This shape is used for components such as
+     *   buttons.
+     * @return a copy of this instance
+     */
     public fun copy(
         small: Shape = this.small,
         medium: Shape = this.medium,

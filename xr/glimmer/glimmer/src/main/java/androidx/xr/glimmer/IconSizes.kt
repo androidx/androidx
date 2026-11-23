@@ -39,7 +39,14 @@ public class IconSizes(
     public val large: Dp = 48.dp,
 ) {
 
-    /** Returns a copy of this IconSizes, optionally overriding some of the values. */
+    /**
+     * Returns a copy of this IconSizes, optionally overriding some of the values.
+     *
+     * @param small the size of a small icon.
+     * @param medium the size of a medium icon. This is the default icon size.
+     * @param large the size of a large icon.
+     * @return a copy of this instance
+     */
     public fun copy(
         small: Dp = this.small,
         medium: Dp = this.medium,

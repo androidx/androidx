@@ -97,7 +97,25 @@ private constructor(
         caption = caption.withDefaultFontFamily(defaultFontFamily),
     )
 
-    /** Returns a copy of this Typography, optionally overriding some of the values. */
+    /**
+     * Returns a copy of this Typography, optionally overriding some of the values.
+     *
+     * @param titleLarge the largest title, typically reserved for emphasized text that is shorter
+     *   in length.
+     * @param titleMedium the second largest title, typically reserved for emphasized text that is
+     *   shorter in length.
+     * @param titleSmall the smallest title, typically reserved for emphasized text that is shorter
+     *   in length.
+     * @param bodyLarge the largest body, typically used for long-form writing as it works well for
+     *   small text sizes.
+     * @param bodyMedium the second largest body, and is typically used for long-form writing as it
+     *   works well for small text sizes.
+     * @param bodySmall the smallest body, typically used for long-form writing as it works well for
+     *   small text sizes.
+     * @param caption the smallest text style, should be used sparingly for use-cases where it is
+     *   not essential to the user experience.
+     * @return a copy of this instance
+     */
     public fun copy(
         titleLarge: TextStyle = this.titleLarge,
         titleMedium: TextStyle = this.titleMedium,

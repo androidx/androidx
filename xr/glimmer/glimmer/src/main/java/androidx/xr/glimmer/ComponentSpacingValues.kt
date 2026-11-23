@@ -48,6 +48,13 @@ public class ComponentSpacingValues(
 
     /**
      * Returns a copy of this [ComponentSpacingValues], optionally overriding some of the values.
+     *
+     * @param extraSmall The extra small spacing, typically used for very tight visual coupling
+     * @param small The small spacing, typically used for close relationships within components
+     * @param medium The medium spacing, typically used as the standard default padding
+     * @param large The large spacing, used for main structural padding or looser component grouping
+     * @param extraLarge The extra large spacing, used to separate distinct content blocks
+     * @return a copy of this instance
      */
     public fun copy(
         extraSmall: Dp = this.extraSmall,
