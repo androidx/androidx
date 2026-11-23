@@ -303,6 +303,37 @@ class SnapshotFlowTests {
         collector3.cancel()
     }
 
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    @Test
+    fun sharingOneSnapshotFlowManager_firstReadsNoStateObjects() = runTest {
+        val state = mutableStateOf(false)
+
+        val manager = SnapshotFlowManager()
+
+        var result1 = -1
+        val collector1 = snapshotFlow(manager) { 1 }.onEach { result1 = it }.launchIn(this)
+
+        // Ensure collector1 runs its block (reading zero state objects) before collector2
+        // subscribes and promotes the manager.
+        yield()
+
+        val result2 = mutableListOf<Boolean>()
+        val collector2 =
+            snapshotFlow(manager) { state.value }.onEach { result2.add(it) }.launchIn(this)
+
+        yield()
+
+        state.value = true
+        Snapshot.sendApplyNotifications()
+        yield()
+
+        assertEquals(1, result1)
+        assertEquals(listOf(false, true), result2)
+
+        collector1.cancel()
+        collector2.cancel()
+    }
+
     @Test
     fun twoSnapshotFlowsWithDistinctManagers() = runTest {
         val state = mutableStateOf(false)
