@@ -24,20 +24,20 @@ public class DirectoryInfo(
     /** Package name of the directory application. */
     public val packageName: String,
     /** Content provider authority (or GMS identifier) of the directory. */
-    public val authority: String,
+    public val providerAuthority: String,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DirectoryInfo) return false
-        return packageName == other.packageName && authority == other.authority
+        return packageName == other.packageName && providerAuthority == other.providerAuthority
     }
 
     override fun hashCode(): Int {
         var result = packageName.hashCode()
-        result = 31 * result + authority.hashCode()
+        result = 31 * result + providerAuthority.hashCode()
         return result
     }
 
     override fun toString(): String =
-        "DirectoryInfo(packageName=$packageName, authority=$authority)"
+        "DirectoryInfo(packageName=$packageName, providerAuthority=$providerAuthority)"
 }

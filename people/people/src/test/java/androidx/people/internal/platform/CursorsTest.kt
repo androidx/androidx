@@ -21,6 +21,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.people.Capability
 import androidx.people.Criterion
+import androidx.people.DirectoryInfo
 import androidx.people.Group
 import androidx.people.GroupId
 import androidx.people.GroupMatch
@@ -301,8 +302,11 @@ class CursorsTest {
 
         val result = cursor.use { it.toDirectories() }
 
-        assertThat(result.map { it.packageName })
-            .containsExactly("com.example.voip", "com.example.chat")
+        assertThat(result)
+            .containsExactly(
+                DirectoryInfo("com.example.voip", "com.example.voip.people"),
+                DirectoryInfo("com.example.chat", "com.example.chat.people"),
+            )
             .inOrder()
     }
 

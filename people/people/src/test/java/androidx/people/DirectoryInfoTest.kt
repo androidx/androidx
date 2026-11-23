@@ -26,10 +26,14 @@ class DirectoryInfoTest {
 
     @Test
     fun properties_whenConstructed_exposeGivenValues() {
-        val directory = DirectoryInfo("com.example.voip", "com.example.voip.people")
+        val directory =
+            DirectoryInfo(
+                packageName = "com.example.voip",
+                providerAuthority = "com.example.voip.people",
+            )
 
         assertThat(directory.packageName).isEqualTo("com.example.voip")
-        assertThat(directory.authority).isEqualTo("com.example.voip.people")
+        assertThat(directory.providerAuthority).isEqualTo("com.example.voip.people")
     }
 
     @Test
@@ -44,8 +48,20 @@ class DirectoryInfoTest {
     @Test
     fun equals_withDifferentValues_returnsFalse() {
         val directory = DirectoryInfo("com.example.voip", "com.example.voip.people")
-        val other = DirectoryInfo("com.example.chat", "com.example.voip.people")
 
-        assertThat(other).isNotEqualTo(directory)
+        assertThat(DirectoryInfo("com.example.chat", "com.example.voip.people"))
+            .isNotEqualTo(directory)
+        assertThat(DirectoryInfo("com.example.voip", "com.example.voip.other"))
+            .isNotEqualTo(directory)
+    }
+
+    @Test
+    fun toString_includesProperties() {
+        val directory = DirectoryInfo("com.example.voip", "com.example.voip.people")
+
+        assertThat(directory.toString())
+            .isEqualTo(
+                "DirectoryInfo(packageName=com.example.voip, providerAuthority=com.example.voip.people)"
+            )
     }
 }

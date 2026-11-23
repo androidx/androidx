@@ -214,7 +214,12 @@ internal fun Cursor.unhandledGroupQuery(): GroupQuery =
 internal fun Cursor.toDirectories(): List<DirectoryInfo> {
     val packageIndex = getColumnIndexOrThrow(Directory.PACKAGE_NAME)
     val authorityIndex = getColumnIndexOrThrow(Directory.DIRECTORY_AUTHORITY)
-    return readRows { DirectoryInfo(getString(packageIndex), getString(authorityIndex)) }
+    return readRows {
+        DirectoryInfo(
+            packageName = getString(packageIndex),
+            providerAuthority = getString(authorityIndex),
+        )
+    }
 }
 
 /** Reads every row of this cursor with [readRow]. */
