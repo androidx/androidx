@@ -44,6 +44,59 @@ class PresentationModeFlagsTest {
     }
 
     @Test
+    fun hasPresentationMode_presentMode_returnsTrue() {
+        val flags = PresentationModeFlags(setOf(PresentationMode.VISUALS_ON))
+
+        assertThat(flags.hasPresentationMode(PresentationMode.VISUALS_ON)).isTrue()
+    }
+
+    @Test
+    fun hasPresentationMode_missingMode_returnsFalse() {
+        val flags = PresentationModeFlags(setOf(PresentationMode.VISUALS_ON))
+
+        assertThat(flags.hasPresentationMode(PresentationMode.AUDIO_ON)).isFalse()
+    }
+
+    @Test
+    fun hasPresentationModeSet_allModesPresent_returnsTrue() {
+        val flags =
+            PresentationModeFlags(setOf(PresentationMode.VISUALS_ON, PresentationMode.AUDIO_ON))
+
+        assertThat(
+                flags.hasPresentationMode(
+                    setOf(PresentationMode.VISUALS_ON, PresentationMode.AUDIO_ON)
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun hasPresentationModeSet_someModesMissing_returnsFalse() {
+        val flags = PresentationModeFlags(setOf(PresentationMode.VISUALS_ON))
+
+        assertThat(
+                flags.hasPresentationMode(
+                    setOf(PresentationMode.VISUALS_ON, PresentationMode.AUDIO_ON)
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun hasPresentationModeSet_noActiveModes_returnsFalse() {
+        val flags = PresentationModeFlags(emptySet())
+
+        assertThat(flags.hasPresentationMode(setOf(PresentationMode.AUDIO_ON))).isFalse()
+    }
+
+    @Test
+    fun hasPresentationModeSet_emptySet_returnsTrue() {
+        val flags = PresentationModeFlags(emptySet())
+
+        assertThat(flags.hasPresentationMode(emptySet())).isTrue()
+    }
+
+    @Test
     fun toString_listsModes() {
         val flags =
             PresentationModeFlags(setOf(PresentationMode.VISUALS_ON, PresentationMode.AUDIO_ON))

@@ -215,7 +215,13 @@ class ProjectedDisplayControllerTest {
                 assertThat(presentationModes2).isNotNull()
                 assertThat(presentationModes2?.hasPresentationMode(PresentationMode.VISUALS_ON))
                     .isTrue()
-                assertThat(presentationModes1?.hasPresentationMode(PresentationMode.AUDIO_ON))
+                assertThat(presentationModes2?.hasPresentationMode(PresentationMode.AUDIO_ON))
+                    .isTrue()
+                assertThat(
+                        presentationModes2?.hasPresentationMode(
+                            setOf(PresentationMode.VISUALS_ON, PresentationMode.AUDIO_ON)
+                        )
+                    )
                     .isTrue()
 
                 // Remove the second callback.
@@ -235,7 +241,7 @@ class ProjectedDisplayControllerTest {
                 assertThat(presentationModes2).isNotNull()
                 assertThat(presentationModes2?.hasPresentationMode(PresentationMode.VISUALS_ON))
                     .isTrue()
-                assertThat(presentationModes1?.hasPresentationMode(PresentationMode.AUDIO_ON))
+                assertThat(presentationModes2?.hasPresentationMode(PresentationMode.AUDIO_ON))
                     .isTrue()
             }
         }
