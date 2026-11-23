@@ -1056,6 +1056,23 @@ class BinaryCompatibilityCheckerTest {
     }
 
     @Test
+    fun functionParamListToVararg() {
+        val beforeText =
+            """
+        final fun my.lib/myFun(kotlin/IntArray): kotlin/IntArray // my.lib/myFun|myFun(kotlin.IntArray){}[0]
+        """
+        val afterText =
+            """
+        final fun my.lib/myFun(kotlin/IntArray...): kotlin/IntArray // my.lib/myFun|myFun(kotlin.IntArray...){}[0]
+        """
+        val expectedErrorMessages =
+            listOf(
+                "isVararg changed from false to true for parameter 0: kotlin/IntArray of my.lib/myFun"
+            )
+        testBeforeAndAfterIsIncompatible(beforeText, afterText, expectedErrorMessages)
+    }
+
+    @Test
     fun addValueParam() {
         val beforeText =
             """
