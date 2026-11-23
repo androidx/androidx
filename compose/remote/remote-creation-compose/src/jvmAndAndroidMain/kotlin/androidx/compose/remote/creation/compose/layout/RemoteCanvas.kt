@@ -701,8 +701,8 @@ public class RemoteCanvas(
                     pathId(),
                     start,
                     end,
-                    yAdj,
-                    glyphSpacing,
+                    yAdj.mvf,
+                    glyphSpacing.mvf,
                 )
             }
         buffer.addRoots(op, text, bitmapFont)

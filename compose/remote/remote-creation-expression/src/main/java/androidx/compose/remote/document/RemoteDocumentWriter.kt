@@ -1488,8 +1488,8 @@ public interface RemoteDocumentWriter {
         pathId: RemotePathId,
         start: Int,
         end: Int,
-        yAdj: Float,
-        glyphSpacing: Float = 0f,
+        yAdj: MaybeVariableFloat,
+        glyphSpacing: MaybeVariableFloat = 0f.mvf,
     )
 
     /**

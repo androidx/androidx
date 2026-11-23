@@ -774,8 +774,8 @@ public class RemoteComposeWriterAdapter(public val delegate: RemoteComposeWriter
         pathId: RemotePathId,
         start: Int,
         end: Int,
-        yAdj: Float,
-        glyphSpacing: Float,
+        yAdj: MaybeVariableFloat,
+        glyphSpacing: MaybeVariableFloat,
     ) {
         delegate.drawBitmapFontTextRunOnPath(
             textId.id,
@@ -783,8 +783,8 @@ public class RemoteComposeWriterAdapter(public val delegate: RemoteComposeWriter
             pathId.id,
             start,
             end,
-            yAdj,
-            glyphSpacing,
+            yAdj.floatValue,
+            glyphSpacing.floatValue,
         )
     }
 
