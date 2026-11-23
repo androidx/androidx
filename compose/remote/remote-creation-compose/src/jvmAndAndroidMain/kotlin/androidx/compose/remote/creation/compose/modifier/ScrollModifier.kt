@@ -105,6 +105,7 @@ internal data class ScrollModifier(val direction: Int, val state: RemoteScrollSt
  * @return The modified [RemoteModifier].
  * @see rememberRemoteScrollState
  */
+@Stable
 public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifier {
     return this.then(ClipModifier()).then(ScrollModifier(CoreScrollModifier.VERTICAL, state))
 }
@@ -122,6 +123,7 @@ public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifi
  * @return The modified [RemoteModifier].
  * @see rememberRemoteScrollState
  */
+@Stable
 public fun RemoteModifier.horizontalScroll(state: RemoteScrollState): RemoteModifier {
     return this.then(ClipModifier()).then(ScrollModifier(CoreScrollModifier.HORIZONTAL, state))
 }

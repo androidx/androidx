@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.runtime.Stable
 
 /**
  * Scale the contents of the composable by the following scale factors along the horizontal and
@@ -32,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * @return a [RemoteModifier] that scales content by [scaleX] and [scaleY]
  * @see graphicsLayer
  */
+@Stable
 public fun RemoteModifier.scale(scaleX: RemoteFloat, scaleY: RemoteFloat): RemoteModifier =
     graphicsLayer(scaleX = scaleX, scaleY = scaleY, shape = RemoteRectangleShape)
 
@@ -45,5 +47,6 @@ public fun RemoteModifier.scale(scaleX: RemoteFloat, scaleY: RemoteFloat): Remot
  * @return a [RemoteModifier] that uniformly scales content by [scale]
  * @see graphicsLayer
  */
+@Stable
 public fun RemoteModifier.scale(scale: RemoteFloat): RemoteModifier =
     scale(scaleX = scale, scaleY = scale)

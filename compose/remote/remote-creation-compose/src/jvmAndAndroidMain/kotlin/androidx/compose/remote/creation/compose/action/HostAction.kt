@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteValue
+import androidx.compose.runtime.Stable
 
 /**
  * Creates a [RemoteAction] that triggers a named action on the host.
@@ -45,6 +46,7 @@ import androidx.compose.remote.creation.compose.state.RemoteValue
  * @param name The name of the action.
  * @return a [RemoteAction] that triggers the named [name] action on the host
  */
+@Stable
 public fun hostAction(name: RemoteString): RemoteAction = HostAction(name, HostAction.Type.NONE)
 
 /**
@@ -54,6 +56,7 @@ public fun hostAction(name: RemoteString): RemoteAction = HostAction(name, HostA
  * @param value The float value to pass with the action, delivered to the host as a [Float].
  * @return a [RemoteAction] that triggers the named [name] action with [value] on the host
  */
+@Stable
 public fun hostAction(name: RemoteString, value: RemoteFloat): RemoteAction =
     HostAction(name, value)
 
@@ -64,6 +67,7 @@ public fun hostAction(name: RemoteString, value: RemoteFloat): RemoteAction =
  * @param value The int value to pass with the action, delivered to the host as an [Int].
  * @return a [RemoteAction] that triggers the named [name] action with [value] on the host
  */
+@Stable
 public fun hostAction(name: RemoteString, value: RemoteInt): RemoteAction = HostAction(name, value)
 
 /**
@@ -73,6 +77,7 @@ public fun hostAction(name: RemoteString, value: RemoteInt): RemoteAction = Host
  * @param value The string value to pass with the action, delivered to the host as a [String].
  * @return a [RemoteAction] that triggers the named [name] action with [value] on the host
  */
+@Stable
 public fun hostAction(name: RemoteString, value: RemoteString): RemoteAction =
     HostAction(name, value)
 
@@ -86,6 +91,7 @@ public fun hostAction(name: RemoteString, value: RemoteString): RemoteAction =
  * @param value The boolean value to pass with the action.
  * @return a [RemoteAction] that triggers the named [name] action with [value] on the host
  */
+@Stable
 public fun hostAction(name: RemoteString, value: RemoteBoolean): RemoteAction =
     HostAction(name, value.toRemoteInt())
 
@@ -110,13 +116,14 @@ public fun hostAction(name: RemoteString, value: RemoteBoolean): RemoteAction =
  *   from touch positions or other remote state, and is resolved when the action runs.
  * @return a [RemoteAction] that triggers the host action for [id]
  */
+@Stable
 public fun hostAction(id: Int, metadata: RemoteString? = null): RemoteAction {
     require(id != -1) { "-1 is the default component id and cannot be used as a host action id" }
     return HostIdAction(id, metadata)
 }
 
 /** Run the named host action when invoked. */
-internal class HostAction(
+internal data class HostAction(
     public val name: RemoteString,
     public val type: Type = Type.NONE,
     public val value: RemoteValue<*>? = null,
@@ -158,7 +165,7 @@ internal class HostAction(
 }
 
 /** Run the host action with a stable integer [id], and optional [metadata], when invoked. */
-internal class HostIdAction(public val id: Int, public val metadata: RemoteString? = null) :
+internal data class HostIdAction(public val id: Int, public val metadata: RemoteString? = null) :
     RemoteAction {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -21,7 +21,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
-internal class CollapsiblePriorityModifier(
+internal data class CollapsiblePriorityModifier(
     val orientation: Int,
     val priority: RemoteFloat,
 ) : RemoteModifier.Element {

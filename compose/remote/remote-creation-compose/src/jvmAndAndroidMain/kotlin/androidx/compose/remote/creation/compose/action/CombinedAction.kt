@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.action
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.runtime.Stable
 
 /**
  * Creates an action that's a composite of multiple actions.
@@ -29,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
  * @param actions The actions to combine.
  * @return a [RemoteAction] that runs all [actions] in order
  */
+@Stable
 public fun combinedAction(vararg actions: RemoteAction): RemoteAction = CombinedAction(*actions)
 
 internal class CombinedAction(public vararg val actions: RemoteAction) : RemoteAction {
@@ -40,4 +42,14 @@ internal class CombinedAction(public vararg val actions: RemoteAction) : RemoteA
             }
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CombinedAction) return false
+        return actions.contentEquals(other.actions)
+    }
+
+    override fun hashCode(): Int = actions.contentHashCode()
+
+    override fun toString(): String = "CombinedAction(actions=${actions.contentToString()})"
 }

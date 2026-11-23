@@ -40,7 +40,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
  *   beginning again.
  * @param velocity The speed of the animation in dps / second.
  */
-internal class MarqueeModifier(
+internal data class MarqueeModifier(
     val iterations: Int,
     val animationMode: Int,
     val repeatDelayMillis: Float,

@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
 /** Visibility states for a remote component. */
 public enum class RemoteVisibility(internal val value: Int) {
@@ -36,7 +37,7 @@ public enum class RemoteVisibility(internal val value: Int) {
     Gone(Component.Visibility.GONE),
 }
 
-internal class VisibilityModifier(public val visible: RemoteInt) : RemoteModifier.Element {
+internal data class VisibilityModifier(public val visible: RemoteInt) : RemoteModifier.Element {
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
         with(this as InternalRemoteStateScope) {
             androidx.compose.remote.creation.modifiers.VisibilityModifier(visible.id)
@@ -49,6 +50,7 @@ internal class VisibilityModifier(public val visible: RemoteInt) : RemoteModifie
  * @param visible A [RemoteEnum] of [RemoteVisibility] indicating the visibility state.
  * @return a [RemoteModifier] that sets visibility to [visible]
  */
+@Stable
 public fun RemoteModifier.visibility(visible: RemoteEnum<RemoteVisibility>): RemoteModifier =
     visibility(visible.toRemoteInt { it.value.ri })
 
@@ -59,5 +61,6 @@ public fun RemoteModifier.visibility(visible: RemoteEnum<RemoteVisibility>): Rem
  *   [RemoteVisibility.Invisible], or [RemoteVisibility.Gone]).
  * @return a [RemoteModifier] that sets visibility to [visible]
  */
+@Stable
 public fun RemoteModifier.visibility(visible: RemoteInt): RemoteModifier =
     then(VisibilityModifier(visible))

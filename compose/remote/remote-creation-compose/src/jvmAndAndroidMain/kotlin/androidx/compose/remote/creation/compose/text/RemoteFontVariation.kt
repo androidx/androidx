@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.text
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /** Font variation settings for variable fonts, with axis values as [RemoteFloat]s. */
 public object RemoteFontVariation {
@@ -129,7 +130,7 @@ public object RemoteFontVariation {
      *   `700.rf` for bold), or a dynamic [RemoteFloat] expression.
      * @return A [Setting] for the `wght` OpenType variation axis.
      */
-    public fun weight(weight: RemoteFloat): Setting = Setting("wght", weight)
+    @Stable public fun weight(weight: RemoteFloat): Setting = Setting("wght", weight)
 
     /**
      * Creates a font width (`wdth`) variation [Setting].
@@ -138,7 +139,7 @@ public object RemoteFontVariation {
      *   width), or a dynamic [RemoteFloat] expression.
      * @return A [Setting] for the `wdth` OpenType variation axis.
      */
-    public fun width(width: RemoteFloat): Setting = Setting("wdth", width)
+    @Stable public fun width(width: RemoteFloat): Setting = Setting("wdth", width)
 
     /**
      * Creates a font slant (`slnt`) variation [Setting].
@@ -147,7 +148,7 @@ public object RemoteFontVariation {
      *   or a dynamic [RemoteFloat] expression.
      * @return A [Setting] for the `slnt` OpenType variation axis.
      */
-    public fun slant(slant: RemoteFloat): Setting = Setting("slnt", slant)
+    @Stable public fun slant(slant: RemoteFloat): Setting = Setting("slnt", slant)
 
     /**
      * Creates a font optical size (`opsz`) variation [Setting].
@@ -156,6 +157,7 @@ public object RemoteFontVariation {
      *   [RemoteFloat] expression.
      * @return A [Setting] for the `opsz` OpenType variation axis.
      */
+    @Stable
     public fun opticalSizing(opticalSize: RemoteFloat): Setting = Setting("opsz", opticalSize)
 
     /**
@@ -165,5 +167,5 @@ public object RemoteFontVariation {
      *   dynamic [RemoteFloat] expression.
      * @return A [Setting] for the `GRAD` OpenType variation axis.
      */
-    public fun grade(grade: RemoteFloat): Setting = Setting("GRAD", grade)
+    @Stable public fun grade(grade: RemoteFloat): Setting = Setting("GRAD", grade)
 }

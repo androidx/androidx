@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
  * This modifier can be used to align a layout with other layouts in the same parent by their
  * baselines.
  */
-internal class AlignByBaselineModifier() : RemoteModifier.Element {
+internal data object AlignByBaselineModifier : RemoteModifier.Element {
 
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return AlignByModifier(FIRST_BASELINE)

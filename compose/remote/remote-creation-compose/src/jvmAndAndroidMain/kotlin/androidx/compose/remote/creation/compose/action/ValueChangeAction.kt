@@ -35,9 +35,10 @@ import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.arrayForCreationState
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.isLiteral
+import androidx.compose.runtime.Stable
 
 /** Update a value on click. */
-internal class ValueChangeAction<T>(
+internal data class ValueChangeAction<T>(
     public val remoteValue: MutableRemoteValue<T>,
     public val updatedValue: RemoteValue<T>,
 ) : RemoteAction {
@@ -69,7 +70,7 @@ internal class ValueChangeAction<T>(
         }
 }
 
-internal class ValueFloatChangeAction(
+internal data class ValueFloatChangeAction(
     public val value: MutableRemoteFloat,
     public val updatedValue: Float,
 ) : RemoteAction {
@@ -89,6 +90,7 @@ internal class ValueFloatChangeAction(
  * @param updatedValue The new remote value to apply.
  * @return An [RemoteAction] representing the value change.
  */
+@Stable
 public fun <T> valueChangeAction(
     remoteValue: MutableRemoteValue<T>,
     updatedValue: RemoteValue<T>,

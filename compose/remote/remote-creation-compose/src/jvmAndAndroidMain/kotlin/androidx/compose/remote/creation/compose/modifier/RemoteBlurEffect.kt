@@ -24,4 +24,22 @@ public class RemoteBlurEffect(
     public val radiusX: Float,
     public val radiusY: Float = radiusX,
     public val edgeTreatment: RemoteTileMode = RemoteTileMode.Clamp,
-) : RemoteRenderEffect()
+) : RemoteRenderEffect() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteBlurEffect) return false
+        return radiusX == other.radiusX &&
+            radiusY == other.radiusY &&
+            edgeTreatment == other.edgeTreatment
+    }
+
+    override fun hashCode(): Int {
+        var result = radiusX.hashCode()
+        result = 31 * result + radiusY.hashCode()
+        result = 31 * result + edgeTreatment.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "RemoteBlurEffect(radiusX=$radiusX, radiusY=$radiusY, edgeTreatment=$edgeTreatment)"
+}

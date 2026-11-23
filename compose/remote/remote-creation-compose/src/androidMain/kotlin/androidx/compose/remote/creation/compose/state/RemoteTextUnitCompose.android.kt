@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.sp
  * @return a [RemoteTextUnit] with the given [value] and [textUnitType]
  * @throws IllegalArgumentException if [textUnitType] is not [TextUnitType.Sp].
  */
+@Stable
 public fun RemoteTextUnit(
     value: RemoteFloat,
     textUnitType: TextUnitType,
@@ -53,6 +55,7 @@ public fun RemoteTextUnit(
  * @return the constant [TextUnit] value of this [RemoteTextUnit]
  * @throws IllegalStateException if this state does not have a constant value.
  */
+@Stable
 public fun RemoteTextUnit.toConstantTextUnit(): TextUnit =
     when (type) {
         RemoteTextUnitType.Sp -> constantValue.sp
@@ -63,6 +66,7 @@ public fun RemoteTextUnit.toConstantTextUnit(): TextUnit =
  *
  * @return the constant [TextUnit] value of this [RemoteTextUnit], or `null` if it is dynamic
  */
+@Stable
 public fun RemoteTextUnit.toConstantTextUnitOrNull(): TextUnit? {
     val constValue = constantValueOrNull ?: return null
     return when (type) {
@@ -75,6 +79,7 @@ public fun RemoteTextUnit.toConstantTextUnitOrNull(): TextUnit? {
  *
  * @return a [RemoteTextUnit] representing this [TextUnit]
  */
+@Stable
 public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit {
     val unitType =
         when (type) {
@@ -89,6 +94,7 @@ public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit {
  *
  * @return a [RemoteTextUnit] in SP converted from this [Dp]
  */
+@Stable
 public fun Dp.toRsp(): RemoteTextUnit {
     check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
     return value.rdp.toRsp()

@@ -33,8 +33,9 @@ import androidx.compose.remote.creation.modifiers.ClipModifier as CoreClipModifi
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.RectShape as CoreRectShape
 import androidx.compose.remote.creation.modifiers.RoundedRectShape as CoreRoundedRectShape
+import androidx.compose.runtime.Stable
 
-internal class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
+internal data class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
     RemoteModifier.Element {
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
         with(this as InternalRemoteStateScope) {
@@ -92,5 +93,6 @@ internal class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
  * @param shape The [RemoteShape] to clip the content to.
  * @return a [RemoteModifier] that clips the content to [shape]
  */
+@Stable
 public fun RemoteModifier.clip(shape: RemoteShape = RemoteRectangleShape): RemoteModifier =
     then(ClipModifier(shape))

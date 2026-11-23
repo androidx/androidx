@@ -16,17 +16,17 @@ package androidx.compose.remote.creation.compose {
 package androidx.compose.remote.creation.compose.action {
 
   public final class CombinedActionKt {
-    method public static androidx.compose.remote.creation.compose.action.RemoteAction combinedAction(androidx.compose.remote.creation.compose.action.RemoteAction... actions);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.action.RemoteAction combinedAction(androidx.compose.remote.creation.compose.action.RemoteAction... actions);
   }
 
   public final class HostActionKt {
-    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name);
-    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteBoolean value);
-    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteFloat value);
-    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteInt value);
-    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteString value);
-    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(int id, optional androidx.compose.remote.creation.compose.state.RemoteString? metadata);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.action.RemoteAction! hostAction$default(int, androidx.compose.remote.creation.compose.state.RemoteString!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteBoolean value);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteFloat value);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteInt value);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteString value);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(int id, optional androidx.compose.remote.creation.compose.state.RemoteString? metadata);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.action.RemoteAction! hostAction$default(int, androidx.compose.remote.creation.compose.state.RemoteString!, int, Object!);
   }
 
   public final class PendingIntentActionKt {
@@ -44,7 +44,7 @@ package androidx.compose.remote.creation.compose.action {
   }
 
   public final class ValueChangeActionKt {
-    method public static <T> androidx.compose.remote.creation.compose.action.RemoteAction valueChangeAction(androidx.compose.remote.creation.compose.state.MutableRemoteValue<T> remoteValue, androidx.compose.remote.creation.compose.state.RemoteValue<T> updatedValue);
+    method @androidx.compose.runtime.Stable public static <T> androidx.compose.remote.creation.compose.action.RemoteAction valueChangeAction(androidx.compose.remote.creation.compose.state.MutableRemoteValue<T> remoteValue, androidx.compose.remote.creation.compose.state.RemoteValue<T> updatedValue);
   }
 
 }
@@ -256,12 +256,12 @@ package androidx.compose.remote.creation.compose.layout {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical getSpaceEvenly();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal getStart();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical getTop();
-    method public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical spacedBy(androidx.compose.remote.creation.compose.state.RemoteDp space);
-    method public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal spacedBy(androidx.compose.remote.creation.compose.state.RemoteDp space, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal alignment);
-    method public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical spacedBy(androidx.compose.remote.creation.compose.state.RemoteDp space, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical alignment);
-    method public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical spacedBy(androidx.compose.remote.creation.compose.state.RemoteFloat space);
-    method public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal spacedBy(androidx.compose.remote.creation.compose.state.RemoteFloat space, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal alignment);
-    method public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical spacedBy(androidx.compose.remote.creation.compose.state.RemoteFloat space, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical alignment);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical spacedBy(androidx.compose.remote.creation.compose.state.RemoteDp space);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal spacedBy(androidx.compose.remote.creation.compose.state.RemoteDp space, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal alignment);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical spacedBy(androidx.compose.remote.creation.compose.state.RemoteDp space, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical alignment);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical spacedBy(androidx.compose.remote.creation.compose.state.RemoteFloat space);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal spacedBy(androidx.compose.remote.creation.compose.state.RemoteFloat space, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal alignment);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical spacedBy(androidx.compose.remote.creation.compose.state.RemoteFloat space, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical alignment);
     property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical Bottom;
     property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical Center;
     property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal End;
@@ -533,10 +533,10 @@ package androidx.compose.remote.creation.compose.layout {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getHeight();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getMinDimension();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getWidth();
-    method public operator androidx.compose.remote.creation.compose.layout.RemoteSize minus(androidx.compose.remote.creation.compose.layout.RemoteOffset offset);
-    property public androidx.compose.remote.creation.compose.layout.RemoteOffset center;
+    method @androidx.compose.runtime.Stable public operator androidx.compose.remote.creation.compose.layout.RemoteSize minus(androidx.compose.remote.creation.compose.layout.RemoteOffset offset);
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.layout.RemoteOffset center;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat height;
-    property public androidx.compose.remote.creation.compose.state.RemoteFloat minDimension;
+    property @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.state.RemoteFloat minDimension;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat width;
     field public static final androidx.compose.remote.creation.compose.layout.RemoteSize.Companion Companion;
   }
@@ -574,44 +574,44 @@ package androidx.compose.remote.creation.compose.layout {
 package androidx.compose.remote.creation.compose.modifier {
 
   public final class AlphaModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier alpha(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier alpha(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
   }
 
   public final class AnimateSpecModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animateEnterExit(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec, optional int animationId);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! animateEnterExit$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, int, int, Object!);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animationSpec(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional int animationId, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec motionSpec, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec visibilitySpec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit, optional boolean enabled);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! animationSpec$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, boolean, int, Object!);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier sharedBounds(androidx.compose.remote.creation.compose.modifier.RemoteModifier, int key, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! sharedBounds$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, int, Object!);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier sharedElement(androidx.compose.remote.creation.compose.modifier.RemoteModifier, int key, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! sharedElement$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animateEnterExit(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec, optional int animationId);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! animateEnterExit$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, int, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier animationSpec(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional int animationId, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec motionSpec, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec visibilitySpec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit, optional boolean enabled);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! animationSpec$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, boolean, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier sharedBounds(androidx.compose.remote.creation.compose.modifier.RemoteModifier, int key, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! sharedBounds$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier sharedElement(androidx.compose.remote.creation.compose.modifier.RemoteModifier, int key, optional androidx.compose.remote.creation.compose.state.RemoteTweenSpec spec, optional androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition enter, optional androidx.compose.remote.creation.compose.modifier.RemoteExitTransition exit);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! sharedElement$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, int, androidx.compose.remote.creation.compose.state.RemoteTweenSpec!, androidx.compose.remote.creation.compose.modifier.RemoteEnterTransition!, androidx.compose.remote.creation.compose.modifier.RemoteExitTransition!, int, Object!);
   }
 
   public final class BackgroundModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.painter.RemotePainter painter);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteColor color);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.painter.RemotePainter painter);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteColor color);
   }
 
   public final class BorderModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier border(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp width, androidx.compose.remote.creation.compose.state.RemoteColor color, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! border$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier border(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp width, androidx.compose.remote.creation.compose.state.RemoteColor color, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! border$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, Object!);
   }
 
   public final class ClickableModifierKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction onClick, optional androidx.compose.remote.creation.compose.state.RemoteBoolean enabled, optional androidx.compose.remote.creation.compose.modifier.RemoteRole? role);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-UyQ4Jmk(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction, androidx.compose.remote.creation.compose.state.RemoteBoolean, androidx.compose.remote.creation.compose.modifier.RemoteRole?);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-UyQ4Jmk$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.RemoteAction!, androidx.compose.remote.creation.compose.state.RemoteBoolean!, androidx.compose.remote.creation.compose.modifier.RemoteRole!, int, Object!);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction onClick, optional androidx.compose.remote.creation.compose.state.RemoteBoolean enabled, optional androidx.compose.remote.creation.compose.modifier.RemoteRole? role);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-UyQ4Jmk(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction, androidx.compose.remote.creation.compose.state.RemoteBoolean, androidx.compose.remote.creation.compose.modifier.RemoteRole?);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-UyQ4Jmk$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.RemoteAction!, androidx.compose.remote.creation.compose.state.RemoteBoolean!, androidx.compose.remote.creation.compose.modifier.RemoteRole!, int, Object!);
   }
 
   public final class ClipModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clip(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clip$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clip(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clip$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, Object!);
   }
 
   public final class DefaultMinSizeModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier defaultMinSize(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp? minWidth, optional androidx.compose.remote.creation.compose.state.RemoteDp? minHeight);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! defaultMinSize$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier defaultMinSize(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp? minWidth, optional androidx.compose.remote.creation.compose.state.RemoteDp? minHeight);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! defaultMinSize$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
   }
 
   public final class DrawWithContentModifierKt {
@@ -619,43 +619,43 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class GraphicsLayerModifierKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier graphicsLayer(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat scaleX, optional androidx.compose.remote.creation.compose.state.RemoteFloat scaleY, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationX, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationY, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationZ, optional androidx.compose.remote.creation.compose.state.RemoteFloat shadowElevation, optional androidx.compose.remote.creation.compose.state.RemoteFloat transformOriginX, optional androidx.compose.remote.creation.compose.state.RemoteFloat transformOriginY, optional androidx.compose.remote.creation.compose.state.RemoteFloat translationX, optional androidx.compose.remote.creation.compose.state.RemoteFloat translationY, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape, optional androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy compositingStrategy, optional androidx.compose.remote.creation.compose.state.RemoteFloat cameraDistance, optional androidx.compose.remote.creation.compose.modifier.RemoteRenderEffect? renderEffect);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier graphicsLayer(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat scaleX, optional androidx.compose.remote.creation.compose.state.RemoteFloat scaleY, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationX, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationY, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationZ, optional androidx.compose.remote.creation.compose.state.RemoteFloat shadowElevation, optional androidx.compose.remote.creation.compose.state.RemoteFloat transformOriginX, optional androidx.compose.remote.creation.compose.state.RemoteFloat transformOriginY, optional androidx.compose.remote.creation.compose.state.RemoteFloat translationX, optional androidx.compose.remote.creation.compose.state.RemoteFloat translationY, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape, optional androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy compositingStrategy, optional androidx.compose.remote.creation.compose.state.RemoteFloat cameraDistance, optional androidx.compose.remote.creation.compose.modifier.RemoteRenderEffect? renderEffect);
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier graphicsLayer(androidx.compose.remote.creation.compose.modifier.RemoteModifier, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.modifier.RemoteGraphicsLayerScope,kotlin.Unit> block);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier graphicsLayer-TEzLLdU(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.shapes.RemoteShape, int, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.modifier.RemoteRenderEffect?);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! graphicsLayer-TEzLLdU$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.modifier.RemoteRenderEffect!, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier graphicsLayer-TEzLLdU(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.shapes.RemoteShape, int, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.modifier.RemoteRenderEffect?);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! graphicsLayer-TEzLLdU$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.modifier.RemoteRenderEffect!, int, Object!);
   }
 
   public final class HeightInModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier heightIn(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp? min, optional androidx.compose.remote.creation.compose.state.RemoteDp? max);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! heightIn$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier heightIn(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp? min, optional androidx.compose.remote.creation.compose.state.RemoteDp? max);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! heightIn$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
   }
 
   public final class HeightModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillMaxHeight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillMaxHeight$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillParentMaxHeight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillParentMaxHeight$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier height(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp height);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier height(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat height);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillMaxHeight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillMaxHeight$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillParentMaxHeight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillParentMaxHeight$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier height(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp height);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier height(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat height);
   }
 
   public final class OffsetModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier offset(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp x, optional androidx.compose.remote.creation.compose.state.RemoteDp y);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! offset$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier offset(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp x, optional androidx.compose.remote.creation.compose.state.RemoteDp y);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! offset$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
   }
 
   public final class PaddingModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.layout.RemotePaddingValues paddingValues);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp all);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp horizontal, optional androidx.compose.remote.creation.compose.state.RemoteDp vertical);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp start, optional androidx.compose.remote.creation.compose.state.RemoteDp top, optional androidx.compose.remote.creation.compose.state.RemoteDp end, optional androidx.compose.remote.creation.compose.state.RemoteDp bottom);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat all);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat horizontal, optional androidx.compose.remote.creation.compose.state.RemoteFloat vertical);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat start, optional androidx.compose.remote.creation.compose.state.RemoteFloat top, optional androidx.compose.remote.creation.compose.state.RemoteFloat end, optional androidx.compose.remote.creation.compose.state.RemoteFloat bottom);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.layout.RemotePaddingValues paddingValues);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp all);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp horizontal, optional androidx.compose.remote.creation.compose.state.RemoteDp vertical);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp start, optional androidx.compose.remote.creation.compose.state.RemoteDp top, optional androidx.compose.remote.creation.compose.state.RemoteDp end, optional androidx.compose.remote.creation.compose.state.RemoteDp bottom);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat all);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat horizontal, optional androidx.compose.remote.creation.compose.state.RemoteFloat vertical);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat start, optional androidx.compose.remote.creation.compose.state.RemoteFloat top, optional androidx.compose.remote.creation.compose.state.RemoteFloat end, optional androidx.compose.remote.creation.compose.state.RemoteFloat bottom);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! padding$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable public final class RemoteEnterTransition {
@@ -826,19 +826,19 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class RotateModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier rotate(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat degrees);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier rotate(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat degrees);
   }
 
   public final class ScaleModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier scale(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat scale);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier scale(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat scaleX, androidx.compose.remote.creation.compose.state.RemoteFloat scaleY);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier scale(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat scale);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier scale(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat scaleX, androidx.compose.remote.creation.compose.state.RemoteFloat scaleY);
   }
 
   public final class ScrollModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier horizontalScroll(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.modifier.RemoteScrollState state);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier horizontalScroll(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.modifier.RemoteScrollState state);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteScrollState rememberRemoteScrollState(optional @IntRange(from=0L) int notches);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteScrollState rememberRemoteScrollState(@IntRange(from=0L) int, androidx.compose.runtime.Composer?, int, int);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier verticalScroll(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.modifier.RemoteScrollState state);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier verticalScroll(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.modifier.RemoteScrollState state);
   }
 
   public final class SemanticsModifierKt {
@@ -863,48 +863,48 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class SizeModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillMaxSize(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillMaxSize$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier size(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp size);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier size(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp width, androidx.compose.remote.creation.compose.state.RemoteDp height);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier wrapContentHeight(androidx.compose.remote.creation.compose.modifier.RemoteModifier);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier wrapContentSize(androidx.compose.remote.creation.compose.modifier.RemoteModifier);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier wrapContentWidth(androidx.compose.remote.creation.compose.modifier.RemoteModifier);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillMaxSize(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillMaxSize$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier size(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp size);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier size(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp width, androidx.compose.remote.creation.compose.state.RemoteDp height);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier wrapContentHeight(androidx.compose.remote.creation.compose.modifier.RemoteModifier);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier wrapContentSize(androidx.compose.remote.creation.compose.modifier.RemoteModifier);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier wrapContentWidth(androidx.compose.remote.creation.compose.modifier.RemoteModifier);
   }
 
   public final class TouchCancelActionModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchCancel(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchCancel(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
   }
 
   public final class TouchDownActionModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchDown(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchDown(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
   }
 
   public final class TouchUpActionModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchUp(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchUp(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
   }
 
   public final class VisibilityModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier visibility(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteEnum<androidx.compose.remote.creation.compose.modifier.RemoteVisibility> visible);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier visibility(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteInt visible);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier visibility(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteEnum<androidx.compose.remote.creation.compose.modifier.RemoteVisibility> visible);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier visibility(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteInt visible);
   }
 
   public final class WidthInModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier widthIn(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp? min, optional androidx.compose.remote.creation.compose.state.RemoteDp? max);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! widthIn$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier widthIn(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp? min, optional androidx.compose.remote.creation.compose.state.RemoteDp? max);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! widthIn$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
   }
 
   public final class WidthModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillMaxWidth(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillMaxWidth$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillParentMaxWidth(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillParentMaxWidth$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier width(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp width);
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier width(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat width);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillMaxWidth(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillMaxWidth$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillParentMaxWidth(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat fraction);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillParentMaxWidth$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier width(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp width);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier width(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat width);
   }
 
   public final class ZIndexModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier zIndex(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat zIndex);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier zIndex(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat zIndex);
   }
 
 }
@@ -912,11 +912,11 @@ package androidx.compose.remote.creation.compose.modifier {
 package androidx.compose.remote.creation.compose.painter {
 
   public final class RemoteColorPainterKt {
-    method public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor color);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor color);
   }
 
   public final class RemoteImageBitmapPainterKt {
-    method public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteImageBitmap(androidx.compose.remote.creation.compose.state.RemoteImageBitmap image);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteImageBitmap(androidx.compose.remote.creation.compose.state.RemoteImageBitmap image);
   }
 
   public abstract class RemotePainter {
@@ -1026,9 +1026,9 @@ package androidx.compose.remote.creation.compose.shapes {
   }
 
   public final class RemoteCornerSizeKt {
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(androidx.compose.remote.creation.compose.state.RemoteDp size);
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(androidx.compose.remote.creation.compose.state.RemoteFloat size);
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(@IntRange(from=0L, to=100L) int percent);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(androidx.compose.remote.creation.compose.state.RemoteDp size);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(androidx.compose.remote.creation.compose.state.RemoteFloat size);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(@IntRange(from=0L, to=100L) int percent);
   }
 
   @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class RemoteOutline {
@@ -1076,16 +1076,16 @@ package androidx.compose.remote.creation.compose.shapes {
   }
 
   public final class RemoteRoundedCornerShapeKt {
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.shapes.RemoteCornerSize corner);
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.state.RemoteDp size);
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional androidx.compose.remote.creation.compose.state.RemoteDp topStart, optional androidx.compose.remote.creation.compose.state.RemoteDp topEnd, optional androidx.compose.remote.creation.compose.state.RemoteDp bottomEnd, optional androidx.compose.remote.creation.compose.state.RemoteDp bottomStart);
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.state.RemoteFloat size);
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional androidx.compose.remote.creation.compose.state.RemoteFloat topStart, optional androidx.compose.remote.creation.compose.state.RemoteFloat topEnd, optional androidx.compose.remote.creation.compose.state.RemoteFloat bottomEnd, optional androidx.compose.remote.creation.compose.state.RemoteFloat bottomStart);
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(@IntRange(from=0L, to=100L) int percent);
-    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional @IntRange(from=0L, to=100L) int topStartPercent, optional @IntRange(from=0L, to=100L) int topEndPercent, optional @IntRange(from=0L, to=100L) int bottomEndPercent, optional @IntRange(from=0L, to=100L) int bottomStartPercent);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(int, int, int, int, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.shapes.RemoteCornerSize corner);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.state.RemoteDp size);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional androidx.compose.remote.creation.compose.state.RemoteDp topStart, optional androidx.compose.remote.creation.compose.state.RemoteDp topEnd, optional androidx.compose.remote.creation.compose.state.RemoteDp bottomEnd, optional androidx.compose.remote.creation.compose.state.RemoteDp bottomStart);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.state.RemoteFloat size);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional androidx.compose.remote.creation.compose.state.RemoteFloat topStart, optional androidx.compose.remote.creation.compose.state.RemoteFloat topEnd, optional androidx.compose.remote.creation.compose.state.RemoteFloat bottomEnd, optional androidx.compose.remote.creation.compose.state.RemoteFloat bottomStart);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(@IntRange(from=0L, to=100L) int percent);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional @IntRange(from=0L, to=100L) int topStartPercent, optional @IntRange(from=0L, to=100L) int topEndPercent, optional @IntRange(from=0L, to=100L) int bottomEndPercent, optional @IntRange(from=0L, to=100L) int bottomStartPercent);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(int, int, int, int, int, Object!);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape getRemoteCircleShape();
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape getRemoteRectangleShape();
     property public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteCircleShape;
@@ -1101,7 +1101,7 @@ package androidx.compose.remote.creation.compose.shapes {
 package androidx.compose.remote.creation.compose.state {
 
   public final class AndroidRemoteColorKt {
-    method public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightColorRes, @ColorRes int darkColorRes, @ColorInt int lightFallback, @ColorInt int darkFallback);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightColorRes, @ColorRes int darkColorRes, @ColorInt int lightFallback, @ColorInt int darkFallback);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteBlendMode {
@@ -1172,15 +1172,15 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public final class RemoteColorComposeKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor RemoteColor(androidx.compose.ui.graphics.Color color);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor RemoteColor-8_81llA(long);
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightColorRes, @ColorRes int darkColorRes, androidx.compose.ui.graphics.Color lightFallback, androidx.compose.ui.graphics.Color darkFallback);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor-jZ3TX3s(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int, @ColorRes int, long, long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteColor RemoteColor(androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteColor RemoteColor-8_81llA(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int lightColorRes, @ColorRes int darkColorRes, androidx.compose.ui.graphics.Color lightFallback, androidx.compose.ui.graphics.Color darkFallback);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteColor createThemedRemoteColor-jZ3TX3s(androidx.compose.remote.creation.compose.state.RemoteColor.Companion, @ColorRes int, @ColorRes int, long, long);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor getRc-8_81llA(long);
-    method @KotlinOnly public static androidx.compose.ui.graphics.Color toConstantColor(androidx.compose.remote.creation.compose.state.RemoteColor);
-    method @BytecodeOnly public static long toConstantColor(androidx.compose.remote.creation.compose.state.RemoteColor);
-    method @InaccessibleFromJava public static androidx.compose.ui.graphics.Color? toConstantColorOrNull(androidx.compose.remote.creation.compose.state.RemoteColor);
-    property public static androidx.compose.remote.creation.compose.state.RemoteColor androidx.compose.ui.graphics.Color.rc;
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color toConstantColor(androidx.compose.remote.creation.compose.state.RemoteColor);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long toConstantColor(androidx.compose.remote.creation.compose.state.RemoteColor);
+    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color? toConstantColorOrNull(androidx.compose.remote.creation.compose.state.RemoteColor);
+    property @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteColor androidx.compose.ui.graphics.Color.rc;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteCompositingStrategy {
@@ -1199,15 +1199,15 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public final class RemoteDpComposeKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteDp RemoteDp(androidx.compose.ui.unit.Dp value);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp RemoteDp-0680j_4(float);
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteDp asRdp(androidx.compose.ui.unit.Dp);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp asRdp-0680j_4(float);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteDp RemoteDp(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteDp RemoteDp-0680j_4(float);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteDp asRdp(androidx.compose.ui.unit.Dp);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteDp asRdp-0680j_4(float);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp getRdp-0680j_4(float);
-    method @KotlinOnly public static androidx.compose.ui.unit.Dp toConstantDp(androidx.compose.remote.creation.compose.state.RemoteDp);
-    method @BytecodeOnly public static float toConstantDp(androidx.compose.remote.creation.compose.state.RemoteDp);
-    method @InaccessibleFromJava public static androidx.compose.ui.unit.Dp? toConstantDpOrNull(androidx.compose.remote.creation.compose.state.RemoteDp);
-    property public static androidx.compose.remote.creation.compose.state.RemoteDp androidx.compose.ui.unit.Dp.rdp;
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp toConstantDp(androidx.compose.remote.creation.compose.state.RemoteDp);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static float toConstantDp(androidx.compose.remote.creation.compose.state.RemoteDp);
+    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp? toConstantDpOrNull(androidx.compose.remote.creation.compose.state.RemoteDp);
+    property @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteDp androidx.compose.ui.unit.Dp.rdp;
   }
 
   public final class RemoteFormattingAndroidKt {
@@ -1357,15 +1357,15 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public final class RemoteTextUnitComposeKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit RemoteTextUnit(androidx.compose.remote.creation.compose.state.RemoteFloat value, androidx.compose.ui.unit.TextUnitType textUnitType);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit RemoteTextUnit-anM5pPY(androidx.compose.remote.creation.compose.state.RemoteFloat, long);
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit(androidx.compose.ui.unit.TextUnit);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit--R2X_6o(long);
-    method @KotlinOnly public static androidx.compose.ui.unit.TextUnit toConstantTextUnit(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
-    method @BytecodeOnly public static long toConstantTextUnit(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
-    method @InaccessibleFromJava public static androidx.compose.ui.unit.TextUnit? toConstantTextUnitOrNull(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp(androidx.compose.ui.unit.Dp);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp-0680j_4(float);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteTextUnit RemoteTextUnit(androidx.compose.remote.creation.compose.state.RemoteFloat value, androidx.compose.ui.unit.TextUnitType textUnitType);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteTextUnit RemoteTextUnit-anM5pPY(androidx.compose.remote.creation.compose.state.RemoteFloat, long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit(androidx.compose.ui.unit.TextUnit);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit--R2X_6o(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.TextUnit toConstantTextUnit(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long toConstantTextUnit(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
+    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.TextUnit? toConstantTextUnitOrNull(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp(androidx.compose.ui.unit.Dp);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp-0680j_4(float);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteTileMode {
@@ -1436,11 +1436,11 @@ package androidx.compose.remote.creation.compose.text {
   }
 
   public final class RemoteFontVariation {
-    method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting grade(androidx.compose.remote.creation.compose.state.RemoteFloat grade);
-    method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting opticalSizing(androidx.compose.remote.creation.compose.state.RemoteFloat opticalSize);
-    method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting slant(androidx.compose.remote.creation.compose.state.RemoteFloat slant);
-    method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting weight(androidx.compose.remote.creation.compose.state.RemoteFloat weight);
-    method public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting width(androidx.compose.remote.creation.compose.state.RemoteFloat width);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting grade(androidx.compose.remote.creation.compose.state.RemoteFloat grade);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting opticalSizing(androidx.compose.remote.creation.compose.state.RemoteFloat opticalSize);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting slant(androidx.compose.remote.creation.compose.state.RemoteFloat slant);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting weight(androidx.compose.remote.creation.compose.state.RemoteFloat weight);
+    method @androidx.compose.runtime.Stable public androidx.compose.remote.creation.compose.text.RemoteFontVariation.Setting width(androidx.compose.remote.creation.compose.state.RemoteFloat width);
     field public static final androidx.compose.remote.creation.compose.text.RemoteFontVariation INSTANCE;
   }
 
@@ -1563,10 +1563,10 @@ package androidx.compose.remote.creation.compose.text {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class RemoteTextDecoration {
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteTextDecoration! box-impl(int);
-    method @KotlinOnly public operator boolean contains(androidx.compose.remote.creation.compose.text.RemoteTextDecoration other);
-    method @BytecodeOnly public static boolean contains-nslsm8g(int, int);
-    method @KotlinOnly public operator androidx.compose.remote.creation.compose.text.RemoteTextDecoration plus(androidx.compose.remote.creation.compose.text.RemoteTextDecoration decoration);
-    method @BytecodeOnly public static int plus--6as2og(int, int);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator boolean contains(androidx.compose.remote.creation.compose.text.RemoteTextDecoration other);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static boolean contains-nslsm8g(int, int);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.remote.creation.compose.text.RemoteTextDecoration plus(androidx.compose.remote.creation.compose.text.RemoteTextDecoration decoration);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static int plus--6as2og(int, int);
     method @BytecodeOnly public int unbox-impl();
     field public static final androidx.compose.remote.creation.compose.text.RemoteTextDecoration.Companion Companion;
   }
@@ -1774,8 +1774,8 @@ package androidx.compose.remote.creation.compose.vector {
   }
 
   public final class RemoteVectorPainterKt {
-    method public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteVector(androidx.compose.remote.creation.compose.capture.RemoteImageVector vector, optional androidx.compose.remote.creation.compose.state.RemoteColor tintColor);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.painter.RemotePainter! painterRemoteVector$default(androidx.compose.remote.creation.compose.capture.RemoteImageVector!, androidx.compose.remote.creation.compose.state.RemoteColor!, int, Object!);
+    method @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteVector(androidx.compose.remote.creation.compose.capture.RemoteImageVector vector, optional androidx.compose.remote.creation.compose.state.RemoteColor tintColor);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.remote.creation.compose.painter.RemotePainter! painterRemoteVector$default(androidx.compose.remote.creation.compose.capture.RemoteImageVector!, androidx.compose.remote.creation.compose.state.RemoteColor!, int, Object!);
   }
 
 }

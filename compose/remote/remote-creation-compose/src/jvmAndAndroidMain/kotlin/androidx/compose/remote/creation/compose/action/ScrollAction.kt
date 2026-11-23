@@ -23,8 +23,9 @@ import androidx.compose.remote.creation.compose.modifier.RemoteScrollState
 import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.runtime.Stable
 
-internal class ScrollByAction(
+internal data class ScrollByAction(
     public val scrollState: RemoteScrollState,
     public val value: RemoteFloat,
 ) : RemoteAction {
@@ -37,7 +38,7 @@ internal class ScrollByAction(
         }
 }
 
-internal class ScrollToAction(
+internal data class ScrollToAction(
     public val scrollState: RemoteScrollState,
     public val value: RemoteFloat,
 ) : RemoteAction {
@@ -56,6 +57,7 @@ internal class ScrollToAction(
  * @return An [RemoteAction] representing the scroll change.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Stable
 public fun RemoteScrollState.scrollBy(value: RemoteFloat): RemoteAction =
     ScrollByAction(this, value)
 
@@ -66,5 +68,6 @@ public fun RemoteScrollState.scrollBy(value: RemoteFloat): RemoteAction =
  * @return An [RemoteAction] representing the scroll change.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Stable
 public fun RemoteScrollState.scrollTo(value: RemoteFloat): RemoteAction =
     ScrollToAction(this, value)

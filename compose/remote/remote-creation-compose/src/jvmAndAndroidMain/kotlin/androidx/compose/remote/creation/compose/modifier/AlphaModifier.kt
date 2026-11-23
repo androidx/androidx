@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.runtime.Stable
 
 /**
  * Draw content with modified alpha that may be less than 1.
@@ -29,5 +30,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * @return a [RemoteModifier] that draws content with the modified [alpha]
  * @see graphicsLayer
  */
+@Stable
 public fun RemoteModifier.alpha(alpha: RemoteFloat): RemoteModifier =
     graphicsLayer(alpha = alpha, shape = RemoteRectangleShape)

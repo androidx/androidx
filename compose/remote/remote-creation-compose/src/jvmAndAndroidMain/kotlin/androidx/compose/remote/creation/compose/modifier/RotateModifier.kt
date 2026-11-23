@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.runtime.Stable
 
 /**
  * Sets the degrees the view is rotated around the center of the composable. Increasing values
@@ -31,5 +32,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * @return a [RemoteModifier] that rotates the content by [degrees]
  * @see graphicsLayer
  */
+@Stable
 public fun RemoteModifier.rotate(degrees: RemoteFloat): RemoteModifier =
     graphicsLayer(rotationZ = degrees, shape = RemoteRectangleShape)

@@ -19,6 +19,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.ColorRes
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
@@ -28,7 +29,7 @@ import androidx.compose.ui.graphics.toArgb
  * @param color The [Color] value.
  * @return A [RemoteColor] representing the constant color.
  */
-public fun RemoteColor(color: Color): RemoteColor = RemoteColor(color.toArgb())
+@Stable public fun RemoteColor(color: Color): RemoteColor = RemoteColor(color.toArgb())
 
 /**
  * Creates a themed [RemoteColor] that resolves to different Android system colors in light and dark
@@ -44,6 +45,7 @@ public fun RemoteColor(color: Color): RemoteColor = RemoteColor(color.toArgb())
  * @throws IllegalArgumentException if [lightColorRes] or [darkColorRes] is not a supported
  *   [android.R.color] system color resource.
  */
+@Stable
 public fun RemoteColor.Companion.createThemedRemoteColor(
     @ColorRes lightColorRes: Int,
     @ColorRes darkColorRes: Int,
@@ -58,6 +60,7 @@ public fun RemoteColor.Companion.createThemedRemoteColor(
     )
 
 /** Extension property to convert a [Color] to a [RemoteColor]. */
+@Stable
 public val Color.rc: RemoteColor
     get() = RemoteColor(this.toArgb())
 
@@ -67,11 +70,12 @@ public val Color.rc: RemoteColor
  * @return the constant [Color] value of this [RemoteColor]
  * @throws IllegalStateException if this state does not have a constant value.
  */
-public fun RemoteColor.toConstantColor(): Color = Color(constantValue)
+@Stable public fun RemoteColor.toConstantColor(): Color = Color(constantValue)
 
 /**
  * Converts this [RemoteColor] to a [Color] if it has a constant value, or null otherwise.
  *
  * @return the constant [Color] value of this [RemoteColor], or `null` if it is dynamic
  */
+@Stable
 public fun RemoteColor.toConstantColorOrNull(): Color? = constantValueOrNull?.let { Color(it) }

@@ -23,8 +23,9 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.WidthInModifier as CreationWidthInModifier
+import androidx.compose.runtime.Stable
 
-internal class WidthInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
+internal data class WidthInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
     RemoteModifier.Element {
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
         with(this as InternalRemoteStateScope) {
@@ -48,6 +49,7 @@ internal class WidthInModifier(val min: RemoteDp? = null, val max: RemoteDp? = n
  * @param max The maximum width.
  * @return a [RemoteModifier] that constrains the width between [min] and [max]
  */
+@Stable
 public fun RemoteModifier.widthIn(min: RemoteDp? = null, max: RemoteDp? = null): RemoteModifier {
     return then(WidthInModifier(min = min, max = max))
 }

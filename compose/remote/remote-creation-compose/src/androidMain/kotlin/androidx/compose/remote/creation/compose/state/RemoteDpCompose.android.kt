@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
@@ -28,14 +29,14 @@ import androidx.compose.ui.unit.isSpecified
  * @param value The [Dp] value.
  * @return A [RemoteDp] representing the constant Dp.
  */
-public fun RemoteDp(value: Dp): RemoteDp = value.asRdp()
+@Stable public fun RemoteDp(value: Dp): RemoteDp = value.asRdp()
 
 /**
  * Converts this [RemoteDp] to a [Dp] if it has a constant value, or null otherwise.
  *
  * @return the constant [Dp] value of this [RemoteDp], or `null` if it is dynamic
  */
-public fun RemoteDp.toConstantDpOrNull(): Dp? = constantValueOrNull?.dp
+@Stable public fun RemoteDp.toConstantDpOrNull(): Dp? = constantValueOrNull?.dp
 
 /**
  * Converts this [RemoteDp] to a [Dp] if it has a constant value.
@@ -43,18 +44,20 @@ public fun RemoteDp.toConstantDpOrNull(): Dp? = constantValueOrNull?.dp
  * @return the constant [Dp] value of this [RemoteDp]
  * @throws IllegalStateException if this state does not have a constant value.
  */
-public fun RemoteDp.toConstantDp(): Dp = constantValue.dp
+@Stable public fun RemoteDp.toConstantDp(): Dp = constantValue.dp
 
 /**
  * Extension function to convert a [Dp] to a [RemoteDp].
  *
  * @return a [RemoteDp] representing this [Dp]
  */
+@Stable
 public fun Dp.asRdp(): RemoteDp {
     check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
     return RemoteDp(this.value.rf)
 }
 
 /** Extension property to convert a [Dp] to a [RemoteDp]. */
+@Stable
 public val Dp.rdp: RemoteDp
     get() = asRdp()

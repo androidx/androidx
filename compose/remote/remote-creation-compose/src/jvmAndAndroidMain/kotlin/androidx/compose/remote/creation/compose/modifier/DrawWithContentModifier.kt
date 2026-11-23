@@ -30,7 +30,7 @@ public fun RemoteModifier.drawWithContent(
     onDraw: RemoteContentDrawScope.() -> Unit
 ): RemoteModifier = then(DrawWithContentModifier(onDraw))
 
-internal class DrawWithContentModifier(val onDraw: RemoteContentDrawScope.() -> Unit) :
+internal open class DrawWithContentModifier(val onDraw: RemoteContentDrawScope.() -> Unit) :
     RemoteModifier.Element {
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.DrawWithContentModifier()
