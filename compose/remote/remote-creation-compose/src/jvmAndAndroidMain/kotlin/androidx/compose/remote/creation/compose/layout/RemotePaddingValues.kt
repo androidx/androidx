@@ -71,6 +71,7 @@ public class RemotePaddingValues(
     }
 
     override fun equals(other: Any?): Boolean {
+        if (this === other) return true
         if (other !is RemotePaddingValues) return false
 
         // If any of the values is an expression, the paddings are not considered equals.

@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.modifiers.AnimateSpecModifier as CreationAnimateSpecModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /** Transition effect applied when a component enters a state layout. */
 @Immutable
@@ -126,7 +127,7 @@ internal constructor(internal val animation: ANIMATION, internal val functionId:
         else "RemoteExitTransition.${animation.name}"
 }
 
-internal class AnimateSpecModifier(
+internal data class AnimateSpecModifier(
     val animationId: Int,
     val motionDuration: Float,
     val motionEasingType: Int,
@@ -156,9 +157,6 @@ internal class AnimateSpecModifier(
     }
 }
 
-private fun extractDurationAndEasing(spec: RemoteTweenSpec): Pair<Float, Int> =
-    Pair(spec.durationMillis.toFloat(), spec.easing.type)
-
 /**
  * Marks this component as a shared element that smoothly transitions its bounds, position, and
  * styling between states in a state layout.
@@ -169,6 +167,7 @@ private fun extractDurationAndEasing(spec: RemoteTweenSpec): Pair<Float, Int> =
  * @param exit transition effect when component exits the layout
  * @return a [RemoteModifier] that marks this component as a shared element
  */
+@Stable
 public fun RemoteModifier.sharedElement(
     key: Int,
     spec: RemoteTweenSpec = remoteTween(),
@@ -176,7 +175,8 @@ public fun RemoteModifier.sharedElement(
     exit: RemoteExitTransition = RemoteExitTransition.FadeOut,
 ): RemoteModifier {
     require(key != 0) { "Shared element key cannot be 0 (reserved for disabled animations)" }
-    val (duration, easing) = extractDurationAndEasing(spec)
+    val duration = spec.durationMillis.toFloat()
+    val easing = spec.easing.type
     return then(
         AnimateSpecModifier(
             animationId = key,
@@ -202,6 +202,7 @@ public fun RemoteModifier.sharedElement(
  * @param exit transition effect when component exits the layout
  * @return a [RemoteModifier] that marks this component as a shared bounds container
  */
+@Stable
 public fun RemoteModifier.sharedBounds(
     key: Int,
     spec: RemoteTweenSpec = remoteTween(),
@@ -218,6 +219,7 @@ public fun RemoteModifier.sharedBounds(
  * @param animationId non-zero identifier for the animation (-1 for default non-shared transition)
  * @return a [RemoteModifier] that applies [enter] and [exit] transitions
  */
+@Stable
 public fun RemoteModifier.animateEnterExit(
     enter: RemoteEnterTransition = RemoteEnterTransition.FadeIn,
     exit: RemoteExitTransition = RemoteExitTransition.FadeOut,
@@ -225,7 +227,8 @@ public fun RemoteModifier.animateEnterExit(
     animationId: Int = -1,
 ): RemoteModifier {
     require(animationId != 0) { "Animation ID cannot be 0 (reserved for disabled animations)" }
-    val (duration, easing) = extractDurationAndEasing(spec)
+    val duration = spec.durationMillis.toFloat()
+    val easing = spec.easing.type
     return then(
         AnimateSpecModifier(
             animationId = animationId,
@@ -252,6 +255,7 @@ public fun RemoteModifier.animateEnterExit(
  * @param enabled whether animation transitions are enabled for this component
  * @return a [RemoteModifier] that applies the animation specification
  */
+@Stable
 public fun RemoteModifier.animationSpec(
     animationId: Int = -1,
     motionSpec: RemoteTweenSpec = remoteTween(),
@@ -260,15 +264,13 @@ public fun RemoteModifier.animationSpec(
     exit: RemoteExitTransition = RemoteExitTransition.FadeOut,
     enabled: Boolean = true,
 ): RemoteModifier {
-    val (motionDuration, motionEasing) = extractDurationAndEasing(motionSpec)
-    val (visibilityDuration, visibilityEasing) = extractDurationAndEasing(visibilitySpec)
     return then(
         AnimateSpecModifier(
             animationId = if (enabled) animationId else 0,
-            motionDuration = motionDuration,
-            motionEasingType = motionEasing,
-            visibilityDuration = visibilityDuration,
-            visibilityEasingType = visibilityEasing,
+            motionDuration = motionSpec.durationMillis.toFloat(),
+            motionEasingType = motionSpec.easing.type,
+            visibilityDuration = visibilitySpec.durationMillis.toFloat(),
+            visibilityEasingType = visibilitySpec.easing.type,
             enterAnimation = enter.animation,
             exitAnimation = exit.animation,
             enterFunctionId = enter.functionId,

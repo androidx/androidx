@@ -33,9 +33,14 @@ import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.runtime.Stable
 
 /** A [RemotePainter] that draws a [RemoteImageVector] into the provided [RemoteCanvas]. */
-internal class RemoteVectorPainter : RemotePainter() {
+internal class RemoteVectorPainter(
+    private val sourceVector: RemoteImageVector? = null,
+    private val sourceTintColor: RemoteColor? = null,
+    private val sourceBlendMode: RemoteBlendMode? = null,
+) : RemotePainter() {
 
     internal var root: RemoteGroupComponent
         get() = RemoteGroupComponent()
@@ -86,6 +91,23 @@ internal class RemoteVectorPainter : RemotePainter() {
 
     override val intrinsicSize: RemoteSize
         get() = defaultSize
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteVectorPainter) return false
+        if (sourceVector == null || other.sourceVector == null) return false
+        return sourceVector == other.sourceVector &&
+            sourceTintColor == other.sourceTintColor &&
+            sourceBlendMode == other.sourceBlendMode
+    }
+
+    override fun hashCode(): Int {
+        if (sourceVector == null) return super.hashCode()
+        var result = sourceVector.hashCode()
+        result = 31 * result + (sourceTintColor?.hashCode() ?: 0)
+        result = 31 * result + (sourceBlendMode?.hashCode() ?: 0)
+        return result
+    }
 }
 
 /**
@@ -95,6 +117,7 @@ internal class RemoteVectorPainter : RemotePainter() {
  * @param tintColor the tint color to apply to the image.
  * @return a [RemotePainter] that draws [vector] with [tintColor]
  */
+@Stable
 public fun painterRemoteVector(
     vector: RemoteImageVector,
     tintColor: RemoteColor = vector.tintColor,
@@ -138,7 +161,11 @@ internal fun createVectorPainterFromRemoteImageVector(
     val root = RemoteGroupComponent().createGroupComponent(imageVector.root)
     val viewport = RemoteSize(imageVector.viewportWidth, imageVector.viewportHeight)
     val defaultSize = RemoteSize(imageVector.defaultWidth, imageVector.defaultHeight)
-    return RemoteVectorPainter()
+    return RemoteVectorPainter(
+            sourceVector = imageVector,
+            sourceTintColor = tintColor,
+            sourceBlendMode = blendMode,
+        )
         .configureRemoteVectorPainter(
             root = root,
             viewportSize = viewport,
@@ -199,9 +226,7 @@ internal fun RemoteGroupComponent.createGroupComponent(
  * @param canvas The [RemoteCanvas] to draw onto.
  */
 internal fun RemoteVectorPainter.draw(canvas: RemoteCanvas) {
-    with(canvas.drawScope) {
-        onDraw()
-    }
+    with(canvas.drawScope) { onDraw() }
 }
 
 /**
@@ -210,10 +235,7 @@ internal fun RemoteVectorPainter.draw(canvas: RemoteCanvas) {
  * @param canvas The [RemoteCanvas] to draw onto.
  * @param tintColor The tint color to apply to the vector.
  */
-internal fun RemoteImageVector.draw(
-    canvas: RemoteCanvas,
-    tintColor: RemoteColor = this.tintColor,
-) {
+internal fun RemoteImageVector.draw(canvas: RemoteCanvas, tintColor: RemoteColor = this.tintColor) {
     val painter = painterRemoteVector(this, tintColor) as RemoteVectorPainter
     painter.draw(canvas)
 }

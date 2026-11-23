@@ -22,16 +22,18 @@ import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.remote.creation.modifiers.ClickActionModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
-internal class ClickableModifier(
+internal data class ClickableModifier(
     public val actions: List<RemoteAction>,
     public val clickType: Int = MultiClickModifier.CLICK_TYPE_SINGLE,
 ) : RemoteModifier.Element {
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return ClickActionModifier(
-            @Suppress("ListIterator") actions.map { action -> with(action) { toRemoteAction() } },
+            actions.fastMap { action -> with(action) { toRemoteAction() } },
             clickType,
         )
     }
@@ -53,6 +55,7 @@ internal class ClickableModifier(
  *   the element or do customizations. By default, no role is set (`null`).
  * @return a [RemoteModifier] that makes the component clickable
  */
+@Stable
 public fun RemoteModifier.clickable(
     onClick: RemoteAction,
     enabled: RemoteBoolean = true.rb,

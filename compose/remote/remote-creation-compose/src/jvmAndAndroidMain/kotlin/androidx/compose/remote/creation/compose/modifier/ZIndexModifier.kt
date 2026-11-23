@@ -20,8 +20,9 @@ import androidx.compose.remote.creation.compose.state.InternalRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
-internal class ZIndexModifier(public val value: RemoteFloat) : RemoteModifier.Element {
+internal data class ZIndexModifier(public val value: RemoteFloat) : RemoteModifier.Element {
 
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
         with(this as InternalRemoteStateScope) {
@@ -35,4 +36,5 @@ internal class ZIndexModifier(public val value: RemoteFloat) : RemoteModifier.El
  * @param zIndex The z-index value; higher values are drawn on top of lower values.
  * @return a [RemoteModifier] that sets the drawing order to [zIndex]
  */
+@Stable
 public fun RemoteModifier.zIndex(zIndex: RemoteFloat): RemoteModifier = then(ZIndexModifier(zIndex))

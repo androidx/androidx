@@ -33,8 +33,9 @@ import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.modifiers.BorderModifier as CreationBorderModifier
 import androidx.compose.remote.creation.modifiers.DynamicBorderModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
-internal class BorderModifier(
+internal data class BorderModifier(
     public val width: RemoteDp,
     public val color: RemoteColor,
     public val shape: RemoteShape = RemoteRectangleShape,
@@ -86,6 +87,7 @@ internal class BorderModifier(
  *   corners.
  * @return a [RemoteModifier] that draws a border around the element
  */
+@Stable
 public fun RemoteModifier.border(
     width: RemoteDp,
     color: RemoteColor,

@@ -90,6 +90,7 @@ public object RemoteArrangement {
      * @param space The space between adjacent children.
      * @return a [RemoteArrangement.HorizontalOrVertical] that spaces adjacent children by [space]
      */
+    @Stable
     public fun spacedBy(space: RemoteDp): RemoteArrangement.HorizontalOrVertical =
         RemoteSpacedArrangement(space)
 
@@ -101,6 +102,7 @@ public object RemoteArrangement {
      * @param space The space between adjacent children.
      * @return a [RemoteArrangement.HorizontalOrVertical] that spaces adjacent children by [space]
      */
+    @Stable
     public fun spacedBy(space: RemoteFloat): RemoteArrangement.HorizontalOrVertical =
         RemoteFloatSpacedArrangement(space)
 
@@ -115,6 +117,7 @@ public object RemoteArrangement {
      * @return a [RemoteArrangement.Horizontal] that spaces adjacent children by [space] aligned by
      *   [alignment]
      */
+    @Stable
     public fun spacedBy(
         space: RemoteDp,
         alignment: RemoteAlignment.Horizontal,
@@ -131,6 +134,7 @@ public object RemoteArrangement {
      * @return a [RemoteArrangement.Horizontal] that spaces adjacent children by [space] aligned by
      *   [alignment]
      */
+    @Stable
     public fun spacedBy(
         space: RemoteFloat,
         alignment: RemoteAlignment.Horizontal,
@@ -147,6 +151,7 @@ public object RemoteArrangement {
      * @return a [RemoteArrangement.Vertical] that spaces adjacent children by [space] aligned by
      *   [alignment]
      */
+    @Stable
     public fun spacedBy(
         space: RemoteDp,
         alignment: RemoteAlignment.Vertical,
@@ -163,6 +168,7 @@ public object RemoteArrangement {
      * @return a [RemoteArrangement.Vertical] that spaces adjacent children by [space] aligned by
      *   [alignment]
      */
+    @Stable
     public fun spacedBy(
         space: RemoteFloat,
         alignment: RemoteAlignment.Vertical,

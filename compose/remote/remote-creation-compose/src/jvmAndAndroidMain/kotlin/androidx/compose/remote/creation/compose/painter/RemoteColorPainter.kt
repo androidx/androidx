@@ -20,13 +20,14 @@ import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.runtime.Stable
 
 /**
  * A [RemotePainter] that draws a [RemoteColor] into the provided RemoteCanvas.
  *
  * @param color The [RemoteColor] to draw.
  */
-internal class RemoteColorPainter(private val color: RemoteColor) : RemotePainter() {
+internal data class RemoteColorPainter(private val color: RemoteColor) : RemotePainter() {
 
     override val intrinsicSize: RemoteSize? = null
 
@@ -43,4 +44,5 @@ internal class RemoteColorPainter(private val color: RemoteColor) : RemotePainte
  * @param color The [RemoteColor] to create the painter for.
  * @return a [RemotePainter] that draws [color]
  */
+@Stable
 public fun painterRemoteColor(color: RemoteColor): RemotePainter = RemoteColorPainter(color = color)

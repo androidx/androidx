@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
+import androidx.compose.runtime.Stable
 
 /**
  * A [RemotePainter] that draws a [RemoteImageBitmap] into the provided RemoteCanvas.
@@ -29,7 +30,7 @@ import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
  * @param srcOffset The offset into the [image] to start drawing from.
  * @param srcSize The size of the section of the [image] to draw.
  */
-internal class RemoteImageBitmapPainter(
+internal data class RemoteImageBitmapPainter(
     private val image: RemoteImageBitmap,
     private val srcOffset: RemoteOffset = RemoteOffset.Zero,
     private val srcSize: RemoteSize = RemoteSize(image.width, image.height),
@@ -53,6 +54,7 @@ internal class RemoteImageBitmapPainter(
  * @param image The [RemoteImageBitmap] to create the painter for.
  * @return a [RemotePainter] that draws [image]
  */
+@Stable
 public fun painterRemoteImageBitmap(image: RemoteImageBitmap): RemotePainter {
     return RemoteImageBitmapPainter(image)
 }

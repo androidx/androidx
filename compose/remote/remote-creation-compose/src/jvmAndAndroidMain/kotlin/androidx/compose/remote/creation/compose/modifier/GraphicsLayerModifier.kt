@@ -35,8 +35,9 @@ import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.GraphicsLayerModifier as CreationGraphicsLayerModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
-internal class GraphicsLayerModifier(
+internal data class GraphicsLayerModifier(
     val scaleX: RemoteFloat,
     val scaleY: RemoteFloat,
     val rotationX: RemoteFloat,
@@ -203,6 +204,7 @@ internal class GraphicsLayerModifier(
  * @param renderEffect [RemoteRenderEffect] to apply, or null
  * @return a [RemoteModifier] that applies the graphics layer effects
  */
+@Stable
 public fun RemoteModifier.graphicsLayer(
     scaleX: RemoteFloat = 1f.rf,
     scaleY: RemoteFloat = 1f.rf,

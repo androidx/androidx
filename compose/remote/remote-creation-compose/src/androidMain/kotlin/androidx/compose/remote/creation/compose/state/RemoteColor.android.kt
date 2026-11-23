@@ -23,6 +23,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.Rc.AndroidColors
+import androidx.compose.runtime.Stable
 
 /**
  * Creates a themed [RemoteColor] that resolves to different Android system colors in light and dark
@@ -38,6 +39,7 @@ import androidx.compose.remote.creation.Rc.AndroidColors
  * @throws IllegalArgumentException if [lightColorRes] or [darkColorRes] is not a supported
  *   [android.R.color] system color resource.
  */
+@Stable
 public fun RemoteColor.Companion.createThemedRemoteColor(
     @ColorRes lightColorRes: Int,
     @ColorRes darkColorRes: Int,

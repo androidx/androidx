@@ -25,37 +25,30 @@ import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.modifiers.OffsetModifier as CreationOffsetModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
-internal class OffsetModifier(
-    public val x: RemoteFloat,
-    public val y: RemoteFloat,
+internal data class OffsetModifier(
+    public val x: RemoteFloat? = null,
+    public val y: RemoteFloat? = null,
     private val xDp: RemoteDp? = null,
     private val yDp: RemoteDp? = null,
 ) : RemoteModifier.Element {
 
-    public constructor(
-        x: RemoteDp,
-        y: RemoteDp,
-    ) : this(
-        x = x.toPx(),
-        y = y.toPx(),
-        xDp = x,
-        yDp = y,
-    )
+    public constructor(x: RemoteDp, y: RemoteDp) : this(xDp = x, yDp = y)
 
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
         with(this as InternalRemoteStateScope) {
             val resolvedX =
                 if (densityBehavior == RemoteDensityBehavior.Dp) {
-                    xDp?.value ?: (x / density.density)
+                    xDp?.value ?: (x!! / density.density)
                 } else {
-                    x
+                    xDp?.toPx(density) ?: x!!
                 }
             val resolvedY =
                 if (densityBehavior == RemoteDensityBehavior.Dp) {
-                    yDp?.value ?: (y / density.density)
+                    yDp?.value ?: (y!! / density.density)
                 } else {
-                    y
+                    yDp?.toPx(density) ?: y!!
                 }
             CreationOffsetModifier(resolvedX.floatId, resolvedY.floatId)
         }
@@ -68,5 +61,6 @@ internal class OffsetModifier(
  * @param y The vertical offset in [RemoteDp].
  * @return a [RemoteModifier] that offsets the content by ([x], [y])
  */
+@Stable
 public fun RemoteModifier.offset(x: RemoteDp = 0.rdp, y: RemoteDp = 0.rdp): RemoteModifier =
     then(OffsetModifier(x, y))

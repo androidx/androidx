@@ -51,7 +51,7 @@ public sealed interface RemoteRowScope {
      * @return a [RemoteModifier] that aligns the layout by its first baseline
      */
     @Stable
-    public fun RemoteModifier.alignByBaseline(): RemoteModifier = then(AlignByBaselineModifier())
+    public fun RemoteModifier.alignByBaseline(): RemoteModifier = then(AlignByBaselineModifier)
 }
 
 internal object RemoteRowScopeInstance : RemoteRowScope

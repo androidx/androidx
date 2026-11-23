@@ -29,8 +29,9 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.WidthModifier as RecordingWidthModifier
+import androidx.compose.runtime.Stable
 
-internal class WidthModifier(public val type: Type, public val value: RemoteFloat) :
+internal data class WidthModifier(public val type: Type, public val value: RemoteFloat) :
     RemoteModifier.Element {
     internal constructor(typeInt: Int, value: RemoteFloat) : this(Type.fromInt(typeInt), value)
 
@@ -46,6 +47,7 @@ internal class WidthModifier(public val type: Type, public val value: RemoteFloa
  * @param width The width to apply in [RemoteDp].
  * @return a [RemoteModifier] that sets the width to [width]
  */
+@Stable
 public fun RemoteModifier.width(width: RemoteDp): RemoteModifier =
     then(WidthModifier(Type.EXACT_DP, width.value))
 
@@ -55,6 +57,7 @@ public fun RemoteModifier.width(width: RemoteDp): RemoteModifier =
  * @param width The width to apply in pixels.
  * @return a [RemoteModifier] that sets the width to [width]
  */
+@Stable
 public fun RemoteModifier.width(width: RemoteFloat): RemoteModifier =
     then(WidthModifier(Type.EXACT, width))
 
@@ -64,6 +67,7 @@ public fun RemoteModifier.width(width: RemoteFloat): RemoteModifier =
  * @param fraction The fraction of the maximum width to use.
  * @return a [RemoteModifier] that fills [fraction] of the maximum available width
  */
+@Stable
 public fun RemoteModifier.fillMaxWidth(fraction: RemoteFloat = RemoteFloat(1f)): RemoteModifier =
     then(WidthModifier(Type.FILL, fraction))
 
@@ -87,6 +91,7 @@ public fun RemoteModifier.fillParentMaxWidth(fraction: Float): RemoteModifier =
  * @param fraction The fraction of the parent's maximum width to use.
  * @return a [RemoteModifier] that fills [fraction] of the parent's maximum width
  */
+@Stable
 public fun RemoteModifier.fillParentMaxWidth(fraction: RemoteFloat = 1f.rf): RemoteModifier =
     then(WidthModifier(Type.FILL_PARENT_MAX_WIDTH, fraction))
 

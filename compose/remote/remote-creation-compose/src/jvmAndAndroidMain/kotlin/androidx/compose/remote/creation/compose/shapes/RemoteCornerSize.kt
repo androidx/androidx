@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /** Defines size of a corner in pixels. For example for rounded shape it can be a corner radius. */
 @Immutable
@@ -44,7 +45,7 @@ public interface RemoteCornerSize {
  * @param size the corner size defined in [RemoteDp].
  * @return a [RemoteCornerSize] with the given [size]
  */
-public fun RemoteCornerSize(size: RemoteDp): RemoteCornerSize = RemoteDpCornerSize(size)
+@Stable public fun RemoteCornerSize(size: RemoteDp): RemoteCornerSize = RemoteDpCornerSize(size)
 
 internal data class RemoteDpCornerSize(val size: RemoteDp) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = ${size.value}.dp)"
@@ -60,7 +61,7 @@ internal data class RemoteDpCornerSize(val size: RemoteDp) : RemoteCornerSize {
  * @param size the corner size defined in pixels.
  * @return a [RemoteCornerSize] with the given [size] in pixels
  */
-public fun RemoteCornerSize(size: RemoteFloat): RemoteCornerSize = PxCornerSize(size)
+@Stable public fun RemoteCornerSize(size: RemoteFloat): RemoteCornerSize = PxCornerSize(size)
 
 internal data class PxCornerSize(val size: RemoteFloat) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = $size.px)"
@@ -77,6 +78,7 @@ internal data class PxCornerSize(val size: RemoteFloat) : RemoteCornerSize {
  *   or larger than 100 percent.
  * @return a [RemoteCornerSize] with the given [percent] of the shape's smaller side
  */
+@Stable
 public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteCornerSize =
     RemotePercentCornerSize(percent)
 

@@ -30,6 +30,7 @@ public value class RemoteTextDecoration internal constructor(internal val mask: 
      * @param decoration The other [RemoteTextDecoration] to combine with this one.
      * @return a [RemoteTextDecoration] combining this decoration and [decoration]
      */
+    @Stable
     public operator fun plus(decoration: RemoteTextDecoration): RemoteTextDecoration =
         RemoteTextDecoration(mask or decoration.mask)
 
@@ -39,6 +40,7 @@ public value class RemoteTextDecoration internal constructor(internal val mask: 
      * @param other The [RemoteTextDecoration] to check for containment.
      * @return `true` if this decoration includes all decorations in [other], `false` otherwise
      */
+    @Stable
     public operator fun contains(other: RemoteTextDecoration): Boolean =
         (mask or other.mask) == mask
 

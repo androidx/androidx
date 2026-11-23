@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /**
  * A shape describing the rectangle with rounded corners.
@@ -116,6 +117,7 @@ public val RemoteRectangleShape: RemoteRoundedCornerShape = RemoteRoundedCornerS
  * @param corner [RemoteCornerSize] to apply.
  * @return a [RemoteRoundedCornerShape] with [corner] applied to all four corners
  */
+@Stable
 public fun RemoteRoundedCornerShape(corner: RemoteCornerSize): RemoteRoundedCornerShape =
     RemoteRoundedCornerShape(corner, corner, corner, corner)
 
@@ -128,6 +130,7 @@ public fun RemoteRoundedCornerShape(corner: RemoteCornerSize): RemoteRoundedCorn
  * @param size Size in [RemoteDp] to apply.
  * @return a [RemoteRoundedCornerShape] with [size] applied to all four corners
  */
+@Stable
 public fun RemoteRoundedCornerShape(size: RemoteDp): RemoteRoundedCornerShape =
     RemoteRoundedCornerShape(RemoteCornerSize(size))
 
@@ -137,6 +140,7 @@ public fun RemoteRoundedCornerShape(size: RemoteDp): RemoteRoundedCornerShape =
  * @param size Size in pixels to apply.
  * @return a [RemoteRoundedCornerShape] with [size] applied to all four corners
  */
+@Stable
 public fun RemoteRoundedCornerShape(size: RemoteFloat): RemoteRoundedCornerShape =
     RemoteRoundedCornerShape(RemoteCornerSize(size))
 
@@ -146,6 +150,7 @@ public fun RemoteRoundedCornerShape(size: RemoteFloat): RemoteRoundedCornerShape
  * @param percent Size in percents to apply.
  * @return a [RemoteRoundedCornerShape] with [percent] applied to all four corners
  */
+@Stable
 public fun RemoteRoundedCornerShape(
     @IntRange(from = 0, to = 100) percent: Int
 ): RemoteRoundedCornerShape = RemoteRoundedCornerShape(RemoteCornerSize(percent))
@@ -159,6 +164,7 @@ public fun RemoteRoundedCornerShape(
  * @param bottomStart A size of the bottom start corner.
  * @return a [RemoteRoundedCornerShape] with the specified corner sizes
  */
+@Stable
 public fun RemoteRoundedCornerShape(
     topStart: RemoteDp = 0.rdp,
     topEnd: RemoteDp = 0.rdp,
@@ -181,6 +187,7 @@ public fun RemoteRoundedCornerShape(
  * @param bottomStart A size of the bottom start corner in pixels.
  * @return a [RemoteRoundedCornerShape] with the specified corner sizes in pixels
  */
+@Stable
 public fun RemoteRoundedCornerShape(
     topStart: RemoteFloat = 0.rf,
     topEnd: RemoteFloat = 0.rf,
@@ -207,6 +214,7 @@ public fun RemoteRoundedCornerShape(
  *   with a range of 0 - 100.
  * @return a [RemoteRoundedCornerShape] with the specified corner percentages
  */
+@Stable
 public fun RemoteRoundedCornerShape(
     @IntRange(from = 0, to = 100) topStartPercent: Int = 0,
     @IntRange(from = 0, to = 100) topEndPercent: Int = 0,

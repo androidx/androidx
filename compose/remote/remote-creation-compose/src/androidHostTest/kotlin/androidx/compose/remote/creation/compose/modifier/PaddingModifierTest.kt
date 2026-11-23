@@ -236,15 +236,15 @@ class PaddingModifierTest {
             "This function only compares PaddingModifier"
         }
 
-        val modifier1StartId = creationState.getId(modifier1.start)
-        val modifier1TopId = creationState.getId(modifier1.top)
-        val modifier1EndId = creationState.getId(modifier1.end)
-        val modifier1BottomId = creationState.getId(modifier1.bottom)
+        val modifier1StartId = creationState.getId(modifier1.resolveStart(creationState))
+        val modifier1TopId = creationState.getId(modifier1.resolveTop(creationState))
+        val modifier1EndId = creationState.getId(modifier1.resolveEnd(creationState))
+        val modifier1BottomId = creationState.getId(modifier1.resolveBottom(creationState))
 
-        val modifier2StartId = creationState.getId(modifier2.start)
-        val modifier2TopId = creationState.getId(modifier2.top)
-        val modifier2EndId = creationState.getId(modifier2.end)
-        val modifier2BottomId = creationState.getId(modifier2.bottom)
+        val modifier2StartId = creationState.getId(modifier2.resolveStart(creationState))
+        val modifier2TopId = creationState.getId(modifier2.resolveTop(creationState))
+        val modifier2EndId = creationState.getId(modifier2.resolveEnd(creationState))
+        val modifier2BottomId = creationState.getId(modifier2.resolveBottom(creationState))
 
         makeAndPaintCoreDocument()
 

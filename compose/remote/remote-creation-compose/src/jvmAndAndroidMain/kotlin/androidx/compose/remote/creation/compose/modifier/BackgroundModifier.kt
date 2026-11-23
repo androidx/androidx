@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.DynamicSolidBackgroundModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.SolidBackgroundModifier
+import androidx.compose.runtime.Stable
 
 internal data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.Element {
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
@@ -52,15 +53,26 @@ internal data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.
  * @param color The [RemoteColor] to use for the background.
  * @return a [RemoteModifier] that draws a [color] background behind the content
  */
+@Stable
 public fun RemoteModifier.background(color: RemoteColor): RemoteModifier =
     this.then(BackgroundModifier(color))
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
-    this.drawWithContent {
+internal data class BrushBackgroundModifier(val brush: RemoteBrush) :
+    DrawWithContentModifier({
         drawRect(paint = RemotePaint { with(brush) { applyTo(this@RemotePaint, size) } })
         drawContent()
-    }
+    })
+
+internal data class PainterBackgroundModifier(val painter: RemotePainter) :
+    DrawWithContentModifier({
+        with(painter) { onDraw() }
+        drawContent()
+    })
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Stable
+public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
+    this.then(BrushBackgroundModifier(brush))
 
 /**
  * Draws a [painter] behind the content.
@@ -68,8 +80,6 @@ public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
  * @param painter The [RemotePainter] to use for the background.
  * @return a [RemoteModifier] that draws [painter] behind the content
  */
+@Stable
 public fun RemoteModifier.background(painter: RemotePainter): RemoteModifier =
-    this.drawWithContent {
-        with(painter) { onDraw() }
-        drawContent()
-    }
+    this.then(PainterBackgroundModifier(painter))

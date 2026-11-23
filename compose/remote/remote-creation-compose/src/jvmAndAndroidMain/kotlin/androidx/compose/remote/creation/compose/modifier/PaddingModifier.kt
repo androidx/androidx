@@ -28,12 +28,13 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.PaddingModifier as CreationPaddingModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
-internal class PaddingModifier(
-    public val start: RemoteFloat,
-    public val top: RemoteFloat,
-    public val end: RemoteFloat,
-    public val bottom: RemoteFloat,
+internal data class PaddingModifier(
+    public val start: RemoteFloat? = null,
+    public val top: RemoteFloat? = null,
+    public val end: RemoteFloat? = null,
+    public val bottom: RemoteFloat? = null,
     internal val startDp: RemoteDp? = null,
     internal val topDp: RemoteDp? = null,
     internal val endDp: RemoteDp? = null,
@@ -45,23 +46,14 @@ internal class PaddingModifier(
         top: RemoteDp,
         end: RemoteDp,
         bottom: RemoteDp,
-    ) : this(
-        start = start.toPx(),
-        top = top.toPx(),
-        end = end.toPx(),
-        bottom = bottom.toPx(),
-        startDp = start,
-        topDp = top,
-        endDp = end,
-        bottomDp = bottom,
-    )
+    ) : this(startDp = start, topDp = top, endDp = end, bottomDp = bottom)
 
     init {
         require(
-            (!start.hasConstantValue || start.constantValue >= 0f) and
-                (!top.hasConstantValue || top.constantValue >= 0f) and
-                (!end.hasConstantValue || end.constantValue >= 0f) and
-                (!bottom.hasConstantValue || bottom.constantValue >= 0f)
+            (start == null || !start.hasConstantValue || start.constantValue >= 0f) and
+                (top == null || !top.hasConstantValue || top.constantValue >= 0f) and
+                (end == null || !end.hasConstantValue || end.constantValue >= 0f) and
+                (bottom == null || !bottom.hasConstantValue || bottom.constantValue >= 0f)
         ) {
             "Padding must be non-negative"
         }
@@ -84,30 +76,30 @@ internal class PaddingModifier(
 
 internal fun PaddingModifier.resolveStart(scope: RemoteStateScope): RemoteFloat =
     if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
-        startDp?.value ?: (start / scope.density.density)
+        startDp?.value ?: (start!! / scope.density.density)
     } else {
-        start
+        startDp?.toPx(scope.density) ?: start!!
     }
 
 internal fun PaddingModifier.resolveTop(scope: RemoteStateScope): RemoteFloat =
     if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
-        topDp?.value ?: (top / scope.density.density)
+        topDp?.value ?: (top!! / scope.density.density)
     } else {
-        top
+        topDp?.toPx(scope.density) ?: top!!
     }
 
 internal fun PaddingModifier.resolveEnd(scope: RemoteStateScope): RemoteFloat =
     if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
-        endDp?.value ?: (end / scope.density.density)
+        endDp?.value ?: (end!! / scope.density.density)
     } else {
-        end
+        endDp?.toPx(scope.density) ?: end!!
     }
 
 internal fun PaddingModifier.resolveBottom(scope: RemoteStateScope): RemoteFloat =
     if (scope.densityBehavior == RemoteDensityBehavior.Dp) {
-        bottomDp?.value ?: (bottom / scope.density.density)
+        bottomDp?.value ?: (bottom!! / scope.density.density)
     } else {
-        bottom
+        bottomDp?.toPx(scope.density) ?: bottom!!
     }
 
 internal fun PaddingModifier.resolveLeft(scope: RemoteStateScope): RemoteFloat =
@@ -127,6 +119,7 @@ internal fun PaddingModifier.resolveRight(scope: RemoteStateScope): RemoteFloat 
  * @param bottom Padding at the bottom edge.
  * @return a [RemoteModifier] that applies padding to each edge
  */
+@Stable
 public fun RemoteModifier.padding(
     start: RemoteFloat = 0f.rf,
     top: RemoteFloat = 0f.rf,
@@ -140,6 +133,7 @@ public fun RemoteModifier.padding(
  * @param all Padding in pixels applied to all four edges.
  * @return a [RemoteModifier] that applies [all] padding to all edges
  */
+@Stable
 public fun RemoteModifier.padding(all: RemoteFloat): RemoteModifier = padding(all, all, all, all)
 
 /**
@@ -150,6 +144,7 @@ public fun RemoteModifier.padding(all: RemoteFloat): RemoteModifier = padding(al
  * @param vertical Padding in pixels applied to the top and bottom edges.
  * @return a [RemoteModifier] that applies [horizontal] and [vertical] padding
  */
+@Stable
 public fun RemoteModifier.padding(
     horizontal: RemoteFloat = 0f.rf,
     vertical: RemoteFloat = 0f.rf,
@@ -161,6 +156,7 @@ public fun RemoteModifier.padding(
  * @param paddingValues The [RemotePaddingValues] describing the padding for each edge.
  * @return a [RemoteModifier] that applies [paddingValues]
  */
+@Stable
 public fun RemoteModifier.padding(paddingValues: RemotePaddingValues): RemoteModifier =
     padding(
         start = paddingValues.startPadding,
@@ -175,6 +171,7 @@ public fun RemoteModifier.padding(paddingValues: RemotePaddingValues): RemoteMod
  * @param all Padding in [RemoteDp] applied to all four edges.
  * @return a [RemoteModifier] that applies [all] padding to all edges
  */
+@Stable
 public fun RemoteModifier.padding(all: RemoteDp): RemoteModifier =
     padding(start = all, top = all, end = all, bottom = all)
 
@@ -187,6 +184,7 @@ public fun RemoteModifier.padding(all: RemoteDp): RemoteModifier =
  * @param bottom Padding at the bottom edge.
  * @return a [RemoteModifier] that applies padding to each edge
  */
+@Stable
 public fun RemoteModifier.padding(
     start: RemoteDp = 0.rdp,
     top: RemoteDp = 0.rdp,
@@ -204,6 +202,7 @@ public fun RemoteModifier.padding(
  * @param vertical Padding in [RemoteDp] applied to the top and bottom edges.
  * @return a [RemoteModifier] that applies [horizontal] and [vertical] padding
  */
+@Stable
 public fun RemoteModifier.padding(
     horizontal: RemoteDp = 0.rdp,
     vertical: RemoteDp = 0.rdp,

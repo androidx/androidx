@@ -29,8 +29,10 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.HeightModifier as RecordingHeightModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
-internal class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteModifier.Element {
+internal data class HeightModifier(val type: Type, val value: RemoteFloat) :
+    RemoteModifier.Element {
     internal constructor(typeInt: Int, value: RemoteFloat) : this(Type.fromInt(typeInt), value)
 
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
@@ -45,6 +47,7 @@ internal class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteMo
  * @param height The height to apply in [RemoteDp].
  * @return a [RemoteModifier] that sets the height to [height]
  */
+@Stable
 public fun RemoteModifier.height(height: RemoteDp): RemoteModifier =
     then(HeightModifier(Type.EXACT_DP, height.value))
 
@@ -54,6 +57,7 @@ public fun RemoteModifier.height(height: RemoteDp): RemoteModifier =
  * @param height The height to apply in pixels.
  * @return a [RemoteModifier] that sets the height to [height]
  */
+@Stable
 public fun RemoteModifier.height(height: RemoteFloat): RemoteModifier =
     then(HeightModifier(Type.EXACT, height))
 
@@ -63,6 +67,7 @@ public fun RemoteModifier.height(height: RemoteFloat): RemoteModifier =
  * @param fraction The fraction of the maximum height to use.
  * @return a [RemoteModifier] that fills [fraction] of the maximum available height
  */
+@Stable
 public fun RemoteModifier.fillMaxHeight(fraction: RemoteFloat = 1f.rf): RemoteModifier =
     then(HeightModifier(Type.FILL, fraction))
 
@@ -80,6 +85,7 @@ public fun RemoteModifier.fillParentMaxHeight(fraction: Float): RemoteModifier =
  * @param fraction The fraction of the parent's maximum height to use.
  * @return a [RemoteModifier] that fills [fraction] of the parent's maximum height
  */
+@Stable
 public fun RemoteModifier.fillParentMaxHeight(fraction: RemoteFloat = 1f.rf): RemoteModifier =
     then(HeightModifier(Type.FILL_PARENT_MAX_HEIGHT, fraction))
 

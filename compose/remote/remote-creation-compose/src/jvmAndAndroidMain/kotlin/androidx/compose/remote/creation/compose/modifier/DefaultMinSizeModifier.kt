@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.state.RemoteDp
+import androidx.compose.runtime.Stable
 
 private fun RemoteModifier.Element.isWidthConstrained(): Boolean =
     (this is WidthModifier && this.type != Type.WRAP) ||
@@ -36,6 +37,7 @@ private fun RemoteModifier.Element.isHeightConstrained(): Boolean =
  * @param minHeight The minimum height to be used if height is otherwise unconstrained.
  * @return a [RemoteModifier] that constrains the default minimum size
  */
+@Stable
 public fun RemoteModifier.defaultMinSize(
     minWidth: RemoteDp? = null,
     minHeight: RemoteDp? = null,

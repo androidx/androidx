@@ -23,8 +23,9 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.densityBehavior
 import androidx.compose.remote.creation.modifiers.HeightInModifier as CreationHeightInModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Stable
 
-internal class HeightInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
+internal data class HeightInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
     RemoteModifier.Element {
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element =
         with(this as InternalRemoteStateScope) {
@@ -48,6 +49,7 @@ internal class HeightInModifier(val min: RemoteDp? = null, val max: RemoteDp? = 
  * @param max The maximum height.
  * @return a [RemoteModifier] that constrains the height between [min] and [max]
  */
+@Stable
 public fun RemoteModifier.heightIn(min: RemoteDp? = null, max: RemoteDp? = null): RemoteModifier {
     return then(HeightInModifier(min = min, max = max))
 }
