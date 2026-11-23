@@ -29,10 +29,12 @@ import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10
+import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.video.Quality
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
 import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory
@@ -55,7 +57,7 @@ import org.junit.runners.Parameterized
 
 @SmallTest
 @RunWith(Parameterized::class)
-class BackupHdrProfileEncoderProfilesProviderTest(
+class QualityExploredEncoderProfilesProviderDeviceTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
     private val quality: Int,
@@ -161,30 +163,24 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     @LabTestRule.LabTestOnly
     @SdkSuppress(minSdkVersion = 33)
     @Test
-    fun providerWithDefaultEncoderInfoFinder_provideHdrBackupProfile_whenBaseSdrProfileIsValid() {
+    fun providerWithDefaultEncoderInfoFinder_provideHlg10Profile_whenBaseSdrProfileIsValid() {
         // Pre-arrange.
         assumeTrue(cameraInfo.supportedDynamicRanges.containsAll(setOf(SDR, HLG_10_BIT)))
-        // Backup HLG10 profiles require a hardware-accelerated HEVC encoder (b/567407353).
+        // HLG10 profiles require a hardware-accelerated HEVC encoder (b/567407353).
         assumeTrue(isHevcEncoderHardwareAccelerated())
 
         // Arrange.
         assumeFalse(hasMediaCodecIncorrectInfoQuirk())
         assumeTrue(baseProvider.hasProfile(quality))
-        val baseVideoProfilesSize = baseProvider.getAll(quality)!!.videoProfiles.size
 
         // Act.
-        val backupProvider =
-            BackupHdrProfileEncoderProfilesProvider(
-                baseProvider,
-                DefaultVideoEncoderFactory.DEFAULT_FINDER,
-            )
-        assertThat(backupProvider.hasProfile(quality)).isTrue()
-        val backupVideoProfiles = backupProvider.getAll(quality)!!.videoProfiles
+        val provider = createQualityExploredProvider()
+        assertThat(provider.hasProfile(quality)).isTrue()
+        val videoProfiles = provider.getAll(quality)!!.videoProfiles
 
         // Verify.
-        assertThat(backupVideoProfiles.size).isEqualTo(baseVideoProfilesSize + 1)
-        assertThat(backupVideoProfiles.last().hdrFormat).isEqualTo(HDR_HLG)
-        assertThat(backupVideoProfiles.last().bitDepth).isEqualTo(BIT_DEPTH_10)
+        assertThat(videoProfiles.any { it.hdrFormat == HDR_HLG && it.bitDepth == BIT_DEPTH_10 })
+            .isTrue()
     }
 
     // Regression test for b/567407353: feeding camera surfaces into a software HEVC encoder for
@@ -192,7 +188,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     @LabTestRule.LabTestOnly
     @SdkSuppress(minSdkVersion = 33)
     @Test
-    fun providerWithDefaultEncoderInfoFinder_noHdrBackupProfile_whenHevcEncoderIsSoftware() {
+    fun providerWithDefaultEncoderInfoFinder_noHlg10Profile_whenHevcEncoderIsSoftware() {
         // Pre-arrange.
         assumeTrue(cameraInfo.supportedDynamicRanges.containsAll(setOf(SDR, HLG_10_BIT)))
         assumeFalse(isHevcEncoderHardwareAccelerated())
@@ -202,16 +198,21 @@ class BackupHdrProfileEncoderProfilesProviderTest(
         val baseVideoProfiles = requireNotNull(baseProvider.getAll(quality)).videoProfiles
 
         // Act.
-        val backupProvider =
-            BackupHdrProfileEncoderProfilesProvider(
-                baseProvider,
-                DefaultVideoEncoderFactory.DEFAULT_FINDER,
-            )
-        val backupVideoProfiles = requireNotNull(backupProvider.getAll(quality)).videoProfiles
+        val videoProfiles =
+            requireNotNull(createQualityExploredProvider().getAll(quality)).videoProfiles
 
         // Verify.
-        assertThat(backupVideoProfiles).containsExactlyElementsIn(baseVideoProfiles)
+        assertThat(videoProfiles).containsExactlyElementsIn(baseVideoProfiles)
     }
+
+    private fun createQualityExploredProvider(): QualityExploredEncoderProfilesProvider =
+        QualityExploredEncoderProfilesProvider(
+            baseProvider,
+            Quality.getSortedQualities(),
+            setOf(HLG_10_BIT),
+            cameraInfo.getSupportedResolutions(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE),
+            DefaultVideoEncoderFactory.DEFAULT_FINDER,
+        )
 
     private fun isHevcEncoderHardwareAccelerated(): Boolean =
         DefaultVideoEncoderFactory.DEFAULT_FINDER.find(MIMETYPE_VIDEO_HEVC)

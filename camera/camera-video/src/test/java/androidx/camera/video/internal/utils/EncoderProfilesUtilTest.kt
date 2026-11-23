@@ -20,6 +20,7 @@ import android.media.EncoderProfiles.VideoProfile.HDR_DOLBY_VISION
 import android.media.EncoderProfiles.VideoProfile.HDR_HDR10
 import android.media.EncoderProfiles.VideoProfile.HDR_HDR10PLUS
 import android.media.EncoderProfiles.VideoProfile.HDR_HLG
+import android.media.EncoderProfiles.VideoProfile.HDR_NONE
 import android.media.MediaCodecInfo.CodecProfileLevel
 import android.media.MediaFormat
 import android.media.MediaRecorder
@@ -29,8 +30,11 @@ import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
 import androidx.camera.core.DynamicRange.HDR10_10_BIT
 import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
 import androidx.camera.core.DynamicRange.HLG_10_BIT
+import androidx.camera.core.DynamicRange.SDR
+import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeVideoProfileProxy
 import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
@@ -126,6 +130,59 @@ class EncoderProfilesUtilTest {
     @Test
     fun validateOrAdapt_returnsNullWhenNoEncoder() {
         assertThat(validateOrAdapt(sdrProfile) { null }).isNull()
+    }
+
+    @Test
+    fun createDefaultVideoProfile_sdr() {
+        val profile = EncoderProfilesUtil.createDefaultVideoProfile(RESOLUTION_1080P, SDR)
+
+        assertThat(profile.codec).isEqualTo(MediaRecorder.VideoEncoder.H264)
+        assertThat(profile.mediaType).isEqualTo(MediaFormat.MIMETYPE_VIDEO_AVC)
+        assertThat(profile.profile).isEqualTo(EncoderProfilesProxy.CODEC_PROFILE_NONE)
+        assertThat(profile.bitDepth).isEqualTo(BIT_DEPTH_8)
+        assertThat(profile.hdrFormat).isEqualTo(HDR_NONE)
+        assertThat(profile.resolution).isEqualTo(RESOLUTION_1080P)
+        assertThat(profile.frameRate).isEqualTo(30)
+        // 4 Mbps at 720p scaled to 1080p.
+        assertThat(profile.bitrate).isEqualTo(9_000_000)
+    }
+
+    @Test
+    fun createDefaultVideoProfile_hlg10() {
+        val profile = EncoderProfilesUtil.createDefaultVideoProfile(RESOLUTION_1080P, HLG_10_BIT)
+
+        assertThat(profile.codec).isEqualTo(MediaRecorder.VideoEncoder.HEVC)
+        assertThat(profile.mediaType).isEqualTo(MediaFormat.MIMETYPE_VIDEO_HEVC)
+        assertThat(profile.profile).isEqualTo(CodecProfileLevel.HEVCProfileMain10)
+        assertThat(profile.bitDepth).isEqualTo(BIT_DEPTH_10)
+        assertThat(profile.hdrFormat).isEqualTo(HDR_HLG)
+        // 4 Mbps at 720p scaled to 1080p and 10-bit.
+        assertThat(profile.bitrate).isEqualTo(11_250_000)
+    }
+
+    @Test
+    fun createDefaultVideoProfile_dolbyVision() {
+        val profile =
+            EncoderProfilesUtil.createDefaultVideoProfile(RESOLUTION_1080P, DOLBY_VISION_10_BIT)
+
+        assertThat(profile.codec).isEqualTo(MediaRecorder.VideoEncoder.DOLBY_VISION)
+        assertThat(profile.mediaType).isEqualTo(MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION)
+        assertThat(profile.profile).isEqualTo(CodecProfileLevel.DolbyVisionProfileDvheSt)
+        assertThat(profile.hdrFormat).isEqualTo(HDR_DOLBY_VISION)
+    }
+
+    @Test
+    fun createDefaultEncoderProfiles() {
+        val profiles = EncoderProfilesUtil.createDefaultEncoderProfiles(listOf(sdrProfile))
+
+        assertThat(profiles.defaultDurationSeconds).isEqualTo(60)
+        assertThat(profiles.recommendedFileFormat).isEqualTo(MediaRecorder.OutputFormat.MPEG_4)
+        assertThat(profiles.videoProfiles).containsExactly(sdrProfile)
+        val audioProfile = profiles.audioProfiles.single()
+        assertThat(audioProfile.mediaType).isEqualTo(MediaFormat.MIMETYPE_AUDIO_AAC)
+        assertThat(audioProfile.bitrate).isEqualTo(96000)
+        assertThat(audioProfile.sampleRate).isEqualTo(44100)
+        assertThat(audioProfile.channels).isEqualTo(1)
     }
 
     private fun createHlg10Profile(): VideoProfileProxy =

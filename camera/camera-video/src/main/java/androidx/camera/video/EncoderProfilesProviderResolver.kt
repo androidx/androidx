@@ -21,16 +21,13 @@ import androidx.camera.core.Logger
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.ImageFormatConstants
-import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider
 import androidx.camera.video.internal.QualityExploredEncoderProfilesProvider
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
-import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider
 import androidx.camera.video.internal.workaround.QualityAddedEncoderProfilesProvider
 import androidx.camera.video.internal.workaround.QualityResolutionModifiedEncoderProfilesProvider
 import androidx.camera.video.internal.workaround.QualityValidatedEncoderProfilesProvider
-import java.util.Collections
 
 /** Resolver for providing [EncoderProfilesProvider] used by [Recorder]. */
 internal object EncoderProfilesProviderResolver {
@@ -70,8 +67,27 @@ internal object EncoderProfilesProviderResolver {
             return provider
         }
 
+        val cameraSupportedResolutions =
+            cameraInfo.getSupportedResolutions(
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+            )
+        fun explore(
+            baseProvider: EncoderProfilesProvider,
+            targetQualities: List<Quality>,
+            targetDynamicRanges: Set<DynamicRange>,
+        ) =
+            QualityExploredEncoderProfilesProvider(
+                baseProvider,
+                targetQualities,
+                targetDynamicRanges,
+                cameraSupportedResolutions,
+                videoEncoderInfoFinder,
+            )
+
         if (!CapabilitiesByQuality.containsSupportedQuality(provider, qualitySource)) {
             Logger.w(TAG, "Camera EncoderProfilesProvider doesn't contain any supported Quality.")
+            // No supported quality, e.g. an external camera without CamcorderProfile: create FHD,
+            // HD and SD profiles from default values.
             // Limit maximum supported video resolution to 1080p(FHD).
             // While 2160p(UHD) may be reported as supported by the Camera and MediaCodec APIs,
             // testing on lab devices has shown that recording at this resolution is not always
@@ -79,9 +95,12 @@ internal object EncoderProfilesProviderResolver {
             // supported resolution.
             // See: https://source.android.com/static/docs/compatibility/5.1/android-5.1-cdd.pdf,
             // 5.2. Video Encoding.
-            val targetQualities = listOf(Quality.FHD, Quality.HD, Quality.SD)
             provider =
-                DefaultEncoderProfilesProvider(cameraInfo, targetQualities, videoEncoderInfoFinder)
+                explore(
+                    EncoderProfilesProvider.EMPTY,
+                    listOf(Quality.FHD, Quality.HD, Quality.SD),
+                    setOf(DynamicRange.SDR),
+                )
         }
 
         // Decorate with extra supported qualities
@@ -93,25 +112,23 @@ internal object EncoderProfilesProviderResolver {
                 videoEncoderInfoFinder,
             )
 
+        // Explore all qualities supported by the camera and a video encoder
         if (videoCapabilitiesSource == Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES) {
-            provider =
-                QualityExploredEncoderProfilesProvider(
-                    provider,
-                    Quality.getSortedQualities(),
-                    Collections.singleton(DynamicRange.SDR),
-                    cameraInfo.getSupportedResolutions(
-                        ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-                    ),
-                    videoEncoderInfoFinder,
-                )
+            provider = explore(provider, Quality.getSortedQualities(), setOf(DynamicRange.SDR))
         }
 
         // Modify matching resolutions based on camera support
         provider = QualityResolutionModifiedEncoderProfilesProvider(provider, deviceQuirks)
 
-        // Add backup HDR profiles (HLG10)
+        // Add an HLG10 profile to every quality that has a video profile. Qualities without a
+        // video profile are not targeted, so no quality is added.
         if (cameraInfo.isHlg10Supported) {
-            provider = BackupHdrProfileEncoderProfilesProvider(provider, videoEncoderInfoFinder)
+            provider =
+                explore(
+                    provider,
+                    provider.getQualitiesWithProfile(),
+                    setOf(DynamicRange.HLG_10_BIT),
+                )
         }
 
         // Filter for validated qualities
@@ -119,6 +136,14 @@ internal object EncoderProfilesProviderResolver {
 
         return provider
     }
+
+    /** Returns the qualities in [Quality.getSortedQualities] that have a video profile. */
+    private fun EncoderProfilesProvider.getQualitiesWithProfile(): List<Quality> =
+        Quality.getSortedQualities().filter {
+            val qualityValue =
+                (it as Quality.ConstantQuality).getQualityValue(Quality.QUALITY_SOURCE_REGULAR)
+            !getAll(qualityValue)?.videoProfiles.isNullOrEmpty()
+        }
 
     /** Extension property to check HLG10 support from supported dynamic ranges. */
     private val CameraInfoInternal.isHlg10Supported: Boolean

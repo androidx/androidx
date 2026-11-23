@@ -22,6 +22,7 @@ import android.media.CamcorderProfile.QUALITY_HIGH_SPEED_HIGH
 import android.media.EncoderProfiles.VideoProfile
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.EncoderProfilesProvider
+import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_1080P
@@ -93,7 +94,7 @@ class EncoderProfilesProviderResolverTest {
     }
 
     @Test
-    fun resolve_noSupportedQuality_usesDefaultProvider() {
+    fun resolve_noSupportedQuality_createsDefaultProfiles() {
         val cameraInfo =
             FakeCameraInfoInternal().apply {
                 encoderProfilesProvider = EncoderProfilesProvider.EMPTY
@@ -140,7 +141,7 @@ class EncoderProfilesProviderResolverTest {
     }
 
     @Test
-    fun resolve_hlg10Supported_usesBackupHdrProvider() {
+    fun resolve_hlg10Supported_addsHlg10Profile() {
         val cameraInfo =
             FakeCameraInfoInternal().apply {
                 encoderProfilesProvider =
@@ -165,7 +166,7 @@ class EncoderProfilesProviderResolverTest {
     }
 
     @Test
-    fun resolve_hlg10Smpte209450Supported_usesBackupHdrProvider() {
+    fun resolve_hlg10Smpte209450Supported_addsHlg10Profile() {
         val cameraInfo =
             FakeCameraInfoInternal().apply {
                 encoderProfilesProvider =
@@ -215,5 +216,135 @@ class EncoderProfilesProviderResolverTest {
                 }
             )
             .isFalse()
+    }
+
+    @Test
+    fun resolve_noSupportedQuality_camcorderProfileSource_limitsToFhd() {
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                encoderProfilesProvider = EncoderProfilesProvider.EMPTY
+                setSupportedResolutions(
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                    listOf(RESOLUTION_2160P, RESOLUTION_1080P),
+                )
+            }
+
+        val provider =
+            EncoderProfilesProviderResolver.resolve(
+                cameraInfo,
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
+                QUALITY_SOURCE_REGULAR,
+                videoEncoderInfoFinder,
+            )
+
+        assertThat(provider.hasProfile(QUALITY_1080P)).isTrue()
+        assertThat(provider.hasProfile(QUALITY_2160P)).isFalse()
+    }
+
+    @Test
+    fun resolve_noSupportedQuality_codecCapabilitiesSource_addsAllSupportedQualities() {
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                encoderProfilesProvider = EncoderProfilesProvider.EMPTY
+                setSupportedResolutions(
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                    listOf(RESOLUTION_2160P, RESOLUTION_1080P),
+                )
+            }
+
+        val provider =
+            EncoderProfilesProviderResolver.resolve(
+                cameraInfo,
+                VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES,
+                QUALITY_SOURCE_REGULAR,
+                videoEncoderInfoFinder,
+            )
+
+        assertThat(provider.hasProfile(QUALITY_1080P)).isTrue()
+        assertThat(provider.hasProfile(QUALITY_2160P)).isTrue()
+    }
+
+    @Test
+    fun resolve_camcorderProfileSource_doesNotAddQuality() {
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                encoderProfilesProvider =
+                    FakeEncoderProfilesProvider.Builder().add(QUALITY_1080P, PROFILES_1080P).build()
+                setSupportedResolutions(
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                    listOf(RESOLUTION_1080P, RESOLUTION_2160P),
+                )
+            }
+
+        val provider =
+            EncoderProfilesProviderResolver.resolve(
+                cameraInfo,
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
+                QUALITY_SOURCE_REGULAR,
+                videoEncoderInfoFinder,
+            )
+
+        assertThat(provider.hasProfile(QUALITY_2160P)).isFalse()
+    }
+
+    @Test
+    fun resolve_hlg10Supported_doesNotAddHdrProfileToQualityWithoutVideoProfile() {
+        val profilesWithoutVideo =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                PROFILES_1080P.defaultDurationSeconds,
+                PROFILES_1080P.recommendedFileFormat,
+                PROFILES_1080P.audioProfiles,
+                emptyList(),
+            )
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                encoderProfilesProvider =
+                    FakeEncoderProfilesProvider.Builder()
+                        .add(QUALITY_1080P, PROFILES_1080P)
+                        .add(QUALITY_2160P, profilesWithoutVideo)
+                        .build()
+                setSupportedResolutions(
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                    listOf(RESOLUTION_1080P, RESOLUTION_2160P),
+                )
+                supportedDynamicRanges = setOf(DynamicRange.SDR, DynamicRange.HLG_10_BIT)
+            }
+
+        val provider =
+            EncoderProfilesProviderResolver.resolve(
+                cameraInfo,
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
+                QUALITY_SOURCE_REGULAR,
+                videoEncoderInfoFinder,
+            )
+
+        assertThat(provider.getAll(QUALITY_2160P)?.videoProfiles.orEmpty()).isEmpty()
+    }
+
+    @Test
+    fun resolve_hlg10Supported_doesNotAddQuality() {
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                encoderProfilesProvider =
+                    FakeEncoderProfilesProvider.Builder().add(QUALITY_1080P, PROFILES_1080P).build()
+                setSupportedResolutions(
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                    listOf(RESOLUTION_1080P, RESOLUTION_2160P),
+                )
+                supportedDynamicRanges = setOf(DynamicRange.SDR, DynamicRange.HLG_10_BIT)
+            }
+
+        val provider =
+            EncoderProfilesProviderResolver.resolve(
+                cameraInfo,
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
+                QUALITY_SOURCE_REGULAR,
+                videoEncoderInfoFinder,
+            )
+
+        // Assert: HLG10 is added to FHD, but no UHD profile is created for HLG10.
+        assertThat(provider.getAll(QUALITY_1080P)!!.videoProfiles.map { it.hdrFormat })
+            .contains(VideoProfile.HDR_HLG)
+        assertThat(provider.hasProfile(QUALITY_2160P)).isFalse()
     }
 }
