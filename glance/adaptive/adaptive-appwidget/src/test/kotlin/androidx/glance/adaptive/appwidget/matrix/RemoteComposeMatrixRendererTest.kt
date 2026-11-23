@@ -445,6 +445,21 @@ class RemoteComposeMatrixRendererTest {
         assertThat(h2UnpaddedChildren.first().width - h2PaddedChildren.first().width)
             .isWithin(1f)
             .of(24.dpToPx(context))
+
+        // In narrow W1 horizontal headers, an uncontained trailing button shrinks to 24 x 24 dp.
+        val w1 =
+            render(
+                MatrixCardContent(
+                    primary = TemplateText("Brief"),
+                    trailing = IconButton(TEST_VECTOR_GLYPH, "Refresh", action, contained = false),
+                    compactHeader = true,
+                    stackHeaderInNarrowWidth = false,
+                ),
+                Dimensions(88, 88),
+            )
+        val w1Trailing = w1.cardColumn().layoutChildren().single().layoutChildren().last()
+        assertThat(w1Trailing.width).isWithin(1f).of(24.dpToPx(context))
+        assertThat(w1Trailing.height).isWithin(1f).of(24.dpToPx(context))
     }
 
     @Test

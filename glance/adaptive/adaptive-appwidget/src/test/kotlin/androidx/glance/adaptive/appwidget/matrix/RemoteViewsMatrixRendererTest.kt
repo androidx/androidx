@@ -1337,6 +1337,26 @@ class RemoteViewsMatrixRendererTest {
             view.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_header_row)
         assertThat(reappliedHeader.paddingLeft).isEqualTo(0)
         assertThat(reappliedHeader.paddingRight).isEqualTo(0)
+
+        // In narrow W1 horizontal headers, an uncontained trailing button shrinks to 24 x 24 dp
+        // around a 16 dp glyph.
+        val narrow =
+            render(
+                MatrixCardContent(
+                    primary = TemplateText("Brief"),
+                    trailing = IconButton(GLYPH, "Refresh", RUN, contained = false),
+                    compactHeader = true,
+                    stackHeaderInNarrowWidth = false,
+                ),
+                Dimensions(88, 88),
+            )
+        val narrowButton = iconButton(narrow)
+        assertThat(narrowButton.background).isNull()
+        assertThat(iconButtonGlyph(narrow).maxWidth).isEqualTo(16f.dpToPx(density))
+        assertThat(narrowButton.paddingLeft + narrowButton.paddingRight)
+            .isEqualTo(24f.dpToPx(density) - 16f.dpToPx(density))
+        assertThat(narrowButton.paddingTop + narrowButton.paddingBottom)
+            .isEqualTo(24f.dpToPx(density) - 16f.dpToPx(density))
     }
 
     @Test

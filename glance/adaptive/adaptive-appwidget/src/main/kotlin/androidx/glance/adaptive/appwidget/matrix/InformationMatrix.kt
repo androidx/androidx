@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.adaptive.appwidget.components.actionrail.ActionRailDefaults
 import androidx.glance.adaptive.appwidget.components.estimateTextWidthDp
 import androidx.glance.adaptive.appwidget.components.fitMetric
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
@@ -130,14 +131,32 @@ internal object MatrixDefaults {
      */
     val TrailingExtraWidth: Dp = 8.dp
 
-    /** Glyph size of an uncontained trailing icon button (e.g. a bare `refresh` icon). */
+    /** Glyph size of an uncontained trailing icon button (e.g. a bare `refresh` icon) at `W2+`. */
     val UncontainedTrailingGlyphSize: Dp = 24.dp
+
+    /** Glyph size of an uncontained trailing icon button inside a narrow `W1` row header. */
+    val UncontainedTrailingCompactGlyphSize: Dp = 16.dp
+
+    /**
+     * Glyph size of an uncontained trailing icon button: [UncontainedTrailingCompactGlyphSize] in
+     * narrow `W1` horizontal headers, [UncontainedTrailingGlyphSize] from `W2` upward.
+     */
+    fun uncontainedTrailingGlyphSize(tiers: SizeTiers): Dp =
+        if (tiers.width == WidthTier.W1) UncontainedTrailingCompactGlyphSize
+        else UncontainedTrailingGlyphSize
 
     /**
      * Touch-target width of an uncontained trailing icon button, centering the 24 dp glyph with 8
      * dp horizontal padding on each side.
      */
     val UncontainedTrailingWidth: Dp = 40.dp
+
+    /**
+     * Width of an uncontained trailing icon button: [UncontainedTrailingWidth] at `W2+`, shrinking
+     * to [UncontainedTrailingGlyphSize] in narrow `W1` horizontal headers.
+     */
+    fun uncontainedTrailingWidth(tiers: SizeTiers): Dp =
+        if (tiers.width == WidthTier.W1) UncontainedTrailingGlyphSize else UncontainedTrailingWidth
 
     /**
      * Touch-target height of an uncontained trailing icon button: 40 dp for standard row headers
@@ -173,6 +192,126 @@ public sealed interface MatrixContent {
 }
 
 /**
+ * Quick actions attached to a [MatrixCardContent] outside the header and bottom action row.
+ *
+ * Mutually exclusive with [MatrixCardContent.actions] (the bottom supporting row).
+ */
+internal sealed interface CardQuickActions {
+    /** Single floating action button overlaid at the card's bottom-end corner. */
+    class Floating(val action: IconButton) : CardQuickActions {
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is Floating && action == other.action)
+
+        override fun hashCode(): Int = action.hashCode()
+
+        override fun toString(): String = "CardQuickActions.Floating(action=$action)"
+    }
+
+    /**
+     * Vertical action rail placed full-height at the card's trailing edge on expanded sizes (`W3–W4
+     * × H3+`), collapsing to a bottom-end floating action button (`actions[0]`) when shrunk on
+     * dynamic backends.
+     *
+     * Note: dynamic transitions smoothly collapse an expanded `AdaptiveRail` to a floating FAB on
+     * shrink; growing a compact `Floating` card back to `W3–W4 × H3+` renders the full rail on the
+     * next host size update.
+     */
+    class AdaptiveRail(actions: List<IconButton>) : CardQuickActions {
+        val actions: List<IconButton> = List(actions.size) { i -> actions[i] }
+
+        init {
+            require(this.actions.isNotEmpty()) {
+                "An adaptive action rail requires at least one action."
+            }
+        }
+
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is AdaptiveRail && actions == other.actions)
+
+        override fun hashCode(): Int = actions.hashCode()
+
+        override fun toString(): String = "CardQuickActions.AdaptiveRail(actions=$actions)"
+    }
+}
+
+/**
+ * Compact-breakpoint adjustments a dynamic renderer (such as RemoteCompose) applies live while the
+ * user drags a widget across size tiers, without waiting for a host re-render.
+ *
+ * Populated by template selectors from their own geometry tokens so the matrix renderer remains
+ * template-agnostic.
+ *
+ * @throws IllegalArgumentException if [compactHeightVerticalPadding] or [compactHeightSlotSpacing]
+ *   is negative, or [collapseHeaderTrailingBelowWidthDp] is not positive.
+ */
+internal class LiveResizeSpec(
+    val collapseHeaderInCompactHeight: Boolean = false,
+    val collapseLeadingInCompactHeight: Boolean = false,
+    val compactHeightVerticalPadding: Dp? = null,
+    val compactHeightSlotSpacing: Dp? = null,
+    val collapseHeaderHorizontalPaddingInNarrowWidth: Boolean = false,
+    val collapseHeaderTrailingBelowWidthDp: Dp? = null,
+    val collapseHeaderTrailingInCompactHeight: Boolean = false,
+    val compactUncontainedTrailingInCompactHeight: Boolean = false,
+) {
+    init {
+        require(compactHeightVerticalPadding == null || compactHeightVerticalPadding.value >= 0f) {
+            "Compact height vertical padding must not be negative, was " +
+                "$compactHeightVerticalPadding."
+        }
+        require(compactHeightSlotSpacing == null || compactHeightSlotSpacing.value >= 0f) {
+            "Compact height slot spacing must not be negative, was $compactHeightSlotSpacing."
+        }
+        require(
+            collapseHeaderTrailingBelowWidthDp == null ||
+                collapseHeaderTrailingBelowWidthDp.value > 0f
+        ) {
+            "Collapse header trailing threshold must be positive, was " +
+                "$collapseHeaderTrailingBelowWidthDp."
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LiveResizeSpec) return false
+        return collapseHeaderInCompactHeight == other.collapseHeaderInCompactHeight &&
+            collapseLeadingInCompactHeight == other.collapseLeadingInCompactHeight &&
+            compactHeightVerticalPadding == other.compactHeightVerticalPadding &&
+            compactHeightSlotSpacing == other.compactHeightSlotSpacing &&
+            collapseHeaderHorizontalPaddingInNarrowWidth ==
+                other.collapseHeaderHorizontalPaddingInNarrowWidth &&
+            collapseHeaderTrailingBelowWidthDp == other.collapseHeaderTrailingBelowWidthDp &&
+            collapseHeaderTrailingInCompactHeight == other.collapseHeaderTrailingInCompactHeight &&
+            compactUncontainedTrailingInCompactHeight ==
+                other.compactUncontainedTrailingInCompactHeight
+    }
+
+    override fun hashCode(): Int {
+        var result = collapseHeaderInCompactHeight.hashCode()
+        result = 31 * result + collapseLeadingInCompactHeight.hashCode()
+        result = 31 * result + (compactHeightVerticalPadding?.hashCode() ?: 0)
+        result = 31 * result + (compactHeightSlotSpacing?.hashCode() ?: 0)
+        result = 31 * result + collapseHeaderHorizontalPaddingInNarrowWidth.hashCode()
+        result = 31 * result + (collapseHeaderTrailingBelowWidthDp?.hashCode() ?: 0)
+        result = 31 * result + collapseHeaderTrailingInCompactHeight.hashCode()
+        result = 31 * result + compactUncontainedTrailingInCompactHeight.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "LiveResizeSpec(collapseHeaderInCompactHeight=$collapseHeaderInCompactHeight, " +
+            "collapseLeadingInCompactHeight=$collapseLeadingInCompactHeight, " +
+            "compactHeightVerticalPadding=$compactHeightVerticalPadding, " +
+            "compactHeightSlotSpacing=$compactHeightSlotSpacing, " +
+            "collapseHeaderHorizontalPaddingInNarrowWidth=" +
+            "$collapseHeaderHorizontalPaddingInNarrowWidth, " +
+            "collapseHeaderTrailingBelowWidthDp=$collapseHeaderTrailingBelowWidthDp, " +
+            "collapseHeaderTrailingInCompactHeight=$collapseHeaderTrailingInCompactHeight, " +
+            "compactUncontainedTrailingInCompactHeight=" +
+            "$compactUncontainedTrailingInCompactHeight)"
+}
+
+/**
  * The main card: header, hero and action slots, top to bottom.
  *
  * Every slot is optional; which ones a template needs is the template's rule, not the matrix's. An
@@ -198,7 +337,8 @@ public sealed interface MatrixContent {
  * @property trailing Component for the header's trailing slot, or `null` to hide it. A stacked
  *   header has no room for it and hides it.
  * @property hero Component for the hero slot, or `null` to hide it.
- * @property actions Components for the bottom action row, leading to trailing.
+ * @property actions Components for the bottom action row, leading to trailing (mutually exclusive
+ *   with [quickActions]).
  * @property padding Padding between the widget bounds and the slots, or `null` for
  *   [MatrixDefaults.padding].
  * @property slotSpacing Vertical gap between the slots, or `null` for [MatrixDefaults.slotSpacing].
@@ -211,9 +351,14 @@ public sealed interface MatrixContent {
  *   its own; secondary text stacked under primary in a row). Defaults to `leadingSize != null`.
  * @property headerHorizontalPadding Extra horizontal inset applied to a row header (for example, to
  *   align a text-only header with inset list items beneath it).
+ * @property stackHeaderInNarrowWidth Whether a narrow [WidthTier.W1] card stacks its header slots
+ *   vertically instead of keeping a compact horizontal header row (defaults to `true`).
+ * @property quickActions Optional trailing action rail or bottom-end floating action button
+ *   (mutually exclusive with bottom [actions]).
+ * @property liveResize Optional dynamic-renderer live-resize adjustments, or `null` when static.
  * @throws IllegalArgumentException if [leadingSize] or [headerHorizontalPadding] is negative,
- *   [primaryTextSize] is not positive, or [compactHeader] is `false` while [leadingSize] is
- *   non-null.
+ *   [primaryTextSize] is not positive, [compactHeader] is `false` while [leadingSize] is non-null,
+ *   or both [actions] and [quickActions] are populated.
  */
 internal class MatrixCardContent(
     val leading: LeadingComponent? = null,
@@ -229,8 +374,14 @@ internal class MatrixCardContent(
     val primaryTextSize: TextUnit? = null,
     val compactHeader: Boolean = leadingSize != null,
     val headerHorizontalPadding: Dp = 0.dp,
+    val stackHeaderInNarrowWidth: Boolean = true,
+    val quickActions: CardQuickActions? = null,
+    val liveResize: LiveResizeSpec? = null,
     override val hasDroppedSlots: Boolean = false,
 ) : MatrixContent {
+    /** The action positions of the bottom row, leading to trailing, up to the last non-null one. */
+    val actions: List<ActionComponent?> = actions.dropLastWhile { it == null }
+
     init {
         require(leadingSize == null || leadingSize.value >= 0f) {
             "Leading size must not be negative, was $leadingSize."
@@ -244,10 +395,10 @@ internal class MatrixCardContent(
         require(compactHeader || leadingSize == null) {
             "A card with an explicit leadingSize must use compactHeader."
         }
+        require(quickActions == null || this.actions.isEmpty()) {
+            "A card cannot combine bottom actions with quickActions."
+        }
     }
-
-    /** The action positions of the bottom row, leading to trailing, up to the last non-null one. */
-    val actions: List<ActionComponent?> = actions.dropLastWhile { it == null }
 }
 
 /**
@@ -296,6 +447,11 @@ internal class MatrixBulbContent(
  * @property headerHorizontalPadding Extra horizontal inset applied to a row header.
  * @property headerRowMinHeight Minimum height of a standard row header, clamped to the card's
  *   content height so short containers do not overflow.
+ * @property contentHeight Inner content height of the card (`containerHeight - 2 * padding`), or
+ *   `null` when the container has no size, used by full-height side slots such as the action rail.
+ * @property quickActions Trailing action rail or floating FAB overlay with sensitive descriptions
+ *   already replaced on the lock screen, or `null` when hidden.
+ * @property liveResize Dynamic-renderer live-resize adjustments, or `null` when static.
  */
 internal class ResolvedMatrixCard(
     val tiers: SizeTiers,
@@ -317,6 +473,9 @@ internal class ResolvedMatrixCard(
     val actions: List<ActionComponent?>,
     val headerHorizontalPadding: Dp = 0.dp,
     val headerRowMinHeight: Dp = MatrixDefaults.HeaderRowMinHeight,
+    val contentHeight: Dp? = null,
+    val quickActions: CardQuickActions? = null,
+    val liveResize: LiveResizeSpec? = null,
 )
 
 /**
@@ -330,16 +489,18 @@ internal class ResolvedMatrixBulb(val component: BulbComponent, val containerSiz
 /**
  * Lays [content] out for its placement on [surface].
  *
- * The tiers decide the defaults; the container's size decides the header's budget: a stacked
- * header's leading component is alone across the content width, and a row header spans the content
- * height, so a container tighter than its header target along its binding axis gives up padding
- * first (down to 8 dp) and only then shrinks the leading, contained trailing, and row min-height
- * slots. In a row, the primary text gets what the leading component, the secondary text and the
- * gaps leave, and is shortened to fit it; the secondary text takes at most 40% of the row, and is
- * ellipsized past it. A contained trailing component takes its resolved size plus
- * [MatrixDefaults.TrailingExtraWidth] from the row, while an uncontained trailing button takes
- * [MatrixDefaults.UncontainedTrailingWidth]; a stacked header drops it. On the lock screen,
- * sensitive text is replaced first.
+ * The tiers decide the defaults; the container's size decides the header's budget: a stacked header
+ * (when [MatrixCardContent.stackHeaderInNarrowWidth] is `true` at [WidthTier.W1]) places its
+ * leading component alone across the content width, and a row header spans the content height, so a
+ * container tighter than its header target along its binding axis gives up padding first (down to 8
+ * dp) and only then shrinks the leading, contained trailing, and row min-height slots. When a
+ * full-height [CardQuickActions.AdaptiveRail] is present, its width and spacing are deducted from
+ * the main column's horizontal budget. In a row, the primary text gets what the leading component,
+ * the secondary text and the gaps leave, and is shortened to fit it; the secondary text takes at
+ * most 40% of the row, and is ellipsized past it. A contained trailing component takes its resolved
+ * size plus [MatrixDefaults.TrailingExtraWidth] from the row, while an uncontained trailing button
+ * takes [MatrixDefaults.uncontainedTrailingWidth]; a stacked header drops it. On the lock screen,
+ * sensitive text and action descriptions are replaced first.
  *
  * @param content The components to lay out.
  * @param surface The target surface, carrying the container size as
@@ -356,7 +517,7 @@ internal fun resolve(
     val tiers = SizeTiers.from(dimensions, surface)
     val widthDp = dimensions.widthDp.toFloat()
     val heightDp = dimensions.heightDp.toFloat()
-    val stacked = MatrixDefaults.isStacked(tiers)
+    val stacked = content.stackHeaderInNarrowWidth && MatrixDefaults.isStacked(tiers)
     val spacingDp = (content.slotSpacing ?: MatrixDefaults.slotSpacing(tiers)).value
     val leading = content.leading
     // TODO(b/578041570): Keep both the value and its sensitive replacement and let the renderer
@@ -396,8 +557,14 @@ internal fun resolve(
                 )
         }
     }
-    val contentWidthDp = widthDp - 2 * paddingDp
-    val contentHeightDp = heightDp - 2 * paddingDp
+    val railWidthDeductionDp =
+        if (content.quickActions is CardQuickActions.AdaptiveRail) {
+            ActionRailDefaults.Width.value + ActionRailDefaults.Spacing.value
+        } else {
+            0f
+        }
+    val contentWidthDp = (widthDp - 2 * paddingDp - railWidthDeductionDp).coerceAtLeast(0f)
+    val contentHeightDp = (heightDp - 2 * paddingDp).coerceAtLeast(0f)
     val leadingSizeDp =
         if (leading == null) {
             0f
@@ -409,7 +576,7 @@ internal fun resolve(
         }
     val headerRowMinHeightDp =
         if (heightDp > 0f) {
-            MatrixDefaults.HeaderRowMinHeight.value.coerceAtMost(contentHeightDp.coerceAtLeast(0f))
+            MatrixDefaults.HeaderRowMinHeight.value.coerceAtMost(contentHeightDp)
         } else {
             MatrixDefaults.HeaderRowMinHeight.value
         }
@@ -431,8 +598,7 @@ internal fun resolve(
             trailing == null -> 0f
             uncontainedTrailing ->
                 MatrixDefaults.uncontainedTrailingHeight(tiers, compactHeader).value
-            heightDp > 0f ->
-                MatrixDefaults.LeadingSize.value.coerceAtMost(contentHeightDp.coerceAtLeast(0f))
+            heightDp > 0f -> MatrixDefaults.LeadingSize.value.coerceAtMost(contentHeightDp)
             else -> MatrixDefaults.LeadingSize.value
         }
     var primaryMaxWidthDp = if (stacked) contentWidthDp else rowHeaderWidthDp
@@ -441,7 +607,7 @@ internal fun resolve(
         if (trailing != null) {
             primaryMaxWidthDp -=
                 if (uncontainedTrailing) {
-                    MatrixDefaults.UncontainedTrailingWidth.value +
+                    MatrixDefaults.uncontainedTrailingWidth(tiers).value +
                         MatrixDefaults.HeaderSpacing.value
                 } else {
                     resolvedTrailingSizeDp +
@@ -468,9 +634,11 @@ internal fun resolve(
         }
 
     val actions = List(content.actions.size) { i -> content.actions[i]?.shownOn(locked) }
+    val quickActions = content.quickActions?.redactedIf(locked)
+    val resolvedContentHeightDp = if (heightDp > 0f) contentHeightDp else null
     val heroHeightDp =
-        if (content.hero != null && heightDp > 0f) {
-            var available = heightDp - 2 * paddingDp
+        if (content.hero != null && resolvedContentHeightDp != null) {
+            var available = resolvedContentHeightDp
             if (hasHeader) {
                 available -=
                     spacingDp +
@@ -514,6 +682,9 @@ internal fun resolve(
         actions = actions,
         headerHorizontalPadding = headerHorizontalPadding,
         headerRowMinHeight = headerRowMinHeightDp.dp,
+        contentHeight = resolvedContentHeightDp?.dp,
+        quickActions = quickActions,
+        liveResize = content.liveResize,
     )
 }
 
@@ -578,6 +749,36 @@ private fun IconButton.redactedIf(locked: Boolean): IconButton {
         IconButton(icon, replacement, action, contained = contained)
     } else {
         this
+    }
+}
+
+/** Quick actions, with sensitive button descriptions replaced when [locked]. */
+private fun CardQuickActions.redactedIf(locked: Boolean): CardQuickActions {
+    if (!locked) return this
+    return when (this) {
+        is CardQuickActions.Floating -> {
+            val shown = action.redactedIf(locked = true)
+            if (shown === action) this else CardQuickActions.Floating(shown)
+        }
+        is CardQuickActions.AdaptiveRail -> {
+            var redacted: MutableList<IconButton>? = null
+            for (i in actions.indices) {
+                val button = actions[i]
+                val shown = button.redactedIf(locked = true)
+                if (shown !== button) {
+                    if (redacted == null) {
+                        redacted = ArrayList(actions.size)
+                        for (j in 0 until i) {
+                            redacted.add(actions[j])
+                        }
+                    }
+                    redacted.add(shown)
+                } else {
+                    redacted?.add(button)
+                }
+            }
+            if (redacted != null) CardQuickActions.AdaptiveRail(redacted) else this
+        }
     }
 }
 
