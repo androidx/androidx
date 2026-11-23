@@ -532,7 +532,7 @@ public abstract class FragmentTransaction {
     }
 
     /**
-     * @return <code>true</code> if this transaction contains no operations,
+     * Returns <code>true</code> if this transaction contains no operations,
      * <code>false</code> otherwise.
      */
     public boolean isEmpty() {
