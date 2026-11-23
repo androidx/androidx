@@ -431,7 +431,7 @@ private class SingleSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() 
                 }
                 val watchSet = watchSet
                 if (watchSet == null) {
-                    it.watch(subscribedChannel, soleWatchedObject!!)
+                    soleWatchedObject?.let { watched -> it.watch(subscribedChannel, watched) }
                 } else {
                     watchSet.forEach { obj -> it.watch(subscribedChannel, obj) }
                 }
