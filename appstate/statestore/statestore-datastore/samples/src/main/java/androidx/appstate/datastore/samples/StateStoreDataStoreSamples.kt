@@ -53,8 +53,8 @@ suspend fun SyncStateStoreDataStorePathSample() {
     val state = stateStore.getState(SampleKey)
 
     // The path must include the directory, for example, on Android:
-    // val path = context.filesDir.resolve("stateStore.preferences_pb").absolutePath
-    val path = "/path/to/directory/stateStore.preferences_pb"
+    // val path = context.filesDir.resolve("datastore/state_store.json").absolutePath
+    val path = "/path/to/directory/state_store.json"
 
     stateStore.syncToDataStore(path, CoroutineScope(Dispatchers.IO))
 }
