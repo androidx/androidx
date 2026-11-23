@@ -16,8 +16,8 @@
 
 package androidx.a2ui.compose.runtime
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.processor.A2uiCoreMessageProcessor
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiMessageProcessor
 
@@ -27,6 +27,10 @@ import androidx.a2ui.model.processor.A2uiMessageProcessor
  * The processor stores each surface's data model and components in snapshot state, so composables
  * that read them recompose when agent messages update them.
  *
+ * The [catalogs] come from a UI layer, which is a library that renders A2UI components on top of
+ * this runtime with a specific UI toolkit. The catalog type of a UI layer is an
+ * [A2uiCatalogDefinition] that also holds the implementations of its components.
+ *
  * Enqueue agent messages with [A2uiMessageProcessor.processMessage], or
  * [androidx.a2ui.model.processor.processInput] for raw payloads, and run
  * [A2uiMessageProcessor.collectMessages] to process them. Render
@@ -34,30 +38,20 @@ import androidx.a2ui.model.processor.A2uiMessageProcessor
  * [A2uiMessageProcessor.outboundEvents] to the agent.
  *
  * @sample androidx.a2ui.compose.runtime.samples.A2uiMessageProcessorSample
- * @param catalogs The catalogs of components and functions supported by the client, provided by a
- *   UI layer built on this runtime. See [A2uiRuntimeCatalog].
+ * @param catalogs The catalogs of components and functions supported by the client, provided by the
+ *   UI layer that renders the surfaces.
  * @param interceptors The [A2uiActionInterceptor]s that can transform or consume user actions
  *   before the processor handles them, applied in order.
  * @return A new [A2uiMessageProcessor] for the given [catalogs].
- * @throws IllegalArgumentException If a catalog in [catalogs] does not also implement
- *   [androidx.a2ui.engine.catalog.A2uiCoreCatalog], as [A2uiRuntimeCatalog] requires.
  */
 public fun A2uiMessageProcessor(
-    catalogs: List<A2uiRuntimeCatalog>,
+    catalogs: List<A2uiCatalogDefinition>,
     interceptors: List<A2uiActionInterceptor> = emptyList(),
-): A2uiMessageProcessor {
-    val coreCatalogs = ArrayList<A2uiCoreCatalog>(catalogs.size)
-    for (i in catalogs.indices) {
-        val catalog = catalogs[i]
-        require(catalog is A2uiCoreCatalog) {
-            "Each A2uiRuntimeCatalog must also implement A2uiCoreCatalog: $catalog"
-        }
-        coreCatalogs.add(catalog)
-    }
-    return A2uiCoreMessageProcessor(
-        catalogs = coreCatalogs,
+): A2uiMessageProcessor =
+    A2uiCoreMessageProcessor(
+        // Copy the list so that later changes to the caller's list do not affect the processor.
+        catalogs = ArrayList(catalogs),
         dataModelFactory = { A2uiDataModel() },
         componentRegistryFactory = { A2uiComponentRegistry() },
         actionInterceptors = interceptors,
     )
-}

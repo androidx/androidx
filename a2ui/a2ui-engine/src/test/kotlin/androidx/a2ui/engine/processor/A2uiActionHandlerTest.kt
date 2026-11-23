@@ -16,12 +16,12 @@
 
 package androidx.a2ui.engine.processor
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreCacheProvider
 import androidx.a2ui.engine.model.A2uiCoreDynamicEvaluator
 import androidx.a2ui.engine.model.A2uiCoreExecutionContext
 import androidx.a2ui.engine.model.A2uiCoreValueResolver
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
@@ -375,9 +375,9 @@ class A2uiActionHandlerTest {
         assertThat(secondInterceptorCalled).isFalse()
     }
 
-    private class FakeCatalog(val func: A2uiFunction? = null) : A2uiCoreCatalog {
+    private class FakeCatalog(val func: A2uiFunction? = null) : A2uiCatalogDefinition {
         override val id = "fake"
-        override val componentDefinitions = A2uiCoreComponentDefinitionCollection()
+        override val componentDefinitions = A2uiComponentDefinitionCollection()
         override val functions =
             A2uiFunctionCollection(if (func != null) listOf(func) else emptyList())
         override val themeSchema: A2uiSchema? = null

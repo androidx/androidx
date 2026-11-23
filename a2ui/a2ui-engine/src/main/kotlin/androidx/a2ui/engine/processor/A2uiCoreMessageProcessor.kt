@@ -19,11 +19,11 @@
 
 package androidx.a2ui.engine.processor
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.toInlineCatalog
 import androidx.a2ui.engine.model.A2uiCoreSurfaceGroupModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
  * @param actionInterceptors A list of [A2uiActionInterceptor] instances to intercept UI actions.
  */
 public class A2uiCoreMessageProcessor(
-    private val catalogs: List<A2uiCoreCatalog>,
+    private val catalogs: List<A2uiCatalogDefinition>,
     private val dataModelFactory: () -> A2uiCoreDataModel,
     private val componentRegistryFactory: () -> A2uiCoreComponentRegistry,
     private val actionInterceptors: List<A2uiActionInterceptor> = emptyList(),

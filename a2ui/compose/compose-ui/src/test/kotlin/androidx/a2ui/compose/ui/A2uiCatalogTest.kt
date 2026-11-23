@@ -20,7 +20,6 @@ import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.compose.runtime.A2uiProperty
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.toInlineCatalog
 import androidx.a2ui.engine.processor.A2uiCoreMessageProcessor
 import androidx.a2ui.model.catalog.A2uiFunction
@@ -58,10 +57,17 @@ class A2uiCatalogTest {
                 functions = listOf(function1, function2),
                 themeSchema = themeSchema,
                 isInline = false,
+                title = "Test Title",
+                description = "Test Description",
             )
 
         assertThat(catalog.id).isEqualTo(TestCatalogId)
+        assertThat(catalog.title).isEqualTo("Test Title")
+        assertThat(catalog.description).isEqualTo("Test Description")
         assertThat(catalog.components).containsExactly(component1, component2)
+        assertThat(catalog.componentDefinitions.map { it.name })
+            .containsExactly("Component1", "Component2")
+            .inOrder()
         assertThat(catalog.functions).containsExactly(function1, function2)
         assertThat(catalog.themeSchema).isEqualTo(themeSchema)
         assertThat(catalog.isInline).isFalse()
@@ -73,6 +79,14 @@ class A2uiCatalogTest {
             A2uiCatalog(catalogId = "inline_catalog", components = emptyList(), isInline = true)
 
         assertThat(catalog.isInline).isTrue()
+    }
+
+    @Test
+    fun factory_titleAndDescriptionOmitted_areNull() {
+        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
+
+        assertThat(catalog.title).isNull()
+        assertThat(catalog.description).isNull()
     }
 
     @Test
@@ -130,7 +144,7 @@ class A2uiCatalogTest {
         val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
         val interceptor = A2uiActionInterceptor { it }
 
-        // The runtime factory requires each catalog to also implement A2uiCoreCatalog.
+        // The runtime factory takes A2uiCatalogDefinitions, and an A2uiCatalog is one.
         val processor =
             A2uiMessageProcessor(catalogs = listOf(catalog), interceptors = listOf(interceptor))
 
@@ -161,12 +175,37 @@ class A2uiCatalogTest {
     }
 
     @Test
+    fun toJsonSchemaMap_titleAndDescriptionSet_includesThem() {
+        val catalog =
+            A2uiCatalog(
+                catalogId = TestCatalogId,
+                components = emptyList(),
+                title = "Test Title",
+                description = "Test Description",
+            )
+
+        val schemaMap = catalog.toJsonSchemaMap()
+
+        assertThat(schemaMap["title"]).isEqualTo("Test Title")
+        assertThat(schemaMap["description"]).isEqualTo("Test Description")
+    }
+
+    @Test
+    fun toJsonSchemaMap_titleAndDescriptionOmitted_omitsThem() {
+        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
+
+        val schemaMap = catalog.toJsonSchemaMap()
+
+        assertThat(schemaMap).doesNotContainKey("title")
+        assertThat(schemaMap).doesNotContainKey("description")
+    }
+
+    @Test
     fun toInlineCatalog_sharesSameInstanceAndCache() {
         val catalog =
             A2uiCatalog(catalogId = "inline_catalog", components = emptyList(), isInline = true)
-        val coreCatalog = catalog as A2uiCoreCatalog
 
-        val inlineCatalog = coreCatalog.toInlineCatalog()
+        val inlineCatalog = catalog.toInlineCatalog()
 
         assertThat(inlineCatalog).isSameInstanceAs(catalog)
         assertThat(inlineCatalog.toJsonSchemaMap()).isSameInstanceAs(catalog.toJsonSchemaMap())
@@ -240,15 +279,14 @@ class A2uiCatalogTest {
 
         val catalog =
             A2uiCatalog(catalogId = TestCatalogId, components = listOf(component1, component2))
-        val coreCatalog = catalog as A2uiCoreCatalog
 
-        val definition1 = coreCatalog.componentDefinitions["Component1"]
+        val definition1 = catalog.componentDefinitions["Component1"]
         assertThat(definition1?.name).isEqualTo("Component1")
         assertThat(definition1?.description).isEqualTo("Description1")
-        val definition2 = coreCatalog.componentDefinitions["Component2"]
+        val definition2 = catalog.componentDefinitions["Component2"]
         assertThat(definition2?.name).isEqualTo("Component2")
         assertThat(definition2?.description).isEqualTo("Description2")
-        assertThat(coreCatalog.componentDefinitions["UnknownComponent"]).isNull()
+        assertThat(catalog.componentDefinitions["UnknownComponent"]).isNull()
     }
 
     @Test
@@ -269,8 +307,7 @@ class A2uiCatalogTest {
             }
 
         val catalog = A2uiCatalog(TestCatalogId, listOf(component))
-        val coreCatalog = catalog as A2uiCoreCatalog
-        val definition = coreCatalog.componentDefinitions["TestComponent"]
+        val definition = catalog.componentDefinitions["TestComponent"]
 
         assertThat(definition).isNotNull()
         assertThat(definition?.name).isEqualTo("TestComponent")

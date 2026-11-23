@@ -16,6 +16,9 @@
 
 package androidx.a2ui.engine.catalog
 
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.protocol.A2uiInlineCatalog
@@ -26,7 +29,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
 
-class A2uiCoreCatalogAdapterTest {
+class A2uiCoreCatalogDefinitionAdapterTest {
 
     @Test
     fun toInlineCatalog_whenIsInlineTrue_returnsAdapterWithMatchingIdAndSchemas() {
@@ -40,9 +43,9 @@ class A2uiCoreCatalogAdapterTest {
             )
 
         val inlineCatalog = catalog.toInlineCatalog()
-        val serializer = catalog.obtainSerializer()
+        val serializer = A2uiCoreCatalogDefinitionSerializer(catalog)
 
-        assertThat(inlineCatalog).isInstanceOf(A2uiCoreCatalogInlineAdapter::class.java)
+        assertThat(inlineCatalog).isInstanceOf(A2uiCoreCatalogDefinitionInlineAdapter::class.java)
         assertThat(inlineCatalog.id).isEqualTo(catalog.id)
         assertThat(inlineCatalog.toJsonSchemaMap()).isEqualTo(serializer.jsonSchemaMap)
         assertThat(inlineCatalog.toJsonSchemaString()).isEqualTo(serializer.jsonSchemaString)
@@ -51,10 +54,10 @@ class A2uiCoreCatalogAdapterTest {
     @Test
     fun toInlineCatalog_whenCatalogImplementsA2uiInlineCatalog_returnsSameInstance() {
         val inlineCatalogImpl =
-            object : A2uiCoreCatalog, A2uiInlineCatalog {
+            object : A2uiCatalogDefinition, A2uiInlineCatalog {
                 override val id: String = TEST_CATALOG_ID_1
-                override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
-                    A2uiCoreComponentDefinitionCollection()
+                override val componentDefinitions: A2uiComponentDefinitionCollection =
+                    A2uiComponentDefinitionCollection()
                 override val functions: A2uiFunctionCollection = A2uiFunctionCollection()
                 override val isInline: Boolean = true
 
@@ -76,7 +79,7 @@ class A2uiCoreCatalogAdapterTest {
 
         assertThat(exception.message)
             .contains(
-                "Cannot adapt A2uiCoreCatalog(id='$TEST_CATALOG_ID_1') to A2uiInlineCatalog because isInline is false."
+                "Cannot adapt A2uiCatalogDefinition(id='$TEST_CATALOG_ID_1') to A2uiInlineCatalog because isInline is false."
             )
     }
 
@@ -108,11 +111,11 @@ class A2uiCoreCatalogAdapterTest {
         id: String = TEST_CATALOG_ID_1,
         title: String? = null,
         description: String? = null,
-        components: List<A2uiCoreComponentDefinition> = emptyList(),
+        components: List<A2uiComponentDefinition> = emptyList(),
         functions: List<A2uiFunction> = emptyList(),
         themeSchema: A2uiSchema? = null,
         isInline: Boolean = false,
-    ): A2uiCoreCatalog =
+    ): A2uiCatalogDefinition =
         TestCoreCatalog(
             id = id,
             title = title,
@@ -127,13 +130,13 @@ class A2uiCoreCatalogAdapterTest {
         override val id: String,
         override val title: String? = null,
         override val description: String? = null,
-        components: List<A2uiCoreComponentDefinition> = emptyList(),
+        components: List<A2uiComponentDefinition> = emptyList(),
         functions: List<A2uiFunction> = emptyList(),
         override val themeSchema: A2uiSchema? = null,
         override val isInline: Boolean = false,
-    ) : A2uiCoreCatalog {
-        override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
-            A2uiCoreComponentDefinitionCollection(components)
+    ) : A2uiCatalogDefinition {
+        override val componentDefinitions: A2uiComponentDefinitionCollection =
+            A2uiComponentDefinitionCollection(components)
         override val functions: A2uiFunctionCollection = A2uiFunctionCollection(functions)
 
         override fun equals(other: Any?): Boolean {
@@ -148,8 +151,8 @@ class A2uiCoreCatalogAdapterTest {
     private fun createTestComponent(
         name: String,
         description: String,
-    ): A2uiCoreComponentDefinition =
-        object : A2uiCoreComponentDefinition {
+    ): A2uiComponentDefinition =
+        object : A2uiComponentDefinition {
             override val name: String = name
             override val description: String = description
             override val propertySchema: A2uiSchema = A2uiObjectSchema()

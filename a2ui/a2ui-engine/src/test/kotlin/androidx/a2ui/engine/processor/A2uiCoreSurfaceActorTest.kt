@@ -16,12 +16,12 @@
 
 package androidx.a2ui.engine.processor
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceGroupModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
@@ -551,7 +551,7 @@ class A2uiCoreSurfaceActorTest {
         interceptors: List<A2uiActionInterceptor> = emptyList(),
         onActorIdleAndDeleted: (A2uiCoreSurfaceActor) -> Boolean = { true },
         dataModelFactoryOverride: (() -> A2uiCoreDataModel)? = null,
-        catalogsOverride: List<A2uiCoreCatalog>? = null,
+        catalogsOverride: List<A2uiCatalogDefinition>? = null,
     ): A2uiCoreSurfaceActor {
         var actorReference: A2uiCoreSurfaceActor? = null
         val actor =
@@ -570,11 +570,11 @@ class A2uiCoreSurfaceActorTest {
         return actor
     }
 
-    private class TestCatalog(override val id: String) : A2uiCoreCatalog {
+    private class TestCatalog(override val id: String) : A2uiCatalogDefinition {
         override val componentDefinitions =
-            A2uiCoreComponentDefinitionCollection(
+            A2uiComponentDefinitionCollection(
                 listOf(
-                    object : A2uiCoreComponentDefinition {
+                    object : A2uiComponentDefinition {
                         override val name = "button"
                         override val description = "A test button"
                         override val propertySchema = A2uiObjectSchema()

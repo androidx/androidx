@@ -16,6 +16,9 @@
 
 package androidx.a2ui.engine.catalog
 
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
@@ -33,26 +36,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Test
 
-class A2uiCoreCatalogTest {
-
-    @Test
-    fun isInline_defaultImplementation_returnsFalse() {
-        val catalog = createCatalog(id = TEST_CATALOG_ID_1)
-        assertThat(catalog.isInline).isFalse()
-    }
-
-    @Test
-    fun obtainSerializer_returnsNewSerializerConfiguredForCatalog() {
-        val catalog = createCatalog(id = TEST_CATALOG_ID_1)
-        val serializer1 = catalog.obtainSerializer()
-        val serializer2 = catalog.obtainSerializer()
-
-        assertThat(serializer1).isNotNull()
-        assertThat(serializer2).isNotNull()
-        assertThat(serializer1).isNotSameInstanceAs(serializer2)
-        assertThat(serializer1.catalog).isSameInstanceAs(catalog)
-        assertThat(serializer2.catalog).isSameInstanceAs(catalog)
-    }
+class A2uiCoreCatalogDefinitionJsonSchemaTest {
 
     @Test
     fun toJsonSchema_withFullMetadata_serializesAllMetadataFields() {
@@ -203,7 +187,7 @@ class A2uiCoreCatalogTest {
             }
 
         val testComponent =
-            object : A2uiCoreComponentDefinition {
+            object : A2uiComponentDefinition {
                 override val name: String = TEST_COMPONENT_NAME_2
                 override val description: String = TEST_COMPONENT_DESCRIPTION_2
                 override val propertySchema: A2uiSchema =
@@ -326,7 +310,7 @@ class A2uiCoreCatalogTest {
             }
 
         val testComponent =
-            object : A2uiCoreComponentDefinition {
+            object : A2uiComponentDefinition {
                 override val name: String = TEST_COMPONENT_NAME_2
                 override val description: String = TEST_COMPONENT_DESCRIPTION_2
                 override val propertySchema: A2uiSchema =
@@ -368,7 +352,7 @@ class A2uiCoreCatalogTest {
     @Test
     fun toJsonSchema_withExternalCompositeDefinitions_doesNotPopulateDefs() {
         val testComponent =
-            object : A2uiCoreComponentDefinition {
+            object : A2uiComponentDefinition {
                 override val name: String = TEST_COMPONENT_NAME_2
                 override val description: String = TEST_COMPONENT_DESCRIPTION_2
                 override val propertySchema: A2uiSchema =
@@ -406,7 +390,7 @@ class A2uiCoreCatalogTest {
             }
 
         val testComponent =
-            object : A2uiCoreComponentDefinition {
+            object : A2uiComponentDefinition {
                 override val name: String = TEST_COMPONENT_NAME_2
                 override val description: String = TEST_COMPONENT_DESCRIPTION_2
                 override val propertySchema: A2uiSchema =
@@ -426,17 +410,17 @@ class A2uiCoreCatalogTest {
         id: String = TEST_CATALOG_ID_1,
         title: String? = null,
         description: String? = null,
-        components: List<A2uiCoreComponentDefinition> = emptyList(),
+        components: List<A2uiComponentDefinition> = emptyList(),
         functions: List<A2uiFunction> = emptyList(),
         themeSchema: A2uiSchema? = null,
         isInline: Boolean = false,
-    ): A2uiCoreCatalog =
-        object : A2uiCoreCatalog {
+    ): A2uiCatalogDefinition =
+        object : A2uiCatalogDefinition {
             override val id: String = id
             override val title: String? = title
             override val description: String? = description
-            override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
-                A2uiCoreComponentDefinitionCollection(components)
+            override val componentDefinitions: A2uiComponentDefinitionCollection =
+                A2uiComponentDefinitionCollection(components)
             override val functions: A2uiFunctionCollection = A2uiFunctionCollection(functions)
             override val themeSchema: A2uiSchema? = themeSchema
             override val isInline: Boolean = isInline
@@ -445,8 +429,8 @@ class A2uiCoreCatalogTest {
     private fun createTestComponent(
         name: String,
         description: String,
-    ): A2uiCoreComponentDefinition =
-        object : A2uiCoreComponentDefinition {
+    ): A2uiComponentDefinition =
+        object : A2uiComponentDefinition {
             override val name: String = name
             override val description: String = description
             override val propertySchema: A2uiSchema =
@@ -472,8 +456,9 @@ class A2uiCoreCatalogTest {
             ): Any? = true
         }
 
-    private fun parseCatalogJsonSchema(catalog: A2uiCoreCatalog): JsonObject =
-        Json.parseToJsonElement(catalog.obtainSerializer().jsonSchemaString) as JsonObject
+    private fun parseCatalogJsonSchema(catalog: A2uiCatalogDefinition): JsonObject =
+        Json.parseToJsonElement(A2uiCoreCatalogDefinitionSerializer(catalog).jsonSchemaString)
+            as JsonObject
 
     companion object {
         private const val KEY_SCHEMA = "\$schema"

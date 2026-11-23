@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.engine.catalog
+package androidx.a2ui.model.catalog
 
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import com.google.common.truth.Truth.assertThat
@@ -24,14 +24,14 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class A2uiCoreComponentDefinitionCollectionTest {
+class A2uiComponentDefinitionCollectionTest {
 
     @Test
     fun lookupByString_returnsCorrectDefinition() {
         val def1 = StubComponentDefinition("Component1")
         val def2 = StubComponentDefinition("Component2")
 
-        val collection = A2uiCoreComponentDefinitionCollection(listOf(def1, def2))
+        val collection = A2uiComponentDefinitionCollection(listOf(def1, def2))
 
         assertThat(collection["Component1"]).isEqualTo(def1)
         assertThat(collection["Component2"]).isEqualTo(def2)
@@ -44,7 +44,7 @@ class A2uiCoreComponentDefinitionCollectionTest {
         val def2 = StubComponentDefinition("Component2")
         val definitionsList = listOf(def1, def2)
 
-        val collection = A2uiCoreComponentDefinitionCollection(definitionsList)
+        val collection = A2uiComponentDefinitionCollection(definitionsList)
 
         assertThat(collection).hasSize(2)
         assertThat(collection.isEmpty()).isFalse()
@@ -63,7 +63,7 @@ class A2uiCoreComponentDefinitionCollectionTest {
 
     @Test
     fun emptyCollection_returnsEmpty() {
-        val collection = A2uiCoreComponentDefinitionCollection()
+        val collection = A2uiComponentDefinitionCollection()
 
         assertThat(collection).isEmpty()
         assertThat(collection.size).isEqualTo(0)
@@ -77,7 +77,7 @@ class A2uiCoreComponentDefinitionCollectionTest {
 
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
-                A2uiCoreComponentDefinitionCollection(listOf(def1, def2))
+                A2uiComponentDefinitionCollection(listOf(def1, def2))
             }
 
         assertThat(exception)
@@ -91,9 +91,9 @@ class A2uiCoreComponentDefinitionCollectionTest {
         val def2 = StubComponentDefinition("Component2")
         val def3 = StubComponentDefinition("Component3")
 
-        val collection1 = A2uiCoreComponentDefinitionCollection(listOf(def1, def2))
-        val collection2 = A2uiCoreComponentDefinitionCollection(listOf(def1, def2))
-        val differentCollection = A2uiCoreComponentDefinitionCollection(listOf(def1, def3))
+        val collection1 = A2uiComponentDefinitionCollection(listOf(def1, def2))
+        val collection2 = A2uiComponentDefinitionCollection(listOf(def1, def2))
+        val differentCollection = A2uiComponentDefinitionCollection(listOf(def1, def3))
 
         assertThat(collection1).isEqualTo(collection2)
         assertThat(collection1.hashCode()).isEqualTo(collection2.hashCode())
@@ -105,9 +105,9 @@ class A2uiCoreComponentDefinitionCollectionTest {
     fun equalsAndHashCode_emptyCollections_workCorrectly() {
         val def1 = StubComponentDefinition("Component1")
         val def2 = StubComponentDefinition("Component2")
-        val collection1 = A2uiCoreComponentDefinitionCollection(listOf(def1, def2))
-        val empty1 = A2uiCoreComponentDefinitionCollection()
-        val empty2 = A2uiCoreComponentDefinitionCollection(emptyList())
+        val collection1 = A2uiComponentDefinitionCollection(listOf(def1, def2))
+        val empty1 = A2uiComponentDefinitionCollection()
+        val empty2 = A2uiComponentDefinitionCollection(emptyList())
 
         assertThat(empty1).isEqualTo(empty2)
         assertThat(empty1.hashCode()).isEqualTo(empty2.hashCode())
@@ -118,5 +118,5 @@ class A2uiCoreComponentDefinitionCollectionTest {
         override val name: String,
         override val description: String = "Description for $name",
         override val propertySchema: A2uiObjectSchema = A2uiObjectSchema.INSTANCE,
-    ) : A2uiCoreComponentDefinition
+    ) : A2uiComponentDefinition
 }

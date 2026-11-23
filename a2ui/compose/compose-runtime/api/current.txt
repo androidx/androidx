@@ -77,7 +77,7 @@ package androidx.a2ui.compose.runtime {
   }
 
   public final class A2uiMessageProcessorKt {
-    method public static androidx.a2ui.model.processor.A2uiMessageProcessor A2uiMessageProcessor(java.util.List<? extends androidx.a2ui.compose.runtime.A2uiRuntimeCatalog> catalogs, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> interceptors);
+    method public static androidx.a2ui.model.processor.A2uiMessageProcessor A2uiMessageProcessor(java.util.List<? extends androidx.a2ui.model.catalog.A2uiCatalogDefinition> catalogs, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> interceptors);
     method @BytecodeOnly public static androidx.a2ui.model.processor.A2uiMessageProcessor! A2uiMessageProcessor$default(java.util.List!, java.util.List!, int, Object!);
   }
 
@@ -176,9 +176,6 @@ package androidx.a2ui.compose.runtime {
   public final class A2uiReadinessEvaluatorKt {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.a2ui.compose.runtime.A2uiReadinessEvaluator> getLocalA2uiReadinessEvaluator();
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.a2ui.compose.runtime.A2uiReadinessEvaluator> LocalA2uiReadinessEvaluator;
-  }
-
-  public interface A2uiRuntimeCatalog {
   }
 
   @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class ChildListA2uiProperty extends androidx.a2ui.compose.runtime.A2uiProperty<java.util.List<? extends androidx.a2ui.compose.runtime.A2uiComponentReference>> {

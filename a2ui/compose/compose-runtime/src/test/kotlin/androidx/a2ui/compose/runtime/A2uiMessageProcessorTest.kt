@@ -16,10 +16,10 @@
 
 package androidx.a2ui.compose.runtime
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.processor.A2uiCoreMessageProcessor
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
@@ -30,7 +30,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -41,7 +40,7 @@ class A2uiMessageProcessorTest {
 
     @Test
     fun factory_validCatalog_createsProcessor() {
-        val catalog = ValidTestCatalog("test-catalog")
+        val catalog = TestCatalogDefinition("test-catalog")
 
         val processor = A2uiMessageProcessor(catalogs = listOf(catalog))
 
@@ -57,22 +56,26 @@ class A2uiMessageProcessorTest {
     }
 
     @Test
-    fun factory_invalidCatalog_throws() {
-        val invalidCatalog = object : A2uiRuntimeCatalog {}
+    fun factory_catalogListChangedAfterCreation_doesNotAffectProcessor() = runTest {
+        val catalogs = mutableListOf<A2uiCatalogDefinition>(TestCatalogDefinition("test-catalog"))
+        val processor = A2uiMessageProcessor(catalogs = catalogs)
+        catalogs.add(TestCatalogDefinition("added-later"))
 
-        val exception =
-            assertThrows(IllegalArgumentException::class.java) {
-                A2uiMessageProcessor(catalogs = listOf(invalidCatalog))
-            }
+        val job = launch { processor.collectMessages() }
 
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Each A2uiRuntimeCatalog must also implement A2uiCoreCatalog")
+        try {
+            processor.processMessage(A2uiCreateSurfaceMessage("test_surface", "added-later"))
+            advanceUntilIdle()
+
+            assertThat(processor.activeSurfaces.value).isEmpty()
+        } finally {
+            job.cancel()
+        }
     }
 
     @Test
     fun factory_initializesDataModelAndComponentRegistry() = runTest {
-        val catalog = ValidTestCatalog("test-catalog")
+        val catalog = TestCatalogDefinition("test-catalog")
         val processor = A2uiMessageProcessor(catalogs = listOf(catalog))
         val surfaceId = "test_surface"
 
@@ -100,7 +103,7 @@ class A2uiMessageProcessorTest {
             intercepted = true
             action
         }
-        val catalog = ValidTestCatalog("test-catalog")
+        val catalog = TestCatalogDefinition("test-catalog")
         val processor =
             A2uiMessageProcessor(
                 catalogs = listOf(catalog),
@@ -126,8 +129,8 @@ class A2uiMessageProcessorTest {
         }
     }
 
-    private class ValidTestCatalog(override val id: String) : A2uiRuntimeCatalog, A2uiCoreCatalog {
-        override val componentDefinitions = A2uiCoreComponentDefinitionCollection()
+    private class TestCatalogDefinition(override val id: String) : A2uiCatalogDefinition {
+        override val componentDefinitions = A2uiComponentDefinitionCollection()
         override val functions = A2uiFunctionCollection()
         override val themeSchema: A2uiSchema? = null
     }

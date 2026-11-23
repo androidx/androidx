@@ -16,12 +16,12 @@
 
 package androidx.a2ui.engine.processor
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.catalog.toInlineCatalog
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
@@ -465,11 +465,11 @@ class A2uiCoreMessageProcessorTest {
     }
 
     private class TestCatalog(override val id: String, override val isInline: Boolean = false) :
-        A2uiCoreCatalog {
+        A2uiCatalogDefinition {
         override val componentDefinitions =
-            A2uiCoreComponentDefinitionCollection(
+            A2uiComponentDefinitionCollection(
                 listOf(
-                    object : A2uiCoreComponentDefinition {
+                    object : A2uiComponentDefinition {
                         override val name = "button"
                         override val description = "A test button"
                         override val propertySchema = A2uiObjectSchema()

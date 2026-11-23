@@ -16,7 +16,7 @@
 
 package androidx.a2ui.engine.model
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
@@ -37,7 +37,7 @@ import androidx.a2ui.model.protocol.A2uiExecutionContext
 internal class A2uiCoreExecutionContext(
     override val dataPath: A2uiDataPath,
     private val componentId: String,
-    private val catalog: A2uiCoreCatalog,
+    private val catalog: A2uiCatalogDefinition,
     private val dispatchError: (A2uiException, String?) -> Unit,
     private val valueResolver: A2uiCoreValueResolver,
     private val dynamicEvaluator: A2uiCoreDynamicEvaluator,

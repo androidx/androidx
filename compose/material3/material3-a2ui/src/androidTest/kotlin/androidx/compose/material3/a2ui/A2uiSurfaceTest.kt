@@ -21,11 +21,11 @@ import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
 import androidx.a2ui.compose.ui.testing.A2uiComponentStub
 import androidx.a2ui.compose.ui.testing.A2uiTestController
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiComponentPayload
@@ -79,9 +79,9 @@ class A2uiSurfaceTest {
     @Test
     fun surface_nonComposeCatalog_throwsIllegalArgumentException() = runComposeUiTest {
         val fakeCatalog =
-            object : A2uiCoreCatalog {
+            object : A2uiCatalogDefinition {
                 override val id: String = "fake_catalog"
-                override val componentDefinitions = A2uiCoreComponentDefinitionCollection()
+                override val componentDefinitions = A2uiComponentDefinitionCollection()
                 override val functions = A2uiFunctionCollection()
                 override val themeSchema: A2uiSchema? = null
             }

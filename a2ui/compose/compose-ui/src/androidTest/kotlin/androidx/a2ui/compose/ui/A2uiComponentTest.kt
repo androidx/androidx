@@ -22,12 +22,11 @@ import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiComponentState
 import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.compose.runtime.A2uiProperty
-import androidx.a2ui.compose.runtime.A2uiRuntimeCatalog
 import androidx.a2ui.compose.runtime.observeA2uiComponentState
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
+import androidx.a2ui.model.catalog.A2uiCatalogDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinition
+import androidx.a2ui.model.catalog.A2uiComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiComponentPayload
@@ -84,7 +83,7 @@ class A2uiComponentTest {
     @Test
     fun a2uiComponent_validComponent_rendersSuccessfullyAndPassesModifier() =
         runWithPipeline(
-            catalog = catalog as A2uiCoreCatalog,
+            catalog = catalog,
             componentPayloads =
                 listOf(
                     A2uiComponentPayload("root", TestComponentName, mapOf("label" to "Hello A2UI"))
@@ -106,12 +105,12 @@ class A2uiComponentTest {
     fun a2uiComponent_nonComposeCatalog_throws() =
         runWithPipeline(
             catalog =
-                object : A2uiCoreCatalog, A2uiRuntimeCatalog {
+                object : A2uiCatalogDefinition {
                     override val id = "non_compose_catalog"
                     override val componentDefinitions =
-                        A2uiCoreComponentDefinitionCollection(
+                        A2uiComponentDefinitionCollection(
                             listOf(
-                                object : A2uiCoreComponentDefinition {
+                                object : A2uiComponentDefinition {
                                     override val name = "TestComponent"
                                     override val description = ""
                                     override val propertySchema = A2uiObjectSchema()
@@ -140,7 +139,7 @@ class A2uiComponentTest {
     @Test
     fun a2uiComponent_withUnregisteredType_throwsIllegalStateException() =
         runWithPipeline(
-            catalog = catalog as A2uiCoreCatalog,
+            catalog = catalog,
             componentPayloads = listOf(A2uiComponentPayload("root", TestComponentName, emptyMap())),
         ) { surface ->
             var exception: IllegalStateException? = null
@@ -168,7 +167,7 @@ class A2uiComponentTest {
         }
 
     private fun runWithPipeline(
-        catalog: A2uiCoreCatalog,
+        catalog: A2uiCatalogDefinition,
         componentPayloads: List<A2uiComponentPayload>,
         interceptors: List<A2uiActionInterceptor> = emptyList(),
         block: ComposeUiTest.(A2uiCoreSurfaceModel) -> Unit,
@@ -182,10 +181,7 @@ class A2uiComponentTest {
         testContext.job.invokeOnCompletion { backgroundScope.cancel() }
 
         val processor =
-            A2uiMessageProcessor(
-                catalogs = listOf(catalog as A2uiRuntimeCatalog),
-                interceptors = interceptors,
-            )
+            A2uiMessageProcessor(catalogs = listOf(catalog), interceptors = interceptors)
         backgroundScope.launch { processor.collectMessages() }
 
         processor.processMessage(A2uiCreateSurfaceMessage(TestSurfaceId, catalog.id))

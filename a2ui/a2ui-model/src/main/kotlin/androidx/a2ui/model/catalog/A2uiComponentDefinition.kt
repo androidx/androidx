@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-@file:JvmName("A2uiCoreComponentDefinitionKt")
+@file:JvmName("A2uiComponentDefinitionKt")
 
-package androidx.a2ui.engine.catalog
+package androidx.a2ui.model.catalog
 
 import androidx.a2ui.model.schema.A2uiSchema
 
 /** Defines a single UI component and its schema. */
-public interface A2uiCoreComponentDefinition {
+public interface A2uiComponentDefinition {
     /** Component name that would be provided to the AI agent. */
     public val name: String
 
@@ -37,5 +37,5 @@ public interface A2uiCoreComponentDefinition {
  *
  * @return the [A2uiSchema] representation of this component definition
  */
-public fun A2uiCoreComponentDefinition.toSchema(): A2uiSchema =
+public fun A2uiComponentDefinition.toSchema(): A2uiSchema =
     serializeComponentDefinitionToSchema(this)
