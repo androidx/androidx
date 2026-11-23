@@ -1517,6 +1517,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        // When hosted in Compose lazy containers (e.g. HorizontalPager), prefetched views can be
+        // laid out at 0x0 before placement. Return early to wait for a positive width before
+        // adjusting zoom/scroll or clearing awaitingFirstLayout.
+        if (width <= 0) {
+            return
+        }
         if (pendingZoomRecalculation) {
             this.zoom = getFitToWidthZoom()
             pendingZoomRecalculation = false
@@ -1567,7 +1573,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          *
          * For view init scenario, [getFitToWidthZoom] should be enough to fit to width.
          */
-        if (localOldWidth != null) {
+        if (localOldWidth != null && localOldWidth > 0 && width > 0) {
             // Either we're restoring or view size has changed; adjust zoom by factor of w / oldW.
             val factor = width.toFloat() / localOldWidth
             val resolvedZoom = zoomToRestore ?: zoom
