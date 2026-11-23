@@ -34,6 +34,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.filters.LargeTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,6 +86,7 @@ class MediaQueryBenchmark(
         ComposeUiFlags.isMediaQueryIntegrationEnabled = originalIsMediaQueryIntegrationEnabled
     }
 
+    @Ignore("b/581388900")
     @Test
     fun initialComposition() {
         with(benchmarkRule) {
