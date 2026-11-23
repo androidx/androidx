@@ -74,6 +74,15 @@ constructor(
     /**
      * Creates a copy of this viewfinder surface request, allowing named properties to be altered
      * while keeping the rest unchanged.
+     *
+     * @param width The requested surface width.
+     * @param height The requested surface height.
+     * @param implementationMode The [ImplementationMode] to apply to the viewfinder. Using `null`
+     *   chooses a compatible default (including [ImplementationMode.EMBEDDED] on API levels below
+     *   29 for [TransformationMode.PRE_APPLIED] sources). Setting a non-null mode overrides
+     *   compatibility defaults.
+     * @param requestId An optional request ID to allow requests to be differentiated via [equals].
+     * @return a copy of this instance
      */
     @JvmSynthetic
     public fun copy(
