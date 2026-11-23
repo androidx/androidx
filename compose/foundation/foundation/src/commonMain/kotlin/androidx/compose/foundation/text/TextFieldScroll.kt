@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
@@ -569,6 +570,31 @@ internal class TextFieldScrollerPosition(initialOrientation: Orientation, initia
                         else Orientation.Horizontal,
                         restored[0] as Float,
                     )
+                },
+            )
+
+        private val VerticalSaver = orientationValidatingSaver(Orientation.Vertical)
+        private val HorizontalSaver = orientationValidatingSaver(Orientation.Horizontal)
+
+        fun saver(orientation: Orientation): Saver<TextFieldScrollerPosition, Any> =
+            when (orientation) {
+                Orientation.Vertical -> VerticalSaver
+                Orientation.Horizontal -> HorizontalSaver
+            }
+
+        private fun orientationValidatingSaver(expectedOrientation: Orientation) =
+            listSaver<TextFieldScrollerPosition, Any>(
+                save = { listOf(it.offset, it.orientation == Orientation.Vertical) },
+                restore = { restored ->
+                    val offset = restored.getOrNull(0) as? Float ?: return@listSaver null
+                    val isVertical = restored.getOrNull(1) as? Boolean ?: return@listSaver null
+                    val restoredOrientation =
+                        if (isVertical) Orientation.Vertical else Orientation.Horizontal
+                    if (restoredOrientation == expectedOrientation) {
+                        TextFieldScrollerPosition(restoredOrientation, offset)
+                    } else {
+                        null
+                    }
                 },
             )
     }

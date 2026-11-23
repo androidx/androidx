@@ -195,6 +195,7 @@ package androidx.compose.foundation {
     property public boolean isRoundedRectangleBorderRenderingFixEnabled;
     property public boolean isSelectionAutoScrollEnabled;
     property public boolean isSmartSelectionEnabled;
+    property public boolean isTextFieldScrollerOrientationRestoreFixEnabled;
     property public boolean isTextFieldWaitWindowFocusForInputSessionEnabled;
     property public boolean isTextLookaheadOptimizationEnabled;
     property public boolean isUsingCacheWindowInStaggeredGrids;
@@ -232,6 +233,7 @@ package androidx.compose.foundation {
     field public static boolean isRoundedRectangleBorderRenderingFixEnabled;
     field public static boolean isSelectionAutoScrollEnabled;
     field public static boolean isSmartSelectionEnabled;
+    field public static boolean isTextFieldScrollerOrientationRestoreFixEnabled;
     field public static boolean isTextFieldWaitWindowFocusForInputSessionEnabled;
     field public static boolean isTextLookaheadOptimizationEnabled;
     field public static boolean isUsingCacheWindowInStaggeredGrids;

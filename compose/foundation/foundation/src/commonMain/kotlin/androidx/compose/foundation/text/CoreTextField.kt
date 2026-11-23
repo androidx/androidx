@@ -231,9 +231,16 @@ internal fun CoreTextField(
     // Scroll state
     val singleLine = maxLines == 1 && !softWrap && imeOptions.singleLine
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
+    @OptIn(ExperimentalFoundationApi::class)
+    val saver =
+        if (ComposeFoundationFlags.isTextFieldScrollerOrientationRestoreFixEnabled) {
+            TextFieldScrollerPosition.saver(orientation)
+        } else {
+            TextFieldScrollerPosition.Saver
+        }
     val scrollerPosition =
         textScrollerPosition
-            ?: rememberSaveable(orientation, saver = TextFieldScrollerPosition.Saver) {
+            ?: rememberSaveable(orientation, saver = saver) {
                 TextFieldScrollerPosition(orientation)
             }
     if (scrollerPosition.orientation != orientation) {
