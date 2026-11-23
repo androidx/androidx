@@ -483,7 +483,7 @@ internal class CompositionImpl(
      * The parent composition from [rememberCompositionContext], for sub-compositions, or the an
      * instance of [Recomposer] for root compositions.
      */
-    @get:TestOnly val parent: CompositionContext,
+    val parent: CompositionContext,
 
     /** The applier to use to update the tree managed by the composition. */
     private val applier: Applier<*>,
