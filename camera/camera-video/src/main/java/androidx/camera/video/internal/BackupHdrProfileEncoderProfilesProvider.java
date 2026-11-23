@@ -16,26 +16,16 @@
 
 package androidx.camera.video.internal;
 
-import static android.media.EncoderProfiles.VideoProfile.HDR_DOLBY_VISION;
-import static android.media.EncoderProfiles.VideoProfile.HDR_HDR10;
-import static android.media.EncoderProfiles.VideoProfile.HDR_HDR10PLUS;
-import static android.media.EncoderProfiles.VideoProfile.HDR_HLG;
 import static android.media.EncoderProfiles.VideoProfile.HDR_NONE;
 
-import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10;
-import static androidx.camera.core.impl.EncoderProfilesProxy.getVideoCodecMimeType;
+import static androidx.camera.video.internal.utils.EncoderProfilesUtil.deriveHdrVideoProfile;
+import static androidx.camera.video.internal.utils.EncoderProfilesUtil.validateOrAdapt;
 
-import android.media.MediaCodecInfo;
-import android.media.MediaRecorder;
-import android.util.Rational;
-
-import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.Logger;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
-import androidx.camera.video.internal.config.VideoConfigUtil;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
 import org.jspecify.annotations.NonNull;
@@ -59,8 +49,6 @@ import java.util.Map;
  * verified by the {@code validator} passed to the constructor.
  */
 public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesProvider {
-
-    private static final String TAG = "BackupHdrProfileEncoderProfilesProvider";
 
     private final EncoderProfilesProvider mEncoderProfilesProvider;
     private final VideoEncoderInfo.Finder mVideoEncoderInfoFinder;
@@ -104,7 +92,7 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
             EncoderProfilesProxy baseProfiles = mEncoderProfilesProvider.getAll(quality);
 
             // In the initial version, only backup HLG10 profile is appended.
-            profiles = appendBackupVideoProfile(baseProfiles, HDR_HLG, BIT_DEPTH_10);
+            profiles = appendBackupVideoProfile(baseProfiles, DynamicRange.HLG_10_BIT);
             mEncoderProfilesCache.put(quality, profiles);
         }
 
@@ -112,7 +100,7 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
     }
 
     private @Nullable EncoderProfilesProxy appendBackupVideoProfile(
-            @Nullable EncoderProfilesProxy baseProfiles, int targetHdrFormat, int targetBitDepth) {
+            @Nullable EncoderProfilesProxy baseProfiles, @NonNull DynamicRange targetDynamicRange) {
         if (baseProfiles == null) {
             return null;
         }
@@ -127,8 +115,8 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
                 break;
             }
         }
-        VideoProfileProxy backupProfile = generateBackupProfile(sdrProfile, targetHdrFormat,
-                targetBitDepth);
+        VideoProfileProxy backupProfile = sdrProfile == null ? null
+                : deriveHdrVideoProfile(sdrProfile, targetDynamicRange);
 
         // Check if the media codec supports the generated backup profile and adapt bitrate if
         // possible.
@@ -143,139 +131,6 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
                 baseProfiles.getRecommendedFileFormat(),
                 baseProfiles.getAudioProfiles(),
                 videoProfiles
-        );
-    }
-
-    private static @Nullable VideoProfileProxy generateBackupProfile(
-            @Nullable VideoProfileProxy baseProfile, int targetHdrFormat, int targetBitDepth) {
-        if (baseProfile == null) {
-            return null;
-        }
-
-        // "Guess" codec, media type and profile.
-        int derivedCodec = baseProfile.getCodec();
-        String derivedMediaType = baseProfile.getMediaType();
-        int derivedProfile = baseProfile.getProfile();
-        if (targetHdrFormat != baseProfile.getHdrFormat()) {
-            derivedCodec = deriveCodec(targetHdrFormat);
-            derivedMediaType = deriveMediaType(derivedCodec);
-            derivedProfile = deriveProfile(targetHdrFormat);
-        }
-
-        // "Guess" bit rate.
-        int derivedBitrate = scaleBitrate(baseProfile.getBitrate(), targetBitDepth,
-                baseProfile.getBitDepth());
-
-        return VideoProfileProxy.create(
-                derivedCodec,
-                derivedMediaType,
-                derivedBitrate,
-                baseProfile.getFrameRate(),
-                baseProfile.getWidth(),
-                baseProfile.getHeight(),
-                derivedProfile,
-                targetBitDepth,
-                baseProfile.getChromaSubsampling(),
-                targetHdrFormat
-        );
-    }
-
-    private static @VideoProfileProxy.VideoEncoder int deriveCodec(int hdrFormat) {
-        switch (hdrFormat) {
-            case HDR_NONE:
-            case HDR_HLG:
-            case HDR_HDR10:
-            case HDR_HDR10PLUS:
-            case HDR_DOLBY_VISION:
-                return MediaRecorder.VideoEncoder.HEVC;
-            default:
-                throw new IllegalArgumentException("Unexpected HDR format: " + hdrFormat);
-        }
-    }
-
-    private static int deriveProfile(int hdrFormat) {
-        switch (hdrFormat) {
-            case HDR_NONE:
-                return MediaCodecInfo.CodecProfileLevel.HEVCProfileMain;
-            case HDR_HLG:
-                return MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10;
-            case HDR_HDR10:
-                return MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10;
-            case HDR_HDR10PLUS:
-                return MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus;
-            case HDR_DOLBY_VISION:
-                return EncoderProfilesProxy.CODEC_PROFILE_NONE;
-            default:
-                throw new IllegalArgumentException("Unexpected HDR format: " + hdrFormat);
-        }
-    }
-
-    private static @NonNull String deriveMediaType(@VideoProfileProxy.VideoEncoder int codec) {
-        return getVideoCodecMimeType(codec);
-    }
-
-    /**
-     * Scale bit depth to match new bit depth.
-     */
-    private static int scaleBitrate(int baseBitrate, int actualBitDepth, int baseBitDepth) {
-        if (actualBitDepth == baseBitDepth) {
-            return baseBitrate;
-        }
-
-        Rational bitDepthRatio = new Rational(actualBitDepth, baseBitDepth);
-        int resolvedBitrate = (int) (baseBitrate * bitDepthRatio.doubleValue());
-
-        if (Logger.isDebugEnabled(TAG)) {
-            String debugString = String.format("Base Bitrate(%dbps) * Bit Depth Ratio (%d / %d) "
-                            + "= %d", baseBitrate, actualBitDepth, baseBitDepth, resolvedBitrate);
-            Logger.d(TAG, debugString);
-        }
-
-        return resolvedBitrate;
-    }
-
-    /**
-     * Check if any encoder supports the video profile and adapt the bitrate if possible. A null
-     * will be returned if the video profile is not able to support.
-     *
-     * <p>A 10-bit HDR profile is only supported when the encoder is hardware-accelerated. See
-     * {@link VideoConfigUtil#isVideoProfileDynamicRangeSupported}.
-     */
-    @VisibleForTesting
-    static @Nullable VideoProfileProxy validateOrAdapt(@Nullable VideoProfileProxy profile,
-            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
-        if (profile == null) {
-            return null;
-        }
-        VideoEncoderInfo videoEncoderInfo = videoEncoderInfoFinder.find(profile.getMediaType());
-        if (videoEncoderInfo == null
-                || !videoEncoderInfo.isSizeSupportedAllowSwapping(profile.getWidth(),
-                profile.getHeight())) {
-            return null;
-        }
-        // 10-bit HDR requires a hardware-accelerated encoder (b/567407353).
-        if (!VideoConfigUtil.isVideoProfileDynamicRangeSupported(profile, videoEncoderInfo)) {
-            Logger.d(TAG, "Encoder doesn't support dynamic range of profile: " + profile);
-            return null;
-        }
-        int baseBitrate = profile.getBitrate();
-        int newBitrate = videoEncoderInfo.getSupportedBitrateRange().clamp(baseBitrate);
-        return newBitrate == baseBitrate ? profile : modifyBitrate(profile, newBitrate);
-    }
-
-    private static @NonNull VideoProfileProxy modifyBitrate(@NonNull VideoProfileProxy baseProfile,
-            int newBitrate) {
-        return VideoProfileProxy.create(
-                baseProfile.getCodec(),
-                baseProfile.getMediaType(),
-                newBitrate,
-                baseProfile.getFrameRate(),
-                baseProfile.getWidth(),
-                baseProfile.getHeight(),
-                baseProfile.getProfile(),
-                baseProfile.getBitDepth(),
-                baseProfile.getChromaSubsampling(),
-                baseProfile.getHdrFormat()
         );
     }
 }

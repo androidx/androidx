@@ -33,10 +33,10 @@ import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.LabTestRule
-import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider.validateOrAdapt
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
 import androidx.camera.video.internal.encoder.DefaultVideoEncoderFactory
+import androidx.camera.video.internal.utils.EncoderProfilesUtil.validateOrAdapt
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

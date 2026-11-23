@@ -102,49 +102,6 @@ class BackupHdrProfileEncoderProfilesProviderTest {
         }
     }
 
-    @Test
-    fun validateOrAdapt_10BitProfile_returnsNullForSoftwareEncoder() {
-        assertThat(
-                BackupHdrProfileEncoderProfilesProvider.validateOrAdapt(
-                    createBackupHlg10Profile(),
-                    softwareEncoderFinder,
-                )
-            )
-            .isNull()
-    }
-
-    @Test
-    fun validateOrAdapt_10BitProfile_returnsProfileForHardwareEncoder() {
-        assertThat(
-                BackupHdrProfileEncoderProfilesProvider.validateOrAdapt(
-                    createBackupHlg10Profile(),
-                    videoEncoderFinder,
-                )
-            )
-            .isNotNull()
-    }
-
-    @Test
-    fun validateOrAdapt_8BitProfile_returnsProfileForSoftwareEncoder() {
-        val baseProfile = PROFILES_1080P.videoProfiles.first()
-
-        assertThat(
-                BackupHdrProfileEncoderProfilesProvider.validateOrAdapt(
-                    baseProfile,
-                    softwareEncoderFinder,
-                )
-            )
-            .isNotNull()
-    }
-
-    /** Derives the backup HLG10 profile from the provider so the codec isn't hardcoded. */
-    private fun createBackupHlg10Profile(): EncoderProfilesProxy.VideoProfileProxy {
-        val provider = BackupHdrProfileEncoderProfilesProvider(defaultProvider, videoEncoderFinder)
-        return requireNotNull(provider.getAll(QUALITY_1080P)).videoProfiles.first {
-            it.hdrFormat == HDR_HLG && it.bitDepth == BIT_DEPTH_10
-        }
-    }
-
     private fun createFakeEncoderProfilesProvider(
         qualityToProfilesMap: Map<Int, EncoderProfilesProxy> = emptyMap()
     ): EncoderProfilesProvider {
