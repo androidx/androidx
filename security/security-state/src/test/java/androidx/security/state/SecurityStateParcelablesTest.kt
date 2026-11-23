@@ -22,6 +22,7 @@ import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.test.assertNotEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -192,7 +193,7 @@ class SecurityStateParcelablesTest {
 
     @Test
     fun testUpdateCheckResult_parcelRoundTrip() {
-        // GIVEN an UpdateCheckResult containing a list of updates
+        // GIVEN an UpdateCheckResult containing updates and per-component check timestamps
         val updates =
             listOf(
                 UpdateInfo(
@@ -213,16 +214,24 @@ class SecurityStateParcelablesTest {
                 providerPackageName = "com.example.provider",
                 updates = updates,
                 lastCheckTimeMillis = 500L,
+                componentLastCheckTimesMillis = mapOf("SYSTEM" to 500L, "SYSTEM_MODULES" to 450L),
             )
 
         // WHEN we write it to a Parcel and read it back
         val restored = parcelRoundTrip(original, UpdateCheckResult.CREATOR)
 
-        // THEN the restored object is identical
+        // THEN the restored object is identical, including per-component check timestamps
         assertEquals(original, restored)
+        assertEquals(original.hashCode(), restored.hashCode())
         assertEquals(2, restored.updates.size)
         assertEquals("SYSTEM", restored.updates[0].component)
         assertEquals("SYSTEM_MODULES", restored.updates[1].component)
+        assertEquals(
+            mapOf("SYSTEM" to 500L, "SYSTEM_MODULES" to 450L),
+            restored.componentLastCheckTimesMillis,
+        )
+        assertEquals(500L, restored.getLastCheckTimeMillis("SYSTEM"))
+        assertEquals(450L, restored.getLastCheckTimeMillis("SYSTEM_MODULES"))
     }
 
     @Test
@@ -249,6 +258,7 @@ class SecurityStateParcelablesTest {
         // THEN it succeeds and ignores the extra key
         assertEquals("com.example.provider", restored.providerPackageName)
         assertTrue(restored.updates.isEmpty())
+        assertTrue(restored.componentLastCheckTimesMillis.isEmpty())
     }
 
     @Test
@@ -268,16 +278,29 @@ class SecurityStateParcelablesTest {
         assertEquals("", restored.providerPackageName)
         assertEquals(0L, restored.lastCheckTimeMillis)
         assertTrue("Updates list should default to empty", restored.updates.isEmpty())
+        assertTrue(
+            "Component check times map should default to empty",
+            restored.componentLastCheckTimesMillis.isEmpty(),
+        )
+        assertEquals(0L, restored.getLastCheckTimeMillis("SYSTEM"))
     }
 
     @Test
     fun testUpdateCheckResult_handlesWrongTypesGracefully() {
-        // GIVEN a Bundle where 'updates' is a String instead of an ArrayList
-        // (Simulating a provider bug or data corruption)
+        // GIVEN a Bundle where 'updates' is a String instead of an ArrayList and
+        // 'componentLastCheckTimesMillis' contains non-Long / non-positive entries
+        val malformedComponentBundle =
+            Bundle().apply {
+                putLong("SYSTEM_MODULES", 1000L)
+                putString("SYSTEM", "not_a_timestamp")
+                putLong("VENDOR", 0L)
+                putLong("KERNEL", -5L)
+            }
         val badTypeBundle =
             Bundle().apply {
                 putString("providerPackageName", "com.example.provider")
                 putString("updates", "I am not a list") // Wrong type!
+                putBundle("componentLastCheckTimesMillis", malformedComponentBundle)
             }
 
         // WHEN we read it back
@@ -288,10 +311,70 @@ class SecurityStateParcelablesTest {
         val restored = UpdateCheckResult.CREATOR.createFromParcel(parcel)
         parcel.recycle()
 
-        // THEN it falls back to an empty list instead of crashing
-        // (Bundle.getParcelableArrayList returns null on type mismatch, we handle it)
+        // THEN it falls back safely and keeps only strictly positive Long component entries
         assertTrue("Should return empty list on type mismatch", restored.updates.isEmpty())
         assertEquals("com.example.provider", restored.providerPackageName)
+        assertEquals(mapOf("SYSTEM_MODULES" to 1000L), restored.componentLastCheckTimesMillis)
+        assertEquals(0L, restored.getLastCheckTimeMillis("SYSTEM"))
+        assertEquals(0L, restored.getLastCheckTimeMillis("VENDOR"))
+        assertEquals(1000L, restored.getLastCheckTimeMillis("SYSTEM_MODULES"))
+    }
+
+    @Test
+    fun testUpdateCheckResult_getLastCheckTimeMillis_isolatesComponentsAndFallsBackToUpdates() {
+        // GIVEN a shared provider that checked SYSTEM_MODULES (with no pending update), passed a
+        // 0L VENDOR entry, and has a pending KERNEL update from an older provider path without a
+        // map entry, while SYSTEM was not reported
+        val mutableInputMap = mutableMapOf("SYSTEM_MODULES" to 3000L, "VENDOR" to 0L)
+        val pendingKernelUpdate =
+            UpdateInfo(
+                "KERNEL",
+                SecurityPatchState.VersionedSecurityPatchLevel.fromString("6.1.99"),
+                1000L,
+                2000L,
+            )
+        val result =
+            UpdateCheckResult(
+                providerPackageName = "com.example.provider",
+                updates = listOf(pendingKernelUpdate),
+                lastCheckTimeMillis = 3000L,
+                componentLastCheckTimesMillis = mutableInputMap,
+            )
+
+        // Mutating the caller's map after construction must not affect the result
+        mutableInputMap["SYSTEM"] = 9999L
+
+        // THEN SYSTEM and VENDOR report 0L (and are omitted from the map), SYSTEM_MODULES reports
+        // 3000L, and KERNEL falls back to its pending UpdateInfo timestamp (2000L)
+        assertEquals(0L, result.getLastCheckTimeMillis("SYSTEM"))
+        assertEquals(0L, result.getLastCheckTimeMillis("VENDOR"))
+        assertEquals(3000L, result.getLastCheckTimeMillis("SYSTEM_MODULES"))
+        assertEquals(2000L, result.getLastCheckTimeMillis("KERNEL"))
+        assertEquals(mapOf("SYSTEM_MODULES" to 3000L), result.componentLastCheckTimesMillis)
+    }
+
+    @Test
+    fun testUpdateCheckResult_componentLastCheckTimesMillis_isUnmodifiable() {
+        // GIVEN a result that reports a check for SYSTEM_MODULES only
+        val result =
+            UpdateCheckResult(
+                providerPackageName = "com.example.provider",
+                updates = emptyList(),
+                lastCheckTimeMillis = 3000L,
+                componentLastCheckTimesMillis = mapOf("SYSTEM_MODULES" to 3000L),
+            )
+
+        // WHEN a caller that sees a mutable map (such as Java code) tries to add or remove an entry
+        val exposedMap = result.componentLastCheckTimesMillis as MutableMap<String, Long>
+        assertThrows(UnsupportedOperationException::class.java) { exposedMap["SYSTEM"] = 9999L }
+        assertThrows(UnsupportedOperationException::class.java) {
+            exposedMap.remove("SYSTEM_MODULES")
+        }
+
+        // THEN the result still reports the check for SYSTEM_MODULES and none for SYSTEM
+        assertEquals(0L, result.getLastCheckTimeMillis("SYSTEM"))
+        assertEquals(3000L, result.getLastCheckTimeMillis("SYSTEM_MODULES"))
+        assertEquals(mapOf("SYSTEM_MODULES" to 3000L), result.componentLastCheckTimesMillis)
     }
 
     /** Helper function to simulate IPC transfer */

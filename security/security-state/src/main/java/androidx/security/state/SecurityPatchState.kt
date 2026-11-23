@@ -1031,6 +1031,10 @@ constructor(
      * cache (typically refreshing at least once per hour). If a provider determines its cache is
      * stale, this call may **suspend** while it performs a network fetch.
      *
+     * **Check Times:** Each result carries the time of its provider's last successful check in
+     * [UpdateCheckResult.lastCheckTimeMillis]. That is a single time for the whole provider, so to
+     * find out when one component was last checked, use [UpdateCheckResult.getLastCheckTimeMillis].
+     *
      * @param timeoutMillis The maximum time to wait for each provider to respond, in milliseconds.
      *   Defaults to [UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS].
      * @return A list of [UpdateCheckResult] objects. Each element represents the status reported by
