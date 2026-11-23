@@ -26,7 +26,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonShapes
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,7 +61,6 @@ import androidx.core.locationbutton.R
  *   composable never forces a size of its own so that it can wrap its content.
  * @param referenceHeight the height used to select size dependent Material 3 tokens.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun LocationButtonContent(
     onClick: () -> Unit,
