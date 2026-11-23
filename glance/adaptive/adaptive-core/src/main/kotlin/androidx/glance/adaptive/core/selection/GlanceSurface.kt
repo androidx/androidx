@@ -41,6 +41,12 @@ constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val dimensions: Dimensions = Dimensions(0, 0),
 ) {
+    /**
+     * Returns this surface placed at [dimensions], for the selector and renderer of one placement.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract fun withDimensions(dimensions: Dimensions): GlanceSurface
+
     override fun equals(other: Any?): Boolean =
         this === other || (other is GlanceSurface && tag == other.tag)
 
@@ -54,10 +60,18 @@ constructor(
          * Creates a lightweight [GlanceSurface] instance for testing.
          *
          * @param tag The unique string identifier for the surface.
+         * @param dimensions Optional placement [Dimensions] for the surface.
          * @return A [GlanceSurface] instance identified by [tag].
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public fun fromTag(tag: String): GlanceSurface = object : GlanceSurface(tag) {}
+        public fun fromTag(
+            tag: String,
+            dimensions: Dimensions = Dimensions(0, 0),
+        ): GlanceSurface =
+            object : GlanceSurface(tag, dimensions) {
+                override fun withDimensions(dimensions: Dimensions): GlanceSurface =
+                    fromTag(tag, dimensions)
+            }
     }
 }

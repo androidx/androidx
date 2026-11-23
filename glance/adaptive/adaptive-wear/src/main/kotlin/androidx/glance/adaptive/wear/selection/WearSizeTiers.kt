@@ -21,6 +21,7 @@ import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
+import androidx.glance.wear.core.ContainerInfo
 
 /**
  * Breakpoint resolution utility mapping physical container dimensions to standardized [SizeTiers]
@@ -43,8 +44,12 @@ public object WearSizeTiers {
 
     /** Resolves the [HeightTier] for a given [heightDp] dimension and [surface]. */
     public fun resolveHeightTier(heightDp: Float, surface: WearWidgetSurface): HeightTier {
-        return when (surface) {
-            WearWidgetSurface.WIDGET -> if (heightDp < 140f) HeightTier.H1 else HeightTier.H2
+        // TODO(b/583630439): Sort out size tier mapping once UX is finalized.
+        return when (surface.containerType) {
+            ContainerInfo.CONTAINER_TYPE_SMALL,
+            ContainerInfo.CONTAINER_TYPE_LARGE,
+            ContainerInfo.CONTAINER_TYPE_TILE_COMPAT ->
+                if (heightDp < 140f) HeightTier.H1 else HeightTier.H2
             else -> if (heightDp < 140f) HeightTier.H1 else HeightTier.H2
         }
     }
