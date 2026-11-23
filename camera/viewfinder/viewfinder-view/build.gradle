@@ -48,6 +48,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation("androidx.core:core-ktx:1.15.0")
     androidTestImplementation(libs.guavaAndroid)
