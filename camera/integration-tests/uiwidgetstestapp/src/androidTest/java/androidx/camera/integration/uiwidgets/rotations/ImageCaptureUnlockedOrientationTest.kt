@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
-import android.app.Instrumentation
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_FILE
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_IN_MEMORY
@@ -25,7 +24,6 @@ import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -108,26 +106,7 @@ class ImageCaptureUnlockedOrientationTest(
     @SdkSuppress(maxSdkVersion = 33) // b/360867144: Module crashes on API34
     fun verifyRotation() {
         verifyRotation<UnlockedOrientationActivity>(lensFacing, captureMode) {
-            if (rotation.shouldRotate) {
-                rotateDeviceAndWait()
-            }
+            rotation.rotateAndWait(device, this)
         }
-    }
-
-    private fun rotateDeviceAndWait() {
-        val monitor =
-            Instrumentation.ActivityMonitor(
-                UnlockedOrientationActivity::class.java.name,
-                null,
-                false,
-            )
-        InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
-
-        // Rotate
-        rotation.rotate(device)
-
-        // Wait for the activity to be recreated after rotation
-        InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(monitor, 2000L)
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 }

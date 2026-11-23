@@ -25,7 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import org.junit.After
@@ -106,6 +106,7 @@ class ImageAnalysisOrientationConfigChangesTest(
         rotation: Int
     ): Boolean {
         val currentRotation = withActivity {
+            mDisplayChanged.drainPermits()
             val root = findViewById<View>(android.R.id.content)
             root.display.rotation
         }
@@ -115,6 +116,8 @@ class ImageAnalysisOrientationConfigChangesTest(
 
     private fun ActivityScenario<OrientationConfigChangesOverriddenActivity>.waitForRotation() {
         val displayChanged = withActivity { mDisplayChanged }
-        assertThat(displayChanged.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+        assertWithMessage("Timed out after ${TIMEOUT}s waiting for display rotation to $rotation")
+            .that(displayChanged.tryAcquire(TIMEOUT, TimeUnit.SECONDS))
+            .isTrue()
     }
 }
