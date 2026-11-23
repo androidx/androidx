@@ -17,6 +17,7 @@
 package androidx.savedstate
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import kotlin.test.Test
 
 @IgnoreWebTarget
@@ -56,24 +57,22 @@ internal class SavedStateContainerTest : RobolectricTest() {
     }
 
     @Test
-    fun addAndGetSavedStateValue() {
+    fun addAndGet() {
         val container = SavedStateContainer()
         val testValue = TestSavedStateValue("hello")
 
-        container.putSavedStateValue("testKey", testValue)
+        container["testKey"] = testValue
 
-        val retrieved: TestSavedStateValue? =
-            container.getSavedStateValue<String?, TestSavedStateValue>("testKey")
+        val retrieved = container.get<String?>("testKey")
         assertThat(retrieved).isNotNull()
         assertThat(retrieved).isSameInstanceAs(testValue)
         assertThat(retrieved?.value).isEqualTo("hello")
     }
 
     @Test
-    fun getSavedStateValue_returnsNullWhenKeyNotFound() {
+    fun get_returnsNullWhenKeyNotFound() {
         val container = SavedStateContainer()
-        val retrieved: TestSavedStateValue? =
-            container.getSavedStateValue<String?, TestSavedStateValue>("nonExistent")
+        val retrieved = container.get<String?>("nonExistent")
         assertThat(retrieved).isNull()
     }
 
@@ -83,24 +82,66 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val value1 = TestSavedStateValue("first")
         val value2 = TestSavedStateValue("second")
 
-        container.putSavedStateValue("key", value1)
-        container.putSavedStateValue("key", value2)
+        container["key"] = value1
+        container["key"] = value2
 
-        val retrieved: TestSavedStateValue? =
-            container.getSavedStateValue<String?, TestSavedStateValue>("key")
+        val retrieved = container.get<String?>("key")
         assertThat(retrieved).isSameInstanceAs(value2)
         assertThat(retrieved?.value).isEqualTo("second")
     }
 
     @Test
-    fun getOrPutSavedStateValue_returnsExistingValueWhenPresent() {
+    fun put_returnsNullWhenKeyAbsent() {
+        val container = SavedStateContainer()
+        val value = TestSavedStateValue("first")
+
+        val previous = container.put("key", value)
+
+        assertThat(previous).isNull()
+        assertThat(container.get<String?>("key")).isSameInstanceAs(value)
+    }
+
+    @Test
+    fun put_returnsPreviousValueWhenOverwriting() {
+        val container = SavedStateContainer()
+        val value1 = TestSavedStateValue("first")
+        val value2 = TestSavedStateValue("second")
+
+        container.put("key", value1)
+        val previous = container.put("key", value2)
+
+        assertThat(previous).isSameInstanceAs(value1)
+        assertThat(container.get<String?>("key")).isSameInstanceAs(value2)
+        assertThat(container.get<String?>("key")?.value).isEqualTo("second")
+    }
+
+    @Test
+    fun restoreState_thenPut_restoresValueAndReturnsNull() {
+        val container = SavedStateContainer()
+        val key1Bundle = savedState { putString("key", "restoredVal") }
+        val bundle = savedState { putSavedState("key1", key1Bundle) }
+
+        container.restoreState(bundle)
+
+        val testValue = TestSavedStateValue("initial")
+        val previous = container.put("key1", testValue)
+
+        assertThat(previous).isNull()
+        val retrieved = container.get<String?>("key1")
+        assertThat(retrieved).isSameInstanceAs(testValue)
+        assertThat(retrieved?.value).isEqualTo("restoredVal")
+        assertThat(testValue.restoredState).isEqualTo(key1Bundle)
+    }
+
+    @Test
+    fun getOrSet_returnsExistingValueWhenPresent() {
         val container = SavedStateContainer()
         val existing = TestSavedStateValue("existing")
-        container.putSavedStateValue("key", existing)
+        container["key"] = existing
 
         var factoryCalled = false
         val result =
-            container.getOrPutSavedStateValue("key") {
+            container.getOrPut("key") {
                 factoryCalled = true
                 TestSavedStateValue("new")
             }
@@ -111,34 +152,52 @@ internal class SavedStateContainerTest : RobolectricTest() {
     }
 
     @Test
-    fun getOrPutSavedStateValue_evaluatesDefaultAndRegistersWhenAbsent() {
+    fun getOrSet_evaluatesDefaultAndRegistersWhenAbsent() {
         val container = SavedStateContainer()
         val created = TestSavedStateValue("created")
 
         var factoryCalled = false
         val result =
-            container.getOrPutSavedStateValue("key") {
+            container.getOrPut("key") {
                 factoryCalled = true
                 created
             }
 
         assertThat(factoryCalled).isTrue()
         assertThat(result).isSameInstanceAs(created)
-        assertThat(container.getSavedStateValue<String?, TestSavedStateValue>("key"))
-            .isSameInstanceAs(created)
+        assertThat(container.get<String?>("key")).isSameInstanceAs(created)
+    }
+
+    @Test
+    fun getOrSet_throwsClassCastExceptionWhenExistingTypeDiffers() {
+        val container = SavedStateContainer()
+        val existing = TestSavedStateValue("existing")
+        container["key"] = existing
+
+        var factoryCalled = false
+        assertThrows<ClassCastException> {
+            val result: ProviderOnlyValue =
+                container.getOrPut("key") {
+                    factoryCalled = true
+                    ProviderOnlyValue(42)
+                }
+            assertThat(result).isNotNull()
+        }
+
+        assertThat(factoryCalled).isFalse()
+        assertThat(container.get<String?>("key")).isSameInstanceAs(existing)
     }
 
     @Test
     fun removeSavedStateValue_removesAndReturnsValue() {
         val container = SavedStateContainer()
         val testValue = TestSavedStateValue("removeMe")
-        container.putSavedStateValue("key", testValue)
+        container["key"] = testValue
 
-        val removed: TestSavedStateValue? =
-            container.removeSavedStateValue<String?, TestSavedStateValue>("key")
+        val removed = container.remove<String?>("key")
 
         assertThat(removed).isSameInstanceAs(testValue)
-        assertThat(container.getSavedStateValue<String?, TestSavedStateValue>("key")).isNull()
+        assertThat(container.get<String?>("key")).isNull()
     }
 
     @Test
@@ -158,7 +217,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val parent = SavedStateContainer()
         val child = parent.getOrCreateContainer("child")
         val childValue = TestSavedStateValue("childState")
-        child.putSavedStateValue("leafKey", childValue)
+        child["leafKey"] = childValue
 
         // Save parent state
         val savedState = parent.saveState()
@@ -174,7 +233,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val restoredParent = SavedStateContainer()
         val restoredChild = restoredParent.getOrCreateContainer("child")
         val restoredChildValue = TestSavedStateValue()
-        restoredChild.putSavedStateValue("leafKey", restoredChildValue)
+        restoredChild["leafKey"] = restoredChildValue
 
         // When restoring root with the bundle
         restoredParent.restoreState(savedState)
@@ -190,7 +249,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val parent = SavedStateContainer()
         val child = parent.getOrCreateContainer("child")
         val childValue = TestSavedStateValue("childState")
-        child.putSavedStateValue("leafKey", childValue)
+        child["leafKey"] = childValue
 
         val savedState = parent.saveState()
 
@@ -200,7 +259,7 @@ internal class SavedStateContainerTest : RobolectricTest() {
 
         val restoredChild = restoredParent.getOrCreateContainer("child")
         val restoredChildValue = TestSavedStateValue()
-        restoredChild.putSavedStateValue("leafKey", restoredChildValue)
+        restoredChild["leafKey"] = restoredChildValue
 
         assertThat(restoredChildValue.restoredState).isNotNull()
         assertThat(restoredChildValue.value).isEqualTo("childState")
@@ -212,8 +271,8 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val value1 = TestSavedStateValue("val1")
         val value2 = ProviderOnlyValue(100)
 
-        container.putSavedStateValue("key1", value1)
-        container.putSavedStateValue("key2", value2)
+        container["key1"] = value1
+        container["key2"] = value2
 
         val saved = container.saveState()
 
@@ -235,8 +294,8 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val value1 = TestSavedStateValue("initial")
         val value2 = RestorerOnlyValue()
 
-        container.putSavedStateValue("key1", value1)
-        container.putSavedStateValue("key2", value2)
+        container["key1"] = value1
+        container["key2"] = value2
 
         val key1Bundle = savedState { putString("key", "restoredVal") }
         val bundle = savedState {
@@ -255,32 +314,32 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val container = SavedStateContainer()
         val value1 = TestSavedStateValue("initial")
 
-        container.putSavedStateValue("key1", value1)
+        container["key1"] = value1
         container.restoreState(null)
 
         assertThat(value1.restoredState).isNull()
     }
 
     @Test
-    fun putSavedStateValue_thenRestoreState_restoresValue() {
+    fun set_thenRestoreState_restoresValue() {
         val container = SavedStateContainer()
         val testValue = TestSavedStateValue("initial")
 
-        container.putSavedStateValue("key1", testValue)
+        container["key1"] = testValue
 
         val key1Bundle = savedState { putString("key", "restoredVal") }
         val bundle = savedState { putSavedState("key1", key1Bundle) }
 
         container.restoreState(bundle)
 
-        val retrieved = container.getSavedStateValue<String?, TestSavedStateValue>("key1")
+        val retrieved = container.get<String?>("key1")
         assertThat(retrieved).isSameInstanceAs(testValue)
         assertThat(retrieved?.value).isEqualTo("restoredVal")
         assertThat(testValue.restoredState).isEqualTo(key1Bundle)
     }
 
     @Test
-    fun restoreState_thenPutSavedStateValue_restoresValue() {
+    fun restoreState_thenSet_restoresValue() {
         val container = SavedStateContainer()
         val key1Bundle = savedState { putString("key", "restoredVal") }
         val bundle = savedState { putSavedState("key1", key1Bundle) }
@@ -288,9 +347,9 @@ internal class SavedStateContainerTest : RobolectricTest() {
         container.restoreState(bundle)
 
         val testValue = TestSavedStateValue("initial")
-        container.putSavedStateValue("key1", testValue)
+        container["key1"] = testValue
 
-        val retrieved = container.getSavedStateValue<String?, TestSavedStateValue>("key1")
+        val retrieved = container.get<String?>("key1")
         assertThat(retrieved).isSameInstanceAs(testValue)
         assertThat(retrieved?.value).isEqualTo("restoredVal")
         assertThat(testValue.restoredState).isEqualTo(key1Bundle)
@@ -303,10 +362,10 @@ internal class SavedStateContainerTest : RobolectricTest() {
 
         assertThat("key" in container).isFalse()
 
-        container.putSavedStateValue("key", value)
+        container["key"] = value
         assertThat("key" in container).isTrue()
 
-        container.removeSavedStateValue<String?, TestSavedStateValue>("key")
+        container.remove<String?>("key")
         assertThat("key" in container).isFalse()
     }
 
@@ -317,10 +376,10 @@ internal class SavedStateContainerTest : RobolectricTest() {
 
         assertThat("key" in container).isFalse()
 
-        container.putSavedStateValue("key", value)
+        container["key"] = value
         assertThat("key" in container).isTrue()
 
-        container.removeSavedStateValue<String?, TestSavedStateValue>("key")
+        container.remove<String?>("key")
         assertThat("key" in container).isFalse()
     }
 
@@ -329,8 +388,8 @@ internal class SavedStateContainerTest : RobolectricTest() {
         val container = SavedStateContainer()
         assertThat(container.keys()).isEmpty()
 
-        container.putSavedStateValue("key1", TestSavedStateValue("1"))
-        container.putSavedStateValue("key2", TestSavedStateValue("2"))
+        container["key1"] = TestSavedStateValue("1")
+        container["key2"] = TestSavedStateValue("2")
 
         assertThat(container.keys()).containsExactly("key1", "key2")
     }
