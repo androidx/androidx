@@ -53,6 +53,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.concurrent.futures.await
@@ -79,6 +80,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
@@ -93,9 +95,12 @@ class Camera2InteropV2DslIntegrationTest {
 
     @get:Rule
     val useCamera: TestRule =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-        )
+        RuleChain.outerRule(WakelockEmptyActivityRule())
+            .around(
+                CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+                    CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+                )
+            )
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var cameraSelector: CameraSelector

@@ -54,6 +54,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.impl.CameraUtil;
 import androidx.camera.testing.impl.SurfaceTextureProvider;
+import androidx.camera.testing.impl.WakelockEmptyActivityRule;
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.VideoCapture;
@@ -70,6 +71,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
@@ -99,9 +101,11 @@ public class Camera2InteropV2IntegrationTest {
 
     @Rule
     public TestRule mUseCamera =
-            CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-                    new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-            );
+            RuleChain.outerRule(new WakelockEmptyActivityRule(/* brandsToEnable= */ null))
+                    .around(
+                            CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+                                    new CameraUtil.PreTestCameraIdList(
+                                            Camera2Config.defaultConfig())));
 
     private ProcessCameraProvider mCameraProvider;
     private CameraSelector mCameraSelector;
