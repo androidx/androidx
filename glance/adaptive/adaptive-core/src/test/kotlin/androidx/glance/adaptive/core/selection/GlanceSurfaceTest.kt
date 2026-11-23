@@ -21,9 +21,6 @@ import org.junit.Test
 
 class GlanceSurfaceTest {
 
-    private class TestSurface(tag: String, dimensions: Dimensions = Dimensions(0, 0)) :
-        GlanceSurface(tag, dimensions)
-
     @Test
     fun glanceSurface_fromTag_createsInstanceWithTag() {
         val surface1 = GlanceSurface.fromTag("test_surface")

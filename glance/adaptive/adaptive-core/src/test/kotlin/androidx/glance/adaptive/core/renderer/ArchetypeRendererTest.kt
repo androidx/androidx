@@ -18,7 +18,7 @@ package androidx.glance.adaptive.core.renderer
 
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.Dimensions
-import androidx.glance.adaptive.core.selection.GlanceSurface
+import androidx.glance.adaptive.core.selection.TestSurface
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -26,8 +26,6 @@ import org.junit.Test
 class ArchetypeRendererTest {
 
     private class TestTemplate(val title: String) : GlanceAdaptiveTemplate(templateId = 1)
-
-    private class TestSurface(tag: String, dimensions: Dimensions) : GlanceSurface(tag, dimensions)
 
     private enum class TestArchetype {
         COMPACT,

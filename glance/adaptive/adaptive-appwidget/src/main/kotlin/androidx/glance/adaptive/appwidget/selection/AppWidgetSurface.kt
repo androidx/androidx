@@ -16,6 +16,7 @@
 
 package androidx.glance.adaptive.appwidget.selection
 
+import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.GlanceSurface
 import java.util.Collections
@@ -28,7 +29,8 @@ private constructor(tag: String, dimensions: Dimensions = Dimensions(0, 0)) :
     /**
      * Returns this surface placed at [dimensions], for the selector and renderer of one placement.
      */
-    internal fun withDimensions(dimensions: Dimensions): AppWidgetSurface =
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun withDimensions(dimensions: Dimensions): AppWidgetSurface =
         AppWidgetSurface(tag, dimensions)
 
     public companion object {

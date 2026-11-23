@@ -24,8 +24,6 @@ class ArchetypeSelectorTest {
 
     private class TestTemplate(val hasDetails: Boolean) : GlanceAdaptiveTemplate(templateId = 1)
 
-    private class TestSurface(tag: String, dimensions: Dimensions) : GlanceSurface(tag, dimensions)
-
     private enum class TestArchetype {
         COMPACT,
         FULL,

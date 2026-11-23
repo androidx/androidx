@@ -18,7 +18,7 @@ package androidx.glance.adaptive.core.renderer
 
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.selection.Dimensions
-import androidx.glance.adaptive.core.selection.GlanceSurface
+import androidx.glance.adaptive.core.selection.TestSurface
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -35,9 +35,6 @@ class TemplateRegistryTest {
     private class OtherTemplate : GlanceAdaptiveTemplate(templateId = 4)
 
     private abstract class AbstractTestTemplate : GlanceAdaptiveTemplate(templateId = 5)
-
-    private class TestSurface(tag: String, dimensions: Dimensions = Dimensions(0, 0)) :
-        GlanceSurface(tag, dimensions)
 
     private val home = TestSurface("home")
     private val lock = TestSurface("lock")
