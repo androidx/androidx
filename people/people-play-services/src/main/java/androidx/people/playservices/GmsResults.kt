@@ -83,8 +83,8 @@ internal fun PersonQuery.forDirectories(directoryPackages: Collection<String>): 
     val criteriaByPackage =
         directoryPackages.associateWith { criteriaFor(it) }.filterValues { it.isNotEmpty() }
     // personQuery needs at least one directory, so an empty query comes from a result that has no
-    // matches.
-    if (criteriaByPackage.isEmpty()) return failedPersonQueryResultOf(this).matchedQuery
+    // handled criteria.
+    if (criteriaByPackage.isEmpty()) return failedPersonQueryResultOf(this).handledQuery
     return personQuery {
         for ((directoryPackage, criteria) in criteriaByPackage) {
             directory(directoryPackage) {
@@ -108,7 +108,7 @@ internal fun PersonQuery.forDirectories(directoryPackages: Collection<String>): 
 internal fun GroupQuery.forDirectories(directoryPackages: Collection<String>): GroupQuery {
     val criteriaByPackage =
         directoryPackages.associateWith { criteriaFor(it) }.filterValues { it.isNotEmpty() }
-    if (criteriaByPackage.isEmpty()) return failedGroupQueryResultOf(this).matchedQuery
+    if (criteriaByPackage.isEmpty()) return failedGroupQueryResultOf(this).handledQuery
     return groupQuery {
         for ((directoryPackage, criteria) in criteriaByPackage) {
             directory(directoryPackage) {

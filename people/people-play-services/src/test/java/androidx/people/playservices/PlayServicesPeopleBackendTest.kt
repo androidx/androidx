@@ -153,7 +153,7 @@ class PlayServicesPeopleBackendTest {
                     setOf(Criterion.Phone(PHONE_1)),
                 )
             )
-        assertThat(result.matchedQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE_1) })
+        assertThat(result.handledQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE_1) })
     }
 
     @Test
@@ -189,8 +189,7 @@ class PlayServicesPeopleBackendTest {
 
         val result = backend.queryPersons(query)
 
-        assertThat(result.matchedQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE_1) })
-        assertThat(result.unmatchedQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE_2) })
+        assertThat(result.handledQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE_1, PHONE_2) })
         assertThat(result.unhandledQuery)
             .isEqualTo(personQuery(CHAT) { addPhones(PHONE_1, PHONE_2) })
     }

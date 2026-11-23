@@ -165,10 +165,10 @@ class PeopleDirectoryClientTest {
         val groups = client.queryGroups(GROUP_QUERY)
 
         assertThat(persons.matches).isEmpty()
-        assertThat(persons.matchedQuery.isEmpty()).isTrue()
-        assertThat(persons.unmatchedQuery.isEmpty()).isTrue()
+        assertThat(persons.handledQuery.isEmpty()).isTrue()
         assertThat(persons.unhandledQuery).isEqualTo(PERSON_QUERY)
         assertThat(groups.matches).isEmpty()
+        assertThat(groups.handledQuery.isEmpty()).isTrue()
         assertThat(groups.unhandledQuery).isEqualTo(GROUP_QUERY)
     }
 

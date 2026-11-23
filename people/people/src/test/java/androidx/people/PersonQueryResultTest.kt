@@ -29,6 +29,7 @@ import org.robolectric.annotation.Config
 class PersonQueryResultTest {
 
     private val phone = Criterion.Phone(PHONE)
+    private val otherPhone = Criterion.Phone(OTHER_PHONE)
     private val email = Criterion.Email(EMAIL)
     private val lookupKey = Criterion.PersonLookupKey("user_1")
 
@@ -37,7 +38,7 @@ class PersonQueryResultTest {
     private val chatAlice = person("user_1", CHAT, "Alice")
 
     @Test
-    fun partition_splitsTheQueryIntoMatchedUnmatchedAndUnhandled() {
+    fun partition_splitsTheQueryIntoHandledAndUnhandled() {
         val query = personQuery {
             directory(VOIP) {
                 addPhones(PHONE, OTHER_PHONE)
@@ -64,13 +65,13 @@ class PersonQueryResultTest {
             )
 
         assertThat(result.matches).containsExactly(PersonMatch(voipAlice, setOf(phone)))
-        assertThat(result.matchedQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE) })
-        assertThat(result.unmatchedQuery).isEqualTo(personQuery(VOIP) { addPhones(OTHER_PHONE) })
+        assertThat(result.handledQuery)
+            .isEqualTo(personQuery(VOIP) { addPhones(PHONE, OTHER_PHONE) })
         assertThat(result.unhandledQuery).isEqualTo(unhandled)
     }
 
     @Test
-    fun partition_criteriaNeitherMatchedNorUnhandled_areUnmatched() {
+    fun partition_allCriteriaHandledWhenUnhandledIsEmpty() {
         val query = personQuery(listOf(VOIP, CHAT)) { addPhones(PHONE) }
 
         val result =
@@ -80,20 +81,24 @@ class PersonQueryResultTest {
                 unhandledQuery = NO_CRITERIA,
             )
 
-        assertThat(result.matchedQuery).isEqualTo(personQuery(VOIP) { addPhones(PHONE) })
-        assertThat(result.unmatchedQuery).isEqualTo(personQuery(CHAT) { addPhones(PHONE) })
+        assertThat(result.handledQuery).isEqualTo(query)
         assertThat(result.unhandledQuery.isEmpty()).isTrue()
     }
 
     @Test
-    fun matchesFor_isScopedToTheDirectoryAndCriterion() {
+    fun getResultFor_returnsHandledOrUnhandledScopedToDirectoryAndCriterion() {
         val query = personQuery {
             directory(VOIP) {
-                addPhones(PHONE)
+                addPhones(PHONE, OTHER_PHONE)
                 addEmails(EMAIL)
             }
-            directory(CHAT) { addPhones(PHONE) }
+            directory(CHAT) {
+                addPhones(PHONE)
+                addEmails(EMAIL)
+                addLookupKeys("user_1")
+            }
         }
+        val unhandled = personQuery(CHAT) { addLookupKeys("user_1") }
 
         val result =
             personQueryResultOf(
@@ -104,17 +109,32 @@ class PersonQueryResultTest {
                         PersonMatch(voipBob, setOf(email)),
                         PersonMatch(chatAlice, setOf(phone)),
                     ),
-                unhandledQuery = NO_CRITERIA,
+                unhandledQuery = unhandled,
             )
 
-        assertThat(result.matchesFor(VOIP, phone))
-            .containsExactly(PersonMatch(voipAlice, setOf(phone, email)))
-        assertThat(result.matchesFor(CHAT, phone))
-            .containsExactly(PersonMatch(chatAlice, setOf(phone)))
-        assertThat(result.matchesFor(VOIP, email).map { it.person })
-            .containsExactly(voipAlice, voipBob)
-        assertThat(result.matchesFor(CHAT, email)).isEmpty()
-        assertThat(result.matchesFor(SMS, phone)).isEmpty()
+        assertThat(result.getResultFor(VOIP, phone))
+            .isEqualTo(MatchResult.Handled(setOf(PersonMatch(voipAlice, setOf(phone, email)))))
+        assertThat(result.getResultFor(CHAT, phone))
+            .isEqualTo(MatchResult.Handled(setOf(PersonMatch(chatAlice, setOf(phone)))))
+        assertThat(result.getResultFor(VOIP, email))
+            .isEqualTo(
+                MatchResult.Handled(
+                    setOf(
+                        PersonMatch(voipAlice, setOf(phone, email)),
+                        PersonMatch(voipBob, setOf(email)),
+                    )
+                )
+            )
+        // Evaluated with no match -> Handled(emptySet()).
+        assertThat(result.getResultFor(VOIP, otherPhone))
+            .isEqualTo(MatchResult.Handled(emptySet<PersonMatch>()))
+        assertThat(result.getResultFor(CHAT, email))
+            .isEqualTo(MatchResult.Handled(emptySet<PersonMatch>()))
+        // In unhandledQuery -> Unhandled.
+        assertThat(result.getResultFor(CHAT, lookupKey)).isEqualTo(MatchResult.Unhandled)
+        // Not part of the query at all -> Unhandled.
+        assertThat(result.getResultFor(SMS, phone)).isEqualTo(MatchResult.Unhandled)
+        assertThat(result.getResultFor(VOIP, lookupKey)).isEqualTo(MatchResult.Unhandled)
     }
 
     @Test
@@ -124,9 +144,9 @@ class PersonQueryResultTest {
         val result = failedPersonQueryResultOf(query)
 
         assertThat(result.matches).isEmpty()
-        assertThat(result.matchedQuery.isEmpty()).isTrue()
-        assertThat(result.unmatchedQuery.isEmpty()).isTrue()
+        assertThat(result.handledQuery.isEmpty()).isTrue()
         assertThat(result.unhandledQuery).isEqualTo(query)
+        assertThat(result.getResultFor(VOIP, phone)).isEqualTo(MatchResult.Unhandled)
     }
 
     @Test

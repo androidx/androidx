@@ -28,11 +28,12 @@ class GroupQueryResultTest {
 
     private val g1 = Criterion.GroupLookupKey("g1")
     private val g2 = Criterion.GroupLookupKey("g2")
+    private val g3 = Criterion.GroupLookupKey("g3")
     private val family = Group(GroupId(CHAT, "g1"), "Family")
     private val friends = Group(GroupId(CHAT, "g2"), "Friends")
 
     @Test
-    fun partition_splitsTheQueryIntoMatchedUnmatchedAndUnhandled() {
+    fun partition_splitsTheQueryIntoHandledAndUnhandled() {
         val query = groupQuery {
             directory(CHAT) { addLookupKeys("g1", "g2", "g3") }
             directory(VOIP) { addLookupKeys("v1") }
@@ -50,13 +51,12 @@ class GroupQueryResultTest {
             )
 
         assertThat(result.matches).containsExactly(GroupMatch(family, setOf(g1)))
-        assertThat(result.matchedQuery).isEqualTo(groupQuery(CHAT) { addLookupKeys("g1") })
-        assertThat(result.unmatchedQuery).isEqualTo(groupQuery(CHAT) { addLookupKeys("g3") })
+        assertThat(result.handledQuery).isEqualTo(groupQuery(CHAT) { addLookupKeys("g1", "g3") })
         assertThat(result.unhandledQuery).isEqualTo(unhandled)
     }
 
     @Test
-    fun partition_criteriaNeitherMatchedNorUnhandled_areUnmatched() {
+    fun partition_allCriteriaHandledWhenUnhandledIsEmpty() {
         val query = groupQuery {
             directory(CHAT) { addLookupKeys("g1") }
             directory(VOIP) { addLookupKeys("v1") }
@@ -69,16 +69,15 @@ class GroupQueryResultTest {
                 unhandledQuery = NO_CRITERIA,
             )
 
-        assertThat(result.matchedQuery).isEqualTo(groupQuery(CHAT) { addLookupKeys("g1") })
-        assertThat(result.unmatchedQuery).isEqualTo(groupQuery(VOIP) { addLookupKeys("v1") })
+        assertThat(result.handledQuery).isEqualTo(query)
         assertThat(result.unhandledQuery.isEmpty()).isTrue()
     }
 
     @Test
-    fun matchesFor_isScopedToTheDirectoryAndCriterion() {
+    fun getResultFor_returnsHandledOrUnhandledScopedToDirectoryAndCriterion() {
         val query = groupQuery {
-            directory(CHAT) { addLookupKeys("g1", "g2") }
-            directory(VOIP) { addLookupKeys("g1") }
+            directory(CHAT) { addLookupKeys("g1", "g2", "g3") }
+            directory(VOIP) { addLookupKeys("g1", "g2") }
         }
         val voipG1 = Group(GroupId(VOIP, "g1"), "VoIP g1")
 
@@ -91,13 +90,25 @@ class GroupQueryResultTest {
                         GroupMatch(friends, setOf(g1, g2)),
                         GroupMatch(voipG1, setOf(g1)),
                     ),
-                unhandledQuery = NO_CRITERIA,
+                unhandledQuery = groupQuery(CHAT) { addLookupKeys("g3") },
             )
 
-        assertThat(result.matchesFor(CHAT, g1).map { it.group }).containsExactly(family, friends)
-        assertThat(result.matchesFor(VOIP, g1)).containsExactly(GroupMatch(voipG1, setOf(g1)))
-        assertThat(result.matchesFor(VOIP, g2)).isEmpty()
-        assertThat(result.matchesFor(SMS, g1)).isEmpty()
+        assertThat(result.getResultFor(CHAT, g1))
+            .isEqualTo(
+                MatchResult.Handled(
+                    setOf(GroupMatch(family, setOf(g1)), GroupMatch(friends, setOf(g1, g2)))
+                )
+            )
+        assertThat(result.getResultFor(VOIP, g1))
+            .isEqualTo(MatchResult.Handled(setOf(GroupMatch(voipG1, setOf(g1)))))
+        // Evaluated with no match -> Handled(emptySet()).
+        assertThat(result.getResultFor(VOIP, g2))
+            .isEqualTo(MatchResult.Handled(emptySet<GroupMatch>()))
+        // In unhandledQuery -> Unhandled.
+        assertThat(result.getResultFor(CHAT, g3)).isEqualTo(MatchResult.Unhandled)
+        // Not part of the query at all -> Unhandled.
+        assertThat(result.getResultFor(SMS, g1)).isEqualTo(MatchResult.Unhandled)
+        assertThat(result.getResultFor(VOIP, g3)).isEqualTo(MatchResult.Unhandled)
     }
 
     @Test
@@ -107,9 +118,9 @@ class GroupQueryResultTest {
         val result = failedGroupQueryResultOf(query)
 
         assertThat(result.matches).isEmpty()
-        assertThat(result.matchedQuery.isEmpty()).isTrue()
-        assertThat(result.unmatchedQuery.isEmpty()).isTrue()
+        assertThat(result.handledQuery.isEmpty()).isTrue()
         assertThat(result.unhandledQuery).isEqualTo(query)
+        assertThat(result.getResultFor(CHAT, g1)).isEqualTo(MatchResult.Unhandled)
     }
 
     @Test

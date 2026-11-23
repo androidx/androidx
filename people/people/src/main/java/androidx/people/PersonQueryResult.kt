@@ -19,18 +19,22 @@ package androidx.people
 import androidx.annotation.RestrictTo
 
 /**
- * The result of a [PersonQuery].
+ * Result of a [PersonQuery].
  *
- * The result splits the original query into three parts that do not overlap and together contain
- * every criterion of the original query:
- * - [matchedQuery]: criteria that matched at least one person, reported in [matches].
- * - [unmatchedQuery]: criteria that were evaluated and matched nobody.
- * - [unhandledQuery]: criteria that were not evaluated, for example because the directory's data
- *   was not cached yet.
+ * Call [getResultFor] to inspect the [MatchResult] of an individual criterion in a People Directory
+ * application. At the batch level, this result splits the original query into two non-overlapping
+ * sub-queries that together contain every criterion of the original query:
+ * - [handledQuery]: criteria that were evaluated (whether they matched anyone in [matches] or
+ *   matched nobody), whose outcome is [MatchResult.Handled].
+ * - [unhandledQuery]: criteria that were not evaluated (for example because the directory's data
+ *   was not cached yet), whose outcome is [MatchResult.Unhandled].
  *
  * ```
  * val result = client.queryPersons(query)
- * show(result.matchesFor("com.example.voip", Criterion.Phone(number)))
+ * when (val match = result.getResultFor("com.example.voip", Criterion.Phone(number))) {
+ *     is MatchResult.Handled -> show(match.matches)
+ *     MatchResult.Unhandled -> showPending()
+ * }
  * if (!result.unhandledQuery.isEmpty()) retryLater(result.unhandledQuery)
  * ```
  *
@@ -42,49 +46,63 @@ public class PersonQueryResult
 internal constructor(
     /**
      * Every match across all People Directory applications, each person at most once per
-     * application. Every reported criterion is part of [matchedQuery]. The order is unspecified.
+     * application. Every reported criterion is part of [handledQuery]. The order is unspecified.
      */
     public val matches: Set<PersonMatch>,
-    /** The criteria that matched at least one person. Empty if none did. */
-    public val matchedQuery: PersonQuery,
-    /** The criteria that were evaluated and matched no person. Empty if there are none. */
-    public val unmatchedQuery: PersonQuery,
     /**
-     * The criteria that were not evaluated, still keyed by directory. Empty if every criterion was
-     * evaluated. Pass it back to the query functions to retry.
+     * The criteria of the original query that were evaluated ([MatchResult.Handled]), including
+     * both criteria that matched at least one person and criteria that matched nobody. Empty if no
+     * criterion was evaluated.
+     */
+    public val handledQuery: PersonQuery,
+    /**
+     * The criteria of the original query that were not evaluated ([MatchResult.Unhandled]), still
+     * keyed by directory. Empty if every criterion was evaluated. Pass it back to the query
+     * functions to retry.
      *
      * Criteria appear here only if the People Provider reports them as unhandled. A People Provider
      * that does not report unhandled criteria leaves this empty, and the criteria it did not
-     * evaluate appear in [unmatchedQuery] instead.
+     * evaluate appear in [handledQuery] instead.
      */
     public val unhandledQuery: PersonQuery,
 ) {
     /**
-     * Returns the matches of the People Directory application [directoryPackage] that report
-     * [criterion].
+     * Returns the [MatchResult] for [criterion] in the People Directory application
+     * [directoryPackage]:
+     * - [MatchResult.Handled] with every matching [PersonMatch] (or an empty set if evaluated with
+     *   no match) when [criterion] is in [handledQuery] for [directoryPackage].
+     * - [MatchResult.Unhandled] when [criterion] is in [unhandledQuery] for [directoryPackage], or
+     *   was not addressed to [directoryPackage] in the original query.
      */
-    public fun matchesFor(directoryPackage: String, criterion: Criterion): Set<PersonMatch> =
-        matches.filterTo(mutableSetOf()) {
-            it.person.id.directoryPackage == directoryPackage && criterion in it.criteria
+    public fun getResultFor(
+        directoryPackage: String,
+        criterion: Criterion,
+    ): MatchResult<PersonMatch> {
+        if (criterion !in handledQuery.criteriaFor(directoryPackage)) {
+            return MatchResult.Unhandled
         }
+        val matched =
+            matches.filterTo(mutableSetOf()) {
+                it.person.id.directoryPackage == directoryPackage && criterion in it.criteria
+            }
+        return MatchResult.Handled(matched)
+    }
 
     override fun equals(other: Any?): Boolean =
         this === other ||
             (other is PersonQueryResult &&
                 matches == other.matches &&
-                matchedQuery == other.matchedQuery &&
-                unmatchedQuery == other.unmatchedQuery &&
+                handledQuery == other.handledQuery &&
                 unhandledQuery == other.unhandledQuery)
 
     override fun hashCode(): Int {
         var result = matches.hashCode()
-        result = 31 * result + matchedQuery.hashCode()
-        result = 31 * result + unmatchedQuery.hashCode()
+        result = 31 * result + handledQuery.hashCode()
         result = 31 * result + unhandledQuery.hashCode()
         return result
     }
 
     override fun toString(): String =
-        "PersonQueryResult(matches=$matches, matchedQuery=$matchedQuery, " +
-            "unmatchedQuery=$unmatchedQuery, unhandledQuery=$unhandledQuery)"
+        "PersonQueryResult(matches=$matches, handledQuery=$handledQuery, " +
+            "unhandledQuery=$unhandledQuery)"
 }
