@@ -159,9 +159,24 @@ internal suspend fun <R> Lifecycle.suspendWithStateAtLeastUnchecked(
             }
         }
 
+    // The lifecycle may already be destroyed here: either the caller was not on the lifecycle
+    // dispatcher, so withStateAtLeastUnchecked could not check the state, or the lifecycle was
+    // destroyed before the dispatched registration ran. An observer added to a destroyed
+    // lifecycle never receives an event, so resume with LifecycleDestroyedException instead.
+    fun addObserverUnlessDestroyed() {
+        if (currentState == Lifecycle.State.DESTROYED) {
+            co.resumeWithException(LifecycleDestroyedException())
+        } else {
+            addObserver(observer)
+        }
+    }
+
     if (dispatchNeeded) {
-        lifecycleDispatcher.dispatch(EmptyCoroutineContext, Runnable { addObserver(observer) })
-    } else addObserver(observer)
+        lifecycleDispatcher.dispatch(
+            EmptyCoroutineContext,
+            Runnable { addObserverUnlessDestroyed() },
+        )
+    } else addObserverUnlessDestroyed()
 
     co.invokeOnCancellation {
         if (lifecycleDispatcher.isDispatchNeeded(EmptyCoroutineContext)) {
