@@ -516,6 +516,10 @@ internal open class CallSession(
             ) {
                 maybeRerouteToEarpiece(isEndpointChange = false)
             }
+        } else if (mUnrequestedVideoManager.isUnrequestedVideoDowngradeBug(mCallType, videoState)) {
+            mUnrequestedVideoManager.handleUnrequestedVideoStateDowngrade(mPlatformInterface) {
+                mCurrentCallEndpoint?.let { enforceVideoCallSpeakerFallback(it) }
+            }
         } else {
             mCallType = videoState
             CoroutineScope(coroutineContext).launch {
@@ -643,14 +647,31 @@ internal open class CallSession(
             CallControlReceiver(job),
         )
         val platformResult = job.await()
-        if (platformResult != CallControlResult.Success()) {
+        clearStaleRequestedEndpoint(platformResult, endpoint)
+        return platformResult
+    }
+
+    /**
+     * Clears [mLastClientRequestedEndpoint] when an endpoint change fails or succeeds as a no-op on
+     * the already-active endpoint, since Telecom skips emitting `onCallEndpointChanged` when the
+     * endpoint does not change.
+     */
+    @VisibleForTesting
+    internal fun clearStaleRequestedEndpoint(
+        platformResult: CallControlResult,
+        requestedEndpoint: CallEndpointCompat,
+    ) {
+        val isNoOpSuccess =
+            mCurrentCallEndpoint == requestedEndpoint &&
+                mLastClientRequestedEndpoint == requestedEndpoint
+        if (platformResult != CallControlResult.Success() || isNoOpSuccess) {
             mLastClientRequestedEndpoint = null
         }
-        return platformResult
     }
 
     @SuppressLint("NewApi")
     suspend fun requestVideoState(videoState: Int): CallControlResult {
+        mUnrequestedVideoManager.onClientRequestedVideoState(videoState)
         mCallType = videoState
         return if (VERSION.SDK_INT >= VERSION_CODES.VANILLA_ICE_CREAM) {
             val platformInterface = mPlatformInterface
@@ -730,6 +751,13 @@ internal open class CallSession(
                 mCallType = jetpackCallType
                 callChannels.callTypeChannel.trySend(jetpackCallType)
                 onAnswerCallback(jetpackCallType)
+                // Work around a Telecom bug (b/587122593) where answering a video call fires an
+                // immediate AUDIO_CALL downgrade once wasCompleted.accept(true) runs. See
+                // UnrequestedVideoManager.onPlatformAnswered for post-callback guard rules.
+                mUnrequestedVideoManager.onPlatformAnswered(
+                    answeredCallType = jetpackCallType,
+                    currentCallType = mCallType,
+                )
                 wasCompleted.accept(true)
                 onStateChangedCallback.emit(CallStateEvent.ACTIVE)
             } catch (e: Exception) {

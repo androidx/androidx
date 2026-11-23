@@ -17,10 +17,12 @@
 package androidx.core.telecom.test
 
 import android.media.ToneGenerator
+import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallEndpoint
 import android.telecom.DisconnectCause
+import android.telecom.VideoProfile
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.BluetoothDeviceChecker
@@ -604,6 +606,252 @@ class CallSessionTest : BaseTelecomTest() {
             assertEquals("description", receivedCause?.description)
             assertEquals("reason", receivedCause?.reason)
             assertEquals(ToneGenerator.TONE_PROP_BEEP, receivedCause?.tone)
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies that when the platform answers an incoming video call via [CallSession.onAnswer]
+     * with [VideoProfile.STATE_BIDIRECTIONAL] and immediately emits an unrequested
+     * [CallAttributesCompat.CALL_TYPE_AUDIO_CALL] downgrade, [CallSession] suppresses the bogus
+     * downgrade, keeps video call state, and enforces speaker fallback if routed to earpiece.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testUnrequestedVideoStateDowngrade_AfterPlatformVideoAnswer() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val incomingVideoAttributes =
+                CallAttributesCompat(
+                    OUTGOING_NAME,
+                    TEST_ADDRESS,
+                    CallAttributesCompat.DIRECTION_INCOMING,
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                    CallAttributesCompat.SUPPORTS_STREAM,
+                )
+            val callSession =
+                initCallSession(coroutineContext, callChannels, incomingVideoAttributes)
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerEndpoints)
+            callSession.setCurrentCallEndpoint(mSpeakerEndpoint)
+            yield()
+
+            // Drain initial callType emission from init block
+            assertEquals(
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                callChannels.callTypeChannel.receive(),
+            )
+
+            // Platform answers incoming call as video (STATE_BIDIRECTIONAL)
+            val answerAck = CompletableDeferred<Boolean>()
+            callSession.onAnswer(VideoProfile.STATE_BIDIRECTIONAL) { completed ->
+                answerAck.complete(completed)
+            }
+            assertTrue(answerAck.await())
+            assertEquals(
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                callChannels.callTypeChannel.receive(),
+            )
+            assertTrue(callSession.mUnrequestedVideoManager.mAwaitingPlatformVideoAnswerSync)
+
+            // Simulate platform getSetAnswerReceiver() bug downgrading call to AUDIO_CALL
+            callSession.onVideoStateChanged(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
+            yield()
+
+            // One-shot tracking should be consumed and bogus AUDIO_CALL must not be emitted
+            assertFalse(callSession.mUnrequestedVideoManager.mAwaitingPlatformVideoAnswerSync)
+            assertTrue(callChannels.callTypeChannel.tryReceive().isFailure)
+
+            // Subsequent platform route drop to EARPIECE should still trigger SPEAKER fallback
+            val platformEarpiece =
+                CallEndpoint(
+                    mEarpieceEndpoint.name,
+                    CallEndpoint.TYPE_EARPIECE,
+                    getRandomParcelUuid(),
+                )
+            callSession.onCallEndpointChanged(platformEarpiece)
+            yield()
+
+            assertEquals(
+                CallEndpointCompat.TYPE_SPEAKER,
+                callSession.mLastClientRequestedEndpoint?.type,
+            )
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies that if the client app explicitly requests a downgrade to audio-only after a
+     * platform-initiated video answer, the downgrade is respected and not treated as a platform
+     * bug.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testClientInitiatedVideoStateDowngrade_AfterPlatformVideoAnswer_IsRespected() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val incomingVideoAttributes =
+                CallAttributesCompat(
+                    OUTGOING_NAME,
+                    TEST_ADDRESS,
+                    CallAttributesCompat.DIRECTION_INCOMING,
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                    CallAttributesCompat.SUPPORTS_STREAM,
+                )
+            val callSession =
+                initCallSession(coroutineContext, callChannels, incomingVideoAttributes)
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerEndpoints)
+            callSession.setCurrentCallEndpoint(mSpeakerEndpoint)
+            yield()
+
+            // Drain initial callType emission
+            callChannels.callTypeChannel.receive()
+
+            // Platform answers incoming call as video
+            val answerAck = CompletableDeferred<Boolean>()
+            callSession.onAnswer(VideoProfile.STATE_BIDIRECTIONAL) { completed ->
+                answerAck.complete(completed)
+            }
+            assertTrue(answerAck.await())
+            callChannels.callTypeChannel.receive()
+
+            // Client explicitly downgrades call to audio-only
+            callSession.requestVideoState(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
+            assertFalse(callSession.mUnrequestedVideoManager.mAwaitingPlatformVideoAnswerSync)
+
+            // Platform echoes AUDIO_CALL and switches route to EARPIECE
+            callSession.onVideoStateChanged(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
+            val platformEarpiece =
+                CallEndpoint(
+                    mEarpieceEndpoint.name,
+                    CallEndpoint.TYPE_EARPIECE,
+                    getRandomParcelUuid(),
+                )
+            callSession.onCallEndpointChanged(platformEarpiece)
+            yield()
+
+            // Earpiece should be preserved without forcing back to SPEAKER
+            assertEquals(
+                CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
+                callChannels.callTypeChannel.receive(),
+            )
+            assertEquals(null, callSession.mLastClientRequestedEndpoint)
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies [CallSession.clearStaleRequestedEndpoint] clears
+     * [CallSession.mLastClientRequestedEndpoint] on failures and exact active-endpoint no-ops.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testClearStaleRequestedEndpoint_onlyClearsOnFailureOrExactNoOp() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val callSession = initCallSession(coroutineContext, callChannels)
+            val btBuds =
+                CallEndpointCompat(
+                    "Buds",
+                    CallEndpointCompat.TYPE_BLUETOOTH,
+                    getRandomParcelUuid(),
+                )
+
+            // 1. Exact no-op Success clears the matching requested endpoint
+            callSession.mCurrentCallEndpoint = mSpeakerEndpoint
+            callSession.mLastClientRequestedEndpoint = mSpeakerEndpoint
+            callSession.clearStaleRequestedEndpoint(
+                androidx.core.telecom.CallControlResult.Success(),
+                mSpeakerEndpoint,
+            )
+            assertEquals(null, callSession.mLastClientRequestedEndpoint)
+
+            // 2. Two Bluetooth endpoints share TYPE_BLUETOOTH but are not equal; keep pending
+            callSession.mCurrentCallEndpoint = mWatchEndpoint
+            callSession.mLastClientRequestedEndpoint = btBuds
+            callSession.clearStaleRequestedEndpoint(
+                androidx.core.telecom.CallControlResult.Success(),
+                btBuds,
+            )
+            assertEquals(btBuds, callSession.mLastClientRequestedEndpoint)
+
+            // 3. Newer in-flight request must not be cleared by an older no-op completion
+            callSession.mCurrentCallEndpoint = mSpeakerEndpoint
+            callSession.mLastClientRequestedEndpoint = mEarpieceEndpoint
+            callSession.clearStaleRequestedEndpoint(
+                androidx.core.telecom.CallControlResult.Success(),
+                mSpeakerEndpoint,
+            )
+            assertEquals(mEarpieceEndpoint, callSession.mLastClientRequestedEndpoint)
+
+            // 4. Failed platform result clears the pending requested endpoint
+            callSession.clearStaleRequestedEndpoint(
+                androidx.core.telecom.CallControlResult.Error(
+                    androidx.core.telecom.CallException.ERROR_UNKNOWN
+                ),
+                mEarpieceEndpoint,
+            )
+            assertEquals(null, callSession.mLastClientRequestedEndpoint)
+
+            callChannels.closeAllChannels()
+        }
+    }
+
+    /**
+     * Verifies that if the client app re-requests [CallAttributesCompat.CALL_TYPE_VIDEO_CALL] right
+     * after a platform-initiated video answer (e.g., syncing video state on ACTIVE), the
+     * post-answer downgrade guard stays armed and still suppresses the bogus platform audio
+     * downgrade.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testClientVideoSyncRequest_AfterPlatformVideoAnswer_KeepsDowngradeGuardArmed() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val incomingVideoAttributes =
+                CallAttributesCompat(
+                    OUTGOING_NAME,
+                    TEST_ADDRESS,
+                    CallAttributesCompat.DIRECTION_INCOMING,
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                    CallAttributesCompat.SUPPORTS_STREAM,
+                )
+            val callSession =
+                initCallSession(coroutineContext, callChannels, incomingVideoAttributes)
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerEndpoints)
+            callSession.setCurrentCallEndpoint(mSpeakerEndpoint)
+            yield()
+            callChannels.callTypeChannel.receive()
+
+            // Platform answers incoming call as video
+            val answerAck = CompletableDeferred<Boolean>()
+            callSession.onAnswer(VideoProfile.STATE_BIDIRECTIONAL) { completed ->
+                answerAck.complete(completed)
+            }
+            assertTrue(answerAck.await())
+            callChannels.callTypeChannel.receive()
+
+            // Client syncs/re-confirms VIDEO_CALL before the bogus platform AUDIO_CALL arrives.
+            // On API 34 (< VANILLA_ICE_CREAM), requestVideoState echoes locally to callTypeChannel
+            // because CallControl.requestVideoState was added in API 35; drain that echo first.
+            callSession.requestVideoState(CallAttributesCompat.CALL_TYPE_VIDEO_CALL)
+            if (VERSION.SDK_INT < VERSION_CODES.VANILLA_ICE_CREAM) {
+                assertEquals(
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                    callChannels.callTypeChannel.receive(),
+                )
+            }
+            assertTrue(callSession.mUnrequestedVideoManager.mAwaitingPlatformVideoAnswerSync)
+
+            // Bogus platform AUDIO_CALL downgrade arrives and must still be suppressed
+            callSession.onVideoStateChanged(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
+            yield()
+
+            assertFalse(callSession.mUnrequestedVideoManager.mAwaitingPlatformVideoAnswerSync)
+            assertTrue(callChannels.callTypeChannel.tryReceive().isFailure)
             callChannels.closeAllChannels()
         }
     }

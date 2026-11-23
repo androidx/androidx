@@ -19,6 +19,7 @@ package androidx.core.telecom.internal
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.OutcomeReceiver
+import android.telecom.CallAttributes
 import android.telecom.CallControl
 import android.telecom.CallException
 import android.util.Log
@@ -30,8 +31,9 @@ import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isSpeakerEndpoint
 
 /**
- * Manages the logic for handling unrequested video state upgrades from the platform.
+ * Manages the logic for handling unrequested video state mutations from the platform.
  *
+ * ## 1. Unrequested Audio-to-Video Upgrade
  * On some Android versions (SDK 34-36), the platform may erroneously upgrade an audio call to a
  * video call without an app request, which often results in an unwanted switch to the speakerphone.
  * This class detects such upgrades and provides logic to revert the video state and reroute audio
@@ -50,6 +52,39 @@ import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isSpeakerEnd
  * * **Aggressive Reversion:** This mitigation path assumes that upgrades to video are unintended
  *   unless initiated by the app. Consequently, *all* remote surface changes upgrading the video
  *   state will be reverted back to audio.
+ *
+ * ## 2. Unrequested Video-to-Audio Downgrade on Platform Answer
+ * When a platform `InCallService` (such as Dialer, Watch, or Auto) answers an incoming
+ * transactional video call with `VideoProfile.STATE_BIDIRECTIONAL` (`3`), Telecom's
+ * `TransactionalCallSequencingAdapter.getSetAnswerReceiver()` passes that raw `VideoProfile` value
+ * into `TransactionalVideoStateToVideoProfileState()`, which expects `CallAttributes` constants
+ * (`1` = audio, `2` = video). Because `3` is unmapped there, Telecom falls back to
+ * `VideoProfile.STATE_AUDIO_ONLY` (`0`) and calls `call.setVideoState(0)` immediately after answer.
+ * On multi-endpoint devices exposing both `Earpiece` and `Speaker`, audio routing clears
+ * `displayActiveUseCase` and drops from `Speaker` to `Earpiece`, while Jetpack's
+ * `onVideoStateChanged(CALL_TYPE_AUDIO_CALL)` callback disables speaker fallback.
+ *
+ * ### Bug Context
+ * * **Affected Versions:** Android 15 (SDK 35), Android 16 (SDK 36), and unpatched Android 17
+ *   (SDK 37) builds containing the Oct 2025 `getSetAnswerReceiver()` regression.
+ * * **Fixed In:** Pending platform Telecom fix guarding translation with `isCallControlRequest`.
+ *
+ * ### Mitigation Details
+ * * **Android 15+:** Arms a one-shot guard (`mAwaitingPlatformVideoAnswerSync`) via
+ *   [onPlatformAnswered] when `CallSession.onAnswer` finishes answering as video (and only if the
+ *   app did not already downgrade inside its answer callback). The immediately following
+ *   unrequested `CALL_TYPE_AUDIO_CALL` callback is suppressed before overwriting `mCallType` or
+ *   emitting to `callTypeChannel`, `enforceVideoCallSpeakerFallback` keeps audio on `Speaker`, and
+ *   [CallControl.requestVideoState] re-syncs the platform back to `CallAttributes.VIDEO_CALL`.
+ * * **Android 14:** [CallControl.requestVideoState] does not exist prior to API 35, so the platform
+ *   video state cannot be repaired, but intercepting the downgrade in `CallSession` still preserves
+ *   `mCallType` so `enforceVideoCallSpeakerFallback` keeps audio on `Speaker`.
+ *
+ * ### Known Side Effects
+ * * **One-Shot Post-Answer Downgrade Suppression:** Assumes the single immediate platform
+ *   transition to `CALL_TYPE_AUDIO_CALL` after an `InCallService` video answer is the platform bug.
+ *   Any subsequent downgrades—or any downgrade after an explicit client call to
+ *   `CallSession.requestVideoState` (which disarms the guard)—are honored normally.
  */
 @RequiresApi(34)
 internal class UnrequestedVideoManager {
@@ -58,6 +93,111 @@ internal class UnrequestedVideoManager {
     }
 
     @VisibleForTesting internal var mTrackingUnrequestedVideoStateUpgrade: Boolean = false
+    @VisibleForTesting internal var mAwaitingPlatformVideoAnswerSync: Boolean = false
+
+    /**
+     * Evaluates whether a platform-initiated answer should arm the one-shot guard for an
+     * unrequested post-answer video-to-audio downgrade, and arms [mAwaitingPlatformVideoAnswerSync]
+     * if needed.
+     *
+     * This helper MUST be called **after** the app's `onAnswerCallback` finishes and **before**
+     * sending the `wasCompleted.accept(true)` acknowledgment back to Android Telecom:
+     * - **Why before `wasCompleted.accept(true)`:** Telecom's
+     *   `TransactionalCallSequencingAdapter.getSetAnswerReceiver()` fires its erroneous
+     *   `setVideoState(0)` downgrade right when our acknowledgment completes the transaction.
+     *   Arming first ensures `mAwaitingPlatformVideoAnswerSync` is set before that callback
+     *   arrives.
+     * - **Why check both [answeredCallType] and [currentCallType] after `onAnswerCallback`:**
+     *   Inside `onAnswerCallback` (`suspend`), the VoIP app itself can intentionally downgrade the
+     *   call to audio (e.g., if camera permissions were denied or the user toggled video off). In
+     *   that case, `currentCallType` will already be [CallAttributesCompat.CALL_TYPE_AUDIO_CALL],
+     *   so we intentionally do **not** arm the guard and preserve the app's choice.
+     *
+     * @param answeredCallType The Jetpack call type translated from Telecom's `onAnswer` video
+     *   state.
+     * @param currentCallType The session's current `mCallType` after running the app's
+     *   `onAnswerCallback`.
+     */
+    fun onPlatformAnswered(answeredCallType: Int, currentCallType: Int) {
+        if (
+            answeredCallType == CallAttributesCompat.CALL_TYPE_VIDEO_CALL &&
+                currentCallType == CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+        ) {
+            mAwaitingPlatformVideoAnswerSync = true
+        }
+    }
+
+    /**
+     * Clears platform video-answer downgrade tracking when the client app explicitly requests a
+     * downgrade away from video, while keeping the guard armed if the client re-requests
+     * [CallAttributesCompat.CALL_TYPE_VIDEO_CALL].
+     */
+    fun onClientRequestedVideoState(videoState: Int) {
+        if (videoState != CallAttributesCompat.CALL_TYPE_VIDEO_CALL) {
+            mAwaitingPlatformVideoAnswerSync = false
+        }
+    }
+
+    /**
+     * Determines if the given video state change represents an unrequested downgrade to audio
+     * immediately following a platform-initiated video answer.
+     *
+     * @param currentCallType The current call type tracked by the session.
+     * @param newVideoState The new video state reported by the platform.
+     * @return `true` if this is the unrequested post-answer video downgrade bug.
+     */
+    fun isUnrequestedVideoDowngradeBug(currentCallType: Int, newVideoState: Int): Boolean {
+        val result =
+            mAwaitingPlatformVideoAnswerSync &&
+                currentCallType == CallAttributesCompat.CALL_TYPE_VIDEO_CALL &&
+                newVideoState == CallAttributesCompat.CALL_TYPE_AUDIO_CALL
+        if (result) {
+            Log.i(
+                TAG,
+                "isUnrequestedVideoDowngradeBug: Detected unrequested video downgrade after " +
+                    "platform video answer. currentCallType=$currentCallType, " +
+                    "newVideoState=$newVideoState",
+            )
+        }
+        return result
+    }
+
+    /**
+     * Restores the platform video state to [CallAttributesCompat.CALL_TYPE_VIDEO_CALL] after an
+     * unrequested post-answer downgrade and triggers a speaker fallback check if needed.
+     *
+     * @param platformInterface The platform's [CallControl] interface.
+     * @param onRerouteCheck Callback to enforce video speaker routing if already on earpiece.
+     */
+    fun handleUnrequestedVideoStateDowngrade(
+        platformInterface: CallControl?,
+        onRerouteCheck: () -> Unit,
+    ) {
+        mAwaitingPlatformVideoAnswerSync = false
+        onRerouteCheck()
+
+        if (VERSION.SDK_INT >= VERSION_CODES.VANILLA_ICE_CREAM) {
+            platformInterface?.requestVideoState(
+                CallAttributes.VIDEO_CALL,
+                Runnable::run,
+                object : OutcomeReceiver<Void, CallException> {
+                    override fun onResult(result: Void?) {
+                        Log.d(
+                            TAG,
+                            "handleUnrequestedVideoStateDowngrade: requestVideoState success",
+                        )
+                    }
+
+                    override fun onError(error: CallException) {
+                        Log.e(
+                            TAG,
+                            "handleUnrequestedVideoStateDowngrade: requestVideoState error=$error",
+                        )
+                    }
+                },
+            )
+        }
+    }
 
     /**
      * Determines if the given video state change represents the unrequested video upgrade bug.
