@@ -30,8 +30,6 @@ import androidx.annotation.RestrictTo
  * @see LowLightBoostEffect.error
  * @see LowLightBoostEffect.Listener.onErrorChanged
  */
-// TODO: b/448524973 - Remove @RestrictTo when making this API public in next alpha.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LowLightBoostException
 /**
  * Creates a [LowLightBoostException] with an error code, message, and cause.
