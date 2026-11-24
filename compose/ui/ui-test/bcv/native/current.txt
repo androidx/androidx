@@ -38,6 +38,7 @@ abstract interface androidx.compose.ui.test/ComposeUiTest : androidx.compose.ui.
     abstract fun waitForIdle() // androidx.compose.ui.test/ComposeUiTest.waitForIdle|waitForIdle(){}[0]
     abstract fun waitUntil(kotlin/String? = ..., kotlin/Long = ..., kotlin/Function0<kotlin/Boolean>) // androidx.compose.ui.test/ComposeUiTest.waitUntil|waitUntil(kotlin.String?;kotlin.Long;kotlin.Function0<kotlin.Boolean>){}[0]
     abstract suspend fun awaitIdle() // androidx.compose.ui.test/ComposeUiTest.awaitIdle|awaitIdle(){}[0]
+    open fun runOnEachSnapshotApply(kotlin/Function0<kotlin/Unit>): androidx.compose.runtime.snapshots/ObserverHandle // androidx.compose.ui.test/ComposeUiTest.runOnEachSnapshotApply|runOnEachSnapshotApply(kotlin.Function0<kotlin.Unit>){}[0]
 }
 
 abstract interface androidx.compose.ui.test/IdlingResource { // androidx.compose.ui.test/IdlingResource|null[0]

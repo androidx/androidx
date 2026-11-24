@@ -17,6 +17,7 @@
 package androidx.compose.ui.test.junit4
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
@@ -386,6 +387,41 @@ public interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
      */
     public fun hasPendingWork(): Boolean {
         throw NotImplementedError("hasPendingWork() is not implemented.")
+    }
+
+    /**
+     * Runs [block] every time a [Snapshot][androidx.compose.runtime.snapshots.Snapshot] is applied
+     * to global state, from now until the test finishes or the returned [ObserverHandle] is
+     * disposed.
+     *
+     * Use this to check invariants that must hold after every state change, not only where the test
+     * asserts, e.g. that a screen is never loading and showing an error at the same time. Register
+     * [block] before the actions that it should check: snapshots applied before this call aren't
+     * checked, and [block] doesn't run until the next one is applied.
+     *
+     * [block] runs in a read-only snapshot, so all reads see one consistent state. Node lookups and
+     * synchronization, such as [onNodeWithTag][androidx.compose.ui.test.onNodeWithTag] or
+     * [waitForIdle], aren't supported inside [block]: to check what the UI shows, assert on the
+     * state that drives it, and use node assertions at checkpoints for layout and rendering. If
+     * [block] writes to snapshot state, looks up nodes or synchronizes, it throws an
+     * [IllegalStateException].
+     *
+     * @sample androidx.compose.ui.test.junit4.samples.runOnEachSnapshotApplySample
+     *
+     * [block] runs on the thread that applied the snapshot, often the main thread. If it throws,
+     * the error is rethrown on the test thread at the next synchronization, such as [waitForIdle]
+     * or a node action or assertion, or when the test finishes. If more errors occur before the
+     * first one is rethrown, they're dropped.
+     *
+     * Disposing the returned handle checks pending writes to global state, then stops observing. It
+     * doesn't throw: errors found until then are still rethrown as described above.
+     *
+     * @param block the assertions to run every time a snapshot is applied to global state
+     * @return a handle that stops observing when disposed
+     * @sample androidx.compose.ui.test.junit4.samples.runOnEachSnapshotApplyScopedSample
+     */
+    public fun runOnEachSnapshotApply(block: () -> Unit): ObserverHandle {
+        throw NotImplementedError("runOnEachSnapshotApply is not implemented")
     }
 }
 

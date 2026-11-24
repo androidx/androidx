@@ -17,9 +17,15 @@
 package androidx.compose.ui.test.junit4.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertTrue
 
 @Sampled
 fun runWithoutImplicitWaitSample() {
@@ -62,5 +68,38 @@ fun hasPendingWorkSample() {
                 composeTestRule.onNodeWithTag("CardContent").assertExists()
             }
         }
+    }
+}
+
+@Sampled
+fun runOnEachSnapshotApplySample() {
+    var itemCount by mutableIntStateOf(0)
+    // itemCount is snapshot state that the screen under test reads and updates. The block runs on
+    // each snapshot applied from now on, so register it before the actions to check.
+    composeTestRule.runOnEachSnapshotApply {
+        // Asserts on the state behind the UI, as blocks can't look up nodes
+        assertTrue("Item count must never be negative", itemCount >= 0)
+    }
+
+    composeTestRule.onNodeWithTag("add").performClick()
+    composeTestRule.onNodeWithTag("remove").performClick()
+    // Checks what the UI shows at a checkpoint
+    composeTestRule.onNodeWithTag("itemCount").assertTextEquals("Count: 0")
+}
+
+@Sampled
+fun runOnEachSnapshotApplyScopedSample() {
+    fun <R> ComposeTestRule.withSnapshotInvariant(assertion: () -> Unit, block: () -> R): R {
+        val handle = runOnEachSnapshotApply(assertion)
+        try {
+            return block()
+        } finally {
+            handle.dispose()
+        }
+    }
+
+    var itemCount by mutableIntStateOf(0)
+    composeTestRule.withSnapshotInvariant(assertion = { assertTrue(itemCount >= 0) }) {
+        composeTestRule.onNodeWithTag("add").performClick()
     }
 }
