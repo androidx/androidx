@@ -157,9 +157,9 @@ public fun TransformingLazyColumn(
     val currentFirstLayoutItemProvider = rememberUpdatedState(firstLayoutItemProvider)
     // Use derivedStateOf to ensure remeasure is only triggered when the scroll state *changes*,
     // preventing unnecessary work during an active scroll.
-    val isScrollingState = remember { derivedStateOf { state.isScrollInProgress } }
+    val isScrollingState = remember(state) { derivedStateOf { state.isScrollInProgress } }
     val measurementStrategy =
-        remember(contentPadding, reverseLayout, density) {
+        remember(contentPadding, reverseLayout, density, layoutDirection, graphicsContext, state) {
             TransformingLazyColumnContentPaddingMeasurementStrategy(
                 contentPadding = contentPadding,
                 layoutDirection = layoutDirection,
@@ -213,7 +213,7 @@ public fun TransformingLazyColumn(
 
     val semanticState = remember(state) { TransformingLazyColumnSemanticState(state) }
     val focusRequester = remember { FocusRequester() }
-    val minimumHeightPx = remember { with(density) { VISIBLE_THRESHOLD_EDGE_ITEM.toPx() } }
+    val minimumHeightPx = remember(density) { with(density) { VISIBLE_THRESHOLD_EDGE_ITEM.toPx() } }
     LazyLayout(
         itemProvider = itemProviderLambda,
         modifier =
@@ -248,7 +248,7 @@ public fun TransformingLazyColumn(
                     flingBehavior = flingBehavior,
                     overscrollEffect = overscrollEffect,
                 )
-                .pointerInput(Unit) {
+                .pointerInput(state, minimumHeightPx) {
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent(PointerEventPass.Initial)
@@ -517,7 +517,7 @@ internal class TransformingLazyColumnItemProvider(
     @Composable
     override fun Item(index: Int, key: Any) {
         val itemScope =
-            remember(key, index, reduceMotionEnabled) {
+            remember(key, index, state, reduceMotionEnabled) {
                 TransformingLazyColumnItemScopeImpl(
                     key = key,
                     index = index,
@@ -543,13 +543,19 @@ internal class TransformingLazyColumnItemProvider(
         if (this === other) return true
         if (other !is TransformingLazyColumnItemProvider) return false
 
-        // the identity of this class is represented by intervalContent object.
-        // having equals() allows us to skip items recomposition when intervalContent didn't change
-        return intervalContent == other.intervalContent
+        // the identity of this class is represented by intervalContent, state, and
+        // reduceMotionEnabled.
+        // having equals() allows us to skip items recomposition when none of these changed
+        return intervalContent == other.intervalContent &&
+            state == other.state &&
+            reduceMotionEnabled == other.reduceMotionEnabled
     }
 
     override fun hashCode(): Int {
-        return intervalContent.hashCode()
+        var result = intervalContent.hashCode()
+        result = 31 * result + state.hashCode()
+        result = 31 * result + reduceMotionEnabled.hashCode()
+        return result
     }
 }
 

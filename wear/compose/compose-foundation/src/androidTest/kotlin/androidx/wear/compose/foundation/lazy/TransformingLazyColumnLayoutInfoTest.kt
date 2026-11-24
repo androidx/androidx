@@ -16,21 +16,38 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -405,6 +422,116 @@ class TransformingLazyColumnLayoutInfoTest {
             assertThat(state.layoutInfo.beforeContentPadding).isEqualTo(0)
             assertThat(state.layoutInfo.afterContentPadding)
                 .isEqualTo(minimumVerticalContentPaddingPx)
+        }
+    }
+
+    @Test
+    fun emptyList_withReverseLayout_reportsReverseLayoutTrue() {
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(state = state, reverseLayout = true) {}
+        }
+
+        rule.runOnIdle { assertThat(state.layoutInfo.reverseLayout).isTrue() }
+    }
+
+    @Test
+    fun layoutDirectionChange_updatesStartEndContentPadding() {
+        var direction by mutableStateOf(LayoutDirection.Ltr)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides direction) {
+                TransformingLazyColumn(contentPadding = PaddingValues(start = 20.dp, end = 0.dp)) {
+                    item { Box(Modifier.fillMaxWidth().height(40.dp).testTag("item")) }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("item").assertLeftPositionInRootIsEqualTo(20.dp)
+
+        rule.runOnIdle { direction = LayoutDirection.Rtl }
+
+        rule.onNodeWithTag("item").assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun densityChange_updatesEdgeClickThreshold() {
+        var densityState by mutableStateOf(Density(1f))
+        var clickedIndex = -1
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides densityState) {
+                val containerHeightDp = with(LocalDensity.current) { 125.toDp() }
+                val itemHeightDp = with(LocalDensity.current) { 50.toDp() }
+                TransformingLazyColumn(
+                    modifier =
+                        Modifier.fillMaxWidth().requiredHeight(containerHeightDp).testTag("list"),
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
+                ) {
+                    items(5) { index ->
+                        Box(
+                            Modifier.fillMaxWidth().height(itemHeightDp).clickable {
+                                clickedIndex = index
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("list").performTouchInput { click(Offset(centerX, 112f)) }
+        rule.runOnIdle {
+            assertThat(clickedIndex).isEqualTo(2)
+            clickedIndex = -1
+            densityState = Density(2f)
+        }
+
+        rule.onNodeWithTag("list").performTouchInput { click(Offset(centerX, 112f)) }
+        rule.runOnIdle { assertThat(clickedIndex).isEqualTo(-1) }
+    }
+
+    @Test
+    fun stateChange_updatesPointerInputAndAnimator() {
+        val state1 = TransformingLazyColumnState()
+        val state2 = TransformingLazyColumnState()
+        var activeState by mutableStateOf(state1)
+        var clickedIndex = -1
+        val progresses = mutableMapOf<Int, TransformingLazyColumnItemScrollProgress>()
+
+        rule.setContent {
+            TransformingLazyColumn(
+                state = activeState,
+                modifier = Modifier.fillMaxWidth().requiredHeight(125.dp).testTag("list"),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                items(5, key = { it }) { index ->
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(50.dp)
+                            .graphicsLayer { progresses[index] = scrollProgress }
+                            .clickable { clickedIndex = index }
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking { state1.scrollBy(with(rule.density) { 40.dp.toPx() }) }
+        }
+        val tapY = with(rule.density) { 5.dp.toPx() }
+        rule.onNodeWithTag("list").performTouchInput { click(Offset(centerX, tapY)) }
+        rule.runOnIdle {
+            assertThat(clickedIndex).isEqualTo(-1)
+            assertThat(progresses[0]?.topOffsetFraction).isWithin(0.02f).of(-0.32f)
+            activeState = state2
+        }
+
+        rule.onNodeWithTag("list").performTouchInput { click(Offset(centerX, tapY)) }
+        rule.runOnIdle {
+            assertThat(clickedIndex).isEqualTo(0)
+            assertThat(progresses[0]?.topOffsetFraction).isWithin(0.01f).of(0f)
         }
     }
 

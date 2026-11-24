@@ -315,6 +315,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                 containerConstraints = containerConstraints,
                 beforeContentPadding = initialBeforeContentPadding,
                 afterContentPadding = initialAfterContentPadding,
+                reverseLayout = reverseLayout,
                 layout = layout,
             )
         }
@@ -525,6 +526,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                         containerConstraints = containerConstraints,
                         beforeContentPadding = beforeContentPadding,
                         afterContentPadding = afterContentPadding,
+                        reverseLayout = reverseLayout,
                         layout = layout,
                     )
 
