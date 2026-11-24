@@ -22,14 +22,13 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.wear.compose.material3.Shapes
 
 /**
  * Material surfaces can be displayed in different shapes. Shapes direct attention, identify
  * components, communicate state, and express brand.
  *
  * The shape scale defines the style of container, offering a range of curved shapes (mostly
- * polygonal). The default [Shapes] theme for Material3 is rounded rectangles, with various degrees
+ * polygonal). The default `Shapes` theme for Material3 is rounded rectangles, with various degrees
  * of corner roundness:
  * - Extra Small
  * - Small

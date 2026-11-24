@@ -24,7 +24,7 @@ import androidx.compose.runtime.Immutable
  * A motion scheme provides all the [RemoteAnimationSpec]s for a [RemoteMaterialTheme].
  *
  * Motion schemes are designed to create a harmonious motion for components in the app. This is the
- * Remote Compose counterpart of [androidx.wear.compose.material3.MotionScheme].
+ * Remote Compose counterpart of `androidx.wear.compose.material3.MotionScheme`.
  *
  * There are two built-in schemes, a [standard] and an [expressive], that can be used as-is or
  * customized.

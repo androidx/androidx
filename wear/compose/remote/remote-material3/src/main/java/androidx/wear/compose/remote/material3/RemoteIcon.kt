@@ -32,10 +32,9 @@ import androidx.compose.runtime.Composable
  * content color provided by the surrounding Wear Material 3 component (or white if none is
  * provided).
  *
- * Provide a localized [contentDescription] (for example, via
- * [androidx.compose.ui.res.stringResource]) whenever the icon conveys meaning or represents an
- * action. Pass `null` only for purely decorative icons, which omits the accessibility content
- * description so accessibility services ignore it.
+ * Provide a localized [contentDescription] (for example, via `stringResource`) whenever the icon
+ * conveys meaning or represents an action. Pass `null` only for purely decorative icons, which
+ * omits the accessibility content description so accessibility services ignore it.
  *
  * Example of displaying a [RemoteIcon]:
  *
@@ -45,9 +44,9 @@ import androidx.compose.runtime.Composable
  *   `null` if the icon is purely decorative and has no accessibility description
  * @param modifier the [RemoteModifier] applied to this icon
  * @param tint color applied to [imageVector] using a color filter with the vector's tint blend mode
- *   ([androidx.compose.ui.graphics.BlendMode.SrcIn] by default, which replaces the icon's RGB
- *   colors with [tint] while preserving alpha rather than multiplying RGBA). Defaults to the
- *   current content color
+ *   ([androidx.compose.remote.creation.compose.state.RemoteBlendMode.SrcIn] by default, which
+ *   replaces the icon's RGB colors with [tint] while preserving alpha rather than multiplying
+ *   RGBA). Defaults to the current content color
  */
 @RemoteComposable
 @Composable
