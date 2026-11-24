@@ -538,6 +538,13 @@ public class ImageSourceConfig(
     // Only allowed to be set to true on multi-output streams.
     public var enableConcurrentOutputs: Boolean = false
 
+    /**
+     * Whether the resource trimmer should reserve additional headroom for images buffered inside
+     * the camera HAL pipeline for this stream. Set to `false` for streams whose pipeline depth is
+     * not backed by reserved HAL buffers.
+     */
+    public var enablePipelineMemoryReservation: Boolean = true
+
     @Deprecated("Prefer CameraPipe's default ImageReader threading.")
     public var handler: Handler? = null
 

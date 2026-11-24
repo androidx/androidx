@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.internal
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
@@ -969,6 +970,107 @@ class ResourceTrimmerTest {
         burstCaptures.forEach { it.close() }
         acquired1?.close()
         acquired2?.close()
+    }
+
+    @Test
+    fun pipelineMemoryReservationDisabled_omitsPipelineMarginAndRetainsBufferedFrames() =
+        testScope.runTest {
+            val highPipelineMetadata =
+                FakeCameraMetadata(
+                    characteristics =
+                        mapOf(CameraCharacteristics.REQUEST_PIPELINE_MAX_DEPTH to 7.toByte())
+                )
+            val streamConfigNoPipelineMargin =
+                CameraStream.Config.create(
+                    Size(1280, 720),
+                    StreamFormat.YUV_420_888,
+                    imageSourceConfig =
+                        ImageSourceConfig(capacity = 6).apply {
+                            enablePipelineMemoryReservation = false
+                        },
+                )
+            val customGraphConfig =
+                CameraGraph.Config(
+                    camera = highPipelineMetadata.camera,
+                    streams = listOf(streamConfigNoPipelineMargin),
+                )
+            // Capacity holds REPEATING_FRAME_MARGIN_COUNT (3) + 4 buffered frames = 7 frames.
+            // With pipeline memory reservation enabled (depth=7 -> margin=10), the trimmer would
+            // drain the buffer to 0. With it disabled, only the repeating margin (3) is required.
+            val capacityFrames = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 4
+            estimator = MemoryEstimator.create(largeImageSize * capacityFrames)
+            simulator =
+                CameraPipeSimulator.create(
+                    testScope,
+                    context,
+                    listOf(highPipelineMetadata),
+                    estimator,
+                )
+            frameGraph = simulator.createFrameGraph(FrameGraph.Config(customGraphConfig))
+            frameGraph.start()
+            frameGraph.initializeSurfaces()
+            frameGraph.simulateCameraStarted()
+            advanceUntilIdle()
+
+            val streamId = frameGraph.streams[streamConfigNoPipelineMargin]!!.id
+            val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 6)
+
+            repeat(4) {
+                val frame = frameGraph.simulateNextFrame()
+                frame.simulateImage(streamId)
+                advanceUntilIdle()
+            }
+            assertThat(frameBuffer.size.value).isEqualTo(4)
+
+            // Adding a 5th frame dips free memory below REPEATING_FRAME_MARGIN_COUNT, so the
+            // next frame start trims 1 frame to preserve the repeating margin.
+            val f5 = frameGraph.simulateNextFrame()
+            f5.simulateImage(streamId)
+            val f6 = frameGraph.simulateNextFrame()
+            advanceUntilIdle()
+            f6.simulateImage(streamId)
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.size.value).isEqualTo(5)
+            assertThat(estimator.memoryUsage.value).isEqualTo(largeImageSize * 5)
+
+            frameBuffer.close()
+        }
+
+    @Test
+    fun nonImageSourceStream_doesNotInflateRepeatingMemoryRequirement() = testScope.runTest {
+        val externalStreamConfig =
+            CameraStream.Config.create(Size(4000, 3000), StreamFormat.PRIVATE)
+        val mixedGraphConfig =
+            CameraGraph.Config(
+                camera = metadata.camera,
+                streams = listOf(streamConfigLarge, externalStreamConfig),
+            )
+        val margin = CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT + 2
+        estimator = MemoryEstimator.create(largeImageSize * (margin + 2))
+        simulator = CameraPipeSimulator.create(testScope, context, listOf(metadata), estimator)
+        frameGraph = simulator.createFrameGraph(FrameGraph.Config(mixedGraphConfig))
+        frameGraph.start()
+        frameGraph.initializeSurfaces()
+        frameGraph.simulateCameraStarted()
+        advanceUntilIdle()
+
+        val largeStreamId = frameGraph.streams[streamConfigLarge]!!.id
+        val externalStreamId = frameGraph.streams[externalStreamConfig]!!.id
+        val frameBuffer =
+            frameGraph.captureWith(setOf(largeStreamId, externalStreamId), capacity = 5)
+
+        repeat(2) {
+            val frame = frameGraph.simulateNextFrame()
+            frame.simulateImage(largeStreamId)
+            advanceUntilIdle()
+        }
+
+        // If externalStreamConfig were counted in repeating memory, its margin would vastly exceed
+        // the budget and drain the buffer to 0.
+        assertThat(frameBuffer.size.value).isEqualTo(2)
+
+        frameBuffer.close()
     }
 
     private fun setupSimulators(capacity: Long) {
