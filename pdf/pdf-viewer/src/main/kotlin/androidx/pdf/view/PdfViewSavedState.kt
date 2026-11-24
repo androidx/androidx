@@ -57,7 +57,10 @@ internal class PdfViewSavedState : AbsSavedState {
      */
     val hasEnoughStateToRestore: Boolean
         get() {
-            return documentUri != null && paginationModel != null && layoutStrategy != null
+            return viewWidth > 0 &&
+                documentUri != null &&
+                paginationModel != null &&
+                layoutStrategy != null
         }
 
     /**

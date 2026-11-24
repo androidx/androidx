@@ -20,6 +20,11 @@ import android.app.Activity
 import android.content.ContextWrapper
 import android.graphics.Point
 import android.graphics.RectF
+import android.hardware.display.DisplayManager
+import android.net.Uri
+import android.os.Parcelable
+import android.view.Display
+import android.view.View
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.FakePdfDocument
 import androidx.pdf.content.PageSelection
@@ -28,6 +33,8 @@ import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.selection.SelectionModel
 import androidx.pdf.selection.SelectionStateManager
 import androidx.pdf.view.PdfView.Companion.findActivity
+import androidx.pdf.view.layout.PaginationModel
+import androidx.pdf.view.layout.SinglePageLayoutStrategy
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestScope
@@ -47,8 +54,10 @@ class PdfViewSavedStateTest {
     }
 
     private class TestPdfView(context: android.content.Context) : PdfView(context) {
-        public override fun onSaveInstanceState(): android.os.Parcelable? =
-            super.onSaveInstanceState()
+        public override fun onSaveInstanceState(): Parcelable? = super.onSaveInstanceState()
+
+        public override fun onRestoreInstanceState(state: Parcelable?) =
+            super.onRestoreInstanceState(state)
     }
 
     @OptIn(ExperimentalPdfApi::class)
@@ -64,6 +73,20 @@ class PdfViewSavedStateTest {
             pageManager = null,
             initialSelection = initialSelection,
         )
+
+    private fun createPdfView(document: FakePdfDocument): TestPdfView {
+        val activity = Robolectric.buildActivity(TestActivity::class.java).setup().get()
+        val displayManager = activity.getSystemService(DisplayManager::class.java)
+        val defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY)
+        val visualContext =
+            object : ContextWrapper(activity) {
+                override fun getDisplay(): Display = defaultDisplay
+            }
+        return TestPdfView(visualContext).apply {
+            backgroundScope = TestScope()
+            pdfDocument = document
+        }
+    }
 
     @Test
     fun findActivity_withContextWrapperChain_returnsActivity() {
@@ -126,5 +149,54 @@ class PdfViewSavedStateTest {
         val savedState = pdfView.onSaveInstanceState() as PdfViewSavedState
         assertThat(savedState.selectionModel).isNotNull()
         assertThat(savedState.selectionModel?.isPlaceholder).isTrue()
+    }
+
+    @Test
+    fun hasEnoughStateToRestore_requiresPositiveViewWidth() {
+        val state =
+            PdfViewSavedState(View.BaseSavedState.EMPTY_STATE).apply {
+                documentUri = Uri.parse("content://test/doc.pdf")
+                paginationModel = PaginationModel(numPages = 1)
+                layoutStrategy = SinglePageLayoutStrategy(pageCount = 1, verticalPageSpacingPx = 0f)
+                viewWidth = 0
+            }
+
+        assertThat(state.hasEnoughStateToRestore).isFalse()
+
+        state.viewWidth = 600
+        assertThat(state.hasEnoughStateToRestore).isTrue()
+    }
+
+    @Test
+    fun onRestoreInstanceState_savedAtZeroWidth_zeroWidthLayoutDoesNotCrash() {
+        val document = FakePdfDocument(pages = List(3) { Point(600, 800) })
+        val initialView = createPdfView(document)
+        initialView.measure(0, 0)
+        initialView.layout(0, 0, 0, 0)
+        val savedState = initialView.onSaveInstanceState()
+
+        val restoredView = createPdfView(document)
+        restoredView.onRestoreInstanceState(savedState)
+        restoredView.measure(0, 0)
+        restoredView.layout(0, 0, 0, 0)
+
+        assertThat(restoredView.zoom.isNaN()).isFalse()
+    }
+
+    @Test
+    fun onLayout_zeroBoundsBeforePositiveBounds_preservesRestoredZoom() {
+        val document = FakePdfDocument(pages = List(3) { Point(500, 800) })
+        val initialView = createPdfView(document)
+        initialView.layout(0, 0, 500, 1000)
+        initialView.zoom = 2.0f
+        val savedState = initialView.onSaveInstanceState()
+
+        val restoredView = createPdfView(document)
+        restoredView.onRestoreInstanceState(savedState)
+        restoredView.measure(0, 0)
+        restoredView.layout(0, 0, 0, 0)
+        restoredView.layout(0, 0, 1000, 1000)
+
+        assertThat(restoredView.zoom).isWithin(0.01f).of(4.0f)
     }
 }
