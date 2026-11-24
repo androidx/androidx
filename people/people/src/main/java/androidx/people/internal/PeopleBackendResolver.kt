@@ -62,20 +62,25 @@ public object PeopleBackendResolver {
 }
 
 /**
- * Picks the first People Provider that serves this device — the platform, then Google Play services
+ * Picks the first People Provider that claims this device — Google Play services, then the platform
  * — and caches the answer for the life of the process.
  *
- * Each probe returns the backend for its People Provider, returns `null` if that People Provider
- * definitively does not serve the calling application, or throws if the answer could not be
- * determined. Caching means that a change on the device, such as Google Play services starting to
- * support the application, takes effect the next time the process starts. A probe that throws is
- * not cached, so that a transient failure does not hide an available People Provider until then.
+ * When `androidx.people:people-play-services` is part of the application, Google Play services is
+ * consulted first: it returns its own backend when it selects itself (including on Android 37.2+
+ * when its backend override is enabled), `null` when it selects the platform People Provider or is
+ * absent or too old to support the People Provider, or [UnavailablePeopleBackend] otherwise.
+ *
+ * Caching means that a change on the device, such as Google Play services starting to support the
+ * application, takes effect the next time the process starts. A probe that throws is not cached, so
+ * that a transient failure does not hide an available People Provider or bypass a Google Play
+ * services routing decision until then.
  *
  * @param platform returns the platform backend, or `null` if the platform does not serve this
  *   device.
- * @param playServices returns the Google Play services backend, or `null` if
- *   `androidx.people:people-play-services` is not part of the application or Google Play services
- *   does not support it.
+ * @param playServices returns the backend chosen by Google Play services (including
+ *   [UnavailablePeopleBackend]), or `null` when `androidx.people:people-play-services` is not part
+ *   of the application, Google Play services selects the platform People Provider, or Google Play
+ *   services is absent or too old.
  */
 internal class BackendResolver(
     private val platform: suspend (Context) -> PeopleBackend?,
@@ -92,7 +97,7 @@ internal class BackendResolver(
     private suspend fun probe(context: Context): PeopleBackend {
         val backend =
             try {
-                platform(context) ?: playServices(context) ?: UnavailablePeopleBackend
+                playServices(context) ?: platform(context) ?: UnavailablePeopleBackend
             } catch (e: CancellationException) {
                 // Nothing is cached, so the next call probes again.
                 throw e

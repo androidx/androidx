@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.people.internal.PeopleBackend
 import androidx.people.internal.PeopleBackendFactory
+import androidx.people.internal.UnavailablePeopleBackend
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ApiException
@@ -37,15 +38,15 @@ import kotlinx.coroutines.withContext
 
 /**
  * Entry point that `androidx.people:people` loads by name when this artifact is part of the
- * application, so that client applications and People Directory applications can use the Google
- * Play services backport of the People Provider below Android 37.2.
+ * application, so that Google Play services can select the People Provider backend for client
+ * applications and People Directory applications.
  *
  * Do not reference this class directly.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PlayServicesPeopleBackendFactory
 internal constructor(
-    private val isGooglePlayServicesAvailable: (Context) -> Boolean,
+    private val checkGooglePlayServicesAvailability: (Context) -> Int,
     private val createProviderClient: (Context) -> PeopleProviderCompatClient,
     private val createDirectoryClient: (Context) -> PeopleDirectoryCompatClient,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -54,20 +55,22 @@ internal constructor(
     /** Called reflectively by `androidx.people:people`, and kept by this artifact's keep rule. */
     public constructor() :
         this(
-            isGooglePlayServicesAvailable = { context ->
-                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) ==
-                    ConnectionResult.SUCCESS
+            checkGooglePlayServicesAvailability = { context ->
+                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
             },
             createProviderClient = { context -> PeopleProviderCompatClient.getClient(context) },
             createDirectoryClient = { context -> PeopleDirectoryCompatClient.getClient(context) },
         )
 
     override suspend fun create(context: Context): PeopleBackend? {
-        // androidx.people:people asks only when the platform People Provider is absent. A missing,
-        // disabled, or outdated Google Play services is definitive until it is updated, which
-        // restarts the process, so it is not retried.
-        if (!withContext(coroutineDispatcher) { isGooglePlayServicesAvailable(context) }) {
-            return null
+        // A missing, disabled, or outdated Google Play services cannot select a backend, so fall
+        // back to the platform People Provider for this process. An update in progress
+        // (SERVICE_UPDATING) is transient, so throw to retry on the next call.
+        when (withContext(coroutineDispatcher) { checkGooglePlayServicesAvailability(context) }) {
+            ConnectionResult.SUCCESS -> Unit
+            ConnectionResult.SERVICE_UPDATING ->
+                throw IllegalStateException("Google Play services is currently updating")
+            else -> return null
         }
         val providerClient = createProviderClient(context)
         // One call answers for client applications and People Directory applications alike:
@@ -79,32 +82,50 @@ internal constructor(
                     .await()
                     .supportedBackendType
             } catch (e: Exception) {
-                // A Google Play services version without the People Provider API is definitive
-                // until it is updated, as above. Any other failure, including cancellation, is
-                // rethrown so that androidx.people:people does not cache the answer and asks again
-                // on the next call.
+                // When Google Play services lacks the People Provider API, fall back to the
+                // platform People Provider for this process. Any transient or unexpected failure,
+                // including cancellation and transient connection errors wrapped in
+                // API_NOT_CONNECTED, is rethrown so that androidx.people:people does not cache the
+                // answer and asks again on the next call.
+                val connectionErrorCode = (e as? ApiException)?.status?.connectionResult?.errorCode
                 val gmsLacksPeopleProviderSupport =
                     e is UnsupportedApiCallException ||
-                        (e is ApiException && e.statusCode == CommonStatusCodes.API_NOT_CONNECTED)
+                        (e is ApiException &&
+                            e.statusCode == CommonStatusCodes.API_NOT_CONNECTED &&
+                            connectionErrorCode != null &&
+                            connectionErrorCode !in TRANSIENT_CONNECTION_ERRORS)
                 if (!gmsLacksPeopleProviderSupport) throw e
                 Log.i(TAG, "Google Play services version does not support the People Provider", e)
                 return null
             }
-        // Any other type (BACKEND_UNAVAILABLE, BACKEND_AOSP_PLATFORM, BACKEND_UNKNOWN, or one
-        // added by a newer Google Play services) means that Google Play services does not serve
-        // the application, and the platform was already found absent.
-        // TODO(b/562550480): Honor the backend that Google Play services names, including on
-        //  devices with the platform People Provider: query this factory before the platform, use
-        //  the platform for BACKEND_AOSP_PLATFORM, and no People Provider for BACKEND_UNAVAILABLE.
-        if (backendType != IsPeopleProviderSupportedResponse.BACKEND_GMS_CORE) return null
-        return PlayServicesPeopleBackend(
-            providerClient,
-            createDirectoryClient(context),
-            context.packageName,
-        )
+        return when (backendType) {
+            IsPeopleProviderSupportedResponse.BACKEND_GMS_CORE ->
+                PlayServicesPeopleBackend(
+                    providerClient,
+                    createDirectoryClient(context),
+                    context.packageName,
+                )
+            IsPeopleProviderSupportedResponse.BACKEND_AOSP_PLATFORM -> null
+            // Google Play services is present and supported, and did not select itself or the
+            // platform (BACKEND_UNAVAILABLE, BACKEND_UNKNOWN, or an unrecognized type): honor that
+            // response without falling back to the platform (returning null would fall back).
+            else -> UnavailablePeopleBackend
+        }
     }
 
     private companion object {
         const val TAG = "PlayServicesPeople"
+
+        val TRANSIENT_CONNECTION_ERRORS =
+            setOf(
+                ConnectionResult.INTERNAL_ERROR,
+                ConnectionResult.NETWORK_ERROR,
+                ConnectionResult.TIMEOUT,
+                ConnectionResult.INTERRUPTED,
+                ConnectionResult.SERVICE_UPDATING,
+                ConnectionResult.CANCELED,
+                ConnectionResult.API_DISABLED,
+                ConnectionResult.API_DISABLED_FOR_CONNECTION,
+            )
     }
 }
