@@ -12,19 +12,18 @@ description: >-
 ---
 
 > [!NOTE]
-> **Documentation Scope & Optional Internal Companion**:
+> **Documentation Scope & Mandatory Internal Companion (When Available)**:
 > `camera/AGENTS.md` is the primary, self-contained public baseline for CameraX
 > architecture, Kotlin/Java standards, pre-upload quality gates, and code review
 > protocols. All contributors should follow these guidelines.
 >
-> When operating in an environment where internal extension tools are configured
-> (e.g., if `$CAMERAX_INTERNAL_TOOLS_DIR` is set and `AGENTS_INTERNAL.md` is
-> present, or if unset and a `code_search` tool is available by querying
-> `f:camerax.*AGENTS_INTERNAL\.md$`), agents should also read
-> `AGENTS_INTERNAL.md` (and its sibling `skills/` directory) for supplementary
-> internal guidelines and automated lab device testing workflows. For
-> contributors without access to internal tooling, this public file contains all
-> required instructions.
+> If `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` exists—or if
+> `skill_search` (querying internal `camerax_*` skills; `AGENTS_INTERNAL.md`
+> sits in the parent directory of `skills/`) or `code_search`
+> (`f:camerax.*AGENTS_INTERNAL\.md$`) is available—you **MUST** try to locate
+> and read `AGENTS_INTERNAL.md` (plus matching sibling `skills/`) for
+> supplementary internal context and lab testing workflows. If none is found,
+> proceed with this public file, which contains all required public guidance.
 
 # Code Review Guidelines
 

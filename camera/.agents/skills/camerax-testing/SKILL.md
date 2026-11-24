@@ -126,24 +126,21 @@ CameraX involves complex hardware interactions, making robust testing essential.
     logging `[LAB_FOCUS_DIAGNOSTIC]` center gradient sharpness to isolate
     CameraX/HAL autofocus issues from physical lens obstruction, mount
     distance, or VCM actuator defects.
-- **Internal Guidelines & Testing**: When operating in an environment where
-  internal tools are configured, refer to `AGENTS_INTERNAL.md` (located in the
-  directory specified by the `CAMERAX_INTERNAL_TOOLS_DIR` environment variable,
-  if available) and its sibling `skills/` directory. It serves as an extension
-  of this guide, providing supplementary coding guidelines, extended
-  documentation links, and instructions to use physical lab device testing
-  infrastructure to verify changes when accessible:
-  1. Check `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` when the environment
-     variable is set.
-  2. When starting from a repository checkout where
-     `$CAMERAX_INTERNAL_TOOLS_DIR` is unset, use `skill_search` (e.g., querying
-     for CameraX physical lab device tests or vision triage skills) or
-     `code_search` (`f:camerax.*AGENTS_INTERNAL\.md$`) if those discovery tools
-     are available in the agent host.
-  3. If neither `$CAMERAX_INTERNAL_TOOLS_DIR` nor internal discovery tools are
-     available, report that internal lab runner tools are not configured in the
-     current environment and use local connected devices (`connectedCheck`) or
-     FTL tasks instead.
+- **Internal Guidelines & Testing**: If
+  `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` exists—or if `skill_search`
+  or `code_search` is available in the agent host—you **MUST** try to locate
+  and read `AGENTS_INTERNAL.md` and matching modular skills in its sibling
+  `skills/` directory as an extension of this guide for supplementary internal
+  context, extended documentation links, and physical lab testing workflows:
+  1. Check `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` first when
+     `$CAMERAX_INTERNAL_TOOLS_DIR` is set.
+  2. Otherwise, use `skill_search` (querying internal `camerax_*` physical lab
+     device tests or vision triage skills; `AGENTS_INTERNAL.md` sits in the
+     parent directory of the returned `skills/` path) or `code_search`
+     (`f:camerax.*AGENTS_INTERNAL\.md$`) if those discovery tools are available.
+  3. If no internal companion is found (or neither env var nor discovery tool
+     is available), note that internal lab tooling is not configured and use
+     local connected devices (`connectedCheck`) or FTL tasks instead.
 
 ## Skill: CameraX Troubleshooting & Code Verification
 
