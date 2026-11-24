@@ -204,8 +204,15 @@ Authoring* bullet below alongside the fail-closed contract in their brief.
          references)
       so each clean-context verifier can independently cross-examine the
       complete draft against the raw ground truth without anchoring bias.
-*   **Orchestrator Convergence State Machine, Auto-Extension (Rounds 4–5),
-    Post-Fix Holistic Simplification & Unreviewed-CL Re-Evaluation:**
+*   **Orchestrator Convergence State Machine, Autonomous Execution,
+    Auto-Extension (Rounds 4–5), Post-Fix Holistic Simplification,
+    Unreviewed-CL Re-Evaluation & Fast-Paths:**
+    - **Autonomous Multi-Turn Execution (No Conversational Yielding Between
+      Rounds):** Never pause to ask the user for permission between intermediate
+      review-and-fix rounds. Autonomously execute the state machine (`Spawn
+      Clean-Context Verifier -> Triage & Priority-Fix -> Pattern Sweep &
+      Deterministic Gate -> Spawn Next Clean-Context Verifier`) in a continuous
+      loop until the convergence exit gate is satisfied.
     - **Ephemeral Convergence Defect Ledger
       (`<scratch_or_tmp>/convergence_ledger.md`):**
       Maintain a state-machine ledger in a scratch/temp file (never committed
@@ -262,16 +269,33 @@ Authoring* bullet below alongside the fail-closed contract in their brief.
       --no-lazy-fetch log -p`, `git reflog`, or fetched Gerrit patchsets) and
       seed prior resolved findings into `convergence_ledger.md` so solved bugs
       never ping-pong back across revisions.
-    - **Post-Fix Holistic Simplification & Unreviewed-CL Re-Evaluation:**
-      After resolving multi-round findings (`R2+`) on code edits and before
-      uploading, audit the full `base..HEAD` diff (`git log -p` per commit
-      across stacks) once to collapse patch-on-patch scaffolding and revert
-      causally unnecessary legacy hunk churn (any semantic simplification must
-      pass a final clean-context check). For author-owned unreviewed CLs (`0`
+    - **Pre-Finalization Hunk-Necessity Gate, Post-Fix Holistic Simplification &
+      Unreviewed-CL Re-Evaluation:** Before launching final Mode 1 sign-off (and
+      after resolving multi-round `R2+` findings), run the Pre-Finalization
+      `Hunk-Necessity Gate` (`camerax-guidelines-governance/SKILL.md`) across
+      `base..HEAD` (`git log -p` per commit across stacks) to collapse patch-on-
+      patch scaffolding and strip Bucket `(c)` non-causal files/hunks (any
+      stripped hunk is a semantic edit `PATCHED_PENDING_REAUDIT` requiring
+      re-test and a clean-context check). For author-owned unreviewed CLs (`0`
       human reviewers/comments) scoring `< 9/10` vs. assigned-reviewer or
       other-author CLs, follow the canonical rule in
       `camerax-guidelines-governance/references/COMMIT_AND_AMEND.md`
       (*Unreviewed-CL Holistic Re-Evaluation vs. Assigned/Active Review Lock*).
+    - **Post-Review Fix Sign-Off Fast-Path & Cold Newly-Authored R2 Gate:**
+      When applying localized code fixes to a CL after a prior cross-family
+      clean-context review or Gerrit review (seeding `convergence_ledger.md`
+      from prior review threads & patchset history so solved bugs never
+      ping-pong back, with green Stage 2 compiler/ErrorProne/lint/repohook
+      checks), **1 fresh clean-context full-diff round on the opposite model
+      family from the fix author** (+ inline Turn 2 `Post-Blind Adjudication
+      Turn` confirming `100% VERIFIED_RESOLVED`, `0` `OPEN` `P0-P2`, `0`
+      `REGRESSED`, and `0` unadjudicated `DISMISSED_WITH_PROOF` with each
+      `UPHELD`) satisfies convergence immediately (extending to Round 2+ only
+      if that pass finds a new `P0-P2` defect or regression). For newly
+      authored production, test, or doc/skill changes, run Round 2 on a second
+      model so R1 and R2 span distinct model families, and stop once
+      cross-family coverage + the Hard Convergence Exit Gate hold (auto-scaling
+      through R3–R5 while fixes continue converging).
 
 ---
 

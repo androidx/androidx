@@ -209,8 +209,9 @@ invariants:
     leaks on exception/cancellation paths) and clean multi-commit stack hygiene
     (no temporary workarounds added in one commit and deleted in the next).
 - **Mandatory Two-Stage Pre-Upload Quality Gate**:
-  1. **Stage 1 (Multi-Model Clean-Context Verification)**: Execute the Step 5/6
-     verification loop in [`camerax-code-review`][skill-review].
+  1. **Stage 1 (Hunk-Necessity & Clean-Context Gate)**: Run Hunk-Necessity
+     ([`camerax-guidelines-governance`][skill-gov]) & Step 5/6 in
+     [`camerax-code-review`][skill-review].
   2. **Stage 2 (Compiler, Lint, Format & Dry-Run Hook)**:
      - Format modified `.kt` files: `./gradlew :ktCheckFile --format --file <f>`
      - Run ErrorProne (Java) & Lint:

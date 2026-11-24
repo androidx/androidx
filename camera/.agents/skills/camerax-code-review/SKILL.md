@@ -237,10 +237,16 @@ applicable. Prioritize clarity and conciseness.
             CameraPipe DI/fake drift (`camera-camera2-pipe/AGENTS.md`), `>=
             3`-site boilerplate, or missed 4-tree (`integration-tests/*`)
             caller/SKU updates.
-          - *(e) Provenance & Public Contracts*: unnecessary legacy hunk churn,
-            deleting fallbacks or standalone `.md`/`SKILL.md` clauses without
-            path-scoped `git --no-lazy-fetch log -S ... -- <path>` provenance,
-            or violating entry-point Javadoc (`setSchedulerHandler`, sticky
+          - *(e) Hunk-Necessity, Provenance & Public Contracts*: Bucket `(c)`
+            non-causal files/hunks (unnecessary legacy/unrelated hunk churn,
+            **Self-Inflicted Cascade** triggers + downstream patches, avoidable
+            cross-module/DI churn, speculative state, dead branches/test seams,
+            or draft tests; full taxonomy in `camerax-guidelines-governance`
+            `Hunk-Necessity Gate`; propose splits/mark `ESCALATED` on
+            reviewer-locked CLs), deleting fallbacks or standalone
+            `.md`/`SKILL.md` clauses without path-scoped
+            `git --no-lazy-fetch log -S ... -- <path>` provenance, or violating
+            entry-point Javadoc (`setSchedulerHandler`, sticky
             `startFocusAndMetering` / `enableLowLightBoostAsync`,
             `OptionPriority`).
           - *(f) Stack Atomicity*: multi-root-cause bundling or intra-stack
@@ -428,7 +434,11 @@ applicable. Prioritize clarity and conciseness.
             architectural context (for user Q&A or follow-up tracking bugs) and
             labeled `[Optional / Out-of-Scope]` (`Low / P3`) so they **never**
             block the `0 OPEN Critical/High/Medium` convergence exit gate or
-            force out-of-scope edits.
+            force out-of-scope edits. Non-causal Bucket `(c)` files/hunks
+            *inside the modified diff* (`Hunk-Necessity Gate` in
+            `camerax-guidelines-governance`, including `Self-Inflicted Cascade`
+            and avoidable DI/module churn) are in-scope `P2` (`Elegance <=
+            8/10`), never `[Optional / Out-of-Scope]` `P3`.
           - *Artifact-Backed Audit Handoff:* For detailed multi-finding audits,
             instruct verifiers to write the full structured report (complete
             code snippets and `file:line` proofs) to a scratch/temp file (e.g.,
@@ -488,13 +498,9 @@ applicable. Prioritize clarity and conciseness.
            item 7). Run a focused Round 2 on read-only tasks only under the
            Fundamental-Pivot Anti-Ping-Pong Guard; iterative multi-round
            convergence (R2–R5) is reserved for code-change repair loops.
-        1. *Autonomous Multi-Turn Execution (No Conversational Yielding Between
-           Rounds):* Never pause to ask the user for permission between
-           intermediate review-and-fix rounds. Autonomously execute the state
-           machine (`Spawn Clean-Context Verifier -> Triage & Priority-Fix ->
-           Pattern Sweep & Deterministic Gate -> Spawn Next Clean-Context
-           Verifier`) in a continuous loop until the convergence exit gate is
-           satisfied.
+        1. *Autonomous Multi-Turn Execution:* Execute rounds continuously
+           without pausing between intermediate fix passes (full loop rule in
+           `MULTI_MODEL_HARNESS.md`).
         2. *Ephemeral Convergence Defect Ledger
            (`<scratch_or_tmp>/convergence_ledger.md`):* Orchestrators track
            every finding across rounds in a scratch ledger (never committed or
@@ -571,22 +577,18 @@ applicable. Prioritize clarity and conciseness.
              parallel R1 verifiers have an **unresolved factual contradiction**
              on `file:line` / specification behavior.
            - **Post-Review Fix Sign-Off Fast-Path (1 Opposite-Vendor Cold
-             Pass):** When applying localized code fixes to a CL after a prior
-             cross-family clean-context review or Gerrit review (seeding
-             `convergence_ledger.md` from prior review threads & patchset
-             history so solved bugs never ping-pong back, with green Stage 2
-             compiler/ErrorProne/lint/repohook checks), **1 fresh clean-context
-             full-diff round on the opposite model family from the fix author**
-             (+ inline Turn 2 `Post-Blind Adjudication Turn` confirming
-             `100% VERIFIED_RESOLVED`, `0` `OPEN` `P0-P2`, `0` `REGRESSED`, AND
-             `0` unadjudicated `DISMISSED_WITH_PROOF` with each `UPHELD`)
-             satisfies convergence immediately (extending to Round 2+ only if
-             that pass finds a new `P0-P2` defect or regression).
-           - **Cold Newly-Authored Code Changes (Cross-Family R2 Gate):** For
-             newly authored production, test, or doc/skill changes, run Round 2
-             on a second model so R1 and R2 span distinct model families, and
-             stop once cross-family coverage + the Hard Convergence Exit Gate
-             hold (auto-scaling through R3–R5 while fixes continue converging).
+             Pass):** For localized post-review fixes (with seeded ledger +
+             green Stage 2, so solved bugs never ping-pong back), **1 fresh
+             clean-context full-diff pass on the opposite model family** +
+             inline Turn 2 `Post-Blind Adjudication Turn` confirming
+             `100% VERIFIED_RESOLVED`, `0` `OPEN` `P0-P2`, `0` `REGRESSED`, and
+             `0` unadjudicated `DISMISSED_WITH_PROOF` (`UPHELD`) satisfies
+             convergence (full rule in `MULTI_MODEL_HARNESS.md`).
+           - **Cold Newly-Authored Changes (Cross-Family R2 Gate):** For new
+             prod, test, or doc/skill changes, run Round 2 on a distinct model
+             family and stop once cross-family + Hard Convergence Exit Gate
+             hold (auto-scaling R3–R5 while converging; see
+             `MULTI_MODEL_HARNESS.md`).
     *   **Read-Only Verifier, Search Discipline & Watchdog Recovery:**
         Verifier sub-agents must never edit repository files, run build/Gradle
         tasks, or run unbounded `find` / recursive `grep` commands across
