@@ -63,6 +63,7 @@ import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.StreamSpecsCalculator
 import dagger.Binds
 import dagger.BindsInstance
@@ -111,7 +112,15 @@ public abstract class CameraModule {
         ): UseCaseThreads {
 
             val executor = cameraThreadConfig.cameraExecutor
-            val dispatcher = cameraThreadConfig.cameraExecutor.asCoroutineDispatcher()
+            // Route coroutine timers (e.g. delay, withTimeout) through the scheduler handler if the
+            // executor cannot schedule them, so kotlinx.coroutines never falls back to its own
+            // DefaultExecutor thread.
+            val dispatcher =
+                CameraXExecutors.asScheduledExecutor(
+                        executor,
+                        cameraThreadConfig.schedulerHandler,
+                    )
+                    .asCoroutineDispatcher()
 
             val cameraScope =
                 CoroutineScope(
@@ -120,7 +129,12 @@ public abstract class CameraModule {
                         CoroutineName("CXCP-UseCase-${cameraConfig.cameraId.value}")
                 )
 
-            return UseCaseThreads(cameraScope, executor, dispatcher)
+            return UseCaseThreads(
+                cameraScope,
+                executor,
+                dispatcher,
+                cameraThreadConfig.schedulerHandler,
+            )
         }
 
         @CameraScope

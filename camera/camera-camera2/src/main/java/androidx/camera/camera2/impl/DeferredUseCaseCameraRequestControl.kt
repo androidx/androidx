@@ -35,7 +35,6 @@ import javax.inject.Provider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 
@@ -155,7 +154,7 @@ constructor(
         }
 
         // Slow path
-        return withContext(threads.sequentialExecutor.asCoroutineDispatcher()) {
+        return withContext(threads.sequentialDispatcher) {
             getOrCreateImpl().action()
         }
     }

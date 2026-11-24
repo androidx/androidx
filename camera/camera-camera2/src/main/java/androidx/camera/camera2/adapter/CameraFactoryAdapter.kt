@@ -109,7 +109,13 @@ internal class CameraFactoryAdapter(
             PipeCameraPresenceSource(
                 idFlow = lazyCameraPipe.value.cameras().cameraIdsFlow(),
                 coroutineScope =
-                    CoroutineScope(threadConfig.cameraExecutor.asCoroutineDispatcher()),
+                    CoroutineScope(
+                        CameraXExecutors.asScheduledExecutor(
+                                threadConfig.cameraExecutor,
+                                threadConfig.schedulerHandler,
+                            )
+                            .asCoroutineDispatcher()
+                    ),
                 initialCameraIds = initialIds,
                 context = appContext,
             )
