@@ -1,11 +1,17 @@
 package androidx.wear.ongoing
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcel
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.StyleSpan
 import androidx.core.app.NotificationCompat
 import androidx.core.content.LocusIdCompat
 import androidx.test.core.app.ApplicationProvider
@@ -229,6 +235,82 @@ open class OngoingActivityTest {
         assertEquals(PendingIntentValue, received.touchIntent)
         assertEquals(Title, received.title)
         assertEquals(ContentDescription, received.contentDescription)
+    }
+
+    @Test
+    fun testSpannedTemplateIsParceledAsPlainText() {
+        val spannedTemplate = SpannableStringBuilder("Hello #part#")
+        spannedTemplate.setSpan(StyleSpan(Typeface.BOLD), 0, 5, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+        val status =
+            androidx.wear.ongoing.Status.Builder()
+                .addTemplate(spannedTemplate)
+                .addPart("part", Status.TextPart("World"))
+                .build()
+
+        val received = roundTripThroughParcel(status)
+
+        assertEquals("Hello World", received.getText(context, 0).toString())
+        assertEquals(listOf<CharSequence>("Hello #part#"), received.templates)
+        assertTrue(received.templates.all { it is String })
+    }
+
+    @Test
+    fun testMixedStringAndSpannedTemplatesAreParceled() {
+        val status =
+            androidx.wear.ongoing.Status.Builder()
+                .addTemplate("#a# and #b#")
+                .addTemplate(SpannableStringBuilder("only #a#"))
+                .addPart("a", Status.TextPart("A"))
+                .addPart("b", Status.TextPart("B"))
+                .build()
+
+        val received = roundTripThroughParcel(status)
+
+        assertEquals("A and B", received.getText(context, 0).toString())
+        assertEquals(listOf<CharSequence>("#a# and #b#", "only #a#"), received.templates)
+    }
+
+    @Test
+    fun testSpannedTemplateDoesNotModifyOriginalStatus() {
+        val spannedTemplate = SpannableStringBuilder("Hello #part#")
+        val status =
+            androidx.wear.ongoing.Status.Builder()
+                .addTemplate(spannedTemplate)
+                .addPart("part", Status.TextPart("World"))
+                .build()
+
+        roundTripThroughParcel(status)
+
+        // The template list of the original Status instance must not be altered by parceling.
+        assertEquals(1, status.templates.size)
+        assertTrue(status.templates[0] === spannedTemplate)
+    }
+
+    /**
+     * Applies the given status to an OngoingActivity, writes the resulting notification to a real
+     * [Parcel] (as the system does when posting it) and reads the Status back.
+     */
+    private fun roundTripThroughParcel(
+        status: androidx.wear.ongoing.Status
+    ): androidx.wear.ongoing.Status {
+        val builder = NotificationCompat.Builder(context, ChannelId)
+        OngoingActivity.Builder(context, NotificationId, builder)
+            .setStaticIcon(StaticIconResourceId)
+            .setTouchIntent(PendingIntentValue)
+            .setStatus(status)
+            .build()
+            .apply(context)
+        val notification = builder.build()
+
+        val parcel = Parcel.obtain()
+        try {
+            notification.writeToParcel(parcel, 0)
+            parcel.setDataPosition(0)
+            val receivedNotification = Notification.CREATOR.createFromParcel(parcel)
+            return SerializationHelper.create(receivedNotification)!!.status!!
+        } finally {
+            parcel.recycle()
+        }
     }
 
     @Test

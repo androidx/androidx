@@ -73,6 +73,19 @@ class OngoingActivityStatus extends CustomVersionedParcelable {
         for (Map.Entry<String, StatusPart> me : mParts.entrySet()) {
             ParcelUtils.putVersionedParcelable(mPartsAsBundle, me.getKey(), me.getValue());
         }
+
+        // VersionedParcel can only serialize Strings inside a List (not arbitrary
+        // CharSequences such as Spanned), so convert every template to a plain String.
+        // Styling information is intentionally dropped, see b/449189804.
+        // A new list is created rather than modifying in place, since the list may be shared
+        // with the Status object this was created from.
+        if (mTemplates != null) {
+            List<CharSequence> templates = new ArrayList<>(mTemplates.size());
+            for (CharSequence template : mTemplates) {
+                templates.add(template.toString());
+            }
+            mTemplates = templates;
+        }
     }
 
     /**
