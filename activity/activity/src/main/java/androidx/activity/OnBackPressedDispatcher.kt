@@ -125,6 +125,8 @@ public class OnBackPressedDispatcher(
     @MainThread
     public fun addCallback(onBackPressedCallback: OnBackPressedCallback) {
         val info = OnBackPressedCallbackInfo(onBackPressedCallback)
+        // Create a new handler per call. NavigationEventDispatcher enforces 1-to-1 (aosp/3624313);
+        // N-to-1 is discouraged (can mix gestures), kept for backward compatibility (b/535183256).
         val handler = onBackPressedCallback.createNavigationEventHandler(info)
         eventInput.dispatcher.addHandler(handler)
     }

@@ -36,6 +36,10 @@ import java.util.concurrent.CopyOnWriteArrayList
  * added to. It is strongly recommended to instead disable this callback to handle temporary changes
  * in state.
  *
+ * **Important:** Register each instance with at most one [OnBackPressedDispatcher] once. Although
+ * multiple registrations are allowed for backward compatibility, sharing one callback can mix
+ * predictive back gestures.
+ *
  * @param enabled The default enabled state for this callback.
  * @see OnBackPressedDispatcher
  */
