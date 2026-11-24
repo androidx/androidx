@@ -32,7 +32,7 @@ public object WebFeature {
     public const val WEB_CONTENT: String = "WEB_CONTENT"
 
     /** Feature for WebSurface. */
-    public const val WEB_SURFACE: String = Features.WEB_SURFACE
+    public const val WEB_SURFACE: String = "WEB_SURFACE"
 
     private val supportedFeatures: Set<String> by lazy {
         try {
@@ -60,6 +60,7 @@ public object WebFeature {
         val internalFeature =
             when (feature) {
                 WEB_CONTENT -> Features.WEB_CONTENT_V2
+                WEB_SURFACE -> Features.WEB_SURFACE
                 else -> feature
             }
         return Features.containsFeature(supportedFeatures, internalFeature)
