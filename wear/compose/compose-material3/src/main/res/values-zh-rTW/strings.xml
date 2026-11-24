@@ -50,7 +50,7 @@
       <item quantity="one">%d 秒</item>
     </plurals>
     <string name="wear_m3c_duration_picker_heading" msgid="6793820977433803332">"捲動即可設定時間長度"</string>
-    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"時間長度必須介於 %1$s 至 %2$s 之間。"</string>
+    <string name="wear_m3c_duration_picker_disabled_range_description" msgid="2362628454721917282">"時間長度必須介於 %1$s至 %2$s之間。"</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"日"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"月"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"年"</string>
