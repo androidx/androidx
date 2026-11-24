@@ -113,6 +113,26 @@ class DynamicRangeDeviceTest(
                 DataSpace.TRANSFER_SRGB,
             )
 
+        // MediaMetadataRetriever reports the ColorUtils::ColorTransfer values defined in
+        // frameworks/av/media/libstagefright/foundation/include/media/stagefright/foundation/
+        // ColorUtils.h. kColorTransferSRGB (2) has no public MediaFormat constant.
+        private const val VIDEO_COLOR_TRANSFER_SRGB = 2
+
+        private val POSSIBLE_VIDEO_COLOR_STANDARDS_SDR: Set<Int> =
+            setOf(
+                MediaFormat.COLOR_STANDARD_BT709,
+                MediaFormat.COLOR_STANDARD_BT601_PAL,
+                MediaFormat.COLOR_STANDARD_BT601_NTSC,
+            )
+
+        // When recording SDR video without OpenGL surface processing, CameraX leaves the encoder
+        // color aspects unspecified so the camera HAL buffer data space is propagated into the
+        // bitstream and container metadata. Some devices output SDR camera buffers with sRGB
+        // transfer (DataSpace.TRANSFER_SRGB), matching POSSIBLE_COLOR_TRANSFERS_SDR above, while
+        // HDR transfers (HLG, PQ) and LINEAR are still rejected.
+        private val POSSIBLE_VIDEO_COLOR_TRANSFERS_SDR: Set<Int> =
+            setOf(MediaFormat.COLOR_TRANSFER_SDR_VIDEO, VIDEO_COLOR_TRANSFER_SRGB)
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() =
@@ -206,13 +226,8 @@ class DynamicRangeDeviceTest(
     fun recordVideoWithDefault_sdrDynamicRangeAppliedToRecordedFile() {
         recordVideoAndVerifyDynamicRangeAppliedToRecordedFile(
             dynamicRange = null, // Should default to SDR
-            possibleColorStandards =
-                setOf(
-                    MediaFormat.COLOR_STANDARD_BT709,
-                    MediaFormat.COLOR_STANDARD_BT601_PAL,
-                    MediaFormat.COLOR_STANDARD_BT601_NTSC,
-                ),
-            possibleColorTransfers = setOf(MediaFormat.COLOR_TRANSFER_SDR_VIDEO),
+            possibleColorStandards = POSSIBLE_VIDEO_COLOR_STANDARDS_SDR,
+            possibleColorTransfers = POSSIBLE_VIDEO_COLOR_TRANSFERS_SDR,
         )
     }
 
