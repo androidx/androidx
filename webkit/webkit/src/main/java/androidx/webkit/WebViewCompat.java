@@ -73,6 +73,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
@@ -2092,6 +2093,42 @@ public class WebViewCompat {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.GOOGLE_ACCOUNTS_CALLBACK;
         if (feature.isSupportedByWebView()) {
             getProvider(webView).clearGoogleAccountsCallback();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Registers a {@link HeaderInterceptor} for requests originating from the given
+     * {@link WebView} that match the provided {@link RequestMatcher}.
+     *
+     * <p>See {@link HeaderInterceptor} for detailed semantics and why
+     * {@link Profile#addHeaderInterceptor(RequestMatcher, HeaderInterceptor)} or
+     * {@link Profile#addCustomHeader(CustomHeader)} should generally be preferred.
+     *
+     * @param webView     The {@link WebView} instance to register the interceptor on.
+     * @param matcher     The {@link RequestMatcher} defining which requests should be intercepted.
+     * @param interceptor The {@link HeaderInterceptor} to invoke for matching requests.
+     * @return A {@link HeaderInterceptorHandle} that can be used to unregister this interceptor.
+     * @throws IllegalArgumentException      if one or more URL patterns in {@code matcher} cannot
+     *                                       be parsed.
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#HEADER_INTERCEPTOR}
+     *                                       feature is not supported. This should be checked before
+     *                                       use with {@link WebViewFeature#isFeatureSupported}.
+     * @see HeaderInterceptor
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.HEADER_INTERCEPTOR,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    public static @NonNull HeaderInterceptorHandle addHeaderInterceptor(
+            @NonNull WebView webView,
+            @NonNull RequestMatcher matcher,
+            @NonNull HeaderInterceptor interceptor) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.HEADER_INTERCEPTOR;
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webView).addHeaderInterceptor(matcher, interceptor);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

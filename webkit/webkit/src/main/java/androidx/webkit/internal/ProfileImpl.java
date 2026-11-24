@@ -25,11 +25,15 @@ import android.webkit.ServiceWorkerController;
 import android.webkit.WebStorage;
 
 import androidx.annotation.OptIn;
+import androidx.annotation.UiThread;
 import androidx.webkit.CustomHeader;
+import androidx.webkit.HeaderInterceptor;
+import androidx.webkit.HeaderInterceptorHandle;
 import androidx.webkit.HttpCache;
 import androidx.webkit.PrefetchCache;
 import androidx.webkit.PrefetchException;
 import androidx.webkit.Profile;
+import androidx.webkit.RequestMatcher;
 import androidx.webkit.SpeculativeLoadingConfig;
 import androidx.webkit.SpeculativeLoadingParameters;
 import androidx.webkit.WebViewOutcomeReceiver;
@@ -441,6 +445,20 @@ public class ProfileImpl implements Profile {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.PROFILE_SELECTED_SITE_ISOLATION_V1;
         if (feature.isSupportedByWebView()) {
             return mProfileImpl.canConfigureIsolatedSites();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    @UiThread
+    public @NonNull HeaderInterceptorHandle addHeaderInterceptor(
+            @NonNull RequestMatcher matcher, @NonNull HeaderInterceptor interceptor) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.HEADER_INTERCEPTOR;
+        if (feature.isSupportedByWebView()) {
+            Runnable unregisterRunnable = mProfileImpl.addHeaderInterceptor(
+                    matcher::serializeToBoundaryLayer, new HeaderInterceptorAdapter(interceptor));
+            return new HeaderInterceptorHandle(unregisterRunnable);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

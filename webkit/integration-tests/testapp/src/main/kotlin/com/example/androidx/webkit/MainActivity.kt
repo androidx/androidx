@@ -143,6 +143,10 @@ class MainActivity : AppCompatActivity() {
                         getResources().getString(R.string.selected_site_isolation_activity_title),
                         Intent(this, SelectedSiteIsolationActivity::class.java),
                     ),
+                    MenuListView.MenuItem(
+                        getResources().getString(R.string.header_interceptor_activity_title),
+                        Intent(this, HeaderInterceptorActivity::class.java),
+                    ),
                 )
             )
     }

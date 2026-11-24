@@ -204,4 +204,21 @@
     <string name="selected_site_isolation_webview">Renderer %1$s on %2$s</string>
     <string name="selected_site_isolation_renderer_unknown">unknown</string>
     <string name="selected_site_isolation_back">&lt;</string>
+
+    <!-- Header Interceptor -->
+    <string name="header_interceptor_activity_title">Header Interceptor Demo</string>
+    <string name="header_interceptor_scope_profile">Profile scope</string>
+    <string name="header_interceptor_scope_webview">WebView scope</string>
+    <string name="header_interceptor_url_pattern_hint">URL pattern (empty = match any URL)</string>
+    <string name="header_interceptor_name_hint">Header name</string>
+    <string name="header_interceptor_value_hint">Value (#count = counter; empty = remove)</string>
+    <string name="header_interceptor_default_name">X-Dynamic-Header</string>
+    <string name="header_interceptor_default_value">req-#count</string>
+    <string name="header_interceptor_add_button">Add Interceptor</string>
+    <string name="header_interceptor_unregister_all_button">Unregister All</string>
+    <string name="header_interceptor_active_count">Active interceptors: %1$d</string>
+    <string name="header_interceptor_target_url_hint">URL to load</string>
+    <string name="header_interceptor_load_button">Load</string>
+    <string name="header_interceptor_missing_name_warning">Please enter a header name</string>
+    <string name="header_interceptor_missing_url_warning">Please enter a URL to load</string>
 </resources>

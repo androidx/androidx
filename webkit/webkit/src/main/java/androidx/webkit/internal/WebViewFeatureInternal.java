@@ -34,6 +34,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.webkit.BackForwardCacheSettings;
 import androidx.webkit.GoogleAccountsEvent;
+import androidx.webkit.HeaderInterceptor;
 import androidx.webkit.JavaScriptExecutionWorld;
 import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
@@ -49,6 +50,7 @@ import androidx.webkit.Profile;
 import androidx.webkit.ProfileStore;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
+import androidx.webkit.RequestMatcher;
 import androidx.webkit.SafeBrowsingResponseCompat;
 import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.ServiceWorkerWebSettingsCompat;
@@ -1214,6 +1216,16 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFrameworkInternal WEBGPU =
             new ApiFeature.NoFrameworkInternal(Features.WEBGPU);
 
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#addHeaderInterceptor(RequestMatcher, HeaderInterceptor)} and
+     * {@link WebViewCompat#addHeaderInterceptor(WebView, RequestMatcher, HeaderInterceptor)}.
+     */
+    public static final ApiFeature.NoFramework HEADER_INTERCEPTOR =
+            new ApiFeature.NoFramework(
+                    WebViewFeature.HEADER_INTERCEPTOR,
+                    Features.HEADER_INTERCEPTOR);
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
