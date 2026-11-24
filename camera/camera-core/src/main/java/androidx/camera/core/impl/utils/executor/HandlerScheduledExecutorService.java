@@ -113,7 +113,12 @@ final class HandlerScheduledExecutorService extends AbstractExecutorService impl
             @NonNull Callable<V> callable,
             long delay,
             @NonNull TimeUnit unit) {
-        long runAtMillis = SystemClock.uptimeMillis() + TimeUnit.MILLISECONDS.convert(delay, unit);
+        long delayMillis = Math.max(0L, unit.toMillis(delay));
+        long runAtMillis = SystemClock.uptimeMillis() + delayMillis;
+        if (runAtMillis < 0) {
+            // Clamp on overflow so that a huge delay is not posted to run immediately.
+            runAtMillis = Long.MAX_VALUE;
+        }
         HandlerScheduledFuture<V> future = new HandlerScheduledFuture<>(mHandler, runAtMillis,
                 callable);
         if (mHandler.postAtTime(future, runAtMillis)) {
@@ -142,6 +147,12 @@ final class HandlerScheduledExecutorService extends AbstractExecutorService impl
                         + " does not yet support fixed-delay scheduling.");
     }
 
+    /**
+     * Unsupported. This service wraps a borrowed {@link Handler} whose {@link Looper} may be
+     * shared, e.g. the process-wide main thread executor, so it intentionally never owns or quits
+     * the underlying {@link Looper}. The owner of the {@link Looper} should call {@link
+     * Looper#quitSafely()} instead.
+     */
     @Override
     public void shutdown() {
         throw new UnsupportedOperationException(
@@ -149,6 +160,11 @@ final class HandlerScheduledExecutorService extends AbstractExecutorService impl
                         + " cannot be shut down. Use Looper.quitSafely().");
     }
 
+    /**
+     * Unsupported. This service does not own the underlying {@link Looper}.
+     *
+     * @see #shutdown()
+     */
     @Override
     public @NonNull List<Runnable> shutdownNow() {
         throw new UnsupportedOperationException(
@@ -227,12 +243,18 @@ final class HandlerScheduledExecutorService extends AbstractExecutorService impl
 
         @Override
         public long getDelay(TimeUnit unit) {
-            return unit.convert(mRunAtMillis - System.currentTimeMillis(),
+            return unit.convert(mRunAtMillis - SystemClock.uptimeMillis(),
                     TimeUnit.MILLISECONDS);
         }
 
         @Override
         public int compareTo(Delayed o) {
+            if (o == this) {
+                return 0;
+            }
+            if (o instanceof HandlerScheduledFuture<?>) {
+                return Long.compare(mRunAtMillis, ((HandlerScheduledFuture<?>) o).mRunAtMillis);
+            }
             return Long.compare(getDelay(TimeUnit.MILLISECONDS), o.getDelay(TimeUnit.MILLISECONDS));
         }
 
