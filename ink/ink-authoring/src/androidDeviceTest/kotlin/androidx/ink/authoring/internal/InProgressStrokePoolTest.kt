@@ -19,6 +19,7 @@ package androidx.ink.authoring.internal
 import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,12 +89,31 @@ class InProgressStrokePoolTest {
             val recyclingData =
                 assertNotNull(inProgressStrokePool.recyclingDataForShapeType(shapeType))
             assertThat(recyclingData.currentlyObtainedShapeCount).isEqualTo(cohortSize)
+            assertThat(inProgressStrokePool.loanedShapeCount).isEqualTo(cohortSize)
 
             // Recycle all the instances, which at the end can potentially trim down the pool size.
             for (cohortInstance in cohortInstances) {
                 inProgressStrokePool.recycle(cohortInstance)
             }
+            assertThat(inProgressStrokePool.loanedShapeCount).isEqualTo(0)
             assertThat(recyclingData.poolSize).isEqualTo(maxOfLast10CohortSizes[handoffIndex])
         }
+    }
+
+    @Test
+    fun recycle_whenCalledTwiceWithSameInstance_throws() {
+        val pool = InProgressStrokePoolImpl(FakeShapeWorkflow())
+
+        val instance = pool.obtain(FakeShapeSpec())
+        pool.recycle(instance)
+
+        assertFailsWith<IllegalStateException> { pool.recycle(instance) }
+    }
+
+    @Test
+    fun recycle_whenCalledWithUnobtainedInstance_throws() {
+        val pool = InProgressStrokePoolImpl(FakeShapeWorkflow())
+
+        assertFailsWith<IllegalStateException> { pool.recycle(FakeInProgressShape()) }
     }
 }

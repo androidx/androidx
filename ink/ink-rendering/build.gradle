@@ -18,6 +18,7 @@ import androidx.build.IosMetalHelper
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.apache.commons.io.FileUtils
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -107,4 +108,9 @@ tasks.configureEach { task ->
         // Disabled for AbstractStrokeRendererTest
         task.failOnNoDiscoveredTests = false
     }
+}
+
+// TODO(b/484004578) - Remove this workaround after KGP 2.5.0.
+tasks.withType(KotlinCompile).configureEach {
+    incremental = false
 }

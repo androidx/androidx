@@ -47,6 +47,10 @@ internal class InProgressStrokePoolImpl<
     @VisibleForTesting
     internal fun recyclingDataForShapeType(shapeType: Int) = shapeTypeToRecyclingData[shapeType]
 
+    @VisibleForTesting
+    internal val loanedShapeCount: Int
+        get() = loanedShapesToShapeType.size
+
     override fun obtain(shapeSpec: ShapeSpecT): InProgressShapeT {
         val shapeType = shapeWorkflow.getShapeType(shapeSpec)
         val recyclingData =
@@ -65,6 +69,7 @@ internal class InProgressStrokePoolImpl<
             checkNotNull(shapeTypeToRecyclingData[shapeType]) {
                 "Trying to recycle shape with unrecognized shape type: $shapeType"
             }
+        loanedShapesToShapeType.remove(inProgressShape)
         inProgressShape.prepareToRecycle()
         recyclingData.recycle(inProgressShape)
     }

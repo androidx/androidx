@@ -16,6 +16,7 @@
 
 package androidx.ink.rendering.metal
 
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
 import androidx.ink.brush.TextureImageStore
 import androidx.ink.geometry.AffineTransform
@@ -56,7 +57,11 @@ import platform.UIKit.UIImage
 import platform.UIKit.UIImagePNGRepresentation
 import platform.posix.memcpy
 
-@OptIn(ExperimentalInkCrossPlatformRenderingApi::class, ExperimentalForeignApi::class)
+@OptIn(
+    ExperimentalInkAnimationApi::class,
+    ExperimentalInkCrossPlatformRenderingApi::class,
+    ExperimentalForeignApi::class,
+)
 class MetalRendererTest : AbstractStrokeRendererTest() {
 
     override fun loadCursiveHelloInputs(): ImmutableStrokeInputBatch {
@@ -103,12 +108,16 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
     private val poopEmojiUIImage: UIImage by lazy {
         UIImage(contentsOfFile = findPathForResource("poop_emoji", "png"))
     }
+    private val numbers32x3260framesUIImage: UIImage by lazy {
+        UIImage(contentsOfFile = findPathForResource("numbers_32x32_60frames", "png"))
+    }
     private val defaultTextureStore = TextureImageStore { id ->
         when (id) {
             TEXTURE_ID_CHECKERBOARD -> checkerboardUIImage
             TEXTURE_ID_CIRCLE -> circleUIImage
             TEXTURE_ID_AIRPLANE_EMOJI -> airplaneEmojiUIImage
             TEXTURE_ID_POOP_EMOJI -> poopEmojiUIImage
+            TEXTURE_ID_NUMBERS_32X32_60FRAMES -> numbers32x3260framesUIImage
             else -> null
         }
     }
@@ -287,6 +296,7 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         imageWidth: Int,
         imageHeight: Int,
         goldenName: String,
+        animatorClockStateMillis: Long,
     ) {
         val image =
             renderToImage(width = imageWidth, height = imageHeight) { renderer, renderEncoder ->
@@ -296,6 +306,7 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
                     imageWidth.toDouble(),
                     imageHeight.toDouble(),
                     transform,
+                    animatorClockStateMillis = animatorClockStateMillis,
                 )
             }
         assertImage(image, goldenName)
@@ -307,6 +318,7 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
         imageWidth: Int,
         imageHeight: Int,
         goldenName: String,
+        animatorClockStateMillis: Long,
     ) {
         val image =
             renderToImage(width = imageWidth, height = imageHeight) { renderer, renderEncoder ->
@@ -316,6 +328,7 @@ class MetalRendererTest : AbstractStrokeRendererTest() {
                     imageWidth.toDouble(),
                     imageHeight.toDouble(),
                     transform,
+                    animatorClockStateMillis = animatorClockStateMillis,
                 )
             }
         assertImage(image, goldenName)

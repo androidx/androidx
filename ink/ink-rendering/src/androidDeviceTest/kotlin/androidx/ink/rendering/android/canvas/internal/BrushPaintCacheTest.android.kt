@@ -19,6 +19,7 @@ package androidx.ink.rendering.android.canvas.internal
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
 import android.graphics.BitmapShader
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ComposeShader
 import android.graphics.Matrix
@@ -331,6 +332,88 @@ class BrushPaintCacheTest {
         assertEquals(paint.color, Color.RED)
         assertIs<ComposeShader>(paint.shader)
         // Can't really assert in more detail because ComposeShader's fields are not readable.
+    }
+
+    @Test
+    fun obtain_multipleTextureLayers_appliesAndUpdatesChildLocalMatrices() {
+        val backgroundId = "background-texture"
+        val foregroundId = "foreground-texture"
+        val cache =
+            BrushPaintCache(
+                TextureBitmapStore { id ->
+                    when (id) {
+                        // Solid blue 1x1 background layer.
+                        backgroundId ->
+                            createBitmap(1, 1, Bitmap.Config.ARGB_8888).apply {
+                                setPixel(0, 0, Color.BLUE)
+                            }
+                        // 4x1 foreground layer: left 2 texels opaque red, right 2 texels
+                        // transparent.
+                        foregroundId ->
+                            createBitmap(4, 1, Bitmap.Config.ARGB_8888).apply {
+                                setPixel(0, 0, Color.RED)
+                                setPixel(1, 0, Color.RED)
+                                setPixel(2, 0, Color.TRANSPARENT)
+                                setPixel(3, 0, Color.TRANSPARENT)
+                            }
+                        else -> null
+                    }
+                }
+            )
+        val brushPaint =
+            BrushPaint(
+                listOf(
+                    TilingTexture(
+                        foregroundId,
+                        sizeX = 40f,
+                        sizeY = 10f,
+                        sizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                        blendMode = TextureLayer.BlendMode.SRC_OVER,
+                    ),
+                    TilingTexture(
+                        backgroundId,
+                        sizeX = 40f,
+                        sizeY = 10f,
+                        sizeUnit = TextureLayer.SizeUnit.BRUSH_SIZE,
+                    ),
+                )
+            )
+
+        // At brushSize = 1f, the 4-texel foreground repeats every 40px: [0, 20) is red over blue,
+        // and [20, 40) is transparent over blue (whereas unscaled texels would repeat every 4px and
+        // make x = 10 blue instead of red).
+        val paint =
+            cache.obtain(
+                brushPaint,
+                ComposeColor.White,
+                brushSize = 1f,
+                StrokeInput(),
+                StrokeInput(),
+            )
+        val output = createBitmap(80, 10, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(output)
+        canvas.drawRect(0f, 0f, 80f, 10f, paint)
+        assertEquals(Color.RED, output.getPixel(10, 5))
+        assertEquals(Color.BLUE, output.getPixel(30, 5))
+
+        // Updating brushSize to 2f scales the 4-texel foreground to 80px: [0, 40) is now red and
+        // [40, 80) is blue, so x = 30 flips from blue to red.
+        val updatedPaint =
+            cache.obtain(
+                brushPaint,
+                ComposeColor.White,
+                brushSize = 2f,
+                StrokeInput(),
+                StrokeInput(),
+            )
+        assertSame(paint, updatedPaint)
+        output.eraseColor(Color.TRANSPARENT)
+        canvas.drawRect(0f, 0f, 80f, 10f, updatedPaint)
+        // At brushSize = 2f, x = 25 (pixel center 25.5) maps to texel 1.275, safely inside [0.5,
+        // 1.5]
+        // so bilinear filtering still yields exact Color.RED.
+        assertEquals(Color.RED, output.getPixel(25, 5))
+        assertEquals(Color.BLUE, output.getPixel(60, 5))
     }
 
     @Test

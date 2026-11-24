@@ -23,17 +23,21 @@ import android.os.Build
 import androidx.annotation.ColorInt
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
+import org.junit.rules.ErrorCollector
 
 /** Common logic for image-diff tests against golden. */
 internal object ImageDiffer {
     fun diffBitmapWithGolden(
         screenshotRule: AndroidXScreenshotTestRule,
+        errorCollector: ErrorCollector,
         className: String?,
         bitmap: Bitmap,
         name: String,
     ) {
         checkNotNull(className)
-        bitmap.assertAgainstGolden(screenshotRule, "${className}_$name")
+        errorCollector.checkSucceeds {
+            bitmap.assertAgainstGolden(screenshotRule, "${className}_$name")
+        }
     }
 
     /*
