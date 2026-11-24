@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.layout.RootLayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
+import androidx.compose.remote.core.types.IntegerConstant
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.profile.Profile
@@ -72,7 +73,7 @@ class PropertyBundleModifierTest {
                         /* bundleId = */ 5,
                         /* parentBundleId = */ 9,
                         /* propertyIds = */ intArrayOf(15, 20),
-                        /* values = */ intArrayOf(1, 0),
+                        /* values = */ intArrayOf(1, -7),
                     )
             )
             writer.endBox()
@@ -82,6 +83,7 @@ class PropertyBundleModifierTest {
         val root = doc.operations.filterIsInstance<RootLayoutComponent>().single()
         val box = root.list.filterIsInstance<BoxLayout>().single()
 
+        val constantsById = box.list.filterIsInstance<IntegerConstant>().associateBy { it.id }
         val op =
             box.componentModifiers.modifiersList
                 .filterIsInstance<PropertyBundleModifierOperation>()
@@ -92,17 +94,58 @@ class PropertyBundleModifierTest {
         assertThat(op.hasProperty(15)).isTrue()
         assertThat(op.hasProperty(20)).isTrue()
         assertThat(op.hasProperty(99)).isFalse()
-        assertThat(op.getValue(15)).isEqualTo(1)
-        assertThat(op.getValue(20)).isEqualTo(0)
         assertThat(op.getValue(99)).isNull()
+
+        val id15 = op.getValue(15)!!
+        val id20 = op.getValue(20)!!
+        assertThat(constantsById[id15].toString()).isEqualTo("IntegerConstant[$id15] = 1")
+        assertThat(constantsById[id20].toString()).isEqualTo("IntegerConstant[$id20] = -7")
 
         val bundle = box.propertyBundle
         assertThat(bundle).isSameInstanceAs(op)
         assertThat(bundle!!.bundleId).isEqualTo(5)
         assertThat(bundle.parentBundleId).isEqualTo(9)
-        assertThat(bundle.getValue(15)).isEqualTo(1)
-        assertThat(bundle.getValue(20)).isEqualTo(0)
+        assertThat(bundle.getValue(15)).isEqualTo(id15)
+        assertThat(bundle.getValue(20)).isEqualTo(id20)
         assertThat(bundle.getValue(99, -1)).isEqualTo(-1)
+    }
+
+    @Test
+    fun propertyBundleModifier_longValues_reusesVariableIdsAndMaterializesLiterals() {
+        val writer = createExperimentalWriter()
+        val sharedVar = writer.addInteger(77)
+        val rawSharedId = (sharedVar - 0x100000000L).toInt()
+
+        writer.root {
+            writer.startBox(
+                RecordingModifier()
+                    .propertyBundle(
+                        /* bundleId = */ 8,
+                        /* parentBundleId = */ 4,
+                        /* propertyIds = */ intArrayOf(10, 20),
+                        /* values = */ longArrayOf(sharedVar, -15L),
+                    )
+            )
+            writer.endBox()
+        }
+
+        val doc = parseDocument(writer)
+        val root = doc.operations.filterIsInstance<RootLayoutComponent>().single()
+        val box = root.list.filterIsInstance<BoxLayout>().single()
+
+        val op = box.propertyBundle!!
+        assertThat(op.bundleId).isEqualTo(8)
+        assertThat(op.parentBundleId).isEqualTo(4)
+        // Tagged variable ID is stored directly without emitting an extra IntegerConstant inside
+        // box
+        assertThat(op.getValue(10)).isEqualTo(rawSharedId)
+
+        // Untagged literal is materialized as an IntegerConstant inside box
+        val boxConstants = box.list.filterIsInstance<IntegerConstant>()
+        assertThat(boxConstants).hasSize(1)
+        val constOp = boxConstants.single()
+        assertThat(op.getValue(20)).isEqualTo(constOp.id)
+        assertThat(constOp.toString()).isEqualTo("IntegerConstant[${constOp.id}] = -15")
     }
 
     @Test
@@ -131,7 +174,9 @@ class PropertyBundleModifierTest {
             .inOrder()
         assertThat(box.propertyBundle!!.bundleId).isEqualTo(3)
         assertThat(box.propertyBundle!!.parentBundleId).isEqualTo(1)
-        assertThat(box.propertyBundle!!.getValue(42)).isEqualTo(99)
+        val constOp = box.list.filterIsInstance<IntegerConstant>().single()
+        assertThat(box.propertyBundle!!.getValue(42)).isEqualTo(constOp.id)
+        assertThat(constOp.toString()).isEqualTo("IntegerConstant[${constOp.id}] = 99")
     }
 
     @Test

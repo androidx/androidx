@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Modifier element that writes a {@code PropertyBundleModifierOperation}. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -28,15 +29,16 @@ public class PropertyBundleModifier implements RecordingModifier.Element {
     private final int mBundleId;
     private final int mParentBundleId;
     private final int @NonNull [] mPropertyIds;
-    private final int @NonNull [] mValues;
+    private final int @Nullable [] mValues;
+    private final long @Nullable [] mLongValues;
 
     /**
-     * Creates a {@link PropertyBundleModifier}.
+     * Creates a {@link PropertyBundleModifier} with literal integer values.
      *
      * @param bundleId the bundle identifier
      * @param parentBundleId the parent bundle identifier
      * @param propertyIds parallel array of property identifiers
-     * @param values parallel array of property values
+     * @param values parallel array of literal property values
      */
     public PropertyBundleModifier(
             int bundleId,
@@ -47,6 +49,28 @@ public class PropertyBundleModifier implements RecordingModifier.Element {
         mParentBundleId = parentBundleId;
         mPropertyIds = propertyIds;
         mValues = values;
+        mLongValues = null;
+    }
+
+    /**
+     * Creates a {@link PropertyBundleModifier} with literal integers or {@code
+     * 0x100000000L}-tagged variable identifiers.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of literal integers or {@code 0x100000000L}-tagged variable IDs
+     */
+    public PropertyBundleModifier(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            long @NonNull [] values) {
+        mBundleId = bundleId;
+        mParentBundleId = parentBundleId;
+        mPropertyIds = propertyIds;
+        mValues = null;
+        mLongValues = values;
     }
 
     /** Returns the bundle identifier. */
@@ -61,7 +85,12 @@ public class PropertyBundleModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.addPropertyBundleModifierOperation(
-                mBundleId, mParentBundleId, mPropertyIds, mValues);
+        if (mLongValues != null) {
+            writer.addPropertyBundleModifier(
+                    mBundleId, mParentBundleId, mPropertyIds, mLongValues);
+        } else if (mValues != null) {
+            writer.addPropertyBundleModifier(
+                    mBundleId, mParentBundleId, mPropertyIds, mValues);
+        }
     }
 }

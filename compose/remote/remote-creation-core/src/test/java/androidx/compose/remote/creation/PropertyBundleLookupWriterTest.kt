@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation
 
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
@@ -26,11 +27,13 @@ import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.ShaderData
+import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
+import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -77,8 +80,9 @@ class PropertyBundleLookupWriterTest {
         assertThat(lookups[0].componentId).isEqualTo(box.componentId)
         assertThat(lookups[1].componentId).isEqualTo(box.componentId)
 
-        val context = MinimalTestRemoteContext()
+        val context = MinimalTestRemoteContext(displayInfo)
         doc.initializeContext(context)
+        doc.paint(context, Theme.UNSPECIFIED)
 
         assertThat(context.getInteger((presentId - 0x100000000L).toInt())).isEqualTo(30)
         assertThat(context.getInteger((missingId - 0x100000000L).toInt())).isEqualTo(-5)
@@ -139,8 +143,9 @@ class PropertyBundleLookupWriterTest {
         assertThat(lookups[0].componentId).isEqualTo(parentComponentId)
         assertThat(lookups[1].componentId).isEqualTo(parentComponentId)
 
-        val context = MinimalTestRemoteContext()
+        val context = MinimalTestRemoteContext(displayInfo)
         doc.initializeContext(context)
+        doc.paint(context, Theme.UNSPECIFIED)
 
         assertThat(context.getInteger((parentLookupId - 0x100000000L).toInt())).isEqualTo(555)
         assertThat(context.getInteger(explicitValueId)).isEqualTo(-42)
@@ -200,15 +205,111 @@ class PropertyBundleLookupWriterTest {
         val column = root.list.filterIsInstance<ColumnLayout>().single()
         val childBox = column.list.filterIsInstance<BoxLayout>().single()
 
-        val context = MinimalTestRemoteContext()
+        val context = MinimalTestRemoteContext(displayInfo)
         doc.initializeContext(context)
-        context.updateOps()
+        doc.paint(context, Theme.UNSPECIFIED)
 
         assertThat(context.getInteger(selfVar)).isEqualTo(180)
         assertThat(context.getFloat(selfVar)).isEqualTo(180f)
         assertThat(context.getInteger(visibilityVar)).isEqualTo(Component.Visibility.GONE)
         assertThat(childBox.getMeasureVisibility(context)).isEqualTo(Component.Visibility.GONE)
         assertThat(context.getInteger((postChildLookupId - 0x100000000L).toInt())).isEqualTo(320)
+    }
+
+    @Test
+    fun propertyBundle_dynamicExpressions_updatesLookupWhenNamedVariableChanges() {
+        val writer = createExperimentalWriter()
+        val tickVar = writer.addNamedInt("USER:tick", 2)
+        val scaledExpr = writer.integerExpression(tickVar, 10L, Rc.IntegerExpression.L_MUL)
+        val parentId = 77
+        var lookupId = 0L
+        var literalLookupId = 0L
+
+        writer.root {
+            writer.startColumn(
+                RecordingModifier()
+                    .componentId(parentId)
+                    .propertyBundle(
+                        /* bundleId = */ 1,
+                        /* parentBundleId = */ 0,
+                        /* propertyIds = */ intArrayOf(1, 2),
+                        /* values = */ longArrayOf(scaledExpr, 99L),
+                    ),
+                ColumnLayout.START,
+                ColumnLayout.TOP,
+            )
+            lookupId =
+                writer.addPropertyBundleLookup(
+                    /* componentId = */ parentId,
+                    /* propertyId = */ 1,
+                    /* defaultValue = */ -1,
+                )
+            literalLookupId =
+                writer.addPropertyBundleLookup(
+                    /* componentId = */ parentId,
+                    /* propertyId = */ 2,
+                    /* defaultValue = */ -1,
+                )
+            writer.endColumn()
+        }
+
+        val doc = parseDocument(writer)
+        val context = MinimalTestRemoteContext(displayInfo)
+        doc.initializeContext(context)
+        doc.paint(context, Theme.UNSPECIFIED)
+
+        val rawLookupId = (lookupId - 0x100000000L).toInt()
+        val rawLiteralLookupId = (literalLookupId - 0x100000000L).toInt()
+        assertThat(context.getInteger(rawLookupId)).isEqualTo(20)
+        assertThat(context.getInteger(rawLiteralLookupId)).isEqualTo(99)
+
+        // Update named variable and repaint to re-evaluate dirty VariableSupport ops
+        context.setNamedIntegerOverride("USER:tick", 7)
+        doc.paint(context, Theme.UNSPECIFIED)
+
+        assertThat(context.getInteger(rawLookupId)).isEqualTo(70)
+        assertThat(context.getInteger(rawLiteralLookupId)).isEqualTo(99)
+    }
+
+    @Test
+    fun addPropertyBundleLookup_forwardSiblingTarget_resolvesDuringPaint() {
+        val writer = createExperimentalWriter()
+        val laterSiblingId = 88
+        var forwardLookupId = 0L
+
+        writer.root {
+            writer.startColumn(RecordingModifier(), ColumnLayout.START, ColumnLayout.TOP)
+            // First sibling looks up a property from a sibling emitted later in the column
+            writer.startBox(RecordingModifier())
+            forwardLookupId =
+                writer.addPropertyBundleLookup(
+                    /* componentId = */ laterSiblingId,
+                    /* propertyId = */ 5,
+                    /* defaultValue = */ -1,
+                )
+            writer.endBox()
+
+            // Second sibling defines the PropertyBundle (emitting its IntegerConstant here)
+            writer.startBox(
+                RecordingModifier()
+                    .componentId(laterSiblingId)
+                    .propertyBundle(
+                        /* bundleId = */ 2,
+                        /* parentBundleId = */ 0,
+                        /* propertyIds = */ intArrayOf(5),
+                        /* values = */ intArrayOf(246),
+                    )
+            )
+            writer.endBox()
+            writer.endColumn()
+        }
+
+        val doc = parseDocument(writer)
+        val context = MinimalTestRemoteContext(displayInfo)
+        doc.initializeContext(context)
+        doc.paint(context, Theme.UNSPECIFIED)
+
+        assertThat(context.getInteger((forwardLookupId - 0x100000000L).toInt())).isEqualTo(246)
     }
 
     private fun createExperimentalWriter(): RemoteComposeWriter {
@@ -240,12 +341,22 @@ class PropertyBundleLookupWriterTest {
         return CoreDocument().apply { initFromBuffer(readBuffer) }
     }
 
-    private class MinimalTestRemoteContext : RemoteContext() {
+    private class MinimalTestRemoteContext(displayInfo: CreationDisplayInfo) : RemoteContext() {
+        private val namedIds = mutableMapOf<String, Int>()
+
+        init {
+            mWidth = displayInfo.width.toFloat()
+            mHeight = displayInfo.height.toFloat()
+            mPaintContext = MinimalTestPaintContext(this)
+        }
+
         override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {}
 
         override fun getPathData(instanceId: Int): FloatArray? = null
 
-        override fun loadVariableName(varName: String, varId: Int, varType: Int) {}
+        override fun loadVariableName(varName: String, varId: Int, varType: Int) {
+            namedIds[varName] = varId
+        }
 
         override fun loadColor(id: Int, color: Int) {
             mRemoteComposeState.updateColor(id, color)
@@ -261,7 +372,9 @@ class PropertyBundleLookupWriterTest {
 
         override fun clearNamedBooleanOverride(booleanName: String) {}
 
-        override fun setNamedIntegerOverride(integerName: String, value: Int) {}
+        override fun setNamedIntegerOverride(integerName: String, value: Int) {
+            namedIds[integerName]?.let { overrideInteger(it, value) }
+        }
 
         override fun clearNamedIntegerOverride(integerName: String) {}
 
@@ -364,5 +477,165 @@ class PropertyBundleLookupWriterTest {
             bottom: Float,
             metadataId: Int,
         ) {}
+    }
+
+    private class MinimalTestPaintContext(context: RemoteContext) : PaintContext(context) {
+        override fun drawBitmap(
+            imageId: Int,
+            srcLeft: Int,
+            srcTop: Int,
+            srcRight: Int,
+            srcBottom: Int,
+            dstLeft: Int,
+            dstTop: Int,
+            dstRight: Int,
+            dstBottom: Int,
+            cdId: Int,
+        ) {}
+
+        override fun scale(scaleX: Float, scaleY: Float) {}
+
+        override fun translate(translateX: Float, translateY: Float) {}
+
+        override fun drawArc(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            startAngle: Float,
+            sweepAngle: Float,
+        ) {}
+
+        override fun drawSector(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            startAngle: Float,
+            sweepAngle: Float,
+        ) {}
+
+        override fun drawBitmap(id: Int, left: Float, top: Float, right: Float, bottom: Float) {}
+
+        override fun drawCircle(centerX: Float, centerY: Float, radius: Float) {}
+
+        override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {}
+
+        override fun drawOval(left: Float, top: Float, right: Float, bottom: Float) {}
+
+        override fun drawPath(id: Int, start: Float, end: Float) {}
+
+        override fun drawRect(left: Float, top: Float, right: Float, bottom: Float) {}
+
+        override fun savePaint() {}
+
+        override fun restorePaint() {}
+
+        override fun replacePaint(paintBundle: PaintBundle) {}
+
+        override fun drawRoundRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            radiusX: Float,
+            radiusY: Float,
+        ) {}
+
+        override fun drawTextOnPath(textId: Int, pathId: Int, hOffset: Float, vOffset: Float) {}
+
+        override fun getTextBounds(
+            textId: Int,
+            start: Int,
+            end: Int,
+            flags: Int,
+            bounds: FloatArray,
+        ) {}
+
+        override fun layoutComplexText(
+            textId: Int,
+            start: Int,
+            end: Int,
+            alignment: Int,
+            overflow: Int,
+            maxLines: Int,
+            maxWidth: Float,
+            maxHeight: Float,
+            letterSpacing: Float,
+            lineHeightAdd: Float,
+            lineHeightMultiplier: Float,
+            lineBreakStrategy: Int,
+            hyphenationFrequency: Int,
+            justificationMode: Int,
+            useUnderline: Boolean,
+            strikethrough: Boolean,
+            flags: Int,
+        ): RcPlatformServices.ComputedTextLayout? = null
+
+        override fun drawComplexText(computedTextLayout: RcPlatformServices.ComputedTextLayout?) {}
+
+        override fun drawTextRun(
+            textId: Int,
+            start: Int,
+            end: Int,
+            contextStart: Int,
+            contextEnd: Int,
+            x: Float,
+            y: Float,
+            rtl: Boolean,
+        ) {}
+
+        override fun drawTweenPath(
+            path1Id: Int,
+            path2Id: Int,
+            tween: Float,
+            start: Float,
+            end: Float,
+        ) {}
+
+        override fun tweenPath(out: Int, path1: Int, path2: Int, tween: Float) {}
+
+        override fun combinePath(out: Int, path1: Int, path2: Int, operation: Byte) {}
+
+        override fun applyPaint(mPaintData: PaintBundle) {}
+
+        override fun matrixScale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float) {}
+
+        override fun matrixTranslate(translateX: Float, translateY: Float) {}
+
+        override fun matrixSkew(skewX: Float, skewY: Float) {}
+
+        override fun matrixRotate(rotate: Float, pivotX: Float, pivotY: Float) {}
+
+        override fun matrixSave() {}
+
+        override fun matrixRestore() {}
+
+        override fun clipRect(left: Float, top: Float, right: Float, bottom: Float) {}
+
+        override fun clipPath(pathId: Int, regionOp: Int) {}
+
+        override fun roundedClipRect(
+            width: Float,
+            height: Float,
+            topStart: Float,
+            topEnd: Float,
+            bottomStart: Float,
+            bottomEnd: Float,
+        ) {}
+
+        override fun reset() {}
+
+        override fun startGraphicsLayer(w: Int, h: Int) {}
+
+        override fun setGraphicsLayer(attributes: HashMap<Int?, in Any>) {}
+
+        override fun endGraphicsLayer() {}
+
+        override fun getText(id: Int): String? = null
+
+        override fun matrixFromPath(pathId: Int, fraction: Float, vOffset: Float, flags: Int) {}
+
+        override fun drawToBitmap(bitmapId: Int, mode: Int, color: Int) {}
     }
 }

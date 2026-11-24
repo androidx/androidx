@@ -209,6 +209,10 @@ class PropertyBundleLookupOperationTest {
         val doc = CoreDocument().useExperimental()
         val buffer =
             RemoteComposeBuffer().useExperimental().apply {
+                addInteger(10, 7)
+                addInteger(11, 40)
+                addInteger(12, -12)
+                addInteger(13, 88)
                 addRootStart()
                 addColumnStart(
                     /* componentId = */ 1,
@@ -221,7 +225,7 @@ class PropertyBundleLookupOperationTest {
                     /* bundleId = */ 10,
                     /* parentBundleId = */ 0,
                     /* propertyIds = */ intArrayOf(100),
-                    /* values = */ intArrayOf(7),
+                    /* values = */ intArrayOf(10),
                 )
                 addContentStart()
 
@@ -236,7 +240,7 @@ class PropertyBundleLookupOperationTest {
                     /* bundleId = */ 11,
                     /* parentBundleId = */ 10,
                     /* propertyIds = */ intArrayOf(15, 20),
-                    /* values = */ intArrayOf(40, -12),
+                    /* values = */ intArrayOf(11, 12),
                 )
                 addContentStart()
                 // 1) Implicit enclosing component lookup -> 40
@@ -297,7 +301,7 @@ class PropertyBundleLookupOperationTest {
                     /* bundleId = */ 12,
                     /* parentBundleId = */ 0,
                     /* propertyIds = */ intArrayOf(30),
-                    /* values = */ intArrayOf(88),
+                    /* values = */ intArrayOf(13),
                 )
                 addContentStart()
                 addCanvasContentStart(/* componentId= */ 5)
@@ -330,6 +334,58 @@ class PropertyBundleLookupOperationTest {
             .contains(
                 "PROPERTY_BUNDLE_LOOKUP valueId=50 componentId=2 propertyId=15 defaultValue=-1"
             )
+    }
+
+    @Test
+    fun `lookup listens to variable-backed property entry and updates when variable changes`() {
+        val doc = CoreDocument().useExperimental()
+        val sourceVarId = 44
+        val outputVarId = 60
+        val downstreamExprId = 61
+        val buffer =
+            RemoteComposeBuffer().useExperimental().apply {
+                addInteger(sourceVarId, 12)
+                addRootStart()
+                addBoxStart(
+                    /* componentId = */ 2,
+                    /* animationId = */ -1,
+                    /* horizontal = */ 0,
+                    /* vertical = */ 0,
+                )
+                addPropertyBundleModifierOperation(
+                    /* bundleId = */ 1,
+                    /* parentBundleId = */ 0,
+                    /* propertyIds = */ intArrayOf(15),
+                    /* values = */ intArrayOf(sourceVarId),
+                )
+                addContentStart()
+                addPropertyBundleLookupOperation(
+                    /* valueId = */ outputVarId,
+                    /* propertyId = */ 15,
+                    /* defaultValue = */ -1,
+                )
+                addIntegerExpression(
+                    /* id = */ downstreamExprId,
+                    /* mask = */ 0b101,
+                    /* value = */ intArrayOf(outputVarId, 5, IntegerExpressionEvaluator.I_ADD),
+                )
+                addContainerEnd() // box content
+                addContainerEnd() // box
+                addContainerEnd() // root
+            }
+
+        doc.initFromBuffer(buffer)
+        val context = HeadlessRemoteContext()
+        doc.initializeContext(context)
+
+        assertThat(context.getInteger(outputVarId)).isEqualTo(12)
+        assertThat(context.getInteger(downstreamExprId)).isEqualTo(17)
+
+        context.overrideInteger(sourceVarId, 30)
+        doc.updateVariables(context, 0, doc.operations)
+
+        assertThat(context.getInteger(outputVarId)).isEqualTo(30)
+        assertThat(context.getInteger(downstreamExprId)).isEqualTo(35)
     }
 
     private fun RemoteComposeBuffer.useExperimental(): RemoteComposeBuffer = apply {

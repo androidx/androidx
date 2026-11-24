@@ -491,6 +491,40 @@ class PropertyBundleModifierOperationTest {
             )
     }
 
+    @Test
+    fun `read remaps entry variable IDs via readId without remapping bundle or property IDs`() {
+        val original =
+            PropertyBundleModifierOperation(
+                /* bundleId = */ 7,
+                /* parentBundleId = */ 3,
+                /* propertyIds = */ intArrayOf(10, 20),
+                /* values = */ intArrayOf(41, 42),
+            )
+
+        val rawBuffer = WireBuffer()
+        original.write(rawBuffer)
+
+        val remappingBuffer =
+            object : WireBuffer() {
+                override fun readId(): Int = super.readInt() + 100
+            }
+        remappingBuffer.reset(rawBuffer.size)
+        for (i in 0 until rawBuffer.size) {
+            remappingBuffer.writeByte(rawBuffer.buffer[i].toInt())
+        }
+        remappingBuffer.index = 0
+        assertThat(remappingBuffer.readByte()).isEqualTo(Operations.MODIFIER_PROPERTY_BUNDLE)
+
+        val decodedOps = ArrayList<Operation>()
+        PropertyBundleModifierOperation.read(remappingBuffer, decodedOps)
+        val decoded = decodedOps.single() as PropertyBundleModifierOperation
+
+        assertThat(decoded.bundleId).isEqualTo(7)
+        assertThat(decoded.parentBundleId).isEqualTo(3)
+        assertThat(decoded.getValue(10)).isEqualTo(141)
+        assertThat(decoded.getValue(20)).isEqualTo(142)
+    }
+
     private fun RemoteComposeBuffer.useExperimental(): RemoteComposeBuffer = apply {
         val profileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL
         val map = Operations.getOperations(CoreDocument.DOCUMENT_API_LEVEL, profileMask)!!

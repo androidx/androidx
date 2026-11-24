@@ -54,7 +54,7 @@ public class PropertyBundleModifierOperation extends Operation implements Modifi
      * @param bundleId the bundle identifier
      * @param parentBundleId the parent bundle identifier
      * @param propertyIds parallel array of property identifiers
-     * @param values parallel array of property values
+     * @param values parallel array of property variable identifiers
      */
     public PropertyBundleModifierOperation(
             int bundleId, int parentBundleId, int @NonNull [] propertyIds, int @NonNull [] values) {
@@ -98,21 +98,23 @@ public class PropertyBundleModifierOperation extends Operation implements Modifi
     }
 
     /**
-     * Returns the property value for {@code propertyId}, or {@code null} if not present.
+     * Returns the property variable identifier for {@code propertyId}, or {@code null} if not
+     * present.
      *
      * @param propertyId the property identifier
-     * @return the property value, or {@code null} if not set
+     * @return the property variable identifier, or {@code null} if not set
      */
     public @Nullable Integer getValue(int propertyId) {
         return mProperties.get(propertyId);
     }
 
     /**
-     * Returns the property value for {@code propertyId}, or {@code defaultValue} if not present.
+     * Returns the property variable identifier for {@code propertyId}, or {@code defaultValue} if
+     * not present.
      *
      * @param propertyId the property identifier
      * @param defaultValue fallback value returned when {@code propertyId} is not present
-     * @return the property value, or {@code defaultValue} if not set
+     * @return the property variable identifier, or {@code defaultValue} if not set
      */
     public int getValue(int propertyId, int defaultValue) {
         Integer value = mProperties.get(propertyId);
@@ -206,7 +208,7 @@ public class PropertyBundleModifierOperation extends Operation implements Modifi
      * @param bundleId the bundle identifier
      * @param parentBundleId the parent bundle identifier
      * @param propertyIds parallel array of property identifiers
-     * @param values parallel array of property values
+     * @param values parallel array of property variable identifiers
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -258,7 +260,7 @@ public class PropertyBundleModifierOperation extends Operation implements Modifi
         LinkedHashMap<Integer, Integer> properties = new LinkedHashMap<>(count);
         for (int i = 0; i < count; i++) {
             int propertyId = buffer.readInt();
-            int value = buffer.readInt();
+            int value = buffer.readId();
             properties.put(propertyId, value);
         }
 

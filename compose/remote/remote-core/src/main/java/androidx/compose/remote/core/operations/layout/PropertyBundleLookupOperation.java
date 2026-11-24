@@ -25,6 +25,7 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SerializableToString;
 import androidx.compose.remote.core.VariableProvider;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.ComponentData;
@@ -44,7 +45,11 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PropertyBundleLookupOperation extends Operation
-        implements SerializableToString, Serializable, ComponentData, VariableProvider {
+        implements SerializableToString,
+                Serializable,
+                ComponentData,
+                VariableProvider,
+                VariableSupport {
 
     private static final int OP_CODE = Operations.PROPERTY_BUNDLE_LOOKUP;
     private static final int VERSION = 0;
@@ -58,6 +63,10 @@ public class PropertyBundleLookupOperation extends Operation
     private int mComponentId;
     private final int mPropertyId;
     private final int mDefaultValue;
+
+    private boolean mSourceResolved = false;
+    private int mSourceVariableId = -1;
+    private int mResolvedValue;
 
     /**
      * Creates a {@link PropertyBundleLookupOperation}.
@@ -73,6 +82,7 @@ public class PropertyBundleLookupOperation extends Operation
         mComponentId = componentId;
         mPropertyId = propertyId;
         mDefaultValue = defaultValue;
+        mResolvedValue = defaultValue;
     }
 
     /** Returns the opcode for {@link PropertyBundleLookupOperation}. */
@@ -108,6 +118,7 @@ public class PropertyBundleLookupOperation extends Operation
     /** Updates the target component identifier. */
     public void setComponentId(int componentId) {
         mComponentId = componentId;
+        mSourceResolved = false;
     }
 
     /** Returns the property identifier to look up. */
@@ -125,8 +136,7 @@ public class PropertyBundleLookupOperation extends Operation
         apply(buffer, mValueId, mComponentId, mPropertyId, mDefaultValue);
     }
 
-    @Override
-    public void apply(@NonNull RemoteContext context) {
+    private void resolveSource(@NonNull RemoteContext context) {
         CoreDocument document = context.getDocument();
         Component component = document != null ? document.getComponent(mComponentId) : null;
         if (component == null
@@ -140,8 +150,42 @@ public class PropertyBundleLookupOperation extends Operation
         }
         PropertyBundleModifierOperation bundle =
                 component != null ? component.getPropertyBundle() : null;
-        int value = bundle != null ? bundle.getValue(mPropertyId, mDefaultValue) : mDefaultValue;
-        context.loadInteger(mValueId, value);
+        if (bundle != null && bundle.hasProperty(mPropertyId)) {
+            mSourceVariableId = bundle.getValue(mPropertyId, -1);
+        } else {
+            mSourceVariableId = -1;
+            mResolvedValue = mDefaultValue;
+        }
+        if (document != null || component != null) {
+            mSourceResolved = true;
+        }
+    }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        mSourceResolved = false;
+        resolveSource(context);
+        if (mSourceVariableId != -1) {
+            context.listensTo(mSourceVariableId, this);
+        }
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {
+        if (!mSourceResolved || context.getDocument() != null) {
+            resolveSource(context);
+        }
+        if (mSourceVariableId != -1) {
+            mResolvedValue = context.getInteger(mSourceVariableId);
+        } else {
+            mResolvedValue = mDefaultValue;
+        }
+    }
+
+    @Override
+    public void apply(@NonNull RemoteContext context) {
+        updateVariables(context);
+        context.loadInteger(mValueId, mResolvedValue);
     }
 
     @Override

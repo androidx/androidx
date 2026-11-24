@@ -49,6 +49,7 @@ import static androidx.compose.remote.core.operations.utilities.IntegerExpressio
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteComposeState;
@@ -5495,7 +5496,7 @@ public class RemoteComposeWriter {
      * @param bundleId the bundle identifier
      * @param parentBundleId the parent bundle identifier
      * @param propertyIds parallel array of property identifiers
-     * @param values parallel array of property values
+     * @param values parallel array of property variable identifiers
      */
     public void addPropertyBundleModifierOperation(
             int bundleId,
@@ -5503,6 +5504,75 @@ public class RemoteComposeWriter {
             int @NonNull [] propertyIds,
             int @NonNull [] values) {
         mBuffer.addPropertyBundleModifierOperation(bundleId, parentBundleId, propertyIds, values);
+    }
+
+    /**
+     * Materializes literal integer values into {@link IntegerConstant} variables and emits a
+     * {@code PropertyBundleModifierOperation}.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of literal integer property values
+     */
+    public void addPropertyBundleModifier(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            int @NonNull [] values) {
+        int count = propertyIds != null ? propertyIds.length : 0;
+        int valuesLen = values != null ? values.length : 0;
+        validatePropertyBundleArrayLengths(count, valuesLen);
+        int[] valueIds = new int[count];
+        for (int i = 0; i < count; i++) {
+            valueIds[i] = (int) (addInteger(values[i]) - 0x100000000L);
+        }
+        mBuffer.addPropertyBundleModifierOperation(bundleId, parentBundleId, propertyIds, valueIds);
+    }
+
+    /**
+     * Resolves literal integers or {@code 0x100000000L}-tagged variable identifiers into integer
+     * variable IDs and emits a {@code PropertyBundleModifierOperation}.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of literal integers or {@code 0x100000000L}-tagged variable IDs
+     */
+    public void addPropertyBundleModifier(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            long @NonNull [] values) {
+        int count = propertyIds != null ? propertyIds.length : 0;
+        int valuesLen = values != null ? values.length : 0;
+        validatePropertyBundleArrayLengths(count, valuesLen);
+        int[] valueIds = new int[count];
+        for (int i = 0; i < count; i++) {
+            long encoded = values[i];
+            if (encoded >= 0x100000000L) {
+                valueIds[i] = (int) (encoded - 0x100000000L);
+            } else {
+                valueIds[i] = (int) (addInteger((int) encoded) - 0x100000000L);
+            }
+        }
+        mBuffer.addPropertyBundleModifierOperation(bundleId, parentBundleId, propertyIds, valueIds);
+    }
+
+    private static void validatePropertyBundleArrayLengths(int count, int valuesLen) {
+        if (count != valuesLen) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Parallel arrays must have identical lengths:\n "
+                                    + "propertyIds=%d\nvalues=%d",
+                            count, valuesLen));
+        }
+        if (count > Limits.MAX_PROPERTY_BUNDLE_ENTRIES) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Too many property bundle entries: %d > %d",
+                            count, Limits.MAX_PROPERTY_BUNDLE_ENTRIES));
+        }
     }
 
     /**

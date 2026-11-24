@@ -2969,7 +2969,7 @@ public class RemoteComposeBuffer {
      * @param bundleId the bundle identifier
      * @param parentBundleId the parent bundle identifier
      * @param propertyIds parallel array of property identifiers
-     * @param values parallel array of property values
+     * @param values parallel array of property variable identifiers
      */
     public void addPropertyBundleModifierOperation(
             int bundleId,
