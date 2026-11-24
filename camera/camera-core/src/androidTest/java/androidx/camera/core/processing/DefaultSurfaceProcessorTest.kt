@@ -130,7 +130,7 @@ class DefaultSurfaceProcessorTest {
 
     private lateinit var surfaceProcessor: DefaultSurfaceProcessor
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
-    private lateinit var renderOutput: RenderOutput<*>
+    private lateinit var renderOutput: RenderOutput
     private val inputSurfaceRequestsToClose = mutableListOf<SurfaceRequest>()
     private val surfacesToRelease = mutableListOf<Surface>()
     private val surfaceTexturesToRelease = mutableListOf<SurfaceTexture>()

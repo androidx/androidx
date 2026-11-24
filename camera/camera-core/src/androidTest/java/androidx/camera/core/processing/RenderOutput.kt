@@ -18,7 +18,6 @@ package androidx.camera.core.processing
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
-import android.media.Image
 import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
@@ -26,31 +25,33 @@ import android.os.Looper
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.GLUtil
-import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 
 private const val WIDTH = 640
 private const val HEIGHT = 480
+private const val RELEASE_TIMEOUT_MS = 5_000L
 
-abstract class RenderOutput<T> {
+abstract class RenderOutput {
     abstract val surface: Surface
-    protected abstract val imageFlow: Flow<T>
     abstract val dataSpace: Int
     private val handlerThread: HandlerThread =
         HandlerThread("RenderOutput Thread").apply { start() }
     protected val handler: Handler = Handler(handlerThread.looper)
+    private val totalFrames = MutableStateFlow(0)
+    private val consumedFrames = AtomicInteger(0)
+    private val isReleased = AtomicBoolean(false)
+    private var isClosedOnHandler = false
 
     companion object {
         @JvmStatic
-        fun createRenderOutput(outputType: OutputType): RenderOutput<*> {
+        fun createRenderOutput(outputType: OutputType): RenderOutput {
             return when (outputType) {
                 OutputType.IMAGE_READER -> ImageReaderOutput()
                 OutputType.SURFACE_TEXTURE -> SurfaceTextureOutput()
@@ -58,28 +59,59 @@ abstract class RenderOutput<T> {
         }
     }
 
-    suspend fun await(imageCount: Int, timeoutInMs: Long): Boolean {
-        val scope = CoroutineScope(handler.asCoroutineDispatcher())
-        val imageCollectJob = scope.launch {
-            imageFlow.collectIndexed { index, image ->
-                releaseImage(image)
-                if (index >= imageCount) {
-                    scope.cancel()
-                }
-            }
+    protected fun onHandlerIfOpen(block: () -> Unit) {
+        if (!isClosedOnHandler) {
+            block()
         }
-
-        return withTimeoutOrNull(timeoutInMs) {
-            imageCollectJob.join()
-            true
-        } ?: false
     }
 
-    open fun releaseImage(image: T) {}
-
-    open fun release() {
-        handlerThread.quitSafely()
+    protected fun onFrameAvailable() {
+        totalFrames.update { it + 1 }
     }
+
+    suspend fun await(imageCount: Int, timeoutInMs: Long): Boolean {
+        val target = consumedFrames.get() + imageCount
+        val received =
+            withTimeoutOrNull(timeoutInMs) {
+                totalFrames.first { it >= target }
+                true
+            } ?: false
+        if (received) {
+            consumedFrames.set(target)
+        }
+        return received
+    }
+
+    fun release() {
+        if (!isReleased.compareAndSet(false, true)) {
+            return
+        }
+        if (Looper.myLooper() == handler.looper) {
+            releaseOnHandler()
+            return
+        }
+        if (handler.post(::releaseOnHandler)) {
+            handlerThread.join(RELEASE_TIMEOUT_MS)
+        } else {
+            handlerThread.join(RELEASE_TIMEOUT_MS)
+            onRelease()
+        }
+    }
+
+    private fun releaseOnHandler() {
+        if (isClosedOnHandler) {
+            return
+        }
+        isClosedOnHandler = true
+        try {
+            onRelease()
+        } finally {
+            // Purge all queued callbacks immediately so closed resources are never touched again.
+            handlerThread.quit()
+        }
+    }
+
+    protected abstract fun onRelease()
 }
 
 enum class OutputType {
@@ -87,68 +119,69 @@ enum class OutputType {
     SURFACE_TEXTURE,
 }
 
-private class SurfaceTextureOutput : RenderOutput<Unit>() {
+private class SurfaceTextureOutput : RenderOutput() {
     override val surface: Surface by ::outputSurface
 
-    override val imageFlow = callbackFlow {
-        outputSurfaceTexture.setOnFrameAvailableListener(
-            {
-                it.updateTexImage()
-                trySend(Unit)
-            },
-            handler,
-        )
-        awaitClose { outputSurfaceTexture.setOnFrameAvailableListener(null) }
-    }
     override val dataSpace: Int
         @RequiresApi(33) get() = outputSurfaceTexture.dataSpace
 
-    override fun release() {
-        super.release()
-        outputSurfaceTexture.release()
-        outputSurface.release()
-    }
-
-    private var outputSurfaceTexture: SurfaceTexture
+    private lateinit var outputSurfaceTexture: SurfaceTexture
 
     init {
         runBlocking(handler.asCoroutineDispatcher()) {
             outputSurfaceTexture =
                 SurfaceTexture(GLUtil.getTexIdFromGLContext()).apply {
                     setDefaultBufferSize(WIDTH, HEIGHT)
+                    // Register eagerly so BufferQueue frames queued before await() are drained.
+                    setOnFrameAvailableListener(
+                        { surfaceTexture ->
+                            onHandlerIfOpen {
+                                surfaceTexture.updateTexImage()
+                                onFrameAvailable()
+                            }
+                        },
+                        handler,
+                    )
                 }
         }
     }
 
     private val outputSurface = Surface(outputSurfaceTexture)
+
+    override fun onRelease() {
+        outputSurfaceTexture.setOnFrameAvailableListener(null)
+        outputSurfaceTexture.release()
+        outputSurface.release()
+    }
 }
 
-private class ImageReaderOutput : RenderOutput<Image>() {
+private class ImageReaderOutput : RenderOutput() {
+    private val imageReader =
+        ImageReader.newInstance(WIDTH, HEIGHT, ImageFormat.PRIVATE, 2).apply {
+            // Register eagerly so frames arriving before await() do not stall BufferQueue, and
+            // close the Image synchronously so maxImages (2) is never held across async channels.
+            setOnImageAvailableListener(
+                { reader ->
+                    onHandlerIfOpen {
+                        val image = reader.acquireLatestImage()
+                        if (image != null) {
+                            image.close()
+                            onFrameAvailable()
+                        }
+                    }
+                },
+                handler,
+            )
+        }
+
     override val surface: Surface
         get() = imageReader.surface
-
-    override val imageFlow = callbackFlow {
-        val listener = ImageReader.OnImageAvailableListener {
-            val image = it.acquireLatestImage()
-            if (image != null) {
-                trySend(image)
-            }
-        }
-        imageReader.setOnImageAvailableListener(listener, handler)
-        awaitClose { imageReader.setOnImageAvailableListener({}, Handler(Looper.getMainLooper())) }
-    }
 
     override val dataSpace: Int
         @RequiresApi(33) get() = imageReader.dataSpace
 
-    override fun releaseImage(image: Image) {
-        image.close()
-    }
-
-    override fun release() {
-        super.release()
+    override fun onRelease() {
+        imageReader.setOnImageAvailableListener(null, null)
         imageReader.close()
     }
-
-    val imageReader = ImageReader.newInstance(WIDTH, HEIGHT, ImageFormat.PRIVATE, 2)
 }
