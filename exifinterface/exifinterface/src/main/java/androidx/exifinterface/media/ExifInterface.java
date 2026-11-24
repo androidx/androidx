@@ -27,6 +27,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.joining;
 
 import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
@@ -89,6 +90,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.zip.CRC32;
 
 /**
@@ -707,6 +709,10 @@ public class ExifInterface {
      *  {@link #TAG_PHOTOMETRIC_INTERPRETATION} can only express the order of Y, Cb and Cr, this tag
      *  is provided for cases when compressed data uses components other than Y, Cb, and Cr and to
      *  enable support of other sequences.</p>
+     *
+     *  <p>Note: This attribute is returned from {@link #getAttribute(String)} and accepted into
+     *  {@link #setAttribute(String, String)} as four comma-separated unsigned byte integers
+     *  (e.g. {@code "1,2,3,0"} or {@code "4,5,6,0"}).
      *
      *  <ul>
      *      <li>Tag = 37121</li>
@@ -1413,6 +1419,10 @@ public class ExifInterface {
      *  <p>Indicates the image source. If a DSC recorded the image, this tag value always shall
      *  be set to {@link #FILE_SOURCE_DSC}.</p>
      *
+     *  <p>Note: This attribute is returned from {@link #getAttribute(String)} and accepted into
+     *  {@link #setAttribute(String, String)} as an unsigned byte integer string (e.g.
+     *  {@code "3"} for {@link #FILE_SOURCE_DSC}).
+     *
      *  <ul>
      *      <li>Tag = 41728</li>
      *      <li>Type = Undefined</li>
@@ -1429,6 +1439,10 @@ public class ExifInterface {
     /**
      *  <p>Indicates the type of scene. If a DSC recorded the image, this tag value shall always
      *  be set to {@link #SCENE_TYPE_DIRECTLY_PHOTOGRAPHED}.</p>
+     *
+     *  <p>Note: This attribute is returned from {@link #getAttribute(String)} and accepted into
+     *  {@link #setAttribute(String, String)} as an unsigned byte integer string (e.g.
+     *  {@code "1"} for {@link #SCENE_TYPE_DIRECTLY_PHOTOGRAPHED}).
      *
      *  <ul>
      *      <li>Tag = 41729</li>
@@ -3627,25 +3641,56 @@ public class ExifInterface {
         }
     }
 
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(TYPE_USE)
+    @IntDef({
+        IFD_UNDEFINED_FORMAT_NONE,
+        IFD_UNDEFINED_FORMAT_SINGLE_UNSIGNED_BYTE,
+        IFD_UNDEFINED_FORMAT_FOUR_UNSIGNED_BYTES
+    })
+    private @interface UndefinedFormat {}
+
+    private static final int IFD_UNDEFINED_FORMAT_NONE = 0;
+    private static final int IFD_UNDEFINED_FORMAT_SINGLE_UNSIGNED_BYTE = 1;
+    private static final int IFD_UNDEFINED_FORMAT_FOUR_UNSIGNED_BYTES = 2;
+
     // A class for indicating EXIF tag.
     private static class ExifTag {
         public final int number;
         public final String name;
         public final int primaryFormat;
         public final int secondaryFormat;
+        public final @UndefinedFormat int formatIfUndefined;
 
         ExifTag(String name, int number, int format) {
-            this.name = name;
-            this.number = number;
-            this.primaryFormat = format;
-            this.secondaryFormat = -1;
+            this(name, number, format, /* secondaryFormat= */ -1, IFD_UNDEFINED_FORMAT_NONE);
         }
 
         ExifTag(String name, int number, int primaryFormat, int secondaryFormat) {
+            this(name, number, primaryFormat, secondaryFormat, IFD_UNDEFINED_FORMAT_NONE);
+        }
+
+        private ExifTag(
+                String name,
+                int number,
+                int primaryFormat,
+                int secondaryFormat,
+                @UndefinedFormat int formatIfUndefined) {
             this.name = name;
             this.number = number;
             this.primaryFormat = primaryFormat;
             this.secondaryFormat = secondaryFormat;
+            this.formatIfUndefined = formatIfUndefined;
+        }
+
+        static ExifTag createUndefined(
+                String name, int number, @UndefinedFormat int formatIfUndefined) {
+            return new ExifTag(
+                    name,
+                    number,
+                    IFD_FORMAT_UNDEFINED,
+                    /* secondaryFormat= */ -1,
+                    formatIfUndefined);
         }
 
         boolean isFormatCompatible(int format) {
@@ -3737,7 +3782,10 @@ public class ExifInterface {
             new ExifTag(TAG_OFFSET_TIME, 36880, IFD_FORMAT_STRING),
             new ExifTag(TAG_OFFSET_TIME_ORIGINAL, 36881, IFD_FORMAT_STRING),
             new ExifTag(TAG_OFFSET_TIME_DIGITIZED, 36882, IFD_FORMAT_STRING),
-            new ExifTag(TAG_COMPONENTS_CONFIGURATION, 37121, IFD_FORMAT_UNDEFINED),
+            ExifTag.createUndefined(
+                    TAG_COMPONENTS_CONFIGURATION,
+                    37121,
+                    IFD_UNDEFINED_FORMAT_FOUR_UNSIGNED_BYTES),
             new ExifTag(TAG_COMPRESSED_BITS_PER_PIXEL, 37122, IFD_FORMAT_URATIONAL),
             new ExifTag(TAG_SHUTTER_SPEED_VALUE, 37377, IFD_FORMAT_SRATIONAL),
             new ExifTag(TAG_APERTURE_VALUE, 37378, IFD_FORMAT_URATIONAL),
@@ -3769,8 +3817,10 @@ public class ExifInterface {
             new ExifTag(TAG_SUBJECT_LOCATION, 41492, IFD_FORMAT_USHORT),
             new ExifTag(TAG_EXPOSURE_INDEX, 41493, IFD_FORMAT_URATIONAL),
             new ExifTag(TAG_SENSING_METHOD, 41495, IFD_FORMAT_USHORT),
-            new ExifTag(TAG_FILE_SOURCE, 41728, IFD_FORMAT_UNDEFINED),
-            new ExifTag(TAG_SCENE_TYPE, 41729, IFD_FORMAT_UNDEFINED),
+            ExifTag.createUndefined(
+                    TAG_FILE_SOURCE, 41728, IFD_UNDEFINED_FORMAT_SINGLE_UNSIGNED_BYTE),
+            ExifTag.createUndefined(
+                    TAG_SCENE_TYPE, 41729, IFD_UNDEFINED_FORMAT_SINGLE_UNSIGNED_BYTE),
             new ExifTag(TAG_CFA_PATTERN, 41730, IFD_FORMAT_UNDEFINED),
             new ExifTag(TAG_CUSTOM_RENDERED, 41985, IFD_FORMAT_USHORT),
             new ExifTag(TAG_EXPOSURE_MODE, 41986, IFD_FORMAT_USHORT),
@@ -4296,6 +4346,18 @@ public class ExifInterface {
         return null;
     }
 
+    private @Nullable ExifTag getExifTag(@NonNull String tag) {
+        if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
+            tag = TAG_PHOTOGRAPHIC_SENSITIVITY;
+        }
+        for (int i = 0; i < EXIF_TAGS.length; ++i) {
+            if (mAttributes[i].containsKey(tag)) {
+                return sExifTagMapsForWriting[i].get(tag);
+            }
+        }
+        return null;
+    }
+
     private static @XmpHandling int getXmpHandlingForImageType(int imageType) {
         switch (imageType) {
             // ExifInterface has a documented (but spec-violating) preference for reading and
@@ -4360,9 +4422,14 @@ public class ExifInterface {
             } catch (NumberFormatException e) {
                 return null;
             }
-        } else {
-            return attribute.getStringValue(mExifByteOrder);
+        } else if (attribute.format == IFD_FORMAT_UNDEFINED
+                || attribute.format == IFD_FORMAT_BYTE) {
+            ExifTag exifTag = getExifTag(tag);
+            if (exifTag != null && isUnsignedByteUndefinedFormat(exifTag.formatIfUndefined)) {
+                return formatUnsignedBytes(attribute.bytes);
+            }
         }
+        return attribute.getStringValue(mExifByteOrder);
     }
 
     /**
@@ -4380,6 +4447,15 @@ public class ExifInterface {
         ExifAttribute exifAttribute = getExifAttribute(tag);
         if (exifAttribute == null) {
             return defaultValue;
+        }
+        if (exifAttribute.format == IFD_FORMAT_UNDEFINED
+                || exifAttribute.format == IFD_FORMAT_BYTE) {
+            ExifTag exifTag = getExifTag(tag);
+            if (exifTag != null && isUnsignedByteUndefinedFormat(exifTag.formatIfUndefined)) {
+                return exifAttribute.bytes.length == 1
+                        ? (exifAttribute.bytes[0] & 0xFF)
+                        : defaultValue;
+            }
         }
 
         try {
@@ -4404,6 +4480,15 @@ public class ExifInterface {
         ExifAttribute exifAttribute = getExifAttribute(tag);
         if (exifAttribute == null) {
             return defaultValue;
+        }
+        if (exifAttribute.format == IFD_FORMAT_UNDEFINED
+                || exifAttribute.format == IFD_FORMAT_BYTE) {
+            ExifTag exifTag = getExifTag(tag);
+            if (exifTag != null && isUnsignedByteUndefinedFormat(exifTag.formatIfUndefined)) {
+                return exifAttribute.bytes.length == 1
+                        ? (double) (exifAttribute.bytes[0] & 0xFF)
+                        : defaultValue;
+            }
         }
 
         try {
@@ -4535,8 +4620,18 @@ public class ExifInterface {
                         break;
                     }
                     case IFD_FORMAT_UNDEFINED: {
-                        mAttributes[i].put(
-                                tag, ExifAttribute.createUndefined(value.getBytes(ASCII)));
+                        if (exifTag.formatIfUndefined != IFD_UNDEFINED_FORMAT_NONE) {
+                            ExifAttribute attribute =
+                                    createUndefinedAttribute(exifTag.formatIfUndefined, value);
+                            if (attribute == null) {
+                                Log.w(TAG, "Invalid value for " + tag + " : " + value);
+                                continue;
+                            }
+                            mAttributes[i].put(tag, attribute);
+                        } else {
+                            mAttributes[i].put(
+                                    tag, ExifAttribute.createUndefined(value.getBytes(ASCII)));
+                        }
                         break;
                     }
                     case IFD_FORMAT_STRING: {
@@ -8019,6 +8114,62 @@ public class ExifInterface {
             // Ignored
         }
         return new Pair<>(IFD_FORMAT_STRING, -1);
+    }
+
+    private static boolean isUnsignedByteUndefinedFormat(@UndefinedFormat int formatIfUndefined) {
+        switch (formatIfUndefined) {
+            case IFD_UNDEFINED_FORMAT_SINGLE_UNSIGNED_BYTE:
+            case IFD_UNDEFINED_FORMAT_FOUR_UNSIGNED_BYTES:
+                return true;
+            case IFD_UNDEFINED_FORMAT_NONE:
+            default:
+                return false;
+        }
+    }
+
+    private static @Nullable Integer parseUnsignedByte(@NonNull String value) {
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            return (parsed >= 0 && parsed <= 255) ? parsed : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private static @Nullable ExifAttribute createUndefinedAttribute(
+            @UndefinedFormat int formatIfUndefined, @NonNull String value) {
+        switch (formatIfUndefined) {
+            case IFD_UNDEFINED_FORMAT_SINGLE_UNSIGNED_BYTE: {
+                Integer parsed = parseUnsignedByte(value);
+                return parsed != null
+                        ? ExifAttribute.createUndefined(new byte[] {(byte) parsed.intValue()})
+                        : null;
+            }
+            case IFD_UNDEFINED_FORMAT_FOUR_UNSIGNED_BYTES: {
+                String[] parts = value.split(",", -1);
+                if (parts.length != 4) {
+                    return null;
+                }
+                byte[] bytes = new byte[4];
+                for (int i = 0; i < 4; ++i) {
+                    Integer parsed = parseUnsignedByte(parts[i]);
+                    if (parsed == null) {
+                        return null;
+                    }
+                    bytes[i] = (byte) parsed.intValue();
+                }
+                return ExifAttribute.createUndefined(bytes);
+            }
+            case IFD_UNDEFINED_FORMAT_NONE:
+            default:
+                return null;
+        }
+    }
+
+    private static @NonNull String formatUnsignedBytes(byte @NonNull [] bytes) {
+        return IntStream.range(0, bytes.length)
+                .mapToObj(i -> String.valueOf(bytes[i] & 0xFF))
+                .collect(joining(","));
     }
 
     // An input stream class that can parse both little and big endian order data and also
