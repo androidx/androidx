@@ -482,6 +482,38 @@ public class WebViewAssetLoaderTest {
         assertResponse(response2, CONTENTS);
     }
 
+    @Test
+    @SmallTest
+    public void testOpaqueAndMalformedUris() throws Throwable {
+        PathHandler pathHandler = new TestPathHandler();
+        WebViewAssetLoader httpsOnlyLoader = new WebViewAssetLoader.Builder()
+                .addPathHandler("/test/", pathHandler)
+                .build();
+        WebViewAssetLoader httpAllowedLoader = new WebViewAssetLoader.Builder()
+                .setHttpAllowed(true)
+                .addPathHandler("/test/", pathHandler)
+                .build();
+
+        Uri[] nonMatchingUris = new Uri[] {
+                Uri.EMPTY,
+                Uri.parse("//appassets.androidplatform.net/test/"),
+                Uri.parse("about:blank"),
+                Uri.parse("data:text/html,<h1>Hello</h1>"),
+                Uri.parse("http:opaque"),
+                Uri.parse("https:opaque"),
+                Uri.parse("http:/test/"),
+                Uri.parse("https:/test/"),
+                Uri.parse("https://appassets.androidplatform.net"),
+        };
+
+        for (Uri uri : nonMatchingUris) {
+            Assert.assertNull("Expected null response for URI: " + uri,
+                    httpsOnlyLoader.shouldInterceptRequest(uri));
+            Assert.assertNull("Expected null response (HTTP allowed) for URI: " + uri,
+                    httpAllowedLoader.shouldInterceptRequest(uri));
+        }
+    }
+
     private static void assertResponse(@Nullable WebResourceResponse response,
               @NonNull String expectedContent) throws IOException {
         Assert.assertNotNull("failed to match the URL and returned null response", response);
