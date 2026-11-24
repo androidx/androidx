@@ -449,18 +449,20 @@ public final class WebViewAssetLoader {
          */
         @WorkerThread
         public @Nullable PathHandler match(@NonNull Uri uri) {
+            String scheme = uri.getScheme();
             // Only match HTTP_SCHEME if caller enabled HTTP matches.
-            if (uri.getScheme().equals(HTTP_SCHEME) && !mHttpEnabled) {
+            if (HTTP_SCHEME.equals(scheme) && !mHttpEnabled) {
                 return null;
             }
             // Don't match non-HTTP(S) schemes.
-            if (!uri.getScheme().equals(HTTP_SCHEME) && !uri.getScheme().equals(HTTPS_SCHEME)) {
+            if (!HTTP_SCHEME.equals(scheme) && !HTTPS_SCHEME.equals(scheme)) {
                 return null;
             }
-            if (!uri.getAuthority().equals(mAuthority)) {
+            if (!mAuthority.equals(uri.getAuthority())) {
                 return null;
             }
-            if (!uri.getPath().startsWith(mPath)) {
+            String path = uri.getPath();
+            if (path == null || !path.startsWith(mPath)) {
                 return null;
             }
             return mHandler;
