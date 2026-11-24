@@ -170,11 +170,11 @@ public fun WebSurface(content: WebContent, modifier: Modifier = Modifier) {
  *   block is called once when the composable enters composition, or if the [content] instance
  *   changes. The provided [Context] must be passed to the [WebViewBridge] constructor.
  * @param modifier The [Modifier] to be applied to this layout node.
- * @param bridgeUpdate A callback to be invoked after the [WebViewBridge] is created and upon
- *   recomposition to update the information and state of the [WebViewBridge].
  * @param bridgeRelease A callback invoked when the composable leaves composition, or if the
  *   [content] instance changes. Clean up any references to the [WebViewBridge] here, but don't call
  *   [android.webkit.WebView.destroy].
+ * @param bridgeUpdate A callback to be invoked after the [WebViewBridge] is created and upon
+ *   recomposition to update the information and state of the [WebViewBridge].
  * @see WebContent
  * @see WebViewBridge
  * @see WebFeature.WEB_SURFACE
@@ -189,8 +189,8 @@ public fun <T : WebViewBridge> WebSurface(
     content: WebContent,
     bridgeFactory: (Context) -> T,
     modifier: Modifier = Modifier,
-    bridgeUpdate: (T) -> Unit = NoOpUpdate,
     bridgeRelease: (T) -> Unit = NoOpUpdate,
+    bridgeUpdate: (T) -> Unit = NoOpUpdate,
 ) {
     val context = LocalContext.current
     val state =
