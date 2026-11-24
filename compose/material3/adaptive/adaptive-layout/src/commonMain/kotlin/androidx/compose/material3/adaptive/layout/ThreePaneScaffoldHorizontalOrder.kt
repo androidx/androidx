@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -26,13 +25,11 @@ import androidx.compose.ui.unit.LayoutDirection
  * [SupportingPaneScaffoldDefaults.PaneOrder], which will be used internally by
  * [ListDetailPaneScaffold] and [SupportingPaneScaffold] respectively.
  */
-@ExperimentalMaterial3AdaptiveApi
 @Immutable
-public class ThreePaneScaffoldHorizontalOrder
-internal constructor(
-    internal val firstPane: ThreePaneScaffoldRole,
-    internal val secondPane: ThreePaneScaffoldRole,
-    internal val thirdPane: ThreePaneScaffoldRole,
+internal class ThreePaneScaffoldHorizontalOrder(
+    val firstPane: ThreePaneScaffoldRole,
+    val secondPane: ThreePaneScaffoldRole,
+    val thirdPane: ThreePaneScaffoldRole,
 ) : PaneScaffoldHorizontalOrder<ThreePaneScaffoldRole> {
     init {
         require(firstPane != secondPane && secondPane != thirdPane && firstPane != thirdPane) {
@@ -41,9 +38,9 @@ internal constructor(
         }
     }
 
-    public override val size: Int = 3
+    override val size: Int = 3
 
-    public operator fun get(index: Int): ThreePaneScaffoldRole =
+    operator fun get(index: Int): ThreePaneScaffoldRole =
         when (index) {
             0 -> firstPane
             1 -> secondPane
@@ -51,7 +48,7 @@ internal constructor(
             else -> throw IndexOutOfBoundsException("Invalid pane index $index")
         }
 
-    public override fun indexOf(role: ThreePaneScaffoldRole): Int =
+    override fun indexOf(role: ThreePaneScaffoldRole): Int =
         when (role) {
             firstPane -> 0
             secondPane -> 1
@@ -59,25 +56,19 @@ internal constructor(
             else -> -1
         }
 
-    public override fun forEach(action: (ThreePaneScaffoldRole) -> Unit) {
+    override fun forEach(action: (ThreePaneScaffoldRole) -> Unit) {
         action(firstPane)
         action(secondPane)
         action(thirdPane)
     }
 
-    public override fun forEachIndexed(action: (Int, ThreePaneScaffoldRole) -> Unit) {
+    override fun forEachIndexed(action: (Int, ThreePaneScaffoldRole) -> Unit) {
         action(0, firstPane)
         action(1, secondPane)
         action(2, thirdPane)
     }
 
-    public override fun forEachIndexedReversed(action: (Int, ThreePaneScaffoldRole) -> Unit) {
-        action(2, thirdPane)
-        action(1, secondPane)
-        action(0, firstPane)
-    }
-
-    public override fun equals(other: Any?): Boolean {
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneScaffoldHorizontalOrder) return false
         if (firstPane != other.firstPane) return false
@@ -86,7 +77,7 @@ internal constructor(
         return true
     }
 
-    public override fun hashCode(): Int {
+    override fun hashCode(): Int {
         var result = firstPane.hashCode()
         result = 31 * result + secondPane.hashCode()
         result = 31 * result + thirdPane.hashCode()
@@ -99,7 +90,6 @@ internal constructor(
  *
  * @param layoutDirection the current [LayoutDirection]
  */
-@ExperimentalMaterial3AdaptiveApi
 internal fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
     layoutDirection: LayoutDirection
 ): ThreePaneScaffoldHorizontalOrder {

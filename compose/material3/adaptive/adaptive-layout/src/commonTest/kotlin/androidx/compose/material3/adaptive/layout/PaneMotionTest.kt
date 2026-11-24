@@ -334,7 +334,6 @@ private fun Int.toThreePaneScaffoldValue(): ThreePaneScaffoldValue {
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockThreePaneOrder =
     ThreePaneScaffoldHorizontalOrder(
         ThreePaneScaffoldRole.Primary,
