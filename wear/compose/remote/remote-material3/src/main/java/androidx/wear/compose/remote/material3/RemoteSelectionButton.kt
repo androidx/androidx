@@ -53,7 +53,6 @@ import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sin
@@ -61,7 +60,6 @@ import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -216,7 +214,7 @@ internal fun RemoteCheckboxControl(
         val strokePaint = RemotePaint {
             style = RemotePaintingStyle.Stroke
             strokeWidth = strokeWidthPx
-            color = lerp(boxColor, Color.Transparent.rc, progress)
+            color = lerp(boxColor, RemoteColor.Transparent, progress)
         }
         drawRoundRect(
             paint = strokePaint,
@@ -232,7 +230,7 @@ internal fun RemoteCheckboxControl(
 
         val fillPaint = RemotePaint {
             style = RemotePaintingStyle.Fill
-            color = lerp(Color.Transparent.rc, boxColor, progress)
+            color = lerp(RemoteColor.Transparent, boxColor, progress)
         }
         drawRoundRect(
             paint = fillPaint,
@@ -245,7 +243,7 @@ internal fun RemoteCheckboxControl(
             style = RemotePaintingStyle.Stroke
             strokeWidth = strokeWidthPx
             strokeCap = RemoteStrokeCap.Round
-            color = lerp(Color.Transparent.rc, checkmarkColor, progress)
+            color = lerp(RemoteColor.Transparent, checkmarkColor, progress)
         }
         val tickCenter =
             RemoteOffset(TICK_DESIGN_CENTER_DP.rdp.toPx(), TICK_DESIGN_CENTER_DP.rdp.toPx())
@@ -310,7 +308,7 @@ internal fun RemoteRadioControl(
 
         val dotPaint = RemotePaint {
             style = RemotePaintingStyle.Fill
-            color = lerp(Color.Transparent.rc, controlColor, progress)
+            color = lerp(RemoteColor.Transparent, controlColor, progress)
         }
         drawCircle(paint = dotPaint, radius = innerRadiusPx, center = centerOffset)
     }

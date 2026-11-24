@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.graphics.Color
 
 /**
  * CompositionLocal containing the preferred content color for a given position in the hierarchy.
@@ -33,8 +32,8 @@ import androidx.compose.ui.graphics.Color
  * adjusts when the background color changes. For example, on a dark background, text should be
  * light, and on a light background, text should be dark.
  *
- * Defaults to [Color.White] if no color has been explicitly set.
+ * Defaults to [RemoteColor.White] if no color has been explicitly set.
  */
 public val LocalRemoteContentColor: ProvidableCompositionLocal<RemoteColor> = compositionLocalOf {
-    RemoteColor(Color.White)
+    RemoteColor.White
 }

@@ -35,7 +35,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
 
 /**
  * Wear Material [RemoteIconButton] is a circular, icon-only button with transparent background and
@@ -442,9 +441,9 @@ public object RemoteIconButtonDefaults {
         @RemoteComposable
         get() =
             RemoteIconButtonColors(
-                containerColor = RemoteColor(Color.Transparent),
+                containerColor = RemoteColor.Transparent,
                 contentColor = primary,
-                disabledContainerColor = RemoteColor(Color.Transparent),
+                disabledContainerColor = RemoteColor.Transparent,
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
             )
 
@@ -453,9 +452,9 @@ public object RemoteIconButtonDefaults {
         @RemoteComposable
         get() =
             RemoteIconButtonColors(
-                containerColor = RemoteColor(Color.Transparent),
+                containerColor = RemoteColor.Transparent,
                 contentColor = primary,
-                disabledContainerColor = RemoteColor(Color.Transparent),
+                disabledContainerColor = RemoteColor.Transparent,
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
             )
 }

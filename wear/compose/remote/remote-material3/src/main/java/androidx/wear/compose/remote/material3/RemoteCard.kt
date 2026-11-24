@@ -50,7 +50,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
 
 /**
  * Base level Wear Material 3 [RemoteCard] that offers a single slot to take any content.
@@ -291,7 +290,7 @@ public object RemoteCardDefaults {
     ): RemoteCardColors {
         val default = RemoteMaterialTheme.colorScheme.defaultOutlinedCardColors
         return default.copy(
-            containerColor = RemoteColor(Color.Transparent),
+            containerColor = RemoteColor.Transparent,
             contentColor = contentColor ?: default.contentColor,
             appNameColor = appNameColor ?: default.appNameColor,
             timeColor = timeColor ?: default.timeColor,
@@ -434,7 +433,7 @@ public object RemoteCardDefaults {
     ): RemoteCardColors {
         val default = RemoteMaterialTheme.colorScheme.defaultCardWithContainerPainterColors
         return default.copy(
-            containerColor = RemoteColor(Color.Transparent),
+            containerColor = RemoteColor.Transparent,
             contentColor = contentColor ?: default.contentColor,
             appNameColor = appNameColor ?: default.appNameColor,
             timeColor = timeColor ?: default.timeColor,
@@ -478,7 +477,7 @@ public object RemoteCardDefaults {
         @RemoteComposable
         get() {
             return RemoteCardColors(
-                containerColor = RemoteColor(Color.Transparent),
+                containerColor = RemoteColor.Transparent,
                 contentColor = onSurfaceVariant,
                 appNameColor = onSurface,
                 timeColor = onSurface,
@@ -492,7 +491,7 @@ public object RemoteCardDefaults {
         @RemoteComposable
         get() {
             return RemoteCardColors(
-                containerColor = RemoteColor(Color.Transparent),
+                containerColor = RemoteColor.Transparent,
                 contentColor = onBackground,
                 appNameColor = onBackground,
                 timeColor = onBackground,

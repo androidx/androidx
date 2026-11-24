@@ -46,7 +46,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
@@ -54,7 +53,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
 
 /**
  * The Wear Material [RemoteSplitRadioButton] offers two slots and shows the current selection state
@@ -198,7 +196,7 @@ public fun RemoteSplitRadioButton(
                     .drawWithContent {
                         drawSolidColorShape(
                             endSectionShape,
-                            enabled.select(containerColor, Color.Black.rc),
+                            enabled.select(containerColor, RemoteColor.Black),
                         )
                         drawSolidColorShape(endSectionShape, splitContainerColor)
                         drawContent()

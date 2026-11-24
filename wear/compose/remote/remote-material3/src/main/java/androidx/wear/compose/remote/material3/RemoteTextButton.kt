@@ -34,7 +34,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
 
 /**
  * Wear Material [RemoteTextButton] is a circular, text-only button with transparent background and
@@ -267,9 +266,9 @@ public object RemoteTextButtonDefaults {
         @RemoteComposable
         get() =
             RemoteTextButtonColors(
-                containerColor = RemoteColor(Color.Transparent),
+                containerColor = RemoteColor.Transparent,
                 contentColor = onSurface,
-                disabledContainerColor = RemoteColor(Color.Transparent),
+                disabledContainerColor = RemoteColor.Transparent,
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
             )
 

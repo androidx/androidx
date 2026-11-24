@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
@@ -36,12 +37,10 @@ import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
 /**
  * Material Design segmented circular progress indicator.
@@ -292,7 +291,7 @@ private fun RemoteDrawScope.drawSegments(
 
         // An arc, which is a full dot at the start of the segment when it fills just the gap.
         val isArc = isZeroStroke.select(false.rb, progressSweep.isGreaterThanOrEqualTo(gapSweep))
-        indicatorPaint.color = isArc.select(indicatorColor, Color.Transparent.rc)
+        indicatorPaint.color = isArc.select(indicatorColor, RemoteColor.Transparent)
         drawArc(
             paint = indicatorPaint,
             startAngle = segmentStartAngle + gapSweep / 2f.rf,
@@ -322,7 +321,7 @@ private fun RemoteDrawScope.drawSegments(
                         indicatorColor.alpha *
                             min(1f.rf, dotRadius * 2f.rf / max(0.001f.rf, strokePx))
                 ),
-                Color.Transparent.rc,
+                RemoteColor.Transparent,
             )
         drawCircle(
             paint = dotPaint,

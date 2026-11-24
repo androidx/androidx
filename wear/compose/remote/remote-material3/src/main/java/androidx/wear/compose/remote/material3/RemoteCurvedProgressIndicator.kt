@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -34,12 +35,10 @@ import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remoteSpring
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import kotlin.math.PI
 
 private const val SPRING_STIFFNESS = 50f
@@ -534,7 +533,7 @@ private fun RemoteDrawScope.drawCurvedProgressArcs(
         strokeCap = RemoteStrokeCap.Round
         with(colors.trackBrush(enabled)) { applyTo(this@RemotePaint, size) }
         this.color = this.color.copy(alpha = this.color.alpha * remainingAlpha)
-        this.color = params.isRemainingHidden.select(Color.Transparent.rc, this.color)
+        this.color = params.isRemainingHidden.select(RemoteColor.Transparent, this.color)
     }
 
     drawArc(
@@ -552,7 +551,7 @@ private fun RemoteDrawScope.drawCurvedProgressArcs(
         strokeCap = RemoteStrokeCap.Round
         with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
         this.color = this.color.copy(alpha = this.color.alpha * activeAlpha)
-        this.color = params.isActiveHidden.select(Color.Transparent.rc, this.color)
+        this.color = params.isActiveHidden.select(RemoteColor.Transparent, this.color)
     }
 
     drawArc(
