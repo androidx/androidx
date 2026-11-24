@@ -602,30 +602,42 @@ private fun TransformingLazyColumnState.isItemClickableAt(
     position: Offset,
     minimumHeightPx: Float,
 ): Boolean {
-    // 1. Check if click event is on edge item
-    val edgeItems =
-        layoutInfo.visibleItems.let { items ->
-            if (items.size > 1) {
-                listOf(items.first(), items.last())
-            } else {
-                items
-            }
+    val layoutInfo = layoutInfo
+    val viewportHeight = layoutInfo.viewportSize.height
+    val logicalY = if (layoutInfo.reverseLayout) viewportHeight - position.y else position.y
+    val items = layoutInfo.visibleItems
+
+    // 1. Find the first and last items that actually intersect the viewport (ignoring off-screen
+    // items retained during animations), and check if the click event is on an edge item.
+    val firstEdgeItem =
+        items.fastFirstOrNull { it.offset + it.transformedHeight > 0 && it.offset < viewportHeight }
+            ?: return true
+    var lastEdgeItem = firstEdgeItem
+    for (i in items.lastIndex downTo 0) {
+        val candidate = items[i]
+        if (
+            candidate.offset + candidate.transformedHeight > 0 && candidate.offset < viewportHeight
+        ) {
+            lastEdgeItem = candidate
+            break
         }
-    val foundItem = edgeItems.fastFirstOrNull { info ->
-        info.offset <= position.y && position.y <= info.offset + info.transformedHeight
     }
-    // 2. Check if found item has visible area that is big enough. If click is not on edge items,
-    // the function will return true since the visible check should be done only on edge items and
-    // other items are considered clickable.
-    return foundItem?.let {
-        return if (it.offset > 0) {
-            it.offset + minimumHeightPx <= layoutInfo.viewportSize.height &&
-                it.transformedHeight >= minimumHeightPx
-        } else {
-            // Item was clipped at upper bound
-            it.transformedHeight + it.offset >= minimumHeightPx
+    val foundItem =
+        when {
+            firstEdgeItem.offset <= logicalY &&
+                logicalY <= firstEdgeItem.offset + firstEdgeItem.transformedHeight -> firstEdgeItem
+            lastEdgeItem !== firstEdgeItem &&
+                lastEdgeItem.offset <= logicalY &&
+                logicalY <= lastEdgeItem.offset + lastEdgeItem.transformedHeight -> lastEdgeItem
+            else -> return true
         }
-    } ?: true
+
+    // 2. Check if found item has visible area that is big enough. If click is not on edge items,
+    // the function returns true above since the visible check should be done only on edge items and
+    // other items are considered clickable.
+    val visibleTop = maxOf(0, foundItem.offset)
+    val visibleBottom = minOf(viewportHeight, foundItem.offset + foundItem.transformedHeight)
+    return visibleBottom - visibleTop >= minimumHeightPx
 }
 
 // Minimum visible height of edge item to be eligible for click.
