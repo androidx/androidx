@@ -1459,6 +1459,7 @@ internal class GapComposer(
 
         // The rGroupIndex for parent is two pack from the current stack top which has already been
         // incremented past this group needs to be offset by one.
+        val inserting = inserting
         val rGroupIndex = parentStateStack.peek2() - 1
         if (inserting) {
             val parent = writer.parent
@@ -1477,6 +1478,9 @@ internal class GapComposer(
                 reader.groupAux(parent),
             )
         }
+        // Determine the number of remaining slots before handling the pending. The repositioning
+        // and skipping we do in the condition below will clobber this count.
+        val remainingSlots = if (!inserting) reader.remainingSlots else 0
         var expectedNodeCount = groupNodeCount
         val pending = pending
         if (pending != null && pending.keyInfos.size > 0) {
@@ -1568,18 +1572,14 @@ internal class GapComposer(
             }
         }
 
-        val inserting = inserting
-        if (!inserting) {
-            // Detect when slots were not used. This happens when a `remember` was removed at the
-            // end of a group. Due to code generation issues (b/346821372) this may also see
-            // remembers that were removed prior to the children being called so this must be done
-            // before the children are deleted to ensure that the `RememberEventDispatcher` receives
-            // the `leaving()` call in the correct order so the `onForgotten` is dispatched in the
-            // correct order for the values being removed.
-            val remainingSlots = reader.remainingSlots
-            if (remainingSlots > 0) {
-                changeListWriter.trimValues(remainingSlots)
-            }
+        // Detect when slots were not used. This happens when a `remember` was removed at the
+        // end of a group. Due to code generation issues (b/346821372) this may also see
+        // remembers that were removed prior to the children being called so this must be done
+        // before the children are deleted to ensure that the `RememberEventDispatcher` receives
+        // the `leaving()` call in the correct order so the `onForgotten` is dispatched in the
+        // correct order for the values being removed.
+        if (remainingSlots > 0) {
+            changeListWriter.trimValues(remainingSlots)
         }
 
         // Detect removing nodes at the end. No pending is created in this case we just have more

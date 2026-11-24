@@ -1525,6 +1525,7 @@ internal class LinkComposer(
 
         // The rGroupIndex for parent is two pack from the current stack top which has already been
         // incremented past this group needs to be offset by one.
+        val inserting = inserting
         val rGroupIndex = parentStateStack.peek2() - 1
         if (inserting) {
             val parent = builder.parentGroup
@@ -1543,6 +1544,9 @@ internal class LinkComposer(
                 reader.groupAux(parent),
             )
         }
+        // Determine the number of remaining slots before handling the pending. The repositioning
+        // and skipping we do in the condition below will clobber this count.
+        val remainingSlots = if (!inserting) reader.remainingSlots else 0
         var expectedNodeCount = groupNodeCount
         val pending = pending
         if (pending != null && pending.keyInfos.isNotEmpty()) {
@@ -1623,7 +1627,6 @@ internal class LinkComposer(
             }
         }
 
-        val inserting = inserting
         // Detect removing nodes at the end. No pending is created in this case we just have more
         // nodes in the previous composition than we expect (i.e. we are not yet at an end)
         if (!inserting) {
@@ -1650,7 +1653,7 @@ internal class LinkComposer(
             // correct order for the values being removed.
             changeListWriter.removeTailGroupsAndValues(
                 firstTailGroupToRemove = reader.currentGroup,
-                count = reader.remainingSlots,
+                count = remainingSlots,
             )
         }
 

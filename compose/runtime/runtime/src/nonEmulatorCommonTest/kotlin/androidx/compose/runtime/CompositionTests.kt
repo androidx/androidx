@@ -2713,6 +2713,103 @@ class CompositionTests {
     }
 
     @Test
+    fun testRememberObserver_TailSlotsForgotten_AfterKeyedGroup() = compositionTest {
+        val events = mutableListOf<String>()
+        class RememberObject(private val name: String) : RememberObserver {
+            override fun onRemembered() {
+                events.add("remember:$name")
+            }
+
+            override fun onForgotten() {
+                events.add("forget:$name")
+            }
+
+            override fun onAbandoned() {}
+        }
+
+        var key by mutableIntStateOf(1)
+        var includeTail by mutableStateOf(true)
+
+        compose {
+            key(key) {
+                remember { RememberObject("child:$key") }
+                Text("Item $key")
+            }
+            if (!includeTail) return@compose
+            remember<RememberObserver> { RememberObject("tail") }
+        }
+
+        assertEquals(listOf("remember:child:1", "remember:tail"), events)
+        events.clear()
+
+        key = 2
+        includeTail = false
+        advance()
+
+        assertEquals(listOf("forget:tail", "forget:child:1", "remember:child:2"), events)
+    }
+
+    @Test
+    fun testRememberObserver_TailSlotsForgotten_AfterRemovedGroups() = compositionTest {
+        val events = mutableListOf<String>()
+        class RememberObject(private val name: String) : RememberObserver {
+            override fun onRemembered() {
+                events.add("remember:$name")
+            }
+
+            override fun onForgotten() {
+                events.add("forget:$name")
+            }
+
+            override fun onAbandoned() {}
+        }
+
+        var firstKey by mutableIntStateOf(1)
+        var secondKey by mutableIntStateOf(2)
+        var includeTail by mutableStateOf(true)
+
+        compose {
+            key(firstKey) {
+                remember { RememberObject("first:$firstKey") }
+                Text("First $firstKey")
+            }
+            key(secondKey) {
+                remember { RememberObject("second:$secondKey") }
+                Text("Second $secondKey")
+            }
+            if (!includeTail) return@compose
+            remember<RememberObserver> { RememberObject("tail1") }
+            Text("Trailing item")
+            remember<RememberObserver> { RememberObject("tail2") }
+        }
+
+        assertEquals(
+            listOf(
+                "remember:first:1",
+                "remember:second:2",
+                "remember:tail1",
+                "remember:tail2",
+            ),
+            events,
+        )
+        events.clear()
+
+        firstKey = 100
+        includeTail = false
+        advance()
+
+        assertEquals(
+            listOf(
+                "forget:tail2",
+                "forget:tail1",
+                "forget:first:1",
+                "remember:first:100",
+            ),
+            events,
+        )
+    }
+
+    @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     fun testRememberedObserver_Controlled_Dispose() = runTest {
         val recomposer = Recomposer(coroutineContext)
