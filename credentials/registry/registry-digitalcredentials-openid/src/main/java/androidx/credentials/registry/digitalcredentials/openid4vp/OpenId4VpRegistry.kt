@@ -28,6 +28,7 @@ import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtInlineIssuanc
 import androidx.credentials.registry.provider.DelegationType
 import androidx.credentials.registry.provider.DelegationTypeAnnotation
 import androidx.credentials.registry.provider.RegistryManager
+import androidx.credentials.registry.provider.digitalcredentials.DeduplicationInfo
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialEntry
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialRegistry
 import androidx.credentials.registry.provider.digitalcredentials.DisplayType
@@ -187,6 +188,8 @@ internal constructor(
         private const val SUPPORTED = "supported"
         private const val METADATA_DISPLAY_TEXT = "metadata_display_text"
         private const val DELEGATION_TYPE = "delegation_type"
+        private const val DEDUP_ID = "dedupId"
+        private const val RANK = "rank"
 
         private fun getIconBytes(icon: Bitmap): ByteArray {
             val currWidth = icon.width
@@ -214,9 +217,14 @@ internal constructor(
             displays: Set<EntryDisplayProperties>,
             iconMap: Map<String, Map<@DisplayType Int, RegistryIcon>>,
             @DelegationTypeAnnotation delegationType: Int = DelegationType.NONE,
+            deduplicationInfo: DeduplicationInfo? = null,
         ) {
             put(ID, itemId)
             put(DELEGATION_TYPE, delegationType)
+            deduplicationInfo?.let {
+                put(DEDUP_ID, it.id)
+                put(RANK, it.rank)
+            }
 
             val displayJson = JSONObject()
             for (display in displays) {
@@ -382,6 +390,7 @@ internal constructor(
                             item.entryDisplayPropertySet,
                             iconMap,
                             item.delegationType,
+                            item.deduplicationInfo,
                         )
                         val pathJson = JSONObject()
                         for (claim in item.claims) {
@@ -400,6 +409,7 @@ internal constructor(
                             item.entryDisplayPropertySet,
                             iconMap,
                             item.delegationType,
+                            item.deduplicationInfo,
                         )
                         val pathJson = JSONObject()
                         for (field in item.fields) {

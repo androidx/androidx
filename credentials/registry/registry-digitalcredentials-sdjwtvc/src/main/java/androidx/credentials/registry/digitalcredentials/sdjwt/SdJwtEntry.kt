@@ -18,6 +18,7 @@ package androidx.credentials.registry.digitalcredentials.sdjwt
 
 import androidx.credentials.registry.provider.DelegationType
 import androidx.credentials.registry.provider.DelegationTypeAnnotation
+import androidx.credentials.registry.provider.digitalcredentials.DeduplicationInfo
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialEntry
 import androidx.credentials.registry.provider.digitalcredentials.EntryDisplayProperties
 
@@ -33,6 +34,8 @@ import androidx.credentials.registry.provider.digitalcredentials.EntryDisplayPro
  *   style variant
  * @property id the unique identifier of this credential entry, which can be used to identify the
  *   exact credential that the user has chosen
+ * @property deduplicationInfo the deduplication metadata used to deduplicate and order entries
+ *   across providers, if applicable
  * @constructor
  * @throws IllegalArgumentException if [id] length is greater than 64 characters
  */
@@ -44,11 +47,13 @@ constructor(
     entryDisplayPropertySet: Set<EntryDisplayProperties>,
     id: String,
     @DelegationTypeAnnotation delegationType: Int = DelegationType.NONE,
+    deduplicationInfo: DeduplicationInfo? = null,
 ) :
     DigitalCredentialEntry(
         id = id,
         entryDisplayPropertySet = entryDisplayPropertySet,
         delegationType = delegationType,
+        deduplicationInfo = deduplicationInfo,
     ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -57,7 +62,8 @@ constructor(
             this.entryDisplayPropertySet == other.entryDisplayPropertySet &&
             this.verifiableCredentialType == other.verifiableCredentialType &&
             this.claims == other.claims &&
-            this.delegationType == other.delegationType
+            this.delegationType == other.delegationType &&
+            this.deduplicationInfo == other.deduplicationInfo
     }
 
     override fun hashCode(): Int {
@@ -66,6 +72,7 @@ constructor(
         result = 31 * result + verifiableCredentialType.hashCode()
         result = 31 * result + claims.hashCode()
         result = 31 * result + delegationType
+        result = 31 * result + (deduplicationInfo?.hashCode() ?: 0)
         return result
     }
 }

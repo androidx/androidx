@@ -39,6 +39,8 @@ import androidx.credentials.registry.provider.DelegationTypeAnnotation
  * @property entryDisplayPropertySet the display properties associated with the given entry
  * @property delegationType the delegation type the provider is opting into for this specific
  *   credential entry
+ * @property deduplicationInfo the deduplication metadata used to deduplicate and order entries
+ *   across providers, if applicable
  * @throws IllegalArgumentException if [id] length is greater than 64 characters
  */
 public abstract class DigitalCredentialEntry
@@ -47,6 +49,7 @@ constructor(
     public val id: String,
     public val entryDisplayPropertySet: Set<EntryDisplayProperties>,
     @param:DelegationTypeAnnotation public val delegationType: Int = DelegationType.NONE,
+    public val deduplicationInfo: DeduplicationInfo? = null,
 ) {
     init {
         require(id.length <= 64) { "`id` length must be less than 64" }
