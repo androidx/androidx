@@ -23,6 +23,7 @@ import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.ClipPath
+import androidx.compose.remote.core.operations.ColorExpression
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawTextAnchored
 import androidx.compose.remote.core.operations.Header
@@ -600,5 +601,85 @@ class RemoteProtocolParityTest {
                 floatArrayOf(1f, Float.fromBits((1 shl 8) or AnimationEasing.CUBIC_STANDARD))
             )
         }
+    }
+
+    @Test
+    fun testRemoteColorMathBitForBitParityWithUtils() {
+        assertEquals(
+            ColorExpression.COLOR_COLOR_INTERPOLATE.toInt(),
+            ColorExpressionModes.COLOR_COLOR_INTERPOLATE,
+        )
+        assertEquals(
+            ColorExpression.ID_COLOR_INTERPOLATE.toInt(),
+            ColorExpressionModes.ID_COLOR_INTERPOLATE,
+        )
+        assertEquals(
+            ColorExpression.COLOR_ID_INTERPOLATE.toInt(),
+            ColorExpressionModes.COLOR_ID_INTERPOLATE,
+        )
+        assertEquals(
+            ColorExpression.ID_ID_INTERPOLATE.toInt(),
+            ColorExpressionModes.ID_ID_INTERPOLATE,
+        )
+        assertEquals(ColorExpression.HSV_MODE.toInt(), ColorExpressionModes.HSV_MODE)
+        assertEquals(ColorExpression.ARGB_MODE.toInt(), ColorExpressionModes.ARGB_MODE)
+        assertEquals(ColorExpression.IDARGB_MODE.toInt(), ColorExpressionModes.ID_ARGB_MODE)
+
+        val hsvFlags = (0x80 shl 16) or ColorExpressionModes.HSV_MODE
+        assertEquals(ColorExpressionModes.HSV_MODE, ColorExpressionModes.mode(hsvFlags))
+        assertEquals(0x80, ColorExpressionModes.alphaPayload(hsvFlags))
+
+        val sampleColors =
+            intArrayOf(
+                0xFF000000.toInt(),
+                0xFFFFFFFF.toInt(),
+                0xFFFF0000.toInt(),
+                0xFFFF0080.toInt(), // red-max with green < blue exercises negative hue wrap
+                0xFF00FF00.toInt(),
+                0xFF0000FF.toInt(),
+                0x80336699.toInt(),
+                0xCCABCDEF.toInt(),
+            )
+        val tValues = floatArrayOf(-0.25f, -0f, 0f, 0.25f, 0.5f, 0.75f, 1f, 1.25f, Float.NaN)
+        for (c1 in sampleColors) {
+            assertEquals(Utils.getHue(c1), RemoteColorMath.hue(c1))
+            assertEquals(Utils.getSaturation(c1), RemoteColorMath.saturation(c1))
+            assertEquals(Utils.getBrightness(c1), RemoteColorMath.brightness(c1))
+            assertEquals(
+                c1,
+                RemoteColorMath.argb(
+                    RemoteColorMath.alpha(c1),
+                    RemoteColorMath.red(c1),
+                    RemoteColorMath.green(c1),
+                    RemoteColorMath.blue(c1),
+                ),
+            )
+            for (c2 in sampleColors) {
+                for (t in tValues) {
+                    assertEquals(
+                        Utils.interpolateColor(c1, c2, t),
+                        RemoteColorMath.interpolateColor(c1, c2, t),
+                        "interpolateColor mismatch for c1=$c1 c2=$c2 t=$t",
+                    )
+                }
+            }
+        }
+        assertEquals(0, RemoteColorMath.clampChannel(-10))
+        assertEquals(0, RemoteColorMath.clampChannel(0))
+        assertEquals(128, RemoteColorMath.clampChannel(128))
+        assertEquals(255, RemoteColorMath.clampChannel(300))
+
+        val hues = floatArrayOf(-0.2f, 0f, 0.1f, 0.25f, 0.45f, 0.6f, 0.8f, 0.95f, 1f)
+        for (h in hues) {
+            assertEquals(Utils.hsvToRgb(h, 0.8f, 0.9f), RemoteColorMath.hsvToRgb(h, 0.8f, 0.9f))
+        }
+        assertEquals(Utils.hsvToRgb(0.5f, 0f, 0.75f), RemoteColorMath.hsvToRgb(0.5f, 0f, 0.75f))
+        assertEquals(Utils.hsvToRgb(0.5f, 0.8f, 0f), RemoteColorMath.hsvToRgb(0.5f, 0.8f, 0f))
+        assertEquals(0, RemoteColorMath.hsvToRgb(1f, 0.8f, 0.9f))
+        assertEquals(0, RemoteColorMath.hsvToRgb(-0.2f, 0.8f, 0.9f))
+        assertEquals(
+            Utils.toARGB(0.5f, 0.25f, 0.75f, 1.0f),
+            RemoteColorMath.toArgb(0.5f, 0.25f, 0.75f, 1.0f),
+        )
     }
 }
