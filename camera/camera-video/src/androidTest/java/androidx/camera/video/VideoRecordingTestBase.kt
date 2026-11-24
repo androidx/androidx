@@ -916,11 +916,29 @@ abstract class VideoRecordingTestBase(
     @IgnoreStreamSharing
     @Test
     fun getVideoCapabilities_withMimeType_returnsCapabilities() {
+        // Only MIME types backed by a hardware encoder are supported. Devices without a hardware
+        // AVC encoder, e.g. emulators, are covered by the test below.
+        assumeTrue(
+            "AVC has no hardware encoder on this device.",
+            Recorder.getSupportedVideoMimeTypes().contains(MIMETYPE_VIDEO_AVC),
+        )
+
         val capabilities = Recorder.getVideoCapabilities(camera.cameraInfo, MIMETYPE_VIDEO_AVC)
 
         assertThat(capabilities).isNotNull()
         // We expect at least SDR to be supported for AVC
         assertThat(capabilities!!.supportedDynamicRanges).contains(SDR)
+    }
+
+    @IgnoreStreamSharing
+    @Test
+    fun getVideoCapabilities_withSoftwareOnlyMimeType_returnsNull() {
+        assumeFalse(
+            "AVC has a hardware encoder on this device.",
+            Recorder.getSupportedVideoMimeTypes().contains(MIMETYPE_VIDEO_AVC),
+        )
+
+        assertThat(Recorder.getVideoCapabilities(camera.cameraInfo, MIMETYPE_VIDEO_AVC)).isNull()
     }
 
     private fun isDeviceWithCamcorderProfileResolutionMismatch(): Boolean {

@@ -3486,7 +3486,9 @@ public final class Recorder implements VideoOutput {
      * Returns the video MIME types supported by the device that are compatible with Recorder.
      *
      * <p>The returned list contains only those MIME types that are supported by the device's
-     * encoders and are compatible with Recorder. This list is a subset of the formats accepted
+     * hardware-accelerated encoders and are compatible with Recorder. MIME types that are only
+     * supported by software encoders are excluded, since software encoders may not sustain
+     * real-time recording. This list is a subset of the formats accepted
      * by {@link Builder#setVideoMimeType(String)}.
      *
      * <p>This method should be used to discover available formats at runtime. Once a MIME type is
@@ -3501,7 +3503,7 @@ public final class Recorder implements VideoOutput {
      */
     @ExperimentalMimeTypeApi
     public static @NonNull List<String> getSupportedVideoMimeTypes() {
-        List<String> encoderMimes = CodecUtil.getVideoEncoderMimeTypes();
+        List<String> encoderMimes = CodecUtil.getHardwareVideoEncoderMimeTypes();
         List<String> filteredMimes = new ArrayList<>(encoderMimes);
         filteredMimes.retainAll(SUPPORTED_VIDEO_MIME_TYPES);
         return filteredMimes;
@@ -4284,7 +4286,8 @@ public final class Recorder implements VideoOutput {
          *
          * If a MIME type supported by Recorder is provided, but that MIME type is not supported
          * by the device, an {@link IllegalArgumentException} will be thrown when binding the
-         * {@link VideoCapture} use case that uses this recorder.
+         * {@link VideoCapture} use case that uses this recorder. A MIME type that is only
+         * supported by software encoders on the device is treated as not supported.
          *
          * <p>If a custom video MIME type is set but an audio MIME type is left as unspecified,
          * CameraX will automatically select a compatible audio codec and container format based
