@@ -18,6 +18,7 @@ package androidx.camera.integration.view
 
 import android.Manifest
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Logger
 import androidx.camera.integration.view.TestUtil.assertPreviewStreamingState
@@ -50,16 +51,23 @@ class EffectsFragmentStressTest(
 ) {
     @get:Rule(order = 0) val labTest: LabTestRule = LabTestRule()
 
-    @get:Rule(order = 1) val requireForegroundRule = RequireForegroundRule()
+    @get:Rule(order = 1)
+    val postTestCameraAvailability =
+        CameraUtil.PostTestCameraAvailability(
+            listOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+        )
 
-    @get:Rule(order = 2)
+    @get:Rule(order = 2) val requireForegroundRule = RequireForegroundRule()
+
+    @get:Rule(order = 3)
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraControllerFragmentTest.testCameraRule,
             CameraUtil.PreTestCameraIdList(cameraConfig),
+            /* postTestCameraAvailability= */ null,
         )
 
-    @get:Rule(order = 3)
+    @get:Rule(order = 4)
     val grantPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,

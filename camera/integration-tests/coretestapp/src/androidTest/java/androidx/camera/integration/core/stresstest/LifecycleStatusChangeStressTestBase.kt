@@ -66,6 +66,12 @@ abstract class LifecycleStatusChangeStressTestBase(
     @get:Rule(order = 1) val repeatRule = RepeatRule()
 
     @get:Rule(order = 2)
+    val postTestCameraAvailability =
+        CameraUtil.PostTestCameraAvailability(
+            listOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+        )
+
+    @get:Rule(order = 3)
     val requireForegroundRule = RequireForegroundRule {
         assumeLifecycleStatusChangeTestCompatibleDevice()
         assumeTrue(CameraUtil.deviceHasCamera())
@@ -73,13 +79,15 @@ abstract class LifecycleStatusChangeStressTestBase(
         CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
     }
 
-    @get:Rule(order = 3)
+    @get:Rule(order = 4)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(cameraConfig)
+            CameraUtil.PreTestCamera(),
+            CameraUtil.PreTestCameraIdList(cameraConfig),
+            /* postTestCameraAvailability= */ null,
         )
 
-    @get:Rule(order = 4)
+    @get:Rule(order = 5)
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -114,6 +122,7 @@ abstract class LifecycleStatusChangeStressTestBase(
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
         requireForegroundRule.deferCleanup {
+            // shutdownAsync() already unbinds all use cases and removes LifecycleCameras on Main.
             if (::cameraProvider.isInitialized) {
                 cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
             }

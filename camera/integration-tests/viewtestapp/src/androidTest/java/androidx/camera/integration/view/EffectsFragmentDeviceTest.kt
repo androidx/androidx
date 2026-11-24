@@ -20,6 +20,7 @@ import android.net.Uri
 import android.os.Build.MODEL
 import android.util.Log
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -55,6 +56,12 @@ class EffectsFragmentDeviceTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule(order = 0)
+    val postTestCameraAvailability =
+        CameraUtil.PostTestCameraAvailability(
+            listOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+        )
+
+    @get:Rule(order = 1)
     val requireForegroundRule = RequireForegroundRule {
         assumeFalse("Test fails on API 24 emulator (b/539514196)", AndroidUtil.isEmulator(24))
         assumeFalse(
@@ -63,14 +70,15 @@ class EffectsFragmentDeviceTest(
         )
     }
 
-    @get:Rule(order = 1)
+    @get:Rule(order = 2)
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraControllerFragmentTest.testCameraRule,
             CameraUtil.PreTestCameraIdList(cameraConfig),
+            /* postTestCameraAvailability= */ null,
         )
 
-    @get:Rule(order = 2)
+    @get:Rule(order = 3)
     val grantPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
