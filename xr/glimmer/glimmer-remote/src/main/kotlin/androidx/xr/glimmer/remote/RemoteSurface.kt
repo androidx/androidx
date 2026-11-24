@@ -241,7 +241,6 @@ private fun colorStops(
 }
 
 /** Animates the width of the border [layer] between idle, focused and pressed states. */
-@SuppressLint("RestrictedApiAndroidX")
 private fun RemoteDrawScope.width(
     layer: Int,
     focusProgress: RemoteFloat,
@@ -256,7 +255,6 @@ private fun RemoteDrawScope.width(
 }
 
 /** Provides smooth animation of color between different states. */
-@SuppressLint("RestrictedApiAndroidX")
 private fun interpolateColor(
     idle: RemoteColor,
     focused: RemoteColor,

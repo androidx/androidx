@@ -24,14 +24,12 @@ import androidx.compose.remote.creation.compose.util.DocumentStats
 
 // TODO: b/575402181 - This is a temporary wrapper of [DocumentStats.examineDocument] because the
 //  original doesn't work correctly. Remove and replace once the bug is fixed.
-@Suppress("RestrictedApiAndroidX")
 internal fun DocumentStats.Companion.examineFullDocument(document: CoreDocument): DocumentStats {
     val flatDocument = CoreDocument()
     document.operations.forEach { flatDocument.operations.addAllInTree(it) }
     return DocumentStats.examineDocument(flatDocument)
 }
 
-@Suppress("RestrictedApiAndroidX")
 private fun MutableList<Operation>.addAllInTree(operation: Operation) {
     add(operation)
     if (operation is Container && operation !is ConditionalOperations) {
