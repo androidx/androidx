@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation;
 
+import static androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation.SELF_COMPONENT_ID;
 import static androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation.TYPE_MEASURE;
 import static androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation.TYPE_POSITION;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_DEREF;
@@ -5502,6 +5503,58 @@ public class RemoteComposeWriter {
             int @NonNull [] propertyIds,
             int @NonNull [] values) {
         mBuffer.addPropertyBundleModifierOperation(bundleId, parentBundleId, propertyIds, values);
+    }
+
+    /**
+     * Adds a {@code PropertyBundleLookupOperation} to the buffer.
+     *
+     * @param valueId the destination integer variable identifier
+     * @param componentId the target component identifier, or {@code -1} for the enclosing component
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     */
+    public void addPropertyBundleLookupOperation(
+            int valueId, int componentId, int propertyId, int defaultValue) {
+        mBuffer.addPropertyBundleLookupOperation(valueId, componentId, propertyId, defaultValue);
+    }
+
+    /**
+     * Adds a {@code PropertyBundleLookupOperation} targeting the enclosing component to the buffer.
+     *
+     * @param valueId the destination integer variable identifier
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     */
+    public void addPropertyBundleLookupOperation(
+            int valueId, int propertyId, int defaultValue) {
+        mBuffer.addPropertyBundleLookupOperation(valueId, propertyId, defaultValue);
+    }
+
+    /**
+     * Allocates an integer variable and emits a {@code PropertyBundleLookupOperation} targeting
+     * {@code componentId}.
+     *
+     * @param componentId the target component identifier, or {@code -1} for the enclosing component
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     * @return id of the integer variable encoded as a {@code long} ({@code id + 0x100000000L})
+     */
+    public long addPropertyBundleLookup(int componentId, int propertyId, int defaultValue) {
+        int valueId = mState.createNextAvailableId();
+        mBuffer.addPropertyBundleLookupOperation(valueId, componentId, propertyId, defaultValue);
+        return (long) valueId + 0x100000000L;
+    }
+
+    /**
+     * Allocates an integer variable and emits a {@code PropertyBundleLookupOperation} targeting the
+     * enclosing component.
+     *
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     * @return id of the integer variable encoded as a {@code long} ({@code id + 0x100000000L})
+     */
+    public long addPropertyBundleLookup(int propertyId, int defaultValue) {
+        return addPropertyBundleLookup(SELF_COMPONENT_ID, propertyId, defaultValue);
     }
 
     /**

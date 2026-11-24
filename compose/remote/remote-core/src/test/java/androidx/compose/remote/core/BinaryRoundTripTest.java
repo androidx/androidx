@@ -107,6 +107,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseOperation;
 import androidx.compose.remote.core.operations.layout.ImpulseProcess;
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
+import androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation;
 import androidx.compose.remote.core.operations.layout.PropertyBundleModifierOperation;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
@@ -305,6 +306,7 @@ public class BinaryRoundTripTest {
                         null, null, null, null, null, null, null, null, null));
         originalOps.add(new ComponentStart(1, 16, 0f, 0f));
         originalOps.add(new ComponentValue(1, 16, 17));
+        originalOps.add(new PropertyBundleLookupOperation(18, 16, 15, -1));
         originalOps.add(new ContainerEnd());
 
         // --- Modifiers ---

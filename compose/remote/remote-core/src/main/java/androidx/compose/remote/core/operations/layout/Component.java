@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import static androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation.SELF_COMPONENT_ID;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
@@ -480,6 +482,12 @@ public class Component extends PaintOperation
             }
             if (op instanceof PropertyBundleModifierOperation) {
                 mPropertyBundle = (PropertyBundleModifierOperation) op;
+            }
+            if (op instanceof PropertyBundleLookupOperation) {
+                PropertyBundleLookupOperation lookupOp = (PropertyBundleLookupOperation) op;
+                if (lookupOp.getComponentId() == SELF_COMPONENT_ID) {
+                    lookupOp.setComponentId(getComponentId());
+                }
             }
         }
     }

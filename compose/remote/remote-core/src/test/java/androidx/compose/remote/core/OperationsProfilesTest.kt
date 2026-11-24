@@ -162,6 +162,7 @@ import androidx.compose.remote.core.Operations.PATH_CREATE
 import androidx.compose.remote.core.Operations.PATH_EXPRESSION
 import androidx.compose.remote.core.Operations.PATH_TWEEN
 import androidx.compose.remote.core.Operations.PLAY_SOUND
+import androidx.compose.remote.core.Operations.PROPERTY_BUNDLE_LOOKUP
 import androidx.compose.remote.core.Operations.REFERENCED_OPERATIONS
 import androidx.compose.remote.core.Operations.REM
 import androidx.compose.remote.core.Operations.ROOT_CONTENT_BEHAVIOR
@@ -302,6 +303,7 @@ import androidx.compose.remote.core.operations.layout.ImpulseProcess
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
+import androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation
 import androidx.compose.remote.core.operations.layout.PropertyBundleModifierOperation
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation
@@ -992,6 +994,7 @@ class OperationsProfilesTest {
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
                     MODIFIER_PROPERTY_BUNDLE to PropertyBundleModifierOperation::class.java,
+                    PROPERTY_BUNDLE_LOOKUP to PropertyBundleLookupOperation::class.java,
                     MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
                     LAYOUT_TEXT_INPUT to TextInputLayout::class.java,
                     DATA_BITMAP to BitmapData::class.java,
@@ -1335,6 +1338,7 @@ class OperationsProfilesTest {
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
                     MODIFIER_PROPERTY_BUNDLE to PropertyBundleModifierOperation::class.java,
+                    PROPERTY_BUNDLE_LOOKUP to PropertyBundleLookupOperation::class.java,
                     MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
                     LAYOUT_TEXT_INPUT to TextInputLayout::class.java,
                     DATA_BITMAP to BitmapData::class.java,
