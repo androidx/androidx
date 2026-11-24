@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.internal
 
 import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.MemoryEstimator
@@ -161,12 +162,15 @@ internal object NoOpFrameGraphResourceTrimmer : FrameGraphResourceTrimmer {
 internal class FrameGraphResourceTrimmerImpl
 @Inject
 constructor(
+    private val graphConfig: CameraGraph.Config,
     private val streamGraph: StreamGraph,
     private val frameCaptureQueue: FrameCaptureQueue,
     private val memoryEstimator: MemoryEstimator,
     private val cameraPipeResourceTrimmer: CameraPipeResourceTrimmer,
     private val cameraMetadata: CameraMetadata,
 ) : FrameGraphResourceTrimmer {
+
+    private data class SizesPerFrame(val totalBytesPerFrame: Long, val reservedBytesPerFrame: Long)
 
     private val lock = Any()
 
@@ -181,9 +185,17 @@ constructor(
         }
     }
 
+    private val pipelineMemoryEnabledStreams: Set<StreamId> = buildSet {
+        for (streamConfig in graphConfig.streams) {
+            if (streamConfig.imageSourceConfig?.enablePipelineMemoryReservation == true) {
+                streamGraph[streamConfig]?.id?.let { add(it) }
+            }
+        }
+    }
+
     private val activeBuffers = CopyOnWriteArrayList<FrameBufferImpl>()
 
-    private val _repeatingFrameSizeBytes = atomic(0L)
+    private val _repeatingFrameSizes = atomic(SizesPerFrame(0L, 0L))
 
     /**
      * Persistent counter used to ensure fair, round-robin eviction across all active
@@ -204,22 +216,29 @@ constructor(
             ?: 2
 
     override val repeatingFrameSizeBytes: Long
-        get() = _repeatingFrameSizeBytes.value
+        get() = _repeatingFrameSizes.value.totalBytesPerFrame
 
     override val currentMemoryRequirement: Long
         get() {
             val burstMemoryNeeded = calculateByteSize(frameCaptureQueue.pendingRequests)
-            if (repeatingFrameSizeBytes <= 0L) {
+            val sizes = _repeatingFrameSizes.value
+            if (sizes.totalBytesPerFrame <= 0L) {
                 return burstMemoryNeeded
             }
 
             // Application headroom to process repeating frames without starving.
             val repeatingMargin =
-                repeatingFrameSizeBytes * CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
+                sizes.totalBytesPerFrame * CameraPipeResourceTrimmer.REPEATING_FRAME_MARGIN_COUNT
 
-            // Memory implicitly held by the camera HAL's internal pipeline.
-            val clampedPipelineDepth = getClampedPipelineDepth(repeatingFrameSizeBytes)
-            val pipelineMargin = repeatingFrameSizeBytes * clampedPipelineDepth
+            // Memory implicitly held by the camera HAL's internal pipeline for streams with
+            // pipeline memory reservation enabled.
+            val pipelineMargin =
+                if (sizes.reservedBytesPerFrame > 0L) {
+                    sizes.reservedBytesPerFrame *
+                        getClampedPipelineDepth(sizes.reservedBytesPerFrame)
+                } else {
+                    0L
+                }
 
             return burstMemoryNeeded + repeatingMargin + pipelineMargin
         }
@@ -242,15 +261,15 @@ constructor(
     }
 
     override fun onRepeatingRequestUpdated(request: Request?) {
-        val newSize =
+        val newSizes =
             if (request != null) {
-                calculateByteSize(listOf(request))
+                calculateRepeatingFrameSizes(request)
             } else {
-                0L
+                SizesPerFrame(0L, 0L)
             }
 
-        val previousSize = _repeatingFrameSizeBytes.getAndSet(newSize)
-        if (previousSize != newSize) {
+        val previousSizes = _repeatingFrameSizes.getAndSet(newSizes)
+        if (previousSizes != newSizes) {
             invalidate()
         }
     }
@@ -308,18 +327,35 @@ constructor(
         var byteSize = 0L
         for (request in requests) {
             for (streamId in request.streams) {
-                val targetOutput = selectExpectedOutput(streamId) ?: continue
-
-                val streamByteSize =
-                    StreamFormat.bytesPerImage(
-                        targetOutput.format,
-                        targetOutput.size.width,
-                        targetOutput.size.height,
-                    )
-                byteSize += streamByteSize
+                byteSize += calculateStreamByteSize(streamId)
             }
         }
         return byteSize
+    }
+
+    private fun calculateRepeatingFrameSizes(request: Request): SizesPerFrame {
+        var totalBytes = 0L
+        var pipelineBytes = 0L
+        for (streamId in request.streams) {
+            val streamBytes = calculateStreamByteSize(streamId)
+            if (streamBytes <= 0L) continue
+            totalBytes += streamBytes
+            if (pipelineMemoryEnabledStreams.contains(streamId)) {
+                pipelineBytes += streamBytes
+            }
+        }
+        return SizesPerFrame(totalBytes, pipelineBytes)
+    }
+
+    private fun calculateStreamByteSize(streamId: StreamId): Long {
+        // Streams without a managed ImageSource do not consume tracked memory.
+        if (!imageReaderSources.containsKey(streamId)) return 0L
+        val targetOutput = selectExpectedOutput(streamId) ?: return 0L
+        return StreamFormat.bytesPerImage(
+            targetOutput.format,
+            targetOutput.size.width,
+            targetOutput.size.height,
+        )
     }
 
     private fun selectExpectedOutput(streamId: StreamId): OutputStream? {
@@ -374,7 +410,7 @@ constructor(
     override fun onGraphClosed() {
         synchronized(lock) {
             isGraphClosed = true
-            _repeatingFrameSizeBytes.value = 0
+            _repeatingFrameSizes.value = SizesPerFrame(0L, 0L)
             checkAndUnregister()
         }
         cameraPipeResourceTrimmer.invalidate()
