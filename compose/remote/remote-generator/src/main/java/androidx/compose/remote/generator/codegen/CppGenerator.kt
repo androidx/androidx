@@ -45,10 +45,15 @@ internal class CppGenerator(private val schema: OperationSchema) {
             #ifndef ANDROIDX_REMOTE_COMPOSE_OPS_H
             #define ANDROIDX_REMOTE_COMPOSE_OPS_H
 
+            #include <array>
+            #include <cmath>
             #include <cstdint>
+            #include <cstring>
+            #include <limits>
             #include <string>
             #include <algorithm>
             #include <string_view>
+            #include <variant>
             #include <vector>
             #include <memory>
             #include <optional>
@@ -134,13 +139,16 @@ internal class CppGenerator(private val schema: OperationSchema) {
         }
         line()
 
+        val multiLang = MultiLangProtocolGenerator(schema)
+        multiLang.emitCppHeaderProtocol(this)
+
         for ((_, structDef) in schema.structs) {
-            emitStructDeclaration(this, structDef)
+            emitStructDeclaration(this, structDef, multiLang)
             line()
         }
 
         for (op in schema.operations) {
-            emitClassDeclaration(this, op)
+            emitClassDeclaration(this, op, multiLang)
             line()
         }
 
@@ -474,13 +482,18 @@ internal class CppGenerator(private val schema: OperationSchema) {
         return "RC_PROFILE_ALL || $combined"
     }
 
-    private fun emitStructDeclaration(w: CodeWriter, structDef: SchemaStruct) {
+    private fun emitStructDeclaration(
+        w: CodeWriter,
+        structDef: SchemaStruct,
+        multiLang: MultiLangProtocolGenerator,
+    ) {
         val props = structDef.astProperties
         val desc = structDef.description.replace("\n", " ").trim()
         if (desc.isNotEmpty()) {
             w.line("/** $desc */")
         }
         w.block("struct ${structDef.name}", close = "};") {
+            multiLang.emitCppOpEnumConstants(this, structDef.fields)
             emitCppMemberFields(this, props)
             line()
             line("${structDef.name}() = default;")
@@ -494,7 +507,11 @@ internal class CppGenerator(private val schema: OperationSchema) {
         }
     }
 
-    private fun emitClassDeclaration(w: CodeWriter, op: SchemaOperation) {
+    private fun emitClassDeclaration(
+        w: CodeWriter,
+        op: SchemaOperation,
+        multiLang: MultiLangProtocolGenerator,
+    ) {
         val guard = getProfileGuard(op)
         if (guard != null) {
             w.rawLine("#if $guard")
@@ -517,12 +534,14 @@ internal class CppGenerator(private val schema: OperationSchema) {
         w.block("class ${op.name} : public Operation", close = "};") {
             rawLine("public:")
             line("static constexpr OpCode OP_CODE = OpCode::${op.name};")
+            multiLang.emitCppOpEnumConstants(this, op.fields)
             line()
             emitCppMemberFields(this, props)
             line()
             line("${op.name}() = default;")
             emitCppConstructor(this, op.name, props)
             emitCppComputedBitGetters(this, op.computedBitProperties, props)
+            multiLang.emitCppOpExtras(this, op)
             line()
             line("OpCode getOpCode() const override { return OP_CODE; }")
             line("void read(WireBuffer& buffer) override;")
