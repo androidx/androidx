@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.document.NanEncoding
 import androidx.compose.remote.document.RemoteIntId
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
@@ -87,7 +88,11 @@ public sealed interface RemoteEnum<T : Enum<T>> : RemoteValue<T> {
          * @return A [RemoteEnum] referencing the ID.
          */
         internal inline fun <reified T : Enum<T>> createForId(id: Int): RemoteEnum<T> =
-            RemoteEnum(RemoteInt.createForId(0x100000000L + id), enumEntries())
+            RemoteEnum(
+                intValue = RemoteInt.createForId(NanEncoding.encodeLongId(id)),
+                enumEntries = enumEntries(),
+                cacheKey = RemoteStateIdKey(id),
+            )
 
         /**
          * Creates a named [RemoteEnum] with an initial value.
@@ -115,18 +120,23 @@ public sealed interface RemoteEnum<T : Enum<T>> : RemoteValue<T> {
     }
 }
 
+internal fun <T : Enum<T>> RemoteEnum(
+    intValue: RemoteInt,
+    enumEntries: EnumEntries<T>,
+    cacheKey: RemoteStateCacheKey,
+): RemoteEnum<T> = RemoteEnumImpl(intValue, enumEntries, cacheKey)
+
 internal val <T : Enum<T>> RemoteEnum<T>.intValue: RemoteInt
     get() = (this as BaseRemoteEnum<T>).intValue
 
-private abstract class BaseRemoteEnum<T : Enum<T>>(override val enumEntries: EnumEntries<T>) :
-    BaseRemoteValue<T>(RemoteStateInstanceKey()), RemoteEnum<T> {
+private abstract class BaseRemoteEnum<T : Enum<T>>(
+    override val enumEntries: EnumEntries<T>,
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteValue<T>(cacheKey), RemoteEnum<T> {
     override val equalityType: KClass<*>
         get() = RemoteEnum::class
 
     abstract val intValue: RemoteInt
-
-    override val cacheKey: RemoteStateCacheKey
-        get() = constantValueOrNull?.let { RemoteConstantCacheKey(it) } ?: intValue.cacheKey
 
     override fun equals(other: Any?): Boolean =
         super.equals(other) && other is BaseRemoteEnum<*> && enumEntries == other.enumEntries
@@ -140,7 +150,17 @@ private abstract class BaseRemoteEnum<T : Enum<T>>(override val enumEntries: Enu
         get() = intValue.constantValueOrNull?.let { enumEntries[it] }
 
     override val ordinal: RemoteInt
-        get() = intValue
+        get() {
+            constantValueOrNull?.let {
+                return RemoteInt(it.ordinal)
+            }
+            return RemoteInt(
+                constantValueOrNull = null,
+                cacheKey = RemoteOperationCacheKey.create(EnumOperationKey.Ordinal, this),
+            ) { creationState ->
+                intValue.arrayForCreationState(creationState)
+            }
+        }
 
     override fun toRemoteString(mapping: (T) -> RemoteString): RemoteString {
         constantValueOrNull?.let {
@@ -186,11 +206,14 @@ private abstract class BaseRemoteEnum<T : Enum<T>>(override val enumEntries: Enu
         }
 
         return enumEntries.fastFold((-1).ri) { acc, value ->
-            intValue.isEqualTo(value.ordinal.ri).select(mapping(value), acc)
+            ordinal.isEqualTo(value.ordinal.ri).select(mapping(value), acc)
         }
     }
 
     override fun toString(): String = constantValueOrNull?.name ?: cacheKey.toDebugString()
+
+    override fun getId(creationState: RemoteComposeCreationState): Int =
+        creationState.getId(intValue)
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
@@ -199,17 +222,23 @@ private abstract class BaseRemoteEnum<T : Enum<T>>(override val enumEntries: Enu
 private class RemoteEnumImpl<T : Enum<T>>(
     override val intValue: RemoteInt,
     enumEntries: EnumEntries<T>,
-) : BaseRemoteEnum<T>(enumEntries)
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteEnum<T>(enumEntries, cacheKey)
 
-private enum class EnumOperationKey : RemoteOperation {
-    ToString;
+internal enum class EnumOperationKey : RemoteOperation {
+    ToString,
+    Ordinal,
+    RemoteEnum;
 
     override val precedence: Int
         get() = 100
 
-    override fun toDebugString(args: List<RemoteStateCacheKey>): String {
-        return "${args[0].toOperandString(precedence)}.toRemoteString()"
-    }
+    override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+        when (this) {
+            ToString -> "${args[0].toOperandString(precedence)}.toRemoteString()"
+            Ordinal -> "${args[0].toOperandString(precedence)}.ordinal"
+            RemoteEnum -> "RemoteEnum(${args[0].toDebugString()})"
+        }
 
     override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
@@ -223,8 +252,15 @@ private enum class EnumOperationKey : RemoteOperation {
                 val stringArray = args[1] as RemoteStringArray
                 stringArray[index]
             }
+            Ordinal -> (args[0] as RemoteEnum<*>).ordinal
+            RemoteEnum ->
+                throw UnsupportedOperationException(
+                    "RemoteEnum reconstruction requires enumEntries"
+                )
         }
     }
+
+    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = this == Ordinal
 }
 
 /**
@@ -236,7 +272,17 @@ private enum class EnumOperationKey : RemoteOperation {
 public fun <T : Enum<T>> RemoteEnum(
     intValue: RemoteInt,
     enumEntries: EnumEntries<T>,
-): RemoteEnum<T> = RemoteEnumImpl(intValue, enumEntries)
+): RemoteEnum<T> =
+    RemoteEnumImpl(
+        intValue = intValue,
+        enumEntries = enumEntries,
+        cacheKey =
+            intValue.constantValueOrNull?.let { RemoteConstantCacheKey(enumEntries[it]) }
+                ?: when (val key = intValue.cacheKey) {
+                    is RemoteNamedCacheKey -> RemoteNamedCacheKey(key.domain, key.name)
+                    else -> RemoteOperationCacheKey.create(EnumOperationKey.RemoteEnum, intValue)
+                },
+    )
 
 /**
  * Creates a [RemoteEnum] from a literal constant.
@@ -280,7 +326,12 @@ public sealed interface MutableRemoteEnum<T : Enum<T>> : RemoteEnum<T>, MutableR
 private class MutableRemoteEnumImpl<T : Enum<T>>(
     override val remoteInt: MutableRemoteInt,
     enumEntries: EnumEntries<T>,
-) : BaseRemoteEnum<T>(enumEntries), MutableRemoteEnum<T> {
+) :
+    BaseRemoteEnum<T>(
+        enumEntries,
+        RemoteOperationCacheKey.create(EnumOperationKey.RemoteEnum, remoteInt),
+    ),
+    MutableRemoteEnum<T> {
     override val intValue: RemoteInt
         get() = remoteInt
 

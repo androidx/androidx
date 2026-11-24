@@ -43,10 +43,9 @@ internal fun interface RemoteStateVisitor<R> {
 /**
  * Transforms this [RemoteValue] expression DAG bottom-up.
  *
- * Wrappers ([RemoteBoolean], [RemoteDp], [RemoteEnum]) are automatically unwrapped and re-wrapped.
- * If [transform] returns `null` for a node, default transformation behavior is applied (preserving
- * unchanged nodes, reconstructing operations with transformed arguments, resolving constants,
- * etc.).
+ * Wrappers ([RemoteDp]) are automatically unwrapped and re-wrapped. If [transform] returns `null`
+ * for a node, default transformation behavior is applied (preserving unchanged nodes,
+ * reconstructing operations with transformed arguments, resolving constants, etc.).
  *
  * @param transform A lambda that inspects each [RemoteValue] node in the AST DAG and returns a
  *   replacement [RemoteValue], or `null` to preserve the node or use default reconstruction.
@@ -63,17 +62,9 @@ public fun <S : RemoteValue<*>> S.transform(
     }
 
     return (when (this) {
-        is RemoteBoolean -> {
-            val newInt = intValue.transform(transform)
-            if (newInt === intValue) this else RemoteBoolean(newInt)
-        }
         is RemoteDp -> {
             val newValue = value.transform(transform)
             if (newValue === value) this else RemoteDp(newValue)
-        }
-        is RemoteEnum<*> -> {
-            val newInt = intValue.transform(transform)
-            if (newInt === intValue) this else RemoteEnum(newInt, enumEntries)
         }
         else -> {
             accept<RemoteValue<*>> { key, state, visitedArgs ->
@@ -85,7 +76,19 @@ public fun <S : RemoteValue<*>> S.transform(
                             is FloatArrayCacheKey -> FloatArrayRemoteValue(key.floatArray, key)
                             else -> null
                         }
-                val custom = if (node != null) transform(node) else null
+                val custom =
+                    if (node != null) {
+                        transform(node)
+                            ?: if (key is RemoteNamedCacheKey && node is RemoteEnum<*>) {
+                                (transform(node.intValue) as? RemoteInt)?.let {
+                                    RemoteEnum(it, node.enumEntries)
+                                }
+                            } else {
+                                null
+                            }
+                    } else {
+                        null
+                    }
                 if (custom != null) {
                     unwrapWrapper(custom)
                 } else {
@@ -93,6 +96,10 @@ public fun <S : RemoteValue<*>> S.transform(
                         is RemoteOperationCacheKey -> {
                             if (node != null && !hasArgsChanged(key.args, visitedArgs)) {
                                 node
+                            } else if (
+                                key.op == EnumOperationKey.RemoteEnum && node is RemoteEnum<*>
+                            ) {
+                                RemoteEnum(visitedArgs[0] as RemoteInt, node.enumEntries)
                             } else {
                                 unwrapWrapper((key.op as RemoteOperation).reconstruct(visitedArgs))
                             }
@@ -121,9 +128,7 @@ public fun <S : RemoteValue<*>> S.transform(
 
 private fun unwrapWrapper(value: RemoteValue<*>): RemoteValue<*> =
     when (value) {
-        is RemoteBoolean -> value.intValue
         is RemoteDp -> value.value
-        is RemoteEnum<*> -> value.intValue
         else -> value
     }
 

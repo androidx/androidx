@@ -1147,32 +1147,38 @@ internal fun comparisonOp(
         return RemoteBoolean(directEval(aConst, bConst))
     }
 
+    val boolKey = RemoteOperationCacheKey.create(op, a, b)
     return RemoteBoolean(
-        RemoteInt(
-            constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(op, a, b),
-        ) { creationState ->
-            val aArray = a.arrayForCreationState(creationState)
-            val bArray = b.arrayForCreationState(creationState)
+        intValue =
+            RemoteInt(
+                constantValueOrNull = null,
+                cacheKey =
+                    RemoteOperationCacheKey(BooleanOperationKey.ToRemoteInt, listOf(boolKey)),
+            ) { creationState ->
+                val aArray = a.arrayForCreationState(creationState)
+                val bArray = b.arrayForCreationState(creationState)
 
-            // A comparisonOp adds five op codes
-            val combinedSize = aArray.size + bArray.size + 5
-            val (finalAArray, finalBArray) =
-                if (combinedSize > MAX_SAFE_FLOAT_ARRAY) { // Check if new array would exceed limit
-                    Pair(
-                        floatArrayOf(creationState.getFloatId(a)),
-                        floatArrayOf(creationState.getFloatId(b)),
+                // A comparisonOp adds five op codes
+                val combinedSize = aArray.size + bArray.size + 5
+                val (finalAArray, finalBArray) =
+                    if (
+                        combinedSize > MAX_SAFE_FLOAT_ARRAY
+                    ) { // Check if new array would exceed limit
+                        Pair(
+                            floatArrayOf(creationState.getFloatId(a)),
+                            floatArrayOf(creationState.getFloatId(b)),
+                        )
+                    } else {
+                        Pair(aArray, bArray)
+                    }
+
+                val id =
+                    creationState.document.addFloatExpression(
+                        *expressionGenerator(finalAArray, finalBArray)
                     )
-                } else {
-                    Pair(aArray, bArray)
-                }
-
-            val id =
-                creationState.document.addFloatExpression(
-                    *expressionGenerator(finalAArray, finalBArray)
-                )
-            longArrayOf(0x100000000L + id.id.toLong())
-        },
+                longArrayOf(0x100000000L + id.id.toLong())
+            },
+        cacheKey = boolKey,
         floatComparison = floatComparisonOp?.let { SelectFloatCondition.FloatComparison(a, b, it) },
     )
 }

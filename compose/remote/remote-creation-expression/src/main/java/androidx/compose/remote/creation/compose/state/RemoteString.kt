@@ -374,22 +374,29 @@ private abstract class BaseRemoteString(
                 return RemoteBoolean(it.isEmpty())
             }
 
+            val boolKey = RemoteOperationCacheKey.create(StringOperationKey.IsEmpty, this)
             return RemoteBoolean(
-                RemoteInt(
-                    constantValueOrNull = null,
-                    cacheKey = RemoteOperationCacheKey.create(StringOperationKey.IsEmpty, this),
-                ) { creationState ->
-                    longArrayOf(
-                        1,
-                        0,
-                        0x100000000L +
-                            creationState.document
-                                .textLength(RemoteStringId(getId(creationState)))
-                                .id
-                                .toLong(),
-                        0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
-                    )
-                }
+                intValue =
+                    RemoteInt(
+                        constantValueOrNull = null,
+                        cacheKey =
+                            RemoteOperationCacheKey(
+                                BooleanOperationKey.ToRemoteInt,
+                                listOf(boolKey),
+                            ),
+                    ) { creationState ->
+                        longArrayOf(
+                            1,
+                            0,
+                            0x100000000L +
+                                creationState.document
+                                    .textLength(RemoteStringId(getId(creationState)))
+                                    .id
+                                    .toLong(),
+                            0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
+                        )
+                    },
+                cacheKey = boolKey,
             )
         }
 
@@ -399,22 +406,29 @@ private abstract class BaseRemoteString(
                 return RemoteBoolean(it.isNotEmpty())
             }
 
+            val boolKey = RemoteOperationCacheKey.create(StringOperationKey.IsNotEmpty, this)
             return RemoteBoolean(
-                RemoteInt(
-                    constantValueOrNull = null,
-                    cacheKey = RemoteOperationCacheKey.create(StringOperationKey.IsNotEmpty, this),
-                ) { creationState ->
-                    longArrayOf(
-                        0,
-                        1,
-                        0x100000000L +
-                            creationState.document
-                                .textLength(RemoteStringId(getId(creationState)))
-                                .id
-                                .toLong(),
-                        0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
-                    )
-                }
+                intValue =
+                    RemoteInt(
+                        constantValueOrNull = null,
+                        cacheKey =
+                            RemoteOperationCacheKey(
+                                BooleanOperationKey.ToRemoteInt,
+                                listOf(boolKey),
+                            ),
+                    ) { creationState ->
+                        longArrayOf(
+                            0,
+                            1,
+                            0x100000000L +
+                                creationState.document
+                                    .textLength(RemoteStringId(getId(creationState)))
+                                    .id
+                                    .toLong(),
+                            0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
+                        )
+                    },
+                cacheKey = boolKey,
             )
         }
 

@@ -746,27 +746,31 @@ internal fun comparisonOp(
     val aConst = a.constantValueOrNull
     val bConst = b.constantValueOrNull
     if (aConst != null && bConst != null) {
-        return RemoteBoolean(RemoteInt(directEval(aConst, bConst)))
+        return RemoteBoolean(directEval(aConst, bConst) != 0)
     }
 
+    val boolKey = RemoteOperationCacheKey.create(op, a, b)
     return RemoteBoolean(
-        RemoteInt(
-            constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(op, a, b),
-        ) { creationState ->
-            val aArray = a.arrayForCreationState(creationState)
-            val bArray = b.arrayForCreationState(creationState)
-            // A comparisonOp adds five op codes
-            val combinedSize = aArray.size + bArray.size + 5
-            if (combinedSize > MAX_SAFE_LONG_ARRAY) { // Check if new array would exceed limit
-                expressionGenerator(
-                    longArrayOf(creationState.getLongId(a)),
-                    longArrayOf(creationState.getLongId(b)),
-                )
-            } else {
-                expressionGenerator(aArray, bArray)
-            }
-        },
+        intValue =
+            RemoteInt(
+                constantValueOrNull = null,
+                cacheKey =
+                    RemoteOperationCacheKey(BooleanOperationKey.ToRemoteInt, listOf(boolKey)),
+            ) { creationState ->
+                val aArray = a.arrayForCreationState(creationState)
+                val bArray = b.arrayForCreationState(creationState)
+                // A comparisonOp adds five op codes
+                val combinedSize = aArray.size + bArray.size + 5
+                if (combinedSize > MAX_SAFE_LONG_ARRAY) { // Check if new array would exceed limit
+                    expressionGenerator(
+                        longArrayOf(creationState.getLongId(a)),
+                        longArrayOf(creationState.getLongId(b)),
+                    )
+                } else {
+                    expressionGenerator(aArray, bArray)
+                }
+            },
+        cacheKey = boolKey,
         intComparison = intComparisonOp?.let { SelectIntCondition.IntComparison(a, b, it) },
     )
 }
