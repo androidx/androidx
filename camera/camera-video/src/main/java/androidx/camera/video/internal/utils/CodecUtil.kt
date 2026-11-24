@@ -130,6 +130,23 @@ public object CodecUtil {
         return allVideoEncoderMimeTypes.filterNot { it in unsupportedMimeTypes }
     }
 
+    /**
+     * Returns the video encoder MIME types that have at least one hardware-accelerated encoder.
+     *
+     * This is the subset of [getVideoEncoderMimeTypes] whose MIME types are supported by an encoder
+     * for which [isHardwareAccelerated] returns `true`. MIME types only supported by software
+     * encoders (e.g. `c2.android.*`) are excluded, since software encoders may not sustain
+     * real-time camera recording on all devices.
+     */
+    @JvmStatic
+    public fun getHardwareVideoEncoderMimeTypes(): List<String> =
+        getVideoEncoderMimeTypes().filter { mimeType ->
+            allEncoderInfos.any { info ->
+                info.supportedTypes?.any { it.equals(mimeType, ignoreCase = true) } == true &&
+                    isHardwareAccelerated(info, mimeType)
+            }
+        }
+
     @JvmStatic public fun getAudioEncoderMimeTypes(): List<String> = allAudioEncoderMimeTypes
 
     /** Resets the cached codec information. */

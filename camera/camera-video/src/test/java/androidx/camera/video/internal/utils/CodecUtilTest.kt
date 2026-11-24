@@ -109,6 +109,66 @@ class CodecUtilTest {
 
     @Config(minSdk = 29)
     @Test
+    fun getHardwareVideoEncoderMimeTypes_excludesSoftwareOnlyMimeTypes() {
+        // Arrange.
+        addVideoCodecInfo(
+            mimeType = MIMETYPE_VIDEO_AVC,
+            name = "c2.vendor.avc.encoder",
+            isHardwareAccelerated = true,
+        )
+        addVideoCodecInfo(mimeType = MIMETYPE_VIDEO_HEVC, name = "c2.android.hevc.encoder")
+
+        // Act.
+        val videoTypes = CodecUtil.getHardwareVideoEncoderMimeTypes()
+
+        // Assert.
+        assertThat(videoTypes).containsExactly(MIMETYPE_VIDEO_AVC)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun getHardwareVideoEncoderMimeTypes_includesMimeTypeWithBothSoftwareAndHardwareEncoders() {
+        // Arrange.
+        addVideoCodecInfo(mimeType = MIMETYPE_VIDEO_HEVC, name = "c2.android.hevc.encoder")
+        addVideoCodecInfo(
+            mimeType = MIMETYPE_VIDEO_HEVC,
+            name = "c2.vendor.hevc.encoder",
+            isHardwareAccelerated = true,
+        )
+
+        // Act.
+        val videoTypes = CodecUtil.getHardwareVideoEncoderMimeTypes()
+
+        // Assert.
+        assertThat(videoTypes).containsExactly(MIMETYPE_VIDEO_HEVC)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun getHardwareVideoEncoderMimeTypes_quirkDevice_excludesUnsupportedMimeTypes() {
+        // Arrange.
+        ShadowBuild.setBrand("google")
+        ShadowBuild.setDevice("redfin")
+        addVideoCodecInfo(
+            mimeType = MIMETYPE_VIDEO_AVC,
+            name = "FakeAvcEncoder",
+            isHardwareAccelerated = true,
+        )
+        addVideoCodecInfo(
+            mimeType = MIMETYPE_VIDEO_AV1,
+            name = "FakeAv1Encoder",
+            isHardwareAccelerated = true,
+        )
+
+        // Act.
+        val videoTypes = CodecUtil.getHardwareVideoEncoderMimeTypes()
+
+        // Assert.
+        assertThat(videoTypes).containsExactly(MIMETYPE_VIDEO_AVC)
+    }
+
+    @Config(minSdk = 29)
+    @Test
     fun getAudioEncoderMimeTypes_returnsOnlyAudioEncoders() {
         // Arrange.
         addVideoCodecInfo(mimeType = MIMETYPE_VIDEO_AVC, isEncoder = true)
@@ -234,6 +294,7 @@ class CodecUtilTest {
         width: Int = 1920,
         height: Int = 1080,
         colorFormats: IntArray = intArrayOf(COLOR_FormatSurface),
+        isHardwareAccelerated: Boolean = false,
     ) {
         val format = createVideoFormat(mimeType, width, height)
 
@@ -248,6 +309,7 @@ class CodecUtilTest {
             MediaCodecInfoBuilder.newBuilder()
                 .setName(name)
                 .setIsEncoder(isEncoder)
+                .setIsHardwareAccelerated(isHardwareAccelerated)
                 .setCapabilities(caps)
                 .build()
 
