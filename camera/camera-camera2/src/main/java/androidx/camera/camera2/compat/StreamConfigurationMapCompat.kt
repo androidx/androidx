@@ -23,6 +23,7 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.compat.quirk.UnsupportedFormatsQuirk
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
@@ -45,14 +46,16 @@ public class StreamConfigurationMapCompat
 constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMetadata? = null) {
     private val outputSizesCorrector = OutputSizesCorrector(cameraMetadata, map)
     private val tag = "StreamConfigurationMapCompat"
-    private val cachedFormatOutputSizes = mutableMapOf<Int, Array<Size>>()
+    private val lock = Any()
+    @GuardedBy("lock") private val cachedFormatOutputSizes = mutableMapOf<Int, Array<Size>>()
+    @GuardedBy("lock")
     private val cachedFormatHighResolutionOutputSizes = mutableMapOf<Int, Array<Size>?>()
-    private val cachedClassOutputSizes = mutableMapOf<Class<*>, Array<Size>>()
+    @GuardedBy("lock") private val cachedClassOutputSizes = mutableMapOf<Class<*>, Array<Size>>()
     private val unsupportedFormats: Set<Int> by lazy {
         DeviceQuirks[UnsupportedFormatsQuirk::class.java]?.getUnsupportedFormats(cameraMetadata)
             ?.toSet() ?: emptySet()
     }
-    private var impl: StreamConfigurationMapCompatImpl =
+    private val impl: StreamConfigurationMapCompatImpl =
         if (Build.VERSION.SDK_INT >= 34) {
             StreamConfigurationMapCompatApi34Impl(map)
         } else {
@@ -87,8 +90,9 @@ constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMeta
         if (unsupportedFormats.contains(format)) {
             return null
         }
-        if (cachedFormatOutputSizes.contains(format)) {
-            return cachedFormatOutputSizes[format]?.clone()
+        val cachedSizes = synchronized(lock) { cachedFormatOutputSizes[format] }
+        if (cachedSizes != null) {
+            return cachedSizes.clone()
         }
 
         val outputSizes =
@@ -106,9 +110,9 @@ constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMeta
             return outputSizes
         }
 
-        outputSizesCorrector.applyQuirks(outputSizes, format).let {
-            cachedFormatOutputSizes[format] = it
-            return it.clone()
+        val correctedSizes = outputSizesCorrector.applyQuirks(outputSizes, format)
+        return synchronized(lock) {
+            cachedFormatOutputSizes.getOrPut(format) { correctedSizes }.clone()
         }
     }
 
@@ -123,8 +127,9 @@ constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMeta
      * @throws NullPointerException if `klass` was `null`
      */
     public fun <T> getOutputSizes(klass: Class<T>): Array<Size>? {
-        if (cachedClassOutputSizes.contains(klass)) {
-            return cachedClassOutputSizes[klass]?.clone()
+        val cachedSizes = synchronized(lock) { cachedClassOutputSizes[klass] }
+        if (cachedSizes != null) {
+            return cachedSizes.clone()
         }
 
         val outputSizes =
@@ -142,9 +147,9 @@ constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMeta
             return outputSizes
         }
 
-        outputSizesCorrector.applyQuirks(outputSizes, klass).let {
-            cachedClassOutputSizes[klass] = it
-            return it.clone()
+        val correctedSizes = outputSizesCorrector.applyQuirks(outputSizes, klass)
+        return synchronized(lock) {
+            cachedClassOutputSizes.getOrPut(klass) { correctedSizes }.clone()
         }
     }
 
@@ -161,8 +166,10 @@ constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMeta
         if (unsupportedFormats.contains(format)) {
             return null
         }
-        if (cachedFormatHighResolutionOutputSizes.contains(format)) {
-            return cachedFormatHighResolutionOutputSizes[format]?.clone()
+        synchronized(lock) {
+            if (cachedFormatHighResolutionOutputSizes.containsKey(format)) {
+                return cachedFormatHighResolutionOutputSizes[format]?.clone()
+            }
         }
 
         var outputSizes = impl.getHighResolutionOutputSizes(format)
@@ -172,8 +179,14 @@ constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMeta
             outputSizes = outputSizesCorrector.applyQuirks(outputSizes, format)
         }
 
-        cachedFormatHighResolutionOutputSizes[format] = outputSizes
-        return outputSizes?.clone()
+        return synchronized(lock) {
+            if (cachedFormatHighResolutionOutputSizes.containsKey(format)) {
+                cachedFormatHighResolutionOutputSizes[format]?.clone()
+            } else {
+                cachedFormatHighResolutionOutputSizes[format] = outputSizes
+                outputSizes?.clone()
+            }
+        }
     }
 
     /** Get a list of supported high speed video recording FPS ranges. */
