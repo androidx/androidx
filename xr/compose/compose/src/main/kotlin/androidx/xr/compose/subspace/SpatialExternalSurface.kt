@@ -44,6 +44,7 @@ import androidx.xr.compose.unit.toMeters
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
+import java.util.function.Consumer
 
 /** Contains default values used by SpatialExternalSurface. */
 internal object SpatialExternalSurfaceDefaults {
@@ -463,9 +464,10 @@ private fun SpatialExternalSurfaceBaseSphere(
         // Since we lack better boundary APIs at the moment, we will correlate full
         // passthrough being on as an indication that boundary is unavailable, as we set
         // passthrough to 0 if boundary is available.
-        val passthroughListener = { passthrough: Float ->
-            coreSurfaceEntity.isBoundaryAvailable = passthrough != 1.0f
-        }
+        val passthroughListener =
+            Consumer<Float> { passthrough ->
+                coreSurfaceEntity.isBoundaryAvailable = passthrough != 1.0f
+            }
         session.scene.spatialEnvironment.addPassthroughOpacityChangedListener(passthroughListener)
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
