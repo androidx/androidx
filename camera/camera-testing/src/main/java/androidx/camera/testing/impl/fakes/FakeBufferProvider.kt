@@ -16,7 +16,7 @@
 
 package androidx.camera.testing.impl.fakes
 
-import androidx.annotation.GuardedBy
+import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture
@@ -28,29 +28,26 @@ import androidx.camera.video.internal.BufferProvider
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
+import kotlinx.atomicfu.atomic
 
 public class FakeBufferProvider(
-    @GuardedBy("lock") private var state: BufferProvider.State = BufferProvider.State.ACTIVE,
+    state: BufferProvider.State = BufferProvider.State.ACTIVE,
     private val bufferFactory: (Int) -> ListenableFuture<FakeInputBuffer> = {
         immediateFuture(FakeInputBuffer())
     },
 ) : BufferProvider<FakeInputBuffer> {
-    // The BufferProvider can be accessed from multiple threads, e.g. AudioSource adds its observer
-    // on its own executor while an encoder updates the state on another thread.
-    private val lock = Any()
+    // Back state observation with MutableStateObservable so concurrent addObserver() and
+    // setState() calls across threads (e.g. AudioSource on its own executor while an encoder
+    // updates state on another thread) cannot enqueue a stale state after a newer one.
+    private val stateObservable = MutableStateObservable.withInitialState(state)
     private val submittedBufferCalls = MockConsumer<FakeInputBuffer>()
-    @GuardedBy("lock") private var acquiredBufferNum = 0
-    @GuardedBy("lock")
-    private val observers = mutableMapOf<Observable.Observer<in BufferProvider.State>, Executor>()
+    private val acquiredBufferNum = atomic(0)
 
     override fun acquireBuffer(): ListenableFuture<FakeInputBuffer> {
-        val bufferIndex =
-            synchronized(lock) {
-                if (state != BufferProvider.State.ACTIVE) {
-                    return immediateFailedFuture(IllegalStateException("Not in ACTIVE state"))
-                }
-                acquiredBufferNum++
-            }
+        if (stateObservable.fetchData().get() != BufferProvider.State.ACTIVE) {
+            return immediateFailedFuture(IllegalStateException("Not in ACTIVE state"))
+        }
+        val bufferIndex = acquiredBufferNum.getAndIncrement()
         val bufferFuture = bufferFactory.invoke(bufferIndex)
         bufferFuture.addListener(
             {
@@ -73,24 +70,17 @@ public class FakeBufferProvider(
         return bufferFuture
     }
 
-    override fun fetchData(): ListenableFuture<BufferProvider.State> {
-        return immediateFuture(synchronized(lock) { state })
-    }
+    override fun fetchData(): ListenableFuture<BufferProvider.State> = stateObservable.fetchData()
 
     override fun addObserver(
         executor: Executor,
         observer: Observable.Observer<in BufferProvider.State>,
     ) {
-        val currentState =
-            synchronized(lock) {
-                observers[observer] = executor
-                state
-            }
-        executor.execute { observer.onNewData(currentState) }
+        stateObservable.addObserver(executor, observer)
     }
 
     override fun removeObserver(observer: Observable.Observer<in BufferProvider.State>) {
-        synchronized(lock) { observers.remove(observer) }
+        stateObservable.removeObserver(observer)
     }
 
     public fun verifySubmittedBufferCall(
@@ -108,18 +98,6 @@ public class FakeBufferProvider(
         )
 
     public fun setState(newState: BufferProvider.State) {
-        // Notify a snapshot of the observers outside the lock, so that an observer added or
-        // removed concurrently doesn't break the iteration.
-        val observersToNotify =
-            synchronized(lock) {
-                if (state == newState) {
-                    return
-                }
-                state = newState
-                observers.toList()
-            }
-        for ((observer, executor) in observersToNotify) {
-            executor.execute { observer.onNewData(newState) }
-        }
+        stateObservable.setState(newState)
     }
 }
