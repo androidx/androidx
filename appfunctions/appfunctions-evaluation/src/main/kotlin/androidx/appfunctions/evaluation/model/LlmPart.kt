@@ -20,7 +20,7 @@ import androidx.appfunctions.AppFunctionName
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 
-/** Holds a single content item in `LlmTurn.parts`. */
+/** Holds a single content item in [LlmTurn.parts]. */
 public abstract class LlmPart private constructor() {
     /**
      * Holds a natural-language text item.
@@ -38,7 +38,7 @@ public abstract class LlmPart private constructor() {
 
     /**
      * Holds an [ExecuteAppFunctionRequest] requested by the model, typically in an
-     * `LlmTurn.ModelTurn`.
+     * [LlmTurn.ModelTurn].
      *
      * @property request [ExecuteAppFunctionRequest] to execute
      * @constructor creates an AppFunction call request part with [request]
@@ -54,7 +54,7 @@ public abstract class LlmPart private constructor() {
 
     /**
      * Holds the [ExecuteAppFunctionResponse] from executing the AppFunction [functionName],
-     * typically in the `LlmTurn.UserTurn` that follows the model's request.
+     * typically in the [LlmTurn.UserTurn] that follows the model's request.
      *
      * @property functionName [AppFunctionName] of the executed AppFunction: the
      *   [ExecuteAppFunctionRequest.targetPackageName] and
