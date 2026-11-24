@@ -24,6 +24,7 @@ import androidx.collection.FloatList
 import androidx.collection.IntList
 import androidx.collection.emptyIntList
 import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
+import androidx.glance.adaptive.core.templates.list.ListItemStyle
 
 /*
  * The slot component library: backend-agnostic data models, one per component, each implementing
@@ -51,12 +52,15 @@ private val ContainedRingCapabilities = setOf(Capability.Tracking, Capability.Te
  * @property value The text as the app formatted it, e.g. `11,056` or `Steps`.
  * @property sensitiveReplacement Text shown instead of [value] on the lock screen, or `null` when
  *   [value] is not sensitive.
+ * @property isStruckThrough Whether the text should be rendered with strikethrough (for example, a
+ *   declined event or completed task).
  * @throws IllegalArgumentException if [value] or [sensitiveReplacement] is blank.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TemplateText(
     public val value: String,
     public val sensitiveReplacement: String? = null,
+    public val isStruckThrough: Boolean = false,
 ) : PrimaryComponent, SecondaryComponent, ActionComponent {
     init {
         require(value.isNotBlank()) { "Text must not be blank." }
@@ -71,13 +75,21 @@ public class TemplateText(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TemplateText) return false
-        return value == other.value && sensitiveReplacement == other.sensitiveReplacement
+        return value == other.value &&
+            sensitiveReplacement == other.sensitiveReplacement &&
+            isStruckThrough == other.isStruckThrough
     }
 
-    override fun hashCode(): Int = 31 * value.hashCode() + (sensitiveReplacement?.hashCode() ?: 0)
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + (sensitiveReplacement?.hashCode() ?: 0)
+        result = 31 * result + isStruckThrough.hashCode()
+        return result
+    }
 
     override fun toString(): String =
-        "TemplateText(value=$value, sensitiveReplacement=$sensitiveReplacement)"
+        "TemplateText(value=$value, sensitiveReplacement=$sensitiveReplacement, " +
+            "isStruckThrough=$isStruckThrough)"
 }
 
 /**
@@ -245,6 +257,24 @@ public class Badge(
 
     override val capabilities: Set<Capability>
         get() = BadgeCapabilities
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Badge) return false
+        return label == other.label &&
+            outlineColor == other.outlineColor &&
+            dotColors == other.dotColors
+    }
+
+    override fun hashCode(): Int {
+        var result = label.hashCode()
+        result = 31 * result + (outlineColor ?: 0)
+        result = 31 * result + dotColors.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "Badge(label=$label, outlineColor=$outlineColor, dotColors=$dotColors)"
 }
 
 /**
@@ -328,15 +358,18 @@ public class Icon(
 }
 
 /**
- * A glyph on a filled circle that runs [action] when tapped. Fits an action slot, the header's
- * trailing slot, and the bulb slot, where it is the whole widget and spans the circle the bulb
- * gives it.
+ * A glyph, inside a filled circle when [contained] is `true`, that runs [action] when tapped. Fits
+ * an action slot, the header's trailing slot, and the bulb slot, where it is the whole widget and
+ * spans the circle the bulb gives it.
  *
- * @property icon Drawable resource of the glyph, tinted with the primary color.
+ * @property icon Drawable resource of the glyph, tinted with `onSecondaryContainer` when
+ *   [contained] is `true` and `primary` when uncontained.
  * @property contentDescription What the button does, for accessibility services.
  * @property action Action to run when tapped, or `null` for a button that only shows its glyph.
  * @property sensitiveReplacement Content description used instead of [contentDescription] on the
  *   lock screen, or `null` when [contentDescription] is not sensitive, such as a contact's name.
+ * @property contained Whether the glyph sits inside a filled circle, rather than drawing as a bare
+ *   glyph.
  * @throws IllegalArgumentException if [icon] is `0`, or [contentDescription] or
  *   [sensitiveReplacement] is blank.
  */
@@ -346,6 +379,7 @@ public class IconButton(
     public val contentDescription: String,
     public val action: GlanceAdaptiveAction? = null,
     public val sensitiveReplacement: String? = null,
+    @get:JvmName("isContained") public val contained: Boolean = true,
 ) : ActionComponent, TrailingComponent, BulbComponent {
     init {
         require(icon != 0) { "An icon button needs a drawable resource." }
@@ -364,7 +398,8 @@ public class IconButton(
         return icon == other.icon &&
             contentDescription == other.contentDescription &&
             action == other.action &&
-            sensitiveReplacement == other.sensitiveReplacement
+            sensitiveReplacement == other.sensitiveReplacement &&
+            contained == other.contained
     }
 
     override fun hashCode(): Int {
@@ -372,12 +407,13 @@ public class IconButton(
         result = 31 * result + contentDescription.hashCode()
         result = 31 * result + (action?.hashCode() ?: 0)
         result = 31 * result + (sensitiveReplacement?.hashCode() ?: 0)
+        result = 31 * result + contained.hashCode()
         return result
     }
 
     override fun toString(): String =
         "IconButton(icon=$icon, contentDescription=$contentDescription, action=$action, " +
-            "sensitiveReplacement=$sensitiveReplacement)"
+            "sensitiveReplacement=$sensitiveReplacement, contained=$contained)"
 }
 
 /**
@@ -487,4 +523,177 @@ public class IconTile(
     override fun toString(): String =
         "IconTile(icon=$icon, label=$label, action=$action, " +
             "sensitiveReplacement=$sensitiveReplacement, subtitle=$subtitle)"
+}
+
+private val ListCapabilities = setOf(Capability.Text)
+private val ListActionCapabilities = setOf(Capability.Text, Capability.Action)
+private val ListStatusCapabilities = setOf(Capability.Text, Capability.Status)
+private val ListActionStatusCapabilities =
+    setOf(Capability.Text, Capability.Action, Capability.Status)
+
+/**
+ * Single row inside an [ItemList].
+ *
+ * @property title Primary headline text of the row.
+ * @property subtitle Optional secondary line (for example, time range or status).
+ * @property tertiaryText Optional third line (for example, location), shown when the row is the
+ *   first item and [ItemList.showTertiaryText] is `true`.
+ * @property leadingIcon Optional uncontained leading [Icon] displayed before the text column.
+ * @property trailingIcon Optional trailing [Icon] (mutually exclusive with [trailingChip]).
+ * @property trailingChip Optional trailing status [Badge] (mutually exclusive with [trailingIcon]).
+ * @property action Optional tap action for this row.
+ * @property style Container prominence style ([ListItemStyle.Default], [ListItemStyle.Focused],
+ *   [ListItemStyle.Neutral], or [ListItemStyle.Outlined]).
+ * @property isDivider Whether the item is a non-clickable section divider (for example,
+ *   `"TOMORROW"`).
+ * @throws IllegalArgumentException if [leadingIcon] is contained, both [trailingIcon] and
+ *   [trailingChip] are set, or [isDivider] is `true` and [title] is struck through or any non-title
+ *   property is set.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ListItem(
+    public val title: TemplateText,
+    public val subtitle: TemplateText? = null,
+    public val tertiaryText: TemplateText? = null,
+    public val leadingIcon: Icon? = null,
+    public val trailingIcon: Icon? = null,
+    public val trailingChip: Badge? = null,
+    public val action: GlanceAdaptiveAction? = null,
+    public val style: ListItemStyle = ListItemStyle.Default,
+    public val isDivider: Boolean = false,
+) {
+    init {
+        require(leadingIcon == null || !leadingIcon.contained) {
+            "A list item leading icon must not be contained."
+        }
+        require(trailingIcon == null || trailingChip == null) {
+            "A list item cannot have both a trailingIcon and a trailingChip."
+        }
+        if (isDivider) {
+            require(
+                !title.isStruckThrough &&
+                    subtitle == null &&
+                    tertiaryText == null &&
+                    leadingIcon == null &&
+                    trailingIcon == null &&
+                    trailingChip == null &&
+                    action == null &&
+                    style == ListItemStyle.Default
+            ) {
+                "A divider list item may only set a non-struck-through title."
+            }
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ListItem) return false
+        return title == other.title &&
+            subtitle == other.subtitle &&
+            tertiaryText == other.tertiaryText &&
+            leadingIcon == other.leadingIcon &&
+            trailingIcon == other.trailingIcon &&
+            trailingChip == other.trailingChip &&
+            action == other.action &&
+            style == other.style &&
+            isDivider == other.isDivider
+    }
+
+    override fun hashCode(): Int {
+        var result = title.hashCode()
+        result = 31 * result + (subtitle?.hashCode() ?: 0)
+        result = 31 * result + (tertiaryText?.hashCode() ?: 0)
+        result = 31 * result + (leadingIcon?.hashCode() ?: 0)
+        result = 31 * result + (trailingIcon?.hashCode() ?: 0)
+        result = 31 * result + (trailingChip?.hashCode() ?: 0)
+        result = 31 * result + (action?.hashCode() ?: 0)
+        result = 31 * result + style.hashCode()
+        result = 31 * result + isDivider.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "ListItem(title=$title, subtitle=$subtitle, tertiaryText=$tertiaryText, " +
+            "leadingIcon=$leadingIcon, trailingIcon=$trailingIcon, trailingChip=$trailingChip, " +
+            "action=$action, style=$style, isDivider=$isDivider)"
+}
+
+/**
+ * Vertical list of [ListItem]s — the design's `List` body. Fits the hero slot.
+ *
+ * @property items Ordered list items to render (at least one non-divider item).
+ * @property isScrollable Whether host renderers should make the list vertically scrollable (e.g. on
+ *   phone home screens) rather than drawing a fixed non-scrollable stack (e.g. Lockscreen, XR,
+ *   Auto).
+ * @property showTertiaryText Whether the first item should display its [ListItem.tertiaryText] when
+ *   present.
+ * @property expandSingleItem Whether a single item should expand to fill the hero slot height and
+ *   wrap its title up to two lines.
+ * @property uncontainedSingleItem Whether a single item should omit its inner container background
+ *   and padding so its text renders directly on the outer widget card (e.g. `1x1` compact square).
+ * @throws IllegalArgumentException if [items] is empty or contains only dividers.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ItemList(
+    items: List<ListItem>,
+    public val isScrollable: Boolean = false,
+    @get:JvmName("shouldShowTertiaryText") public val showTertiaryText: Boolean = false,
+    @get:JvmName("shouldExpandSingleItem") public val expandSingleItem: Boolean = false,
+    @get:JvmName("isUncontainedSingleItem") public val uncontainedSingleItem: Boolean = false,
+) : HeroComponent {
+
+    /** Ordered list items, defensively copied. */
+    public val items: List<ListItem> = List(items.size) { i -> items[i] }
+
+    init {
+        require(this.items.isNotEmpty()) { "An item list needs at least one item." }
+        var hasContentItem = false
+        for (i in this.items.indices) {
+            if (!this.items[i].isDivider) {
+                hasContentItem = true
+                break
+            }
+        }
+        require(hasContentItem) { "An item list needs at least one non-divider item." }
+    }
+
+    override val capabilities: Set<Capability>
+        get() {
+            var hasAction = false
+            var hasStatus = false
+            for (i in items.indices) {
+                val item = items[i]
+                if (item.action != null) hasAction = true
+                if (item.trailingChip != null) hasStatus = true
+                if (hasAction && hasStatus) return ListActionStatusCapabilities
+            }
+            return when {
+                hasAction -> ListActionCapabilities
+                hasStatus -> ListStatusCapabilities
+                else -> ListCapabilities
+            }
+        }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ItemList) return false
+        return items == other.items &&
+            isScrollable == other.isScrollable &&
+            showTertiaryText == other.showTertiaryText &&
+            expandSingleItem == other.expandSingleItem &&
+            uncontainedSingleItem == other.uncontainedSingleItem
+    }
+
+    override fun hashCode(): Int {
+        var result = items.hashCode()
+        result = 31 * result + isScrollable.hashCode()
+        result = 31 * result + showTertiaryText.hashCode()
+        result = 31 * result + expandSingleItem.hashCode()
+        result = 31 * result + uncontainedSingleItem.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "ItemList(items=$items, isScrollable=$isScrollable, showTertiaryText=$showTertiaryText, " +
+            "expandSingleItem=$expandSingleItem, uncontainedSingleItem=$uncontainedSingleItem)"
 }

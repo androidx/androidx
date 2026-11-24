@@ -37,6 +37,7 @@ import androidx.glance.adaptive.core.slots.HeroComponent
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconGrid
 import androidx.glance.adaptive.core.slots.IconTile
+import androidx.glance.adaptive.core.slots.ItemList
 import androidx.glance.adaptive.core.slots.LeadingComponent
 import androidx.glance.adaptive.core.slots.PrimaryComponent
 import androidx.glance.adaptive.core.slots.SecondaryComponent
@@ -434,7 +435,8 @@ private fun PrimaryComponent.fitTo(
     textSize: TextUnit,
 ): PrimaryComponent =
     when (this) {
-        is TemplateText -> TemplateText(fitMetric(value, maxWidthDp, textSize))
+        is TemplateText ->
+            TemplateText(fitMetric(value, maxWidthDp, textSize), isStruckThrough = isStruckThrough)
     }
 
 /** This component as the surface shows it: on the lock screen, sensitive text is replaced. */
@@ -468,18 +470,28 @@ private fun HeroComponent.shownOn(locked: Boolean): HeroComponent =
     when (this) {
         is Graph -> this
         is IconGrid -> redactedIf(locked)
+        // Redacted in ItemList plumbing follow-up (b/586433578).
+        is ItemList -> this
     }
 
 /** This text, or its sensitive replacement when [locked]. */
 private fun TemplateText.redactedIf(locked: Boolean): TemplateText {
     val replacement = sensitiveReplacement
-    return if (locked && replacement != null) TemplateText(replacement) else this
+    return if (locked && replacement != null) {
+        TemplateText(replacement, isStruckThrough = isStruckThrough)
+    } else {
+        this
+    }
 }
 
 /** This button, described by its sensitive replacement when [locked]. */
 private fun IconButton.redactedIf(locked: Boolean): IconButton {
     val replacement = sensitiveReplacement
-    return if (locked && replacement != null) IconButton(icon, replacement, action) else this
+    return if (locked && replacement != null) {
+        IconButton(icon, replacement, action, contained = contained)
+    } else {
+        this
+    }
 }
 
 /** This grid, with every sensitive tile described by its replacement when [locked]. */

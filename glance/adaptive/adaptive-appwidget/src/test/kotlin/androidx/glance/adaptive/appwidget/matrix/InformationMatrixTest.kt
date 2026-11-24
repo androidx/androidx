@@ -443,6 +443,70 @@ class InformationMatrixTest {
         assertThat(locked.action).isEqualTo(ACTION)
     }
 
+    @Test
+    fun card_preservesStruckThroughAcrossPrimaryFitToAndLockScreenRedaction() {
+        val fitted =
+            resolve(
+                MatrixCardContent(
+                    leading = Icon(GLYPH),
+                    primary = TemplateText("1,234,567", isStruckThrough = true),
+                    trailing = IconButton(GLYPH, "More", ACTION),
+                    leadingSize = 40.dp,
+                    primaryTextSize = 16.sp,
+                ),
+                at(176, 88),
+            )
+        val fittedPrimary = fitted.primary as TemplateText
+        assertThat(fittedPrimary.value).isNotEqualTo("1,234,567")
+        assertThat(fittedPrimary.isStruckThrough).isTrue()
+
+        val locked =
+            resolve(
+                MatrixCardContent(
+                    primary =
+                        TemplateText(
+                            "Secret",
+                            sensitiveReplacement = "Hidden",
+                            isStruckThrough = true,
+                        ),
+                    secondary =
+                        TemplateText(
+                            "10:00",
+                            sensitiveReplacement = "Time",
+                            isStruckThrough = true,
+                        ),
+                ),
+                at(348, 132, AppWidgetSurface.MOBILE_LOCK_SCREEN),
+            )
+        val lockedPrimary = locked.primary as TemplateText
+        val lockedSecondary = locked.secondary as TemplateText
+        assertThat(lockedPrimary.value).isEqualTo("Hidden")
+        assertThat(lockedPrimary.isStruckThrough).isTrue()
+        assertThat(lockedSecondary.value).isEqualTo("Time")
+        assertThat(lockedSecondary.isStruckThrough).isTrue()
+    }
+
+    @Test
+    fun cardAndBulb_preserveUncontainedIconButtonAcrossLockScreenRedaction() {
+        val button =
+            IconButton(GLYPH, "Call Alex", ACTION, sensitiveReplacement = "Call", contained = false)
+
+        val lockedCardTrailing =
+            resolve(
+                    MatrixCardContent(primary = TemplateText("Favorites"), trailing = button),
+                    at(348, 132, AppWidgetSurface.MOBILE_LOCK_SCREEN),
+                )
+                .trailing as IconButton
+        assertThat(lockedCardTrailing.contentDescription).isEqualTo("Call")
+        assertThat(lockedCardTrailing.contained).isFalse()
+
+        val lockedBulbButton =
+            resolve(MatrixBulbContent(button), at(88, 88, AppWidgetSurface.MOBILE_LOCK_SCREEN))
+                .component as IconButton
+        assertThat(lockedBulbButton.contentDescription).isEqualTo("Call")
+        assertThat(lockedBulbButton.contained).isFalse()
+    }
+
     private fun at(
         widthDp: Int,
         heightDp: Int,

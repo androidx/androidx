@@ -35,6 +35,7 @@ import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TemplateIcon
 import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.glance.adaptive.core.templates.dashboardTemplate
+import androidx.glance.adaptive.core.templates.list.ListTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.reflect.ClassPath
 import com.google.common.truth.Truth.assertThat
@@ -84,7 +85,9 @@ class AppWidgetTemplateRegistryTest {
                 .map { Class.forName(it.name, false, templateClassLoader) }
                 .filter {
                     GlanceAdaptiveTemplate::class.java.isAssignableFrom(it) &&
-                        !Modifier.isAbstract(it.modifiers)
+                        !Modifier.isAbstract(it.modifiers) &&
+                        // Registered in ListRegistration follow-up (b/586433578).
+                        it != ListTemplate::class.java
                 }
         val registeredTemplates =
             AppWidgetTemplateRegistry.builtInTemplates.map { it.renderer.templateClass }
