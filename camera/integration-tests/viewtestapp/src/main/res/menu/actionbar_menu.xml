@@ -48,4 +48,8 @@
         android:id="@+id/mlkit"
         android:title="@string/mlkit"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/low_light_boost_effect"
+        android:title="@string/low_light_boost_effect"
+        app:showAsAction="never" />
 </menu>
