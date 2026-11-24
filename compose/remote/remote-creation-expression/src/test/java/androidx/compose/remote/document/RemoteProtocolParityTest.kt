@@ -43,6 +43,7 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.core.operations.utilities.NanMap
+import androidx.compose.remote.core.operations.utilities.StringUtils
 import androidx.compose.remote.core.operations.utilities.easing.CubicEasing
 import androidx.compose.remote.core.operations.utilities.easing.Easing
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
@@ -330,9 +331,35 @@ class RemoteProtocolParityTest {
             HostNamedActionType.FLOAT_ARRAY_TYPE,
         )
 
+        assertEquals(TextFromFloat.PAD_AFTER_SPACE, TextFromFloatFlags.PAD_AFTER_SPACE)
+        assertEquals(TextFromFloat.PAD_AFTER_NONE, TextFromFloatFlags.PAD_AFTER_NONE)
         assertEquals(TextFromFloat.PAD_AFTER_ZERO, TextFromFloatFlags.PAD_AFTER_ZERO)
+        assertEquals(TextFromFloat.PAD_PRE_SPACE, TextFromFloatFlags.PAD_PRE_SPACE)
         assertEquals(TextFromFloat.PAD_PRE_NONE, TextFromFloatFlags.PAD_PRE_NONE)
+        assertEquals(TextFromFloat.PAD_PRE_ZERO, TextFromFloatFlags.PAD_PRE_ZERO)
         assertEquals(TextFromFloat.GROUPING_BY3, TextFromFloatFlags.GROUPING_BY3)
+        assertEquals(TextFromFloat.GROUPING_BY4, TextFromFloatFlags.GROUPING_BY4)
+        assertEquals(TextFromFloat.GROUPING_BY32, TextFromFloatFlags.GROUPING_BY32)
+        assertEquals(
+            TextFromFloat.SEPARATOR_PERIOD_COMMA,
+            TextFromFloatFlags.SEPARATOR_PERIOD_COMMA,
+        )
+        assertEquals(
+            TextFromFloat.SEPARATOR_COMMA_PERIOD,
+            TextFromFloatFlags.SEPARATOR_COMMA_PERIOD,
+        )
+        assertEquals(TextFromFloat.SEPARATOR_SPACE_COMMA, TextFromFloatFlags.SEPARATOR_SPACE_COMMA)
+        assertEquals(
+            TextFromFloat.SEPARATOR_UNDER_PERIOD,
+            TextFromFloatFlags.SEPARATOR_UNDER_PERIOD,
+        )
+        assertEquals(TextFromFloat.OPTIONS_ROUNDING, TextFromFloatFlags.OPTIONS_ROUNDING)
+        assertEquals(
+            TextFromFloat.OPTIONS_NEGATIVE_PARENTHESES,
+            TextFromFloatFlags.OPTIONS_NEGATIVE_PARENTHESES,
+        )
+        assertEquals(TextFromFloat.LEGACY_MODE, TextFromFloatFlags.LEGACY_MODE)
+        assertEquals(TextFromFloat.FULL_FORMAT, TextFromFloatFlags.FULL_FORMAT)
         assertEquals(DrawTextAnchored.ANCHOR_TEXT_RTL, DrawTextAnchoredFlags.ANCHOR_TEXT_RTL)
         assertEquals(DrawTextAnchored.BASELINE_RELATIVE, DrawTextAnchoredFlags.BASELINE_RELATIVE)
         assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextLayoutFlags.TEXT_ALIGN_CENTER)
@@ -681,5 +708,163 @@ class RemoteProtocolParityTest {
             Utils.toARGB(0.5f, 0.25f, 0.75f, 1.0f),
             RemoteColorMath.toArgb(0.5f, 0.25f, 0.75f, 1.0f),
         )
+    }
+
+    @Test
+    fun testTextFromFloatFormatterBitForBitParityWithStringUtils() {
+        val values =
+            floatArrayOf(
+                0f,
+                -0f,
+                1e-4f,
+                12.345f,
+                -987654.3f,
+                0.999f,
+                1234567.8f,
+                -0.05f,
+                42f,
+                Float.NaN,
+                Float.POSITIVE_INFINITY,
+                Float.NEGATIVE_INFINITY,
+            )
+        val flagCombos =
+            intArrayOf(
+                TextFromFloatFlags.PAD_PRE_NONE or TextFromFloatFlags.PAD_AFTER_ZERO,
+                TextFromFloatFlags.PAD_PRE_ZERO or TextFromFloatFlags.PAD_AFTER_ZERO,
+                TextFromFloatFlags.PAD_PRE_SPACE or TextFromFloatFlags.PAD_AFTER_SPACE,
+                TextFromFloatFlags.PAD_PRE_NONE or
+                    TextFromFloatFlags.PAD_AFTER_NONE or
+                    TextFromFloatFlags.GROUPING_BY3 or
+                    TextFromFloatFlags.SEPARATOR_COMMA_PERIOD,
+                TextFromFloatFlags.PAD_PRE_NONE or
+                    TextFromFloatFlags.PAD_AFTER_ZERO or
+                    TextFromFloatFlags.GROUPING_BY4 or
+                    TextFromFloatFlags.SEPARATOR_PERIOD_COMMA or
+                    TextFromFloatFlags.OPTIONS_NEGATIVE_PARENTHESES,
+                TextFromFloatFlags.PAD_PRE_NONE or
+                    TextFromFloatFlags.PAD_AFTER_ZERO or
+                    TextFromFloatFlags.GROUPING_BY32 or
+                    TextFromFloatFlags.SEPARATOR_SPACE_COMMA or
+                    TextFromFloatFlags.OPTIONS_ROUNDING,
+                TextFromFloatFlags.PAD_PRE_ZERO or
+                    TextFromFloatFlags.PAD_AFTER_ZERO or
+                    TextFromFloatFlags.GROUPING_BY3 or
+                    TextFromFloatFlags.SEPARATOR_UNDER_PERIOD or
+                    TextFromFloatFlags.OPTIONS_ROUNDING or
+                    TextFromFloatFlags.OPTIONS_NEGATIVE_PARENTHESES,
+                TextFromFloatFlags.PAD_PRE_ZERO or
+                    TextFromFloatFlags.PAD_AFTER_ZERO or
+                    TextFromFloatFlags.LEGACY_MODE,
+                TextFromFloatFlags.PAD_PRE_NONE or
+                    TextFromFloatFlags.PAD_AFTER_NONE or
+                    TextFromFloatFlags.LEGACY_MODE,
+                TextFromFloatFlags.PAD_PRE_SPACE or
+                    TextFromFloatFlags.PAD_AFTER_SPACE or
+                    TextFromFloatFlags.LEGACY_MODE,
+                TextFromFloatFlags.FULL_FORMAT,
+            )
+        val digitPairs = listOf(8 to 2, 8 to 0, 0 to 2, 8 to 4)
+
+        for ((before, after) in digitPairs) {
+            for (flags in flagCombos) {
+                // Decode flags independently using remote-core's TextFromFloat constants so the
+                // oracle does not depend on TextFromFloatFormatter.parseSpec.
+                val oraclePadAfter =
+                    when (flags and 3) {
+                        TextFromFloat.PAD_AFTER_SPACE -> ' '
+                        TextFromFloat.PAD_AFTER_NONE -> '\u0000'
+                        TextFromFloat.PAD_AFTER_ZERO -> '0'
+                        else -> ' '
+                    }
+                val oraclePadBefore =
+                    when (flags and (3 shl 2)) {
+                        TextFromFloat.PAD_PRE_SPACE -> ' '
+                        TextFromFloat.PAD_PRE_NONE -> '\u0000'
+                        TextFromFloat.PAD_PRE_ZERO -> '0'
+                        else -> ' '
+                    }
+                val oracleGrouping =
+                    when (flags and (3 shl 4)) {
+                        TextFromFloat.GROUPING_BY3 -> StringUtils.GROUPING_BY3
+                        TextFromFloat.GROUPING_BY4 -> StringUtils.GROUPING_BY4
+                        TextFromFloat.GROUPING_BY32 -> StringUtils.GROUPING_BY32
+                        else -> StringUtils.GROUPING_NONE
+                    }
+                val oracleSeparator =
+                    when (flags and (3 shl 6)) {
+                        TextFromFloat.SEPARATOR_PERIOD_COMMA -> StringUtils.SEPARATOR_PERIOD_COMMA
+                        TextFromFloat.SEPARATOR_COMMA_PERIOD -> StringUtils.SEPARATOR_COMMA_PERIOD
+                        TextFromFloat.SEPARATOR_SPACE_COMMA -> StringUtils.SEPARATOR_SPACE_COMMA
+                        else -> StringUtils.SEPARATOR_UNDER_PERIOD
+                    }
+                for (v in values) {
+                    val isFull = (flags and TextFromFloat.FULL_FORMAT) != 0
+                    val expected =
+                        when {
+                            isFull -> v.toString()
+                            (flags and TextFromFloat.LEGACY_MODE) != 0 ->
+                                StringUtils.floatToString(
+                                    v,
+                                    before,
+                                    after,
+                                    oraclePadBefore,
+                                    oraclePadAfter,
+                                )
+                            else -> {
+                                var opts = 0
+                                if ((flags and TextFromFloat.OPTIONS_ROUNDING) != 0) {
+                                    opts = opts or StringUtils.ROUNDING
+                                }
+                                if ((flags and TextFromFloat.OPTIONS_NEGATIVE_PARENTHESES) != 0) {
+                                    opts = opts or StringUtils.NEGATIVE_PARENTHESES
+                                }
+                                StringUtils.floatToString(
+                                    v,
+                                    before,
+                                    after,
+                                    oraclePadBefore,
+                                    oraclePadAfter,
+                                    oracleSeparator,
+                                    oracleGrouping,
+                                    opts,
+                                )
+                            }
+                        }
+                    assertEquals(
+                        expected,
+                        TextFromFloatFormatter.format(
+                            value = v,
+                            digitsBefore = before,
+                            digitsAfter = after,
+                            flags = flags,
+                        ),
+                        "Formatting mismatch for v=$v before=$before after=$after flags=0x${flags.toString(16)}",
+                    )
+                }
+            }
+        }
+
+        // Bounds validation rejects negative and excessively large digit counts
+        assertFailsWith<IllegalArgumentException> {
+            TextFromFloatFormatter.parseSpec(-1, 2, TextFromFloatFlags.PAD_PRE_NONE)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            TextFromFloatFormatter.parseSpec(2, -1, TextFromFloatFlags.PAD_PRE_NONE)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            TextFromFloatFormatter.parseSpec(
+                TextFromFloatFormatter.MAX_DIGITS + 1,
+                2,
+                TextFromFloatFlags.PAD_PRE_NONE,
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            TextFromFloatFormatter.format(
+                1.5f,
+                2,
+                TextFromFloatFormatter.MAX_DIGITS + 1,
+                TextFromFloatFlags.PAD_PRE_NONE,
+            )
+        }
     }
 }
