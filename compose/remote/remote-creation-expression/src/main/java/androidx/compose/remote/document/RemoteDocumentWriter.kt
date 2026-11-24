@@ -53,14 +53,15 @@ public class RemoteBitmapGlyph(
  *
  * Construct instances with the companion [invoke] factories:
  * ```kotlin
- * val count = RemoteCustomProperty(id = 1, type = 0, value = 42)
- * val progress = RemoteCustomProperty(id = 2, type = 1, value = 0.5f.mvf)
+ * val count = RemoteCustomProperty(id = 1, type = RemoteCustomProperty.INT_PROP, value = 42)
+ * val progress =
+ *     RemoteCustomProperty(id = 2, type = RemoteCustomProperty.FLOAT_PROP, value = 0.5f.mvf)
  * ```
  *
  * @property id component-defined property identifier
- * @property type wire property type tag matching `Custom.CustomProperty` constants
+ * @property type wire property type tag (such as [INT_PROP], [FLOAT_PROP], or [FLOAT_RETURN])
  * @property intValue integer payload for integer, color, or variable-ID property types
- * @property floatValue float or NaN-variable payload for float property and float-return types
+ * @property floatValue float or NaN-variable payload for [FLOAT_PROP] and [FLOAT_RETURN] types
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteCustomProperty
@@ -71,6 +72,41 @@ private constructor(
     public val floatValue: MaybeVariableFloat,
 ) {
     public companion object {
+        /** Literal integer property; pass the value via the `Int` [invoke] overload. */
+        @Suppress("NoByteOrShort") public const val INT_PROP: Short = 0
+
+        /** Float or NaN-variable property; pass the value via the [MaybeVariableFloat] overload. */
+        @Suppress("NoByteOrShort") public const val FLOAT_PROP: Short = 1
+
+        /** String variable ID property; pass the text ID via the `Int` [invoke] overload. */
+        @Suppress("NoByteOrShort") public const val STRING_PROP: Short = 2
+
+        /**
+         * Float output variable slot; pass the target variable as a NaN-encoded
+         * [MaybeVariableFloat] via the [MaybeVariableFloat] [invoke] overload.
+         */
+        @Suppress("NoByteOrShort") public const val FLOAT_RETURN: Short = 3
+
+        /** String output variable ID; pass the target ID via the `Int` [invoke] overload. */
+        @Suppress("NoByteOrShort") public const val TEXT_RETURN: Short = 4
+
+        /** Integer output variable ID; pass the target ID via the `Int` [invoke] overload. */
+        @Suppress("NoByteOrShort") public const val INT_RETURN: Short = 5
+
+        /** Color output variable ID; pass the target ID via the `Int` [invoke] overload. */
+        @Suppress("NoByteOrShort") public const val COLOR_RETURN: Short = 6
+
+        /** Color variable ID property; pass the color ID via the `Int` [invoke] overload. */
+        @Suppress("NoByteOrShort") public const val COLOR_ID_PROP: Short = 7
+
+        /**
+         * Literal ARGB color property; pass the packed ARGB int via the `Int` [invoke] overload.
+         */
+        @Suppress("NoByteOrShort") public const val COLOR_PROP: Short = 8
+
+        /** Integer variable ID property; pass the variable ID via the `Int` [invoke] overload. */
+        @Suppress("NoByteOrShort") public const val INT_ID_PROP: Short = 9
+
         /**
          * Creates an integer-backed [RemoteCustomProperty].
          *
