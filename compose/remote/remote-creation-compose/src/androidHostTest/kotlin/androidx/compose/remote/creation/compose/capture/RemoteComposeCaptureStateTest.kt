@@ -102,4 +102,16 @@ class RemoteComposeCaptureStateTest {
         assertThat(noRemote.creationDisplayInfo.height).isEqualTo(1)
         assertThat(noRemote.layoutDirection).isEqualTo(RemoteLayoutDirection.Ltr)
     }
+
+    @Test
+    fun adapterAddMutableText_allocatesDistinctIds() {
+        val adapter = RemoteComposeWriterAdapter(createWriter())
+        val constId = adapter.addText("same")
+        val mutableA = adapter.addMutableText("same")
+        val mutableB = adapter.addMutableText("same")
+
+        assertThat(mutableA).isNotEqualTo(mutableB)
+        assertThat(mutableA).isNotEqualTo(constId)
+        assertThat(mutableB).isNotEqualTo(constId)
+    }
 }

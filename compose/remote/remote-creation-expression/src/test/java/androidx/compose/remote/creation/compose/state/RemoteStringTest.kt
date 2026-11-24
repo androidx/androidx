@@ -590,6 +590,26 @@ class RemoteStringTest {
         assertThat(rs.toString()).isEqualTo("\"hello\"")
     }
 
+    @Test
+    fun mutableRemoteString_allocatesDistinctIdsForEqualInitialValues() {
+        val constant = RemoteString("same")
+        val mutableA = MutableRemoteString("same")
+        val mutableB = MutableRemoteString("same")
+
+        val constId = creationState.getId(constant)
+        val idA = creationState.getId(mutableA)
+        val idB = creationState.getId(mutableB)
+
+        assertThat(idA).isNotEqualTo(idB)
+        assertThat(idA).isNotEqualTo(constId)
+        assertThat(idB).isNotEqualTo(constId)
+
+        makeAndPaintCoreDocument()
+        assertThat(context.getText(constId)).isEqualTo("same")
+        assertThat(context.getText(idA)).isEqualTo("same")
+        assertThat(context.getText(idB)).isEqualTo("same")
+    }
+
     private fun makeAndPaintCoreDocument() = context.loadDocument(creationState)
 
     private fun makeAndUpdateCoreDocument(runAfterInit: () -> Unit) =
