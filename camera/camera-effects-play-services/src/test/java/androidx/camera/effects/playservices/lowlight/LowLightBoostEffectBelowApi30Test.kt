@@ -171,12 +171,12 @@ class LowLightBoostEffectBelowApi30Test {
                         events.add("status:$status")
                     }
 
-                    override fun onErrorChanged(error: Exception?) {
-                        events.add("error:${error?.javaClass?.simpleName}")
+                    override fun onErrorChanged(error: LowLightBoostException?) {
+                        events.add("error:${error?.errorCode}")
                     }
                 }
             )
-            // Act: bind while enabled -> reports UnsupportedOperationException.
+            // Act: bind while enabled -> reports ERROR_NOT_SUPPORTED.
             sessionManager.bindInputSurfaceRequest(
                 processor,
                 surfaceRequest,
@@ -194,7 +194,8 @@ class LowLightBoostEffectBelowApi30Test {
             assertThat(surfaceRequest.deferrableSurface.surface.isDone).isTrue()
             val initialError = effect.error
             assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
-            assertThat(initialError).isInstanceOf(UnsupportedOperationException::class.java)
+            assertThat(initialError?.errorCode)
+                .isEqualTo(LowLightBoostException.ERROR_NOT_SUPPORTED)
             assertThat(initialError).hasMessageThat().contains("not supported on this device")
             assertThat(sessionManager.getCurrentSession()).isNull()
 
@@ -204,7 +205,7 @@ class LowLightBoostEffectBelowApi30Test {
             assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
             assertThat(effect.error).isNull()
 
-            // Re-enabling reports the same UnsupportedOperationException again.
+            // Re-enabling reports the same LowLightBoostException again.
             effect.isLowLightBoostEnabled = true
             shadowOf(getMainLooper()).idle()
             assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
@@ -219,15 +220,15 @@ class LowLightBoostEffectBelowApi30Test {
 
             assertThat(events)
                 .containsExactly(
-                    "error:UnsupportedOperationException",
+                    "error:${LowLightBoostException.ERROR_NOT_SUPPORTED}",
                     "enabled:false",
                     "error:null",
                     "enabled:true",
-                    "error:UnsupportedOperationException",
+                    "error:${LowLightBoostException.ERROR_NOT_SUPPORTED}",
                     "enabled:false",
                     "error:null",
                     "enabled:true",
-                    "error:UnsupportedOperationException",
+                    "error:${LowLightBoostException.ERROR_NOT_SUPPORTED}",
                 )
                 .inOrder()
         } finally {
@@ -287,7 +288,8 @@ class LowLightBoostEffectBelowApi30Test {
             effect.isLowLightBoostEnabled = true
             shadowOf(getMainLooper()).idle()
             assertThat(effect.status).isEqualTo(LowLightBoostEffect.STATUS_OFF)
-            assertThat(effect.error).isInstanceOf(UnsupportedOperationException::class.java)
+            assertThat(effect.error?.errorCode)
+                .isEqualTo(LowLightBoostException.ERROR_NOT_SUPPORTED)
         } finally {
             sessionManager?.destroySessionInternal()
             surfaceRequest?.deferrableSurface?.close()
@@ -336,8 +338,8 @@ class LowLightBoostEffectBelowApi30Test {
                         events.add("status:$status")
                     }
 
-                    override fun onErrorChanged(error: Exception?) {
-                        events.add("error:${error?.javaClass?.simpleName}")
+                    override fun onErrorChanged(error: LowLightBoostException?) {
+                        events.add("error:${error?.errorCode}")
                     }
                 }
             )
@@ -362,13 +364,14 @@ class LowLightBoostEffectBelowApi30Test {
             shadowOf(getMainLooper()).idle()
 
             assertThat(effect.isLowLightBoostEnabled).isTrue()
-            assertThat(effect.error).isInstanceOf(UnsupportedOperationException::class.java)
+            assertThat(effect.error?.errorCode)
+                .isEqualTo(LowLightBoostException.ERROR_NOT_SUPPORTED)
             assertThat(events)
                 .containsExactly(
                     "enabled:false",
                     "enabled:true",
                     "error:null",
-                    "error:UnsupportedOperationException",
+                    "error:${LowLightBoostException.ERROR_NOT_SUPPORTED}",
                 )
                 .inOrder()
         } finally {

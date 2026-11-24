@@ -279,7 +279,10 @@ class LowLightBoostSessionCreatorTest {
         // Assert.
         assertThat(client.installCallbacks).isEmpty()
         assertThat(host.installationStartedCount).isEqualTo(0)
-        assertThat(host.failure).isInstanceOf(UnsupportedOperationException::class.java)
+        val failure = host.failure
+        assertThat(failure).isInstanceOf(LowLightBoostException::class.java)
+        assertThat((failure as LowLightBoostException).errorCode)
+            .isEqualTo(LowLightBoostException.ERROR_NOT_SUPPORTED)
         assertThat(host.isFailureUnrecoverable).isTrue()
     }
 
@@ -315,7 +318,12 @@ class LowLightBoostSessionCreatorTest {
         startCreation()
 
         // Assert.
-        assertThat(host.failure).hasMessageThat().startsWith("Module install failed")
+        val failure = host.failure
+        assertThat(failure).isInstanceOf(LowLightBoostException::class.java)
+        assertThat((failure as LowLightBoostException).errorCode)
+            .isEqualTo(LowLightBoostException.ERROR_MODULE_INSTALL_FAILED)
+        assertThat(failure.cause).isInstanceOf(ApiException::class.java)
+        assertThat(failure).hasMessageThat().startsWith("Module install failed")
         assertThat(host.isFailureUnrecoverable).isFalse()
         assertThat(client.installCallbacks).hasSize(1)
         assertThat(client.createSessionCount).isEqualTo(0)
@@ -331,13 +339,61 @@ class LowLightBoostSessionCreatorTest {
         startCreation()
 
         // Assert.
-        assertThat(host.failure).hasMessageThat().isEqualTo("Module install cancelled")
+        val failure = host.failure
+        assertThat(failure).isInstanceOf(LowLightBoostException::class.java)
+        assertThat((failure as LowLightBoostException).errorCode)
+            .isEqualTo(LowLightBoostException.ERROR_MODULE_INSTALL_FAILED)
+        assertThat(failure).hasMessageThat().isEqualTo("Module install cancelled")
         assertThat(client.installCallbacks).hasSize(1)
         assertThat(client.createSessionCount).isEqualTo(0)
     }
 
     @Test
     fun testIsUnrecoverableError() {
+        // LowLightBoostException error codes
+        assertThat(
+                LowLightBoostSessionCreator.isUnrecoverableError(
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_NOT_SUPPORTED,
+                        "Not supported",
+                    )
+                )
+            )
+            .isTrue()
+        assertThat(
+                LowLightBoostSessionCreator.isUnrecoverableError(
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_UNSUPPORTED_STREAM,
+                        "Unsupported stream",
+                    )
+                )
+            )
+            .isTrue()
+        assertThat(
+                LowLightBoostSessionCreator.isUnrecoverableError(
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_MODULE_INSTALL_FAILED,
+                        "Install failed",
+                    )
+                )
+            )
+            .isFalse()
+        assertThat(
+                LowLightBoostSessionCreator.isUnrecoverableError(
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_SESSION_FAILED,
+                        "Session failed",
+                    )
+                )
+            )
+            .isFalse()
+        assertThat(
+                LowLightBoostSessionCreator.isUnrecoverableError(
+                    LowLightBoostException(LowLightBoostException.ERROR_UNKNOWN, "Unknown")
+                )
+            )
+            .isFalse()
+
         // Unrecoverable exceptions
         assertThat(
                 LowLightBoostSessionCreator.isUnrecoverableError(

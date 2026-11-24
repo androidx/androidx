@@ -24,11 +24,12 @@ package androidx.camera.effects.playservices.lowlight
  * passed through without enhancement, like when Low Light Boost is off.
  *
  * @property status One of the [LowLightBoostEffect.Status] constants.
- * @property error The [Exception] that prevents Low Light Boost, or `null` if there is none.
+ * @property error The [LowLightBoostException] that prevents Low Light Boost, or `null` if there is
+ *   none.
  */
 internal class LowLightBoostStateSnapshot(
     @get:LowLightBoostEffect.Status val status: Int,
-    val error: Exception? = null,
+    val error: LowLightBoostException? = null,
 ) {
     init {
         require(error == null || status == LowLightBoostEffect.STATUS_OFF) {
@@ -71,7 +72,7 @@ internal class LowLightBoostStateSnapshot(
             LowLightBoostStateSnapshot(LowLightBoostEffect.STATUS_PENDING_INSTALLATION)
 
         /** Creates a failed snapshot: [LowLightBoostEffect.STATUS_OFF] with [error]. */
-        fun error(error: Exception): LowLightBoostStateSnapshot =
+        fun error(error: LowLightBoostException): LowLightBoostStateSnapshot =
             LowLightBoostStateSnapshot(LowLightBoostEffect.STATUS_OFF, error)
 
         /** Returns a human-readable name of a [LowLightBoostEffect.Status] constant for logging. */

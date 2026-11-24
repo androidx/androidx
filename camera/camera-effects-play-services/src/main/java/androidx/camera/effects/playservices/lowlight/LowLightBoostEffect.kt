@@ -51,8 +51,9 @@ import kotlinx.coroutines.withContext
  *
  * The effect can be created and bound on any API level. On an unsupported device, including any
  * device running below Android 11, the effect always passes camera frames through without
- * enhancement and, when bound with [isLowLightBoostEnabled] set to `true`, reports an
- * [UnsupportedOperationException] via [error] with [STATUS_OFF].
+ * enhancement and, when bound with [isLowLightBoostEnabled] set to `true`, reports a
+ * [LowLightBoostException] with [LowLightBoostException.ERROR_NOT_SUPPORTED] via [error] with
+ * [STATUS_OFF].
  *
  * **State:** Apps can read [isLowLightBoostEnabled], [status], and [error], e.g. to show a Low
  * Light Boost button or status indicator, and get notified of changes via [addListener] or
@@ -68,7 +69,8 @@ import kotlinx.coroutines.withContext
  *   allows UHD, or a strict [ResolutionSelector] without a lower-resolution fallback), or its
  *   [ResolutionFilter] explicitly places an unsupported resolution first, CameraX honors the
  *   requested resolution. This effect then passes camera frames through without enhancement and
- *   reports an [IllegalArgumentException] via [error].
+ *   reports a [LowLightBoostException] with [LowLightBoostException.ERROR_UNSUPPORTED_STREAM] via
+ *   [error].
  *
  * Note: Google Play Services allows only one active Low Light Boost session at a time, so this
  * effect can't be bound to more than one camera at the same time, e.g. with concurrent cameras.
@@ -143,23 +145,33 @@ internal constructor(
         get() = processor.committedSnapshot.status
 
     /**
-     * Latest [Exception] preventing Low Light Boost, or `null` if no error is active.
+     * Latest [LowLightBoostException] preventing Low Light Boost, or `null` if no error is active.
      *
-     * Reported exceptions use three standard types wrapping internal Google Play Services causes:
-     * - [UnsupportedOperationException] (**permanent**): Low Light Boost cannot be used on this
-     *   Android version (below API level 30), device, or camera. Check [isSupported] or
-     *   [isSupportedAsync] beforehand to hide or disable Low Light Boost controls on unsupported
+     * Reported exceptions use [LowLightBoostException.errorCode] to categorize the failure while
+     * preserving internal Google Play Services causes as [Throwable.cause]:
+     * - [LowLightBoostException.ERROR_NOT_SUPPORTED] (**permanent**): Low Light Boost cannot be
+     *   used on this Android version (below API level 30), device, or camera. Check [isSupported]
+     *   or [isSupportedAsync] beforehand to hide or disable Low Light Boost controls on unsupported
      *   devices and cameras.
-     * - [IllegalArgumentException] (**permanent for the current stream configuration**): Bound
-     *   stream resolution (`> 2560px` on a side or `> 4,194,304` total pixels) or dataspace is
-     *   unsupported.
-     * - [IllegalStateException] (**runtime or session failure**): Module download or installation
-     *   failed or was cancelled, a transient Play Services or session creation failure exhausted
-     *   retries, or the active session disconnected. The effect retries transient failures
-     *   automatically, starts a fresh attempt when a paused stream resumes or rebinds, and retries
-     *   if [isLowLightBoostEnabled] is toggled `false` then `true`. If the OpenGL pipeline or the
-     *   Google Play Services client cannot be set up, or Google Play Services rejects the session
-     *   as non-retryable, the error persists for the current stream and only rebinding retries.
+     * - [LowLightBoostException.ERROR_UNSUPPORTED_STREAM] (**permanent for the current stream
+     *   configuration**): Bound stream resolution (`> 2560px` on a side or `> 4,194,304` total
+     *   pixels) or dataspace is unsupported.
+     * - [LowLightBoostException.ERROR_MODULE_INSTALL_FAILED] (**module installation failure**):
+     *   Google Play Services module download or installation failed or was cancelled. The effect
+     *   starts a fresh attempt when a paused stream resumes or rebinds, and retries if
+     *   [isLowLightBoostEnabled] is toggled `false` then `true`.
+     * - [LowLightBoostException.ERROR_SESSION_FAILED] (**session failure**): A transient Play
+     *   Services or session creation failure exhausted retries, Play Services rejected the session,
+     *   or the active session disconnected. The effect retries transient failures automatically,
+     *   starts a fresh attempt when a paused stream resumes or rebinds, and retries if
+     *   [isLowLightBoostEnabled] is toggled `false` then `true`. If Play Services rejects the
+     *   session as non-retryable, the error persists for the current stream and only rebinding
+     *   retries.
+     * - [LowLightBoostException.ERROR_UNKNOWN] (**unclassified or internal setup failure**): The
+     *   OpenGL pipeline or Google Play Services client could not be set up, or an unexpected error
+     *   occurred. Internal setup failures persist for the current stream and only rebinding
+     *   retries. Unrecognized future error codes should be treated like
+     *   [LowLightBoostException.ERROR_UNKNOWN].
      *
      * When non-null, [status] is always [STATUS_OFF] and frames pass through without enhancement.
      * Cleared to `null` when Low Light Boost recovers or waits for module installation, after
@@ -167,7 +179,7 @@ internal constructor(
      * `false`. Updated atomically with [status] on the main thread before [Listener] and [observe]
      * callbacks run; read both on the main thread for a consistent pair.
      */
-    public val error: Exception?
+    public val error: LowLightBoostException?
         get() = processor.committedSnapshot.error
 
     /**
@@ -327,7 +339,7 @@ internal constructor(
          *
          * @param error new [LowLightBoostEffect.error], or `null` if no error is active
          */
-        public fun onErrorChanged(error: Exception?) {}
+        public fun onErrorChanged(error: LowLightBoostException?) {}
     }
 
     /** Valid status constants for [LowLightBoostEffect.status]. */

@@ -60,10 +60,10 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * **API level:** The `LowLightBoostSession` requires Android 11 (API level 30). On lower API
  * levels, this processor never creates a [LowLightBoostClient] or session and treats the device as
- * unsupported (passthrough with [LowLightBoostEffect.STATUS_OFF] and an
- * [UnsupportedOperationException] via [LowLightBoostEffect.error] when bound while
- * [isLowLightBoostEnabled] is `true`), while [isLowLightBoostEnabled] behaves uniformly across all
- * API levels.
+ * unsupported (passthrough with [LowLightBoostEffect.STATUS_OFF] and a [LowLightBoostException]
+ * with [LowLightBoostException.ERROR_NOT_SUPPORTED] via [LowLightBoostEffect.error] when bound
+ * while [isLowLightBoostEnabled] is `true`), while [isLowLightBoostEnabled] behaves uniformly
+ * across all API levels.
  */
 internal class PlayServicesLowLightBoostSurfaceProcessor
 @VisibleForTesting

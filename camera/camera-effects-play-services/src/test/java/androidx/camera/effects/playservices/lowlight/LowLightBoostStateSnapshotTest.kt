@@ -47,7 +47,7 @@ class LowLightBoostStateSnapshotTest {
 
     @Test
     fun errorSnapshot_hasStatusOffAndError() {
-        val error = RuntimeException("Test error")
+        val error = LowLightBoostException(LowLightBoostException.ERROR_UNKNOWN, "Test error")
 
         val snapshot = LowLightBoostStateSnapshot.error(error)
 
@@ -64,7 +64,10 @@ class LowLightBoostStateSnapshotTest {
             )
             .forEach { status ->
                 assertThrows(IllegalArgumentException::class.java) {
-                    LowLightBoostStateSnapshot(status, RuntimeException("Invalid"))
+                    LowLightBoostStateSnapshot(
+                        status,
+                        LowLightBoostException(LowLightBoostException.ERROR_UNKNOWN, "Invalid"),
+                    )
                 }
             }
     }
@@ -80,12 +83,16 @@ class LowLightBoostStateSnapshotTest {
 
     @Test
     fun errorSnapshots_areEqualOnlyWithSameErrorInstance() {
-        val error = RuntimeException("Error")
+        val error = LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "Error")
 
         assertThat(LowLightBoostStateSnapshot.error(error))
             .isEqualTo(LowLightBoostStateSnapshot.error(error))
         assertThat(LowLightBoostStateSnapshot.error(error))
-            .isNotEqualTo(LowLightBoostStateSnapshot.error(RuntimeException("Error")))
+            .isNotEqualTo(
+                LowLightBoostStateSnapshot.error(
+                    LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "Error")
+                )
+            )
         assertThat(LowLightBoostStateSnapshot.error(error))
             .isNotEqualTo(LowLightBoostStateSnapshot.OFF)
     }
@@ -97,7 +104,12 @@ class LowLightBoostStateSnapshotTest {
         assertThat(LowLightBoostStateSnapshot.ACTIVE.toString()).contains("status=ACTIVE")
         assertThat(LowLightBoostStateSnapshot.PENDING_INSTALLATION.toString())
             .contains("status=PENDING_INSTALLATION")
-        assertThat(LowLightBoostStateSnapshot.error(RuntimeException("Boom")).toString())
+        assertThat(
+                LowLightBoostStateSnapshot.error(
+                        LowLightBoostException(LowLightBoostException.ERROR_UNKNOWN, "Boom")
+                    )
+                    .toString()
+            )
             .contains("Boom")
     }
 }

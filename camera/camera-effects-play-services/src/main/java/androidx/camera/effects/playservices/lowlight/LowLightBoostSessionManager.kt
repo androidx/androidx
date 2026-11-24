@@ -151,7 +151,7 @@ internal class LowLightBoostSessionManager(
     // The error that makes Low Light Boost unusable for the current camera stream, if any. It is
     // cleared by a SurfaceRequest that starts over (see bindInputSurfaceRequest()), a created
     // session or the full idle release, so toggling Low Light Boost doesn't retry it.
-    private var unrecoverableErrorForCurrentStream: Throwable? = null
+    private var unrecoverableErrorForCurrentStream: LowLightBoostException? = null
 
     // Whether the last session creation for the current camera stream failed after all retries,
     // the module installation failed, the support check found the device or camera unsupported,
@@ -203,7 +203,7 @@ internal class LowLightBoostSessionManager(
             true
         } catch (e: Exception) {
             Logger.w(TAG, "LowLightBoostSession $operation failed; treating the session as dead", e)
-            handleSessionDeath(session, "LowLightBoostSession $operation failed: ${e.message}")
+            handleSessionDeath(session, "LowLightBoostSession $operation failed: ${e.message}", e)
             false
         }
     }
@@ -426,8 +426,9 @@ internal class LowLightBoostSessionManager(
             failCurrentRequest(
                 processor = processor,
                 error =
-                    IllegalStateException(
-                        "Failed to initialize the OpenGL pipeline for Low Light Boost"
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_UNKNOWN,
+                        "Failed to initialize the OpenGL pipeline for Low Light Boost",
                     ),
                 logMessage = "Failed to initialize the OpenGL pipeline; no Surface is provided.",
             )
@@ -731,7 +732,10 @@ internal class LowLightBoostSessionManager(
                 return
             }
             processor.notifyError(
-                IllegalStateException("LowLightBoostSession was terminated during creation")
+                LowLightBoostException(
+                    LowLightBoostException.ERROR_SESSION_FAILED,
+                    "LowLightBoostSession was terminated during creation",
+                )
             )
             triggerAutoRecoveryIfNeeded(processor)
         }
@@ -801,7 +805,11 @@ internal class LowLightBoostSessionManager(
      */
     @WorkerThread
     @RequiresApi(Build.VERSION_CODES.R)
-    private fun handleSessionDeath(session: LowLightBoostSession, errorMessage: String) {
+    private fun handleSessionDeath(
+        session: LowLightBoostSession,
+        errorMessage: String,
+        cause: Throwable? = null,
+    ) {
         val active = sessionState as? SessionState.Active
         if (active?.session !== session) {
             Logger.d(TAG, "Ignoring death of non-current session $session")
@@ -815,7 +823,9 @@ internal class LowLightBoostSessionManager(
             // when it is enabled.
             return
         }
-        processor.notifyError(IllegalStateException(errorMessage))
+        processor.notifyError(
+            LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, errorMessage, cause)
+        )
         triggerAutoRecoveryIfNeeded(processor)
     }
 

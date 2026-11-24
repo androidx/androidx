@@ -213,7 +213,8 @@ class LowLightBoostEffectTest {
         commit(LowLightBoostStateSnapshot.ACTIVE)
         val listener = RecordingListener(effect)
         register(listener)
-        val error = IllegalStateException("Session died")
+        val error =
+            LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "Session died")
 
         // Act: (ACTIVE, null) -> (OFF, error) -> (INACTIVE, null).
         commit(LowLightBoostStateSnapshot.error(error))
@@ -271,7 +272,11 @@ class LowLightBoostEffectTest {
         val listener = RecordingListener(effect)
         effect.addListener(executor, listener)
         commit(LowLightBoostStateSnapshot.INACTIVE)
-        commit(LowLightBoostStateSnapshot.error(RuntimeException("Error")))
+        commit(
+            LowLightBoostStateSnapshot.error(
+                LowLightBoostException(LowLightBoostException.ERROR_UNKNOWN, "Error")
+            )
+        )
 
         // Act.
         effect.removeListener(listener)
@@ -302,14 +307,18 @@ class LowLightBoostEffectTest {
                     effect.removeListener(this)
                 }
 
-                override fun onErrorChanged(error: Exception?) {
+                override fun onErrorChanged(error: LowLightBoostException?) {
                     events.add("error")
                 }
             }
         register(listener)
 
         // Act: both the status and the error change.
-        commit(LowLightBoostStateSnapshot.error(RuntimeException("Error")))
+        commit(
+            LowLightBoostStateSnapshot.error(
+                LowLightBoostException(LowLightBoostException.ERROR_UNKNOWN, "Error")
+            )
+        )
         commit(LowLightBoostStateSnapshot.INACTIVE)
 
         // Assert.
@@ -440,8 +449,10 @@ class LowLightBoostEffectTest {
     @Test
     fun distinctErrorsWithSameMessage_notifyErrorChangedOnly() {
         // Arrange.
-        val firstError = RuntimeException("Error")
-        val secondError = RuntimeException("Error")
+        val firstError =
+            LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "Error")
+        val secondError =
+            LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "Error")
         commit(LowLightBoostStateSnapshot.error(firstError))
         val listener = RecordingListener(effect)
         effect.addListener(listener)
@@ -487,7 +498,8 @@ class LowLightBoostEffectTest {
         // Arrange.
         commit(LowLightBoostStateSnapshot.INACTIVE)
         val observed = mutableListOf<LowLightBoostStateSnapshot>()
-        val failure = IllegalStateException("Session died")
+        val failure =
+            LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "Session died")
 
         // Act: (INACTIVE, null) -> (ACTIVE, null) -> (OFF, failure) -> (INACTIVE, null).
         launchOnMain { effect.observe { observed.add(LowLightBoostStateSnapshot(status, error)) } }
@@ -628,7 +640,7 @@ class LowLightBoostEffectTest {
         val events = mutableListOf<String>()
         val listener =
             object : LowLightBoostEffect.Listener {
-                override fun onErrorChanged(error: Exception?) {
+                override fun onErrorChanged(error: LowLightBoostException?) {
                     events.add("error:${error?.message}")
                     if (error != null) {
                         effect.isLowLightBoostEnabled = false
@@ -644,7 +656,11 @@ class LowLightBoostEffectTest {
             }
         effect.addListener(listener)
 
-        commit(LowLightBoostStateSnapshot.error(IllegalStateException("boom")))
+        commit(
+            LowLightBoostStateSnapshot.error(
+                LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "boom")
+            )
+        )
         shadowOf(getMainLooper()).idle()
 
         assertThat(events)
@@ -661,14 +677,18 @@ class LowLightBoostEffectTest {
                     callOrder.add("status:$status:err=${effect.error?.message}")
                 }
 
-                override fun onErrorChanged(error: Exception?) {
+                override fun onErrorChanged(error: LowLightBoostException?) {
                     callOrder.add("error:${error?.message}:status=${effect.status}")
                 }
             }
         )
 
         commit(LowLightBoostStateSnapshot.ACTIVE)
-        commit(LowLightBoostStateSnapshot.error(IllegalStateException("boom")))
+        commit(
+            LowLightBoostStateSnapshot.error(
+                LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "boom")
+            )
+        )
         commit(LowLightBoostStateSnapshot.INACTIVE)
 
         assertThat(callOrder)
@@ -685,8 +705,10 @@ class LowLightBoostEffectTest {
     @Test
     fun observe_errorOnlyTransitions_callsOnChangedOncePerChange() {
         // Arrange.
-        val firstError = RuntimeException("Error")
-        val secondError = RuntimeException("Error")
+        val firstError =
+            LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "Error")
+        val secondError =
+            LowLightBoostException(LowLightBoostException.ERROR_SESSION_FAILED, "Error")
         val observed = mutableListOf<LowLightBoostStateSnapshot>()
 
         // Act: (OFF, null) -> (OFF, firstError) -> (OFF, secondError) -> (OFF, null).
@@ -851,14 +873,14 @@ class LowLightBoostEffectTest {
         val value: Any?,
         val effectEnabled: Boolean,
         val effectStatus: Int,
-        val effectError: Exception?,
+        val effectError: LowLightBoostException?,
     ) {
         companion object {
             fun enabled(
                 enabled: Boolean,
                 effectEnabled: Boolean,
                 effectStatus: Int,
-                effectError: Exception?,
+                effectError: LowLightBoostException?,
             ) =
                 Event(
                     "onLowLightBoostEnabledChanged",
@@ -871,14 +893,14 @@ class LowLightBoostEffectTest {
             fun status(
                 status: Int,
                 effectStatus: Int,
-                effectError: Exception?,
+                effectError: LowLightBoostException?,
                 effectEnabled: Boolean = true,
             ) = Event("onStatusChanged", status, effectEnabled, effectStatus, effectError)
 
             fun error(
-                error: Exception?,
+                error: LowLightBoostException?,
                 effectStatus: Int,
-                effectError: Exception?,
+                effectError: LowLightBoostException?,
                 effectEnabled: Boolean = true,
             ) = Event("onErrorChanged", error, effectEnabled, effectStatus, effectError)
         }
@@ -902,7 +924,7 @@ class LowLightBoostEffectTest {
             events.add(Event.status(status, effect.status, effect.error))
         }
 
-        override fun onErrorChanged(error: Exception?) {
+        override fun onErrorChanged(error: LowLightBoostException?) {
             threads.add(Thread.currentThread())
             events.add(Event.error(error, effect.status, effect.error))
         }
