@@ -131,10 +131,10 @@ private constructor(
     /**
      * Adds a listener for [ProjectedInputEvent]s dispatched from the Projected device.
      *
-     * The [listener] is invoked whenever a Projected input event occurs while the [Activity] has
-     * input focus. It runs on the dispatcher of the `coroutineContext` passed to [create], or on
-     * the thread that delivers the event if that context has no dispatcher. Adding a listener that
-     * is already registered has no effect.
+     * The [listener] is invoked whenever a Projected input event occurs while the app is in the
+     * foreground on the Projected device. It runs on the dispatcher of the `coroutineContext`
+     * passed to [create], or on the thread that delivers the event if that context has no
+     * dispatcher. Adding a listener that is already registered has no effect.
      *
      * The [listener] stops receiving events when it's removed with
      * [removeProjectedInputEventListener], when [close] is called, or when the connection to the
@@ -242,6 +242,12 @@ private constructor(
         projectedService.clearActivityAsInputReceiver()
     }
 
+    /**
+     * Releases this instance and disconnects from the Projected service.
+     *
+     * Removes all listeners added with [addProjectedInputEventListener]. Don't use this instance
+     * after calling this method. Calling it more than once has no effect.
+     */
     override fun close() {
         projectedInputEventListeners.keys.forEach { removeProjectedInputEventListener(it) }
         coroutineScope.cancel()
