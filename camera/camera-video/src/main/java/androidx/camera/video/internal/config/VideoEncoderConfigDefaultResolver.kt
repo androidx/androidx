@@ -20,6 +20,7 @@ import android.util.Size
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.Logger
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.Timebase
 import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.encoder.VideoEncoderConfig
@@ -28,7 +29,10 @@ import androidx.core.util.Supplier
 
 /**
  * A [VideoEncoderConfig] supplier that resolves requested encoder settings from a [VideoSpec] for
- * the given surface [Size] using pre-defined default values.
+ * the given surface [Size] when no [VideoProfileProxy] matches the requested video format.
+ *
+ * The bitrate is derived from an optional reference [VideoProfileProxy] of another codec, but never
+ * lower than the pre-defined default values, which are used when no reference is available.
  */
 public class VideoEncoderConfigDefaultResolver
 /**
@@ -45,6 +49,11 @@ public class VideoEncoderConfigDefaultResolver
  *   should not produce frames at a frame rate outside this range. If equal to
  *   [SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED], then no information about the source frame rate
  *   is available and it does not need to be used in calculations.
+ * @param isHighSpeedCapture Whether the frames come from a dedicated high-speed capture pipeline.
+ * @param referenceVideoProfile An optional [VideoProfileProxy] of the same quality, possibly of a
+ *   different codec, used to derive the default bitrate. The derived bitrate is never lower than
+ *   the pre-defined default. If `null`, invalid, or its codec has no known relative coding
+ *   efficiency, the pre-defined default is used.
  */
 public constructor(
     private val mimeType: String,
@@ -54,6 +63,7 @@ public constructor(
     private val dynamicRange: DynamicRange,
     private val expectedFrameRateRange: Range<Int>,
     private val isHighSpeedCapture: Boolean = false,
+    private val referenceVideoProfile: VideoProfileProxy? = null,
 ) : Supplier<VideoEncoderConfig> {
 
     public companion object {
@@ -78,14 +88,24 @@ public constructor(
             if (videoSpecBitrate != VideoSpec.BITRATE_UNSPECIFIED) {
                 videoSpecBitrate
             } else {
-                Logger.d(TAG, "Using fallback VIDEO bitrate")
-                // We have no other information to go off of. Scale based on fallback defaults.
-                VideoConfigUtil.getDefaultVideoBitrate(
-                    mimeType = mimeType,
-                    size = surfaceSize,
-                    frameRate = resolvedFrameRates.encodeRate,
-                    bitDepth = dynamicRange.bitDepth,
-                )
+                val defaultBitrate =
+                    VideoConfigUtil.getDefaultVideoBitrate(
+                        mimeType = mimeType,
+                        size = surfaceSize,
+                        frameRate = resolvedFrameRates.encodeRate,
+                        bitDepth = dynamicRange.bitDepth,
+                    )
+                val referenceBitrate = resolveReferenceBitrate(resolvedFrameRates.encodeRate)
+                // Never go below the default. A reference may itself be synthesized from the
+                // defaults (e.g. for cameras without EncoderProfiles), in which case a codec ratio
+                // would only lower an already untuned value.
+                if (referenceBitrate != null && referenceBitrate > defaultBitrate) {
+                    Logger.d(TAG, "Using VIDEO bitrate derived from reference EncoderProfiles")
+                    referenceBitrate
+                } else {
+                    Logger.d(TAG, "Using fallback VIDEO bitrate")
+                    defaultBitrate
+                }
             }
 
         val resolvedProfile =
@@ -107,5 +127,16 @@ public constructor(
             .setDataSpace(dataSpace)
             .setHighSpeedCapture(isHighSpeedCapture)
             .build()
+    }
+
+    private fun resolveReferenceBitrate(encodeFrameRate: Int): Int? {
+        val profile = referenceVideoProfile ?: return null
+        return VideoConfigUtil.getReferenceVideoBitrate(
+            mimeType = mimeType,
+            referenceProfile = profile,
+            size = surfaceSize,
+            frameRate = encodeFrameRate,
+            bitDepth = dynamicRange.bitDepth,
+        )
     }
 }

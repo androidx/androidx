@@ -34,4 +34,20 @@ public data class VideoMimeInfo(
      * If no VideoProfileProxy is provided, returns `null`.
      */
     public val compatibleVideoProfile: EncoderProfilesProxy.VideoProfileProxy? = null,
-) : MimeInfo
+    /**
+     * Returns a [EncoderProfilesProxy.VideoProfileProxy] of the same quality that can be used as a
+     * bitrate reference when [compatibleVideoProfile] is `null`, e.g. an AVC profile when HEVC is
+     * requested but the device only reports AVC profiles.
+     *
+     * The profile's codec may differ from this mime info. It is only used to derive a default
+     * bitrate. If no reference is available, returns `null`. It is always `null` when
+     * [compatibleVideoProfile] is set.
+     */
+    public val referenceVideoProfile: EncoderProfilesProxy.VideoProfileProxy? = null,
+) : MimeInfo {
+    init {
+        require(compatibleVideoProfile == null || referenceVideoProfile == null) {
+            "compatibleVideoProfile and referenceVideoProfile are mutually exclusive."
+        }
+    }
+}

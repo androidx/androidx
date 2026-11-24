@@ -307,6 +307,51 @@ class MediaConfigUtilTest {
         assertThat(mediaInfo.containerInfo.compatibleEncoderProfiles).isNull()
     }
 
+    @Test
+    fun resolveMediaInfo_requestedMimeHasNoProfile_providesReferenceVideoProfile() {
+        MediaConfigUtil.setSupportedEncoderMimeTypes(
+            videoMimes = listOf(VIDEO_AVC, VIDEO_HEVC),
+            audioMimes = listOf(AUDIO_AAC),
+        )
+        val mediaSpec = createMediaSpec(videoMime = VIDEO_HEVC)
+        val encoderProfiles = createFakeEncoderProfiles(listOf(VIDEO_PROFILE_SDR_AVC))
+
+        val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, encoderProfiles)
+
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_HEVC)
+        assertThat(mediaInfo.videoMimeInfo.compatibleVideoProfile).isNull()
+        assertThat(mediaInfo.videoMimeInfo.referenceVideoProfile).isEqualTo(VIDEO_PROFILE_SDR_AVC)
+    }
+
+    @Test
+    fun resolveMediaInfo_requestedMimeHasProfile_noReferenceVideoProfile() {
+        val mediaSpec = createMediaSpec(videoMime = VIDEO_AVC)
+        val encoderProfiles = createFakeEncoderProfiles(listOf(VIDEO_PROFILE_SDR_AVC))
+
+        val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, encoderProfiles)
+
+        assertThat(mediaInfo.videoMimeInfo.compatibleVideoProfile).isEqualTo(VIDEO_PROFILE_SDR_AVC)
+        assertThat(mediaInfo.videoMimeInfo.referenceVideoProfile).isNull()
+    }
+
+    @Test
+    fun resolveMediaInfo_videoMimeChosenByFormatCombo_noReferenceVideoProfile() {
+        // An audio-only override selects a WebM format combo, so the video codec (VP8) is chosen
+        // by CameraX rather than requested by the app, and must not derive its bitrate from AVC.
+        MediaConfigUtil.setSupportedEncoderMimeTypes(
+            videoMimes = listOf(VIDEO_AVC, VIDEO_VP8),
+            audioMimes = listOf(AUDIO_AAC, AUDIO_VORBIS),
+        )
+        val mediaSpec = createMediaSpec(audioMime = AUDIO_VORBIS)
+        val encoderProfiles = createFakeEncoderProfiles(listOf(VIDEO_PROFILE_SDR_AVC))
+
+        val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, encoderProfiles)
+
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_VP8)
+        assertThat(mediaInfo.videoMimeInfo.compatibleVideoProfile).isNull()
+        assertThat(mediaInfo.videoMimeInfo.referenceVideoProfile).isNull()
+    }
+
     private fun createFakeEncoderProfiles(videoProfiles: List<VideoProfileProxy>) =
         VideoValidatedEncoderProfilesProxy.create(
             DEFAULT_DURATION,

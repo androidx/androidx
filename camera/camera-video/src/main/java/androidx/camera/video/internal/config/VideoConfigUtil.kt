@@ -60,6 +60,7 @@ import androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA
 import androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import androidx.camera.video.internal.utils.DynamicRangeUtil
+import kotlin.math.roundToInt
 
 /** A collection of utilities used for resolving and debugging video configurations. */
 public object VideoConfigUtil {
@@ -159,6 +160,91 @@ public object VideoConfigUtil {
                 // is MIME type compatible
                 (videoMime == MIME_TYPE_UNSPECIFIED || it.mediaType == videoMime)
         }
+    }
+
+    /**
+     * Resolves a [VideoProfileProxy] that can be used as a bitrate reference for [videoMime] when
+     * no profile matches [videoMime] directly.
+     *
+     * Device [VideoProfileProxy]s of the same quality, even for a different codec, are usually a
+     * better bitrate anchor than the generic CDD baseline used by [getDefaultVideoBitrate]. The
+     * first profile, in [videoProfiles] order, whose MIME type has a known relative coding
+     * efficiency (see [getReferenceVideoBitrate]) is returned.
+     *
+     * [videoProfiles] are expected to already be filtered to the recording's dynamic range, e.g. by
+     * `DynamicRangeMatchedEncoderProfilesProvider`. A bit depth mismatch is still handled by
+     * [getReferenceVideoBitrate].
+     *
+     * @param videoMime The requested video MIME type.
+     * @param videoProfiles The available [VideoProfileProxy]s of the same quality.
+     * @return A reference [VideoProfileProxy], or `null` if [videoMime] has no known relative
+     *   coding efficiency or no eligible profile exists.
+     */
+    @JvmStatic
+    public fun resolveReferenceVideoProfile(
+        videoMime: String,
+        videoProfiles: List<VideoProfileProxy>,
+    ): VideoProfileProxy? {
+        if (videoMime !in RELATIVE_BITRATE_TO_AVC) return null
+        return videoProfiles.firstOrNull { it.mediaType in RELATIVE_BITRATE_TO_AVC }
+    }
+
+    /**
+     * Returns a video bitrate for [mimeType] derived from a [referenceProfile] of a possibly
+     * different codec and dynamic range.
+     *
+     * The reference bitrate is first converted to [mimeType] by the relative coding efficiency of
+     * the two codecs, then scaled to the given size, frame rate and bit depth. See [scaleBitrate].
+     *
+     * @param mimeType The video mime type.
+     * @param referenceProfile The reference video profile, e.g. from
+     *   [resolveReferenceVideoProfile].
+     * @param size The video size.
+     * @param frameRate The video frame rate.
+     * @param bitDepth The video bit depth, e.g. 8 or 10.
+     * @return The derived video bitrate, or `null` if either codec has no known relative coding
+     *   efficiency or [referenceProfile] has an invalid bitrate, frame rate or size.
+     */
+    @JvmStatic
+    public fun getReferenceVideoBitrate(
+        mimeType: String,
+        referenceProfile: VideoProfileProxy,
+        size: Size,
+        frameRate: Int,
+        bitDepth: Int,
+    ): Int? {
+        val targetRatio = RELATIVE_BITRATE_TO_AVC[mimeType] ?: return null
+        val referenceRatio = RELATIVE_BITRATE_TO_AVC[referenceProfile.mediaType] ?: return null
+        if (
+            referenceProfile.bitrate <= 0 ||
+                referenceProfile.frameRate <= 0 ||
+                referenceProfile.width <= 0 ||
+                referenceProfile.height <= 0
+        ) {
+            Logger.w(TAG, "Ignoring invalid reference video profile: $referenceProfile")
+            return null
+        }
+        val codecConvertedBitrate =
+            (referenceProfile.bitrate * targetRatio / referenceRatio).roundToInt()
+        if (Logger.isDebugEnabled(TAG)) {
+            Logger.d(
+                TAG,
+                "Reference bitrate(${referenceProfile.bitrate}bps, " +
+                    "${referenceProfile.mediaType}) * Codec Ratio($targetRatio / " +
+                    "$referenceRatio) = ${codecConvertedBitrate}bps for $mimeType",
+            )
+        }
+        return scaleBitrate(
+            baseBitrate = codecConvertedBitrate,
+            actualBitDepth = bitDepth,
+            baseBitDepth = referenceProfile.bitDepth,
+            actualFrameRate = frameRate,
+            baseFrameRate = referenceProfile.frameRate,
+            actualWidth = size.width,
+            baseWidth = referenceProfile.width,
+            actualHeight = size.height,
+            baseHeight = referenceProfile.height,
+        )
     }
 
     /**
@@ -303,6 +389,7 @@ public object VideoConfigUtil {
                     dynamicRange = dynamicRange,
                     expectedFrameRateRange = expectedFrameRateRange,
                     isHighSpeedCapture = isHighSpeedCapture,
+                    referenceVideoProfile = videoMimeInfo.referenceVideoProfile,
                 )
             }
         return configSupplier.get()
@@ -408,6 +495,30 @@ public object VideoConfigUtil {
     private const val DEFAULT_VIDEO_BASE_FRAME_RATE = 30
     private const val DEFAULT_VIDEO_BASE_BIT_DEPTH = 8
     private val DEFAULT_VIDEO_BASE_SIZE = RESOLUTION_720P
+
+    // Heuristic estimate of the bitrate each codec needs, relative to AVC, for comparable visual
+    // quality with real-time hardware encoders (b/589976053). Used by [getReferenceVideoBitrate]
+    // to convert a device-tuned bitrate of one codec into another. The values are not measured;
+    // they assume smaller savings than offline encoder benchmarks typically report, which favors
+    // quality when converting to a more efficient codec. The derived bitrate is never lower than
+    // [getDefaultVideoBitrate] (see VideoEncoderConfigDefaultResolver).
+    //
+    // These are efficiency ratios, unlike the CDD-based base bitrates above, which are minimum
+    // encoder capability requirements (hence AV1's higher CDD base despite its better efficiency).
+    //
+    // Codecs whose bitrate cannot be meaningfully derived from another codec are omitted, e.g.
+    // APV (a high-bitrate intra-only mezzanine codec) and Dolby Vision (which can be AVC or HEVC
+    // based), and fall back to [getDefaultVideoBitrate].
+    private val RELATIVE_BITRATE_TO_AVC: Map<String, Double> =
+        mapOf(
+            MediaFormat.MIMETYPE_VIDEO_H263 to 1.5,
+            MediaFormat.MIMETYPE_VIDEO_MPEG4 to 1.5,
+            MediaFormat.MIMETYPE_VIDEO_AVC to 1.0,
+            MediaFormat.MIMETYPE_VIDEO_VP8 to 1.0,
+            MediaFormat.MIMETYPE_VIDEO_HEVC to 0.7,
+            MediaFormat.MIMETYPE_VIDEO_VP9 to 0.7,
+            MediaFormat.MIMETYPE_VIDEO_AV1 to 0.6,
+        )
 
     /**
      * Returns a default video bitrate for when no other bitrate information is available.

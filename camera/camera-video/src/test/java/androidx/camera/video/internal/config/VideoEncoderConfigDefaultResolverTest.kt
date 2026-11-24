@@ -570,6 +570,110 @@ class VideoEncoderConfigDefaultResolverTest {
         assertThat(config.bitrate).isEqualTo(5_000_000)
     }
 
+    @Test
+    fun bitrateIsDerivedFromReferenceProfile_hevcFromAvc() {
+        val avcProfile =
+            EncoderProfilesUtil.createFakeVideoProfileProxy(RESOLUTION_1080P, bitrate = 20_000_000)
+        val config =
+            VideoEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_VIDEO_HEVC,
+                    inputTimebase = TIMEBASE,
+                    videoSpec = DEFAULT_VIDEO_SPEC,
+                    surfaceSize = RESOLUTION_720P,
+                    dynamicRange = DynamicRange.SDR,
+                    expectedFrameRateRange = FRAME_RATE_30,
+                    referenceVideoProfile = avcProfile,
+                )
+                .get()
+
+        // 20M * HEVC ratio(0.7) * size((1280 / 1920) * (720 / 1080))
+        assertThat(config.bitrate).isEqualTo(6_222_222)
+        assertThat(config.mimeType).isEqualTo(MediaFormat.MIMETYPE_VIDEO_HEVC)
+    }
+
+    @Test
+    fun bitrateIsNotLowerThanDefault_whenDerivedBitrateIsLower() {
+        // 10M * HEVC ratio(0.7) * size((1280 / 1920) * (720 / 1080)) = 3.1M < 4M default.
+        val avcProfile =
+            EncoderProfilesUtil.createFakeVideoProfileProxy(RESOLUTION_1080P, bitrate = 10_000_000)
+        val config =
+            VideoEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_VIDEO_HEVC,
+                    inputTimebase = TIMEBASE,
+                    videoSpec = DEFAULT_VIDEO_SPEC,
+                    surfaceSize = RESOLUTION_720P,
+                    dynamicRange = DynamicRange.SDR,
+                    expectedFrameRateRange = FRAME_RATE_30,
+                    referenceVideoProfile = avcProfile,
+                )
+                .get()
+
+        assertThat(config.bitrate).isEqualTo(4_000_000)
+    }
+
+    @Test
+    fun bitrateIsNotLowerThanDefault_whenReferenceIsSynthesizedFromDefaults() {
+        // A reference synthesized from the CDD defaults, e.g. for cameras without
+        // CamcorderProfile, must not lower the AV1 default (8M at 720p30) via the codec ratio.
+        val syntheticAvcProfile =
+            androidx.camera.video.internal.utils.EncoderProfilesUtil.createDefaultVideoProfile(
+                RESOLUTION_720P,
+                DynamicRange.SDR,
+            )
+        val config =
+            VideoEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_VIDEO_AV1,
+                    inputTimebase = TIMEBASE,
+                    videoSpec = DEFAULT_VIDEO_SPEC,
+                    surfaceSize = RESOLUTION_720P,
+                    dynamicRange = DynamicRange.SDR,
+                    expectedFrameRateRange = FRAME_RATE_30,
+                    referenceVideoProfile = syntheticAvcProfile,
+                )
+                .get()
+
+        assertThat(config.bitrate).isEqualTo(8_000_000)
+    }
+
+    @Test
+    fun bitrateFallsBackToDefault_whenTargetCodecRatioUnknown() {
+        val avcProfile =
+            EncoderProfilesUtil.createFakeVideoProfileProxy(RESOLUTION_720P, bitrate = 10_000_000)
+        val config =
+            VideoEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_VIDEO_APV,
+                    inputTimebase = TIMEBASE,
+                    videoSpec = DEFAULT_VIDEO_SPEC,
+                    surfaceSize = RESOLUTION_720P,
+                    dynamicRange = DynamicRange.SDR,
+                    expectedFrameRateRange = FRAME_RATE_30,
+                    referenceVideoProfile = avcProfile,
+                )
+                .get()
+
+        assertThat(config.bitrate).isEqualTo(4_000_000)
+    }
+
+    @Test
+    fun explicitBitrate_isRespected_overReferenceProfile() {
+        val videoSpec = VideoSpec.builder().setBitrate(5_000_000).build()
+        val avcProfile =
+            EncoderProfilesUtil.createFakeVideoProfileProxy(RESOLUTION_720P, bitrate = 10_000_000)
+        val config =
+            VideoEncoderConfigDefaultResolver(
+                    mimeType = MediaFormat.MIMETYPE_VIDEO_HEVC,
+                    inputTimebase = TIMEBASE,
+                    videoSpec = videoSpec,
+                    surfaceSize = RESOLUTION_720P,
+                    dynamicRange = DynamicRange.SDR,
+                    expectedFrameRateRange = FRAME_RATE_30,
+                    referenceVideoProfile = avcProfile,
+                )
+                .get()
+
+        assertThat(config.bitrate).isEqualTo(5_000_000)
+    }
+
     private fun testMimeAndDynamicRangeResolveToProfile(
         mime: String,
         dynamicRange: DynamicRange,
