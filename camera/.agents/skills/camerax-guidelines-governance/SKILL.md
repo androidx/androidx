@@ -102,12 +102,13 @@ When directed to an index page, directory list, or guide linking to sub-guides
 > [!NOTE]
 > **Document Relationship for Internal Contributors**: `camera/AGENTS.md` is
 > the primary public baseline for code architecture, style, and lint policies.
-> When operating in an environment where internal tools are configured, refer
-> to `AGENTS_INTERNAL.md` (at `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`,
-> or located via `code_search` query `f:camerax.*AGENTS_INTERNAL\.md$` when
-> `$CAMERAX_INTERNAL_TOOLS_DIR` is unset) and its sibling `skills/` directory
-> for supplementary coding guidelines, documentation links, and physical lab
-> test runner commands.
+> If `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` exists—or if
+> `skill_search` (querying internal `camerax_*` skills; `AGENTS_INTERNAL.md`
+> sits in the parent directory of `skills/`) or `code_search`
+> (`f:camerax.*AGENTS_INTERNAL\.md$`) is available—you **MUST** try to locate
+> and read `AGENTS_INTERNAL.md` (plus matching sibling `skills/`) for
+> supplementary internal context, documentation links, and physical lab test
+> runner commands; if none is found, proceed with `camera/AGENTS.md`.
 
 
 ## Development Workflow & Refactoring:

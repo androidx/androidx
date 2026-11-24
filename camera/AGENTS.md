@@ -48,12 +48,12 @@ description: >-
 > `https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/camera/.agents/skills/<skill-name>/SKILL.md`
 > (or `curl -sf "<url>?format=TEXT" | base64 -d`).
 >
-> **Optional Internal Companion**: When `$CAMERAX_INTERNAL_TOOLS_DIR` is set and
-> `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` is present (or if unset and a
-> `code_search` or `skill_search` tool is available in the environment, by
-> querying `f:camerax.*AGENTS_INTERNAL\.md$` or discovering internal skills),
-> also read `AGENTS_INTERNAL.md` (and its modular skills in the sibling
-> `skills/` directory) for supplementary internal guidelines and lab workflows.
+> **Mandatory Internal Companion (When Available)**: If
+> `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` exists—or if `skill_search`
+> (`camerax_*`; `AGENTS_INTERNAL.md` is parent of `skills/`) or `code_search`
+> (`f:camerax.*AGENTS_INTERNAL\.md$`) is available—you **MUST** try to locate
+> and read `AGENTS_INTERNAL.md` (plus matching sibling `skills/`). If none is
+> found, proceed with this public guide.
 
 # Project: CameraX
 

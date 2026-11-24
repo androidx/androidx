@@ -507,11 +507,13 @@ Checkpoint 2**.
 
 > [!NOTE]
 > **Internal Lab Automation & Fleet Query Tooling**:
-> When operating in environments where internal lab tooling is configured with
-> access to automated physical device testing labs and continuous test history,
-> refer to `AGENTS_INTERNAL.md` (Phase 4 and Section 5.14) for instructions on
-> using fleet-wide blast radius analysis, CI diagnostic properties, and
-> multi-model verification to operationalize this decision hierarchy.
+> If `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` exists—or if
+> `skill_search` (querying internal `camerax_*` skills; `AGENTS_INTERNAL.md`
+> sits in the parent directory of `skills/`) or `code_search`
+> (`f:camerax.*AGENTS_INTERNAL\.md$`) is available—you **MUST** try to locate
+> and read `AGENTS_INTERNAL.md` (Phase 4 and Section 5.14) and matching sibling
+> `skills/` for fleet-wide blast radius analysis, CI diagnostic properties,
+> and multi-model verification; if none is found, proceed with this guide.
 
 #### 7. Safety & Code Path Auditing Protocol
 Before finalizing changes to shared infrastructure (e.g. `UseCase`,
