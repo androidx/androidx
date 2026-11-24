@@ -57,11 +57,14 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.abs
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume.assumeFalse
@@ -237,12 +240,7 @@ class ZoomControlDeviceTest(
     fun setZoomRatioBy1_0_androidRZoomRatioIsUpdated() = runBlocking {
         checkTestPreconditions(isAndroidRZoom = true)
 
-        cameraControl.setZoomRatio(1.0f)[5, TimeUnit.SECONDS]
-
-        captureCallback.verifyFor { captureRequests, _ ->
-            captureRequests.last()[CaptureRequest.SCALER_CROP_REGION] == getSensorRect() &&
-                areFloatsEqual(captureRequests.last()[CaptureRequest.CONTROL_ZOOM_RATIO], 1.0f)
-        }
+        verifyAndroidRZoomRatioAndUnchangedCropRegion(expectedZoomRatio = 1.0f)
     }
 
     @Test
@@ -268,13 +266,9 @@ class ZoomControlDeviceTest(
     @SdkSuppress(minSdkVersion = 30)
     fun setZoomRatioBy2_0_androidRZoomRatioIsUpdated() = runBlocking {
         checkTestPreconditions(isAndroidRZoom = true)
+        assumeTrue(2.0f <= requireNotNull(cameraInfo.zoomState.value).maxZoomRatio + DELTA)
 
-        cameraControl.setZoomRatio(2.0f)
-
-        captureCallback.verifyFor { captureRequests, _ ->
-            captureRequests.last()[CaptureRequest.SCALER_CROP_REGION] == getSensorRect() &&
-                areFloatsEqual(captureRequests.last()[CaptureRequest.CONTROL_ZOOM_RATIO], 2.0f)
-        }
+        verifyAndroidRZoomRatioAndUnchangedCropRegion(expectedZoomRatio = 2.0f)
     }
 
     @Test
@@ -683,6 +677,61 @@ class ZoomControlDeviceTest(
 
         return zoomRatioFromCameraCaptureRef.get()
     }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private suspend fun verifyAndroidRZoomRatioAndUnchangedCropRegion(expectedZoomRatio: Float) {
+        // Capture the session's initial template-default SCALER_CROP_REGION before setZoomRatio()
+        // invokes ZoomCompat.applyAsync() (ZoomControl calls only resetAsync() on initial bind).
+        val baselineCropRegionRef = AtomicReference<Rect?>()
+        captureCallback.verifyFor(numOfCaptures = 1) { captureRequests, _ ->
+            baselineCropRegionRef.set(captureRequests.last()[CaptureRequest.SCALER_CROP_REGION])
+            true
+        }
+        val baselineCropRegion = baselineCropRegionRef.get()
+        val sensorRect = getSensorRect()
+
+        withTimeout(5_000) { cameraControl.setZoomRatio(expectedZoomRatio).await() }
+
+        val lastObservedCropRef = AtomicReference<Rect?>()
+        val lastObservedZoomRef = AtomicReference<Float?>()
+        try {
+            captureCallback.verifyFor { captureRequests, _ ->
+                val request = captureRequests.last()
+                val cropRegion = request[CaptureRequest.SCALER_CROP_REGION]
+                val zoomRatio = request[CaptureRequest.CONTROL_ZOOM_RATIO]
+                lastObservedCropRef.set(cropRegion)
+                lastObservedZoomRef.set(zoomRatio)
+                cropRegion == baselineCropRegion && areFloatsEqual(zoomRatio, expectedZoomRatio)
+            }
+        } catch (e: Exception) {
+            if (e is TimeoutCancellationException || e is TimeoutException) {
+                throw zoomVerificationTimeoutError(
+                    expectedZoomRatio = expectedZoomRatio,
+                    baselineCropRegion = baselineCropRegion,
+                    sensorRect = sensorRect,
+                    lastCrop = lastObservedCropRef.get(),
+                    lastZoom = lastObservedZoomRef.get(),
+                    cause = e,
+                )
+            }
+            throw e
+        }
+    }
+
+    private fun zoomVerificationTimeoutError(
+        expectedZoomRatio: Float,
+        baselineCropRegion: Rect?,
+        sensorRect: Rect,
+        lastCrop: Rect?,
+        lastZoom: Float?,
+        cause: Throwable,
+    ): AssertionError =
+        AssertionError(
+            "Timed out waiting for CONTROL_ZOOM_RATIO=$expectedZoomRatio with unchanged " +
+                "SCALER_CROP_REGION=$baselineCropRegion (sensorRect=$sensorRect, " +
+                "lastCrop=$lastCrop, lastZoom=$lastZoom)",
+            cause,
+        )
 
     private fun assumeMaxZoomRatio(cameraSelector: CameraSelector, atLeastRatio: Float) {
         assumeTrue(
