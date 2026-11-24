@@ -870,6 +870,8 @@ private fun Modifier.tapToFocusGesture(
                     } else {
                         notifyTapToFocus(FocusState.NOT_FOCUSED)
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     if (e !is CameraControl.OperationCanceledException) {
                         notifyTapToFocus(FocusState.FAILED)
