@@ -275,12 +275,6 @@ validThroughLibraryVersion = "1.2.0-beta01"
 reason = "b/TODO - <reason>"
 
 [[exemption]]
-library = "androidx.core.locationbutton:locationbutton-compose"
-dependsOn = "androidx.compose.material3:material3"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[exemption]]
 library = "androidx.core:core-animation-testing"
 dependsOn = "androidx.core:core-animation"
 validThroughLibraryVersion = "1.1.0-alpha01"
