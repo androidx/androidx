@@ -346,8 +346,8 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
 
         /** Scopes that were invalidated during previous apply step. */
         private var _invalidated: MutableScatterSet<Any>? = null
-        private val invalidated =
-            _invalidated ?: MutableScatterSet<Any>().also { _invalidated = it }
+        private val invalidated
+            get() = _invalidated ?: MutableScatterSet<Any>().also { _invalidated = it }
 
         /** Reusable vector for re-recording states inside [recordInvalidation] */
         private var _statesToReread: MutableObjectList<IndirectState<*>>? = null
@@ -407,17 +407,19 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
 
         /** Invalidation index from state objects to derived states reading them. */
         private var _dependencyToIndirectStates: ScopeMap<Any, IndirectState<*>>? = null
-        private val dependencyToIndirectStates =
-            _dependencyToIndirectStates
-                ?: ScopeMap<Any, IndirectState<*>>().also { _dependencyToIndirectStates = it }
+        private val dependencyToIndirectStates
+            get() =
+                _dependencyToIndirectStates
+                    ?: ScopeMap<Any, IndirectState<*>>().also { _dependencyToIndirectStates = it }
 
         /** Last derived state value recorded during read. */
         private var _recordedIndirectStateValues: MutableScatterMap<IndirectState<*>, Any?>? = null
-        private val recordedIndirectStateValues =
-            _recordedIndirectStateValues
-                ?: MutableScatterMap<IndirectState<*>, Any?>().also {
-                    _recordedIndirectStateValues = it
-                }
+        private val recordedIndirectStateValues
+            get() =
+                _recordedIndirectStateValues
+                    ?: MutableScatterMap<IndirectState<*>, Any?>().also {
+                        _recordedIndirectStateValues = it
+                    }
 
         fun recordRead(value: Any) {
             val scope = currentScope!!
@@ -477,7 +479,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 // not already inside another computed state read. Record subsequent reads as
                 // dependencies of this state, including when it was already read in this scope.
                 if (isFirstReadInScope) {
-                    dependencyToIndirectStates.removeScope(value)
+                    _dependencyToIndirectStates?.removeScope(value)
                 }
                 this.currentComputedState = value
             }
@@ -523,7 +525,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             val previousFirstReadCount = currentFirstReadCount
 
             currentScope = scope
-            currentScopeReads = scopeToValues[scope]
+            currentScopeReads = _scopeToValues?.get(scope)
             if (currentToken == -1) {
                 currentToken = currentSnapshot().snapshotId.hashCode()
             }
@@ -543,7 +545,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             // allocated them.
             currentScopeReads =
                 if (previousReads == null && previousScope != null) {
-                    scopeToValues[previousScope]
+                    _scopeToValues?.get(previousScope)
                 } else {
                     previousReads
                 }
@@ -564,13 +566,13 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
 
         /** Clear observations for [scope]. */
         fun clearScopeObservations(scope: Any) {
-            val recordedValues = scopeToValues.remove(scope) ?: return
+            val recordedValues = _scopeToValues?.remove(scope) ?: return
             recordedValues.forEach { value, _ -> removeObservation(scope, value) }
         }
 
         /** Remove observations in scopes matching [predicate]. */
         fun removeScopeIf(predicate: (scope: Any) -> Boolean) {
-            scopeToValues.removeIf { scope, valueSet ->
+            _scopeToValues?.removeIf { scope, valueSet ->
                 predicate(scope).also { willRemove ->
                     if (willRemove) {
                         valueSet.forEach { value, _ -> removeObservation(scope, value) }
@@ -579,22 +581,23 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             }
         }
 
-        fun hasScopeObservations(): Boolean = scopeToValues.isNotEmpty()
+        fun hasScopeObservations(): Boolean = _scopeToValues?.isNotEmpty() == true
 
         private fun removeObservation(scope: Any, value: Any) {
+            val valueToScopes = _valueToScopes ?: return
             valueToScopes.remove(value, scope)
             if (value is IndirectState<*> && value !in valueToScopes) {
-                dependencyToIndirectStates.removeScope(value)
-                recordedIndirectStateValues.remove(value)
+                _dependencyToIndirectStates?.removeScope(value)
+                _recordedIndirectStateValues?.remove(value)
             }
         }
 
         /** Clear all observations. */
         fun clear() {
-            valueToScopes.clear()
-            scopeToValues.clear()
-            dependencyToIndirectStates.clear()
-            recordedIndirectStateValues.clear()
+            _valueToScopes?.clear()
+            _scopeToValues?.clear()
+            _dependencyToIndirectStates?.clear()
+            _recordedIndirectStateValues?.clear()
         }
 
         /**
@@ -603,25 +606,36 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
          * @return whether any scopes observe changed values
          */
         fun recordInvalidation(changes: Set<Any>): Boolean {
+            val valueToScopes = _valueToScopes
+            if (
+                valueToScopes == null ||
+                    valueToScopes.size == 0 ||
+                    _scopeToValues?.isEmpty() != false
+            ) {
+                return false
+            }
+
             var hasValues = false
 
-            val dependencyToIndirectStates = dependencyToIndirectStates
-            val recordedIndirectStateValues = recordedIndirectStateValues
-            val valueToScopes = valueToScopes
-            val invalidated = invalidated
+            val dependencyToIndirectStates = _dependencyToIndirectStates
+            val recordedIndirectStateValues = _recordedIndirectStateValues
 
             changes.fastForEach { value ->
                 if (value is StateObjectImpl && !value.isReadIn(ReaderKind.SnapshotStateObserver)) {
                     return@fastForEach
                 }
 
-                if (!readingIndirectStates && value in dependencyToIndirectStates) {
+                if (
+                    !readingIndirectStates &&
+                        dependencyToIndirectStates != null &&
+                        value in dependencyToIndirectStates
+                ) {
                     readingIndirectStates = true
                     try {
                         // Find indirect state that is invalidated by this change
                         dependencyToIndirectStates.forEachScopeOf(value) { indirectState ->
                             indirectState as IndirectState<Any?>
-                            val previousValue = recordedIndirectStateValues[indirectState]
+                            val previousValue = recordedIndirectStateValues?.get(indirectState)
 
                             // Invalidate only if currentValue is different than observed on read
                             if (indirectState.isInvalidFor(previousValue)) {
@@ -645,9 +659,12 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 }
             }
 
-            if (!readingIndirectStates && statesToReread.isNotEmpty()) {
-                statesToReread.forEach { rereadIndirectState(it) }
-                statesToReread.clear()
+            if (!readingIndirectStates) {
+                val statesToReread = _statesToReread
+                if (statesToReread != null && statesToReread.isNotEmpty()) {
+                    statesToReread.forEach { rereadIndirectState(it) }
+                    statesToReread.clear()
+                }
             }
 
             return hasValues
@@ -682,9 +699,11 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
 
         /** Call [onChanged] for previously invalidated scopes. */
         fun notifyInvalidatedScopes() {
-            val invalidated = invalidated
-            invalidated.forEach(onChanged)
-            invalidated.clear()
+            val invalidated = _invalidated ?: return
+            if (invalidated.isNotEmpty()) {
+                invalidated.forEach(onChanged)
+                invalidated.clear()
+            }
         }
     }
 }
