@@ -49,7 +49,6 @@ import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.TrackingState
 import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialExternalSurface
 import androidx.xr.compose.subspace.SpatialGltfModel
@@ -75,10 +74,8 @@ import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.filterSupportedPermissions
 import java.nio.file.Paths
 import java.util.concurrent.CopyOnWriteArraySet
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -223,8 +220,7 @@ class AccessibilityTest {
 
     private fun setFullSpaceContent(content: @Composable () -> Unit) {
         composeTestRule.setContent(content)
-        runBlocking(Dispatchers.Main.immediate) { composeTestRule.activity.requestFullSpace() }
-        composeTestRule.waitForIdle()
+        composeTestRule.requestFullSpace()
     }
 
     private fun verifyCreateFocusAndRemove(

@@ -30,14 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.test.junit4.v2.AndroidComposeTestRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.xr.arcore.ArDevice
-import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
@@ -74,7 +72,6 @@ import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
-import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.filterSupportedPermissions
 import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
@@ -100,22 +97,15 @@ import org.junit.runner.RunWith
 @LargeTest
 class RotateToLookAtUserTest {
 
-    private val sessionRule = createXrSessionRule()
-
     @get:Rule(order = 0)
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(*filterSupportedPermissions("android.permission.HEAD_TRACKING"))
 
-    @get:Rule(order = 1)
-    val composeTestRule =
-        AndroidComposeTestRule(
-            activityRule = sessionRule,
-            activityProvider = { it.activity },
-        )
+    @get:Rule(order = 1) val composeTestRule = createXrComposeRule()
 
     @Before
     fun setUp() {
-        sessionRule.onMainThread {
+        composeTestRule.sessionRule.onMainThread {
             val configureResult =
                 session.configure(
                     Config.Builder(session.config)
@@ -123,8 +113,8 @@ class RotateToLookAtUserTest {
                         .build()
                 )
             assertThat(configureResult).isInstanceOf(SessionConfigureSuccess::class.java)
-            activity.requestFullSpace()
         }
+        composeTestRule.requestFullSpace()
     }
 
     @After
@@ -630,7 +620,7 @@ class RotateToLookAtUserTest {
                 description = "movable embedded panel with bounds ready for interaction",
                 select = { scene ->
                     scene
-                        .findTaskByActivity(sessionRule.activity)
+                        .findTaskByActivity(composeTestRule.sessionRule.activity)
                         ?.embeddedWindowLeashes
                         ?.firstOrNull { it.isVisible && it.isMovable && it.worldExtents != null }
                 },
@@ -711,7 +701,7 @@ class RotateToLookAtUserTest {
     }
 
     private fun getHeadPoseInActivity(): Pose {
-        val session = sessionRule.session
+        val session = composeTestRule.sessionRule.session
         val headPoseInPerception = ArDevice.getInstance(session).state.value.devicePose
         return session.scene.perceptionSpace.transformPoseTo(
             headPoseInPerception,

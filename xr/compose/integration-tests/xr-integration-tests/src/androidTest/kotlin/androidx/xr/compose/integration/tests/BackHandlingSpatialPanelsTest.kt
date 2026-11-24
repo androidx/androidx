@@ -21,7 +21,6 @@ import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.graphics.Color as AndroidColor
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.Button as AndroidButton
@@ -59,7 +58,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.compose.platform.SpatialConfiguration
-import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.SpatialDialog
 import androidx.xr.compose.spatial.SpatialDialogProperties
 import androidx.xr.compose.spatial.SpatialPopup
@@ -91,10 +89,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
@@ -121,8 +116,6 @@ class BackHandlingSpatialPanelsTest {
 
     @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private var usedSpatialInteraction = false
-
     @Before
     fun setUp() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -134,9 +127,7 @@ class BackHandlingSpatialPanelsTest {
 
     @After
     fun tearDown() {
-        if (usedSpatialInteraction) {
-            resetSpatialInteraction()
-        }
+        resetSpatialInteraction()
     }
 
     @Test
@@ -208,24 +199,14 @@ class BackHandlingSpatialPanelsTest {
             }
         }
 
-        enterFullSpace()
+        composeTestRule.requestFullSpace()
         val initialPanels = awaitVisiblePanels(expectedCount = 2)
         val rightPanelNode = initialPanels.maxByOrNull { it.position.x }!!
 
-        val buttonBounds =
-            composeTestRule.onNodeWithText("Show Dialog").fetchSemanticsNode().boundsInWindow
-        val buttonRect =
-            Rect(
-                buttonBounds.left.roundToInt(),
-                buttonBounds.top.roundToInt(),
-                buttonBounds.right.roundToInt(),
-                buttonBounds.bottom.roundToInt(),
-            )
-
-        performInteraction(rightPanelNode) {
-            pointAt(boundsInWindow = buttonRect, targetNode = rightPanelNode)
-            select()
-        }
+        composeTestRule.performSpatialClickOn2dNode(
+            node = composeTestRule.onNodeWithText("Show Dialog"),
+            panelNode = rightPanelNode,
+        )
 
         composeTestRule.waitUntil(
             conditionDescription = "SpatialDialog opened after clicking Show Dialog",
@@ -297,7 +278,7 @@ class BackHandlingSpatialPanelsTest {
             }
         }
 
-        enterFullSpace()
+        composeTestRule.requestFullSpace()
         composeTestRule.onNodeWithText("Protected Dialog").assertIsDisplayed()
         awaitVisiblePanels(expectedCount = 2)
 
@@ -364,22 +345,12 @@ class BackHandlingSpatialPanelsTest {
             }
         }
 
-        enterFullSpace()
+        composeTestRule.requestFullSpace()
         val hostPanelNode = awaitVisiblePanels(expectedCount = 1).single()
-        val buttonBounds =
-            composeTestRule.onNodeWithText("Show Popup").fetchSemanticsNode().boundsInWindow
-        val buttonRect =
-            Rect(
-                buttonBounds.left.roundToInt(),
-                buttonBounds.top.roundToInt(),
-                buttonBounds.right.roundToInt(),
-                buttonBounds.bottom.roundToInt(),
-            )
-
-        performInteraction(hostPanelNode) {
-            pointAt(boundsInWindow = buttonRect, targetNode = hostPanelNode)
-            select()
-        }
+        composeTestRule.performSpatialClickOn2dNode(
+            node = composeTestRule.onNodeWithText("Show Popup"),
+            panelNode = hostPanelNode,
+        )
 
         composeTestRule.waitUntil(
             conditionDescription = "SpatialPopup displayed after clicking Show Popup",
@@ -470,7 +441,7 @@ class BackHandlingSpatialPanelsTest {
             }
         }
 
-        enterFullSpace()
+        composeTestRule.requestFullSpace()
         val initialPanels = awaitVisiblePanels(expectedCount = 2, requireMovable = true)
         val movableNode = initialPanels.first { it.isMovable }
 
@@ -575,7 +546,7 @@ class BackHandlingSpatialPanelsTest {
                 }
             }
 
-            enterFullSpace()
+            composeTestRule.requestFullSpace()
             val panels = awaitVisiblePanels(expectedCount = 2)
             val viewPanelNode = panels.minByOrNull { it.position.x }!!
 
@@ -707,7 +678,7 @@ class BackHandlingSpatialPanelsTest {
                 }
             }
 
-            enterFullSpace()
+            composeTestRule.requestFullSpace()
             composeTestRule.waitUntil(
                 conditionDescription =
                     "EmbeddedPanelTestActivity resumed inside SpatialActivityPanel",
@@ -758,16 +729,10 @@ class BackHandlingSpatialPanelsTest {
         }
     }
 
-    private fun enterFullSpace() {
-        runBlocking(Dispatchers.Default) { composeTestRule.activity.requestFullSpace() }
-        composeTestRule.waitForIdle()
-    }
-
     private fun performInteraction(
         targetNode: SnapshotXrSpace,
         block: androidx.xr.testutils.SpatialInteractionScope.() -> Unit,
     ) {
-        usedSpatialInteraction = true
         targetNode.performSpatialInteraction(block = block)
         composeTestRule.waitForIdle()
     }

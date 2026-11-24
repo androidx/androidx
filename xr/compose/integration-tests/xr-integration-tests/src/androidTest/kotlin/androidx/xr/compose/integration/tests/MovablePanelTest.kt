@@ -35,7 +35,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.compose.platform.SpatialConfiguration
-import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
@@ -62,8 +61,6 @@ import androidx.xr.testutils.resetSpatialInteraction
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
@@ -176,10 +173,7 @@ class MovablePanelTest {
             }
         }
 
-        runBlocking(Dispatchers.Default) {
-            composeTestRule.activity.requestFullSpace()
-        }
-        composeTestRule.waitForIdle()
+        composeTestRule.requestFullSpace()
 
         composeTestRule
             .onSubspaceNodeWithTag("observed_system_movable_panel")
@@ -256,10 +250,7 @@ class MovablePanelTest {
             }
         }
 
-        runBlocking(Dispatchers.Default) {
-            composeTestRule.activity.requestFullSpace()
-        }
-        composeTestRule.waitForIdle()
+        composeTestRule.requestFullSpace()
 
         // Verify initial subspace bounds and position
         composeTestRule
@@ -542,10 +533,7 @@ class MovablePanelTest {
             }
         }
 
-        runBlocking(Dispatchers.Default) {
-            composeTestRule.activity.requestFullSpace()
-        }
-        composeTestRule.waitForIdle()
+        composeTestRule.requestFullSpace()
 
         // Verify initial 3D position
         composeTestRule
@@ -688,10 +676,7 @@ class MovablePanelTest {
             }
         }
 
-        runBlocking(Dispatchers.Default) {
-            composeTestRule.activity.requestFullSpace()
-        }
-        composeTestRule.waitForIdle()
+        composeTestRule.requestFullSpace()
 
         val panelNode = capturePanelNode()
         assertTrue(panelNode.isMovable, "Expected panel node to have isMovable = true")
@@ -742,10 +727,7 @@ class MovablePanelTest {
             }
         }
 
-        runBlocking(Dispatchers.Default) {
-            composeTestRule.activity.requestFullSpace()
-        }
-        composeTestRule.waitForIdle()
+        composeTestRule.requestFullSpace()
 
         val panelNode = capturePanelNode()
 

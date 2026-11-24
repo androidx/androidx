@@ -48,7 +48,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.SpatialConfiguration
-import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialExternalSurface
 import androidx.xr.compose.subspace.SpatialExternalSurfaceHemisphere
@@ -89,8 +88,6 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -180,7 +177,7 @@ class SpatialExternalSurfaceTest {
             }
         }
 
-        runBlocking(Dispatchers.Default) { composeTestRule.activity.requestFullSpace() }
+        composeTestRule.requestFullSpace()
         composeTestRule.waitUntil(timeoutMillis = 10_000L) { spatialUiReady.get() }
         composeTestRule.waitForIdle()
     }
