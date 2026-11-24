@@ -35,9 +35,6 @@ android {
             }
         }
     }
-    buildFeatures {
-        viewBinding = true
-    }
     namespace = "androidx.wear.compose.integration.navigation"
 }
 
@@ -46,20 +43,13 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.5.1")
     implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation("androidx.compose.ui:ui:1.13.0")
-    implementation(project(":compose:integration-tests:demos:common"))
     implementation("androidx.compose.foundation:foundation:1.13.0")
     implementation("androidx.compose.foundation:foundation-layout:1.13.0")
     implementation("androidx.compose.runtime:runtime:1.13.0")
     implementation(project(":wear:compose:compose-material"))
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-foundation"))
-    implementation(project(":wear:compose:compose-foundation-samples"))
-    implementation(project(":wear:compose:compose-material-samples"))
     implementation(project(":wear:compose:compose-navigation"))
-
-    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-
-    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.9.4")
 }
 
 androidx {

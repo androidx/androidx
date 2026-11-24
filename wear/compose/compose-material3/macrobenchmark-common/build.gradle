@@ -15,25 +15,19 @@ android {
 }
 
 dependencies {
+    api(project(":benchmark:benchmark-macro"))
     implementation("androidx.fragment:fragment:1.8.5")
-    implementation(project(":benchmark:benchmark-macro-junit4"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
-    implementation(project(":compose:ui:ui-tooling"))
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-material3-samples"))
     implementation(project(":wear:compose:compose-material3-integration-tests"))
     implementation(project(":wear:compose:compose-navigation"))
-    implementation(project(":wear:compose:compose-navigation3"))
     implementation(project(":wear:compose:compose-navigation3-samples"))
-    implementation(project(":navigation3:navigation3-runtime"))
-    implementation(project(":navigation3:navigation3-ui"))
     implementation("androidx.compose.material:material-icons-core:1.6.0")
-    implementation(libs.testRules)
-    implementation(libs.testExtJunit)
     implementation(libs.testCore)
 }
 

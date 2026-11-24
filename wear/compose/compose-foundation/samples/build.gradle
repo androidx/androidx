@@ -31,7 +31,6 @@ plugins {
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
-    implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.compose.foundation:foundation:1.8.0")
     implementation("androidx.compose.foundation:foundation-layout:1.8.0")
     implementation("androidx.compose.material:material-icons-core:1.7.7")
@@ -43,7 +42,6 @@ dependencies {
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material"))
     implementation(project(":wear:compose:compose-material3"))
-    implementation(project(":wear:compose:compose-ui-tooling"))
 }
 
 android {

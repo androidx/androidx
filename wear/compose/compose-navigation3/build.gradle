@@ -44,7 +44,6 @@ dependencies {
 
     androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:ui:ui-test"))
-    androidTestImplementation(project(":test:screenshot:screenshot"))
 }
 
 android {

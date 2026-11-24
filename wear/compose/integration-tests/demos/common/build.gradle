@@ -24,7 +24,7 @@ plugins {
 dependencies {
 
     api("androidx.activity:activity:1.2.0")
-    implementation(project(":wear:compose:compose-material"))
+    api(project(":wear:compose:compose-foundation"))
 
 }
 

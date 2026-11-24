@@ -45,7 +45,6 @@ dependencies {
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(project(":wear:compose:compose-material"))
     androidTestImplementation(project(":wear:compose:compose-navigation-samples"))
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.navigation:navigation-testing:2.6.0")
