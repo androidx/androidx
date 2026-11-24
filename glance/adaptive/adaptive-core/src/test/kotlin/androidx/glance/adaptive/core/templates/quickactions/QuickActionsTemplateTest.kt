@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.templates
+package androidx.glance.adaptive.core.templates.quickactions
 
 import android.net.Uri
 import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
@@ -22,6 +22,8 @@ import androidx.glance.adaptive.core.slots.Icon
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.TemplateText
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -31,11 +33,11 @@ import org.robolectric.annotation.Config
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
-class DashboardTemplateTest {
+class QuickActionsTemplateTest {
 
     @Test
     fun constructor_actionsOnly_hasNoHeader() {
-        val template = DashboardTemplate(actions = listOf(RUN))
+        val template = QuickActionsTemplate(actions = listOf(RUN))
 
         assertThat(template.actions).containsExactly(RUN)
         assertThat(template.leading).isNull()
@@ -46,13 +48,13 @@ class DashboardTemplateTest {
     }
 
     @Test
-    fun dashboardTemplate_isGlanceAdaptiveTemplate() {
-        val template = DashboardTemplate(actions = listOf(RUN))
+    fun quickActionsTemplate_isGlanceAdaptiveTemplate() {
+        val template = QuickActionsTemplate(actions = listOf(RUN))
 
         assertThat(template).isInstanceOf(GlanceAdaptiveTemplate::class.java)
-        assertThat(template.templateId).isEqualTo(DashboardTemplate.TEMPLATE_ID)
-        assertThat(DashboardTemplate.TEMPLATE_ID).isEqualTo(2)
-        assertThat(DashboardTemplate.TEMPLATE_ID).isNotEqualTo(TrackTemplate.TEMPLATE_ID)
+        assertThat(template.templateId).isEqualTo(QuickActionsTemplate.TEMPLATE_ID)
+        assertThat(QuickActionsTemplate.TEMPLATE_ID).isEqualTo(2)
+        assertThat(QuickActionsTemplate.TEMPLATE_ID).isNotEqualTo(TrackTemplate.TEMPLATE_ID)
     }
 
     @Test
@@ -68,27 +70,29 @@ class DashboardTemplateTest {
 
     @Test
     fun constructor_actionCountWithinBounds_succeeds() {
-        assertThat(DashboardTemplate(actions = actions(1)).actions).hasSize(1)
-        assertThat(DashboardTemplate(actions = actions(DashboardTemplate.MAX_ACTIONS)).actions)
-            .hasSize(DashboardTemplate.MAX_ACTIONS)
+        assertThat(QuickActionsTemplate(actions = actions(1)).actions).hasSize(1)
+        assertThat(
+                QuickActionsTemplate(actions = actions(QuickActionsTemplate.MAX_ACTIONS)).actions
+            )
+            .hasSize(QuickActionsTemplate.MAX_ACTIONS)
     }
 
     @Test
     fun constructor_noActions_throws() {
         val error =
             assertThrows(IllegalArgumentException::class.java) {
-                DashboardTemplate(actions = emptyList())
+                QuickActionsTemplate(actions = emptyList())
             }
 
         assertThat(error)
             .hasMessageThat()
-            .isEqualTo("DashboardTemplate needs 1 to 8 actions (call actions { action(...) }).")
+            .isEqualTo("QuickActionsTemplate needs 1 to 8 actions (call actions { action(...) }).")
     }
 
     @Test
     fun constructor_tooManyActions_throws() {
         assertThrows(IllegalArgumentException::class.java) {
-            DashboardTemplate(actions = actions(DashboardTemplate.MAX_ACTIONS + 1))
+            QuickActionsTemplate(actions = actions(QuickActionsTemplate.MAX_ACTIONS + 1))
         }
     }
 
@@ -96,30 +100,30 @@ class DashboardTemplateTest {
     fun constructor_headerIsAllOrNothing() {
         val withoutIcon =
             assertThrows(IllegalArgumentException::class.java) {
-                DashboardTemplate(primary = TemplateText("Workouts"), actions = listOf(RUN))
+                QuickActionsTemplate(primary = TemplateText("Workouts"), actions = listOf(RUN))
             }
         assertThat(withoutIcon)
             .hasMessageThat()
             .isEqualTo(
-                "DashboardTemplate needs a header icon with its header (call leading { icon(...) })."
+                "QuickActionsTemplate needs a header icon with its header (call leading { icon(...) })."
             )
 
         val withoutTitle =
             assertThrows(IllegalArgumentException::class.java) {
-                DashboardTemplate(leading = Icon(GLYPH), actions = listOf(RUN))
+                QuickActionsTemplate(leading = Icon(GLYPH), actions = listOf(RUN))
             }
         assertThat(withoutTitle)
             .hasMessageThat()
             .isEqualTo(
-                "DashboardTemplate needs a header title with its header (call primary { text(...) })."
+                "QuickActionsTemplate needs a header title with its header (call primary { text(...) })."
             )
 
         // A subtitle or a trailing button alone is a header too, so it needs both.
         val partialHeaders =
             listOf(
-                { DashboardTemplate(secondary = TemplateText("Fitbit"), actions = listOf(RUN)) },
+                { QuickActionsTemplate(secondary = TemplateText("Fitbit"), actions = listOf(RUN)) },
                 {
-                    DashboardTemplate(
+                    QuickActionsTemplate(
                         trailing = IconButton(GLYPH, "Log activity"),
                         actions = listOf(RUN),
                     )
@@ -136,13 +140,13 @@ class DashboardTemplateTest {
     fun constructor_reportsEveryUnmetRequirement() {
         val error =
             assertThrows(IllegalArgumentException::class.java) {
-                DashboardTemplate(actions = emptyList(), secondary = TemplateText("Fitbit"))
+                QuickActionsTemplate(actions = emptyList(), secondary = TemplateText("Fitbit"))
             }
 
         assertThat(error)
             .hasMessageThat()
             .isEqualTo(
-                "DashboardTemplate needs 1 to 8 actions (call actions { action(...) }); " +
+                "QuickActionsTemplate needs 1 to 8 actions (call actions { action(...) }); " +
                     "a header icon with its header (call leading { icon(...) }); " +
                     "a header title with its header (call primary { text(...) })."
             )
@@ -151,7 +155,7 @@ class DashboardTemplateTest {
     @Test
     fun constructor_copiesActions() {
         val actions = mutableListOf(RUN)
-        val template = DashboardTemplate(actions = actions)
+        val template = QuickActionsTemplate(actions = actions)
 
         actions += WALK
 
@@ -173,7 +177,7 @@ class DashboardTemplateTest {
         assertThat(template).isNotEqualTo(fullTemplate(secondary = null))
         assertThat(template).isNotEqualTo(fullTemplate(trailing = null))
         assertThat(template).isNotEqualTo(fullTemplate(actions = listOf(RUN)))
-        assertThat(template).isNotEqualTo(DashboardTemplate(actions = listOf(RUN, WALK)))
+        assertThat(template).isNotEqualTo(QuickActionsTemplate(actions = listOf(RUN, WALK)))
     }
 
     @Test
@@ -196,7 +200,7 @@ class DashboardTemplateTest {
         trailing: IconButton? = IconButton(GLYPH, "Log activity", LOG),
         actions: List<IconTile> = listOf(RUN, WALK),
     ) =
-        DashboardTemplate(
+        QuickActionsTemplate(
             actions = actions,
             leading = leading,
             primary = primary,

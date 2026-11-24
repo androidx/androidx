@@ -21,7 +21,7 @@ import androidx.glance.adaptive.appwidget.matrix.MatrixContent
 import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.templates.AppWidgetTemplateRegistration
-import androidx.glance.adaptive.appwidget.templates.dashboard.dashboardRegistration
+import androidx.glance.adaptive.appwidget.templates.quickactions.quickActionsRegistration
 import androidx.glance.adaptive.appwidget.templates.track.trackRegistration
 import androidx.glance.adaptive.core.renderer.TemplateRegistry
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
@@ -35,7 +35,7 @@ internal object AppWidgetTemplateRegistry {
     internal val builtInTemplates: List<AppWidgetTemplateRegistration<*>> =
         listOf(
             trackRegistration(),
-            dashboardRegistration(),
+            quickActionsRegistration(),
         )
 
     private val registry =

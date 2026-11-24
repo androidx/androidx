@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <!--
-  An icon drawn in a filled circle, as the design draws the dashboard header's brand icon. The
+  An icon drawn in a filled circle, as the design draws the Quick Actions header's brand icon. The
   builder caps the glyph and pads the circle out around it to the size the matrix gives the icon.
   The glyph uses android:tint, not app:tint: the host inflates a platform ImageView, not AppCompat.
 -->

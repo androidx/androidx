@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.templates
+package androidx.glance.adaptive.core.templates.quickactions
 
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.slots.Icon
@@ -27,19 +27,20 @@ import androidx.glance.adaptive.core.slots.SecondaryComponent
 import androidx.glance.adaptive.core.slots.TemplateRule
 import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.slots.TrailingComponent
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 
 /**
  * Adaptive template for a grid of tappable actions under an optional header, such as a "Start a
  * workout" quick launcher or a grid of favorite contacts.
  *
- * Build an instance with [dashboardTemplate]. Host renderers adapt the populated semantic slots
+ * Build an instance with [quickActionsTemplate]. Host renderers adapt the populated semantic slots
  * across [androidx.glance.adaptive.core.selection.GlanceSurface] breakpoints, and decide how many
  * of the [actions] fit at a size:
- * - [DashboardTemplateScope.actions] (required): 1 to 8 actions, in display order.
- * - [DashboardTemplateScope.leading] and [DashboardTemplateScope.primary] (required together, for a
- *   header): the header's icon and title.
- * - [DashboardTemplateScope.secondary] (optional): the header's subtitle.
- * - [DashboardTemplateScope.trailing] (optional): a button at the header's end.
+ * - [QuickActionsTemplateScope.actions] (required): 1 to 8 actions, in display order.
+ * - [QuickActionsTemplateScope.leading] and [QuickActionsTemplateScope.primary] (required together,
+ *   for a header): the header's icon and title.
+ * - [QuickActionsTemplateScope.secondary] (optional): the header's subtitle.
+ * - [QuickActionsTemplateScope.trailing] (optional): a button at the header's end.
  *
  * The header is all or nothing: a template that sets any header slot sets [leading] and [primary].
  * Without a header, the actions take the whole widget. Taps are described as
@@ -48,7 +49,7 @@ import androidx.glance.adaptive.core.slots.TrailingComponent
  * `PendingIntent` support.
  *
  * ```kotlin
- * val template = dashboardTemplate {
+ * val template = quickActionsTemplate {
  *     leading { icon(TemplateIcon.fromResource(R.drawable.ic_fitbit)) }
  *     primary { text("Start a workout") }
  *     actions {
@@ -64,7 +65,7 @@ import androidx.glance.adaptive.core.slots.TrailingComponent
  *   header slot is set without [leading] and [primary].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DashboardTemplate
+public class QuickActionsTemplate
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public constructor(
     actions: List<IconTile>,
@@ -94,7 +95,7 @@ public constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is DashboardTemplate) return false
+        if (other !is QuickActionsTemplate) return false
         return leading == other.leading &&
             primary == other.primary &&
             secondary == other.secondary &&
@@ -112,20 +113,20 @@ public constructor(
     }
 
     override fun toString(): String =
-        "DashboardTemplate(leading=$leading, primary=$primary, secondary=$secondary, " +
+        "QuickActionsTemplate(leading=$leading, primary=$primary, secondary=$secondary, " +
             "trailing=$trailing, actions=$actions)"
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
-        /** Stable integer telemetry identifier for [DashboardTemplate]. */
+        /** Stable integer telemetry identifier for [QuickActionsTemplate]. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val TEMPLATE_ID: Int = 2
 
-        /** Most actions a [DashboardTemplate] holds: two rows of four. */
+        /** Most actions a [QuickActionsTemplate] holds: two rows of four. */
         internal const val MAX_ACTIONS: Int = 8
 
-        internal val Rule: TemplateRule<DashboardTemplate> =
+        internal val Rule: TemplateRule<QuickActionsTemplate> =
             TemplateRule(
-                templateName = "DashboardTemplate",
+                templateName = "QuickActionsTemplate",
                 Requirement("1 to $MAX_ACTIONS actions (call actions { action(...) })") {
                     it.actions.size in 1..MAX_ACTIONS
                 },

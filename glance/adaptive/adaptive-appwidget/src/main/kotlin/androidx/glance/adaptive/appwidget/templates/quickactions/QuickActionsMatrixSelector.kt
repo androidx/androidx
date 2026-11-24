@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.appwidget.templates.dashboard
+package androidx.glance.adaptive.appwidget.templates.quickactions
 
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.dp
@@ -35,15 +35,15 @@ import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconGrid
 import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.TemplateText
-import androidx.glance.adaptive.core.templates.DashboardTemplate
+import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
 
 /**
- * Maps a [DashboardTemplate] onto the Information Matrix, for any backend's matrix renderer, such
- * as [androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer].
+ * Maps a [QuickActionsTemplate] onto the Information Matrix, for any backend's matrix renderer,
+ * such as [androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer].
  *
- * This is the whole of the Dashboard template: which component goes in which slot at each width and
- * height tier, following the design's Dashboard density matrix. Everything about the container
- * belongs to the matrix.
+ * This is the whole of the Quick Actions template: which component goes in which slot at each width
+ * and height tier, following the design's Quick Actions density matrix. Everything about the
+ * container belongs to the matrix.
  *
  * - **W2 to W4**: the header (its contained glyph, its title with the subtitle under it, and from
  *   W3 its trailing button) above rows of [IconTile] actions, two to four across by width. H1 has
@@ -63,17 +63,17 @@ import androidx.glance.adaptive.core.templates.DashboardTemplate
  * header wherever a row fits a label. A tile is always described by its label, for accessibility
  * services.
  *
- * The library's default for [DashboardTemplate] on every AppWidget surface, drawn by
+ * The library's default for [QuickActionsTemplate] on every AppWidget surface, drawn by
  * [androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer].
  */
 // TODO(b/580007927): Confirm with UX whether the design's `5, 8` and `5, 6, 8` tile numbering on
 //  narrower widths pins the last action as an overflow tile (e.g. Contacts "…") instead of showing
 //  a plain prefix.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object DashboardMatrixSelector :
-    ArchetypeSelector<DashboardTemplate, AppWidgetSurface, MatrixContent> {
+public object QuickActionsMatrixSelector :
+    ArchetypeSelector<QuickActionsTemplate, AppWidgetSurface, MatrixContent> {
 
-    override fun select(template: DashboardTemplate, surface: AppWidgetSurface): MatrixContent {
+    override fun select(template: QuickActionsTemplate, surface: AppWidgetSurface): MatrixContent {
         val tiers = SizeTiers.from(surface.dimensions, surface)
         return when {
             tiers.height == HeightTier.H0 && tiers.width == WidthTier.W1 -> bulb(template)
@@ -89,7 +89,7 @@ public object DashboardMatrixSelector :
      * described by the header's trailing button, or else the header's title, or else the first
      * action, along with that description's sensitive replacement.
      */
-    private fun bulb(template: DashboardTemplate): MatrixContent {
+    private fun bulb(template: QuickActionsTemplate): MatrixContent {
         val first = template.firstAction()
         val icon = template.leading as? Icon
         val title = template.primary as? TemplateText
@@ -122,7 +122,7 @@ public object DashboardMatrixSelector :
      * no interactive component, so it takes no taps.
      */
     // TODO(b/580007927): Decide with UX what tapping a Mini layout should do.
-    private fun strip(template: DashboardTemplate): MatrixContent {
+    private fun strip(template: QuickActionsTemplate): MatrixContent {
         val first = template.firstAction()
         val icon = template.leading as? Icon
         return MatrixCardContent(
@@ -136,8 +136,8 @@ public object DashboardMatrixSelector :
         )
     }
 
-    private fun DashboardTemplate.firstAction(): IconTile {
-        require(actions.isNotEmpty()) { "DashboardTemplate requires at least one action." }
+    private fun QuickActionsTemplate.firstAction(): IconTile {
+        require(actions.isNotEmpty()) { "QuickActionsTemplate requires at least one action." }
         return actions.first()
     }
 
@@ -146,7 +146,7 @@ public object DashboardMatrixSelector :
      * their glyphs alone, as the design does, and its slots sit closer than a card's default, so
      * that a tile keeps its glyph's size at H1.
      */
-    private fun column(template: DashboardTemplate, tiers: SizeTiers): MatrixContent {
+    private fun column(template: QuickActionsTemplate, tiers: SizeTiers): MatrixContent {
         val rows =
             when {
                 !template.hasHeader -> if (tiers.height >= HeightTier.H3) 2 else 1
@@ -175,7 +175,7 @@ public object DashboardMatrixSelector :
      * The header above rows of actions. At H2 the row under the header is too short for a label, so
      * tiles draw their labels from H3, as the design's tall actions do.
      */
-    private fun headerCard(template: DashboardTemplate, tiers: SizeTiers): MatrixContent {
+    private fun headerCard(template: QuickActionsTemplate, tiers: SizeTiers): MatrixContent {
         val rows =
             when (tiers.height) {
                 HeightTier.H1 -> 0
@@ -226,7 +226,7 @@ public object DashboardMatrixSelector :
      * [IconGridDefaults.LabelledTileMinHeight] tall in a card of [dimensions].
      */
     private fun actionsCard(
-        template: DashboardTemplate,
+        template: QuickActionsTemplate,
         tiers: SizeTiers,
         dimensions: Dimensions,
     ): MatrixContent {
@@ -266,7 +266,7 @@ public object DashboardMatrixSelector :
      * trailing cells empty. The tiles draw their labels if [showLabels].
      */
     private fun grid(
-        template: DashboardTemplate,
+        template: QuickActionsTemplate,
         columns: Int,
         rows: Int,
         showLabels: Boolean,
@@ -283,10 +283,10 @@ public object DashboardMatrixSelector :
     }
 }
 
-/** Padding of every Dashboard card but the narrow column at H1. */
+/** Padding of every Quick Actions card but the narrow column at H1. */
 private const val CARD_PADDING_DP = 12f
 
-/** Corner radius of every Dashboard card. */
+/** Corner radius of every Quick Actions card. */
 private const val CARD_CORNER_RADIUS_DP = 32f
 
 /** Edge length of the header's icon circle, and height of its trailing button. */

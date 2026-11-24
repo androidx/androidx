@@ -23,7 +23,7 @@
     <color name="glance_adaptive_appwidget_remoteviews_on_surface_variant">#ffcac4d0</color>
     <color name="glance_adaptive_appwidget_remoteviews_widget_background">#ff20333d</color>
     <!--
-      The Dashboard colors below follow the current M3 container roles (on-container colors at tone
+      The Quick Actions colors below follow the current M3 container roles (on-container colors at tone
       30 in light theme), a newer token generation than the colors above, copied from Glance.
     -->
     <color name="glance_adaptive_appwidget_remoteviews_primary_container">#ff4f378b</color>

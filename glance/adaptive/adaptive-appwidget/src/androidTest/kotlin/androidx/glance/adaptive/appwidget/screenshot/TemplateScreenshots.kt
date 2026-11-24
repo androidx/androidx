@@ -142,7 +142,7 @@ internal fun <T : GlanceAdaptiveTemplate> renderTemplate(
  * Draws [template] as [renderer] lays it out for [size] and compares the drawing with the golden
  * named [golden].
  *
- * @param golden The golden's name, unique in this module, such as `dashboard_smarthome_w4h4`.
+ * @param golden The golden's name, unique in this module, such as `quick_actions_smarthome_w4h4`.
  * @param threshold The least MSSIM similarity that matches the golden.
  * @see renderTemplate for the other parameters.
  */

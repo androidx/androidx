@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.templates
+package androidx.glance.adaptive.core.templates.quickactions
 
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.slots.Icon
@@ -24,15 +24,21 @@ import androidx.glance.adaptive.core.slots.LeadingComponent
 import androidx.glance.adaptive.core.slots.PrimaryComponent
 import androidx.glance.adaptive.core.slots.SecondaryComponent
 import androidx.glance.adaptive.core.slots.TrailingComponent
+import androidx.glance.adaptive.core.templates.ActionScope
+import androidx.glance.adaptive.core.templates.ClickableScope
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplateDsl
+import androidx.glance.adaptive.core.templates.TemplateIcon
+import androidx.glance.adaptive.core.templates.TextScope
+import androidx.glance.adaptive.core.templates.buildTemplateText
 
 /**
- * Builds a [DashboardTemplate] using scoped slot blocks.
+ * Builds a [QuickActionsTemplate] using scoped slot blocks.
  *
- * Populates [DashboardTemplateScope.actions], with an optional header of
- * [DashboardTemplateScope.leading] and [DashboardTemplateScope.primary], and optionally
- * [DashboardTemplateScope.secondary] and [DashboardTemplateScope.trailing]:
+ * Populates [QuickActionsTemplateScope.actions], with an optional header of
+ * [QuickActionsTemplateScope.leading] and [QuickActionsTemplateScope.primary], and optionally
+ * [QuickActionsTemplateScope.secondary] and [QuickActionsTemplateScope.trailing]:
  * ```kotlin
- * val template = dashboardTemplate {
+ * val template = quickActionsTemplate {
  *     leading { icon(TemplateIcon.fromResource(R.drawable.ic_fitbit)) }
  *     primary { text("Start a workout") }
  *     secondary { text("Last: Run, 5.2 km") }
@@ -51,22 +57,23 @@ import androidx.glance.adaptive.core.slots.TrailingComponent
  * }
  * ```
  *
- * @param content DSL block configuring the slots of the [DashboardTemplate]
- * @return validated [DashboardTemplate] instance
+ * @param content DSL block configuring the slots of the [QuickActionsTemplate]
+ * @return validated [QuickActionsTemplate] instance
  * @throws IllegalArgumentException if a component argument is invalid,
- *   [DashboardTemplateScope.actions] is missing, empty, or has more than 8 actions, or a header
- *   slot is set without [DashboardTemplateScope.leading] and [DashboardTemplateScope.primary]
+ *   [QuickActionsTemplateScope.actions] is missing, empty, or has more than 8 actions, or a header
+ *   slot is set without [QuickActionsTemplateScope.leading] and [QuickActionsTemplateScope.primary]
  * @throws IllegalStateException if a header slot block is empty or any slot block is configured
  *   more than once
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun dashboardTemplate(content: DashboardTemplateScope.() -> Unit): DashboardTemplate =
-    DashboardTemplateScope().apply(content).build()
+public fun quickActionsTemplate(
+    content: QuickActionsTemplateScope.() -> Unit
+): QuickActionsTemplate = QuickActionsTemplateScope().apply(content).build()
 
-/** Configures the semantic slots of a [DashboardTemplate]. */
+/** Configures the semantic slots of a [QuickActionsTemplate]. */
 @GlanceAdaptiveTemplateDsl
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DashboardTemplateScope internal constructor() {
+public class QuickActionsTemplateScope internal constructor() {
     private var leading: LeadingComponent? = null
     private var primary: PrimaryComponent? = null
     private var secondary: SecondaryComponent? = null
@@ -148,8 +155,8 @@ public class DashboardTemplateScope internal constructor() {
         actions = ActionsScope().apply(content).build()
     }
 
-    internal fun build(): DashboardTemplate =
-        DashboardTemplate(
+    internal fun build(): QuickActionsTemplate =
+        QuickActionsTemplate(
             actions = actions,
             leading = leading,
             primary = primary,
@@ -157,7 +164,7 @@ public class DashboardTemplateScope internal constructor() {
             trailing = trailing,
         )
 
-    /** Populates the [DashboardTemplateScope.leading] slot of a [DashboardTemplate]. */
+    /** Populates the [QuickActionsTemplateScope.leading] slot of a [QuickActionsTemplate]. */
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class LeadingScope internal constructor() {
@@ -175,7 +182,7 @@ public class DashboardTemplateScope internal constructor() {
         }
     }
 
-    /** Populates the [DashboardTemplateScope.primary] title slot of a [DashboardTemplate]. */
+    /** Populates the [QuickActionsTemplateScope.primary] title slot of a [QuickActionsTemplate]. */
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class PrimaryScope internal constructor() {
@@ -196,7 +203,10 @@ public class DashboardTemplateScope internal constructor() {
         }
     }
 
-    /** Populates the [DashboardTemplateScope.secondary] subtitle slot of a [DashboardTemplate]. */
+    /**
+     * Populates the [QuickActionsTemplateScope.secondary] subtitle slot of a
+     * [QuickActionsTemplate].
+     */
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class SecondaryScope internal constructor() {
@@ -217,7 +227,9 @@ public class DashboardTemplateScope internal constructor() {
         }
     }
 
-    /** Populates the [DashboardTemplateScope.trailing] button slot of a [DashboardTemplate]. */
+    /**
+     * Populates the [QuickActionsTemplateScope.trailing] button slot of a [QuickActionsTemplate].
+     */
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class TrailingScope internal constructor() {
@@ -251,7 +263,7 @@ public class DashboardTemplateScope internal constructor() {
         }
     }
 
-    /** Populates the [DashboardTemplateScope.actions] grid of a [DashboardTemplate]. */
+    /** Populates the [QuickActionsTemplateScope.actions] grid of a [QuickActionsTemplate]. */
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class ActionsScope internal constructor() {

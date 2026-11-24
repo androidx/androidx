@@ -15,7 +15,7 @@
   limitations under the License.
   -->
 <!--
-  Dashboard sample glyph: the Material directions_run icon. The renderer tints it, so the fill here is white.
+  Quick Actions sample glyph: the Material directions_run icon. The renderer tints it, so the fill here is white.
 
   Declared at 44dp rather than 24dp: RemoteViews cannot size an ImageView before API 31, so the
   renderer caps it with setMaxWidth / setMaxHeight instead, which only shrinks. The intrinsic size

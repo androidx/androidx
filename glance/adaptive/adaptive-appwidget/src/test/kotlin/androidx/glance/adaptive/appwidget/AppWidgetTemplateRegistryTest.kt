@@ -34,8 +34,8 @@ import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TemplateIcon
 import androidx.glance.adaptive.core.templates.TrackTemplate
-import androidx.glance.adaptive.core.templates.dashboardTemplate
 import androidx.glance.adaptive.core.templates.list.ListTemplate
+import androidx.glance.adaptive.core.templates.quickactions.quickActionsTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.reflect.ClassPath
 import com.google.common.truth.Truth.assertThat
@@ -114,9 +114,9 @@ class AppWidgetTemplateRegistryTest {
     }
 
     @Test
-    fun defaultTemplates_includeDashboardTemplate() {
+    fun defaultTemplates_includeQuickActionsTemplate() {
         val glyph = TemplateIcon.fromResource(android.R.drawable.ic_menu_compass)
-        val template = dashboardTemplate {
+        val template = quickActionsTemplate {
             leading { icon(glyph) }
             primary { text("Start a workout") }
             actions { repeat(8) { action(glyph, "Workout $it") } }

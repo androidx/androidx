@@ -24,9 +24,9 @@ import androidx.glance.adaptive.core.slots.Icon
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.ListItem
 import androidx.glance.adaptive.core.slots.TemplateText
-import androidx.glance.adaptive.core.templates.DashboardTemplate
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TrackTemplate
+import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -55,7 +55,7 @@ class ListTemplateTest {
         assertThat(template.templateId).isEqualTo(ListTemplate.TEMPLATE_ID)
         assertThat(ListTemplate.TEMPLATE_ID).isEqualTo(3)
         assertThat(ListTemplate.TEMPLATE_ID).isNotEqualTo(TrackTemplate.TEMPLATE_ID)
-        assertThat(ListTemplate.TEMPLATE_ID).isNotEqualTo(DashboardTemplate.TEMPLATE_ID)
+        assertThat(ListTemplate.TEMPLATE_ID).isNotEqualTo(QuickActionsTemplate.TEMPLATE_ID)
     }
 
     @Test

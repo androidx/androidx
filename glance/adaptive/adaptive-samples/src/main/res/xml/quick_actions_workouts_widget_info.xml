@@ -30,5 +30,5 @@
     android:targetCellHeight="2"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="@integer/glance_adaptive_widget_category_all_known"
-    android:initialLayout="@layout/dashboard_widget_loading"
-    android:description="@string/dashboard_contacts_widget_description" />
+    android:initialLayout="@layout/quick_actions_widget_loading"
+    android:description="@string/quick_actions_workouts_widget_description" />

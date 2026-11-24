@@ -19,15 +19,15 @@ package androidx.glance.adaptive.samples
 import android.content.Context
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver
-import androidx.glance.adaptive.core.templates.DashboardTemplate
 import androidx.glance.adaptive.core.templates.TemplateIcon
-import androidx.glance.adaptive.core.templates.dashboardTemplate
+import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
+import androidx.glance.adaptive.core.templates.quickactions.quickActionsTemplate
 
 /**
- * Receiver for the Workouts Dashboard demo widget: a quick launcher of eight workouts under a
+ * Receiver for the Workouts Quick Actions demo widget: a quick launcher of eight workouts under a
  * "Start a workout" header, with "Log activity" as the header's trailing button.
  */
-class WorkoutsDashboardWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
+class WorkoutsQuickActionsWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
     override val widgetName: String = WIDGET_NAME
 
     override suspend fun onUpdate(context: Context) {
@@ -36,30 +36,30 @@ class WorkoutsDashboardWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
     }
 
     internal companion object {
-        const val WIDGET_NAME = "dashboard_workouts_widget"
+        const val WIDGET_NAME = "quick_actions_workouts_widget"
 
         /** Eight workouts with their last sessions, under a header with a "Log activity" button. */
-        val SampleData: DashboardTemplate = dashboardTemplate {
-            leading { icon(TemplateIcon.fromResource(R.drawable.dashboard_glyph_run)) }
+        val SampleData: QuickActionsTemplate = quickActionsTemplate {
+            leading { icon(TemplateIcon.fromResource(R.drawable.quick_actions_glyph_run)) }
             primary { text("Start a workout") }
             secondary { text("Last: Run, 5.2 km") }
             trailing {
                 iconButton(
-                    TemplateIcon.fromResource(R.drawable.dashboard_glyph_add),
+                    TemplateIcon.fromResource(R.drawable.quick_actions_glyph_add),
                     "Log activity",
                 ) {
-                    onClick(DashboardSample.action("Log activity"))
+                    onClick(QuickActionsSample.action("Log activity"))
                 }
             }
             actions {
-                shortcut(R.drawable.dashboard_glyph_run, "Run", "5.2 km last")
-                shortcut(R.drawable.dashboard_glyph_walk, "Walk", "Yesterday")
-                shortcut(R.drawable.dashboard_glyph_bike, "Bike", "12 km last")
-                shortcut(R.drawable.dashboard_glyph_weights, "Weights", "Monday")
-                shortcut(R.drawable.dashboard_glyph_run, "Treadmill", "30 min")
-                shortcut(R.drawable.dashboard_glyph_walk, "Hike", "Saturday")
-                shortcut(R.drawable.dashboard_glyph_bike, "Spinning", "45 min")
-                shortcut(R.drawable.dashboard_glyph_weights, "HIIT", "15 min")
+                shortcut(R.drawable.quick_actions_glyph_run, "Run", "5.2 km last")
+                shortcut(R.drawable.quick_actions_glyph_walk, "Walk", "Yesterday")
+                shortcut(R.drawable.quick_actions_glyph_bike, "Bike", "12 km last")
+                shortcut(R.drawable.quick_actions_glyph_weights, "Weights", "Monday")
+                shortcut(R.drawable.quick_actions_glyph_run, "Treadmill", "30 min")
+                shortcut(R.drawable.quick_actions_glyph_walk, "Hike", "Saturday")
+                shortcut(R.drawable.quick_actions_glyph_bike, "Spinning", "45 min")
+                shortcut(R.drawable.quick_actions_glyph_weights, "HIIT", "15 min")
             }
         }
     }

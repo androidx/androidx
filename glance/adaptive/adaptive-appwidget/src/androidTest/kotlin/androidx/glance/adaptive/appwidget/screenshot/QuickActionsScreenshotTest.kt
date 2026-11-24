@@ -23,18 +23,18 @@ import androidx.glance.adaptive.appwidget.matrix.MatrixCardContent
 import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
 import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
-import androidx.glance.adaptive.appwidget.templates.dashboard.DashboardMatrixSelector
+import androidx.glance.adaptive.appwidget.templates.quickactions.QuickActionsMatrixSelector
 import androidx.glance.adaptive.appwidget.test.R
 import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.slots.IconGrid
 import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.TemplateText
-import androidx.glance.adaptive.core.templates.DashboardTemplate
-import androidx.glance.adaptive.core.templates.DashboardTemplateScope
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.TemplateIcon
-import androidx.glance.adaptive.core.templates.dashboardTemplate
+import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
+import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplateScope
+import androidx.glance.adaptive.core.templates.quickactions.quickActionsTemplate
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -43,8 +43,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Screenshots of the Dashboard template at every container of the design's density matrix, for a
- * payload with a header (Smart home) and one without (Contacts), plus edge cases: a header with a
+ * Screenshots of the Quick Actions template at every container of the design's density matrix, for
+ * a payload with a header (Smart home) and one without (Contacts), plus edge cases: a header with a
  * trailing button (Workouts), a large font scale, the dark theme, a short row, and redaction on the
  * lock screen.
  */
@@ -52,7 +52,7 @@ import org.junit.runners.Parameterized
 // Goldens are drawn on the API 35 emulator, as the screenshot rule requires.
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(Parameterized::class)
-class DashboardScreenshotTest(private val case: Case) {
+class QuickActionsScreenshotTest(private val case: Case) {
 
     @get:Rule val screenshotRule = templateScreenshotRule()
 
@@ -81,7 +81,7 @@ class DashboardScreenshotTest(private val case: Case) {
         internal val size: TierSize,
         internal val renderer:
             TemplateRenderer<GlanceAdaptiveTemplate, AppWidgetSurface, AppWidgetRenderOutput> =
-            DashboardRenderer,
+            QuickActionsRenderer,
         internal val surface: AppWidgetSurface? = null,
         internal val nightMode: Boolean = false,
         internal val fontScale: Float = 1f,
@@ -90,21 +90,24 @@ class DashboardScreenshotTest(private val case: Case) {
     }
 
     companion object {
-        private val ACTION = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://dashboard"))
+        private val ACTION = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://quick-actions"))
 
-        /** Draws a Dashboard as the library would: the Dashboard selector, then the matrix. */
-        private val DashboardRenderer =
+        /**
+         * Draws a Quick Actions template as the library would: the Quick Actions selector, then the
+         * matrix.
+         */
+        private val QuickActionsRenderer =
             TemplateRenderer { template: GlanceAdaptiveTemplate, surface: AppWidgetSurface ->
-                val dashboard = template as DashboardTemplate
+                val quickActions = template as QuickActionsTemplate
                 RemoteViewsMatrixRenderer.render(
-                    dashboard,
-                    DashboardMatrixSelector.select(dashboard, surface),
+                    quickActions,
+                    QuickActionsMatrixSelector.select(quickActions, surface),
                     surface,
                 )
             }
 
-        /** The design's Smart home dashboard: a header and eight devices with their states. */
-        private val SmartHome = dashboardTemplate {
+        /** The design's Smart home example: a header and eight devices with their states. */
+        private val SmartHome = quickActionsTemplate {
             leading {
                 icon(
                     TemplateIcon.fromResource(R.drawable.glance_adaptive_appwidget_test_glyph_home)
@@ -150,7 +153,7 @@ class DashboardScreenshotTest(private val case: Case) {
          * Eight workouts under a header with a trailing button, which the design draws from W3 as a
          * pill.
          */
-        private val Workouts = dashboardTemplate {
+        private val Workouts = quickActionsTemplate {
             leading {
                 icon(TemplateIcon.fromResource(R.drawable.glance_adaptive_appwidget_test_glyph_run))
             }
@@ -177,7 +180,7 @@ class DashboardScreenshotTest(private val case: Case) {
         }
 
         /** Eight favorite contacts and no header, as the design's Contacts use case. */
-        private val Contacts = dashboardTemplate {
+        private val Contacts = quickActionsTemplate {
             actions {
                 favoriteContacts().forEach { name ->
                     tile(R.drawable.glance_adaptive_appwidget_test_glyph_person, name)
@@ -188,8 +191,8 @@ class DashboardScreenshotTest(private val case: Case) {
         private fun favoriteContacts(): List<String> =
             listOf("Mom", "Dad", "Alex", "Sam", "Jordan", "Taylor", "Grandma", "Kiddo")
 
-        /** Two devices of the Smart home dashboard, which fill half of a row at W4. */
-        private val ShortRow = dashboardTemplate {
+        /** Two devices of the Smart home example, which fill half of a row at W4. */
+        private val ShortRow = quickActionsTemplate {
             leading {
                 icon(
                     TemplateIcon.fromResource(R.drawable.glance_adaptive_appwidget_test_glyph_home)
@@ -203,7 +206,7 @@ class DashboardScreenshotTest(private val case: Case) {
             }
         }
 
-        private fun DashboardTemplateScope.ActionsScope.tile(
+        private fun QuickActionsTemplateScope.ActionsScope.tile(
             @DrawableRes icon: Int,
             label: String,
             subtitle: String? = null,
@@ -216,8 +219,8 @@ class DashboardScreenshotTest(private val case: Case) {
 
         /**
          * Draws a grid of sensitive tiles as the matrix shows them on the lock screen. The lock
-         * screen is always H0, where the Dashboard selector draws only its Mini layouts, so this
-         * draws the matrix directly.
+         * screen is always H0, where the Quick Actions selector draws only its Mini layouts, so
+         * this draws the matrix directly.
          */
         private val RedactedTiles =
             TemplateRenderer<GlanceAdaptiveTemplate, AppWidgetSurface, AppWidgetRenderOutput> {
@@ -248,28 +251,35 @@ class DashboardScreenshotTest(private val case: Case) {
         fun cases(): List<Case> = buildList {
             for ((name, template) in listOf("smarthome" to SmartHome, "contacts" to Contacts)) {
                 for (size in TierSize.entries) {
-                    add(Case("dashboard_${name}_${size.name.lowercase()}", template, size))
+                    add(Case("quick_actions_${name}_${size.name.lowercase()}", template, size))
                 }
             }
             // The trailing button: absent at W2, a pill from W3.
             for (size in
                 listOf(TierSize.W2H1, TierSize.W3H1, TierSize.W3H3, TierSize.W4H1, TierSize.W4H4)) {
-                add(Case("dashboard_workouts_${size.name.lowercase()}", Workouts, size))
+                add(Case("quick_actions_workouts_${size.name.lowercase()}", Workouts, size))
             }
             add(
                 Case(
-                    "dashboard_smarthome_w4h4_fontscale2",
+                    "quick_actions_smarthome_w4h4_fontscale2",
                     SmartHome,
                     TierSize.W4H4,
                     fontScale = 2f,
                 )
             )
-            add(Case("dashboard_smarthome_w4h4_dark", SmartHome, TierSize.W4H4, nightMode = true))
-            add(Case("dashboard_contacts_w4h3_dark", Contacts, TierSize.W4H3, nightMode = true))
-            add(Case("dashboard_shortrow_w4h3", ShortRow, TierSize.W4H3))
             add(
                 Case(
-                    "dashboard_matrix_lockscreen_redacted_w4h3",
+                    "quick_actions_smarthome_w4h4_dark",
+                    SmartHome,
+                    TierSize.W4H4,
+                    nightMode = true,
+                )
+            )
+            add(Case("quick_actions_contacts_w4h3_dark", Contacts, TierSize.W4H3, nightMode = true))
+            add(Case("quick_actions_shortrow_w4h3", ShortRow, TierSize.W4H3))
+            add(
+                Case(
+                    "quick_actions_matrix_lockscreen_redacted_w4h3",
                     SmartHome,
                     TierSize.W4H3,
                     renderer = RedactedTiles,
