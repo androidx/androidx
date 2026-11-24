@@ -16,15 +16,24 @@
 
 package androidx.camera.camera2.pipe.media
 
+import android.hardware.HardwareBuffer
 import android.util.Size
+import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeImage
 import androidx.camera.camera2.pipe.testing.FakeImageReader
+import androidx.camera.camera2.pipe.testing.FakeThreads
+import androidx.camera.common.CameraId
 import androidx.camera.common.ImageWrapper
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.TestScope
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -295,6 +304,38 @@ class ImageSourceTest {
 
         // Clean up
         thirdTrackedImage?.close()
+    }
+
+    @Test
+    @Config(minSdk = 31, maxSdk = 35)
+    fun imageReaderImageSources_multiResolutionUsageFlagsBelowApi36_throws() {
+        val output1 =
+            StreamGraphImpl.OutputStreamImpl(
+                id = outputId,
+                size = Size(640, 480),
+                format = fakeImageFormat,
+                camera = CameraId("0"),
+            )
+        val output2 =
+            StreamGraphImpl.OutputStreamImpl(
+                id = OutputId(43),
+                size = Size(1280, 720),
+                format = fakeImageFormat,
+                camera = CameraId("1"),
+            )
+        val cameraStream = CameraStream(streamId, listOf(output1, output2))
+        val imageSources =
+            ImageReaderImageSources(
+                threads = FakeThreads.fromTestScope(TestScope()),
+                cameraMetadata = FakeCameraMetadata(),
+                memoryEstimator = MemoryEstimator.create(),
+            )
+        val imageSourceConfig =
+            ImageSourceConfig(capacity = 10, usageFlags = HardwareBuffer.USAGE_VIDEO_ENCODE)
+
+        assertThrows<IllegalArgumentException> {
+            imageSources.createImageSource(cameraStream, imageSourceConfig)
+        }
     }
 
     private class TestImageListener : ImageListener {

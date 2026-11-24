@@ -132,18 +132,6 @@ constructor(
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val usage =
-                if (usageFlags != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-                    usageFlags
-                } else {
-                    Log.warn {
-                        "Ignoring usageFlags ($usageFlags) " +
-                            "for $cameraStream. MultiResolutionImageReader does not support " +
-                            "setting usage flags."
-                    }
-                    null
-                }
-
             if (defaultDataSpace != null) {
                 Log.warn {
                     "Ignoring DataSpace ($defaultDataSpace) " +
@@ -170,7 +158,7 @@ constructor(
                     cameraStream,
                     imageReaderCapacity,
                     executorProvider(),
-                    usage,
+                    usageFlags,
                     enableConcurrentOutputs,
                 )
             return ImageReaderImageSource.create(imageReader, memoryEstimator)
