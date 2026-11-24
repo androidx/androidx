@@ -152,7 +152,7 @@ abstract class FtlRunner : DefaultTask() {
                 appApk.elements.single().outputFile
             } else {
                 "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
-                    "d345c82828c355acc1432535153cf1dcf456e559c26f735346bf5f38859e0512.apk"
+                    "1297efeb51398f19a36588c7f43d0463d4ff7c7501c4d8579fb03db54156e6c9.apk"
             }
         try {
             execOperations.printCommandAndExec { it.commandLine("gcloud", "--version") }
