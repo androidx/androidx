@@ -109,34 +109,34 @@ public value class RemoteArrayId(public val id: Int) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object NanEncoding {
     /** Negative NaN prefix (`0xFF800000`) used for all NaN-boxed IDs and RPN tokens. */
-    public const val NAN_PREFIX: Int = -0x800000
+    public const val NAN_PREFIX: Int = IdEncoding.NAN_PREFIX
 
     /** 22-bit payload mask (`0x003FFFFF`) matching `Utils.idFromNan`. */
-    public const val ID_MASK: Int = 0x3FFFFF
+    public const val ID_MASK: Int = IdEncoding.PAYLOAD_MASK
 
     /** 20-bit sub-ID mask (`0x000FFFFF`) within a `NanMap` region. */
-    public const val REGION_SUB_ID_MASK: Int = 0xFFFFF
+    public const val REGION_SUB_ID_MASK: Int = IdEncoding.REGION_SUB_ID_MASK
 
     /** First non-system user-allocated variable/resource ID (`RemoteComposeState.START_ID`). */
-    public const val START_ID: Int = 42
+    public const val START_ID: Int = IdEncoding.START_ID
 
     /** Region 0 (`0x000000..0x0FFFFF`): system variables (`1..35`) and standard resource IDs. */
-    public const val REGION_SYSTEM: Int = 0x000000
+    public const val REGION_SYSTEM: Int = IdEncoding.REGION_SYSTEM
 
     /** Region 1 (`0x100000..0x1FFFFF`): explicit `NanMap.TYPE_VARIABLE` namespace. */
-    public const val REGION_VARIABLE: Int = 0x100000
+    public const val REGION_VARIABLE: Int = IdEncoding.REGION_VARIABLE
 
     /** Region 2 (`0x200000..0x2FFFFF`): array/list/map IDs (`NanMap.TYPE_ARRAY`). */
-    public const val REGION_ARRAY: Int = 0x200000
+    public const val REGION_ARRAY: Int = IdEncoding.REGION_ARRAY
 
     /** Region 3 (`0x300000..0x3FFFFF`): RPN operators (`0x310000+`) and path/command tags. */
-    public const val REGION_OPERATION: Int = 0x300000
+    public const val REGION_OPERATION: Int = IdEncoding.REGION_OPERATION
 
     /** First user-allocated array/list/map ID (`NanMap.START_ARRAY = 0x20002A`). */
-    public const val START_ARRAY_ID: Int = REGION_ARRAY + START_ID
+    public const val START_ARRAY_ID: Int = IdEncoding.START_ARRAY_ID
 
     /** Offset (`0x100000000L`) added to integer IDs when encoded in a 64-bit `Long` slot. */
-    public const val LONG_ID_OFFSET: Long = 0x100000000L
+    public const val LONG_ID_OFFSET: Long = IdEncoding.LONG_ID_OFFSET
 
     internal fun asNanBits(id: Int): Int {
         require(id in 1..ID_MASK) { "NaN ID out of 22-bit range (1..$ID_MASK): $id" }
@@ -200,3 +200,8 @@ public object NanEncoding {
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val MaybeVariableFloat.isArrayVariable: Boolean
     get() = isVariable && (variableId and 0x300000) == NanEncoding.REGION_ARRAY
+
+/** Returns true if this [MaybeVariableFloat] encodes a float RPN operator token. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val MaybeVariableFloat.isRpnOperator: Boolean
+    get() = FloatRpn.isOperator(floatValue)

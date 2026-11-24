@@ -73,39 +73,49 @@ private constructor(
 ) {
     public companion object {
         /** Literal integer property; pass the value via the `Int` [invoke] overload. */
-        @Suppress("NoByteOrShort") public const val INT_PROP: Short = 0
+        @Suppress("NoByteOrShort")
+        public const val INT_PROP: Short = CustomPropertyType.INT_PROP.toShort()
 
         /** Float or NaN-variable property; pass the value via the [MaybeVariableFloat] overload. */
-        @Suppress("NoByteOrShort") public const val FLOAT_PROP: Short = 1
+        @Suppress("NoByteOrShort")
+        public const val FLOAT_PROP: Short = CustomPropertyType.FLOAT_PROP.toShort()
 
         /** String variable ID property; pass the text ID via the `Int` [invoke] overload. */
-        @Suppress("NoByteOrShort") public const val STRING_PROP: Short = 2
+        @Suppress("NoByteOrShort")
+        public const val STRING_PROP: Short = CustomPropertyType.STRING_PROP.toShort()
 
         /**
          * Float output variable slot; pass the target variable as a NaN-encoded
          * [MaybeVariableFloat] via the [MaybeVariableFloat] [invoke] overload.
          */
-        @Suppress("NoByteOrShort") public const val FLOAT_RETURN: Short = 3
+        @Suppress("NoByteOrShort")
+        public const val FLOAT_RETURN: Short = CustomPropertyType.FLOAT_RETURN.toShort()
 
         /** String output variable ID; pass the target ID via the `Int` [invoke] overload. */
-        @Suppress("NoByteOrShort") public const val TEXT_RETURN: Short = 4
+        @Suppress("NoByteOrShort")
+        public const val TEXT_RETURN: Short = CustomPropertyType.TEXT_RETURN.toShort()
 
         /** Integer output variable ID; pass the target ID via the `Int` [invoke] overload. */
-        @Suppress("NoByteOrShort") public const val INT_RETURN: Short = 5
+        @Suppress("NoByteOrShort")
+        public const val INT_RETURN: Short = CustomPropertyType.INT_RETURN.toShort()
 
         /** Color output variable ID; pass the target ID via the `Int` [invoke] overload. */
-        @Suppress("NoByteOrShort") public const val COLOR_RETURN: Short = 6
+        @Suppress("NoByteOrShort")
+        public const val COLOR_RETURN: Short = CustomPropertyType.COLOR_RETURN.toShort()
 
         /** Color variable ID property; pass the color ID via the `Int` [invoke] overload. */
-        @Suppress("NoByteOrShort") public const val COLOR_ID_PROP: Short = 7
+        @Suppress("NoByteOrShort")
+        public const val COLOR_ID_PROP: Short = CustomPropertyType.COLOR_ID_PROP.toShort()
 
         /**
          * Literal ARGB color property; pass the packed ARGB int via the `Int` [invoke] overload.
          */
-        @Suppress("NoByteOrShort") public const val COLOR_PROP: Short = 8
+        @Suppress("NoByteOrShort")
+        public const val COLOR_PROP: Short = CustomPropertyType.COLOR_PROP.toShort()
 
         /** Integer variable ID property; pass the variable ID via the `Int` [invoke] overload. */
-        @Suppress("NoByteOrShort") public const val INT_ID_PROP: Short = 9
+        @Suppress("NoByteOrShort")
+        public const val INT_ID_PROP: Short = CustomPropertyType.INT_ID_PROP.toShort()
 
         /**
          * Creates an integer-backed [RemoteCustomProperty].
