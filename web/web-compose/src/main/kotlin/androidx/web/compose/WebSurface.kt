@@ -252,9 +252,12 @@ internal class WebSurfaceState<T : WebViewBridge>(
         node?.onBridgeDetached()
         node = null
         (currentBridge.parent as? ViewGroup)?.removeView(currentBridge)
-        bridgeRelease(currentBridge)
-        // Does nothing if another WebSurface took over content.
-        content.detach(currentBridge)
+        try {
+            bridgeRelease(currentBridge)
+        } finally {
+            // Does nothing if another WebSurface took over content.
+            content.detach(currentBridge)
+        }
     }
 
     override fun onAbandoned() {

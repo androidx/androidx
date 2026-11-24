@@ -2162,6 +2162,24 @@ class WebSurfaceTest {
         }
     }
 
+    @Test
+    fun testBridgeReleaseExceptionStillDetachesWebContent() {
+        composeTestRule.runOnUiThread {
+            val state =
+                WebSurfaceState(
+                    content = webContent,
+                    context = composeTestRule.activity,
+                    bridgeFactory = ::WebViewBridge,
+                    bridgeUpdate = {},
+                    bridgeRelease = { throw IllegalStateException("release failed") },
+                )
+            state.onRemembered()
+            assertTrue(webContent.isAttached())
+            assertThrows(IllegalStateException::class.java) { state.onForgotten() }
+            assertFalse(webContent.isAttached())
+        }
+    }
+
     private fun obtainDragEvent(action: Int, x: Float, y: Float): DragEvent {
         val parcel = Parcel.obtain()
         try {
