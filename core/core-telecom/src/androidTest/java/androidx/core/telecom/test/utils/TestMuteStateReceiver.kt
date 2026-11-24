@@ -21,14 +21,15 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.util.Log
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 
 class TestMuteStateReceiver : BroadcastReceiver() {
-    private val isMutedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val isMutedChannel: Channel<Boolean> = Channel(Channel.UNLIMITED)
 
     companion object {
         private val TAG: String = TestMuteStateReceiver::class.java.simpleName.toString()
@@ -38,10 +39,11 @@ class TestMuteStateReceiver : BroadcastReceiver() {
         Log.i(TAG, "waitForGlobalMuteState: v=[$isMuted], id=[$id]")
         val result =
             withTimeoutOrNull(5000) {
-                isMutedFlow
-                    .filter {
-                        Log.i(TAG, "it=[$isMuted], isMuted=[$isMuted]")
-                        it == isMuted
+                isMutedChannel
+                    .receiveAsFlow()
+                    .filter { state ->
+                        Log.i(TAG, "it=[$state], isMuted=[$isMuted]")
+                        state == isMuted
                     }
                     .firstOrNull()
             }
@@ -54,7 +56,7 @@ class TestMuteStateReceiver : BroadcastReceiver() {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             val isMicGloballyMuted = audioManager.isMicrophoneMute
             Log.i(TAG, "onReceive: isMicGloballyMuted=[${isMicGloballyMuted}]")
-            isMutedFlow.value = isMicGloballyMuted
+            isMutedChannel.trySend(isMicGloballyMuted)
         }
     }
 }

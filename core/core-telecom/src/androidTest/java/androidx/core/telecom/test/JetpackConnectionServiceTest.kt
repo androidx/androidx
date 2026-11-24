@@ -24,6 +24,7 @@ import android.telecom.ConnectionRequest
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.CallChannels
+import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
@@ -32,10 +33,12 @@ import androidx.core.telecom.test.utils.TestUtils.TEST_CALL_ATTRIB_NAME
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -313,5 +316,44 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
             TestUtils.TEST_ADDRESS,
             pendingRequestIdBundle,
         )
+    }
+
+    /**
+     * Verify that when createSelfManagedConnection runs on the main thread (matching
+     * ConnectionService.createConnection), registration is NOT marked complete until the next
+     * main-Looper turn—after ConnectionService finishes addConnection() and
+     * handleCreateConnectionComplete().
+     */
+    @SmallTest
+    @Test
+    fun testCreateSelfManagedConnection_defersRegistrationToNextMainLooperTurn() {
+        val attributes =
+            TestUtils.createCallAttributes(
+                CallAttributesCompat.DIRECTION_INCOMING,
+                mPackagePhoneAccountHandle,
+            )
+        val request = createConnectionRequest(attributes)
+        var createdSession: CallSessionLegacy? = null
+        var registeredDuringCreateTurn = true
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            createdSession =
+                mConnectionService.createSelfManagedConnection(
+                    request,
+                    CallAttributesCompat.DIRECTION_INCOMING,
+                ) as CallSessionLegacy
+            registeredDuringCreateTurn = createdSession!!.isConnectionRegistered()
+        }
+        assertFalse(
+            "Registration must remain false until ConnectionService.createConnection returns",
+            registeredDuringCreateTurn,
+        )
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        assertTrue(
+            "Registration must complete on the subsequent main-Looper turn",
+            createdSession!!.isConnectionRegistered(),
+        )
+        createdSession!!.close()
     }
 }

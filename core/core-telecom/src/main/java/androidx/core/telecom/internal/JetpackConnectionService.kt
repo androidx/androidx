@@ -20,6 +20,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelUuid
 import android.telecom.CallException
 import android.telecom.Connection
@@ -277,6 +279,7 @@ internal class JetpackConnectionService : ConnectionService() {
                 targetRequest.onStateChangedCallback,
                 targetRequest.preferredStartingCallEndpoint,
                 targetRequest.execution,
+                awaitPlatformRegistration = true,
             )
 
         // set display name
@@ -329,6 +332,11 @@ internal class JetpackConnectionService : ConnectionService() {
 
         // Explicitly set voip audio mode on connection side
         jetpackConnection.audioModeIsVoip = true
+
+        // Post to the main Looper so registration is marked complete strictly after
+        // ConnectionService.createConnection() finishes addConnection() and
+        // mAdapter.handleCreateConnectionComplete() on the current main-Looper turn.
+        Handler(Looper.getMainLooper()).post { jetpackConnection.markConnectionRegistered() }
 
         targetRequest.completableDeferred?.complete(
             AddCallResult.SuccessCallSessionLegacy(jetpackConnection)
