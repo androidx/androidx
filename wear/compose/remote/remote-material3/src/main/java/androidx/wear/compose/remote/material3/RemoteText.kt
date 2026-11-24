@@ -42,7 +42,7 @@ import androidx.compose.runtime.structuralEqualityPolicy
  * Displays Material Design text and provides accessibility semantics in a remote layout.
  *
  * This is the Wear Material 3 counterpart to [RemoteBasicText] and the remote equivalent of
- * [androidx.wear.compose.material3.Text], integrating with theme colors, typography, and ambient
+ * `androidx.wear.compose.material3.Text`, integrating with theme colors, typography, and ambient
  * text configuration via [LocalRemoteTextConfiguration] provided by surrounding Wear Material 3
  * components.
  *

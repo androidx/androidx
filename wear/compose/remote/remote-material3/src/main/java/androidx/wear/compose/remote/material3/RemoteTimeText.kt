@@ -53,7 +53,7 @@ import androidx.wear.compose.remote.material3.internal.setLuminance
  * screen.
  *
  * [RemoteTimeText] is typically placed at the top of the screen and is the remote equivalent of
- * [androidx.wear.compose.material3.TimeText].
+ * `androidx.wear.compose.material3.TimeText`.
  *
  * Commonly used properties from [RemoteTextStyle] are also exposed directly as parameters: when
  * non-`null`, a styling parameter overrides the corresponding property in [style]; when `null`, the
@@ -79,7 +79,7 @@ import androidx.wear.compose.remote.material3.internal.setLuminance
  *   Defaults to `"·"`.
  * @param color The color of the text. If `null`, uses [RemoteTextStyle.color] from [style], or
  *   [RemoteColorScheme.onBackground] from [RemoteMaterialTheme.colorScheme] with its luminance set
- *   to 80 (matching [androidx.wear.compose.material3.TimeText]) if also `null` in [style].
+ *   to 80 (matching `androidx.wear.compose.material3.TimeText`) if also `null` in [style].
  * @param backgroundColor The color of the arc drawn behind the text, so it stays visible on top of
  *   other content. Defaults to [RemoteTimeTextDefaults.backgroundColor].
  * @param style The [RemoteTextStyle] to be applied to the text. Defaults to

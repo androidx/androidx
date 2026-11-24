@@ -20,11 +20,10 @@ import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.cubicEasing
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.wear.compose.material3.MotionScheme
 
 /**
  * Shared motion tokens for Wear Remote Material 3 components, matching Wear Compose Material 3
- * `MotionTokens` and the spring constants of [MotionScheme].
+ * `MotionTokens` and the spring constants of `MotionScheme`.
  *
  * Components read spring animation specs from [RemoteMaterialTheme.motionScheme], see
  * [RemoteMotionScheme].
