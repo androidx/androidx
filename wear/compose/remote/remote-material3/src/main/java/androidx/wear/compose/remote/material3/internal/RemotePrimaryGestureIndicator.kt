@@ -31,13 +31,11 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cubicEasing
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.remote.material3.LocalRemoteContentColor
 import androidx.wear.compose.remote.material3.RemoteIcon
 
@@ -241,7 +239,7 @@ private object Tokens {
     const val ContentDescription = "Double pinch to act"
 
     /** The stroke is drawn white and recoloured by the icon tint, as vector assets are. */
-    val StrokeBrush = RemoteBrush.solidColor(Color.White.rc)
+    val StrokeBrush = RemoteBrush.solidColor(RemoteColor.White)
 }
 
 /**
@@ -256,7 +254,7 @@ private fun primaryGestureImageVector(stage: RemoteFloat): RemoteImageVector {
             defaultHeight = Tokens.DefaultSizeDp.rdp,
             viewportWidth = Tokens.Viewport.rf,
             viewportHeight = Tokens.Viewport.rf,
-            tintColor = Color.White.rc,
+            tintColor = RemoteColor.White,
             name = "PrimaryGesture",
         )
         // 1. Index finger & thumb contour loop

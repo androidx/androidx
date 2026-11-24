@@ -36,7 +36,6 @@ import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.floor
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -44,7 +43,6 @@ import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 
 /** An interface for connection between Pager and remote page indicators. */
 @Stable
@@ -454,7 +452,7 @@ private fun RemoteDrawScope.drawPageIndicators(
             val y = height / 2f.rf + bigRadius * sin(angleRad)
 
             val slotPaint = RemotePaint {
-                this.color = isValidPage.select(inactivePaint.color, Color.Transparent.rc)
+                this.color = isValidPage.select(inactivePaint.color, RemoteColor.Transparent)
                 style = RemotePaintingStyle.Fill
             }
 

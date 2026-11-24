@@ -46,7 +46,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
@@ -54,7 +53,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
 
 /**
  * The Wear Material [RemoteSplitSwitchButton] offers two slots and shows the current toggle state
@@ -199,7 +197,7 @@ public fun RemoteSplitSwitchButton(
                     .drawWithContent {
                         drawSolidColorShape(
                             endSectionShape,
-                            enabled.select(containerColor, Color.Black.rc),
+                            enabled.select(containerColor, RemoteColor.Black),
                         )
                         drawSolidColorShape(endSectionShape, splitContainerColor)
                         drawContent()
@@ -706,11 +704,11 @@ public class RemoteSplitSwitchButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { lerp(Color.Transparent.rc, checkedThumbIconColor, it) }
-                    ?: checked.select(checkedThumbIconColor, Color.Transparent.rc),
+                progress?.let { lerp(RemoteColor.Transparent, checkedThumbIconColor, it) }
+                    ?: checked.select(checkedThumbIconColor, RemoteColor.Transparent),
             ifFalse =
-                progress?.let { lerp(Color.Transparent.rc, disabledCheckedThumbIconColor, it) }
-                    ?: checked.select(disabledCheckedThumbIconColor, Color.Transparent.rc),
+                progress?.let { lerp(RemoteColor.Transparent, disabledCheckedThumbIconColor, it) }
+                    ?: checked.select(disabledCheckedThumbIconColor, RemoteColor.Transparent),
         )
 
     @Stable
@@ -724,8 +722,8 @@ public class RemoteSplitSwitchButtonColors(
                 progress?.let { lerp(uncheckedTrackColor, checkedTrackColor, it) }
                     ?: checked.select(checkedTrackColor, uncheckedTrackColor),
             ifFalse =
-                progress?.let { lerp(Color.Transparent.rc, disabledCheckedTrackColor, it) }
-                    ?: checked.select(disabledCheckedTrackColor, Color.Transparent.rc),
+                progress?.let { lerp(RemoteColor.Transparent, disabledCheckedTrackColor, it) }
+                    ?: checked.select(disabledCheckedTrackColor, RemoteColor.Transparent),
         )
 
     @Stable

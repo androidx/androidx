@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.scale
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -33,11 +34,9 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -166,7 +165,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
         this.strokeWidth = strokePx
         strokeCap = RemoteStrokeCap.Round
         with(colors.trackBrush(enabled)) { applyTo(this@RemotePaint, size) }
-        this.color = isZeroStroke.select(Color.Transparent.rc, this.color)
+        this.color = isZeroStroke.select(RemoteColor.Transparent, this.color)
     }
     drawLine(
         paint = trackPaint,
@@ -181,7 +180,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
         this.strokeWidth = strokePx
         strokeCap = RemoteStrokeCap.Round
         with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
-        this.color = isZero.select(Color.Transparent.rc, this.color)
+        this.color = isZero.select(RemoteColor.Transparent, this.color)
     }
     drawLine(
         paint = indicatorPaint,
@@ -204,7 +203,7 @@ private fun RemoteDrawScope.drawLinearIndicator(
     val dotPaint = RemotePaint {
         style = RemotePaintingStyle.Fill
         with(colors.indicatorBrush(enabled)) { applyTo(this@RemotePaint, size) }
-        this.color = isDotHidden.select(Color.Transparent.rc, this.color)
+        this.color = isDotHidden.select(RemoteColor.Transparent, this.color)
     }
     drawCircle(
         paint = dotPaint,

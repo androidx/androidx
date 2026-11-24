@@ -30,13 +30,11 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
 
 /**
  * The Wear Material [RemoteSwitchButton] offers four slots and a specific layout for an icon, a
@@ -517,11 +515,11 @@ public class RemoteSwitchButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { lerp(Color.Transparent.rc, checkedThumbIconColor, it) }
-                    ?: checked.select(checkedThumbIconColor, Color.Transparent.rc),
+                progress?.let { lerp(RemoteColor.Transparent, checkedThumbIconColor, it) }
+                    ?: checked.select(checkedThumbIconColor, RemoteColor.Transparent),
             ifFalse =
-                progress?.let { lerp(Color.Transparent.rc, disabledCheckedThumbIconColor, it) }
-                    ?: checked.select(disabledCheckedThumbIconColor, Color.Transparent.rc),
+                progress?.let { lerp(RemoteColor.Transparent, disabledCheckedThumbIconColor, it) }
+                    ?: checked.select(disabledCheckedThumbIconColor, RemoteColor.Transparent),
         )
 
     @Stable
@@ -535,8 +533,8 @@ public class RemoteSwitchButtonColors(
                 progress?.let { lerp(uncheckedTrackColor, checkedTrackColor, it) }
                     ?: checked.select(checkedTrackColor, uncheckedTrackColor),
             ifFalse =
-                progress?.let { lerp(Color.Transparent.rc, disabledCheckedTrackColor, it) }
-                    ?: checked.select(disabledCheckedTrackColor, Color.Transparent.rc),
+                progress?.let { lerp(RemoteColor.Transparent, disabledCheckedTrackColor, it) }
+                    ?: checked.select(disabledCheckedTrackColor, RemoteColor.Transparent),
         )
 
     @Stable

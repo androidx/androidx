@@ -21,9 +21,7 @@ import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.Color
 
 internal object RemoteIcons {
     internal val Add: RemoteImageVector
@@ -33,7 +31,7 @@ internal object RemoteIcons {
             }
             _add =
                 remoteMaterialIcon(name = "Add") {
-                    path(fill = RemoteBrush.solidColor(Color.White.rc)) {
+                    path(fill = RemoteBrush.solidColor(RemoteColor.White)) {
                         moveTo(11f.rf, 13f.rf)
                         lineTo(6f.rf, 13f.rf)
                         quadTo(5.575f.rf, 13f.rf, 5.2875f.rf, 12.7125f.rf)
@@ -74,7 +72,7 @@ internal object RemoteIcons {
             }
             _remove =
                 remoteMaterialIcon(name = "Remove") {
-                    path(fill = RemoteBrush.solidColor(Color.White.rc)) {
+                    path(fill = RemoteBrush.solidColor(RemoteColor.White)) {
                         moveTo(6f.rf, 13f.rf)
                         quadTo(5.575f.rf, 13f.rf, 5.2875f.rf, 12.7125f.rf)
                         quadTo(5f.rf, 12.425f.rf, 5f.rf, 12f.rf)
@@ -104,7 +102,7 @@ private fun remoteMaterialIcon(
             name = name,
             viewportWidth = MaterialIconDimension.rf,
             viewportHeight = MaterialIconDimension.rf,
-            tintColor = RemoteColor(Color.White),
+            tintColor = RemoteColor.White,
             autoMirror = autoMirror,
         )
         .block()

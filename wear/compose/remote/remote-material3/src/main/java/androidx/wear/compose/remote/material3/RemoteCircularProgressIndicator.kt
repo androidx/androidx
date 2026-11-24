@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -34,10 +35,8 @@ import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
 /**
  * Material Design circular progress indicator.
@@ -253,7 +252,7 @@ private fun RemoteDrawScope.drawIndicatorSegment(
         strokeWidth = geometry.strokePx * fill
         with(brush) { applyTo(this@RemotePaint, size) }
         // A stroke width of 0 still draws a hairline, and an arc a dot, so hide them instead.
-        color = isVisible.select(color, Color.Transparent.rc)
+        color = isVisible.select(color, RemoteColor.Transparent)
     }
     drawArc(
         paint = paint,
