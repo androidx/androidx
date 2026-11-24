@@ -1089,6 +1089,8 @@ class UseCaseCameraRequestControlTest {
                     afRegions: List<MeteringRectangle>?,
                     awbRegions: List<MeteringRectangle>?,
                     retainLocks: Boolean,
+                    frameLimit: Int,
+                    timeLimitNs: Long,
                 ): Deferred<Result3A> {
                     update3ACalled = true
                     return CompletableDeferred(Result3A(Result3A.Status.OK))
@@ -1421,6 +1423,8 @@ class UseCaseCameraRequestControlTest {
                     afRegions: List<MeteringRectangle>?,
                     awbRegions: List<MeteringRectangle>?,
                     retainLocks: Boolean,
+                    frameLimit: Int,
+                    timeLimitNs: Long,
                 ): Deferred<Result3A> = innerResult
             }
         val (stalledGraph, localRequestControl) = createVirtualTimeRequestControl(stalledSession)

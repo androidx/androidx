@@ -313,4 +313,82 @@ internal class Controller3ASetTorchTest {
             assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
             assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
         }
+
+    @Test
+    fun setTorchOn_whenFlashModeNeverMatches_reachesDefaultFrameLimit() = runTest {
+        val result = controller3A.setTorchOn()
+        val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
+        listener3A.onRequestSequenceCreated(requestMetadata)
+
+        for (frame in 100L..160L) {
+            listener3A.onPartialCaptureResult(
+                requestMetadata,
+                CameraFrameNumber(frame),
+                FakeFrameMetadata(
+                    frameNumber = CameraFrameNumber(frame),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
+                            CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF,
+                        ),
+                ),
+            )
+            assertThat(result.isCompleted).isFalse()
+        }
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(161L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(161L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
+                        CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF,
+                    ),
+            ),
+        )
+
+        val result3A = result.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.FRAME_LIMIT_REACHED)
+        assertThat(requireNotNull(result3A.frameMetadata).frameNumber.value).isEqualTo(161L)
+    }
+
+    @Test
+    fun setTorchOff_whenFlashModeNeverMatches_reachesDefaultTimeLimit() = runTest {
+        val result = controller3A.setTorchOff()
+        val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
+        listener3A.onRequestSequenceCreated(requestMetadata)
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(100L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(100L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH,
+                        CaptureResult.SENSOR_TIMESTAMP to 1_000_000_000L,
+                    ),
+            ),
+        )
+        assertThat(result.isCompleted).isFalse()
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(101L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(101L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH,
+                        CaptureResult.SENSOR_TIMESTAMP to 4_000_000_001L,
+                    ),
+            ),
+        )
+
+        val result3A = result.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(requireNotNull(result3A.frameMetadata).frameNumber.value).isEqualTo(101L)
+    }
 }

@@ -200,6 +200,8 @@ constructor(
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
         retainLocks: Boolean = false,
+        frameLimit: Int = DEFAULT_FRAME_LIMIT,
+        timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
     ): Deferred<Result3A> {
         if (
             !areModesSupported(
@@ -232,7 +234,16 @@ constructor(
 
         // Add the listener to a global pool of 3A listeners to monitor the state change to the
         // desired one.
-        val listener = createListenerFor3AParams(aeMode, afMode, awbMode, controlMode, flashMode)
+        val listener =
+            createListenerFor3AParams(
+                aeMode = aeMode,
+                afMode = afMode,
+                awbMode = awbMode,
+                controlMode = controlMode,
+                flashMode = flashMode,
+                frameLimit = frameLimit,
+                timeLimitNs = timeLimitNs,
+            )
         graphListener3A.addListener(listener)
 
         // If retainLocks is true and previous 3A lock is also true, we will update the locks for
@@ -1010,6 +1021,8 @@ constructor(
         awbMode: AwbMode? = null,
         controlMode: ControlMode? = null,
         flashMode: FlashMode? = null,
+        frameLimit: Int? = null,
+        timeLimitNs: Long? = null,
     ): Result3AStateListenerImpl {
         val resultModesMap = mutableMapOf<CaptureResult.Key<*>, List<Any>>()
         aeMode?.let { resultModesMap.put(CaptureResult.CONTROL_AE_MODE, listOf(it.value)) }
@@ -1017,7 +1030,11 @@ constructor(
         awbMode?.let { resultModesMap.put(CaptureResult.CONTROL_AWB_MODE, listOf(it.value)) }
         controlMode?.let { resultModesMap.put(CaptureResult.CONTROL_MODE, listOf(it.value)) }
         flashMode?.let { resultModesMap.put(CaptureResult.FLASH_MODE, listOf(it.value)) }
-        return Result3AStateListenerImpl(resultModesMap.toMap())
+        return Result3AStateListenerImpl(
+            resultModesMap.toMap(),
+            frameLimit = frameLimit,
+            timeLimitNs = timeLimitNs,
+        )
     }
 
     private fun createConvergeListener(

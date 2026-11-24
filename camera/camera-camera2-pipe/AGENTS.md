@@ -222,10 +222,9 @@ parameters are merged from lowest to highest precedence:
 - **Convergence & limits**:
   - `Listener3A` evaluates exit conditions only when capture results arrive (`onPartialCaptureResult`
     and `onTotalCaptureResult`); `DEFAULT_FRAME_LIMIT = 60` and
-    `DEFAULT_TIME_LIMIT_NS = 3_000_000_000L` (3 seconds) are defaults for `converge3A`, `lock3A`,
-    `unlock3A`, and `lock3AForCapture`, and are checked on frame arrival rather than a wall-clock
-    timer. `update3A` and `submit3A` create listeners without frame or time limits (they complete on
-    match, cancel, or stop).
+    `DEFAULT_TIME_LIMIT_NS = 3_000_000_000L` (3 seconds) are defaults for `update3A`, `converge3A`,
+    `lock3A`, `unlock3A`, and `lock3AForCapture` (and `setTorchOn` / `setTorchOff` via `update3A`),
+    and are checked on frame arrival rather than a wall-clock timer.
   - `Result3A.Status.OK` indicates the exit condition was satisfied (for AF, terminal convergence
     states include both focused and unfocused locked states unless filtered by the caller).
   - Calling `update3A` again while a repeating request is active cancels the `Deferred<Result3A>` of
