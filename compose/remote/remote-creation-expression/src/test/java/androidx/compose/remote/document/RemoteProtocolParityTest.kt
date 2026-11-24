@@ -17,6 +17,7 @@
 package androidx.compose.remote.document
 
 import androidx.compose.remote.core.Operations
+import androidx.compose.remote.core.PaintOperation
 import androidx.compose.remote.core.RcProfiles as CoreRcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteComposeState
@@ -263,6 +264,7 @@ class RemoteProtocolParityTest {
 
         val arrayId = RemoteArrayId(NanEncoding.START_ARRAY_ID)
         assertTrue(NanEncoding.isArrayNan(arrayId.toNanFloat()))
+        assertTrue(arrayId.toMaybeVariableFloat().isArrayVariable)
 
         val intId = RemoteIntId(55)
         val encodedLong = intId.toLongEncodedId()
@@ -539,6 +541,88 @@ class RemoteProtocolParityTest {
         assertEquals(FloatRpn.ID_ADD, FloatRpn.operatorId(posAddToken))
         assertFalse(FloatRpn.isOperator(Float.NaN))
         assertEquals(NanEncoding.NO_ID, FloatRpn.operatorId(Float.NaN))
+    }
+
+    @Test
+    fun testMaybeDereferencedIdAndNanEncodingHelpers() {
+        assertEquals(PaintOperation.PTR_DEREFERENCE, MaybeDereferencedId.PTR_DEREFERENCE)
+        assertEquals(PaintOperation.VALUE_MASK, MaybeDereferencedId.VALUE_MASK)
+
+        val direct = MaybeDereferencedId.direct(42)
+        assertFalse(direct.isDereferenced)
+        assertEquals(42, direct.directId)
+        assertNull(direct.pointerId)
+        assertEquals(42, direct.unmaskedId)
+
+        val indirect = MaybeDereferencedId.dereferenced(42)
+        assertTrue(indirect.isDereferenced)
+        assertNull(indirect.directId)
+        assertEquals(42, indirect.pointerId)
+        assertEquals(42, indirect.unmaskedId)
+
+        // High bits above 16-bit VALUE_MASK (including sign bit 31 and bits 16..29) are masked out
+        val highBitsRaw = MaybeDereferencedId.fromRawInt(0x8003_002A.toInt())
+        assertFalse(highBitsRaw.isDereferenced)
+        assertEquals(42, highBitsRaw.unmaskedId)
+        assertEquals(42, highBitsRaw.directId)
+        assertNull(highBitsRaw.pointerId)
+        val highBitsPtr = MaybeDereferencedId.fromRawInt(0xC003_002A.toInt())
+        assertTrue(highBitsPtr.isDereferenced)
+        assertEquals(42, highBitsPtr.unmaskedId)
+        assertNull(highBitsPtr.directId)
+        assertEquals(42, highBitsPtr.pointerId)
+        assertEquals(42, MaybeDereferencedId.direct(0x1234_002A).raw)
+        assertEquals(
+            42 or PaintOperation.PTR_DEREFERENCE,
+            MaybeDereferencedId.dereferenced(0x1234_002A).raw,
+        )
+
+        for (id in -5..60) {
+            assertEquals(Utils.isSystemGlobal(id), NanEncoding.isSystemGlobalId(id))
+        }
+        for (id in intArrayOf(0x3FFF, 0x4000, 0x4FFF, 0x5000)) {
+            assertEquals(Utils.isMacroLocal(id), NanEncoding.isMacroLocalId(id))
+        }
+
+        assertEquals(-1, NanEncoding.idRegion(-1))
+        assertEquals(-1, NanEncoding.idRegion(Int.MIN_VALUE))
+        assertEquals(NanEncoding.REGION_SYSTEM, NanEncoding.idRegion(42))
+        assertEquals(
+            NanEncoding.REGION_VARIABLE,
+            NanEncoding.idRegion(NanEncoding.REGION_VARIABLE + 1),
+        )
+        assertEquals(NanEncoding.REGION_ARRAY, NanEncoding.idRegion(NanEncoding.START_ARRAY_ID))
+        assertEquals(
+            NanEncoding.REGION_OPERATION,
+            NanEncoding.idRegion(NanEncoding.REGION_OPERATION + 5),
+        )
+
+        assertTrue(NanEncoding.isNonIdFloatNan(Float.NaN))
+        assertFalse(NanEncoding.isNonIdFloatNan(Float.fromBits(0x7F800005)))
+        assertFalse(NanEncoding.isNonIdFloatNan(Float.fromBits(0x7FC00001)))
+        assertTrue(NanEncoding.isNonIdFloatNan(Float.fromBits(0xFFC00000.toInt())))
+        assertFalse(NanEncoding.isNonIdFloatNan(NanEncoding.asNan(42)))
+        assertFalse(NanEncoding.isNonIdFloatNan(Float.POSITIVE_INFINITY))
+        assertFalse(NanEncoding.isNonIdFloatNan(Float.NEGATIVE_INFINITY))
+        assertFalse(NanEncoding.isNonIdFloatNan(1.5f))
+
+        assertEquals(42, NanEncoding.decodeIdOrNull(NanEncoding.asNan(42)))
+        assertNull(NanEncoding.decodeIdOrNull(Float.NaN))
+        assertNull(NanEncoding.decodeIdOrNull(1.5f))
+
+        assertEquals(0, NanEncoding.decodeLongIdOrNull(NanEncoding.LONG_ID_OFFSET))
+        assertEquals(42, NanEncoding.decodeLongIdOrNull(NanEncoding.encodeLongId(42)))
+        assertEquals(
+            Int.MAX_VALUE,
+            NanEncoding.decodeLongIdOrNull(NanEncoding.LONG_ID_OFFSET + Int.MAX_VALUE),
+        )
+        assertNull(NanEncoding.decodeLongIdOrNull(NanEncoding.LONG_ID_OFFSET - 1L))
+        assertNull(NanEncoding.decodeLongIdOrNull(NanEncoding.LONG_ID_OFFSET + Int.MAX_VALUE + 1L))
+        assertNull(NanEncoding.decodeLongIdOrNull(42L))
+
+        assertTrue(MaybeVariableFloat.variable(NanEncoding.START_ARRAY_ID).isArrayVariable)
+        assertFalse(MaybeVariableFloat.variable(42).isArrayVariable)
+        assertFalse(1.5f.mvf.isArrayVariable)
     }
 
     @Test

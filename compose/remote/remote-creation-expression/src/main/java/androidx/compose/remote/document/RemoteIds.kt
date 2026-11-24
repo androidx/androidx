@@ -101,6 +101,60 @@ public value class RemoteArrayId(public val id: Int) {
 }
 
 /**
+ * Type-safe wrapper for a RemoteCompose operation ID (such as a bitmap or path ID) that may
+ * represent either a direct 16-bit static resource ID or a [PTR_DEREFERENCE]-flagged indirect
+ * pointer variable ID resolved dynamically at runtime.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class MaybeDereferencedId private constructor(public val raw: Int) {
+    /** Returns true if [raw] carries the [PTR_DEREFERENCE] indirection flag. */
+    public val isDereferenced: Boolean
+        get() = (raw and PTR_DEREFERENCE) != 0
+
+    /** Returns the masked 16-bit ID (`raw and VALUE_MASK`), either direct or pointer variable. */
+    public val unmaskedId: Int
+        get() = raw and VALUE_MASK
+
+    /**
+     * Returns the direct static resource ID (`raw and VALUE_MASK`) if [isDereferenced] is false, or
+     * `null` otherwise.
+     */
+    public val directId: Int?
+        get() = if (!isDereferenced) unmaskedId else null
+
+    /**
+     * Returns the pointer variable ID (`raw and VALUE_MASK`) if [isDereferenced] is true, or `null`
+     * otherwise.
+     */
+    public val pointerId: Int?
+        get() = if (isDereferenced) unmaskedId else null
+
+    public companion object {
+        /** Bit flag matching `PaintOperation.PTR_DEREFERENCE` (`1 << 30`). */
+        public const val PTR_DEREFERENCE: Int = IdEncoding.PTR_DEREFERENCE
+
+        /** 16-bit payload mask matching `PaintOperation.VALUE_MASK` (`0xFFFF`). */
+        public const val VALUE_MASK: Int = IdEncoding.VALUE_MASK
+
+        /**
+         * Wraps a raw encoded wire integer [raw] verbatim, preserving any [PTR_DEREFERENCE] flag
+         * bit.
+         */
+        @JvmStatic public fun fromRawInt(raw: Int): MaybeDereferencedId = MaybeDereferencedId(raw)
+
+        /** Creates a [MaybeDereferencedId] representing a direct static 16-bit ID. */
+        @JvmStatic
+        public fun direct(id: Int): MaybeDereferencedId = MaybeDereferencedId(id and VALUE_MASK)
+
+        /** Creates a [MaybeDereferencedId] representing a dereferenced 16-bit pointer ID. */
+        @JvmStatic
+        public fun dereferenced(pointerId: Int): MaybeDereferencedId =
+            MaybeDereferencedId((pointerId and VALUE_MASK) or PTR_DEREFERENCE)
+    }
+}
+
+/**
  * Pure-Kotlin NaN-boxing and `Long`-encoded ID utilities matching `Utils` and `NanMap` in
  * `remote-core`.
  *
@@ -122,6 +176,9 @@ public object NanEncoding {
     /** Sentinel integer (`-1`) representing the absence of an ID. */
     public const val NO_ID: Int = IdEncoding.NO_ID
 
+    /** 2-bit region mask (`0x00300000`) selecting the `NanMap` namespace. */
+    public const val REGION_MASK: Int = IdEncoding.REGION_MASK
+
     /** 20-bit sub-ID mask (`0x000FFFFF`) within a `NanMap` region. */
     public const val REGION_SUB_ID_MASK: Int = IdEncoding.REGION_SUB_ID_MASK
 
@@ -142,6 +199,12 @@ public object NanEncoding {
 
     /** First user-allocated array/list/map ID (`NanMap.START_ARRAY = 0x20002A`). */
     public const val START_ARRAY_ID: Int = IdEncoding.START_ARRAY_ID
+
+    /** First macro-local ID (`0x4000`) matching `Utils.isMacroLocal`. */
+    public const val MACRO_LOCAL_START_ID: Int = IdEncoding.MACRO_LOCAL_START_ID
+
+    /** Last macro-local ID (`0x4FFF`) matching `Utils.isMacroLocal`. */
+    public const val MACRO_LOCAL_END_ID: Int = IdEncoding.MACRO_LOCAL_END_ID
 
     /** Offset (`0x100000000L`) added to integer IDs when encoded in a 64-bit `Long` slot. */
     public const val LONG_ID_OFFSET: Long = IdEncoding.LONG_ID_OFFSET
@@ -167,14 +230,47 @@ public object NanEncoding {
      */
     @JvmStatic public fun isNan(value: Float): Boolean = isNanBits(value.toRawBits())
 
+    /**
+     * Returns true if [value] is an IEEE-754 `NaN` with zero 22-bit ID payload (such as canonical
+     * `Float.NaN` `0x7FC00000` or negative quiet NaN `0xFFC00000`) rather than a RemoteCompose
+     * NaN-boxed variable or operator ID.
+     */
+    @JvmStatic public fun isNonIdFloatNan(value: Float): Boolean = value.isNaN() && !isNan(value)
+
     /** Extracts the 22-bit payload ID from a NaN-boxed [value], or `-1` if [value] is literal. */
     @JvmStatic public fun idFromNan(value: Float): Int = idFromNanBits(value.toRawBits())
+
+    /**
+     * Extracts the 22-bit payload ID from a NaN-boxed [value], or `null` if [value] is numeric or a
+     * non-ID `NaN`.
+     */
+    @JvmStatic
+    public fun decodeIdOrNull(value: Float): Int? {
+        val id = idFromNan(value)
+        return if (id == -1) null else id
+    }
+
+    /**
+     * Returns true if [id] is a built-in Tier 1 system global ID (`0 until START_ID`, i.e.
+     * `0..41`).
+     */
+    @JvmStatic public fun isSystemGlobalId(id: Int): Boolean = id in 0 until START_ID
+
+    /** Returns true if [id] is a Tier 2 macro-local ID (`0x4000..0x4FFF`). */
+    @JvmStatic
+    public fun isMacroLocalId(id: Int): Boolean = id in MACRO_LOCAL_START_ID..MACRO_LOCAL_END_ID
+
+    /**
+     * Returns the `NanMap` region ([REGION_SYSTEM], [REGION_VARIABLE], [REGION_ARRAY], or
+     * [REGION_OPERATION]) containing [id], or `-1` if [id] is negative.
+     */
+    @JvmStatic public fun idRegion(id: Int): Int = if (id < 0) -1 else id and REGION_MASK
 
     /** Returns true if [value] is a NaN-boxed array/collection ID in [REGION_ARRAY]. */
     @JvmStatic
     public fun isArrayNan(value: Float): Boolean {
         val id = idFromNan(value)
-        return id != NO_ID && (id and 0x300000) == REGION_ARRAY
+        return id != NO_ID && (id and REGION_MASK) == REGION_ARRAY
     }
 
     /** Encodes a 32-bit integer variable [id] into a `Long` (`id + 0x100000000L`). */
@@ -200,6 +296,14 @@ public object NanEncoding {
         }
         return (encoded - LONG_ID_OFFSET).toInt()
     }
+
+    /**
+     * Extracts the 32-bit integer variable ID from [encoded], or `null` if [encoded] is not a valid
+     * `Long`-encoded ID.
+     */
+    @JvmStatic
+    public fun decodeLongIdOrNull(encoded: Long): Int? =
+        if (isLongId(encoded)) (encoded - LONG_ID_OFFSET).toInt() else null
 }
 
 /**
@@ -207,7 +311,7 @@ public object NanEncoding {
  */
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val MaybeVariableFloat.isArrayVariable: Boolean
-    get() = isVariable && (variableId and 0x300000) == NanEncoding.REGION_ARRAY
+    get() = isVariable && (variableId and NanEncoding.REGION_MASK) == NanEncoding.REGION_ARRAY
 
 /** Returns true if this [MaybeVariableFloat] encodes a float RPN operator token. */
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
