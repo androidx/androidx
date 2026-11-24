@@ -1447,24 +1447,30 @@ public final class SearchSpec extends AbstractSafeParcelable {
          *     <p>Example: "minOrDefault(this.matchedSemanticScores(getEmbeddingParameter(0)), 10)"
          *     will return the minimum matched semantic scores or 10 if there is no matched score
          *     for the current document.
+         *     <!--@exportToFramework:ifJetpack()-->
          *     <p>This function requires the feature
          *     {@link Features#SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT}.
+         *     <!--@exportToFramework:else()-->
          *   <li>maxOrDefault(V, default_score)
          *     <p>Returns the maximum value in the input list V or the default_score if the list is
          *     empty.
          *     <p>Example: "maxOrDefault(this.matchedSemanticScores(getEmbeddingParameter(0)), -10)"
          *     will return the maximum matched semantic scores or -10 if there is no matched score
          *     for the current document.
+         *     <!--@exportToFramework:ifJetpack()-->
          *     <p>This function requires the feature
          *     {@link Features#SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT}.
+         *     <!--@exportToFramework:else()-->
          *   <li>filterByRange(V, low, high)
          *     <p>Returns a sublist of V that only contains the elements that fall within the
          *     specified range [low, high].
          *     <p>Example: "filterByRange(this.matchedSemanticScores(getEmbeddingParameter(0)),
          *     0, 1)" will return a list of matched semantic scores that are between 0 and 1,
          *     inclusive.
+         *     <!--@exportToFramework:ifJetpack()-->
          *     <p>This function requires the feature
          *     {@link Features#SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE}.
+         *     <!--@exportToFramework:else()-->
          * </ul>
          *
          * <p>Some errors may occur when using advanced ranking.
