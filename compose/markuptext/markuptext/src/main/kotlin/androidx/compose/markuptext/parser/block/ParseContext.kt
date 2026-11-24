@@ -80,6 +80,15 @@ internal class ParseContext {
      * Opens a new [ParseBlock] on [currentLine], falling back to [ParagraphParseBlock] for plain
      * text.
      *
+     * A block start reads only the line, from the scanner position, so the same line always opens
+     * the same block. It never reads:
+     * - The container that will hold the block. That container is not known yet: a container can
+     *   refuse the block, and then an ancestor attaches it. Where the block goes is decided when a
+     *   container accepts it (see [ParseBlock.prepareForAttach]).
+     * - [isLazyContinuation]. It depends on the blocks that earlier lines left open, so an edit to
+     *   an earlier line can change it for an unchanged line. The only exception is in
+     *   [tryStartInterruptingBlock].
+     *
      * A container block start consumes only its own prefix and returns an empty container. This
      * function then opens the container's first child on the rest of the line (and, if that child
      * is a container too, its first child, and so on), so block starts never build children.
@@ -98,6 +107,12 @@ internal class ParseContext {
      *
      * Only the returned block must be able to interrupt a paragraph. If it is a container, its
      * first child is opened on the rest of the line as in [startBlock], with a normal block start.
+     *
+     * This is the only block start that may read [isLazyContinuation] (the first child of a
+     * returned container is a normal block start, and may not). It may use it only to decide
+     * whether it returns a block or `null`, never which block it returns. Returning `null` is safe
+     * for incremental parsing: the paragraph takes the line and no block opens, so no old block is
+     * reused for this line (see [ContainerParseBlock.processLine]).
      */
     fun tryStartInterruptingBlock(): ParseBlock? = startBlock(isInterrupting = true)
 
@@ -105,8 +120,9 @@ internal class ParseContext {
         val block = matchBlockStart(isInterrupting) ?: return null
         if (block is ContainerParseBlock) {
             // The child is complete (with its own first child) before it is attached, because
-            // initFirstChild takes the child's line count.
-            block.initFirstChild(startBlock())
+            // initFirstChild takes the child's line count. A new container accepts any first child
+            // (see BaseContainerParseBlock.canAcceptChild), possibly wrapped by prepareForAttach.
+            block.initFirstChild(startBlock().prepareForAttach(block, this))
         }
         return block
     }

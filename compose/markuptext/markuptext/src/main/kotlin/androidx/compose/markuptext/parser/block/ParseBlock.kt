@@ -51,6 +51,34 @@ internal sealed class ParseBlock(
     @IntRange(from = 0) open fun countTrailingEmptyLines(): Int = 0
 
     /**
+     * Returns the block that [container] attaches: this block, or a new block that wraps it.
+     *
+     * A block start does not know which container will hold the block, so a block that needs a
+     * specific parent wraps itself here. For example, a list item is always inside a list:
+     * ```
+     * - a
+     * - b
+     * ```
+     * - `- a`: the document accepts the item, and the item returns a new list that holds it.
+     * - `- b`: that list accepts the item, and the item returns itself.
+     *
+     * Runs once, right before [container] attaches the result. [container] has already decided to
+     * hold this block (see [BaseContainerParseBlock.canAcceptChild]).
+     *
+     * Rules for an override:
+     * - Do not check acceptance again. [container] attaches the result unconditionally.
+     * - The result holds exactly one line, the current line, because [container] counts it as one
+     *   new line. So a wrapper must already hold this block as its first child (see
+     *   [ContainerParseBlock.initFirstChild]).
+     * - Read only the type of [container] and the properties fixed when it opened, never its
+     *   children or line counts. Incremental parsing relies on an unchanged container attaching the
+     *   same block for an unchanged line (see [ContainerParseBlock.processLine]).
+     * - Use [context] only for new block IDs.
+     */
+    open fun prepareForAttach(container: ContainerParseBlock, context: ParseContext): ParseBlock =
+        this
+
+    /**
      * Parses the current line according to this block's grammar rules. Overridden by subclasses to
      * perform syntax matching.
      *
@@ -458,6 +486,11 @@ internal sealed class ContainerParseBlock(id: Long) : ParseBlock(id) {
         // 4. If a new child block was opened on this line, insert it immediately after
         // activeChildIndex (before any remaining unverified children) and make it active.
         if (childToAdd != null) {
+            // Step 5 counts the new child as one line, so it must hold exactly the current line (a
+            // wrapper from ParseBlock.prepareForAttach must already hold the block it wraps).
+            check(childToAdd.lineCount == 1) {
+                "A child opened on this line must hold only this line, was ${childToAdd.lineCount}"
+            }
             childToAdd.parent = this
             if (_children.isEmpty()) {
                 _children.add(childToAdd)
@@ -497,8 +530,22 @@ internal abstract class BaseContainerParseBlock(id: Long) : ContainerParseBlock(
      */
     protected abstract fun matchLineStart(context: ParseContext): Boolean
 
-    /** Returns true if [child] is allowed as a direct child of this container. */
-    protected abstract fun canAcceptChild(child: ParseBlock): Boolean
+    /**
+     * Returns true if this container holds [child] as a direct child. A refused child moves up
+     * unchanged to the ancestors. Accepts every block by default.
+     *
+     * Not consulted for the first child of a container opened by a block start
+     * ([ParseContext.startBlock]): such a container must accept any block.
+     *
+     * Only a container whose [matchLineStart] consumes nothing may refuse a child: the refused
+     * child was started after this container's prefix, so an ancestor attaching it would drop that
+     * prefix.
+     *
+     * Must read only [child] and this container's type and the properties fixed when it opened,
+     * never its children or line counts: incremental parsing relies on an unchanged container
+     * deciding the same way for an unchanged line (see [ContainerParseBlock.processLine]).
+     */
+    protected open fun canAcceptChild(child: ParseBlock): Boolean = true
 
     /** Whether this container supports lazy continuation when [matchLineStart] fails. */
     protected abstract val supportsLazyContinuation: Boolean
@@ -506,8 +553,10 @@ internal abstract class BaseContainerParseBlock(id: Long) : ContainerParseBlock(
     final override fun parseLine(context: ParseContext): ParseResult {
         // Once an ancestor failed to match its line start, the line is already a lazy continuation,
         // so this container must not try to match (and consume) its own line start either.
+        val lineStart = context.currentLine.position
         return if (!context.isLazyContinuation && matchLineStart(context)) {
-            parseMatchedLine(context)
+            val consumedPrefix = context.currentLine.position != lineStart
+            parseMatchedLine(context, consumedPrefix)
         } else {
             parseLazyContinuationLine(context)
         }
@@ -517,17 +566,25 @@ internal abstract class BaseContainerParseBlock(id: Long) : ContainerParseBlock(
      * Parses a line whose start matched (and consumed) this container's prefix: the line belongs to
      * this container. If the active child does not accept it, this container opens a new child on
      * the line (the block proposed by the child, or a new one from [ParseContext.startBlock]) if
-     * [canAcceptChild] permits, and otherwise proposes the block to its ancestors.
+     * [canAcceptChild] permits, and otherwise proposes the block, unchanged, to its ancestors.
+     *
+     * Only an accepted child is passed to [ParseBlock.prepareForAttach], so a block built for this
+     * container (a wrapper) always stays in it, and only raw blocks ever move up.
      */
-    private fun parseMatchedLine(context: ParseContext): ParseResult {
+    private fun parseMatchedLine(context: ParseContext, consumedPrefix: Boolean): ParseResult {
         val result = parseLineByChild(context)
         if (result.accepted) {
             return result
         }
         val child = result.block ?: context.startBlock()
         if (canAcceptChild(child)) {
-            result.acceptChild(child)
+            result.acceptChild(child.prepareForAttach(this, context))
         } else {
+            // An ancestor attaches the refused child as it is, so it must not have been started
+            // after a prefix of this container.
+            check(!consumedPrefix) {
+                "${this::class.simpleName} consumed a line prefix, so it must not refuse a child"
+            }
             result.rejectAndPropose(child)
         }
         return result

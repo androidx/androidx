@@ -727,8 +727,6 @@ class ParseBlockTest {
             scanner.consume(2)
             return true
         }
-
-        override fun canAcceptChild(child: ParseBlock): Boolean = true
     }
 
     /**
@@ -765,8 +763,6 @@ class ParseBlockTest {
             scanner.consume(1)
             return true
         }
-
-        override fun canAcceptChild(child: ParseBlock): Boolean = true
     }
 
     @Test
@@ -811,6 +807,140 @@ class ParseBlockTest {
             outer.initFirstChild(PrefixedContainer(id = context.generateBlockId()))
         }
         assertTrue(outer.children.isEmpty())
+    }
+
+    // ProposingLeaf, WrappingLeaf and RefusingContainer stay test-only: no built-in block wraps
+    // itself for a container that refuses it, so only these blocks can show that a container checks
+    // canAcceptChild before calling prepareForAttach, and that a refused block moves up unchanged.
+
+    /** Test leaf that rejects every line, proposing a block made by [proposed]. */
+    private class ProposingLeaf(id: Long, private val proposed: () -> ParseBlock) :
+        LeafParseBlock(id, lineCount = 1) {
+        override fun parseLine(context: ParseContext): ParseResult =
+            ParseResult.rejectAndPropose(proposed())
+    }
+
+    /**
+     * Test leaf that wraps itself in a [PrefixedContainer] unless its container already is one, and
+     * records each container it is prepared for.
+     */
+    private class WrappingLeaf(
+        id: Long,
+        private val preparedFor: MutableList<ContainerParseBlock>,
+    ) : LeafParseBlock(id, lineCount = 1) {
+        override fun parseLine(context: ParseContext): ParseResult = ParseResult.reject()
+
+        override fun prepareForAttach(
+            container: ContainerParseBlock,
+            context: ParseContext,
+        ): ParseBlock {
+            preparedFor.add(container)
+            if (container is PrefixedContainer) return this
+            return PrefixedContainer(id = context.generateBlockId()).also {
+                it.initFirstChild(this)
+            }
+        }
+    }
+
+    /** Test container matching every line and refusing [WrappingLeaf] children. */
+    private class RefusingContainer(id: Long) : BaseContainerParseBlock(id) {
+        override val supportsLazyContinuation: Boolean = false
+
+        override fun matchLineStart(context: ParseContext): Boolean = true
+
+        override fun canAcceptChild(child: ParseBlock): Boolean = child !is WrappingLeaf
+    }
+
+    /**
+     * Creates a document holding [container], which holds a [ProposingLeaf] that proposes a new
+     * [WrappingLeaf] (recording into [preparedFor]) on every line.
+     */
+    private fun ParseContext.documentProposingWrappingLeaf(
+        container: BaseContainerParseBlock,
+        preparedFor: MutableList<ContainerParseBlock>,
+    ): DocumentParseBlock {
+        val proposing =
+            ProposingLeaf(generateBlockId()) { WrappingLeaf(generateBlockId(), preparedFor) }
+        container.initFirstChild(proposing)
+        return DocumentParseBlock().apply { initFirstChild(container) }
+    }
+
+    @Test
+    fun testPrepareForAttachRunsOnlyForTheContainerThatAccepts() {
+        // The refusing container passes the raw WrappingLeaf up unchanged; only the document, which
+        // accepts it, prepares it and attaches the wrapper it returns.
+        val context = ParseContext()
+        val preparedFor = mutableListOf<ContainerParseBlock>()
+        val refusing = RefusingContainer(context.generateBlockId())
+        val doc = context.documentProposingWrappingLeaf(refusing, preparedFor)
+
+        doc.feedLines(context, "x")
+        assertEquals(listOf<ContainerParseBlock>(doc), preparedFor, "Only the document prepares it")
+        assertEquals(1, refusing.children.size, "The refusing container keeps only its first child")
+        assertEquals(2, doc.children.size)
+        val wrapper = assertIs<PrefixedContainer>(doc.children[1], "The wrapper the leaf returned")
+        assertIs<WrappingLeaf>(wrapper.children.single(), "The leaf inside its wrapper")
+    }
+
+    @Test
+    fun testPrepareForAttachCanKeepTheBlockUnwrapped() {
+        // A PrefixedContainer accepts the proposed WrappingLeaf, which then needs no wrapper.
+        val context = ParseContext()
+        val preparedFor = mutableListOf<ContainerParseBlock>()
+        val quote = PrefixedContainer(context.generateBlockId())
+        val doc = context.documentProposingWrappingLeaf(quote, preparedFor)
+
+        doc.feedLines(context, ">x")
+        assertEquals(listOf<ContainerParseBlock>(quote), preparedFor, "Only the quote prepares it")
+        assertIs<WrappingLeaf>(quote.children[1], "The leaf attached without a wrapper")
+    }
+
+    /** Test container consuming a `>` prefix and refusing [WrappingLeaf] children. */
+    private class PrefixedRefusingContainer(id: Long) : BaseContainerParseBlock(id) {
+        override val supportsLazyContinuation: Boolean = false
+
+        override fun matchLineStart(context: ParseContext): Boolean {
+            val scanner = context.currentLine
+            if (scanner.firstNonSpaceChar != '>') return false
+            scanner.consume(1)
+            return true
+        }
+
+        override fun canAcceptChild(child: ParseBlock): Boolean = child !is WrappingLeaf
+    }
+
+    @Test
+    fun testContainerConsumingAPrefixMustNotRefuseAChild() {
+        // The document would attach the refused leaf, started after `>`, without the `>` container:
+        // the engine fails instead of dropping the prefix.
+        val context = ParseContext()
+        val refusing = PrefixedRefusingContainer(context.generateBlockId())
+        val doc = context.documentProposingWrappingLeaf(refusing, mutableListOf())
+        assertFailsWith<IllegalStateException> { doc.feedLines(context, ">x") }
+    }
+
+    /** Test leaf that wraps itself in an empty [PrefixedContainer], forgetting to attach itself. */
+    private class EmptyWrapperLeaf(id: Long) : LeafParseBlock(id, lineCount = 1) {
+        override fun parseLine(context: ParseContext): ParseResult = ParseResult.reject()
+
+        override fun prepareForAttach(
+            container: ContainerParseBlock,
+            context: ParseContext,
+        ): ParseBlock = PrefixedContainer(id = context.generateBlockId())
+    }
+
+    @Test
+    fun testPrepareForAttachResultMustHoldTheCurrentLine() {
+        // An empty wrapper holds no line, but the document would count the line: the engine fails
+        // instead of breaking its line counts.
+        val context = ParseContext()
+        val proposing =
+            ProposingLeaf(context.generateBlockId()) {
+                EmptyWrapperLeaf(context.generateBlockId())
+            }
+        val doc = DocumentParseBlock()
+        doc.initFirstChild(proposing)
+        assertFailsWith<IllegalStateException> { doc.feedLines(context, "x") }
     }
 
     @Test
