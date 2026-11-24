@@ -87,7 +87,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
@@ -1291,6 +1294,187 @@ class UseCaseCameraRequestControlTest {
         assertThat(drainLatch.await(5, TimeUnit.SECONDS)).isTrue()
 
         assertThat(confinedDeferred.isCancelled).isTrue()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun setTorchOnAsync_whenCaptureResultStalled_releasesSessionAndTimesOut(): Unit = runTest {
+        val innerResult = CompletableDeferred<Result3A>()
+        val stalledSession =
+            object : FakeCameraGraphSession() {
+                override fun setTorchOn(): Deferred<Result3A> = innerResult
+            }
+        val (stalledGraph, localRequestControl) = createVirtualTimeRequestControl(stalledSession)
+
+        val resultDeferred = localRequestControl.setTorchOnAsync()
+        runCurrent()
+
+        // Session is released immediately; only Result3A capture matching is pending.
+        assertThat(stalledGraph.activeSessionCount).isEqualTo(0)
+        assertThat(resultDeferred.isCompleted).isFalse()
+
+        advanceUntilIdle()
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(innerResult.isCancelled).isTrue()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun setTorchOnAsync_withSession_executesSynchronouslyAndTimesOut(): Unit = runTest {
+        val innerResult = CompletableDeferred<Result3A>()
+        var setTorchOnCalled = false
+        val explicitSession =
+            object : FakeCameraGraphSession() {
+                override fun setTorchOn(): Deferred<Result3A> {
+                    setTorchOnCalled = true
+                    return innerResult
+                }
+            }
+        val (_, localRequestControl) = createVirtualTimeRequestControl(FakeCameraGraphSession())
+
+        val resultDeferred = localRequestControl.setTorchOnAsync(explicitSession)
+        assertThat(setTorchOnCalled).isTrue()
+        assertThat(resultDeferred.isCompleted).isFalse()
+
+        advanceUntilIdle()
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(innerResult.isCancelled).isTrue()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun setTorchOnAsync_whenCaptureResultCompletesBeforeTimeout_returnsOk(): Unit = runTest {
+        val innerResult = CompletableDeferred<Result3A>()
+        val session =
+            object : FakeCameraGraphSession() {
+                override fun setTorchOn(): Deferred<Result3A> = innerResult
+            }
+        val (_, localRequestControl) = createVirtualTimeRequestControl(session)
+
+        val resultDeferred = localRequestControl.setTorchOnAsync()
+        runCurrent()
+        advanceTimeBy(1000L)
+        innerResult.complete(Result3A(Result3A.Status.OK))
+        runCurrent()
+
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.OK)
+        assertThat(innerResult.isCancelled).isFalse()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun setTorchOffAsync_whenCaptureResultStalled_releasesSessionAndTimesOut(): Unit = runTest {
+        val innerResult = CompletableDeferred<Result3A>()
+        val stalledSession =
+            object : FakeCameraGraphSession() {
+                override fun setTorchOff(aeMode: AeMode?): Deferred<Result3A> = innerResult
+            }
+        val (stalledGraph, localRequestControl) = createVirtualTimeRequestControl(stalledSession)
+
+        val resultDeferred = localRequestControl.setTorchOffAsync(AeMode.ON)
+        runCurrent()
+
+        assertThat(stalledGraph.activeSessionCount).isEqualTo(0)
+        assertThat(resultDeferred.isCompleted).isFalse()
+
+        advanceUntilIdle()
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(innerResult.isCancelled).isTrue()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun setTorchOffAsync_withSession_executesSynchronouslyAndTimesOut(): Unit = runTest {
+        val innerResult = CompletableDeferred<Result3A>()
+        var setTorchOffCalled = false
+        val explicitSession =
+            object : FakeCameraGraphSession() {
+                override fun setTorchOff(aeMode: AeMode?): Deferred<Result3A> {
+                    setTorchOffCalled = true
+                    return innerResult
+                }
+            }
+        val (_, localRequestControl) = createVirtualTimeRequestControl(FakeCameraGraphSession())
+
+        val resultDeferred = localRequestControl.setTorchOffAsync(AeMode.ON, explicitSession)
+        assertThat(setTorchOffCalled).isTrue()
+        assertThat(resultDeferred.isCompleted).isFalse()
+
+        advanceUntilIdle()
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(innerResult.isCancelled).isTrue()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun update3aRegions_whenCaptureResultStalled_releasesSessionAndTimesOut(): Unit = runTest {
+        val innerResult = CompletableDeferred<Result3A>()
+        val stalledSession =
+            object : FakeCameraGraphSession() {
+                override fun update3A(
+                    aeMode: AeMode?,
+                    afMode: AfMode?,
+                    awbMode: AwbMode?,
+                    controlMode: ControlMode?,
+                    flashMode: FlashMode?,
+                    aeRegions: List<MeteringRectangle>?,
+                    afRegions: List<MeteringRectangle>?,
+                    awbRegions: List<MeteringRectangle>?,
+                    retainLocks: Boolean,
+                ): Deferred<Result3A> = innerResult
+            }
+        val (stalledGraph, localRequestControl) = createVirtualTimeRequestControl(stalledSession)
+
+        val resultDeferred =
+            localRequestControl.update3aRegions(
+                aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                afRegions = null,
+                awbRegions = null,
+            )
+        runCurrent()
+
+        assertThat(stalledGraph.activeSessionCount).isEqualTo(0)
+        assertThat(resultDeferred.isCompleted).isFalse()
+
+        advanceUntilIdle()
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(innerResult.isCancelled).isTrue()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun TestScope.createVirtualTimeRequestControl(
+        session: FakeCameraGraphSession
+    ): Pair<FakeCameraGraph, UseCaseCameraRequestControlImpl> {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testThreads =
+            UseCaseThreads(this, testDispatcher.asExecutor(), testDispatcher).apply {
+                sequentialScope = this@createVirtualTimeRequestControl
+            }
+        val graph = FakeCameraGraph(fakeCameraGraphSession = session)
+        val context =
+            UseCaseCameraContext(
+                cameraGraphProvider = { graph },
+                cameraStateAdapter = cameraStateAdapter,
+                graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter),
+                streamConfigMapProvider = { emptyMap() },
+                defaultSurfaceToStreamMap = surfaceToStreamMap,
+            )
+        val control =
+            UseCaseCameraRequestControlImpl(
+                capturePipelineProvider = { FakeCapturePipeline() },
+                useCaseCameraStateProvider = {
+                    UseCaseCameraState(
+                        useCaseCameraContext = context,
+                        templateParamsOverride = NoOpTemplateParamsOverride,
+                    )
+                },
+                useCaseCameraContext = context,
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = testThreads)
+                },
+                threads = testThreads,
+            )
+        return graph to control
     }
 
     private fun UseCaseCameraRequestControl.setSessionConfigAsync(
