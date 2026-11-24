@@ -495,6 +495,39 @@ class FrameGraphBuffersTest {
             buffer2.close()
         }
 
+    @Test
+    fun flushIfDirty_whenClean_doesNotResubmitRepeatingRequest() = testScope.runTest {
+        val buffer = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 1)
+        advanceUntilIdle()
+        assertThat(repeatingRequestUpdates).hasSize(1)
+        repeatingRequestUpdates.clear()
+
+        val session = simulator.acquireSession()
+        frameGraphBuffers.flushIfDirty(session)
+        session.close()
+        advanceUntilIdle()
+
+        assertThat(repeatingRequestUpdates).isEmpty()
+        buffer.close()
+    }
+
+    @Test
+    fun flushIfDirty_whenDirty_flushesOnceAndClearsDirty() = testScope.runTest {
+        val session = simulator.acquireSession()
+        val buffer = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 1)
+        advanceUntilIdle()
+        assertThat(repeatingRequestUpdates).isEmpty()
+
+        frameGraphBuffers.flushIfDirty(session)
+        frameGraphBuffers.flushIfDirty(session)
+        session.close()
+        advanceUntilIdle()
+
+        assertThat(repeatingRequestUpdates).hasSize(1)
+        assertThat(repeatingRequestUpdates.single()!!.streams).containsExactly(streamId1)
+        buffer.close()
+    }
+
     companion object {
         private val CAPTURE_REQUEST_KEY = CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
         private val TEST_NULLABLE_KEY = CaptureRequest.BLACK_LEVEL_LOCK

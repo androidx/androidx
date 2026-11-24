@@ -37,21 +37,31 @@ internal class FrameGraphSessionImpl(
     private val frameGraphResourceTrimmer: FrameGraphResourceTrimmer,
 ) : FrameGraph.Session, CameraGraph.Session by cameraGraphSession {
 
+    private val repeatingRequestModified = atomic(false)
+
     override var repeatingRequest: Request?
         get() = cameraGraphSession.repeatingRequest
         set(value) {
+            repeatingRequestModified.value = true
             cameraGraphSession.repeatingRequest = value
             frameGraphResourceTrimmer.onRepeatingRequestUpdated(value)
         }
 
     override fun startRepeating(request: Request) {
+        repeatingRequestModified.value = true
         cameraGraphSession.startRepeating(request)
         frameGraphResourceTrimmer.onRepeatingRequestUpdated(request)
     }
 
     override fun stopRepeating() {
+        repeatingRequestModified.value = true
         cameraGraphSession.stopRepeating()
         frameGraphResourceTrimmer.onRepeatingRequestUpdated(null)
+    }
+
+    override fun abort() {
+        repeatingRequestModified.value = true
+        cameraGraphSession.abort()
     }
 
     override fun capture(request: Request): FrameCapture {
@@ -83,7 +93,11 @@ internal class FrameGraphSessionImpl(
     override fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             controller3A.reset3A(state3ASnapshot)
-            frameGraphBuffers.flush(cameraGraphSession)
+            if (repeatingRequestModified.value) {
+                frameGraphBuffers.flush(cameraGraphSession)
+            } else {
+                frameGraphBuffers.flushIfDirty(cameraGraphSession)
+            }
             cameraGraphSession.close()
         }
     }

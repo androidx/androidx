@@ -41,6 +41,7 @@ import androidx.camera.camera2.pipe.tagsOf
 import androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator
 import androidx.camera.camera2.pipe.testing.CameraPipeSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
 import androidx.camera.camera2.pipe.testing.FrameGraphSimulator
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
@@ -1058,6 +1059,51 @@ class FrameGraphImplTest {
             bufferA.close()
             bufferB.close()
         }
+
+    @Test
+    fun useSession_withoutModifyingRepeatingRequest_doesNotResubmitRepeatingRequestOnClose() =
+        testScope.runTest {
+            initialize(this)
+            val stream = frameGraph.streams[streamConfig1]!!.id
+            val buffer = frameGraph.captureWith(setOf(stream), capacity = 2)
+            advanceUntilIdle()
+            val processor =
+                checkNotNull(
+                    cameraPipeSimulator.fakeCameraBackend.cameraControllers
+                        .single()
+                        .currentCaptureSequenceProcessor
+                )
+            processor.clearEvents()
+
+            val capture = frameGraph.useSession { session ->
+                session.capture(Request(streams = listOf(stream)))
+            }
+            advanceUntilIdle()
+
+            val repeatingSubmits =
+                processor.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().filter {
+                    it.captureSequence.repeating
+                }
+            assertThat(repeatingSubmits).isEmpty()
+
+            capture.close()
+            buffer.close()
+        }
+
+    @Test
+    fun useSession_afterAbort_restoresRepeatingRequestOnClose() = testScope.runTest {
+        initialize(this)
+        val stream = frameGraph.streams[streamConfig1]!!.id
+        val buffer = frameGraph.captureWith(setOf(stream), capacity = 2)
+        advanceUntilIdle()
+
+        frameGraph.useSession { session -> session.abort() }
+        advanceUntilIdle()
+
+        val frame = frameGraph.simulateNextFrame()
+        assertThat(frame.request.streams).containsExactly(stream)
+        buffer.close()
+    }
 
     /** Simulates frames until a frame of [request] is produced, and returns all of them. */
     private fun simulateFramesUntil(request: Request): List<FrameSimulator> = buildList {
