@@ -44,13 +44,14 @@ internal constructor(public val inputAction: ProjectedInputAction) {
 
         override fun hashCode(): Int = code.hashCode()
 
-        /**
-         * Sent to apps from the Projected device when the user requests to toggle the app camera.
-         * Apps should use the signal to start / stop the camera if relevant.
-         *
-         * Only Activities running in foreground and in the resumed state can receive this signal.
-         */
         public companion object {
+            /**
+             * Signals that the user requested to toggle the app camera from the Projected device.
+             * Apps should use this signal to start or stop the camera, if relevant.
+             *
+             * Only the app in the foreground on the Projected device receives this signal (see
+             * [ProjectedActivityCompat.addProjectedInputEventListener]).
+             */
             @JvmField public val TOGGLE_APP_CAMERA: ProjectedInputAction = ProjectedInputAction(0)
 
             private val valueMap =
