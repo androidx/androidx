@@ -26,6 +26,8 @@ import androidx.activity.ComponentActivity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.PackageManagerUtils.XR_PROJECTED_SYSTEM_FEATURE
+import androidx.xr.runtime.interfaces.Feature
+import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
 import androidx.xr.runtime.testing.XrDeviceTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -38,6 +40,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
+import org.robolectric.shadows.ShadowBuild
 
 @RunWith(AndroidJUnit4::class)
 @Suppress("deprecation")
@@ -113,6 +116,49 @@ class XrDeviceTest {
 
         assertThat(device).isNotNull()
         assertThat(extraExtensions).containsExactly("XR_ANDROID_trackables_marker")
+    }
+
+    @Test
+    fun formFactor_deviceWithoutXrFeatures_returnsHandheld() {
+        // Robolectric devices report no features.
+        val device = XrDevice.getCurrentDevice(activity)
+
+        assertThat(device.formFactor).isEqualTo(FormFactor.HANDHELD)
+    }
+
+    @Test
+    fun formFactor_spatialDevice_returnsHeadMounted() {
+        ShadowBuild.setFingerprint("a_real_device")
+        shadowOf(context.packageManager)
+            .setSystemFeature(FEATURE_XR_API_SPATIAL, /* supported= */ true)
+
+        val device = XrDevice.getCurrentDevice(activity)
+
+        assertThat(device.formFactor).isEqualTo(FormFactor.HEAD_MOUNTED)
+    }
+
+    @Test
+    fun toFormFactor_projectedOrSpatial_returnsHeadMounted() {
+        assertThat(setOf(Feature.FULLSTACK, Feature.PROJECTED).toFormFactor())
+            .isEqualTo(FormFactor.HEAD_MOUNTED)
+        assertThat(setOf(Feature.FULLSTACK, Feature.SPATIAL).toFormFactor())
+            .isEqualTo(FormFactor.HEAD_MOUNTED)
+        assertThat(setOf(Feature.FULLSTACK, Feature.PROJECTED, Feature.OPEN_XR).toFormFactor())
+            .isEqualTo(FormFactor.HEAD_MOUNTED)
+        assertThat(setOf(Feature.FULLSTACK, Feature.SPATIAL, Feature.OPEN_XR).toFormFactor())
+            .isEqualTo(FormFactor.HEAD_MOUNTED)
+    }
+
+    @Test
+    fun toFormFactor_openXrWithoutProjectedOrSpatial_returnsHandheld() {
+        assertThat(setOf(Feature.FULLSTACK, Feature.OPEN_XR).toFormFactor())
+            .isEqualTo(FormFactor.HANDHELD)
+    }
+
+    @Test
+    fun toFormFactor_withoutXrFeatures_returnsHandheld() {
+        assertThat(setOf(Feature.FULLSTACK).toFormFactor()).isEqualTo(FormFactor.HANDHELD)
+        assertThat(emptySet<Feature>().toFormFactor()).isEqualTo(FormFactor.HANDHELD)
     }
 
     @Test
