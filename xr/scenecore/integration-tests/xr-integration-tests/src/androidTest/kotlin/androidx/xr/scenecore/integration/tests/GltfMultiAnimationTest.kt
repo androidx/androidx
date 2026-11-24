@@ -20,8 +20,6 @@ package androidx.xr.scenecore.integration.tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.xr.runtime.RequiresSpatialApi
-import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfAnimation
@@ -38,22 +36,29 @@ import java.util.function.Consumer
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 
 /** Automated integration tests for SceneCore multi-channel glTF animations. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@XrDeviceTest
 class GltfMultiAnimationTest {
 
-    @get:Rule val sessionRule = createXrSessionRule()
+    @get:Rule(order = 0) val sessionRule = createXrSessionRule()
+
+    @get:Rule(order = 1) val timeout: Timeout = Timeout.seconds(TEST_TIMEOUT_SECONDS)
+
+    @Before
+    fun setUp() {
+        sessionRule.requestFullSpace()
+    }
 
     @Test
-    @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun animation_singleChannelFsm_transitionsThroughStates() {
-        sessionRule.requestFullSpace()
         sessionRule.onMainThread {
             val gltfModel = GltfModel.create(session, Paths.get("models", "RobotExpressive.glb"))
             val entity =
@@ -98,10 +103,7 @@ class GltfMultiAnimationTest {
     }
 
     @Test
-    @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun animation_multiChannelConcurrency_playsSimultaneously() {
-        sessionRule.requestFullSpace()
         sessionRule.onMainThread {
             val gltfModel = GltfModel.create(session, Paths.get("models", "RobotExpressive.glb"))
             val entity =
@@ -153,11 +155,7 @@ class GltfMultiAnimationTest {
     }
 
     @Test
-    @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun animation_speedAndLooping_updatesLivePlayback() {
-        sessionRule.requestFullSpace()
-
         // A non-looping animation reaching its end is the renderer-driven transition that is
         // reported asynchronously as STOPPED through the listener.
         val loopAnimStopped = CountDownLatch(1)
@@ -244,10 +242,167 @@ class GltfMultiAnimationTest {
     }
 
     @Test
-    @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun animation_negativeSpeed_loopsContinuouslyAndResumesForward() {
+        val stopped = CountDownLatch(1)
+        val listener =
+            Consumer<GltfAnimation.AnimationState> { state ->
+                if (state == GltfAnimation.AnimationState.STOPPED) {
+                    stopped.countDown()
+                }
+            }
+
+        // Start WALKING (~1 s) looping in reverse at -2x (R33 Step 10).
+        val (walkingAnim, startedState) =
+            sessionRule.onMainThread {
+                val gltfModel =
+                    GltfModel.create(session, Paths.get("models", "RobotExpressive.glb"))
+                val entity =
+                    GltfModelEntity.create(
+                        session = session,
+                        model = gltfModel,
+                        parent = session.scene.activitySpace,
+                    )
+                val anim = entity.requireAnimation(WALKING)
+                anim.addAnimationStateListener(listener)
+                anim.loop = true
+                anim.speed = REVERSE_SPEED
+                anim.start()
+                anim to anim.animationState
+            }
+        assertThat(startedState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+
+        // Let ~3 reverse cycles run (1.5 s at -2x) without stopping; verified via the listener
+        // latch so waiting stays off the main thread and provides a happens-before boundary.
+        assertThat(stopped.await(REVERSE_LOOP_DURATION.inWholeMilliseconds, TimeUnit.MILLISECONDS))
+            .isFalse()
+        assertThat(stopped.count).isEqualTo(1L)
+
+        // Switch live speed back to 1x forward while looping (R33 Step 11).
+        val stateBeforeResume = sessionRule.onMainThread {
+            val state = walkingAnim.animationState
+            walkingAnim.speed = 1.0f
+            state
+        }
+        assertThat(stateBeforeResume).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+        assertThat(stopped.await(PLAYBACK_INTERVAL.inWholeMilliseconds, TimeUnit.MILLISECONDS))
+            .isFalse()
+        assertThat(stopped.count).isEqualTo(1L)
+
+        // Stopping must notify the listener and transition state to STOPPED.
+        val (stateBeforeStop, stateAfterStop) =
+            sessionRule.onMainThread {
+                val before = walkingAnim.animationState
+                walkingAnim.stop()
+                before to walkingAnim.animationState
+            }
+        assertThat(stateBeforeStop).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+        assertThat(stateAfterStop).isEqualTo(GltfAnimation.AnimationState.STOPPED)
+        assertThat(stopped.await(CALLBACK_TIMEOUT.inWholeMilliseconds, TimeUnit.MILLISECONDS))
+            .isTrue()
+    }
+
+    @Test
+    fun animation_negativeSpeed_reversesNonLoopingPlaybackToStart() {
+        val stopped = CountDownLatch(1)
+        val listener =
+            Consumer<GltfAnimation.AnimationState> { state ->
+                if (state == GltfAnimation.AnimationState.STOPPED) {
+                    stopped.countDown()
+                }
+            }
+
+        // Play DANCE (3.33 s) forward at 0.5x for 1.0 s (~0.5 s elapsed, ~2.83 s remaining), then
+        // flip speed to -1x. Rewinding to t=0 takes ~0.5 s (< 2 s timeout); if the speed update
+        // were ignored (+0.5x -> ~5.66 s) or the minus sign dropped (+1x -> ~2.83 s), it would time
+        // out. GltfAnimation does not expose current playback time, so a 1.0 s forward window
+        // balances lag headroom against total duration; pose-level checks are tracked in
+        // b/581865187.
+        val (danceAnim, startedState) =
+            sessionRule.onMainThread {
+                val gltfModel =
+                    GltfModel.create(session, Paths.get("models", "RobotExpressive.glb"))
+                val entity =
+                    GltfModelEntity.create(
+                        session = session,
+                        model = gltfModel,
+                        parent = session.scene.activitySpace,
+                    )
+                val anim = entity.requireAnimation(DANCE)
+                anim.addAnimationStateListener(listener)
+                anim.loop = false
+                anim.speed = 0.5f
+                anim.start()
+                anim to anim.animationState
+            }
+        assertThat(startedState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+
+        assertThat(
+                stopped.await(
+                    REVERSE_FORWARD_PLAY_DURATION.inWholeMilliseconds,
+                    TimeUnit.MILLISECONDS,
+                )
+            )
+            .isFalse()
+        assertThat(stopped.count).isEqualTo(1L)
+
+        val stateBeforeReverse = sessionRule.onMainThread {
+            val state = danceAnim.animationState
+            danceAnim.speed = -1.0f
+            state
+        }
+        assertThat(stateBeforeReverse).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+        assertThat(
+                stopped.await(
+                    REVERSE_COMPLETION_TIMEOUT.inWholeMilliseconds,
+                    TimeUnit.MILLISECONDS,
+                )
+            )
+            .isTrue()
+        val finalState = sessionRule.onMainThread { danceAnim.animationState }
+        assertThat(finalState).isEqualTo(GltfAnimation.AnimationState.STOPPED)
+    }
+
+    @Test
+    fun animation_negativeSpeed_nonLoopingFromStart_stopsImmediately() {
+        val stopped = CountDownLatch(1)
+        val listener =
+            Consumer<GltfAnimation.AnimationState> { state ->
+                if (state == GltfAnimation.AnimationState.STOPPED) {
+                    stopped.countDown()
+                }
+            }
+
+        // DANCE (3.33 s) started non-looping at -1x from t=0 hits the beginning immediately and
+        // stops well under 2 s; if the minus sign were ignored (+1x forward), it would time out.
+        val danceAnim = sessionRule.onMainThread {
+            val gltfModel = GltfModel.create(session, Paths.get("models", "RobotExpressive.glb"))
+            val entity =
+                GltfModelEntity.create(
+                    session = session,
+                    model = gltfModel,
+                    parent = session.scene.activitySpace,
+                )
+            val anim = entity.requireAnimation(DANCE)
+            anim.addAnimationStateListener(listener)
+            anim.loop = false
+            anim.speed = -1.0f
+            anim.start()
+            anim
+        }
+
+        assertThat(
+                stopped.await(
+                    REVERSE_COMPLETION_TIMEOUT.inWholeMilliseconds,
+                    TimeUnit.MILLISECONDS,
+                )
+            )
+            .isTrue()
+        val finalState = sessionRule.onMainThread { danceAnim.animationState }
+        assertThat(finalState).isEqualTo(GltfAnimation.AnimationState.STOPPED)
+    }
+
+    @Test
     fun animation_stopAllAnimations_abortsAllActiveChannels() {
-        sessionRule.requestFullSpace()
         sessionRule.onMainThread {
             val gltfModel = GltfModel.create(session, Paths.get("models", "RobotExpressive.glb"))
             val entity =
@@ -291,14 +446,25 @@ class GltfMultiAnimationTest {
         /** Timeout for renderer-driven animation state callbacks. */
         val CALLBACK_TIMEOUT = 5.seconds
 
+        /** Timeout for reverse completion; shorter than DANCE (3.33 s) remaining forward time. */
+        val REVERSE_COMPLETION_TIMEOUT = 2.seconds
+
+        /** Time to let a looping reverse animation run past multiple cycles. */
+        val REVERSE_LOOP_DURATION = 1.5.seconds
+
+        /** Forward play window before flipping non-looping DANCE to reverse speed. */
+        val REVERSE_FORWARD_PLAY_DURATION = 1.seconds
+
         /** Time to let an animation play; not used for synchronization. */
         val PLAYBACK_INTERVAL = 500.milliseconds
 
         /** Settle window to keep an animation playing or paused; not used for synchronization. */
         val SETTLE_WINDOW = 300.milliseconds
 
+        const val TEST_TIMEOUT_SECONDS = 30L
         const val SLOW_SPEED = 0.25f
         const val FAST_SPEED = 4.0f
+        const val REVERSE_SPEED = -2.0f
 
         // Animation channels in RobotExpressive.glb.
         const val DANCE = "Dance" // 3.33 s
