@@ -47,11 +47,13 @@ public object WebFeature {
     }
 
     /**
-     * Return whether a feature is supported at runtime. On devices where this is not supported, an
-     * [UnsupportedOperationException] will be thrown.
+     * Returns whether `feature` is supported at runtime.
      *
-     * @param feature the feature to be checked
-     * @return true if the feature is supported
+     * APIs annotated with [androidx.annotation.RequiresFeature] throw
+     * [UnsupportedOperationException] on devices where this returns `false`.
+     *
+     * @param feature the feature to check, either [WEB_CONTENT] or [WEB_SURFACE]
+     * @return `true` if `feature` is supported by the current WebView, `false` otherwise
      */
     @JvmStatic
     public fun isFeatureSupported(@WebFeatures feature: String): Boolean {

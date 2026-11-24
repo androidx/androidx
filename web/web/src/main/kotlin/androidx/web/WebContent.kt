@@ -137,8 +137,8 @@ internal constructor(
      *
      * @param context The context to use to construct the View.
      * @param factory A function that creates a new [WebContentView].
-     * @return A wrapped factory that automatically attaches this [WebContent] state.
-     * @throws IllegalArgumentException if [context] is not an [Activity] context.
+     * @return The [WebContentView] created by `factory` and attached to this [WebContent].
+     * @throws IllegalArgumentException if `context` is not an [Activity] context.
      * @throws IllegalStateException if a previously bound [WebContentView] is still in the view
      *   hierarchy, if the returned view uses a different context, or if this [WebContent] is
      *   closed.
