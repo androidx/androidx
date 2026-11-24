@@ -24,6 +24,8 @@ import androidx.glance.adaptive.core.slots.TemplateText
 @GlanceAdaptiveTemplateDsl
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextScope internal constructor() {
+    internal var isClosed: Boolean = false
+
     internal var sensitiveReplacement: String? = null
         private set
 
@@ -38,9 +40,11 @@ public class TextScope internal constructor() {
      *
      * @param replacement non-blank placeholder string shown when content is redacted
      * @throws IllegalArgumentException if [replacement] is blank
-     * @throws IllegalStateException if [sensitive] was already called in this scope
+     * @throws IllegalStateException if a sensitive replacement was already set or this scope has
+     *   already completed
      */
     public fun sensitive(replacement: String) {
+        check(!isClosed) { "TextScope cannot be modified after its block completes." }
         check(sensitiveReplacement == null) { "Sensitive replacement was already set." }
         require(replacement.isNotBlank()) { "Sensitive replacement must not be blank." }
         sensitiveReplacement = replacement
@@ -163,6 +167,8 @@ public class ActionScope internal constructor() {
 @GlanceAdaptiveTemplateDsl
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BarChartScope internal constructor() {
+    internal var isClosed: Boolean = false
+
     internal var startLabelText: String? = null
         private set
 
@@ -179,11 +185,13 @@ public class BarChartScope internal constructor() {
      * Sets the leading caption in the summary row beneath the bar chart.
      *
      * @param text non-blank caption text (for example, `"7 Day Avg"`)
-     * @param icon optional [TemplateIcon] drawn immediately before [text]
+     * @param icon optional [TemplateIcon] drawn before [text]
      * @throws IllegalArgumentException if [text] is blank
-     * @throws IllegalStateException if [startLabel] was already called in this scope
+     * @throws IllegalStateException if a start label was already set or this scope has already
+     *   completed
      */
     public fun startLabel(text: String, icon: TemplateIcon? = null) {
+        check(!isClosed) { "BarChartScope cannot be modified after its block completes." }
         check(startLabelText == null) { "Chart startLabel was already set." }
         require(text.isNotBlank()) { "Chart label must not be blank." }
         startLabelText = text
@@ -201,11 +209,13 @@ public class BarChartScope internal constructor() {
      * ```
      *
      * @param text non-blank caption text (for example, `"13,843"`)
-     * @param icon optional [TemplateIcon] drawn immediately before [text]
+     * @param icon optional [TemplateIcon] drawn before [text]
      * @throws IllegalArgumentException if [text] is blank
-     * @throws IllegalStateException if [endLabel] was already called in this scope
+     * @throws IllegalStateException if an end label was already set or this scope has already
+     *   completed
      */
     public fun endLabel(text: String, icon: TemplateIcon? = null) {
+        check(!isClosed) { "BarChartScope cannot be modified after its block completes." }
         check(endLabelText == null) { "Chart endLabel was already set." }
         require(text.isNotBlank()) { "Chart label must not be blank." }
         endLabelText = text
@@ -216,6 +226,11 @@ public class BarChartScope internal constructor() {
 internal fun buildTemplateText(value: String, options: TextScope.() -> Unit): TemplateText {
     // Validate before running options so blank text fails prior to nested calls.
     require(value.isNotBlank()) { "Text must not be blank." }
-    val scope = TextScope().apply(options)
+    val scope = TextScope()
+    try {
+        scope.apply(options)
+    } finally {
+        scope.isClosed = true
+    }
     return TemplateText(value = value, sensitiveReplacement = scope.sensitiveReplacement)
 }

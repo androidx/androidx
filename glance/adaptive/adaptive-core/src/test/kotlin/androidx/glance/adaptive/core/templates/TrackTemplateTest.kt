@@ -93,6 +93,53 @@ class TrackTemplateTest {
         assertThat(tooManySupporting.message).contains("at most 3 supporting items")
     }
 
+    @Test
+    fun equalsHashCodeAndToString_compareAllSlots() {
+        val base = sampleSlotTemplate("11,056")
+        val same = sampleSlotTemplate("11,056")
+        val diffPrimary = sampleSlotTemplate("12,000")
+        val diffLeading =
+            TrackTemplate(
+                leading = Ring(progress = 0.75f, icon = 1),
+                primary = base.primary,
+                secondary = base.secondary,
+                hero = base.hero,
+                supporting = base.supporting,
+            )
+        val diffHero =
+            TrackTemplate(
+                leading = base.leading,
+                primary = base.primary,
+                secondary = base.secondary,
+                hero =
+                    Graph(
+                        values = floatListOf(0.2f, 0.9f),
+                        labels = listOf("M", "T"),
+                        goal = 1.0f,
+                        startLabel = ChartLabel("7 Day Avg"),
+                        endLabel = ChartLabel("13,843"),
+                    ),
+                supporting = base.supporting,
+            )
+        val diffSupporting =
+            TrackTemplate(
+                leading = base.leading,
+                primary = base.primary,
+                secondary = base.secondary,
+                hero = base.hero,
+                supporting = listOf(TemplateText("55%"), Badge("Z3", outlineColor = 0)),
+            )
+
+        assertThat(base).isEqualTo(same)
+        assertThat(base.hashCode()).isEqualTo(same.hashCode())
+        assertThat(base).isNotEqualTo(diffPrimary)
+        assertThat(base).isNotEqualTo(diffLeading)
+        assertThat(base).isNotEqualTo(diffHero)
+        assertThat(base).isNotEqualTo(diffSupporting)
+        assertThat(base.toString()).contains("TrackTemplate(")
+        assertThat(base.toString()).contains("11,056")
+    }
+
     private fun sampleSlotTemplate(primaryValue: String): TrackTemplate =
         TrackTemplate(
             leading = Ring(progress = 0.55f, icon = 1),

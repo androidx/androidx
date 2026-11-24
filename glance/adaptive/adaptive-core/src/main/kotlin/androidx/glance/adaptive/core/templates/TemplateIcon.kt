@@ -20,16 +20,16 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
 
 /**
- * Displays an icon asset inside a Glance Adaptive template component.
+ * Icon asset used inside [GlanceAdaptiveTemplate] components.
  *
- * Create an instance with [TemplateIcon.fromResource]. Host renderers tint monochrome vector
- * drawables to match the active surface theme.
+ * Create an instance with [fromResource]. Host renderers tint monochrome vector drawables to match
+ * the active surface theme.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TemplateIcon
 private constructor(
     /** Android drawable resource identifier backing this icon. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @get:DrawableRes public val resId: Int
+    @get:DrawableRes internal val resId: Int
 ) {
     init {
         require(resId != 0) { "Icon resource ID must not be 0." }

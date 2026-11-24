@@ -22,6 +22,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.collection.FloatList
 import androidx.collection.IntList
+import androidx.collection.MutableFloatList
 import androidx.collection.emptyIntList
 import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import androidx.glance.adaptive.core.templates.list.ListItemStyle
@@ -103,15 +104,28 @@ public class TemplateText(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Ring(
-    @FloatRange(from = 0.0, to = 1.0) public val progress: Float,
+    @FloatRange(from = 0.0, to = 1.0) progress: Float,
     @DrawableRes public val icon: Int? = null,
 ) : LeadingComponent {
+    @get:FloatRange(from = 0.0, to = 1.0)
+    public val progress: Float = if (progress == 0f) 0f else progress
+
     init {
         require(progress in 0f..1f) { "Ring progress must be in [0, 1], was $progress." }
     }
 
     override val capabilities: Set<Capability>
         get() = RingCapabilities
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Ring) return false
+        return progress.compareTo(other.progress) == 0 && icon == other.icon
+    }
+
+    override fun hashCode(): Int = 31 * progress.hashCode() + (icon ?: 0)
+
+    override fun toString(): String = "Ring(progress=$progress, icon=$icon)"
 }
 
 /**
@@ -129,6 +143,16 @@ public class ChartLabel(
     init {
         require(text.isNotBlank()) { "Chart label must not be blank." }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ChartLabel) return false
+        return text == other.text && icon == other.icon
+    }
+
+    override fun hashCode(): Int = 31 * text.hashCode() + (icon ?: 0)
+
+    override fun toString(): String = "ChartLabel(text=$text, icon=$icon)"
 }
 
 /**
@@ -155,7 +179,7 @@ public class ChartLabel(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Graph(
-    public val values: FloatList,
+    values: FloatList,
     public val labels: List<String> = emptyList(),
     public val goal: Float? = null,
     public val emphasized: BooleanArray? = null,
@@ -163,21 +187,30 @@ public class Graph(
     public val startLabel: ChartLabel? = null,
     public val endLabel: ChartLabel? = null,
 ) : HeroComponent {
-    init {
-        require(values.size >= MIN_GRAPH_VALUES) {
-            "A graph needs at least $MIN_GRAPH_VALUES values, had ${values.size}."
+    /** The values to chart, one bar per value, leading to trailing. */
+    public val values: FloatList =
+        MutableFloatList(values.size).apply {
+            for (i in values.indices) {
+                val value = values[i]
+                add(if (value == 0f) 0f else value)
+            }
         }
-        for (i in values.indices) {
-            val value = values[i]
+
+    init {
+        require(this.values.size >= MIN_GRAPH_VALUES) {
+            "A graph needs at least $MIN_GRAPH_VALUES values, had ${this.values.size}."
+        }
+        for (i in this.values.indices) {
+            val value = this.values[i]
             require(value.isFinite() && value >= 0f) {
                 "Graph values must be finite and not negative, had $value."
             }
         }
-        require(labels.isEmpty() || labels.size == values.size) {
-            "A graph needs one label per value or none, had ${labels.size} for ${values.size}."
+        require(labels.isEmpty() || labels.size == this.values.size) {
+            "A graph needs one label per value or none, had ${labels.size} for ${this.values.size}."
         }
-        require(emphasized == null || emphasized.size == values.size) {
-            "A graph needs one emphasis flag per value or none, had ${emphasized?.size} for ${values.size}."
+        require(emphasized == null || emphasized.size == this.values.size) {
+            "A graph needs one emphasis flag per value or none, had ${emphasized?.size} for ${this.values.size}."
         }
         require(goal == null || (goal.isFinite() && goal > 0f)) {
             "A graph goal must be positive, was $goal."
@@ -194,7 +227,7 @@ public class Graph(
     /** Value a full bar stands for: the goal, or the largest value when that is larger. */
     private val scale: Float = run {
         var max = goal ?: 0f
-        for (i in values.indices) max = maxOf(max, values[i])
+        for (i in this.values.indices) max = maxOf(max, this.values[i])
         max
     }
 
@@ -233,6 +266,34 @@ public class Graph(
                 endLabel = null,
             )
         }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Graph) return false
+        return values == other.values &&
+            labels == other.labels &&
+            goal == other.goal &&
+            emphasized.contentEquals(other.emphasized) &&
+            dotted == other.dotted &&
+            startLabel == other.startLabel &&
+            endLabel == other.endLabel
+    }
+
+    override fun hashCode(): Int {
+        var result = values.hashCode()
+        result = 31 * result + labels.hashCode()
+        result = 31 * result + (goal?.hashCode() ?: 0)
+        result = 31 * result + (emphasized?.contentHashCode() ?: 0)
+        result = 31 * result + dotted.hashCode()
+        result = 31 * result + (startLabel?.hashCode() ?: 0)
+        result = 31 * result + (endLabel?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String =
+        "Graph(values=$values, labels=$labels, goal=$goal, " +
+            "emphasized=${emphasized?.contentToString()}, dotted=$dotted, " +
+            "startLabel=$startLabel, endLabel=$endLabel)"
 }
 
 /**

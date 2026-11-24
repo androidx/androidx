@@ -18,7 +18,7 @@ package androidx.glance.adaptive.core.templates
 
 import androidx.annotation.RestrictTo
 
-/** Prevents implicit access to outer scopes inside Glance Adaptive template builders. */
+/** Prevents implicit access to outer scopes inside [GlanceAdaptiveTemplate] DSL builders. */
 @DslMarker
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
