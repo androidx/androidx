@@ -178,6 +178,7 @@ internal constructor(
             boundaryInterface.destroy()
         } finally {
             isDestroyed = true
+            cleanUpContext(currentContext)
             currentView = null
             currentContext = null
         }

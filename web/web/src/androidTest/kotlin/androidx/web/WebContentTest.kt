@@ -548,6 +548,32 @@ class WebContentTest {
         assertAllowsGarbageCollectionOfOldActivity(useMutableContextWrapper = false)
     }
 
+    @Test
+    fun testCloseWhileRetainingViewAllowsGarbageCollectionOfActivity() {
+        var weakActivity: WeakReference<TestActivity>? = null
+        var retainedView: WebContentView? = null
+
+        val webContent = WebContent()
+        launch<TestActivity>().use { scenario ->
+            scenario.onActivity { activity ->
+                retainedView = webContent.attach(activity, ::WebContentView)
+                weakActivity = WeakReference(activity)
+            }
+            scenario.onActivity { webContent.close() }
+        }
+
+        runBlocking {
+            withTimeout(5.seconds) {
+                while (weakActivity?.get() != null) {
+                    Runtime.getRuntime().gc()
+                    delay(100.milliseconds)
+                }
+            }
+        }
+        assertNull(weakActivity?.get())
+        assertNotNull(retainedView)
+    }
+
     private fun assertAllowsGarbageCollectionOfOldActivity(
         useMutableContextWrapper: Boolean,
         retainDetachedView: Boolean = false,
