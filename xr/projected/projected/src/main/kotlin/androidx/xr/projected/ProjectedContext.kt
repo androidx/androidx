@@ -27,6 +27,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
@@ -149,8 +150,8 @@ public object ProjectedContext {
      *   object.
      * @param coroutineContext The CoroutineContext that includes CoroutineDispatcher which is where
      *   the Projected device connectivity observer is executed on.
-     * @throws IllegalArgumentException if provided coroutineContext doesn't include
-     *   CoroutineDispatcher.
+     * @throws IllegalArgumentException when the returned flow is collected, if the provided
+     *   [coroutineContext] doesn't include a [CoroutineDispatcher].
      */
     @JvmStatic
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)
@@ -160,9 +161,8 @@ public object ProjectedContext {
     ): Flow<Boolean> {
         val hostContext = createHostDeviceContext(context)
         return callbackFlow {
-            @OptIn(ExperimentalStdlibApi::class)
             val coroutineDispatcher =
-                coroutineContext[CoroutineDispatcher]
+                coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher
                     ?: throw IllegalArgumentException(
                         "CoroutineContext must contain a CoroutineDispatcher."
                     )

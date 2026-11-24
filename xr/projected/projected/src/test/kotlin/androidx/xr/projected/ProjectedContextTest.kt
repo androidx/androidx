@@ -34,6 +34,10 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -235,6 +239,27 @@ class ProjectedContextTest {
         assertThrows(IllegalStateException::class.java) {
             ProjectedContext.createProjectedActivityOptions(context)
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_noDispatcher_throwsIllegalArgumentExceptionOnCollect() {
+        val flow = ProjectedContext.isProjectedDeviceConnected(context, EmptyCoroutineContext)
+
+        assertThrows(IllegalArgumentException::class.java) { runBlocking { flow.first() } }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_nonDispatcherInterceptor_throwsIllegalArgumentExceptionOnCollect() {
+        val interceptor =
+            object :
+                AbstractCoroutineContextElement(ContinuationInterceptor), ContinuationInterceptor {
+                override fun <T> interceptContinuation(continuation: Continuation<T>) = continuation
+            }
+        val flow = ProjectedContext.isProjectedDeviceConnected(context, interceptor)
+
+        assertThrows(IllegalArgumentException::class.java) { runBlocking { flow.first() } }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
