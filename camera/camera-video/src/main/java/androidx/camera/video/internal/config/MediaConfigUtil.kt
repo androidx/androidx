@@ -159,6 +159,10 @@ public object MediaConfigUtil {
                 outputFormat = formatCombo.container,
                 videoMime = formatCombo.videoMime!!,
                 audioMime = formatCombo.audioMime ?: MIME_TYPE_UNSPECIFIED,
+                // Only derive the bitrate from another codec for an explicitly requested video
+                // MIME type, not for one chosen by the format combo (e.g. VP8 for WebM), which
+                // may be a software encoder.
+                resolveReferenceVideoProfile = videoMime != MIME_TYPE_UNSPECIFIED,
             )
 
         return MediaInfo(
@@ -171,6 +175,7 @@ public object MediaConfigUtil {
                     VideoMimeInfo(
                         mimeType = formatCombo.videoMime,
                         compatibleVideoProfile = compatibleProfiles.videoProfile,
+                        referenceVideoProfile = compatibleProfiles.referenceVideoProfile,
                     ),
                 audioMimeInfo =
                     formatCombo.audioMime?.let {
@@ -278,6 +283,7 @@ public object MediaConfigUtil {
                 outputFormat = resolvedOutputFormat,
                 videoMime = resolvedVideoMime,
                 audioMime = resolvedAudioMime,
+                resolveReferenceVideoProfile = videoMime != MIME_TYPE_UNSPECIFIED,
             )
 
         return MediaInfo(
@@ -290,6 +296,7 @@ public object MediaConfigUtil {
                     VideoMimeInfo(
                         mimeType = resolvedVideoMime,
                         compatibleVideoProfile = compatibleProfiles.videoProfile,
+                        referenceVideoProfile = compatibleProfiles.referenceVideoProfile,
                     ),
                 audioMimeInfo =
                     AudioMimeInfo(
@@ -307,6 +314,7 @@ public object MediaConfigUtil {
         @OutputFormat outputFormat: Int,
         videoMime: String,
         audioMime: String,
+        resolveReferenceVideoProfile: Boolean = false,
     ): CompatibleProfiles {
         encoderProfiles ?: return CompatibleProfiles.EMPTY
 
@@ -320,6 +328,17 @@ public object MediaConfigUtil {
                 videoProfiles = encoderProfiles.videoProfiles,
             )
 
+        // Only look for a bitrate reference when requested and no profile matches the video format.
+        val referenceVideoProfile =
+            if (resolveReferenceVideoProfile && compatibleVideoProfile == null) {
+                VideoConfigUtil.resolveReferenceVideoProfile(
+                    videoMime = videoMime,
+                    videoProfiles = encoderProfiles.videoProfiles,
+                )
+            } else {
+                null
+            }
+
         val compatibleAudioProfile =
             AudioConfigUtil.resolveCompatibleAudioProfile(
                 audioMime = audioMime,
@@ -330,6 +349,7 @@ public object MediaConfigUtil {
             encoderProfiles = compatibleEncoderProfiles,
             videoProfile = compatibleVideoProfile,
             audioProfile = compatibleAudioProfile,
+            referenceVideoProfile = referenceVideoProfile,
         )
     }
 
@@ -366,6 +386,7 @@ public object MediaConfigUtil {
         val encoderProfiles: EncoderProfilesProxy? = null,
         val videoProfile: VideoProfileProxy? = null,
         val audioProfile: AudioProfileProxy? = null,
+        val referenceVideoProfile: VideoProfileProxy? = null,
     ) {
         companion object {
             val EMPTY = CompatibleProfiles()

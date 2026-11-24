@@ -472,6 +472,140 @@ class VideoConfigUtilTest {
             .isEqualTo(5_000_000)
     }
 
+    @Test
+    fun resolveReferenceVideoProfile_returnsFirstEligibleProfile() {
+        val profiles =
+            listOf(
+                VIDEO_PROFILE_DOLBY_VISION_10_BIT,
+                VIDEO_PROFILE_HEVC_HLG10,
+                VIDEO_PROFILE_DEFAULT,
+            )
+
+        assertThat(VideoConfigUtil.resolveReferenceVideoProfile(MIMETYPE_VIDEO_AV1, profiles))
+            .isEqualTo(VIDEO_PROFILE_HEVC_HLG10)
+    }
+
+    @Test
+    fun resolveReferenceVideoProfile_unknownTargetMime_returnsNull() {
+        val profiles = listOf(VIDEO_PROFILE_DEFAULT)
+
+        assertThat(VideoConfigUtil.resolveReferenceVideoProfile(MIMETYPE_VIDEO_APV, profiles))
+            .isNull()
+    }
+
+    @Test
+    fun resolveReferenceVideoProfile_ignoresProfilesWithUnknownMime() {
+        val profiles = listOf(VIDEO_PROFILE_DOLBY_VISION_10_BIT)
+
+        assertThat(VideoConfigUtil.resolveReferenceVideoProfile(MIMETYPE_VIDEO_HEVC, profiles))
+            .isNull()
+    }
+
+    @Test
+    fun getReferenceVideoBitrate_invalidReferenceProfile_returnsNull() {
+        val invalidProfiles =
+            listOf(
+                EncoderProfilesUtil.createFakeVideoProfileProxy(Size(1920, 1080), bitrate = 0),
+                EncoderProfilesUtil.createFakeVideoProfileProxy(Size(1920, 1080), frameRate = 0),
+                EncoderProfilesUtil.createFakeVideoProfileProxy(Size(0, 1080)),
+                EncoderProfilesUtil.createFakeVideoProfileProxy(Size(1920, 0)),
+            )
+
+        for (profile in invalidProfiles) {
+            assertThat(
+                    VideoConfigUtil.getReferenceVideoBitrate(
+                        MIMETYPE_VIDEO_HEVC,
+                        profile,
+                        Size(1920, 1080),
+                        30,
+                        8,
+                    )
+                )
+                .isNull()
+        }
+    }
+
+    @Test
+    fun getReferenceVideoBitrate_hevcFromAvc_isScaledByCodecRatio() {
+        val avcProfile =
+            EncoderProfilesUtil.createFakeVideoProfileProxy(Size(1920, 1080), bitrate = 10_000_000)
+
+        assertThat(
+                VideoConfigUtil.getReferenceVideoBitrate(
+                    MIMETYPE_VIDEO_HEVC,
+                    avcProfile,
+                    Size(1920, 1080),
+                    30,
+                    8,
+                )
+            )
+            .isEqualTo(7_000_000)
+    }
+
+    @Test
+    fun getReferenceVideoBitrate_isScaledByCodecSizeFrameRateAndBitDepth() {
+        val avcProfile =
+            EncoderProfilesUtil.createFakeVideoProfileProxy(Size(3840, 2160), bitrate = 40_000_000)
+
+        // 40M * HEVC ratio(0.7 / 1.0) * size(0.5 * 0.5) * frame rate(60 / 30) * bit depth(10 / 8)
+        assertThat(
+                VideoConfigUtil.getReferenceVideoBitrate(
+                    MIMETYPE_VIDEO_HEVC,
+                    avcProfile,
+                    Size(1920, 1080),
+                    60,
+                    10,
+                )
+            )
+            .isEqualTo(17_500_000)
+    }
+
+    @Test
+    fun getReferenceVideoBitrate_avcFromHevc_isScaledUp() {
+        val hevcProfile =
+            EncoderProfilesUtil.createFakeVideoProfileProxy(
+                Size(1920, 1080),
+                videoCodec = HEVC,
+                videoMediaType = MIMETYPE_VIDEO_HEVC,
+                bitrate = 7_000_000,
+            )
+
+        assertThat(
+                VideoConfigUtil.getReferenceVideoBitrate(
+                    MIMETYPE_VIDEO_AVC,
+                    hevcProfile,
+                    Size(1920, 1080),
+                    30,
+                    8,
+                )
+            )
+            .isEqualTo(10_000_000)
+    }
+
+    @Test
+    fun getReferenceVideoBitrate_unknownMime_returnsNull() {
+        assertThat(
+                VideoConfigUtil.getReferenceVideoBitrate(
+                    MIMETYPE_VIDEO_APV,
+                    VIDEO_PROFILE_DEFAULT,
+                    Size(1920, 1080),
+                    30,
+                    10,
+                )
+            )
+            .isNull()
+        assertThat(
+                VideoConfigUtil.getReferenceVideoBitrate(
+                    MIMETYPE_VIDEO_HEVC,
+                    VIDEO_PROFILE_DOLBY_VISION_10_BIT,
+                    Size(1920, 1080),
+                    30,
+                    10,
+                )
+            )
+            .isNull()
+    }
+
     companion object {
         fun createFakeEncoderProfiles(videoProfileProxies: List<VideoProfileProxy>) =
             VideoValidatedEncoderProfilesProxy.create(
