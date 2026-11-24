@@ -366,13 +366,15 @@ public class AndroidMultiResolutionImageReader(
                 }
             }
 
-            // Create and configure a new MultiResolutionImageReader
-            if (usageFlags != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
-                Log.warn {
-                    "Usage flags are only supported for API >= 36. Creating multiresolution image reader without usage flag."
+            if (usageFlags != null) {
+                // Usage flags affect output timestamp base matching in FrameDistributor; silently
+                // ignoring them below API 36 would cause timestamp offset mismatches.
+                require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                    "Usage flags for MultiResolutionImageReaders are only supported on API >= 36"
                 }
             }
 
+            // Create and configure a new MultiResolutionImageReader
             val streamInfoToOutputIdMap = outputs.associate {
                 MultiResolutionStreamInfo(it.size.width, it.size.height, it.camera.value) to it.id
             }
@@ -392,6 +394,7 @@ public class AndroidMultiResolutionImageReader(
                 ) {
                     MultiResolutionImageReader(streamInfos, outputFormat, capacity, usageFlags)
                 } else {
+                    check(usageFlags == null)
                     MultiResolutionImageReader(streamInfos, outputFormat, capacity)
                 }
 

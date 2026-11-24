@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.media
 
+import android.hardware.HardwareBuffer
 import android.hardware.camera2.MultiResolutionImageReader
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.media.Image
@@ -27,6 +28,7 @@ import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.Api37Compat
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.common.CameraId
 import androidx.camera.common.ImageWrapper
 import androidx.testutils.assertThrows
@@ -474,6 +476,37 @@ class AndroidImageReaderTest {
 
         assertThrows<IllegalStateException> {
             multiImageReader.onActiveOutputSurfaces(listOf(mockSurface), 1000L, 1L)
+        }
+    }
+
+    @Test
+    @Config(minSdk = 31, maxSdk = 35)
+    fun multiResolutionCreate_usageFlagsBelowApi36_throws() {
+        val output1 =
+            StreamGraphImpl.OutputStreamImpl(
+                id = outputId,
+                size = Size(640, 480),
+                format = StreamFormat.YUV_420_888,
+                camera = CameraId("0"),
+            )
+        val output2 =
+            StreamGraphImpl.OutputStreamImpl(
+                id = OutputId(43),
+                size = Size(1280, 720),
+                format = StreamFormat.YUV_420_888,
+                camera = CameraId("1"),
+            )
+
+        assertThrows<IllegalArgumentException> {
+            AndroidMultiResolutionImageReader.create(
+                outputFormat = StreamFormat.YUV_420_888.value,
+                streamId = streamId,
+                outputs = listOf(output1, output2),
+                capacity = 10,
+                executor = { it.run() },
+                usageFlags = HardwareBuffer.USAGE_VIDEO_ENCODE,
+                enableConcurrentOutputs = false,
+            )
         }
     }
 
