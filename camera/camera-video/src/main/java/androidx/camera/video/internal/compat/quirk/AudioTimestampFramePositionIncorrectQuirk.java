@@ -27,13 +27,14 @@ import java.util.Locale;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 245518008, 301067226, 338868178
+ *     Bug Id: 245518008, 301067226, 338868178, 583485641
  *     Description: Quirk which denotes {@link android.media.AudioTimestamp#framePosition} queried
  *                  by {@link android.media.AudioRecord#getTimestamp(AudioTimestamp, int)} returns
- *                  incorrect info. On some devices, the frame position will become negative after
- *                  multiple recordings.
- *     Device(s): LG K10 (2017), Moto C, Realme C2, Redmi 6A, Vivo 1820, Vivo Y17 and some Oppo
- *                devices.
+ *                  incorrect info. On some devices, the frame position will become negative or fail
+ *                  to rebase to zero after multiple recordings on the same
+ *                  {@link android.media.AudioRecord} instance.
+ *     Device(s): LG K10 (2017), Moto C, Realme C2, Redmi 6A, Vivo 1820, Vivo Y17, some Oppo
+ *                devices and Pixel 10 series.
  */
 public class AudioTimestampFramePositionIncorrectQuirk implements Quirk {
 
@@ -44,9 +45,16 @@ public class AudioTimestampFramePositionIncorrectQuirk implements Quirk {
             "cph2083" // Oppo A12
     );
 
+    private static final List<String> AFFECTED_PIXEL_MODELS = Arrays.asList(
+            "pixel 10",
+            "pixel 10 pro",
+            "pixel 10 pro xl",
+            "pixel 10 pro fold"
+    );
+
     static boolean load() {
         return isAffectedOppoDevices() || isLgK10() || isMotoC() || isRealmeC2() || isRedmi6A()
-                || isVivo1820() || isVivoY17();
+                || isVivo1820() || isVivoY17() || isAffectedPixelDevices();
     }
 
     private static boolean isAffectedOppoDevices() {
@@ -76,5 +84,10 @@ public class AudioTimestampFramePositionIncorrectQuirk implements Quirk {
 
     private static boolean isVivoY17() {
         return "vivo".equalsIgnoreCase(Build.BRAND) && "VIVO Y17".equalsIgnoreCase(Build.MODEL);
+    }
+
+    private static boolean isAffectedPixelDevices() {
+        return "google".equalsIgnoreCase(Build.BRAND)
+                && AFFECTED_PIXEL_MODELS.contains(Build.MODEL.toLowerCase(Locale.ROOT));
     }
 }

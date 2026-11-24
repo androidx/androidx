@@ -180,6 +180,34 @@ class AudioRecordCompatibilityTest {
         }
     }
 
+    // See b/301067226 and b/583485641 for more information.
+    @RequiresDevice
+    @Test
+    fun read_withTimestampDiffToSystemInLimit_whenRecordingAfterRecreatingMultipleTimes() {
+        repeat(5) {
+            assumeNotNull(audioRecord)
+            audioRecord!!.apply {
+                Logger.i(TAG, "Starting audio recording, round: $it")
+
+                // Arrange.
+                assumeTrue(state == AudioRecord.STATE_INITIALIZED)
+                startRecording()
+                assumeTrue(recordingState == AudioRecord.RECORDSTATE_RECORDING)
+
+                // Assert.
+                readAndVerifyTimestampDiffToSystemMultipleTimes()
+
+                // Act.
+                stop()
+                assumeTrue(recordingState == AudioRecord.RECORDSTATE_STOPPED)
+
+                // Recreate AudioRecord
+                release()
+            }
+            audioRecord = createAudioRecordFromGlobalVariables()
+        }
+    }
+
     private fun readAndVerifyFramePositionMultipleTimes(times: Int = DEFAULT_READ_TIMES) {
         repeat(times) {
             byteBuffer.clear()

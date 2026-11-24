@@ -4002,8 +4002,9 @@ public final class Recorder implements VideoOutput {
                 @NonNull AudioStreamFactory audioStreamFactory) {
             Context attributionContext;
             if (Build.VERSION.SDK_INT >= 31) {
-                // Context will only be held in local scope of the supplier so it will
-                // not be retained after performOneTimeAudioSourceCreation() is called.
+                // Context is the persistent application context from PendingRecording. The
+                // supplier reference is cleared after performOneTimeAudioSourceCreation(), though
+                // AudioStreamImpl may retain the persistent application context until release().
                 attributionContext = context;
             } else {
                 // Do not set (or retain) context on other API levels

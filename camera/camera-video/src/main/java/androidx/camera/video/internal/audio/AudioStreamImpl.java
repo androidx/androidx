@@ -40,6 +40,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.video.internal.compat.Api29Impl;
 import androidx.camera.video.internal.compat.Api31Impl;
 import androidx.camera.video.internal.compat.quirk.AudioTimestampFramePositionIncorrectQuirk;
@@ -74,6 +75,7 @@ public class AudioStreamImpl implements AudioStream {
     private final int mBytesPerFrame;
     private final AudioTimestamp mAudioTimestamp = new AudioTimestamp();
     private final boolean mHasAudioTimestampQuirk;
+    private volatile @Nullable Context mAttributionContext;
     private @Nullable AudioStreamCallback mAudioStreamCallback;
     private @Nullable Executor mCallbackExecutor;
     private long mTotalFramesRead;
@@ -94,8 +96,9 @@ public class AudioStreamImpl implements AudioStream {
      *                           Audio attribution is only available on API 31+. Setting this on
      *                           lower API levels or if the context does not contain an
      *                           attribution source, setting this context will have no effect.
-     *                           This context will not be retained beyond the scope of the
-     *                           constructor.
+     *                           The persistent application context may be retained until
+     *                           {@link #release()} is called; the provided context itself will not
+     *                           be retained beyond the scope of the constructor.
      * @throws UnsupportedOperationException if the combination of sample rate, channel count,
      *                                       and audio format in the provided settings is
      *                                       unsupported.
@@ -130,6 +133,9 @@ public class AudioStreamImpl implements AudioStream {
         mBytesPerFrame = settings.getBytesPerFrame();
         mHasAudioTimestampQuirk =
                 quirks.get(AudioTimestampFramePositionIncorrectQuirk.class) != null;
+        mAttributionContext = mHasAudioTimestampQuirk && Build.VERSION.SDK_INT >= 31
+                && attributionContext != null
+                ? ContextUtil.getPersistentApplicationContext(attributionContext) : null;
 
         int minBufferSize = getMinBufferSize(settings.getCaptureSampleRate(),
                 settings.getChannelCount(), settings.getAudioFormat());
@@ -190,15 +196,13 @@ public class AudioStreamImpl implements AudioStream {
         }
 
         if (mHasAudioTimestampQuirk) {
-            // Release and re-create the AudioRecord to workaround the negative frame position
-            // issue. Note that the context is passed as null here because the current known
-            // problematic devices are all below API 31. If this is not the case in the future, a
-            // different approach might be needed. The AudioRecordingCallback, if any, is moved
-            // from the released AudioRecord to the re-created one so that silence state changes
-            // are still reported for the following recordings.
+            // Release and re-create the AudioRecord to workaround the frame position issue,
+            // preserving attributionContext on API 31+. The AudioRecordingCallback, if any, is
+            // moved from the released AudioRecord to the re-created one so that silence state
+            // changes are still reported for the following recordings.
             unregisterAudioRecordingCallback();
             mAudioRecord.release();
-            mAudioRecord = createAudioRecord(mBufferSize, mSettings, null);
+            mAudioRecord = createAudioRecord(mBufferSize, mSettings, mAttributionContext);
             registerAudioRecordingCallback();
         }
     }
@@ -208,6 +212,7 @@ public class AudioStreamImpl implements AudioStream {
         if (mIsReleased.getAndSet(true)) {
             return;
         }
+        mAttributionContext = null;
         try {
             unregisterAudioRecordingCallback();
         } finally {
