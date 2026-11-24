@@ -16,52 +16,74 @@
 
 package androidx.camera.core.impl.utils.executor;
 
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Process;
+
 import androidx.camera.core.CameraXThreads;
+import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
- * A singleton executor used for non-blocking tasks.
+ * A singleton high priority {@link Executor} suitable for lightweight, non-blocking tasks.
+ *
+ * <p>The executor is backed by a lazily started {@link HandlerThread} so that it can be unwrapped
+ * to its {@link Handler} via {@link CameraXExecutors#unwrapHandler(Executor)}. This allows
+ * framework callbacks which only accept a {@code Handler} (e.g. {@link
+ * android.media.ImageReader.OnImageAvailableListener}) to be delivered directly on the high
+ * priority thread instead of hopping through the main thread.
  */
 final class HighPriorityExecutor implements Executor {
-    private static volatile Executor sExecutor;
+    private static final String THREAD_NAME = CameraXThreads.TAG + "camerax_high_priority";
 
-    private final ExecutorService mHighPriorityService =
-            Executors.newSingleThreadExecutor(
-                    new ThreadFactory() {
-                        private static final String THREAD_NAME =
-                                CameraXThreads.TAG + "camerax_high_priority";
+    private static final HighPriorityExecutor INSTANCE = new HighPriorityExecutor();
 
-                        @SuppressWarnings("ThreadPriorityCheck")
-                        @Override
-                        public Thread newThread(Runnable r) {
-                            Thread t = new Thread(r);
-                            t.setPriority(Thread.MAX_PRIORITY);
-                            t.setName(THREAD_NAME);
-                            return t;
-                        }
-                    });
+    private final Object mLock = new Object();
 
-    static Executor getInstance() {
-        if (sExecutor != null) {
-            return sExecutor;
+    // Written only under mLock. Volatile so getOrCreateHandler() can read it without locking once
+    // the thread has been started.
+    private volatile @Nullable Handler mHandler;
+
+    /** Package-private for testing. Does not start any thread. */
+    HighPriorityExecutor() {}
+
+    static @NonNull Executor getInstance() {
+        return INSTANCE;
+    }
+
+    /** Returns the {@link Handler} of the backing thread, starting the thread if needed. */
+    @NonNull Handler getOrCreateHandler() {
+        Handler handler = mHandler;
+        if (handler != null) {
+            return handler;
         }
-        synchronized (HighPriorityExecutor.class) {
-            if (sExecutor == null) {
-                sExecutor = new HighPriorityExecutor();
+        synchronized (mLock) {
+            handler = mHandler;
+            if (handler == null) {
+                // THREAD_PRIORITY_URGENT_DISPLAY (-8) is the niceness ART maps
+                // Thread.MAX_PRIORITY to, which the previous thread-pool implementation used.
+                HandlerThread thread =
+                        new HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_URGENT_DISPLAY);
+                thread.start();
+                handler = new Handler(thread.getLooper());
+                mHandler = handler;
             }
+            return handler;
         }
-
-        return sExecutor;
     }
 
     @Override
     public void execute(@NonNull Runnable command) {
-        mHighPriorityService.execute(command);
+        // Handler#post(null) would silently post an empty message, so enforce the Executor
+        // contract.
+        Preconditions.checkNotNull(command);
+        if (!getOrCreateHandler().post(command)) {
+            throw new RejectedExecutionException(THREAD_NAME + " is shutting down");
+        }
     }
 }

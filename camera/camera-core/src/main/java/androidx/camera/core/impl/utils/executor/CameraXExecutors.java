@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -98,5 +99,28 @@ public final class CameraXExecutors {
      */
     public static @NonNull Executor highPriorityExecutor() {
         return HighPriorityExecutor.getInstance();
+    }
+
+    /**
+     * Returns the {@link Handler} that {@code executor} posts its tasks to, or {@code null} if
+     * {@code executor} is not directly backed by a {@link Handler}.
+     *
+     * <p>Executors returned by {@link #mainThreadExecutor()}, {@link #myLooperExecutor()},
+     * {@link #newHandlerExecutor(Handler)} and {@link #highPriorityExecutor()} are backed by a
+     * {@link Handler}. Wrapping executors, such as {@link #newSequentialExecutor(Executor)}, are
+     * not unwrapped.
+     *
+     * <p>Calling this method on {@link #highPriorityExecutor()} starts its backing thread if it
+     * has not been started yet. The returned {@link Handler} may be shared, so callers must never
+     * quit its {@link Looper}.
+     */
+    public static @Nullable Handler unwrapHandler(@NonNull Executor executor) {
+        if (executor instanceof HighPriorityExecutor) {
+            return ((HighPriorityExecutor) executor).getOrCreateHandler();
+        }
+        if (executor instanceof HandlerScheduledExecutorService) {
+            return ((HandlerScheduledExecutorService) executor).getHandler();
+        }
+        return null;
     }
 }

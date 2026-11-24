@@ -88,6 +88,11 @@ final class HandlerScheduledExecutorService extends AbstractExecutorService impl
         return executor;
     }
 
+    /** Returns the {@link Handler} that all tasks of this executor are posted to. */
+    @NonNull Handler getHandler() {
+        return mHandler;
+    }
+
     @Override
     public ScheduledFuture<?> schedule(
             final @NonNull Runnable command,

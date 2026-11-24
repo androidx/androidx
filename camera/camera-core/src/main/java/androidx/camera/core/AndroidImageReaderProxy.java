@@ -18,16 +18,21 @@ package androidx.camera.core;
 
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An {@link ImageReaderProxy} which wraps around an {@link ImageReader}.
@@ -40,8 +45,13 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
     private final ImageReader mImageReader;
     private final Object mLock = new Object();
 
+    /**
+     * The active flag of the currently registered listener, or {@code null} if no listener is
+     * registered. Each registration gets its own flag so that a callback of a replaced or cleared
+     * listener can be skipped without acquiring {@link #mLock}.
+     */
     @GuardedBy("mLock")
-    private boolean mIsImageAvailableListenerCleared = true;
+    private @Nullable AtomicBoolean mActiveListener = null;
 
     /**
      * Creates a new instance which wraps the given image reader.
@@ -151,30 +161,67 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
     public void setOnImageAvailableListener(
             @NonNull OnImageAvailableListener listener,
             @NonNull Executor executor) {
-        synchronized (mLock) {
-            mIsImageAvailableListenerCleared = false;
-            // ImageReader does not accept an executor. As a workaround, the callback is run on main
-            // handler then immediately posted to the executor.
-            ImageReader.OnImageAvailableListener transformedListener = (imageReader) -> {
-                synchronized (mLock) {
-                    // There might be a timing issue that the listener is executed after
-                    // clearOnImageAvailableListener() has been called. Uses a flag to skip the
-                    // execution if the listener has actually been cleared.
-                    if (!mIsImageAvailableListenerCleared) {
-                        executor.execute(
-                                () -> listener.onImageAvailable(AndroidImageReaderProxy.this));
+        // ImageReader does not accept an executor. If the executor is backed by a background
+        // Handler, the callback is delivered on that Handler and the listener is invoked
+        // directly. Otherwise, the callback is run on the main handler and then posted to the
+        // executor.
+        Handler executorHandler = CameraXExecutors.unwrapHandler(executor);
+        Looper executorLooper = executorHandler != null ? executorHandler.getLooper() : null;
+        // The main looper is excluded: ImageReader posts asynchronous messages, which can
+        // overtake synchronous main thread tasks (e.g. CaptureNode#onCaptureStarted) across UI
+        // VSYNC sync barriers. Posting to the executor preserves the existing ordering.
+        final boolean dispatchDirectly =
+                executorLooper != null && executorLooper != Looper.getMainLooper();
+        Handler callbackHandler =
+                dispatchDirectly ? executorHandler : MainThreadAsyncHandler.getInstance();
+        final AtomicBoolean active = new AtomicBoolean(true);
+        // The listener and executor are invoked outside of mLock to avoid lock-ordering
+        // deadlocks with wrappers that call back into this reader. The callback might still be
+        // delivered after the listener is cleared or replaced, so it is skipped if inactive.
+        ImageReader.OnImageAvailableListener transformedListener =
+                (imageReader) -> {
+                    if (!active.get()) {
+                        return;
                     }
-                }
-            };
-            mImageReader.setOnImageAvailableListener(transformedListener,
-                    MainThreadAsyncHandler.getInstance());
+                    // ImageReader.ListenerHandler reads mListener dynamically without draining
+                    // messages already queued on a previous Looper. Verify the callback is
+                    // actually running on executorLooper before invoking directly; otherwise post
+                    // to executor so the listener never runs on a stale Looper thread.
+                    if (dispatchDirectly && Looper.myLooper() == executorLooper) {
+                        listener.onImageAvailable(AndroidImageReaderProxy.this);
+                        return;
+                    }
+                    try {
+                        executor.execute(
+                                () -> {
+                                    if (active.get()) {
+                                        listener.onImageAvailable(AndroidImageReaderProxy.this);
+                                    }
+                                });
+                    } catch (RejectedExecutionException e) {
+                        // b/242470184: the executor may be shut down right after the listener
+                        // is cleared. Only ignore the rejection if that is the case.
+                        if (active.get()) {
+                            throw e;
+                        }
+                    }
+                };
+        synchronized (mLock) {
+            if (mActiveListener != null) {
+                mActiveListener.set(false);
+            }
+            mActiveListener = active;
+            mImageReader.setOnImageAvailableListener(transformedListener, callbackHandler);
         }
     }
 
     @Override
     public void clearOnImageAvailableListener() {
         synchronized (mLock) {
-            mIsImageAvailableListenerCleared = true;
+            if (mActiveListener != null) {
+                mActiveListener.set(false);
+                mActiveListener = null;
+            }
             mImageReader.setOnImageAvailableListener(null, null);
         }
     }
