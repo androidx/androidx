@@ -74,11 +74,14 @@ internal constructor(
     /**
      * Transfers this [WebContent] to a new [WebContentView], like [attach] but first removing the
      * attached view from the view hierarchy, so the new view can take over in the same frame.
+     *
+     * Does nothing and returns `null` if this [WebContent] is closed.
      */
     @InternalWebApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
-    public fun <T : WebContentView> transfer(context: Context, factory: Function<Context, T>): T {
+    public fun <T : WebContentView> transfer(context: Context, factory: Function<Context, T>): T? {
+        if (isDestroyed) return null
         checkCanAttach(context)
         val previousView = if (isAttached()) currentView else null
         if (previousView != null) {

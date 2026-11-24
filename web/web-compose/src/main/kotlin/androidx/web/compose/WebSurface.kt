@@ -240,8 +240,8 @@ internal class WebSurfaceState<T : WebViewBridge>(
 
     override fun onRemembered() {
         // Takes over from a WebSurface that hasn't left composition yet, e.g. one animating out or
-        // in a lazy layout item disposed after the frame.
-        val createdBridge = content.transfer(context, bridgeFactory)
+        // in a lazy layout item disposed after the frame. A closed content shows nothing.
+        val createdBridge = content.transfer(context, bridgeFactory) ?: return
         bridge = createdBridge
         node?.onBridgeAttached(createdBridge)
     }

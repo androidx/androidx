@@ -2180,6 +2180,31 @@ class WebSurfaceTest {
         }
     }
 
+    @Test
+    fun testClosedWebContentShowsNothing() {
+        var showSurface by mutableStateOf(true)
+        var factoryCalls = 0
+        composeTestRule.setContent {
+            if (showSurface) {
+                WebSurface(
+                    content = webContent,
+                    bridgeFactory = { context ->
+                        factoryCalls += 1
+                        WebViewBridge(context)
+                    },
+                    modifier = Modifier.size(100.dp),
+                )
+            }
+        }
+
+        composeTestRule.runOnIdle { showSurface = false }
+        composeTestRule.runOnIdle {
+            webContent.close()
+            showSurface = true
+        }
+        composeTestRule.runOnIdle { assertEquals(1, factoryCalls) }
+    }
+
     private fun obtainDragEvent(action: Int, x: Float, y: Float): DragEvent {
         val parcel = Parcel.obtain()
         try {
