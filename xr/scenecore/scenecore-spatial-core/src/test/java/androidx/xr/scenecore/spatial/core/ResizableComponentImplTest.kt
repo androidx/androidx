@@ -39,6 +39,7 @@ import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener
+import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import androidx.xr.scenecore.testing.FakeSurfaceFeature
@@ -1829,10 +1830,109 @@ class ResizableComponentImplTest {
             .isEqualTo(ResizableComponent.GeometryGestureType.TWO_HANDED)
     }
 
+    @Test
+    fun gltfEntityScaleGesture_taskScaledRecommendation_startsFromParentScaleWithZeroJump() {
+        val gltfEntity = createGltfEntity()
+        gltfEntity.setScale(Vector3(0.5f, 0.5f, 0.5f), Space.PARENT)
+        val resizableComponent = createResizableComponent()
+        assertThat(gltfEntity.addComponent(resizableComponent)).isTrue()
+        val listener = mock<ResizeEventListener>()
+        resizableComponent.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+
+        // Simulate SpaceFlinger task scale A = 1.785 -> recommended starts at 0.5 / 1.785 = 0.28011
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            Vector3(0.28f, 0.28f, 0.28f),
+            InputEvent.ACTION_DOWN,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            Vector3(0.42f, 0.42f, 0.42f),
+            InputEvent.ACTION_MOVE,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.IDLE,
+            Vector3(0.56f, 0.56f, 0.56f),
+            InputEvent.ACTION_UP,
+        )
+
+        val captor = argumentCaptor<ResizeEvent>()
+        verify(listener, times(3)).onResizeEvent(captor.capture())
+        val sizes = captor.allValues.map { it.newSize }
+        assertThat(sizes[0].width).isWithin(1e-4f).of(0.5f)
+        assertThat(sizes[1].width).isWithin(1e-4f).of(0.75f)
+        assertThat(sizes[2].width).isWithin(1e-4f).of(1.0f)
+
+        // Programmatic reset between gestures -> next gesture starts from the new entity scale.
+        gltfEntity.setScale(Vector3(0.25f, 0.25f, 0.25f), Space.PARENT)
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.TWO_HANDED_SCALE,
+            Vector3(0.14f, 0.14f, 0.14f),
+            InputEvent.ACTION_DOWN,
+        )
+        verify(listener, times(4)).onResizeEvent(captor.capture())
+        assertThat(captor.lastValue.newSize.width).isWithin(1e-4f).of(0.25f)
+    }
+
+    @Test
+    fun gltfEntity_directOneHandedToTwoHandedScaleTransition_rebaselinesWithoutJump() {
+        val gltfEntity = createGltfEntity()
+        gltfEntity.setScale(Vector3(0.5f, 0.5f, 0.5f), Space.PARENT)
+        val resizable = createResizableComponent()
+        assertThat(gltfEntity.addComponent(resizable)).isTrue()
+        val listener = mock<ResizeEventListener>()
+        resizable.addResizeEventListener(MoreExecutors.directExecutor(), listener)
+
+        // Start 1H scale at 0.5x (recommended 0.25 -> entity 0.5) and drag to 2x (entity 1.0).
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            Vector3(0.25f, 0.25f, 0.25f),
+            InputEvent.ACTION_DOWN,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.ONE_HANDED_SCALE,
+            Vector3(0.50f, 0.50f, 0.50f),
+            InputEvent.ACTION_MOVE,
+        )
+        // Direct transition to 2H scale with a different recommended baseline (0.30): must stay at
+        // 1.0 without jumping, then scale 1.5x from 1.0 -> 1.5 when recommended reaches 0.45.
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.TWO_HANDED_SCALE,
+            Vector3(0.30f, 0.30f, 0.30f),
+            InputEvent.ACTION_DOWN,
+        )
+        sendAffordanceInputEvent(
+            gltfEntity,
+            GeometryAffordanceState.TWO_HANDED_SCALE,
+            Vector3(0.45f, 0.45f, 0.45f),
+            InputEvent.ACTION_MOVE,
+        )
+
+        val captor = argumentCaptor<ResizeEvent>()
+        verify(listener, times(4)).onResizeEvent(captor.capture())
+        val events = captor.allValues
+        assertThat(events[0].resizeState).isEqualTo(ResizeEvent.ResizeState.RESIZE_STATE_START)
+        assertThat(events[0].newSize.width).isWithin(1e-4f).of(0.5f)
+        assertThat(events[1].resizeState).isEqualTo(ResizeEvent.ResizeState.RESIZE_STATE_ONGOING)
+        assertThat(events[1].newSize.width).isWithin(1e-4f).of(1.0f)
+        assertThat(events[2].resizeState).isEqualTo(ResizeEvent.ResizeState.RESIZE_STATE_ONGOING)
+        assertThat(events[2].newSize.width).isWithin(1e-4f).of(1.0f)
+        assertThat(events[3].resizeState).isEqualTo(ResizeEvent.ResizeState.RESIZE_STATE_ONGOING)
+        assertThat(events[3].newSize.width).isWithin(1e-4f).of(1.5f)
+    }
+
     private fun assertScaleGestureDispatchesStartOngoingEnd(
         entity: AndroidXrEntity,
         scaleState: GeometryAffordanceState,
     ) {
+        entity.setScale(Vector3(2f, 2f, 2f), Space.PARENT)
         val resizableComponent = createResizableComponent()
         assertThat(entity.addComponent(resizableComponent)).isTrue()
         val listener = mock<ResizeEventListener>()

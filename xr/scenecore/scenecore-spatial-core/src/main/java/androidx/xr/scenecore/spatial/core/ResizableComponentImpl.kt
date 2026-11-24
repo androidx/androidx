@@ -20,6 +20,7 @@ package androidx.xr.scenecore.spatial.core
 
 import android.os.Handler
 import android.os.Looper
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GeometryAffordanceState
@@ -31,6 +32,7 @@ import androidx.xr.scenecore.runtime.ReformAffordanceFlag
 import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener
+import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.function.Consumer
@@ -65,6 +67,11 @@ internal class ResizableComponentImpl(
      */
     private var previousAffordanceState = GeometryAffordanceState.NONE
 
+    // Scales at the start of the current geometry scale gesture, and the last reported size.
+    private var startScale = Vector3.One
+    private var startRecommendedScale = 1f
+    private var lastSize = Vector3.One
+
     /**
      * Translates the geometry affordance state of the attached [GltfEntity] or [MeshEntity] into
      * [ResizeEvent]s.
@@ -74,8 +81,9 @@ internal class ResizableComponentImpl(
      * and the transition is tracked even while no listener is registered.
      */
     private val inputEventListener = InputEventListener {
+        val currentEntity = entity
         val (currentState, scale) =
-            when (val currentEntity = entity) {
+            when (currentEntity) {
                 is GltfEntity ->
                     currentEntity.affordanceState to currentEntity.recommendedAffordanceScale
                 is MeshEntity ->
@@ -86,6 +94,12 @@ internal class ResizableComponentImpl(
             }
         val isResizing = isAllowedResizeState(currentState)
         val wasResizing = isAllowedResizeState(previousAffordanceState)
+        // The recommended scale isn't in the entity's parent space, so only apply its change since
+        // the gesture (or one-/two-handed segment) started to the entity's scale.
+        if (isResizing && currentState != previousAffordanceState) {
+            startScale = if (wasResizing) lastSize else currentEntity.getScale(Space.PARENT)
+            startRecommendedScale = scale.x
+        }
         previousAffordanceState = currentState
 
         val resizeState =
@@ -95,7 +109,8 @@ internal class ResizableComponentImpl(
                 wasResizing -> ResizeEvent.ResizeState.RESIZE_STATE_END
                 else -> return@InputEventListener
             }
-        val resizeEvent = ResizeEvent(resizeState, Dimensions(scale.x, scale.y, scale.z))
+        lastSize = startScale * (scale.x / max(startRecommendedScale, 1e-6f))
+        val resizeEvent = ResizeEvent(resizeState, Dimensions(lastSize.x, lastSize.y, lastSize.z))
         resizeEventListenerMap.forEach { (listener: ResizeEventListener, listenerExecutor: Executor)
             ->
             listenerExecutor.execute { listener.onResizeEvent(resizeEvent) }
