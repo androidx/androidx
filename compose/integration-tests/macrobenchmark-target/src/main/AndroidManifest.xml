@@ -299,6 +299,19 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".SharedBoundsFadeActivity"
+            android:exported="true"
+            android:label="Compose Shared Bounds Fade Benchmark">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.SHARED_BOUNDS_FADE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".PagerOfLazyGridActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">

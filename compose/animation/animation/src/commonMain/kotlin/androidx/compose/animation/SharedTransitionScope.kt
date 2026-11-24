@@ -1243,6 +1243,14 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
                 renderOnlyWhenVisible = false,
             )
             .composed {
+                val scaleToBounds = resizeMode as? ScaleToBoundsImpl
+                // With scaleToBounds, the scale layer applies the fade instead of the enter/exit
+                // layer. The scale layer keeps its lookahead size for the whole transition, so the
+                // renderer caches it instead of re-rasterizing it every frame.
+                val fade =
+                    remember(scaleToBounds != null) {
+                        if (scaleToBounds != null) EnterExitFade() else null
+                    }
                 animatedVisibilityScope.transition
                     .createEnterExitModifier(
                         updateEnterExitModifierState(
@@ -1257,10 +1265,11 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
                         // subcomposition.
                         isEnabled = { sharedContentState.isMatchFound },
                         label = "enter/exit for ${sharedContentState.key}",
+                        fade = fade,
                     )
                     .then(
-                        if (resizeMode is ScaleToBoundsImpl) {
-                            Modifier.createContentScaleModifier(resizeMode) {
+                        if (scaleToBounds != null) {
+                            Modifier.createContentScaleModifier(scaleToBounds, fade) {
                                 // Since we don't know if a match is found when this is composed,
                                 // we have to defer the decision to enable or disable content
                                 // scaling until later in the frame. This later time could be
