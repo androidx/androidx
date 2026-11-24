@@ -51,7 +51,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.compose.platform.SpatialConfiguration
-import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterDefaults
 import androidx.xr.compose.spatial.OrbiterPosition
@@ -84,8 +83,6 @@ import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.testutils.SnapshotXrSpace
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.captureSpatialScene
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -124,7 +121,7 @@ class SpatialLayoutTest {
             "XR spatial environment is not supported on this device/emulator",
             SpatialConfiguration.hasXrSpatialFeature(context),
         )
-        enterFullSpace()
+        composeTestRule.requestFullSpace()
     }
 
     /**
@@ -814,14 +811,6 @@ class SpatialLayoutTest {
         composeTestRule
             .onSubspaceNodeWithTag(tag)
             .assertPositionInRootIsEqualTo(x, y, z, PositionTolerance)
-    }
-
-    /**
-     * Requests Full Space for the test activity. Called from [setUp] so that every test runs in
-     * Full Space, where Subspace panels are rendered as spatial scene graph nodes.
-     */
-    private fun enterFullSpace() {
-        runBlocking(Dispatchers.Main) { composeTestRule.activity.requestFullSpace() }
     }
 
     /**

@@ -27,8 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.platform.SpaceRequestResult
-import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi
 import androidx.xr.compose.subspace.SpatialBoxScope
@@ -71,7 +69,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.junit.AssumptionViolatedException
 
 /**
  * Golden image directory path for Compose for XR integration screenshot tests, used with
@@ -126,7 +123,7 @@ private val anySubspaceNode = SubspaceSemanticsMatcher("anySubspaceNode") { true
  * Note: Including a top-level [Subspace] (without a `SpatialMainPanel`) automatically disables
  * `session.scene.mainPanelEntity`, so tests do not need to manually hide the 2D main panel.
  *
- * Skips the test if the device does not support Full Space Mode.
+ * Fails the test if Full Space Mode cannot be entered (see [requestFullSpace]).
  */
 internal fun AndroidComposeTestRule<*, out ComponentActivity>.setXrScreenshotContent(
     passthroughOpacity: Float = 0.0f,
@@ -137,16 +134,7 @@ internal fun AndroidComposeTestRule<*, out ComponentActivity>.setXrScreenshotCon
     require(passthroughOpacity in 0f..1f) {
         "passthroughOpacity must be in [0, 1], was $passthroughOpacity"
     }
-    when (
-        val spaceResult = runBlocking(Dispatchers.Main.immediate) { activity.requestFullSpace() }
-    ) {
-        SpaceRequestResult.Success -> Unit
-        SpaceRequestResult.Unsupported ->
-            throw AssumptionViolatedException("Full Space Mode is not supported on this device")
-        is SpaceRequestResult.Error ->
-            throw AssertionError("Failed to enter Full Space Mode", spaceResult.cause)
-        else -> throw AssertionError("Unexpected SpaceRequestResult: $spaceResult")
-    }
+    requestFullSpace()
     var activeSession: Session? = null
     var environmentApplied = false
     setContent {

@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.test.junit4.v2.AndroidComposeTestRule
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -66,7 +65,6 @@ import androidx.xr.testutils.FakeHeadTrackingRule
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.XrScreenshotTestRule
 import androidx.xr.testutils.assertAgainstGolden
-import androidx.xr.testutils.createXrSessionRule
 import androidx.xr.testutils.filterSupportedPermissions
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
@@ -85,26 +83,19 @@ import org.junit.runner.RunWith
 @XrDeviceTest
 class RotateToLookAtUserScreenshotTest {
 
-    private val sessionRule = createXrSessionRule()
-
     @get:Rule(order = 0) val headTrackingRule = FakeHeadTrackingRule()
 
     @get:Rule(order = 1)
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(*filterSupportedPermissions("android.permission.HEAD_TRACKING"))
 
-    @get:Rule(order = 2)
-    val composeTestRule =
-        AndroidComposeTestRule(
-            activityRule = sessionRule,
-            activityProvider = { it.activity },
-        )
+    @get:Rule(order = 2) val composeTestRule = createXrComposeRule()
 
     @get:Rule(order = 3) val screenshotRule = XrScreenshotTestRule(GOLDEN_PATH)
 
     @Before
     fun setUp() {
-        sessionRule.onMainThread {
+        composeTestRule.sessionRule.onMainThread {
             val configureResult =
                 session.configure(
                     Config.Builder(session.config)
@@ -172,7 +163,11 @@ class RotateToLookAtUserScreenshotTest {
             timeoutMillis = WAIT_TIMEOUT_MS,
         ) {
             val headPos =
-                ArDevice.getInstance(sessionRule.session).state.value.devicePose.translation
+                ArDevice.getInstance(composeTestRule.sessionRule.session)
+                    .state
+                    .value
+                    .devicePose
+                    .translation
             Vector3.distance(headPos, HEAD_OFFSET_POSITION) <= HEAD_POSITION_TOLERANCE_METERS
         }
 
@@ -186,7 +181,7 @@ class RotateToLookAtUserScreenshotTest {
             Quaternion.fromLookTowards(horizontalDir, Vector3.Up)
         }
 
-        sessionRule
+        composeTestRule.sessionRule
             .captureToBitmap(padding = 16, autoCrop = true)
             .assertAgainstGolden(
                 screenshotRule,
@@ -229,7 +224,7 @@ class RotateToLookAtUserScreenshotTest {
             Quaternion.fromLookTowards(directionToUser, Vector3.Up)
         }
 
-        sessionRule
+        composeTestRule.sessionRule
             .captureToBitmap(padding = 16, autoCrop = true)
             .assertAgainstGolden(
                 screenshotRule,
@@ -269,7 +264,7 @@ class RotateToLookAtUserScreenshotTest {
         .getOrNull()
 
     private fun getHeadPoseInActivity(): Pose {
-        val session = sessionRule.session
+        val session = composeTestRule.sessionRule.session
         val headPoseInPerception = ArDevice.getInstance(session).state.value.devicePose
         return session.scene.perceptionSpace.transformPoseTo(
             headPoseInPerception,

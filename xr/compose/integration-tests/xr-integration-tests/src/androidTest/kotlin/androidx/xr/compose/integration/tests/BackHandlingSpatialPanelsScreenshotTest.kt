@@ -20,7 +20,6 @@ import android.accessibilityservice.AccessibilityService
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -83,7 +82,6 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 import org.junit.After
 import org.junit.Assume
@@ -109,8 +107,6 @@ class BackHandlingSpatialPanelsScreenshotTest {
 
     @get:Rule(order = 1) val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private var usedSpatialInteraction = false
-
     @Before
     fun setUp() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -122,9 +118,7 @@ class BackHandlingSpatialPanelsScreenshotTest {
 
     @After
     fun tearDown() {
-        if (usedSpatialInteraction) {
-            resetSpatialInteraction()
-        }
+        resetSpatialInteraction()
     }
 
     @Test
@@ -196,20 +190,10 @@ class BackHandlingSpatialPanelsScreenshotTest {
         val initialPanels = awaitVisiblePanels(expectedCount = 2)
         val rightPanelNode = initialPanels.maxByOrNull { it.position.x }!!
 
-        val buttonBounds =
-            composeTestRule.onNodeWithText("Show Dialog").fetchSemanticsNode().boundsInWindow
-        val buttonRect =
-            Rect(
-                buttonBounds.left.roundToInt(),
-                buttonBounds.top.roundToInt(),
-                buttonBounds.right.roundToInt(),
-                buttonBounds.bottom.roundToInt(),
-            )
-
-        performInteraction(rightPanelNode) {
-            pointAt(boundsInWindow = buttonRect, targetNode = rightPanelNode)
-            select()
-        }
+        composeTestRule.performSpatialClickOn2dNode(
+            node = composeTestRule.onNodeWithText("Show Dialog"),
+            panelNode = rightPanelNode,
+        )
 
         composeTestRule.waitUntil(
             conditionDescription = "SpatialDialog opened after clicking Show Dialog",
@@ -506,7 +490,6 @@ class BackHandlingSpatialPanelsScreenshotTest {
         targetNode: SnapshotXrSpace,
         block: androidx.xr.testutils.SpatialInteractionScope.() -> Unit,
     ) {
-        usedSpatialInteraction = true
         targetNode.performSpatialInteraction(block = block)
         composeTestRule.waitForIdle()
     }
