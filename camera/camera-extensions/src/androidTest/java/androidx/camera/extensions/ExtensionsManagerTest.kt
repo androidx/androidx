@@ -27,6 +27,7 @@ import androidx.camera.extensions.internal.sessionprocessor.Camera2ExtensionsSes
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
@@ -43,6 +44,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -54,6 +56,8 @@ class ExtensionsManagerTest(
     private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
+
+    @get:Rule(order = 0) val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     private val context = InstrumentationRegistry.getInstrumentation().context
 

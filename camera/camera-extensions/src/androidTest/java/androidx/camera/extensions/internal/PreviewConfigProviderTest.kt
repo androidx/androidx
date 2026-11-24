@@ -32,6 +32,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -52,7 +53,9 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class PreviewConfigProviderTest {
-    @get:Rule
+    @get:Rule(order = 0) val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+
+    @get:Rule(order = 1)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             PreTestCameraIdList(Camera2Config.defaultConfig())

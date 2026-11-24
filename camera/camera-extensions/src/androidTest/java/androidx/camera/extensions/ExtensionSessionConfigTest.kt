@@ -70,16 +70,15 @@ class ExtensionSessionConfigTest(
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
 
-    @get:Rule
+    @get:Rule(order = 0) val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+
+    @get:Rule(order = 1)
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
-    @get:Rule
-    val wakelockEmptyActivityRule = WakelockEmptyActivityRule(brandsToEnable = listOf("vivo"))
-
-    @get:Rule val temporaryFolder = TemporaryFolder(context.cacheDir)
+    @get:Rule(order = 2) val temporaryFolder = TemporaryFolder(context.cacheDir)
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager

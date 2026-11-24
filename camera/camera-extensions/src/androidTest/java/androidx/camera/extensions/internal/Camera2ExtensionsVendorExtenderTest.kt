@@ -31,6 +31,7 @@ import androidx.camera.extensions.internal.compat.quirk.DeviceQuirks
 import androidx.camera.extensions.internal.compat.quirk.ExtensionDisabledQuirk
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -49,6 +51,8 @@ class Camera2ExtensionsVendorExtenderTest(
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
     private val mode: Int,
 ) {
+    @get:Rule(order = 0) val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val cameraId2ExtensionCharacteristicsMap =
         Camera2ExtensionsUtil.createCameraId2CameraExtensionCharacteristicsMap(context)
