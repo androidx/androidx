@@ -18,6 +18,9 @@ package androidx.navigationevent.compose
 
 import android.content.ContextWrapper
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.HostDefaultKey
+import androidx.compose.runtime.HostDefaultProvider
+import androidx.compose.runtime.LocalHostDefaultProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -50,7 +53,23 @@ internal class LocalNavigationEventDispatcherOwnerTest {
                 object : ContextWrapper(baseContext), NavigationEventDispatcherOwner {
                     override val navigationEventDispatcher = testOwner.navigationEventDispatcher
                 }
-            CompositionLocalProvider(LocalContext provides wrappedContext) {
+            // Simulate a host environment without a ViewTree owner so lookup falls back to
+            // LocalContext, even when ComponentActivity sets a ViewTree owner.
+            val currentHostDefaultProvider = LocalHostDefaultProvider.current
+            val hostDefaultProvider =
+                object : HostDefaultProvider {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T> getHostDefault(key: HostDefaultKey<T>): T =
+                        if (key == NavigationEventDispatcherOwnerHostDefaultKey) {
+                            null as T
+                        } else {
+                            currentHostDefaultProvider.getHostDefault(key)
+                        }
+                }
+            CompositionLocalProvider(
+                LocalHostDefaultProvider provides hostDefaultProvider,
+                LocalContext provides wrappedContext,
+            ) {
                 resolvedOwner = LocalNavigationEventDispatcherOwner.current!!
             }
         }

@@ -17,9 +17,13 @@
 package androidx.navigationevent.compose
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.HostDefaultKey
+import androidx.compose.runtime.HostDefaultProvider
+import androidx.compose.runtime.LocalHostDefaultProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
@@ -305,10 +309,28 @@ internal class NavigationEventDispatcherOwnerTest {
     fun rememberNavigationEventDispatcherOwner_asRoot_whenNoExplicitlyNullParent_thenThrows() {
         assertThrows<IllegalStateException> {
                 rule.setContent {
-                    // Attempt to create a dispatcher owner without a parent in the composition.
-                    // This should fail because the default parent is non-nullable
-                    // and LocalNavigationEventDispatcherOwner is not provided.
-                    rememberNavigationEventDispatcherOwner()
+                    // Simulate a host environment without a ViewTree or Context owner,
+                    // even when ComponentActivity provides both.
+                    val currentHostDefaultProvider = LocalHostDefaultProvider.current
+                    val hostDefaultProvider =
+                        object : HostDefaultProvider {
+                            @Suppress("UNCHECKED_CAST")
+                            override fun <T> getHostDefault(key: HostDefaultKey<T>): T =
+                                if (key == NavigationEventDispatcherOwnerHostDefaultKey) {
+                                    null as T
+                                } else {
+                                    currentHostDefaultProvider.getHostDefault(key)
+                                }
+                        }
+                    CompositionLocalProvider(
+                        LocalHostDefaultProvider provides hostDefaultProvider,
+                        LocalContext provides LocalContext.current.applicationContext,
+                    ) {
+                        // Attempt to create a dispatcher owner without a parent in the composition.
+                        // This should fail because the default parent is non-nullable
+                        // and LocalNavigationEventDispatcherOwner is not provided.
+                        rememberNavigationEventDispatcherOwner()
+                    }
                 }
             }
             .hasMessageThat()
