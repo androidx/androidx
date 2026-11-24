@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.matchers.assertThat
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -41,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -255,36 +258,300 @@ class TextPainterTest {
         assertThat(bitmap).isNotEqualToBitmap(bitmap2)
     }
 
+    /**
+     * Draws [longText] with [style] via [drawText] with [measurer], and returns the bitmap and the
+     * layout that [drawText] used.
+     *
+     * @param useStringOverload Whether to call the [drawText] overload that takes a [String] rather
+     *   than an [AnnotatedString].
+     */
+    private fun drawWithMeasurerAndGetLayout(
+        measurer: TextMeasurer,
+        drawScope: CanvasDrawScope,
+        style: TextStyle,
+        useStringOverload: Boolean,
+    ): Pair<Bitmap, TextLayoutResult> {
+        lateinit var textLayoutResult: TextLayoutResult
+        val bitmap =
+            draw(drawScope = drawScope) {
+                if (useStringOverload) {
+                    drawText(
+                        textMeasurer = measurer,
+                        text = longString,
+                        style = style,
+                        size = Size(400f, 400f),
+                    )
+                } else {
+                    drawText(
+                        textMeasurer = measurer,
+                        text = longText,
+                        style = style,
+                        size = Size(400f, 400f),
+                    )
+                }
+                // Retrieve the layout drawText used, with the same parameters it measured with
+                textLayoutResult =
+                    measurer.measure(
+                        text = longText,
+                        style = style,
+                        constraints = Constraints.fixed(400, 400),
+                        layoutDirection = layoutDirection,
+                        density = this,
+                    )
+            }
+        return Pair(bitmap, textLayoutResult)
+    }
+
+    /**
+     * Draws [longText] via [drawText] with a [TextMeasurer], first with [style1] and then with
+     * [style2], which differ only in draw-affecting attributes. Asserts that the second draw reused
+     * the cached layout, and that it was nevertheless drawn differently.
+     *
+     * Checks both the [String] and the [AnnotatedString] overloads of [drawText].
+     */
+    private fun assertCachedLayoutIsDrawnWithNewStyle(style1: TextStyle, style2: TextStyle) {
+        for (useStringOverload in listOf(false, true)) {
+            val measurer = textMeasurer(cacheSize = 8)
+            // The draw scope is the density passed to TextMeasurer, so it's part of the cache key
+            val drawScope = CanvasDrawScope()
+
+            val (bitmap, textLayoutResult) =
+                drawWithMeasurerAndGetLayout(measurer, drawScope, style1, useStringOverload)
+            val (bitmap2, textLayoutResult2) =
+                drawWithMeasurerAndGetLayout(measurer, drawScope, style2, useStringOverload)
+
+            // Make sure the cached layout was reused
+            assertThat(textLayoutResult2.multiParagraph)
+                .isSameInstanceAs(textLayoutResult.multiParagraph)
+            assertThat(bitmap).isNotEqualToBitmap(bitmap2)
+        }
+    }
+
+    private val cacheTestStyle = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp)
+
     @Test
     fun textMeasurerCache_shouldNotAffectTheResult_forColor() {
-        val measurer = textMeasurer(cacheSize = 8)
+        assertCachedLayoutIsDrawnWithNewStyle(
+            cacheTestStyle.copy(color = Color.Red),
+            cacheTestStyle.copy(color = Color.Blue),
+        )
+    }
 
-        val bitmap = draw {
-            drawText(
-                textMeasurer = measurer,
-                text = longText,
-                style =
-                    TextStyle(
-                        color = Color.Red,
-                        fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp,
-                    ),
-                size = Size(400f, 400f),
-            )
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forBrush() {
+        assertCachedLayoutIsDrawnWithNewStyle(
+            cacheTestStyle.copy(brush = Brush.verticalGradient(listOf(Color.Red, Color.Blue))),
+            cacheTestStyle.copy(brush = Brush.verticalGradient(listOf(Color.Green, Color.Yellow))),
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forBrushAlpha() {
+        val brush = Brush.verticalGradient(listOf(Color.Red, Color.Blue))
+        assertCachedLayoutIsDrawnWithNewStyle(
+            cacheTestStyle.copy(brush = brush, alpha = 1f),
+            cacheTestStyle.copy(brush = brush, alpha = 0.5f),
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forShadow() {
+        assertCachedLayoutIsDrawnWithNewStyle(
+            cacheTestStyle.copy(shadow = Shadow(Color.Red, offset = Offset(5f, 5f))),
+            cacheTestStyle.copy(shadow = Shadow(Color.Blue, offset = Offset(5f, 5f))),
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forTextDecoration() {
+        assertCachedLayoutIsDrawnWithNewStyle(
+            cacheTestStyle.copy(textDecoration = TextDecoration.Underline),
+            cacheTestStyle.copy(textDecoration = TextDecoration.LineThrough),
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forDrawStyle() {
+        assertCachedLayoutIsDrawnWithNewStyle(
+            cacheTestStyle.copy(drawStyle = Fill),
+            cacheTestStyle.copy(drawStyle = Stroke(width = 2f)),
+        )
+    }
+
+    /**
+     * Draws [longText] via [drawText] with a [TextMeasurer], first with [style1] and then with
+     * [style2], which differ only in draw-affecting attributes. Asserts that the second draw reused
+     * the cached layout, and that it was drawn the same as [style2] with a new layout.
+     *
+     * Checks both the [String] and the [AnnotatedString] overloads of [drawText].
+     */
+    private fun assertCachedLayoutIsDrawnLikeNewLayout(style1: TextStyle, style2: TextStyle) {
+        for (useStringOverload in listOf(false, true)) {
+            val measurer = textMeasurer(cacheSize = 8)
+            // The draw scope is the density passed to TextMeasurer, so it's part of the cache key
+            val drawScope = CanvasDrawScope()
+
+            val (_, textLayoutResult) =
+                drawWithMeasurerAndGetLayout(measurer, drawScope, style1, useStringOverload)
+            val (bitmap, textLayoutResult2) =
+                drawWithMeasurerAndGetLayout(measurer, drawScope, style2, useStringOverload)
+            val (expectedBitmap, _) =
+                drawWithMeasurerAndGetLayout(
+                    textMeasurer(cacheSize = 8),
+                    CanvasDrawScope(),
+                    style2,
+                    useStringOverload,
+                )
+
+            // Make sure the cached layout was reused
+            assertThat(textLayoutResult2.multiParagraph)
+                .isSameInstanceAs(textLayoutResult.multiParagraph)
+            assertThat(bitmap).isEqualToBitmap(expectedBitmap)
         }
-        val bitmap2 = draw {
-            drawText(
-                textMeasurer = measurer,
-                text = longText,
-                style =
-                    TextStyle(
-                        color = Color.Blue,
-                        fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp,
-                    ),
-                size = Size(400f, 400f),
-            )
-        }
+    }
+
+    /**
+     * Asserts that drawing a [TextLayoutResult] with [drawLayout] after drawing it with
+     * [previousDraw] gives the same result as drawing a new [TextLayoutResult] with [drawLayout].
+     *
+     * The [TextLayoutResult] keeps its paint between draws, so this checks that [drawLayout] resets
+     * the attributes it doesn't specify.
+     */
+    private fun assertDrawnLayoutIsDrawnLikeNewLayout(
+        previousDraw: DrawScope.(TextLayoutResult) -> Unit,
+        drawLayout: DrawScope.(TextLayoutResult) -> Unit,
+    ) {
+        fun newLayout() =
+            textMeasurer()
+                .measure(
+                    text = longText,
+                    style = cacheTestStyle,
+                    constraints = Constraints(maxWidth = 400, maxHeight = 400),
+                )
+
+        val newLayout = newLayout()
+        val expectedBitmap = draw { drawLayout(newLayout) }
+
+        val textLayoutResult = newLayout()
+        draw { previousDraw(textLayoutResult) }
+        val bitmap = draw { drawLayout(textLayoutResult) }
+
+        assertThat(bitmap).isEqualToBitmap(expectedBitmap)
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forUnspecifiedColor() {
+        assertCachedLayoutIsDrawnLikeNewLayout(
+            cacheTestStyle.copy(color = Color.Red),
+            cacheTestStyle,
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forUnspecifiedBrush() {
+        assertCachedLayoutIsDrawnLikeNewLayout(
+            cacheTestStyle.copy(brush = Brush.verticalGradient(listOf(Color.Red, Color.Blue))),
+            cacheTestStyle,
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forUnspecifiedBrushAlpha() {
+        val brush = Brush.verticalGradient(listOf(Color.Red, Color.Blue))
+        assertCachedLayoutIsDrawnLikeNewLayout(
+            cacheTestStyle.copy(brush = brush, alpha = 0.5f),
+            cacheTestStyle.copy(brush = brush),
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forUnspecifiedShadow() {
+        assertCachedLayoutIsDrawnLikeNewLayout(
+            cacheTestStyle.copy(shadow = Shadow(Color.Red, offset = Offset(5f, 5f))),
+            cacheTestStyle,
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forUnspecifiedTextDecoration() {
+        assertCachedLayoutIsDrawnLikeNewLayout(
+            cacheTestStyle.copy(textDecoration = TextDecoration.Underline),
+            cacheTestStyle,
+        )
+    }
+
+    @Test
+    fun textMeasurerCache_shouldNotAffectTheResult_forUnspecifiedDrawStyle() {
+        assertCachedLayoutIsDrawnLikeNewLayout(
+            cacheTestStyle.copy(drawStyle = Stroke(width = 2f)),
+            cacheTestStyle,
+        )
+    }
+
+    private val gradient = Brush.verticalGradient(listOf(Color.Red, Color.Blue))
+
+    @Test
+    fun drawTextLayout_unspecifiedColor_shouldNotKeepPreviousColor() {
+        assertDrawnLayoutIsDrawnLikeNewLayout(
+            previousDraw = { drawText(it, color = Color.Red) },
+            drawLayout = { drawText(it) },
+        )
+    }
+
+    @Test
+    fun drawTextLayout_unspecifiedDrawStyle_shouldNotKeepPreviousDrawStyle() {
+        assertDrawnLayoutIsDrawnLikeNewLayout(
+            previousDraw = { drawText(it, drawStyle = Stroke(width = 2f)) },
+            drawLayout = { drawText(it) },
+        )
+    }
+
+    @Test
+    fun drawTextLayoutWithBrush_unspecifiedAlpha_shouldNotKeepPreviousAlpha() {
+        assertDrawnLayoutIsDrawnLikeNewLayout(
+            previousDraw = { drawText(it, gradient, alpha = 0.5f) },
+            drawLayout = { drawText(it, gradient) },
+        )
+    }
+
+    @Test
+    fun drawTextLayoutWithBrush_unspecifiedShadow_shouldNotKeepPreviousShadow() {
+        assertDrawnLayoutIsDrawnLikeNewLayout(
+            previousDraw = {
+                drawText(it, gradient, shadow = Shadow(Color.Red, offset = Offset(5f, 5f)))
+            },
+            drawLayout = { drawText(it, gradient) },
+        )
+    }
+
+    @Test
+    fun drawTextLayoutWithBrush_unspecifiedTextDecoration_shouldNotKeepPreviousTextDecoration() {
+        assertDrawnLayoutIsDrawnLikeNewLayout(
+            previousDraw = { drawText(it, gradient, textDecoration = TextDecoration.Underline) },
+            drawLayout = { drawText(it, gradient) },
+        )
+    }
+
+    @Test
+    fun drawTextLayoutWithBrush_unspecifiedDrawStyle_shouldNotKeepPreviousDrawStyle() {
+        assertDrawnLayoutIsDrawnLikeNewLayout(
+            previousDraw = { drawText(it, gradient, drawStyle = Stroke(width = 2f)) },
+            drawLayout = { drawText(it, gradient) },
+        )
+    }
+
+    @Test
+    fun drawTextLayout_shouldApplyAlpha_withUnspecifiedColor() {
+        val textLayoutResult =
+            textMeasurer()
+                .measure(
+                    text = longText,
+                    style = cacheTestStyle,
+                    constraints = Constraints(maxWidth = 400, maxHeight = 400),
+                )
+
+        val bitmap = draw { drawText(textLayoutResult) }
+        val bitmap2 = draw { drawText(textLayoutResult, alpha = 0.5f) }
 
         assertThat(bitmap).isNotEqualToBitmap(bitmap2)
     }
@@ -624,6 +891,7 @@ class TextPainterTest {
         bitmapHeight: Float = 1000f,
         canvasWidth: Float = bitmapWidth,
         canvasHeight: Float = bitmapHeight,
+        drawScope: CanvasDrawScope = CanvasDrawScope(),
         block: DrawScope.() -> Unit,
     ): Bitmap {
         val size = Size(bitmapWidth, bitmapHeight)
@@ -634,7 +902,6 @@ class TextPainterTest {
                 Bitmap.Config.ARGB_8888,
             )
         val canvas = Canvas(bitmap.asImageBitmap())
-        val drawScope = CanvasDrawScope()
         drawScope.draw(
             defaultDensity,
             layoutDirection,
