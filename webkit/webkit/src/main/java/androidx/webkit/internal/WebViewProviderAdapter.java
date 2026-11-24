@@ -27,6 +27,8 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.UiThread;
 import androidx.webkit.GoogleAccountsEvent;
+import androidx.webkit.HeaderInterceptor;
+import androidx.webkit.HeaderInterceptorHandle;
 import androidx.webkit.JavaScriptExecutionWorld;
 import androidx.webkit.Navigation;
 import androidx.webkit.NavigationListener;
@@ -35,6 +37,7 @@ import androidx.webkit.PrerenderException;
 import androidx.webkit.PrerenderOperationCallback;
 import androidx.webkit.PrerenderParameters;
 import androidx.webkit.Profile;
+import androidx.webkit.RequestMatcher;
 import androidx.webkit.SpeculativeLoadingParameters;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
@@ -411,6 +414,18 @@ public class WebViewProviderAdapter {
     @WebViewCompat.ExperimentalGoogleAccountsCallback
     public void clearGoogleAccountsCallback() {
         mImpl.clearGoogleAccountsCallback();
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#addHeaderInterceptor(WebView, RequestMatcher, HeaderInterceptor)}.
+     */
+    @UiThread
+    public @NonNull HeaderInterceptorHandle addHeaderInterceptor(
+            @NonNull RequestMatcher matcher, @NonNull HeaderInterceptor interceptor) {
+        Runnable unregisterRunnable = mImpl.addHeaderInterceptor(
+                matcher::serializeToBoundaryLayer, new HeaderInterceptorAdapter(interceptor));
+        return new HeaderInterceptorHandle(unregisterRunnable);
     }
 
 }

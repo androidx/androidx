@@ -155,6 +155,7 @@ public class WebViewFeature {
             GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
             WEB_MESSAGE_SHARED_ARRAY_BUFFER,
             PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
+            HEADER_INTERCEPTOR,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -1115,6 +1116,15 @@ public class WebViewFeature {
     @Profile.ExperimentalSelectedSiteIsolation
     public static final String PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1 =
             "PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#addHeaderInterceptor(RequestMatcher, HeaderInterceptor)} and
+     * {@link WebViewCompat#addHeaderInterceptor(WebView, RequestMatcher, HeaderInterceptor)}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String HEADER_INTERCEPTOR = "HEADER_INTERCEPTOR";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

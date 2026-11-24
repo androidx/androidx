@@ -50,6 +50,7 @@ import androidx.webkit.WebViewRenderProcessClient;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -351,6 +352,19 @@ public class WebViewOnUiThread implements AutoCloseable {
      */
     public void loadUrlAndWaitForCompletion(final @NonNull String url) {
         callAndWait(() -> mWebView.loadUrl(url));
+    }
+
+    /**
+     * Calls {@link WebView#loadUrl(String, Map)} on the WebView and then waits for
+     * {@code onPageFinished} and {@code onProgressChanged} to reach 100.
+     * Test fails if the load timeout elapses.
+     *
+     * @param url                   The URL to load.
+     * @param additionalHttpHeaders The additional HTTP headers to send with the URL load.
+     */
+    public void loadUrlAndWaitForCompletion(
+            final @NonNull String url, final @NonNull Map<String, String> additionalHttpHeaders) {
+        callAndWait(() -> mWebView.loadUrl(url, additionalHttpHeaders));
     }
 
     public void loadUrl(final @NonNull String url) {

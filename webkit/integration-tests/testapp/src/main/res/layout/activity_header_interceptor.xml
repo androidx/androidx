@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <RadioGroup
+        android:id="@+id/header_interceptor_scope_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/header_interceptor_scope_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/header_interceptor_scope_profile" />
+
+        <RadioButton
+            android:id="@+id/header_interceptor_scope_webview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/header_interceptor_scope_webview" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/header_interceptor_url_pattern"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/header_interceptor_url_pattern_hint"
+        android:importantForAutofill="no"
+        android:inputType="textUri"
+        android:singleLine="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/header_interceptor_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/header_interceptor_name_hint"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:singleLine="true"
+            android:text="@string/header_interceptor_default_name" />
+
+        <EditText
+            android:id="@+id/header_interceptor_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:hint="@string/header_interceptor_value_hint"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:singleLine="true"
+            android:text="@string/header_interceptor_default_value" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/header_interceptor_add_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/header_interceptor_add_button" />
+
+        <Button
+            android:id="@+id/header_interceptor_unregister_all_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="@string/header_interceptor_unregister_all_button" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/header_interceptor_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/header_interceptor_target_url"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/header_interceptor_target_url_hint"
+            android:importantForAutofill="no"
+            android:inputType="textUri"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/header_interceptor_load_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/header_interceptor_load_button" />
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/header_interceptor_webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

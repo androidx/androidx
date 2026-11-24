@@ -925,4 +925,32 @@ public interface Profile {
                 "Profile#canConfigureIsolatedSites is not implemented.");
     }
 
+    /**
+     * Registers a {@link HeaderInterceptor} for requests made on this profile that match the given
+     * {@link RequestMatcher}.
+     *
+     * <p>If header values do not need to vary dynamically per request and only require origin-level
+     * matching, prefer {@link #addCustomHeader(CustomHeader)} for better performance. See
+     * {@link HeaderInterceptor} for detailed semantics.
+     *
+     * @param matcher     The {@link RequestMatcher} defining which requests should be intercepted.
+     * @param interceptor The {@link HeaderInterceptor} to invoke for matching requests.
+     * @return A {@link HeaderInterceptorHandle} that can be used to unregister this interceptor.
+     * @throws IllegalArgumentException      if one or more URL patterns in {@code matcher} cannot
+     *                                       be parsed.
+     * @throws UnsupportedOperationException if the {@link WebViewFeature#HEADER_INTERCEPTOR}
+     *                                       feature is not supported. This should be checked before
+     *                                       use with {@link WebViewFeature#isFeatureSupported}.
+     * @see HeaderInterceptor
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.HEADER_INTERCEPTOR,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    default @NonNull HeaderInterceptorHandle addHeaderInterceptor(
+            @NonNull RequestMatcher matcher, @NonNull HeaderInterceptor interceptor) {
+        throw new UnsupportedOperationException(
+                "Profile#addHeaderInterceptor is not implemented.");
+    }
+
 }
