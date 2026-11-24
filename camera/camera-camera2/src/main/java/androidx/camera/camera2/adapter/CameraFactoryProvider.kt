@@ -19,6 +19,7 @@ package androidx.camera.camera2.adapter
 import android.content.Context
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.CameraInteropStateCallbackRepository
+import androidx.camera.camera2.internal.toDoNotDisturbInitializationExceptionOrNull
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.SystemTimeSource
@@ -88,17 +89,29 @@ public class CameraFactoryProvider(
             }
         }
 
-        return CameraFactoryAdapter(
-            lazyCameraPipe,
-            appContext,
-            effectiveThreadConfig,
-            interopCallbacks,
-            availableCamerasLimiter,
-            streamSpecsCalculator,
-            cameraXConfig ?: CameraXConfig.Builder().build(),
-            isDirectExecutor,
-            sequentialCameraExecutor,
-        )
+        return try {
+            CameraFactoryAdapter(
+                lazyCameraPipe,
+                appContext,
+                effectiveThreadConfig,
+                interopCallbacks,
+                availableCamerasLimiter,
+                streamSpecsCalculator,
+                cameraXConfig ?: CameraXConfig.Builder().build(),
+                isDirectExecutor,
+                sequentialCameraExecutor,
+            )
+        } catch (e: Exception) {
+            val mappedException = e.toDoNotDisturbInitializationExceptionOrNull() ?: e
+            if (sharedCameraPipe == null && lazyCameraPipe.isInitialized()) {
+                try {
+                    lazyCameraPipe.value.shutdown()
+                } catch (shutdownException: Exception) {
+                    mappedException.addSuppressed(shutdownException)
+                }
+            }
+            throw mappedException
+        }
     }
 
     private fun createCameraPipe(

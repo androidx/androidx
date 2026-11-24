@@ -29,6 +29,7 @@ import androidx.camera.camera2.config.CameraAppComponent
 import androidx.camera.camera2.config.CameraModule
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.FeatureCombinationQueryImpl
+import androidx.camera.camera2.internal.toDoNotDisturbInitializationExceptionOrNull
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.DoNotDisturbException
 import androidx.camera.common.CameraId
@@ -73,7 +74,7 @@ public class CameraSurfaceAdapter(
             onCamerasUpdated(availableCameraIds.toList())
         } catch (e: CameraUpdateException) {
             // If initial creation fails, the camera is in a bad state.
-            throw InitializationException(e)
+            throw e.toDoNotDisturbInitializationExceptionOrNull() ?: InitializationException(e)
         }
     }
 
