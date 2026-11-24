@@ -18,34 +18,48 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.widthDp
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.RcPlayerTestRule
+import androidx.compose.remote.player.compose.embedded.RcPlayer
+import androidx.compose.remote.player.compose.embedded.RcPlayerState
 import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -235,6 +249,153 @@ class RemoteButtonTest {
         assertThat(actualIconContentColor?.constantValue).isEqualTo(expectedIconColor.constantValue)
         assertThat(actualIconOnlyContentColor?.constantValue)
             .isEqualTo(expectedIconColor.constantValue)
+    }
+
+    @Test
+    fun scrimBrush_defaultTheme_usesSurfaceContainerFadingToTransparent() {
+        val bitmap = renderScrimButtonBitmap { background ->
+            RemoteMaterialTheme {
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.fillMaxSize(),
+                    shape = RemoteRectangleShape,
+                    containerPainter =
+                        RemoteButtonDefaults.containerPainter(
+                            image = background,
+                            shape = RemoteRectangleShape,
+                        ),
+                ) {}
+            }
+        }
+
+        assertScrimGradient(bitmap, ColorScheme().surfaceContainer)
+    }
+
+    @Test
+    fun scrimBrushWithSize_defaultTheme_usesSurfaceContainerFadingToTransparent() {
+        val widthPx = 100
+        val heightPx = 100
+        val bitmap =
+            renderScrimButtonBitmap(widthPx = widthPx, heightPx = heightPx) { background ->
+                RemoteMaterialTheme {
+                    RemoteButton(
+                        onClick = testAction,
+                        modifier = RemoteModifier.fillMaxSize(),
+                        shape = RemoteRectangleShape,
+                        containerPainter =
+                            RemoteButtonDefaults.containerPainter(
+                                image = background,
+                                scrim =
+                                    RemoteButtonDefaults.scrimBrush(
+                                        RemoteSize(widthPx.toFloat().rf, heightPx.toFloat().rf)
+                                    ),
+                                shape = RemoteRectangleShape,
+                            ),
+                    ) {}
+                }
+            }
+
+        assertScrimGradient(bitmap, ColorScheme().surfaceContainer)
+    }
+
+    @Test
+    fun scrimBrush_customTheme_updatesScrimColor() {
+        val customColorScheme = RemoteColorScheme().copy(surfaceContainer = RemoteColor.Red)
+        val bitmap = renderScrimButtonBitmap { background ->
+            RemoteMaterialTheme(colorScheme = customColorScheme) {
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.fillMaxSize(),
+                    shape = RemoteRectangleShape,
+                    containerPainter =
+                        RemoteButtonDefaults.containerPainter(
+                            image = background,
+                            shape = RemoteRectangleShape,
+                        ),
+                ) {}
+            }
+        }
+
+        assertScrimGradient(bitmap, Color.Red)
+    }
+
+    @Test
+    fun scrimBrush_namedColorOverride_updatesScrimColor() {
+        val bitmap =
+            renderScrimButtonBitmap(
+                colorOverrides = mapOf("WearM3.surfaceContainer" to Color.Blue)
+            ) { background ->
+                RemoteMaterialTheme(colorScheme = RemoteColorScheme()) {
+                    RemoteButton(
+                        onClick = testAction,
+                        modifier = RemoteModifier.fillMaxSize(),
+                        shape = RemoteRectangleShape,
+                        containerPainter =
+                            RemoteButtonDefaults.containerPainter(
+                                image = background,
+                                shape = RemoteRectangleShape,
+                            ),
+                    ) {}
+                }
+            }
+
+        assertScrimGradient(bitmap, Color.Blue)
+    }
+
+    private fun renderScrimButtonBitmap(
+        widthPx: Int = 100,
+        heightPx: Int = 100,
+        colorOverrides: Map<String, Color> = emptyMap(),
+        content: @Composable @RemoteComposable (RemoteImageBitmap) -> Unit,
+    ): Bitmap {
+        val displayInfo =
+            RemoteCreationDisplayInfo(
+                widthPx,
+                heightPx,
+                context.resources.displayMetrics.densityDpi,
+                context.resources.configuration.fontScale,
+            )
+        val solidWhite =
+            Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888).apply {
+                Canvas(this).drawColor(AndroidColor.WHITE)
+            }
+        val document = runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo = displayInfo,
+                profile = TestProfiles.wearWidgets,
+            ) {
+                val background = remember { RemoteImageBitmap(solidWhite.asImageBitmap()) }
+                content(background)
+            }
+        }
+        val playerState = RcPlayerState(document)
+        colorOverrides.forEach { (name, color) -> playerState.colorState(name).value = color }
+        playerRule.setContent {
+            Box(
+                modifier =
+                    Modifier.size(displayInfo.widthDp, displayInfo.heightDp).testTag(ROOT_TEST_TAG)
+            ) {
+                RcPlayer(state = playerState)
+            }
+        }
+        playerRule.waitForIdle()
+        return playerRule.onNodeWithTag(ROOT_TEST_TAG).captureToImage().asAndroidBitmap()
+    }
+
+    private fun assertScrimGradient(bitmap: Bitmap, expectedStartColor: Color) {
+        val topLeft = Color(bitmap.getPixel(1, 1))
+        val bottomRight = Color(bitmap.getPixel(bitmap.width - 2, bitmap.height - 2))
+        assertColorClose(topLeft, expectedStartColor, "top-left scrim start")
+        assertColorClose(bottomRight, Color.White, "bottom-right scrim end")
+    }
+
+    private fun assertColorClose(actual: Color, expected: Color, label: String) {
+        val tolerance = 0.04f
+        assertWithMessage("$label red").that(actual.red).isWithin(tolerance).of(expected.red)
+        assertWithMessage("$label green").that(actual.green).isWithin(tolerance).of(expected.green)
+        assertWithMessage("$label blue").that(actual.blue).isWithin(tolerance).of(expected.blue)
+        assertWithMessage("$label alpha").that(actual.alpha).isWithin(tolerance).of(expected.alpha)
     }
 
     private fun String.normalizeWhiteSpace() = this.replace(Regex("\\s+"), " ").trim()
