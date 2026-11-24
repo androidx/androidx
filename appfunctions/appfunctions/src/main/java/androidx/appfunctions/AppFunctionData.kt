@@ -29,7 +29,9 @@ import androidx.annotation.WorkerThread
 import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.AppFunctionSerializableFactory
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
+import androidx.appfunctions.internal.GenericDocumentUtils
 import androidx.appfunctions.internal.getClass
+import androidx.appfunctions.internal.requireBundle
 import androidx.appfunctions.internal.serializableproxies.BuiltInSerializableProxies
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
@@ -1522,7 +1524,45 @@ internal constructor(
         }
     }
 
+    /**
+     * Converts this [AppFunctionData] to a [Bundle].
+     *
+     * @throws IllegalArgumentException if this data is nested deeper than the maximum depth or
+     *   contains an unsupported property type.
+     */
+    internal fun toBundle(): Bundle =
+        Bundle().apply {
+            putBundle(KEY_DOCUMENT, GenericDocumentUtils.toBundle(genericDocument))
+            if (!extras.isEmpty) {
+                putBundle(KEY_EXTRAS, extras)
+            }
+        }
+
     public companion object {
+        private const val KEY_DOCUMENT = "document"
+        private const val KEY_EXTRAS = "extras"
+
+        /**
+         * Creates an [AppFunctionData] from a [Bundle] created by [toBundle].
+         *
+         * @throws IllegalArgumentException if [bundle] is malformed or nested too deeply.
+         */
+        internal fun fromBundle(bundle: Bundle): AppFunctionData =
+            try {
+                val document = GenericDocumentUtils.fromBundle(bundle.requireBundle(KEY_DOCUMENT))
+                val extras =
+                    if (bundle.containsKey(KEY_EXTRAS)) {
+                        bundle.requireBundle(KEY_EXTRAS)
+                    } else {
+                        Bundle()
+                    }
+                AppFunctionData(document, extras)
+            } catch (e: IllegalArgumentException) {
+                throw e
+            } catch (e: Exception) {
+                throw IllegalArgumentException("Malformed AppFunctionData bundle", e)
+            }
+
         private const val DEFAULT_BOOLEAN: Boolean = false
         private const val DEFAULT_FLOAT: Float = 0F
         private const val DEFAULT_DOUBLE: Double = 0.0
