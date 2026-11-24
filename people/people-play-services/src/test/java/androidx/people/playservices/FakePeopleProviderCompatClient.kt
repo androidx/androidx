@@ -17,6 +17,7 @@
 package androidx.people.playservices
 
 import android.app.PendingIntent
+import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.Api
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Status
@@ -195,5 +196,12 @@ internal class FakePeopleProviderCompatClient(
     companion object {
         /** An [ApiException] carrying [statusCode], as Google Play services reports failures. */
         fun apiException(statusCode: Int): ApiException = ApiException(Status(statusCode))
+
+        /**
+         * An [ApiException] wrapping [connectionErrorCode] in `Status(API_NOT_CONNECTED)`, as
+         * `GoogleApiManager` reports failed service connections and missing features.
+         */
+        fun connectionApiException(connectionErrorCode: Int): ApiException =
+            ApiException(Status(ConnectionResult(connectionErrorCode), "Connection failed"))
     }
 }

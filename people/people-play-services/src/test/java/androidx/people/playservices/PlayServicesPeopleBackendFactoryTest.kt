@@ -18,7 +18,10 @@ package androidx.people.playservices
 
 import androidx.people.internal.PeopleBackendFactory
 import androidx.people.internal.PeopleBackendResolver
+import androidx.people.internal.UnavailablePeopleBackend
 import androidx.people.playservices.FakePeopleProviderCompatClient.Companion.apiException
+import androidx.people.playservices.FakePeopleProviderCompatClient.Companion.connectionApiException
+import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.Feature
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.UnsupportedApiCallException
@@ -40,16 +43,16 @@ class PlayServicesPeopleBackendFactoryTest {
     private val context = RuntimeEnvironment.getApplication()
     private val providerClient = FakePeopleProviderCompatClient()
 
-    private fun factory(googlePlayServicesAvailable: Boolean = true) =
+    private fun factory(googlePlayServicesAvailability: Int = ConnectionResult.SUCCESS) =
         PlayServicesPeopleBackendFactory(
-            isGooglePlayServicesAvailable = { googlePlayServicesAvailable },
+            checkGooglePlayServicesAvailability = { googlePlayServicesAvailability },
             createProviderClient = { providerClient },
             createDirectoryClient = { FakePeopleDirectoryCompatClient() },
             coroutineDispatcher = Dispatchers.Unconfined,
         )
 
     @Test
-    fun create_whenGooglePlayServicesChoosesItself_returnsItsBackend() = runTest {
+    fun create_whenBackendTypeIsGmsCore_returnsPlayServicesBackend() = runTest {
         providerClient.supportedBackendType = IsPeopleProviderSupportedResponse.BACKEND_GMS_CORE
 
         val backend = factory().create(context)
@@ -59,7 +62,7 @@ class PlayServicesPeopleBackendFactoryTest {
     }
 
     @Test
-    fun create_whenGooglePlayServicesChoosesThePlatform_returnsNull() = runTest {
+    fun create_whenBackendTypeIsAospPlatform_defersToThePlatform() = runTest {
         providerClient.supportedBackendType =
             IsPeopleProviderSupportedResponse.BACKEND_AOSP_PLATFORM
 
@@ -69,42 +72,62 @@ class PlayServicesPeopleBackendFactoryTest {
     }
 
     @Test
-    fun create_whenGooglePlayServicesReportsNoBackend_returnsNull() = runTest {
+    fun create_whenBackendTypeIsUnavailable_returnsUnavailableBackend() = runTest {
         providerClient.supportedBackendType = IsPeopleProviderSupportedResponse.BACKEND_UNAVAILABLE
 
         val backend = factory().create(context)
 
-        assertThat(backend).isNull()
+        assertThat(backend).isSameInstanceAs(UnavailablePeopleBackend)
     }
 
     @Test
-    fun create_whenTheBackendIsUnknown_returnsNull() = runTest {
+    fun create_whenBackendTypeIsUnknown_returnsUnavailableBackend() = runTest {
         providerClient.supportedBackendType = IsPeopleProviderSupportedResponse.BACKEND_UNKNOWN
 
         val backend = factory().create(context)
 
-        assertThat(backend).isNull()
+        assertThat(backend).isSameInstanceAs(UnavailablePeopleBackend)
     }
 
     @Test
-    fun create_whenTheBackendTypeIsNewerThanThisArtifact_returnsNull() = runTest {
+    fun create_whenBackendTypeIsUnrecognized_returnsUnavailableBackend() = runTest {
         providerClient.supportedBackendType = 100
 
         val backend = factory().create(context)
 
-        assertThat(backend).isNull()
+        assertThat(backend).isSameInstanceAs(UnavailablePeopleBackend)
     }
 
     @Test
-    fun create_whenGooglePlayServicesIsMissingOrTooOld_returnsNullWithoutCallingIt() = runTest {
-        val backend = factory(googlePlayServicesAvailable = false).create(context)
+    fun create_whenGooglePlayServicesIsMissingOrTooOld_defersToThePlatformWithoutCallingIt() =
+        runTest {
+            for (availability in
+                listOf(
+                    ConnectionResult.SERVICE_MISSING,
+                    ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED,
+                    ConnectionResult.SERVICE_DISABLED,
+                    ConnectionResult.SERVICE_INVALID,
+                )) {
+                val backend = factory(googlePlayServicesAvailability = availability).create(context)
 
-        assertThat(backend).isNull()
+                assertThat(backend).isNull()
+                assertThat(providerClient.supportCheckCount).isEqualTo(0)
+            }
+        }
+
+    @Test
+    fun create_whenGooglePlayServicesIsUpdating_throwsWithoutCallingIt() = runTest {
+        val result = runCatching {
+            factory(googlePlayServicesAvailability = ConnectionResult.SERVICE_UPDATING)
+                .create(context)
+        }
+
+        assertThat(result.exceptionOrNull()).isInstanceOf(IllegalStateException::class.java)
         assertThat(providerClient.supportCheckCount).isEqualTo(0)
     }
 
     @Test
-    fun create_whenGooglePlayServicesPredatesThePeopleProvider_returnsNull() = runTest {
+    fun create_whenGooglePlayServicesPredatesThePeopleProvider_defersToThePlatform() = runTest {
         // How the client library reports a Google Play services without the People Provider
         // feature.
         providerClient.supportCheckFailure =
@@ -116,12 +139,43 @@ class PlayServicesPeopleBackendFactoryTest {
     }
 
     @Test
-    fun create_whenGooglePlayServicesLacksThePeopleProviderApi_returnsNull() = runTest {
-        providerClient.supportCheckFailure = apiException(CommonStatusCodes.API_NOT_CONNECTED)
+    fun create_whenGooglePlayServicesLacksThePeopleProviderApi_defersToThePlatform() = runTest {
+        for (errorCode in
+            listOf(
+                ConnectionResult.SERVICE_MISSING,
+                ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED,
+                ConnectionResult.SERVICE_DISABLED,
+                ConnectionResult.SERVICE_INVALID,
+                ConnectionResult.API_UNAVAILABLE,
+            )) {
+            providerClient.supportCheckFailure = connectionApiException(errorCode)
 
-        val backend = factory().create(context)
+            val backend = factory().create(context)
 
-        assertThat(backend).isNull()
+            assertThat(backend).isNull()
+        }
+    }
+
+    @Test
+    fun create_whenConnectionFailsTransientlyWithApiNotConnected_throws() = runTest {
+        for (failure in
+            listOf(
+                connectionApiException(ConnectionResult.INTERNAL_ERROR),
+                connectionApiException(ConnectionResult.NETWORK_ERROR),
+                connectionApiException(ConnectionResult.TIMEOUT),
+                connectionApiException(ConnectionResult.INTERRUPTED),
+                connectionApiException(ConnectionResult.SERVICE_UPDATING),
+                connectionApiException(ConnectionResult.CANCELED),
+                connectionApiException(ConnectionResult.API_DISABLED),
+                connectionApiException(ConnectionResult.API_DISABLED_FOR_CONNECTION),
+                apiException(CommonStatusCodes.API_NOT_CONNECTED),
+            )) {
+            providerClient.supportCheckFailure = failure
+
+            val result = runCatching { factory().create(context) }
+
+            assertThat(result.exceptionOrNull()).isSameInstanceAs(failure)
+        }
     }
 
     @Test
@@ -166,9 +220,9 @@ class PlayServicesPeopleBackendFactoryTest {
     }
 
     @Test
-    fun peopleBackendResolver_withoutGooglePlayServices_isUnavailable() = runTest {
-        // Robolectric runs below Android 37.2 and has no Google Play services, so the resolver asks
-        // this artifact's factory, which reports Google Play services as missing.
+    fun peopleBackendResolver_withoutGooglePlayServicesOrThePlatform_isUnavailable() = runTest {
+        // Robolectric has no Google Play services and runs below Android 37.2, so this artifact's
+        // factory defers to the platform People Provider, which is also absent.
         val backend = PeopleBackendResolver.resolve(context)
 
         assertThat(backend.isAvailable).isFalse()

@@ -33,33 +33,52 @@ class PeopleBackendResolverTest {
     private val context = RuntimeEnvironment.getApplication()
 
     @Test
-    fun resolve_withThePlatform_prefersItWithoutAskingGooglePlayServices() = runTest {
-        val platform = AvailableBackend()
-        var playServicesProbes = 0
+    fun resolve_whenGooglePlayServicesSelectsItself_usesItWithoutProbingThePlatform() = runTest {
+        val playServices = AvailableBackend()
+        var platformProbes = 0
         val resolver =
             BackendResolver(
-                platform = { platform },
-                playServices = {
-                    playServicesProbes++
+                platform = {
+                    platformProbes++
                     AvailableBackend()
                 },
+                playServices = { playServices },
             )
 
         val result = resolver.resolve(context)
 
-        assertThat(result).isSameInstanceAs(platform)
-        assertThat(playServicesProbes).isEqualTo(0)
+        assertThat(result).isSameInstanceAs(playServices)
+        assertThat(platformProbes).isEqualTo(0)
     }
 
     @Test
-    fun resolve_withoutThePlatform_usesGooglePlayServices() = runTest {
-        val playServices = AvailableBackend()
-        val resolver = BackendResolver(platform = { null }, playServices = { playServices })
+    fun resolve_whenGooglePlayServicesDefersOrIsAbsent_usesThePlatform() = runTest {
+        val platform = AvailableBackend()
+        val resolver = BackendResolver(platform = { platform }, playServices = { null })
 
         val result = resolver.resolve(context)
 
-        assertThat(result).isSameInstanceAs(playServices)
+        assertThat(result).isSameInstanceAs(platform)
     }
+
+    @Test
+    fun resolve_whenGooglePlayServicesDisablesPeopleProvider_isUnavailableWithoutProbingPlatform() =
+        runTest {
+            var platformProbes = 0
+            val resolver =
+                BackendResolver(
+                    platform = {
+                        platformProbes++
+                        AvailableBackend()
+                    },
+                    playServices = { UnavailablePeopleBackend },
+                )
+
+            val result = resolver.resolve(context)
+
+            assertThat(result).isSameInstanceAs(UnavailablePeopleBackend)
+            assertThat(platformProbes).isEqualTo(0)
+        }
 
     @Test
     fun resolve_withNeitherPeopleProvider_isUnavailable() = runTest {
@@ -92,10 +111,14 @@ class PeopleBackendResolverTest {
     @Test
     fun resolve_afterATransientFailure_probesAgain() = runTest {
         val playServices = AvailableBackend()
+        var platformProbes = 0
         var fail = true
         val resolver =
             BackendResolver(
-                platform = { null },
+                platform = {
+                    platformProbes++
+                    AvailableBackend()
+                },
                 playServices = {
                     if (fail) throw IllegalStateException("Binder died") else playServices
                 },
@@ -106,6 +129,7 @@ class PeopleBackendResolverTest {
         val second = resolver.resolve(context)
 
         assertThat(first).isSameInstanceAs(UnavailablePeopleBackend)
+        assertThat(platformProbes).isEqualTo(0)
         assertThat(second).isSameInstanceAs(playServices)
     }
 

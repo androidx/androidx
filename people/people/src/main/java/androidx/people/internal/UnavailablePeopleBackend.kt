@@ -17,6 +17,7 @@
 package androidx.people.internal
 
 import android.app.PendingIntent
+import androidx.annotation.RestrictTo
 import androidx.people.DirectoryInfo
 import androidx.people.GroupQuery
 import androidx.people.GroupQueryResult
@@ -29,10 +30,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 /**
- * Backend used when neither the platform People Provider nor the Google Play services backport
- * serves this device: reads report every criterion as unhandled, and requests are declined.
+ * Backend used when no People Provider serves this device — either because neither the platform
+ * People Provider nor the Google Play services backport is available, or because Google Play
+ * services disabled the People Provider: reads report every criterion as unhandled, and requests
+ * are declined.
  */
-internal object UnavailablePeopleBackend : PeopleBackend {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object UnavailablePeopleBackend : PeopleBackend {
 
     override val isAvailable: Boolean = false
 
