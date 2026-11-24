@@ -242,6 +242,7 @@ class RemoteComposeGeneratorTest {
                 PathData.CUBIC to "Cubic",
                 PathData.CLOSE to "Close",
                 PathData.DONE to "Done",
+                PathAppend.RESET to "Reset",
             )
 
         for ((id, name) in expectedCommands) {
@@ -1445,7 +1446,22 @@ class RemoteComposeGeneratorTest {
         assertTrue(protocolCode.contains("public object RcProfiles"))
         assertTrue(protocolCode.contains("public object FloatRpn"))
         assertTrue(protocolCode.contains("public object IntRpn"))
+        assertTrue(protocolCode.contains("public object PaintConstants"))
         assertTrue(protocolCode.contains("public object RemoteContextIds"))
+        assertTrue(protocolCode.contains("public fun isTime("))
+        assertTrue(protocolCode.contains("public class FloatAnimationSpec"))
+        assertTrue(protocolCode.contains("public object BitmapFormat"))
+        assertTrue(protocolCode.contains("imageType and TYPE_AND_ENCODING_MASK"))
+        assertTrue(protocolCode.contains("encoding and TYPE_AND_ENCODING_MASK"))
+        assertTrue(protocolCode.contains("FEATURE_UNIFIED_POINTER_INPUT: Short = 33"))
+        assertTrue(protocolCode.contains("REQUIRED_HORIZONTAL: Byte = 2"))
+        assertTrue(protocolCode.contains("REQUIRED_VERTICAL: Byte = 3"))
+
+        val astCode = generator.generateAstNodes()
+        assertTrue(astCode.contains("public sealed class RemotePathEffect"))
+        assertTrue(astCode.contains("public sealed class RemotePathCommand"))
+        assertTrue(astCode.contains("public val uncompressedByteSize: Long"))
+        assertTrue(astCode.contains("public val alphaPayload: Int"))
 
         val sinkCode = generator.generateOperationSink()
         assertTrue(sinkCode.contains("public interface RemoteOperationSink"))

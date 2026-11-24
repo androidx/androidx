@@ -112,6 +112,8 @@ public class KotlinGenerator(private val schema: OperationSchema) {
             fileBuilder.addType(buildSharedSparseTypeSpec())
         }
 
+        KotlinWireCodecsGenerator(schema).appendDocumentSubWireCodecsTo(fileBuilder)
+
         return renderFile(fileBuilder.build())
     }
 
@@ -346,6 +348,96 @@ public class KotlinGenerator(private val schema: OperationSchema) {
         }
 
         addComputedBitProperties(builder, op.computedBitProperties, op.fields, props)
+        if (op.name == "FloatExpression" && schema.animationSpec != null) {
+            builder.addProperty(
+                PropertySpec.builder("isSpringAnimation", BOOLEAN, KModifier.PUBLIC)
+                    .addKdoc(
+                        "%L",
+                        "Returns true if [animationSpec] uses the spring wire layout (`SpringStopEngine`).",
+                    )
+                    .getter(
+                        FunSpec.getterBuilder()
+                            .addStatement(
+                                "return %T.isSpring(animationSpec)",
+                                ClassName(DOCUMENT_PACKAGE, "FloatAnimationSpec"),
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+            builder.addFunction(
+                FunSpec.builder("unpackAnimationSpec")
+                    .addKdoc(
+                        "%L",
+                        "Unpacks duration-based [animationSpec] into a typed [FloatAnimationSpec].",
+                    )
+                    .addModifiers(KModifier.PUBLIC)
+                    .returns(ClassName(DOCUMENT_PACKAGE, "FloatAnimationSpec"))
+                    .addStatement(
+                        "return %T.unpack(animationSpec)",
+                        ClassName(DOCUMENT_PACKAGE, "FloatAnimationSpec"),
+                    )
+                    .build()
+            )
+        }
+        if (
+            op.name == "BitmapData" &&
+                op.fields
+                    .firstOrNull { it.name == "widthAndType" }
+                    ?.bits
+                    ?.firstOrNull { it.name == "imageType" }
+                    ?.enumValues != null
+        ) {
+            builder.addProperty(
+                PropertySpec.builder("uncompressedByteSize", LONG, KModifier.PUBLIC)
+                    .addKdoc(
+                        "%L",
+                        "Uncompressed in-memory byte footprint derived from static wire dimensions (`width * height * bytesPerPixel`), or `0` if either dimension is `0`.",
+                    )
+                    .getter(
+                        FunSpec.getterBuilder()
+                            .addStatement("val w = width.toLong()")
+                            .addStatement("val h = height.toLong()")
+                            .addStatement("if (w <= 0L || h <= 0L) return 0L")
+                            .addStatement("return w * h * BitmapFormat.bytesPerPixel(imageType)")
+                            .build()
+                    )
+                    .build()
+            )
+        }
+        if (
+            (op.name == "PathData" || op.name == "PathAppend") && schema.pathCommands.isNotEmpty()
+        ) {
+            builder.addFunction(
+                FunSpec.builder("decodePathCommands")
+                    .addKdoc(
+                        "%L",
+                        "Decodes [pathData] into an ordered list of [RemotePathCommand]s.",
+                    )
+                    .addModifiers(KModifier.PUBLIC)
+                    .returns(LIST.parameterizedBy(ClassName(DOCUMENT_PACKAGE, "RemotePathCommand")))
+                    .addStatement(
+                        "return %T.decode(pathData)",
+                        ClassName(DOCUMENT_PACKAGE, "RemotePathCommand"),
+                    )
+                    .build()
+            )
+        }
+        if (op.name == "ColorExpression" && op.fields.any { it.name == "flagsAndMode" }) {
+            builder.addProperty(
+                PropertySpec.builder("alphaPayload", INT, KModifier.PUBLIC)
+                    .addKdoc(
+                        "%L",
+                        "Packed 8-bit alpha payload (`0..255`, used by `HSV_MODE`) extracted from [flagsAndMode].",
+                    )
+                    .getter(
+                        FunSpec.getterBuilder()
+                            .addStatement("return (flagsAndMode ushr 16) and 0xFF")
+                            .build()
+                    )
+                    .build()
+            )
+        }
         builder.addFunction(buildEqualsFunSpec(classTypeName, props))
         builder.addFunction(buildHashCodeFunSpec(props, emptyFallback = "Companion.OPCODE"))
         builder.addFunction(buildToStringFunSpec(className, props))

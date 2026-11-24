@@ -48,8 +48,10 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
                 .addType(buildFloatRpnObject())
                 .addType(buildIntRpnObject())
                 .addType(buildPaintCommandTagsObject())
+                .addType(buildPaintConstantsObject())
                 .addType(buildPathCommandTagsObject())
                 .addType(buildRemoteContextIdsObject())
+        KotlinWireCodecsGenerator(schema).appendProtocolConstantsTo(fileBuilder)
         return KotlinGenerator.renderFile(fileBuilder.build())
     }
 
@@ -448,12 +450,155 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
         return builder.build()
     }
 
+    private fun buildPaintConstantsObject(): TypeSpec {
+        val builder =
+            TypeSpec.objectBuilder("PaintConstants")
+                .addKdoc(
+                    "%L",
+                    "Wire enum constants and bitmasks for `PaintDataNode` (`PaintBundle`) generated from `operations.json`.",
+                )
+                .addAnnotation(KotlinGenerator.RESTRICT_TO_ANNOTATION)
+                .addModifiers(KModifier.PUBLIC)
+
+        val commandsByName = schema.paintCommands.values.associateBy { it.name }
+
+        fun addEnumConsts(commandName: String, fieldName: String, prefix: String) {
+            val enumMap =
+                commandsByName[commandName]
+                    ?.fields
+                    ?.firstOrNull { it.name == fieldName }
+                    ?.enumValues ?: return
+            for ((enumKey, enumVal) in enumMap.entries.sortedBy { it.value }) {
+                val constName =
+                    if (prefix == "BLEND_MODE_" && enumKey == "PORTER_MODE_ADD") {
+                        "PORTER_MODE_ADD"
+                    } else {
+                        "$prefix$enumKey"
+                    }
+                builder.addProperty(
+                    PropertySpec.builder(constName, INT, KModifier.PUBLIC, KModifier.CONST)
+                        .initializer("%L", enumVal)
+                        .build()
+                )
+            }
+        }
+
+        addEnumConsts("Style", "style", "STYLE_")
+        addEnumConsts("StrokeCap", "cap", "CAP_")
+        addEnumConsts("StrokeJoin", "join", "JOIN_")
+        addEnumConsts("Gradient", "tileMode", "TILE_")
+        addEnumConsts("Typeface", "fontId", "FONT_TYPE_")
+        addEnumConsts("BlendMode", "mode", "BLEND_MODE_")
+        addEnumConsts("Gradient", "type", "GRADIENT_")
+
+        builder.addProperty(
+            PropertySpec.builder("TYPEFACE_WEIGHT_MASK", INT, KModifier.PUBLIC, KModifier.CONST)
+                .addKdoc(
+                    "%L",
+                    "Bitmask for the 10-bit font weight encoded in `TYPEFACE` and `FALLBACK_TYPEFACE`'s upper 16 bits.",
+                )
+                .initializer("0x3FF")
+                .build()
+        )
+        builder.addProperty(
+            PropertySpec.builder("TYPEFACE_FONT_DATA_BIT", INT, KModifier.PUBLIC, KModifier.CONST)
+                .addKdoc(
+                    "%L",
+                    "Flag bit in `TYPEFACE`'s upper 16 bits indicating an embedded `FontData` ID.",
+                )
+                .initializer("1 shl 10")
+                .build()
+        )
+        builder.addProperty(
+            PropertySpec.builder("TYPEFACE_ITALIC_BIT", INT, KModifier.PUBLIC, KModifier.CONST)
+                .addKdoc(
+                    "%L",
+                    "Flag bit in `TYPEFACE` and `FALLBACK_TYPEFACE`'s upper 16 bits indicating italic style.",
+                )
+                .initializer("1 shl 11")
+                .build()
+        )
+
+        val blendEnum =
+            commandsByName["BlendMode"]
+                ?.fields
+                ?.firstOrNull { it.name == "mode" }
+                ?.enumValues
+                .orEmpty()
+        if (blendEnum.isNotEmpty()) {
+            builder.addFunction(
+                FunSpec.builder("isSrcOverCompatibleBlendMode")
+                    .addAnnotation(JvmStatic::class)
+                    .addModifiers(KModifier.PUBLIC)
+                    .addParameter("code", INT)
+                    .returns(BOOLEAN)
+                    .addKdoc(
+                        "%L",
+                        "Returns true if [code] behaves like [BLEND_MODE_SRC_OVER] (either [BLEND_MODE_SRC_OVER] or [BLEND_MODE_NULL]).",
+                    )
+                    .addStatement("return code == BLEND_MODE_SRC_OVER || code == BLEND_MODE_NULL")
+                    .build()
+            )
+            val blendNameFun =
+                FunSpec.builder("blendModeName")
+                    .addAnnotation(JvmStatic::class)
+                    .addModifiers(KModifier.PUBLIC)
+                    .addParameter("code", INT)
+                    .returns(STRING)
+                    .addKdoc(
+                        "%L",
+                        "Formats a wire blend mode [code] as its name matching `PaintBundle.blendModeString`.",
+                    )
+                    .beginControlFlow("return when (code)")
+            for ((enumKey, _) in blendEnum.entries.sortedBy { it.value }) {
+                val constName =
+                    if (enumKey == "PORTER_MODE_ADD") "PORTER_MODE_ADD" else "BLEND_MODE_$enumKey"
+                val label =
+                    when (enumKey) {
+                        "NULL" -> "null"
+                        "PORTER_MODE_ADD" -> "ADD"
+                        else -> enumKey
+                    }
+                blendNameFun.addStatement("%L -> %S", constName, label)
+            }
+            blendNameFun.addStatement("else -> %S", "null")
+            blendNameFun.endControlFlow()
+            builder.addFunction(blendNameFun.build())
+        }
+
+        val tileEnum =
+            commandsByName["Gradient"]
+                ?.fields
+                ?.firstOrNull { it.name == "tileMode" }
+                ?.enumValues
+                .orEmpty()
+        if (tileEnum.isNotEmpty()) {
+            val tileNameFun =
+                FunSpec.builder("tileModeName")
+                    .addAnnotation(JvmStatic::class)
+                    .addModifiers(KModifier.PUBLIC)
+                    .addParameter("code", INT)
+                    .returns(STRING)
+                    .addKdoc("%L", "Formats a wire tile mode [code] as its human-readable name.")
+                    .beginControlFlow("return when (code)")
+            for ((enumKey, _) in tileEnum.entries.sortedBy { it.value }) {
+                tileNameFun.addStatement("TILE_%L -> %S", enumKey, enumKey)
+            }
+            tileNameFun.addStatement("else -> %S", "UNKNOWN")
+            tileNameFun.endControlFlow()
+            builder.addFunction(tileNameFun.build())
+        }
+
+        return builder.build()
+    }
+
     private fun buildPathCommandTagsObject(): TypeSpec {
         val builder =
             TypeSpec.objectBuilder("PathCommandTags")
                 .addKdoc(
                     "%L",
-                    "Path segment command IDs and NaN tags inside `PathDataNode` matching `PathData`.",
+                    "Path segment command IDs and NaN tags inside `PathDataNode` and " +
+                        "`PathAppendNode` (where `RESET` is specific to `PathAppend`).",
                 )
                 .addAnnotation(KotlinGenerator.RESTRICT_TO_ANNOTATION)
                 .addModifiers(KModifier.PUBLIC)
@@ -523,6 +668,47 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
                 )
             }
         }
+        val timeVars = schema.systemVariables.filter { it.isTime }.sortedBy { it.id }
+        val isTimeBody =
+            if (timeVars.isEmpty()) {
+                "return false"
+            } else {
+                val minVar = timeVars.first()
+                val maxVar = timeVars.last()
+                val isContiguous =
+                    timeVars.size == (maxVar.id - minVar.id + 1) &&
+                        timeVars.indices.all { timeVars[it].id == minVar.id + it }
+                if (isContiguous) {
+                    "return id in ID_${minVar.name}..ID_${maxVar.name}"
+                } else {
+                    "return id in setOf(${timeVars.joinToString(", ") { "ID_${it.name}" }})"
+                }
+            }
+        builder.addFunction(
+            FunSpec.builder("isTime")
+                .addKdoc(
+                    "%L",
+                    "Returns true if [id] is marked `isTime` in `operations.json` (matching legacy `RemoteContext.isTime`).",
+                )
+                .addModifiers(KModifier.PUBLIC)
+                .addParameter("id", INT)
+                .returns(BOOLEAN)
+                .addStatement("%L", isTimeBody)
+                .build()
+        )
+        builder.addFunction(
+            FunSpec.builder("isTime")
+                .addKdoc(
+                    "%L",
+                    "Returns true if [floatValue] is a variable reference whose ID satisfies " +
+                        "[isTime] (`1..12`). Returns `false` for literal floats and non-ID NaNs.",
+                )
+                .addModifiers(KModifier.PUBLIC)
+                .addParameter("floatValue", KotlinGenerator.MAYBE_VARIABLE_FLOAT_CLASS)
+                .returns(BOOLEAN)
+                .addStatement("return floatValue.isVariable && isTime(floatValue.variableId)")
+                .build()
+        )
         return builder.build()
     }
 

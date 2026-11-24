@@ -33,6 +33,10 @@ public class OperationSchema(
     public val intRpnOperators: SchemaRpnOperatorTable? = null,
     public val pathCommands: Map<Int, SchemaPathCommand> = emptyMap(),
     public val systemVariables: List<SchemaSystemVariable> = emptyList(),
+    public val headerConstants: Map<String, Map<String, Int>> = emptyMap(),
+    public val idEncoding: SchemaIdEncoding? = null,
+    public val animationSpec: SchemaAnimationSpec? = null,
+    public val pathEffects: SchemaPathEffects? = null,
 ) {
     public val operationsById: Map<Int, SchemaOperation> = operations.associateBy { it.id }
     public val operationsByName: Map<String, SchemaOperation> = operations.associateBy { it.name }
@@ -51,6 +55,7 @@ public class SchemaSystemVariable(
     public val name: String,
     public val type: String,
     public val description: String = "",
+    public val isTime: Boolean = false,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -59,6 +64,7 @@ public class SchemaPaintCommand(
     public val name: String,
     public val description: String = "",
     public val fields: List<SchemaField> = emptyList(),
+    public val wireFormat: String? = null,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -67,6 +73,54 @@ public class SchemaPathCommand(
     public val name: String,
     public val description: String = "",
     public val fields: List<SchemaField> = emptyList(),
+    public val leadingPaddingFloats: Int = 0,
+)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaIdEncoding(
+    public val nanPrefix: Int,
+    public val payloadMask: Int,
+    public val startId: Int,
+    public val regionMask: Int,
+    public val regionSubIdMask: Int,
+    public val regionSystem: Int,
+    public val regionVariable: Int,
+    public val regionArray: Int,
+    public val regionOperation: Int,
+    public val longIdOffset: Long,
+    public val ptrDereference: Int,
+    public val valueMask: Int,
+    public val macroLocalStartId: Int,
+    public val macroLocalEndId: Int,
+)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaAnimationEasing(
+    public val id: Int,
+    public val name: String,
+    public val aliases: List<String> = emptyList(),
+    public val cubicControlPoints: FloatArray? = null,
+)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaAnimationSpec(
+    public val easings: List<SchemaAnimationEasing>,
+    public val flagsBits: List<SchemaBitField>,
+)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaPathEffectType(
+    public val id: Int,
+    public val name: String,
+    public val constName: String,
+    public val fields: List<SchemaField>,
+)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaPathEffects(
+    public val maxDashIntervals: Int,
+    public val maxNestingDepth: Int,
+    public val types: List<SchemaPathEffectType>,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
