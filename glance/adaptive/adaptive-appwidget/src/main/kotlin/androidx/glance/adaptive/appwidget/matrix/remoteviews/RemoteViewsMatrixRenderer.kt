@@ -244,6 +244,14 @@ private fun header(taps: RemoteViewsActions, card: ResolvedMatrixCard): RemoteVi
     // and ellipsized rather than left to squeeze the primary text out.
     // Only a row has a trailing slot; resolve() drops the trailing component of a stacked header.
     if (!card.stacked) {
+        val headerHorizontalPaddingPx = card.headerHorizontalPadding.toPx(context.density)
+        views.setViewPadding(
+            R.id.glance_adaptive_appwidget_remoteviews_header_row,
+            headerHorizontalPaddingPx,
+            0,
+            headerHorizontalPaddingPx,
+            0,
+        )
         val trailing = card.trailing
         views.setSlot(
             R.id.glance_adaptive_appwidget_remoteviews_slot_trailing,
@@ -304,12 +312,21 @@ private fun SecondaryComponent.text(): CharSequence =
 private fun TrailingComponent.toRemoteViews(taps: RemoteViewsActions, size: Dp): RemoteViews =
     when (this) {
         is IconButton ->
-            buildRemoteViews(
-                taps,
-                diameter = size,
-                glyphSize = size * IconButtonDefaults.TrailingGlyphRatio,
-                width = size + MatrixDefaults.TrailingExtraWidth,
-            )
+            if (contained) {
+                buildRemoteViews(
+                    taps,
+                    diameter = size,
+                    glyphSize = size * IconButtonDefaults.TrailingGlyphRatio,
+                    width = size + MatrixDefaults.TrailingExtraWidth,
+                )
+            } else {
+                buildRemoteViews(
+                    taps,
+                    diameter = size,
+                    glyphSize = MatrixDefaults.UncontainedTrailingGlyphSize,
+                    width = MatrixDefaults.UncontainedTrailingWidth,
+                )
+            }
     }
 
 private fun HeroComponent.toRemoteViews(

@@ -22,6 +22,7 @@ import android.os.Build
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.ColorRes
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.Dp
@@ -219,6 +220,26 @@ internal fun RemoteViews.setVerticalItemSpacing(
     }
 }
 
+/**
+ * Tints the image in [viewId] with [colorRes], resolving dynamic color resources on API 31+ and
+ * falling back to a static [Context.getColor] filter below.
+ *
+ * Below API 31, theme changes do not automatically re-push widget updates, so prefer separate XML
+ * layouts with `android:tint` for fixed variants and reserve this helper for dynamic overrides or
+ * API 31+ reapply resets.
+ */
+internal fun RemoteViews.setImageTint(
+    context: Context,
+    @IdRes viewId: Int,
+    @ColorRes colorRes: Int,
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        RemoteViewsSlotsApi31Impl.setImageTintResource(this, viewId, colorRes)
+    } else {
+        setInt(viewId, "setColorFilter", context.getColor(colorRes))
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.S)
 private object RemoteViewsSlotsApi31Impl {
     fun addStableView(rv: RemoteViews, containerId: Int, child: RemoteViews, stableId: Int) {
@@ -245,5 +266,9 @@ private object RemoteViewsSlotsApi31Impl {
             marginDp,
             TypedValue.COMPLEX_UNIT_DIP,
         )
+    }
+
+    fun setImageTintResource(rv: RemoteViews, @IdRes viewId: Int, @ColorRes colorRes: Int) {
+        rv.setColorStateList(viewId, "setImageTintList", colorRes)
     }
 }

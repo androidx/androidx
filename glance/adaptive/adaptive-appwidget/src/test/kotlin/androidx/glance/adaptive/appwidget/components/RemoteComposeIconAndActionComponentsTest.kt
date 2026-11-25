@@ -22,6 +22,7 @@ import android.os.Bundle
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.core.semantics.CoreSemantics
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.ui.unit.dp
 import androidx.glance.adaptive.appwidget.components.icon.Content
 import androidx.glance.adaptive.appwidget.components.icon.IconDefaults
@@ -154,6 +155,55 @@ class RemoteComposeIconAndActionComponentsTest {
             .isEqualTo(FIRST_PENDING_INTENT_ACTION_ID)
         assertThat(namedCallback.operationsOfType<CoreSemantics>().single().role)
             .isEqualTo(AccessibleComponent.Role.BUTTON)
+    }
+
+    @Test
+    fun iconButton_uncontainedAndCustomHeight_omitsBackgroundAndRespectsHeight() = runTest {
+        val action = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://refresh"))
+        val rendered =
+            captureAndRender(context, widthDp = 48, heightDp = 48) {
+                IconButton(
+                        icon = TEST_VECTOR_GLYPH,
+                        contentDescription = "Refresh",
+                        action = action,
+                        contained = false,
+                    )
+                    .Content(
+                        taps = RemoteComposeActions(widgetName = "list"),
+                        diameter = 40.dp,
+                        glyphSize = 24.dp,
+                        width = 40.dp,
+                        uncontainedHeight = 24.rdp,
+                    )
+            }
+        val box = rendered.firstLayoutChild()
+        assertThat(box.width).isWithin(1f).of(40.dpToPx(context))
+        assertThat(box.height).isWithin(1f).of(24.dpToPx(context))
+        // Uncontained button registers only the glyph's primary tint (no secondaryContainer fill).
+        assertThat(checkNotNull(rendered.document.themedColors)).hasSize(1)
+        assertThat(rendered.operationsOfType<CoreSemantics>().single().role)
+            .isEqualTo(AccessibleComponent.Role.BUTTON)
+
+        // Contained buttons ignore uncontainedHeight so circles and pills stay undistorted.
+        val containedRendered =
+            captureAndRender(context, widthDp = 48, heightDp = 48) {
+                IconButton(
+                        icon = TEST_VECTOR_GLYPH,
+                        contentDescription = "Add",
+                        action = action,
+                        contained = true,
+                    )
+                    .Content(
+                        taps = RemoteComposeActions(widgetName = "list"),
+                        diameter = 40.dp,
+                        glyphSize = 24.dp,
+                        width = 40.dp,
+                        uncontainedHeight = 24.rdp,
+                    )
+            }
+        val containedBox = containedRendered.firstLayoutChild()
+        assertThat(containedBox.width).isWithin(1f).of(40.dpToPx(context))
+        assertThat(containedBox.height).isWithin(1f).of(40.dpToPx(context))
     }
 
     private class NoOpCallback : GlanceAdaptiveActionCallback {

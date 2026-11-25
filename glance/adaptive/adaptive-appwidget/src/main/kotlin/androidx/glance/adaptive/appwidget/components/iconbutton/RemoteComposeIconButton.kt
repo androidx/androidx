@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
@@ -40,14 +41,18 @@ import androidx.glance.adaptive.appwidget.components.RemoteVectorGlyph
 import androidx.glance.adaptive.core.slots.IconButton
 
 /**
- * Draws the icon button as a circle [diameter] across, or as a pill [width] wide and [diameter]
- * tall when [width] is larger, with its glyph [glyphSize] across at the center — the RemoteCompose
- * counterpart of [IconButton.buildRemoteViews].
+ * Draws the icon button as a filled circle [diameter] across, or as a pill [width] wide and
+ * [diameter] tall when [width] is larger, with its glyph [glyphSize] across at the center when
+ * [IconButton.contained] is `true`, or as a bare primary-tinted glyph with no background when
+ * `false` — the RemoteCompose counterpart of [IconButton.buildRemoteViews].
  *
  * @param taps Where the button's tap goes.
- * @param diameter Height of the button, and its width when it is a circle.
+ * @param diameter Height of the button (and circle/pill corner sizing when [IconButton.contained]
+ *   is `true`), and its width when it is a circle.
  * @param glyphSize Edge length of the glyph.
  * @param width Width of the button; a pill when larger than [diameter].
+ * @param uncontainedHeight Optional dynamic height expression applied only when
+ *   [IconButton.contained] is `false` (defaults to [diameter]).
  */
 @RemoteComposable
 @Composable
@@ -56,21 +61,30 @@ internal fun IconButton.Content(
     diameter: Dp,
     glyphSize: Dp,
     width: Dp = diameter,
+    uncontainedHeight: RemoteDp? = null,
 ) {
-    val shape =
-        if (width > diameter) {
-            RemoteRoundedCornerShape((diameter.value / 2f).rdp)
-        } else {
-            RemoteCircleShape
-        }
     val tappable = taps.isTappable(action)
     val description = contentDescription
+    val resolvedHeight =
+        if (!contained && uncontainedHeight != null) uncontainedHeight else diameter.asRdp()
 
     RemoteBox(
         modifier =
-            RemoteModifier.size(width = width.asRdp(), height = diameter.asRdp())
-                .clip(shape)
-                .background(RemoteComposePalette.secondaryContainer)
+            RemoteModifier.size(width = width.asRdp(), height = resolvedHeight)
+                .then(
+                    if (contained) {
+                        val shape =
+                            if (width > diameter) {
+                                RemoteRoundedCornerShape((diameter.value / 2f).rdp)
+                            } else {
+                                RemoteCircleShape
+                            }
+                        RemoteModifier.clip(shape)
+                            .background(RemoteComposePalette.secondaryContainer)
+                    } else {
+                        RemoteModifier
+                    }
+                )
                 .semantics {
                     contentDescription = description.rs
                     if (tappable) {
@@ -83,7 +97,12 @@ internal fun IconButton.Content(
         RemoteVectorGlyph(
             icon = icon,
             size = glyphSize,
-            tint = RemoteComposePalette.onSecondaryContainer,
+            tint =
+                if (contained) {
+                    RemoteComposePalette.onSecondaryContainer
+                } else {
+                    RemoteComposePalette.primary
+                },
         )
     }
 }

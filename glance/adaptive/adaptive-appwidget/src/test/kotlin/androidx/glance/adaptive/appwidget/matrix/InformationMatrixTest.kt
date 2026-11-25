@@ -25,13 +25,17 @@ import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
+import androidx.glance.adaptive.core.slots.Badge
 import androidx.glance.adaptive.core.slots.ContainedRing
 import androidx.glance.adaptive.core.slots.Icon
 import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconGrid
 import androidx.glance.adaptive.core.slots.IconTile
+import androidx.glance.adaptive.core.slots.ItemList
+import androidx.glance.adaptive.core.slots.ListItem
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
+import androidx.glance.adaptive.core.templates.list.ListItemStyle
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -294,7 +298,7 @@ class InformationMatrixTest {
     }
 
     @Test
-    fun card_trailingTakesTheLeadingSizeOutOfTheRow() {
+    fun card_trailingTakesTheDefaultButtonSizeOutOfTheRow() {
         val button = IconButton(GLYPH, "Other workouts", ACTION)
         fun content(trailing: IconButton?) =
             MatrixCardContent(
@@ -309,11 +313,12 @@ class InformationMatrixTest {
         val with = resolve(content(trailing = button), at(176, 88))
 
         assertThat(with.trailing).isSameInstanceAs(button)
-        assertThat(with.trailingSize).isEqualTo(40.dp)
+        // Contained trailing buttons keep the full 56 dp pill height independent of leadingSize.
+        assertThat(with.trailingSize).isEqualTo(MatrixDefaults.LeadingSize)
         assertThat(without.trailing).isNull()
         assertThat(without.trailingSize).isEqualTo(0.dp)
         // 176 dp less 2 x 16 dp padding, a 40 dp icon and an 8 dp gap leaves 96 dp for the
-        // metric, or 48 dp with a trailing button: too narrow for it at 16 sp.
+        // metric, or 24 dp with a 64 dp trailing pill + 8 dp gap: too narrow for it at 16 sp.
         assertThat((without.primary as TemplateText).value).isEqualTo("1,234,567")
         assertThat((with.primary as TemplateText).value).isNotEqualTo("1,234,567")
     }
@@ -444,7 +449,7 @@ class InformationMatrixTest {
     }
 
     @Test
-    fun card_preservesStruckThroughAcrossPrimaryFitToAndLockScreenRedaction() {
+    fun card_preservesStruckThroughAcrossPrimaryFitToAndDropsOnLockScreenRedaction() {
         val fitted =
             resolve(
                 MatrixCardContent(
@@ -481,9 +486,9 @@ class InformationMatrixTest {
         val lockedPrimary = locked.primary as TemplateText
         val lockedSecondary = locked.secondary as TemplateText
         assertThat(lockedPrimary.value).isEqualTo("Hidden")
-        assertThat(lockedPrimary.isStruckThrough).isTrue()
+        assertThat(lockedPrimary.isStruckThrough).isFalse()
         assertThat(lockedSecondary.value).isEqualTo("Time")
-        assertThat(lockedSecondary.isStruckThrough).isTrue()
+        assertThat(lockedSecondary.isStruckThrough).isFalse()
     }
 
     @Test
@@ -505,6 +510,214 @@ class InformationMatrixTest {
                 .component as IconButton
         assertThat(lockedBulbButton.contentDescription).isEqualTo("Call")
         assertThat(lockedBulbButton.contained).isFalse()
+    }
+
+    @Test
+    fun card_itemListRedactionPreservesLayoutAndItemMetadata() {
+        val leadingIcon = Icon(GLYPH, "Check")
+        val trailingIcon = Icon(GLYPH, "Video")
+        val trailingChip = Badge("New")
+        val sensitiveItem =
+            ListItem(
+                title =
+                    TemplateText(
+                        "Salary review",
+                        sensitiveReplacement = "Busy",
+                        isStruckThrough = true,
+                    ),
+                subtitle = TemplateText("10:00", sensitiveReplacement = "Morning"),
+                tertiaryText = TemplateText("Room 204", sensitiveReplacement = "Office"),
+                leadingIcon = leadingIcon,
+                trailingChip = trailingChip,
+                action = ACTION,
+                style = ListItemStyle.Focused,
+            )
+        val plainItem =
+            ListItem(
+                title = TemplateText("Team Lunch", isStruckThrough = true),
+                trailingIcon = trailingIcon,
+                action = ACTION,
+            )
+        val dividerItem = ListItem(title = TemplateText("TOMORROW"), isDivider = true)
+        val sensitiveDividerItem =
+            ListItem(
+                title = TemplateText("MON, NOV 24", sensitiveReplacement = "UPCOMING"),
+                isDivider = true,
+            )
+        val list =
+            ItemList(
+                items = listOf(sensitiveItem, plainItem, dividerItem, sensitiveDividerItem),
+                isScrollable = true,
+                showTertiaryText = true,
+                expandSingleItem = true,
+                uncontainedSingleItem = true,
+            )
+        val content =
+            MatrixCardContent(
+                primary = TemplateText("Today"),
+                trailing =
+                    IconButton(
+                        GLYPH,
+                        "Refresh",
+                        ACTION,
+                        sensitiveReplacement = "Action",
+                        contained = false,
+                    ),
+                hero = list,
+            )
+
+        // Unlocked surfaces return the exact same ItemList instance without copying.
+        val unlocked = resolve(content, at(176, 88))
+        assertThat(unlocked.hero).isSameInstanceAs(list)
+
+        val resolved = resolve(content, at(176, 88, AppWidgetSurface.MOBILE_LOCK_SCREEN))
+        val lockedTrailing = resolved.trailing as IconButton
+        assertThat(lockedTrailing.contentDescription).isEqualTo("Action")
+        assertThat(lockedTrailing.contained).isFalse()
+        val lockedList = resolved.hero as ItemList
+        assertThat(lockedList.isScrollable).isTrue()
+        assertThat(lockedList.showTertiaryText).isTrue()
+        assertThat(lockedList.expandSingleItem).isTrue()
+        assertThat(lockedList.uncontainedSingleItem).isTrue()
+
+        val lockedFirst = lockedList.items[0]
+        assertThat(lockedFirst.title.value).isEqualTo("Busy")
+        // Redacted text drops strikethrough so declined/completed state is not leaked.
+        assertThat(lockedFirst.title.isStruckThrough).isFalse()
+        assertThat(lockedFirst.subtitle?.value).isEqualTo("Morning")
+        assertThat(lockedFirst.tertiaryText?.value).isEqualTo("Office")
+        assertThat(lockedFirst.leadingIcon).isEqualTo(leadingIcon)
+        assertThat(lockedFirst.trailingChip).isEqualTo(trailingChip)
+        assertThat(lockedFirst.action).isEqualTo(ACTION)
+        assertThat(lockedFirst.style).isEqualTo(ListItemStyle.Focused)
+        // Non-sensitive items (including strikethrough) and dividers are reused as-is.
+        assertThat(lockedList.items[1]).isSameInstanceAs(plainItem)
+        assertThat(lockedList.items[1].title.isStruckThrough).isTrue()
+        assertThat(lockedList.items[2]).isSameInstanceAs(dividerItem)
+        // Sensitive dividers are redacted while keeping their divider flag.
+        assertThat(lockedList.items[3].title.value).isEqualTo("UPCOMING")
+        assertThat(lockedList.items[3].isDivider).isTrue()
+
+        // An ItemList with no sensitive fields returns itself on the lock screen too.
+        val nonSensitiveList = ItemList(listOf(plainItem, dividerItem))
+        val lockedPlain =
+            resolve(
+                MatrixCardContent(hero = nonSensitiveList),
+                at(176, 88, AppWidgetSurface.MOBILE_LOCK_SCREEN),
+            )
+        assertThat(lockedPlain.hero).isSameInstanceAs(nonSensitiveList)
+    }
+
+    @Test
+    fun card_compactHeaderValidationPaddingBudgetAndUncontainedTrailingSizing() {
+        assertThrows(IllegalArgumentException::class.java) {
+            MatrixCardContent(headerHorizontalPadding = (-1).dp)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            MatrixCardContent(leadingSize = 40.dp, compactHeader = false)
+        }
+
+        // headerHorizontalPadding deducts from both primary and beside secondary width budgets,
+        // and is zeroed on stacked W1 headers.
+        val unpadded =
+            resolve(
+                MatrixCardContent(
+                    primary = TemplateText("123456"),
+                    secondary = TemplateText("Steps"),
+                ),
+                at(220, 176),
+            )
+        val padded =
+            resolve(
+                MatrixCardContent(
+                    primary = TemplateText("123456"),
+                    secondary = TemplateText("Steps"),
+                    headerHorizontalPadding = 16.dp,
+                ),
+                at(220, 176),
+            )
+        assertThat(padded.headerHorizontalPadding).isEqualTo(16.dp)
+        assertThat(padded.secondaryMaxWidth!!.value).isLessThan(unpadded.secondaryMaxWidth!!.value)
+
+        val unpaddedPrimary =
+            resolve(
+                MatrixCardContent(
+                    leading = Icon(GLYPH),
+                    primary = TemplateText("1,234,567"),
+                    leadingSize = 40.dp,
+                    primaryTextSize = 16.sp,
+                ),
+                at(176, 88),
+            )
+        val paddedPrimary =
+            resolve(
+                MatrixCardContent(
+                    leading = Icon(GLYPH),
+                    primary = TemplateText("1,234,567"),
+                    leadingSize = 40.dp,
+                    primaryTextSize = 16.sp,
+                    headerHorizontalPadding = 24.dp,
+                ),
+                at(176, 88),
+            )
+        assertThat((unpaddedPrimary.primary as TemplateText).value).isEqualTo("1,234,567")
+        assertThat((paddedPrimary.primary as TemplateText).value).isNotEqualTo("1,234,567")
+        val stackedPadded =
+            resolve(
+                MatrixCardContent(
+                    primary = TemplateText("Title"),
+                    headerHorizontalPadding = 16.dp,
+                ),
+                at(88, 176),
+            )
+        assertThat(stackedPadded.stacked).isTrue()
+        assertThat(stackedPadded.headerHorizontalPadding).isEqualTo(0.dp)
+
+        // Uncontained trailing buttons budget narrower width (40dp vs 64dp) and shrink to 24dp at
+        // H1 only on compact headers (standard H1 headers already enforce 56dp minHeight and keep
+        // the full 40dp touch target). Contained trailing buttons keep 56dp even alongside a small
+        // leading icon.
+        val containedCard =
+            MatrixCardContent(
+                leading = Icon(GLYPH),
+                primary = TemplateText("Agenda"),
+                secondary = TemplateText("Sub"),
+                trailing = IconButton(GLYPH, "Add", ACTION, contained = true),
+                hero = ItemList(listOf(ListItem(TemplateText("Event")))),
+                leadingSize = 20.dp,
+                compactHeader = true,
+            )
+        val uncontainedCard =
+            MatrixCardContent(
+                leading = Icon(GLYPH),
+                primary = TemplateText("Morning Brief"),
+                secondary = TemplateText("Sub"),
+                trailing = IconButton(GLYPH, "Refresh", ACTION, contained = false),
+                hero = ItemList(listOf(ListItem(TemplateText("Event")))),
+                leadingSize = 20.dp,
+                compactHeader = true,
+            )
+        val standardUncontainedCard =
+            MatrixCardContent(
+                primary = TemplateText("Morning Brief"),
+                trailing = IconButton(GLYPH, "Refresh", ACTION, contained = false),
+                compactHeader = false,
+            )
+        val resolvedContainedH2 = resolve(containedCard, at(220, 132))
+        val resolvedUncontainedH1 = resolve(uncontainedCard, at(176, 88))
+        val resolvedUncontainedH2 = resolve(uncontainedCard, at(220, 132))
+        val resolvedStandardUncontainedH1 = resolve(standardUncontainedCard, at(176, 88))
+
+        assertThat(resolvedContainedH2.compactHeader).isTrue()
+        assertThat(resolvedContainedH2.leadingSize).isEqualTo(20.dp)
+        assertThat(resolvedContainedH2.trailingSize).isEqualTo(MatrixDefaults.LeadingSize)
+        assertThat(resolvedUncontainedH1.trailingSize).isEqualTo(24.dp)
+        assertThat(resolvedUncontainedH2.trailingSize).isEqualTo(40.dp)
+        assertThat(resolvedStandardUncontainedH1.trailingSize).isEqualTo(40.dp)
+        assertThat(resolvedUncontainedH2.secondaryMaxWidth!!.value)
+            .isGreaterThan(resolvedContainedH2.secondaryMaxWidth!!.value)
+        assertThat(resolvedUncontainedH2.heroHeight!!.value)
+            .isGreaterThan(resolvedContainedH2.heroHeight!!.value)
     }
 
     private fun at(

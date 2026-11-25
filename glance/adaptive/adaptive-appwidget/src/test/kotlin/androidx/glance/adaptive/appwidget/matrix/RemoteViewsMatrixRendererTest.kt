@@ -35,6 +35,8 @@ import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.components.RemoteViewsActions
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.dpToPx
+import androidx.glance.adaptive.appwidget.components.icon.buildRemoteViews
+import androidx.glance.adaptive.appwidget.components.iconbutton.buildRemoteViews
 import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
@@ -1121,6 +1123,220 @@ class RemoteViewsMatrixRendererTest {
             root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_grid_row),
             0,
         )
+    }
+
+    @Test
+    fun remoteViewsIconButton_uncontainedClearsBackgroundAndAppliesPrimaryTint() {
+        val taps = RemoteViewsActions(context, widgetName = "test")
+        val contained =
+            IconButton(GLYPH, "Add", RUN, contained = true)
+                .buildRemoteViews(taps, diameter = 56.dp, glyphSize = 30.dp, width = 64.dp)
+                .apply(context, FrameLayout(context))
+        assertThat(contained.background).isNotNull()
+        assertThat(
+                contained
+                    .findViewById<ImageView>(
+                        R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph
+                    )
+                    .imageTintList
+                    ?.defaultColor
+            )
+            .isEqualTo(
+                context.getColor(
+                    R.color.glance_adaptive_appwidget_remoteviews_on_secondary_container
+                )
+            )
+
+        val uncontained =
+            IconButton(GLYPH, "Refresh", RUN, contained = false)
+                .buildRemoteViews(taps, diameter = 40.dp, glyphSize = 24.dp, width = 40.dp)
+                .apply(context, FrameLayout(context))
+        assertThat(uncontained.background).isNull()
+        assertThat(
+                uncontained
+                    .findViewById<ImageView>(
+                        R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph
+                    )
+                    .imageTintList
+                    ?.defaultColor
+            )
+            .isEqualTo(context.getColor(R.color.glance_adaptive_appwidget_remoteviews_primary))
+
+        // Reapplying a contained trailing button onto a card previously showing an uncontained
+        // button replaces the dedicated uncontained layout cleanly on API 31+.
+        val surface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(264, 132))
+        val cardView =
+            RemoteViewsMatrixRenderer.renderRemoteViews(
+                    context,
+                    template,
+                    MatrixCardContent(
+                        primary = TemplateText("Today"),
+                        trailing = IconButton(GLYPH, "Refresh", RUN, contained = false),
+                        compactHeader = true,
+                    ),
+                    surface,
+                )
+                .apply(context, FrameLayout(context))
+        assertThat(iconButton(cardView).background).isNull()
+        assertThat(iconButtonGlyph(cardView).imageTintList?.defaultColor)
+            .isEqualTo(context.getColor(R.color.glance_adaptive_appwidget_remoteviews_primary))
+
+        RemoteViewsMatrixRenderer.renderRemoteViews(
+                context,
+                template,
+                MatrixCardContent(
+                    primary = TemplateText("Today"),
+                    trailing = IconButton(GLYPH, "Add", RUN, contained = true),
+                    compactHeader = true,
+                ),
+                surface,
+            )
+            .reapply(context, cardView)
+        assertThat(iconButton(cardView).background).isNotNull()
+        assertThat(iconButtonGlyph(cardView).imageTintList?.defaultColor)
+            .isEqualTo(
+                context.getColor(
+                    R.color.glance_adaptive_appwidget_remoteviews_on_secondary_container
+                )
+            )
+    }
+
+    @Test
+    fun remoteViewsIcon_customUncontainedTintAndReapplyBackToDefault() {
+        val host = FrameLayout(context)
+        val customRv =
+            Icon(GLYPH, "Busy")
+                .buildRemoteViews(
+                    context,
+                    size = 20.dp,
+                    uncontainedTintRes =
+                        R.color.glance_adaptive_appwidget_remoteviews_on_primary_container,
+                )
+        val image = customRv.apply(context, host) as ImageView
+        assertThat(image.imageTintList?.defaultColor)
+            .isEqualTo(
+                context.getColor(R.color.glance_adaptive_appwidget_remoteviews_on_primary_container)
+            )
+
+        // Reapplying with default tint clears the previous custom tint on recycled API 31+ views.
+        Icon(GLYPH, "Default").buildRemoteViews(context, size = 20.dp).reapply(context, image)
+        assertThat(image.imageTintList?.defaultColor)
+            .isEqualTo(context.getColor(R.color.glance_adaptive_appwidget_remoteviews_primary))
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun remoteViewsIconAndButton_preApi31_fallBackToColorFilter() {
+        val icon =
+            Icon(GLYPH, "Busy")
+                .buildRemoteViews(
+                    context,
+                    size = 20.dp,
+                    uncontainedTintRes =
+                        R.color.glance_adaptive_appwidget_remoteviews_on_primary_container,
+                )
+                .apply(context, FrameLayout(context)) as ImageView
+        assertThat(icon.colorFilter)
+            .isEqualTo(
+                PorterDuffColorFilter(
+                    context.getColor(
+                        R.color.glance_adaptive_appwidget_remoteviews_on_primary_container
+                    ),
+                    PorterDuff.Mode.SRC_ATOP,
+                )
+            )
+
+        // Uncontained buttons use a dedicated XML layout with primary android:tint so below API 31
+        // they leave colorFilter unset and follow day/night theme switches without stale ints.
+        val button =
+            IconButton(GLYPH, "Refresh", RUN, contained = false)
+                .buildRemoteViews(
+                    RemoteViewsActions(context, widgetName = "test"),
+                    diameter = 40.dp,
+                    glyphSize = 24.dp,
+                )
+                .apply(context, FrameLayout(context))
+        assertThat(button.background).isNull()
+        val uncontainedGlyph =
+            button.findViewById<ImageView>(
+                R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph
+            )
+        assertThat(uncontainedGlyph.colorFilter).isNull()
+        assertThat(uncontainedGlyph.imageTintList?.defaultColor)
+            .isEqualTo(context.getColor(R.color.glance_adaptive_appwidget_remoteviews_primary))
+
+        // Default contained buttons below API 31 also leave colorFilter unset to preserve XML tint.
+        val containedButton =
+            IconButton(GLYPH, "Add", RUN, contained = true)
+                .buildRemoteViews(
+                    RemoteViewsActions(context, widgetName = "test"),
+                    diameter = 40.dp,
+                    glyphSize = 24.dp,
+                )
+                .apply(context, FrameLayout(context))
+        val containedGlyph =
+            containedButton.findViewById<ImageView>(
+                R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph
+            )
+        assertThat(containedGlyph.colorFilter).isNull()
+        assertThat(containedGlyph.imageTintList?.defaultColor)
+            .isEqualTo(
+                context.getColor(
+                    R.color.glance_adaptive_appwidget_remoteviews_on_secondary_container
+                )
+            )
+    }
+
+    @Test
+    fun card_uncontainedTrailingAndHeaderHorizontalPadding_renderWithExpectedSizeAndPadding() {
+        val density = context.density
+        val content =
+            MatrixCardContent(
+                primary = TemplateText("Today"),
+                trailing = IconButton(GLYPH, "Refresh", RUN, contained = false),
+                compactHeader = true,
+                headerHorizontalPadding = 12.dp,
+            )
+
+        // At H1, an uncontained trailing button renders 40 x 24 dp around a 24 dp glyph.
+        val h1 = render(content, Dimensions(176, 88))
+        val h1Header = h1.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_header_row)
+        assertThat(h1Header.paddingLeft).isEqualTo(12f.dpToPx(density))
+        assertThat(h1Header.paddingRight).isEqualTo(12f.dpToPx(density))
+        val h1Button = iconButton(h1)
+        assertThat(h1Button.background).isNull()
+        assertThat(iconButtonGlyph(h1).maxWidth).isEqualTo(24f.dpToPx(density))
+        assertThat(h1Button.paddingLeft + h1Button.paddingRight)
+            .isEqualTo(40f.dpToPx(density) - 24f.dpToPx(density))
+        assertThat(h1Button.paddingTop + h1Button.paddingBottom).isEqualTo(0)
+
+        // At H2+, an uncontained trailing button expands vertically to a 40 x 40 dp touch target.
+        val h2 = render(content, Dimensions(176, 132))
+        val h2Button = iconButton(h2)
+        assertThat(h2Button.background).isNull()
+        assertThat(iconButtonGlyph(h2).maxWidth).isEqualTo(24f.dpToPx(density))
+        assertThat(h2Button.paddingLeft + h2Button.paddingRight)
+            .isEqualTo(40f.dpToPx(density) - 24f.dpToPx(density))
+        assertThat(h2Button.paddingTop + h2Button.paddingBottom)
+            .isEqualTo(40f.dpToPx(density) - 24f.dpToPx(density))
+
+        // Reapplying an unpadded header resets horizontal padding on recycled API 31+ views.
+        val surface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(176, 132))
+        val view =
+            RemoteViewsMatrixRenderer.renderRemoteViews(context, template, content, surface)
+                .apply(context, FrameLayout(context))
+        val unpaddedContent =
+            MatrixCardContent(
+                primary = TemplateText("Today"),
+                trailing = IconButton(GLYPH, "Refresh", RUN, contained = false),
+                compactHeader = true,
+            )
+        RemoteViewsMatrixRenderer.renderRemoteViews(context, template, unpaddedContent, surface)
+            .reapply(context, view)
+        val reappliedHeader =
+            view.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_header_row)
+        assertThat(reappliedHeader.paddingLeft).isEqualTo(0)
+        assertThat(reappliedHeader.paddingRight).isEqualTo(0)
     }
 
     private fun tileLabel(tile: View): TextView =

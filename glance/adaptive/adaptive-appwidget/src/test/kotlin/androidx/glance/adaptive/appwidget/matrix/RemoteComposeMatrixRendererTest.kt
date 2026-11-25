@@ -411,6 +411,42 @@ class RemoteComposeMatrixRendererTest {
         assertThat(rendered.bitmap.containsColor(staticPrimaryFallback)).isFalse()
     }
 
+    @Test
+    fun card_uncontainedTrailingAndHeaderHorizontalPadding_renderWithExpectedBounds() = runTest {
+        val action = GlanceAdaptiveAction.DeeplinkAction(Uri.parse("app://refresh"))
+        val unpadded =
+            MatrixCardContent(
+                primary = TemplateText("Today"),
+                trailing = IconButton(TEST_VECTOR_GLYPH, "Refresh", action, contained = false),
+                compactHeader = true,
+            )
+        val padded =
+            MatrixCardContent(
+                primary = TemplateText("Today"),
+                trailing = IconButton(TEST_VECTOR_GLYPH, "Refresh", action, contained = false),
+                compactHeader = true,
+                headerHorizontalPadding = 12.dp,
+            )
+
+        val h1 = render(padded, Dimensions(176, 88))
+        val h1Children = h1.cardColumn().layoutChildren().single().layoutChildren()
+        val h1Trailing = h1Children.last()
+        assertThat(h1Trailing.width).isWithin(1f).of(40.dpToPx(context))
+        assertThat(h1Trailing.height).isWithin(1f).of(24.dpToPx(context))
+
+        val h2Padded = render(padded, Dimensions(176, 132))
+        val h2Unpadded = render(unpadded, Dimensions(176, 132))
+        val h2PaddedChildren = h2Padded.cardColumn().layoutChildren().single().layoutChildren()
+        val h2UnpaddedChildren = h2Unpadded.cardColumn().layoutChildren().single().layoutChildren()
+        val h2Trailing = h2PaddedChildren.last()
+        assertThat(h2Trailing.width).isWithin(1f).of(40.dpToPx(context))
+        assertThat(h2Trailing.height).isWithin(1f).of(40.dpToPx(context))
+        // 12 dp horizontal padding on each side shrinks the weighted header text column by 24 dp.
+        assertThat(h2UnpaddedChildren.first().width - h2PaddedChildren.first().width)
+            .isWithin(1f)
+            .of(24.dpToPx(context))
+    }
+
     private suspend fun render(
         content: MatrixContent,
         dimensions: Dimensions,
