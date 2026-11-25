@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.95"
+        android:scaleY="0.95">
+
+        <!-- Soft ambient glow behind top-left progress tile -->
+        <path
+            android:fillColor="#2625D5FF"
+            android:pathData="M32.8,27.5H41.2A4.8,4.8 0 0 1 46,32.3V40.7A4.8,4.8 0 0 1 41.2,45.5H32.8A4.8,4.8 0 0 1 28,40.7V32.3A4.8,4.8 0 0 1 32.8,27.5Z" />
+
+        <!-- Subtle drop shadows beneath cards -->
+        <path
+            android:fillColor="#2E000A24"
+            android:pathData="M55.4,29.5H71.8A7.2,7.2 0 0 1 79,36.7V37.9A7.2,7.2 0 0 1 71.8,45.1H55.4A7.2,7.2 0 0 1 48.2,37.9V36.7A7.2,7.2 0 0 1 55.4,29.5Z" />
+        <path
+            android:fillColor="#2E000A24"
+            android:pathData="M52.4,48.1H74.8A4.2,4.2 0 0 1 79,52.3V76.3A4.2,4.2 0 0 1 74.8,80.5H52.4A4.2,4.2 0 0 1 48.2,76.3V52.3A4.2,4.2 0 0 1 52.4,48.1Z" />
+
+        <!-- Top-left tile: Track progress ring -->
+        <path
+            android:pathData="M32.8,28.5H41.2A3.8,3.8 0 0 1 45,32.3V40.7A3.8,3.8 0 0 1 41.2,44.5H32.8A3.8,3.8 0 0 1 29,40.7V32.3A3.8,3.8 0 0 1 32.8,28.5Z"
+            android:strokeColor="#66FFFFFF"
+            android:strokeWidth="0.45">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:endX="45"
+                    android:endY="44.5"
+                    android:startX="29"
+                    android:startY="28.5"
+                    android:type="linear">
+                    <item
+                        android:color="#FFC2EAFF"
+                        android:offset="0" />
+                    <item
+                        android:color="#FF96D7FF"
+                        android:offset="1" />
+                </gradient>
+            </aapt:attr>
+        </path>
+
+        <!-- Progress ring track -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M37,32.1A4.4,4.4 0 1 1 37,40.9A4.4,4.4 0 1 1 37,32.1Z"
+            android:strokeColor="#FF52B4E8"
+            android:strokeWidth="2.1" />
+        <!-- Progress ring active arc (~84% sweep) -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M37,32.1A4.4,4.4 0 1 1 33.19,34.3"
+            android:strokeColor="#FF00D6FF"
+            android:strokeLineCap="round"
+            android:strokeWidth="1.9" />
+        <!-- Crisp inner specular edge on ring -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M37,32.1A4.4,4.4 0 1 1 33.19,34.3"
+            android:strokeColor="#66B8F7FF"
+            android:strokeLineCap="round"
+            android:strokeWidth="0.6" />
+
+        <!-- Top-right pill: Mint trend chart & quick stats -->
+        <path
+            android:pathData="M55.4,28.5H71.8A7.2,7.2 0 0 1 79,35.7V36.9A7.2,7.2 0 0 1 71.8,44.1H55.4A7.2,7.2 0 0 1 48.2,36.9V35.7A7.2,7.2 0 0 1 55.4,28.5Z"
+            android:strokeColor="#55FFFFFF"
+            android:strokeWidth="0.4">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:endX="79"
+                    android:endY="44.1"
+                    android:startX="48.2"
+                    android:startY="28.5"
+                    android:type="linear">
+                    <item
+                        android:color="#FF97F0D3"
+                        android:offset="0" />
+                    <item
+                        android:color="#FF72DFBE"
+                        android:offset="1" />
+                </gradient>
+            </aapt:attr>
+        </path>
+
+        <!-- Inner chart tile -->
+        <path
+            android:fillColor="#FF67C6AC"
+            android:pathData="M54.0,31.1H60.2A3.0,3.0 0 0 1 63.2,34.1V38.5A3.0,3.0 0 0 1 60.2,41.5H54.0A3.0,3.0 0 0 1 51.0,38.5V34.1A3.0,3.0 0 0 1 54.0,31.1Z" />
+        <!-- Upward trend line -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M53.1,38.7L55.5,35.9L57.5,37.4L61.0,33.5"
+            android:strokeColor="#FF277262"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:strokeWidth="1.2" />
+
+        <!-- Right stat bullets & bars -->
+        <path
+            android:fillColor="#FF358171"
+            android:pathData="M66.8,32.55A1.15,1.15 0 1 1 66.8,34.85A1.15,1.15 0 1 1 66.8,32.55Z" />
+        <path
+            android:fillColor="#FF358171"
+            android:pathData="M69.8,33.1H75.2A0.6,0.6 0 0 1 75.8,33.7A0.6,0.6 0 0 1 75.2,34.3H69.8A0.6,0.6 0 0 1 69.2,33.7A0.6,0.6 0 0 1 69.8,33.1Z" />
+
+        <path
+            android:fillColor="#FF358171"
+            android:pathData="M66.8,35.95A0.7,0.7 0 1 1 66.8,37.35A0.7,0.7 0 1 1 66.8,35.95Z" />
+        <path
+            android:fillColor="#FF52A894"
+            android:pathData="M69.7,36.15H74.3A0.5,0.5 0 0 1 74.8,36.65A0.5,0.5 0 0 1 74.3,37.15H69.7A0.5,0.5 0 0 1 69.2,36.65A0.5,0.5 0 0 1 69.7,36.15Z" />
+
+        <path
+            android:fillColor="#FF358171"
+            android:pathData="M66.8,38.55A0.7,0.7 0 1 1 66.8,39.95A0.7,0.7 0 1 1 66.8,38.55Z" />
+        <path
+            android:fillColor="#FF52A894"
+            android:pathData="M69.7,38.75H73.5A0.5,0.5 0 0 1 74.0,39.25A0.5,0.5 0 0 1 73.5,39.75H69.7A0.5,0.5 0 0 1 69.2,39.25A0.5,0.5 0 0 1 69.7,38.75Z" />
+
+        <!-- Bottom-right card: Adaptive List card -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M52.4,47.1H74.8A4.2,4.2 0 0 1 79,51.3V75.3A4.2,4.2 0 0 1 74.8,79.5H52.4A4.2,4.2 0 0 1 48.2,75.3V51.3A4.2,4.2 0 0 1 52.4,47.1Z" />
+
+        <!-- Row 1 (Sky blue) -->
+        <path
+            android:fillColor="#FFE7F4FF"
+            android:pathData="M52.8,49.5H74.4A2.2,2.2 0 0 1 76.6,51.7V53.5A2.2,2.2 0 0 1 74.4,55.7H52.8A2.2,2.2 0 0 1 50.6,53.5V51.7A2.2,2.2 0 0 1 52.8,49.5Z" />
+        <path
+            android:fillColor="#FFB6DDFB"
+            android:pathData="M53.9,50.6A2.0,2.0 0 1 1 53.9,54.6A2.0,2.0 0 1 1 53.9,50.6Z" />
+        <path
+            android:fillColor="#FF6AA9E5"
+            android:pathData="M53.9,51.25A0.72,0.72 0 1 1 53.9,52.69A0.72,0.72 0 1 1 53.9,51.25Z" />
+        <path
+            android:fillColor="#FF6AA9E5"
+            android:pathData="M52.55,54.05C52.75,53.25 53.25,52.95 53.9,52.95C54.55,52.95 55.05,53.25 55.25,54.05C54.88,54.40 54.41,54.60 53.9,54.60C53.39,54.60 52.92,54.40 52.55,54.05Z" />
+        <path
+            android:fillColor="#FF90C4EE"
+            android:pathData="M57.8,51.2H71.2A0.55,0.55 0 0 1 71.75,51.75A0.55,0.55 0 0 1 71.2,52.3H57.8A0.55,0.55 0 0 1 57.25,51.75A0.55,0.55 0 0 1 57.8,51.2Z" />
+        <path
+            android:fillColor="#FFC2E0FA"
+            android:pathData="M57.8,53.1H66.5A0.5,0.5 0 0 1 67.0,53.6A0.5,0.5 0 0 1 66.5,54.1H57.8A0.5,0.5 0 0 1 57.3,53.6A0.5,0.5 0 0 1 57.8,53.1Z" />
+
+        <!-- Row 2 (Ice teal) -->
+        <path
+            android:fillColor="#FFE3F6F6"
+            android:pathData="M52.8,56.9H74.4A2.2,2.2 0 0 1 76.6,59.1V60.9A2.2,2.2 0 0 1 74.4,63.1H52.8A2.2,2.2 0 0 1 50.6,60.9V59.1A2.2,2.2 0 0 1 52.8,56.9Z" />
+        <path
+            android:fillColor="#FFAFDFDF"
+            android:pathData="M53.9,58.0A2.0,2.0 0 1 1 53.9,62.0A2.0,2.0 0 1 1 53.9,58.0Z" />
+        <path
+            android:fillColor="#FF5FAAAC"
+            android:pathData="M53.9,58.65A0.72,0.72 0 1 1 53.9,60.09A0.72,0.72 0 1 1 53.9,58.65Z" />
+        <path
+            android:fillColor="#FF5FAAAC"
+            android:pathData="M52.55,61.45C52.75,60.65 53.25,60.35 53.9,60.35C54.55,60.35 55.05,60.65 55.25,61.45C54.88,61.80 54.41,62.00 53.9,62.00C53.39,62.00 52.92,61.80 52.55,61.45Z" />
+        <path
+            android:fillColor="#FF86C5C7"
+            android:pathData="M57.8,58.6H70.0A0.55,0.55 0 0 1 70.55,59.15A0.55,0.55 0 0 1 70.0,59.7H57.8A0.55,0.55 0 0 1 57.25,59.15A0.55,0.55 0 0 1 57.8,58.6Z" />
+        <path
+            android:fillColor="#FFBCE3E3"
+            android:pathData="M57.8,60.5H65.5A0.5,0.5 0 0 1 66.0,61.0A0.5,0.5 0 0 1 65.5,61.5H57.8A0.5,0.5 0 0 1 57.3,61.0A0.5,0.5 0 0 1 57.8,60.5Z" />
+
+        <!-- Row 3 (Mint green) -->
+        <path
+            android:fillColor="#FFE5F7EE"
+            android:pathData="M52.8,64.3H74.4A2.2,2.2 0 0 1 76.6,66.5V68.3A2.2,2.2 0 0 1 74.4,70.5H52.8A2.2,2.2 0 0 1 50.6,68.3V66.5A2.2,2.2 0 0 1 52.8,64.3Z" />
+        <path
+            android:fillColor="#FFACE3C6"
+            android:pathData="M53.9,65.4A2.0,2.0 0 1 1 53.9,69.4A2.0,2.0 0 1 1 53.9,65.4Z" />
+        <path
+            android:fillColor="#FF55AE85"
+            android:pathData="M53.9,66.05A0.72,0.72 0 1 1 53.9,67.49A0.72,0.72 0 1 1 53.9,66.05Z" />
+        <path
+            android:fillColor="#FF55AE85"
+            android:pathData="M52.55,68.85C52.75,68.05 53.25,67.75 53.9,67.75C54.55,67.75 55.05,68.05 55.25,68.85C54.88,69.20 54.41,69.40 53.9,69.40C53.39,69.40 52.92,69.20 52.55,68.85Z" />
+        <path
+            android:fillColor="#FF83CAA6"
+            android:pathData="M57.8,66.0H70.8A0.55,0.55 0 0 1 71.35,66.55A0.55,0.55 0 0 1 70.8,67.1H57.8A0.55,0.55 0 0 1 57.25,66.55A0.55,0.55 0 0 1 57.8,66.0Z" />
+        <path
+            android:fillColor="#FFBBE6D0"
+            android:pathData="M57.8,67.9H66.0A0.5,0.5 0 0 1 66.5,68.4A0.5,0.5 0 0 1 66.0,68.9H57.8A0.5,0.5 0 0 1 57.3,68.4A0.5,0.5 0 0 1 57.8,67.9Z" />
+
+        <!-- Row 4 (Soft fade-out row) -->
+        <path
+            android:fillColor="#B3EEF7F7"
+            android:pathData="M52.8,71.7H74.4A2.2,2.2 0 0 1 76.6,73.9V75.7A2.2,2.2 0 0 1 74.4,77.9H52.8A2.2,2.2 0 0 1 50.6,75.7V73.9A2.2,2.2 0 0 1 52.8,71.7Z" />
+        <path
+            android:fillColor="#B3CBE7E7"
+            android:pathData="M53.9,72.8A2.0,2.0 0 1 1 53.9,76.8A2.0,2.0 0 1 1 53.9,72.8Z" />
+        <path
+            android:fillColor="#B389BFC0"
+            android:pathData="M53.9,73.45A0.72,0.72 0 1 1 53.9,74.89A0.72,0.72 0 1 1 53.9,73.45Z" />
+        <path
+            android:fillColor="#B389BFC0"
+            android:pathData="M52.55,76.25C52.75,75.45 53.25,75.15 53.9,75.15C54.55,75.15 55.05,75.45 55.25,76.25C54.88,76.60 54.41,76.80 53.9,76.80C53.39,76.80 52.92,76.60 52.55,76.25Z" />
+        <path
+            android:fillColor="#B3AED6D7"
+            android:pathData="M57.8,73.4H69.5A0.55,0.55 0 0 1 70.05,73.95A0.55,0.55 0 0 1 69.5,74.5H57.8A0.55,0.55 0 0 1 57.25,73.95A0.55,0.55 0 0 1 57.8,73.4Z" />
+        <path
+            android:fillColor="#B3CFEAEA"
+            android:pathData="M57.8,75.3H64.5A0.5,0.5 0 0 1 65.0,75.8A0.5,0.5 0 0 1 64.5,76.3H57.8A0.5,0.5 0 0 1 57.3,75.8A0.5,0.5 0 0 1 57.8,75.3Z" />
+    </group>
+</vector>

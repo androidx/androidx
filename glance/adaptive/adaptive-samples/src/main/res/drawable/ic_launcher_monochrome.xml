@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.95"
+        android:scaleY="0.95">
+
+        <!-- Top-left tile with progress ring cutout (evenOdd) -->
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M32.8,28.5H41.2A3.8,3.8 0 0 1 45,32.3V40.7A3.8,3.8 0 0 1 41.2,44.5H32.8A3.8,3.8 0 0 1 29,40.7V32.3A3.8,3.8 0 0 1 32.8,28.5ZM37,31.2A5.3,5.3 0 1 0 37,41.8A5.3,5.3 0 1 0 37,31.2ZM37,33.4A3.1,3.1 0 1 1 37,39.6A3.1,3.1 0 1 1 37,33.4Z" />
+
+        <!-- Top-right pill with chart and stat bars cutout -->
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M55.4,28.5H71.8A7.2,7.2 0 0 1 79,35.7V36.9A7.2,7.2 0 0 1 71.8,44.1H55.4A7.2,7.2 0 0 1 48.2,36.9V35.7A7.2,7.2 0 0 1 55.4,28.5ZM54.0,31.4H60.2A2.6,2.6 0 0 1 62.8,34.0V38.6A2.6,2.6 0 0 1 60.2,41.2H54.0A2.6,2.6 0 0 1 51.4,38.6V34.0A2.6,2.6 0 0 1 54.0,31.4ZM66.8,32.6A1.1,1.1 0 1 0 66.8,34.8A1.1,1.1 0 1 0 66.8,32.6ZM69.8,33.1H75.2A0.6,0.6 0 0 1 75.2,34.3H69.8A0.6,0.6 0 0 1 69.8,33.1ZM66.8,35.9A0.75,0.75 0 1 0 66.8,37.4A0.75,0.75 0 1 0 66.8,35.9ZM69.7,36.15H74.3A0.5,0.5 0 0 1 74.3,37.15H69.7A0.5,0.5 0 0 1 69.7,36.15ZM66.8,38.5A0.75,0.75 0 1 0 66.8,40.0A0.75,0.75 0 1 0 66.8,38.5ZM69.7,38.75H73.5A0.5,0.5 0 0 1 73.5,39.75H69.7A0.5,0.5 0 0 1 69.7,38.75Z" />
+
+        <!-- Trend line inside the chart cutout -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M53.1,38.7L55.5,35.9L57.5,37.4L61.0,33.5"
+            android:strokeColor="#FF000000"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:strokeWidth="1.2" />
+
+        <!-- Bottom-right list card with 4 row cutouts -->
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M52.4,47.1H74.8A4.2,4.2 0 0 1 79,51.3V75.3A4.2,4.2 0 0 1 74.8,79.5H52.4A4.2,4.2 0 0 1 48.2,75.3V51.3A4.2,4.2 0 0 1 52.4,47.1ZM53.9,50.8A1.8,1.8 0 1 0 53.9,54.4A1.8,1.8 0 1 0 53.9,50.8ZM57.8,51.9H74.2A0.7,0.7 0 0 1 74.2,53.3H57.8A0.7,0.7 0 0 1 57.8,51.9ZM53.9,58.2A1.8,1.8 0 1 0 53.9,61.8A1.8,1.8 0 1 0 53.9,58.2ZM57.8,59.3H73.2A0.7,0.7 0 0 1 73.2,60.7H57.8A0.7,0.7 0 0 1 57.8,59.3ZM53.9,65.6A1.8,1.8 0 1 0 53.9,69.2A1.8,1.8 0 1 0 53.9,65.6ZM57.8,66.7H74.0A0.7,0.7 0 0 1 74.0,68.1H57.8A0.7,0.7 0 0 1 57.8,66.7ZM53.9,73.0A1.8,1.8 0 1 0 53.9,76.6A1.8,1.8 0 1 0 53.9,73.0ZM57.8,74.1H72.0A0.7,0.7 0 0 1 72.0,75.5H57.8A0.7,0.7 0 0 1 57.8,74.1Z" />
+    </group>
+</vector>
