@@ -40,6 +40,7 @@ import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
 import androidx.compose.remote.creation.modifiers.CircleShape
+import androidx.compose.remote.creation.modifiers.PathShape
 import androidx.compose.remote.creation.modifiers.RectShape
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.modifiers.Shape
@@ -1674,6 +1675,13 @@ public class RcShape internal constructor(internal val legacyShape: Shape) {
             RcShape(
                 RoundedRectShape(topStart.value, topEnd.value, bottomStart.value, bottomEnd.value)
             )
+
+        /**
+         * Creates a clip outline from [path], a path previously added to the document. The path
+         * coordinates are in the clipped component's content box, after any preceding padding.
+         * Requires the experimental profile.
+         */
+        public fun path(path: RcPath): RcShape = RcShape(PathShape(path.id))
     }
 }
 
