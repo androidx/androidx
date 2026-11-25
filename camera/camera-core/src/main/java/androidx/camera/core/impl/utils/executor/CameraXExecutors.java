@@ -22,6 +22,7 @@ import android.os.Looper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.Closeable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -117,24 +118,53 @@ public final class CameraXExecutors {
     }
 
     /**
-     * Returns the {@link Handler} that {@code executor} posts its tasks to, or {@code null} if
-     * {@code executor} is not directly backed by a {@link Handler}.
+     * A lease for an {@link Executor}'s underlying {@link Handler}.
+     *
+     * <p>Holding an open lease keeps any on-demand backing thread (such as {@link
+     * #highPriorityExecutor()}'s {@link android.os.HandlerThread}) alive so framework callbacks can
+     * be delivered directly on its {@link Looper}. Calling {@link #close()} releases this lease; it
+     * is idempotent and never quits a caller-owned or main {@link Looper}. Callers must never quit
+     * the returned {@link Handler}'s {@link Looper} directly.
+     */
+    public interface HandlerLease extends Closeable {
+        /** Returns the leased {@link Handler}. */
+        @NonNull Handler getHandler();
+
+        /** Releases this lease. Calling this method more than once has no effect. */
+        @Override
+        void close();
+    }
+
+    /**
+     * Acquires a {@link HandlerLease} for the {@link Handler} that {@code executor} posts its tasks
+     * to, or returns {@code null} if {@code executor} is not directly backed by a {@link Handler}.
      *
      * <p>Executors returned by {@link #mainThreadExecutor()}, {@link #myLooperExecutor()},
      * {@link #newHandlerExecutor(Handler)} and {@link #highPriorityExecutor()} are backed by a
      * {@link Handler}. Wrapping executors, such as {@link #newSequentialExecutor(Executor)}, are
      * not unwrapped.
      *
-     * <p>Calling this method on {@link #highPriorityExecutor()} starts its backing thread if it
-     * has not been started yet. The returned {@link Handler} may be shared, so callers must never
-     * quit its {@link Looper}.
+     * <p>Callers must {@link HandlerLease#close() close} the returned lease when the {@link
+     * Handler} is no longer needed so on-demand backing threads (such as {@link
+     * #highPriorityExecutor()}) can terminate cleanly.
      */
-    public static @Nullable Handler unwrapHandler(@NonNull Executor executor) {
+    public static @Nullable HandlerLease acquireHandlerLease(@NonNull Executor executor) {
         if (executor instanceof HighPriorityExecutor) {
-            return ((HighPriorityExecutor) executor).getOrCreateHandler();
+            return ((HighPriorityExecutor) executor).acquireHandlerLease();
         }
         if (executor instanceof HandlerScheduledExecutorService) {
-            return ((HandlerScheduledExecutorService) executor).getHandler();
+            final Handler handler = ((HandlerScheduledExecutorService) executor).getHandler();
+            return new HandlerLease() {
+                @Override
+                public @NonNull Handler getHandler() {
+                    return handler;
+                }
+
+                @Override
+                public void close() {
+                    // Lifecycle of caller-provided and main-thread Loopers is owned externally.
+                }
+            };
         }
         return null;
     }

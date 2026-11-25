@@ -39,11 +39,13 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(sdk = [Config.ALL_SDKS])
 class HighPriorityExecutorTest {
+    private lateinit var baselineThreads: Set<Thread>
     private lateinit var backgroundThread: HandlerThread
     private lateinit var backgroundHandler: Handler
 
     @Before
     fun setUp() {
+        baselineThreads = liveHighPriorityThreads()
         backgroundThread = HandlerThread("HighPriorityExecutorTest").apply { start() }
         backgroundHandler = Handler(backgroundThread.looper)
     }
@@ -51,6 +53,8 @@ class HighPriorityExecutorTest {
     @After
     fun tearDown() {
         backgroundThread.quitSafely()
+        backgroundThread.join(TIMEOUT_MILLIS)
+        joinAndAssertNoNewHighPriorityThreads()
     }
 
     @Test
@@ -67,68 +71,123 @@ class HighPriorityExecutorTest {
 
     @Test
     fun construction_doesNotStartThread() {
-        val threadCountBefore = countHighPriorityThreads()
-
         val executor = HighPriorityExecutor()
 
-        assertThat(countHighPriorityThreads()).isEqualTo(threadCountBefore)
+        assertThat(newHighPriorityThreads()).isEmpty()
         assertThat(executor).isNotSameInstanceAs(HighPriorityExecutor.getInstance())
     }
 
     @Test
-    fun unwrapHandler_highPriorityExecutor_returnsBackgroundHandler() {
-        assertBackgroundLooper(
-            CameraXExecutors.unwrapHandler(CameraXExecutors.highPriorityExecutor())
-        )
+    fun acquireHandlerLease_highPriorityExecutor_startsBackgroundThreadAndQuitsWhenClosed() {
+        val executor = CameraXExecutors.highPriorityExecutor()
+        assertThat(newHighPriorityThreads()).isEmpty()
+
+        val leasedLooper: Looper
+        checkNotNull(CameraXExecutors.acquireHandlerLease(executor)).use { lease ->
+            assertBackgroundLooper(lease.handler)
+            leasedLooper = lease.handler.looper
+            assertThat(newHighPriorityThreads()).containsExactly(leasedLooper.thread)
+            assertThat(leasedLooper.thread.isAlive).isTrue()
+        }
+
+        leasedLooper.thread.join(TIMEOUT_MILLIS)
+        assertThat(leasedLooper.thread.isAlive).isFalse()
+        assertThat(newHighPriorityThreads()).isEmpty()
     }
 
     @Test
-    fun unwrapHandler_highPriorityExecutor_returnsSameHandler() {
+    fun acquireHandlerLease_overlappingLeases_shareSameHandlerUntilLastLeaseCloses() {
+        val executor = CameraXExecutors.highPriorityExecutor()
+        val lease1 = checkNotNull(CameraXExecutors.acquireHandlerLease(executor))
+        var lease2: CameraXExecutors.HandlerLease? = null
+        try {
+            lease2 = checkNotNull(CameraXExecutors.acquireHandlerLease(executor))
+            val looper = lease1.handler.looper
+
+            assertThat(lease2.handler).isSameInstanceAs(lease1.handler)
+            assertThat(newHighPriorityThreads()).containsExactly(looper.thread)
+
+            // Closing lease1 (even multiple times) must not quit the shared thread while lease2 is
+            // still open.
+            lease1.close()
+            lease1.close()
+            assertThat(looper.thread.isAlive).isTrue()
+
+            lease2.close()
+            looper.thread.join(TIMEOUT_MILLIS)
+            assertThat(looper.thread.isAlive).isFalse()
+        } finally {
+            lease1.close()
+            lease2?.close()
+        }
+    }
+
+    @Test
+    fun acquireHandlerLease_afterThreadQuits_startsNewBackgroundThread() {
         val executor = CameraXExecutors.highPriorityExecutor()
 
-        assertThat(CameraXExecutors.unwrapHandler(executor))
-            .isSameInstanceAs(CameraXExecutors.unwrapHandler(executor))
+        val firstLooper =
+            checkNotNull(CameraXExecutors.acquireHandlerLease(executor)).use { it.handler.looper }
+        firstLooper.thread.join(TIMEOUT_MILLIS)
+        assertThat(firstLooper.thread.isAlive).isFalse()
+
+        checkNotNull(CameraXExecutors.acquireHandlerLease(executor)).use { secondLease ->
+            assertBackgroundLooper(secondLease.handler)
+            assertThat(secondLease.handler.looper).isNotSameInstanceAs(firstLooper)
+            assertThat(secondLease.handler.looper.thread.isAlive).isTrue()
+        }
     }
 
     @Test
-    fun unwrapHandler_newHandlerExecutor_returnsHandler() {
-        assertThat(
-                CameraXExecutors.unwrapHandler(
+    fun acquireHandlerLease_newHandlerExecutor_returnsHandlerAndCloseDoesNotQuitCallerLooper() {
+        val lease =
+            checkNotNull(
+                CameraXExecutors.acquireHandlerLease(
                     CameraXExecutors.newHandlerExecutor(backgroundHandler)
                 )
             )
-            .isSameInstanceAs(backgroundHandler)
+        assertThat(lease.handler).isSameInstanceAs(backgroundHandler)
+
+        lease.close()
+
+        val latch = CountDownLatch(1)
+        assertThat(backgroundHandler.post { latch.countDown() }).isTrue()
+        assertThat(latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }
 
     @Test
-    fun unwrapHandler_myLooperExecutorOnBackgroundThread_returnsBackgroundLooperHandler() {
-        val unwrapped = AtomicReference<Handler?>()
+    fun acquireHandlerLease_myLooperExecutorOnBackgroundThread_returnsBackgroundLooperHandler() {
+        val leasedHandler = AtomicReference<Handler?>()
         val latch = CountDownLatch(1)
         backgroundHandler.post {
             try {
-                unwrapped.set(CameraXExecutors.unwrapHandler(CameraXExecutors.myLooperExecutor()))
+                CameraXExecutors.acquireHandlerLease(CameraXExecutors.myLooperExecutor())?.use {
+                    leasedHandler.set(it.handler)
+                }
             } finally {
                 latch.countDown()
             }
         }
 
         assertThat(latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
-        assertThat(requireNotNull(unwrapped.get()).looper).isSameInstanceAs(backgroundThread.looper)
+        assertThat(requireNotNull(leasedHandler.get()).looper)
+            .isSameInstanceAs(backgroundThread.looper)
     }
 
     @Test
-    fun unwrapHandler_mainThreadExecutor_returnsMainLooperHandler() {
-        val handler = CameraXExecutors.unwrapHandler(CameraXExecutors.mainThreadExecutor())
-
-        assertThat(requireNotNull(handler).looper).isSameInstanceAs(Looper.getMainLooper())
+    fun acquireHandlerLease_mainThreadExecutor_returnsMainLooperHandler() {
+        checkNotNull(CameraXExecutors.acquireHandlerLease(CameraXExecutors.mainThreadExecutor()))
+            .use { lease ->
+                assertThat(lease.handler.looper).isSameInstanceAs(Looper.getMainLooper())
+            }
     }
 
     @Test
-    fun unwrapHandler_nonHandlerExecutors_returnsNull() {
-        assertThat(CameraXExecutors.unwrapHandler(CameraXExecutors.directExecutor())).isNull()
-        assertThat(CameraXExecutors.unwrapHandler(CameraXExecutors.ioExecutor())).isNull()
+    fun acquireHandlerLease_nonHandlerExecutors_returnsNull() {
+        assertThat(CameraXExecutors.acquireHandlerLease(CameraXExecutors.directExecutor())).isNull()
+        assertThat(CameraXExecutors.acquireHandlerLease(CameraXExecutors.ioExecutor())).isNull()
         assertThat(
-                CameraXExecutors.unwrapHandler(
+                CameraXExecutors.acquireHandlerLease(
                     CameraXExecutors.newSequentialExecutor(CameraXExecutors.highPriorityExecutor())
                 )
             )
@@ -138,19 +197,46 @@ class HighPriorityExecutorTest {
     // Thread priority is not asserted: Robolectric does not apply HandlerThread priorities, so
     // Process.getThreadPriority() always returns 0 on the host JVM.
     @Test
-    fun execute_runsTasksInOrderOnHighPriorityThread() {
+    fun execute_withOpenLease_runsTasksInOrderOnLeasedHighPriorityThread() {
         val executor = CameraXExecutors.highPriorityExecutor()
         val order = Collections.synchronizedList(mutableListOf<Int>())
         val threadName = AtomicReference<String>()
         val looper = AtomicReference<Looper?>()
         val latch = CountDownLatch(TASK_COUNT)
 
-        for (i in 0 until TASK_COUNT) {
+        checkNotNull(CameraXExecutors.acquireHandlerLease(executor)).use { lease ->
+            for (i in 0 until TASK_COUNT) {
+                executor.execute {
+                    try {
+                        order.add(i)
+                        threadName.set(Thread.currentThread().name)
+                        looper.set(Looper.myLooper())
+                    } finally {
+                        latch.countDown()
+                    }
+                }
+            }
+
+            assertThat(latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+            assertThat(order).containsExactlyElementsIn((0 until TASK_COUNT).toList()).inOrder()
+            assertThat(threadName.get()).isEqualTo(THREAD_NAME)
+            assertBackgroundLooper(lease.handler)
+            assertThat(looper.get()).isSameInstanceAs(lease.handler.looper)
+        }
+    }
+
+    @Test
+    fun execute_withoutOpenLease_runsReentrantTasksOnSameLooperAndQuitsThreadWhenIdle() {
+        val executor = CameraXExecutors.highPriorityExecutor()
+        val outerLooper = AtomicReference<Looper?>()
+        val innerLooper = AtomicReference<Looper?>()
+        val latch = CountDownLatch(1)
+
+        executor.execute {
+            outerLooper.set(Looper.myLooper())
             executor.execute {
                 try {
-                    order.add(i)
-                    threadName.set(Thread.currentThread().name)
-                    looper.set(Looper.myLooper())
+                    innerLooper.set(Looper.myLooper())
                 } finally {
                     latch.countDown()
                 }
@@ -158,11 +244,45 @@ class HighPriorityExecutorTest {
         }
 
         assertThat(latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
-        assertThat(order).containsExactlyElementsIn((0 until TASK_COUNT).toList()).inOrder()
-        assertThat(threadName.get()).isEqualTo(THREAD_NAME)
-        assertBackgroundLooper(CameraXExecutors.unwrapHandler(executor))
-        assertThat(looper.get())
-            .isSameInstanceAs(requireNotNull(CameraXExecutors.unwrapHandler(executor)).looper)
+        val taskLooper = requireNotNull(outerLooper.get())
+        assertThat(innerLooper.get()).isSameInstanceAs(taskLooper)
+        taskLooper.thread.join(TIMEOUT_MILLIS)
+        assertThat(taskLooper.thread.isAlive).isFalse()
+    }
+
+    @Test
+    fun execute_inFlightTaskKeepsThreadAliveAfterLastLeaseClosesAndQuitsOnCompletion() {
+        val executor = CameraXExecutors.highPriorityExecutor()
+        val taskStarted = CountDownLatch(1)
+        val allowFinish = CountDownLatch(1)
+        val taskFinished = CountDownLatch(1)
+        val lease = checkNotNull(CameraXExecutors.acquireHandlerLease(executor))
+        val thread = lease.handler.looper.thread
+
+        try {
+            executor.execute {
+                try {
+                    taskStarted.countDown()
+                    assertThat(allowFinish.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+                } finally {
+                    taskFinished.countDown()
+                }
+            }
+            assertThat(taskStarted.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+
+            // Closing the last open lease while an execute() task is in flight must keep the
+            // backing thread alive until that task finishes.
+            lease.close()
+            assertThat(thread.isAlive).isTrue()
+        } finally {
+            allowFinish.countDown()
+            lease.close()
+        }
+
+        assertThat(taskFinished.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+        thread.join(TIMEOUT_MILLIS)
+        assertThat(thread.isAlive).isFalse()
+        assertThat(newHighPriorityThreads()).isEmpty()
     }
 
     @Test
@@ -178,12 +298,24 @@ class HighPriorityExecutorTest {
         assertThat(looper).isNotSameInstanceAs(Looper.getMainLooper())
     }
 
-    private fun countHighPriorityThreads(): Int =
-        Thread.getAllStackTraces().keys.count { it.name == THREAD_NAME }
+    private fun liveHighPriorityThreads(): Set<Thread> =
+        Thread.getAllStackTraces().keys.filterTo(mutableSetOf()) {
+            it.name == THREAD_NAME && it.isAlive
+        }
+
+    private fun newHighPriorityThreads(): Set<Thread> = liveHighPriorityThreads() - baselineThreads
+
+    private fun joinAndAssertNoNewHighPriorityThreads() {
+        for (thread in newHighPriorityThreads()) {
+            thread.join(TIMEOUT_MILLIS)
+            assertThat(thread.isAlive).isFalse()
+        }
+    }
 
     private companion object {
         const val THREAD_NAME = "CameraX-camerax_high_priority"
         const val TASK_COUNT = 10
         const val TIMEOUT_SECONDS = 5L
+        const val TIMEOUT_MILLIS = TIMEOUT_SECONDS * 1000L
     }
 }

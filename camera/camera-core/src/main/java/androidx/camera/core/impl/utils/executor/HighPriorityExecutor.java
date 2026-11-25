@@ -20,7 +20,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 
+import androidx.annotation.GuardedBy;
 import androidx.camera.core.CameraXThreads;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.HandlerLease;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -28,15 +30,24 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A singleton high priority {@link Executor} suitable for lightweight, non-blocking tasks.
  *
- * <p>The executor is backed by a lazily started {@link HandlerThread} so that it can be unwrapped
- * to its {@link Handler} via {@link CameraXExecutors#unwrapHandler(Executor)}. This allows
- * framework callbacks which only accept a {@code Handler} (e.g. {@link
+ * <p>The executor is backed by an on-demand {@link HandlerThread} whose {@link Handler} can be
+ * leased via {@link CameraXExecutors#acquireHandlerLease(Executor)}. This allows framework
+ * callbacks which only accept a {@code Handler} (e.g. {@link
  * android.media.ImageReader.OnImageAvailableListener}) to be delivered directly on the high
  * priority thread instead of hopping through the main thread.
+ *
+ * <p>The backing {@link HandlerThread} stays alive while at least one {@link HandlerLease} is open
+ * or an {@link #execute(Runnable)} task is in flight, and exits via {@link
+ * HandlerThread#quitSafely()} when the active reference count returns to zero so unbound camera
+ * sessions and unit tests do not retain an idle background thread. Work submitted after the
+ * reference count reaches zero starts a new backing thread; repeated standalone {@link
+ * #execute(Runnable)} calls made without an open {@link HandlerLease} that drain completely between
+ * submissions will therefore start and quit a backing thread per drained burst.
  */
 final class HighPriorityExecutor implements Executor {
     private static final String THREAD_NAME = CameraXThreads.TAG + "camerax_high_priority";
@@ -45,9 +56,14 @@ final class HighPriorityExecutor implements Executor {
 
     private final Object mLock = new Object();
 
-    // Written only under mLock. Volatile so getOrCreateHandler() can read it without locking once
-    // the thread has been started.
-    private volatile @Nullable Handler mHandler;
+    @GuardedBy("mLock")
+    private @Nullable HandlerThread mThread;
+
+    @GuardedBy("mLock")
+    private @Nullable Handler mHandler;
+
+    @GuardedBy("mLock")
+    private int mRefCount = 0;
 
     /** Package-private for testing. Does not start any thread. */
     HighPriorityExecutor() {}
@@ -56,24 +72,58 @@ final class HighPriorityExecutor implements Executor {
         return INSTANCE;
     }
 
-    /** Returns the {@link Handler} of the backing thread, starting the thread if needed. */
-    @NonNull Handler getOrCreateHandler() {
-        Handler handler = mHandler;
-        if (handler != null) {
-            return handler;
-        }
+    /**
+     * Acquires a reference-counted {@link HandlerLease} for the backing thread's {@link Handler},
+     * starting the thread if needed.
+     */
+    @NonNull HandlerLease acquireHandlerLease() {
+        final Handler handler = retainHandler();
+        return new HandlerLease() {
+            private final AtomicBoolean mClosed = new AtomicBoolean(false);
+
+            @Override
+            public @NonNull Handler getHandler() {
+                return handler;
+            }
+
+            @Override
+            public void close() {
+                if (mClosed.compareAndSet(false, true)) {
+                    releaseHandler();
+                }
+            }
+        };
+    }
+
+    private @NonNull Handler retainHandler() {
         synchronized (mLock) {
-            handler = mHandler;
-            if (handler == null) {
+            if (mHandler == null) {
                 // THREAD_PRIORITY_URGENT_DISPLAY (-8) is the niceness ART maps
                 // Thread.MAX_PRIORITY to, which the previous thread-pool implementation used.
                 HandlerThread thread =
                         new HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_URGENT_DISPLAY);
                 thread.start();
-                handler = new Handler(thread.getLooper());
-                mHandler = handler;
+                mHandler = new Handler(Preconditions.checkNotNull(thread.getLooper()));
+                mThread = thread;
             }
-            return handler;
+            mRefCount++;
+            return mHandler;
+        }
+    }
+
+    private void releaseHandler() {
+        HandlerThread threadToQuit = null;
+        synchronized (mLock) {
+            Preconditions.checkState(mRefCount > 0, "Ref count is already 0");
+            mRefCount--;
+            if (mRefCount == 0) {
+                threadToQuit = mThread;
+                mThread = null;
+                mHandler = null;
+            }
+        }
+        if (threadToQuit != null) {
+            threadToQuit.quitSafely();
         }
     }
 
@@ -82,8 +132,25 @@ final class HighPriorityExecutor implements Executor {
         // Handler#post(null) would silently post an empty message, so enforce the Executor
         // contract.
         Preconditions.checkNotNull(command);
-        if (!getOrCreateHandler().post(command)) {
-            throw new RejectedExecutionException(THREAD_NAME + " is shutting down");
+        Handler handler = retainHandler();
+        boolean posted = false;
+        try {
+            posted =
+                    handler.post(
+                            () -> {
+                                try {
+                                    command.run();
+                                } finally {
+                                    releaseHandler();
+                                }
+                            });
+            if (!posted) {
+                throw new RejectedExecutionException(THREAD_NAME + " is shutting down");
+            }
+        } finally {
+            if (!posted) {
+                releaseHandler();
+            }
         }
     }
 }

@@ -38,6 +38,7 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -56,13 +57,16 @@ class AndroidImageReaderProxyRobolectricTest {
     private val countingListener = ImageReaderProxy.OnImageAvailableListener {
         listenerInvocations.incrementAndGet()
     }
+    private lateinit var baselineThreads: Set<Thread>
     private lateinit var imageReaderProxy: AndroidImageReaderProxy
     private lateinit var backgroundThread: HandlerThread
     private lateinit var backgroundHandler: Handler
 
     @Before
     fun setUp() {
+        baselineThreads = liveHighPriorityThreads()
         `when`(imageReader.width).thenReturn(640)
+        `when`(imageReader.maxImages).thenReturn(4)
         imageReaderProxy = AndroidImageReaderProxy(imageReader)
         backgroundThread = HandlerThread("AndroidImageReaderProxyRobolectricTest").apply { start() }
         backgroundHandler = Handler(backgroundThread.looper)
@@ -70,7 +74,10 @@ class AndroidImageReaderProxyRobolectricTest {
 
     @After
     fun tearDown() {
+        imageReaderProxy.close()
         backgroundThread.quitSafely()
+        backgroundThread.join(TIMEOUT_MILLIS)
+        joinAndAssertNoNewHighPriorityThreads()
     }
 
     @Test
@@ -90,9 +97,156 @@ class AndroidImageReaderProxyRobolectricTest {
         imageReaderProxy.setOnImageAvailableListener(countingListener, highPriorityExecutor)
 
         val registeredHandler = captureRegisteredHandler()
-        assertThat(registeredHandler)
-            .isSameInstanceAs(CameraXExecutors.unwrapHandler(highPriorityExecutor))
+        checkNotNull(CameraXExecutors.acquireHandlerLease(highPriorityExecutor)).use { lease ->
+            assertThat(registeredHandler).isSameInstanceAs(lease.handler)
+        }
         assertThat(registeredHandler.looper).isNotSameInstanceAs(Looper.getMainLooper())
+    }
+
+    @Test
+    fun highPriorityExecutor_clearListener_terminatesHighPriorityThread() {
+        imageReaderProxy.setOnImageAvailableListener(
+            countingListener,
+            CameraXExecutors.highPriorityExecutor(),
+        )
+        val highPriorityThread = captureRegisteredHandler().looper.thread
+        assertThat(highPriorityThread.isAlive).isTrue()
+
+        imageReaderProxy.clearOnImageAvailableListener()
+
+        highPriorityThread.join(TIMEOUT_MILLIS)
+        assertThat(highPriorityThread.isAlive).isFalse()
+    }
+
+    @Test
+    fun highPriorityExecutor_closeWithoutClear_terminatesHighPriorityThread() {
+        imageReaderProxy.setOnImageAvailableListener(
+            countingListener,
+            CameraXExecutors.highPriorityExecutor(),
+        )
+        val highPriorityThread = captureRegisteredHandler().looper.thread
+        assertThat(highPriorityThread.isAlive).isTrue()
+
+        imageReaderProxy.close()
+
+        highPriorityThread.join(TIMEOUT_MILLIS)
+        assertThat(highPriorityThread.isAlive).isFalse()
+    }
+
+    @Test
+    fun highPriorityExecutor_replacedWithHighPriorityExecutor_reusesSameThreadAndQuitsOnClear() {
+        val highPriorityExecutor = CameraXExecutors.highPriorityExecutor()
+        imageReaderProxy.setOnImageAvailableListener(countingListener, highPriorityExecutor)
+        imageReaderProxy.setOnImageAvailableListener(countingListener, highPriorityExecutor)
+
+        val (handler1, handler2) = captureRegisteredHandlers()
+        assertThat(handler2).isSameInstanceAs(handler1)
+        assertThat(handler1.looper.thread.isAlive).isTrue()
+
+        imageReaderProxy.clearOnImageAvailableListener()
+
+        handler1.looper.thread.join(TIMEOUT_MILLIS)
+        assertThat(handler1.looper.thread.isAlive).isFalse()
+    }
+
+    @Test
+    fun highPriorityExecutor_replacedWithNonHandlerExecutor_terminatesHighPriorityThread() {
+        imageReaderProxy.setOnImageAvailableListener(
+            countingListener,
+            CameraXExecutors.highPriorityExecutor(),
+        )
+        val highPriorityThread = captureRegisteredHandler().looper.thread
+        assertThat(highPriorityThread.isAlive).isTrue()
+
+        imageReaderProxy.setOnImageAvailableListener(countingListener, RecordingExecutor())
+
+        highPriorityThread.join(TIMEOUT_MILLIS)
+        assertThat(highPriorityThread.isAlive).isFalse()
+    }
+
+    @Test
+    fun highPriorityExecutor_setAfterClose_doesNotLeakHighPriorityThread() {
+        imageReaderProxy.close()
+
+        imageReaderProxy.setOnImageAvailableListener(
+            countingListener,
+            CameraXExecutors.highPriorityExecutor(),
+        )
+
+        joinAndAssertNoNewHighPriorityThreads()
+    }
+
+    @Test
+    fun setOnImageAvailableListener_whenImageReaderThrows_preservesPreviousLease() {
+        // First register a highPriorityExecutor() listener that succeeds, then make a replacement
+        // registration on a separate background-handler executor throw from ImageReader.
+        val firstExecutor = CameraXExecutors.highPriorityExecutor()
+        imageReaderProxy.setOnImageAvailableListener(countingListener, firstExecutor)
+        val firstHandler = captureRegisteredHandler()
+        val firstListener = captureTransformedListener()
+
+        val secondThread = HandlerThread("ReplacementExecutorThread").apply { start() }
+        try {
+            val secondHandler = Handler(secondThread.looper)
+            doThrow(IllegalStateException("Simulated ImageReader failure"))
+                .`when`(imageReader)
+                .setOnImageAvailableListener(any(), any())
+
+            assertThrows<IllegalStateException> {
+                imageReaderProxy.setOnImageAvailableListener(
+                    countingListener,
+                    CameraXExecutors.newHandlerExecutor(secondHandler),
+                )
+            }
+
+            // The existing HighPriorityExecutor lease and listener must remain intact and alive.
+            assertThat(firstHandler.looper.thread.isAlive).isTrue()
+            val latch = CountDownLatch(1)
+            firstHandler.post {
+                try {
+                    firstListener.onImageAvailable(imageReader)
+                } finally {
+                    latch.countDown()
+                }
+            }
+            assertThat(latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+            assertThat(listenerInvocations.get()).isEqualTo(1)
+        } finally {
+            secondThread.quitSafely()
+            secondThread.join(TIMEOUT_MILLIS)
+        }
+    }
+
+    @Test
+    fun setOnImageAvailableListener_whenImageReaderThrows_releasesNewLease() {
+        doThrow(IllegalStateException("Simulated ImageReader failure"))
+            .`when`(imageReader)
+            .setOnImageAvailableListener(any(), any())
+
+        assertThrows<IllegalStateException> {
+            imageReaderProxy.setOnImageAvailableListener(
+                countingListener,
+                CameraXExecutors.highPriorityExecutor(),
+            )
+        }
+
+        joinAndAssertNoNewHighPriorityThreads()
+    }
+
+    @Test
+    fun safeCloseAndMetadataWrapperChain_releasesHighPriorityThreadOnSafeClose() {
+        val safeCloseReader = SafeCloseImageReaderProxy(MetadataImageReader(imageReaderProxy))
+        safeCloseReader.setOnImageAvailableListener(
+            countingListener,
+            CameraXExecutors.highPriorityExecutor(),
+        )
+        val highPriorityThread = captureRegisteredHandler().looper.thread
+        assertThat(highPriorityThread.isAlive).isTrue()
+
+        safeCloseReader.safeClose()
+
+        highPriorityThread.join(TIMEOUT_MILLIS)
+        assertThat(highPriorityThread.isAlive).isFalse()
     }
 
     @Test
@@ -348,10 +502,13 @@ class AndroidImageReaderProxyRobolectricTest {
         assertThat(listenerInvocations.get()).isEqualTo(1)
     }
 
-    private fun captureRegisteredHandler(): Handler {
+    private fun captureRegisteredHandler(): Handler = captureRegisteredHandlers().single()
+
+    private fun captureRegisteredHandlers(): List<Handler> {
         val handlerCaptor = ArgumentCaptor.forClass(Handler::class.java)
-        verify(imageReader).setOnImageAvailableListener(any(), handlerCaptor.capture())
-        return handlerCaptor.value
+        verify(imageReader, atLeastOnce())
+            .setOnImageAvailableListener(any(), handlerCaptor.capture())
+        return handlerCaptor.allValues
     }
 
     private fun captureTransformedListener(): ImageReader.OnImageAvailableListener =
@@ -381,9 +538,21 @@ class AndroidImageReaderProxyRobolectricTest {
         thread.start()
         val proceeded = latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)
         if (proceeded) {
-            thread.join(TIMEOUT_SECONDS * 1000)
+            thread.join(TIMEOUT_MILLIS)
         }
         return proceeded
+    }
+
+    private fun liveHighPriorityThreads(): Set<Thread> =
+        Thread.getAllStackTraces().keys.filterTo(mutableSetOf()) {
+            it.name == HIGH_PRIORITY_THREAD && it.isAlive
+        }
+
+    private fun joinAndAssertNoNewHighPriorityThreads() {
+        for (thread in liveHighPriorityThreads() - baselineThreads) {
+            thread.join(TIMEOUT_MILLIS)
+            assertThat(thread.isAlive).isFalse()
+        }
     }
 
     private class RecordingExecutor : Executor {
@@ -399,6 +568,8 @@ class AndroidImageReaderProxyRobolectricTest {
     }
 
     private companion object {
+        const val HIGH_PRIORITY_THREAD = "CameraX-camerax_high_priority"
         const val TIMEOUT_SECONDS = 5L
+        const val TIMEOUT_MILLIS = TIMEOUT_SECONDS * 1000L
     }
 }

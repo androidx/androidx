@@ -488,6 +488,11 @@ public final class ImageAnalysis extends UseCase {
         }
         mDeferrableSurface = new ImmediateSurface(imageReaderProxy.getSurface(), resolution,
                 getImageFormat());
+        // Release the listener and its executor thread lease as soon as the surface terminates,
+        // without waiting for safeClose() to run on the main thread.
+        mDeferrableSurface.getTerminationFuture().addListener(
+                imageReaderProxy::clearOnImageAvailableListener,
+                CameraXExecutors.directExecutor());
         mDeferrableSurface.getTerminationFuture().addListener(
                 () -> {
                     imageReaderProxy.safeClose();

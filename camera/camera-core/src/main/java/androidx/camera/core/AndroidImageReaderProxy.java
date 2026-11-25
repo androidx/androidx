@@ -53,6 +53,12 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
     @GuardedBy("mLock")
     private @Nullable AtomicBoolean mActiveListener = null;
 
+    @GuardedBy("mLock")
+    private CameraXExecutors.@Nullable HandlerLease mHandlerLease = null;
+
+    @GuardedBy("mLock")
+    private boolean mIsClosed = false;
+
     /**
      * Creates a new instance which wraps the given image reader.
      *
@@ -117,8 +123,22 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public void close() {
-        synchronized (mLock) {
-            mImageReader.close();
+        CameraXExecutors.HandlerLease leaseToClose = null;
+        try {
+            synchronized (mLock) {
+                mIsClosed = true;
+                if (mActiveListener != null) {
+                    mActiveListener.set(false);
+                    mActiveListener = null;
+                }
+                leaseToClose = mHandlerLease;
+                mHandlerLease = null;
+                mImageReader.close();
+            }
+        } finally {
+            if (leaseToClose != null) {
+                leaseToClose.close();
+            }
         }
     }
 
@@ -161,68 +181,105 @@ class AndroidImageReaderProxy implements ImageReaderProxy {
     public void setOnImageAvailableListener(
             @NonNull OnImageAvailableListener listener,
             @NonNull Executor executor) {
+        synchronized (mLock) {
+            if (mIsClosed) {
+                return;
+            }
+        }
         // ImageReader does not accept an executor. If the executor is backed by a background
         // Handler, the callback is delivered on that Handler and the listener is invoked
         // directly. Otherwise, the callback is run on the main handler and then posted to the
         // executor.
-        Handler executorHandler = CameraXExecutors.unwrapHandler(executor);
-        Looper executorLooper = executorHandler != null ? executorHandler.getLooper() : null;
-        // The main looper is excluded: ImageReader posts asynchronous messages, which can
-        // overtake synchronous main thread tasks (e.g. CaptureNode#onCaptureStarted) across UI
-        // VSYNC sync barriers. Posting to the executor preserves the existing ordering.
-        final boolean dispatchDirectly =
-                executorLooper != null && executorLooper != Looper.getMainLooper();
-        Handler callbackHandler =
-                dispatchDirectly ? executorHandler : MainThreadAsyncHandler.getInstance();
-        final AtomicBoolean active = new AtomicBoolean(true);
-        // The listener and executor are invoked outside of mLock to avoid lock-ordering
-        // deadlocks with wrappers that call back into this reader. The callback might still be
-        // delivered after the listener is cleared or replaced, so it is skipped if inactive.
-        ImageReader.OnImageAvailableListener transformedListener =
-                (imageReader) -> {
-                    if (!active.get()) {
-                        return;
-                    }
-                    // ImageReader.ListenerHandler reads mListener dynamically without draining
-                    // messages already queued on a previous Looper. Verify the callback is
-                    // actually running on executorLooper before invoking directly; otherwise post
-                    // to executor so the listener never runs on a stale Looper thread.
-                    if (dispatchDirectly && Looper.myLooper() == executorLooper) {
-                        listener.onImageAvailable(AndroidImageReaderProxy.this);
-                        return;
-                    }
-                    try {
-                        executor.execute(
-                                () -> {
-                                    if (active.get()) {
-                                        listener.onImageAvailable(AndroidImageReaderProxy.this);
-                                    }
-                                });
-                    } catch (RejectedExecutionException e) {
-                        // b/242470184: the executor may be shut down right after the listener
-                        // is cleared. Only ignore the rejection if that is the case.
-                        if (active.get()) {
-                            throw e;
-                        }
-                    }
-                };
-        synchronized (mLock) {
-            if (mActiveListener != null) {
-                mActiveListener.set(false);
+        CameraXExecutors.HandlerLease newLease = CameraXExecutors.acquireHandlerLease(executor);
+        CameraXExecutors.HandlerLease leaseToClose = newLease;
+        try {
+            Handler executorHandler = newLease != null ? newLease.getHandler() : null;
+            Looper executorLooper = executorHandler != null ? executorHandler.getLooper() : null;
+            // The main looper is excluded: ImageReader posts asynchronous messages, which can
+            // overtake synchronous main thread tasks (e.g. CaptureNode#onCaptureStarted) across UI
+            // VSYNC sync barriers. Posting to the executor preserves the existing ordering.
+            final boolean dispatchDirectly =
+                    executorLooper != null && executorLooper != Looper.getMainLooper();
+            if (!dispatchDirectly && newLease != null) {
+                newLease.close();
+                newLease = null;
+                leaseToClose = null;
             }
-            mActiveListener = active;
-            mImageReader.setOnImageAvailableListener(transformedListener, callbackHandler);
+            Handler callbackHandler =
+                    dispatchDirectly ? executorHandler : MainThreadAsyncHandler.getInstance();
+            final AtomicBoolean active = new AtomicBoolean(true);
+            // The listener and executor are invoked outside of mLock to avoid lock-ordering
+            // deadlocks with wrappers that call back into this reader. The callback might still be
+            // delivered after the listener is cleared or replaced, so it is skipped if inactive.
+            ImageReader.OnImageAvailableListener transformedListener =
+                    (imageReader) -> {
+                        if (!active.get()) {
+                            return;
+                        }
+                        // ImageReader.ListenerHandler reads mListener dynamically without draining
+                        // messages already queued on a previous Looper. Verify the callback is
+                        // actually running on executorLooper before invoking directly; otherwise
+                        // post to executor so the listener never runs on a stale Looper thread.
+                        if (dispatchDirectly && Looper.myLooper() == executorLooper) {
+                            listener.onImageAvailable(AndroidImageReaderProxy.this);
+                            return;
+                        }
+                        try {
+                            executor.execute(
+                                    () -> {
+                                        if (active.get()) {
+                                            listener.onImageAvailable(
+                                                    AndroidImageReaderProxy.this);
+                                        }
+                                    });
+                        } catch (RejectedExecutionException e) {
+                            // b/242470184: the executor may be shut down right after the listener
+                            // is cleared. Only ignore the rejection if that is the case.
+                            if (active.get()) {
+                                throw e;
+                            }
+                        }
+                    };
+            synchronized (mLock) {
+                if (!mIsClosed) {
+                    // Register on ImageReader before swapping state so an exception leaves any
+                    // previously registered listener and its lease intact while finally closes
+                    // newLease.
+                    mImageReader.setOnImageAvailableListener(transformedListener, callbackHandler);
+                    if (mActiveListener != null) {
+                        mActiveListener.set(false);
+                    }
+                    mActiveListener = active;
+                    leaseToClose = mHandlerLease;
+                    mHandlerLease = newLease;
+                }
+            }
+        } finally {
+            if (leaseToClose != null) {
+                leaseToClose.close();
+            }
         }
     }
 
     @Override
     public void clearOnImageAvailableListener() {
-        synchronized (mLock) {
-            if (mActiveListener != null) {
-                mActiveListener.set(false);
-                mActiveListener = null;
+        CameraXExecutors.HandlerLease leaseToClose = null;
+        try {
+            synchronized (mLock) {
+                if (mActiveListener != null) {
+                    mActiveListener.set(false);
+                    mActiveListener = null;
+                }
+                leaseToClose = mHandlerLease;
+                mHandlerLease = null;
+                if (!mIsClosed) {
+                    mImageReader.setOnImageAvailableListener(null, null);
+                }
             }
-            mImageReader.setOnImageAvailableListener(null, null);
+        } finally {
+            if (leaseToClose != null) {
+                leaseToClose.close();
+            }
         }
     }
 }
