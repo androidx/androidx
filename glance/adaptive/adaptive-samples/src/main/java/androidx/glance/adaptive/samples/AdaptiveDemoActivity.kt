@@ -20,55 +20,122 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.appwidget.requestPin
 import androidx.glance.adaptive.appwidget.setPreview
+import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager as CoreWidgetManager
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+
+private const val TAG = "AdaptiveDemoActivity"
+private val ContentMaxWidth = 600.dp
 
 /**
  * Demo app for Glance Adaptive widgets.
  *
- * Lists the widgets in [DemoWidgets], publishes their picker previews through
- * [GlanceAdaptiveWidgetManager.setPreview], and pins the one that is tapped through
+ * Organizes templates under a unified three-level flow (template catalog -> use-case picker ->
+ * renderer configuration -> pin), publishes picker previews through
+ * [GlanceAdaptiveWidgetManager.setPreview], and pins widgets through
  * [GlanceAdaptiveWidgetManager.requestPin]. Opened from a Quick Actions demo widget, it shows which
  * tile or button was tapped.
  */
 class AdaptiveDemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        showQuickAction(intent)
-        setContent { MaterialTheme { DemoScreen() } }
+        WindowCompat.enableEdgeToEdge(window)
+        if (
+            savedInstanceState == null &&
+                (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0
+        ) {
+            showWidgetAction(intent)
+        }
+        setContent {
+            val darkTheme = isSystemInDarkTheme()
+            SideEffect {
+                WindowCompat.getInsetsController(window, window.decorView).apply {
+                    isAppearanceLightStatusBars = !darkTheme
+                    isAppearanceLightNavigationBars = !darkTheme
+                }
+            }
+            val colorScheme =
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && darkTheme ->
+                        dynamicDarkColorScheme(this)
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> dynamicLightColorScheme(this)
+                    darkTheme -> darkColorScheme()
+                    else -> lightColorScheme()
+                }
+            MaterialTheme(colorScheme = colorScheme) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    DemoScreen()
+                }
+            }
+        }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        showQuickAction(intent)
-    }
-
-    /** Shows the Quick Actions tile or button that [intent] was started from, if any. */
-    private fun showQuickAction(intent: Intent) {
+    /** Shows the Quick Actions widget tile or button that [intent] was started from, if any. */
+    private fun showWidgetAction(intent: Intent) {
         val label = intent.getStringExtra(QuickActionsSample.EXTRA_QUICK_ACTION) ?: return
         Toast.makeText(
                 this,
@@ -79,138 +146,468 @@ class AdaptiveDemoActivity : ComponentActivity() {
     }
 }
 
-/**
- * A widget listed by the demo.
- *
- * @property label String resource shown for the widget in the list.
- * @property widgetName Developer widget definition String identifier passed to
- *   [GlanceAdaptiveWidgetManager.requestPin] and [GlanceAdaptiveWidgetManager.setPreview].
- * @property previewData Template payload rendered as the widget's pin and picker preview.
- * @property unsupportedMessageRes Optional string resource toasted when tapped on a device that
- *   does not support this widget; when non-null, the row is greyed out and skipped during preview
- *   publishing.
- */
-private data class DemoWidget(
-    @StringRes val label: Int,
-    val widgetName: String,
-    val previewData: GlanceAdaptiveTemplate,
-    @StringRes val unsupportedMessageRes: Int? = null,
+private data class TemplateGroup(
+    val id: String,
+    @StringRes val titleRes: Int,
+    @StringRes val subtitleRes: Int,
+    @StringRes val pickerInstructionsRes: Int,
+    val useCases: List<TemplateUseCase>,
+)
+
+private data class TemplateUseCase(
+    val id: String,
+    @StringRes val titleRes: Int,
+    @StringRes val subtitleRes: Int,
+    val remoteViewsWidgetName: String,
+    val remoteComposeWidgetName: String? = null,
+    @StringRes val remoteComposeUnavailableReasonRes: Int? = null,
+    val buildPayload: () -> GlanceAdaptiveTemplate,
 ) {
-    val isSupported: Boolean
-        get() = unsupportedMessageRes == null
+    /**
+     * Returns the string resource explaining why [WidgetBackend.RemoteCompose] cannot be selected
+     * on this device, or `null` when RemoteCompose is available for this use case.
+     */
+    @StringRes
+    fun remoteComposeDisabledReasonRes(): Int? =
+        when {
+            remoteComposeWidgetName == null ->
+                remoteComposeUnavailableReasonRes ?: R.string.remotecompose_unsupported_sdk
+            !isRemoteComposeSupported -> R.string.remotecompose_unsupported_sdk
+            else -> null
+        }
+
+    fun resolveWidgetName(backend: WidgetBackend): String =
+        when (backend) {
+            WidgetBackend.RemoteCompose ->
+                remoteComposeWidgetName?.takeIf { isRemoteComposeSupported }
+                    ?: remoteViewsWidgetName
+            WidgetBackend.RemoteViews -> remoteViewsWidgetName
+        }
+
+    /** Distinct widget names whose launcher picker previews should be published on this device. */
+    fun previewWidgetNames(): List<String> = buildList {
+        add(remoteViewsWidgetName)
+        if (remoteComposeDisabledReasonRes() == null) {
+            remoteComposeWidgetName?.let { rcName ->
+                if (rcName !in this) {
+                    add(rcName)
+                }
+            }
+        }
+    }
 }
 
-/**
- * Widgets listed by the demo.
- *
- * An app knows the widgetName of each of its receivers, so it passes it to
- * [GlanceAdaptiveWidgetManager.requestPin] directly. The RemoteCompose Track widget requires API 37
- * (`CINNAMON_BUN`) and is shown greyed out on earlier releases.
- */
-private val DemoWidgets =
+private enum class WidgetBackend {
+    RemoteCompose,
+    RemoteViews,
+}
+
+private val isRemoteComposeSupported: Boolean
+    get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+
+private val DemoTemplateGroups =
     listOf(
-        DemoWidget(
-            label = R.string.track_remoteviews_widget_name,
-            widgetName = TrackRemoteViewsWidgetReceiver.WIDGET_NAME,
-            previewData = TrackSample.SampleData,
+        TemplateGroup(
+            id = "track",
+            titleRes = R.string.track_template_entry,
+            subtitleRes = R.string.track_template_entry_subtitle,
+            pickerInstructionsRes = R.string.track_use_case_instructions,
+            useCases =
+                listOf(
+                    TemplateUseCase(
+                        id = "track_steps",
+                        titleRes = R.string.track_steps_use_case_title,
+                        subtitleRes = R.string.track_steps_use_case_subtitle,
+                        remoteViewsWidgetName = TrackRemoteViewsWidgetReceiver.WIDGET_NAME,
+                        remoteComposeWidgetName = TrackRemoteComposeWidgetReceiver.WIDGET_NAME,
+                        buildPayload = { TrackSample.SampleData },
+                    )
+                ),
         ),
-        DemoWidget(
-            label = R.string.track_remotecompose_widget_name,
-            widgetName = TrackRemoteComposeWidgetReceiver.WIDGET_NAME,
-            previewData = TrackSample.SampleData,
-            unsupportedMessageRes =
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) {
-                    R.string.remotecompose_unsupported_sdk
-                } else {
-                    null
-                },
-        ),
-        DemoWidget(
-            label = R.string.quick_actions_workouts_widget_name,
-            widgetName = WorkoutsQuickActionsWidgetReceiver.WIDGET_NAME,
-            previewData = WorkoutsQuickActionsWidgetReceiver.SampleData,
-        ),
-        DemoWidget(
-            label = R.string.quick_actions_contacts_widget_name,
-            widgetName = ContactsQuickActionsWidgetReceiver.WIDGET_NAME,
-            previewData = ContactsQuickActionsWidgetReceiver.SampleData,
+        TemplateGroup(
+            id = "quick_actions",
+            titleRes = R.string.quick_actions_template_entry,
+            subtitleRes = R.string.quick_actions_template_entry_subtitle,
+            pickerInstructionsRes = R.string.quick_actions_use_case_instructions,
+            useCases =
+                listOf(
+                    TemplateUseCase(
+                        id = "quick_actions_workouts",
+                        titleRes = R.string.quick_actions_workouts_use_case_title,
+                        subtitleRes = R.string.quick_actions_workouts_use_case_subtitle,
+                        remoteViewsWidgetName = WorkoutsQuickActionsWidgetReceiver.WIDGET_NAME,
+                        remoteComposeWidgetName = null,
+                        remoteComposeUnavailableReasonRes =
+                            R.string.remotecompose_quick_actions_unavailable,
+                        buildPayload = { WorkoutsQuickActionsWidgetReceiver.SampleData },
+                    ),
+                    TemplateUseCase(
+                        id = "quick_actions_contacts",
+                        titleRes = R.string.quick_actions_contacts_use_case_title,
+                        subtitleRes = R.string.quick_actions_contacts_use_case_subtitle,
+                        remoteViewsWidgetName = ContactsQuickActionsWidgetReceiver.WIDGET_NAME,
+                        remoteComposeWidgetName = null,
+                        remoteComposeUnavailableReasonRes =
+                            R.string.remotecompose_quick_actions_unavailable,
+                        buildPayload = { ContactsQuickActionsWidgetReceiver.SampleData },
+                    ),
+                ),
         ),
     )
 
 /**
- * Ensures picker previews are published at most once per process so configuration changes (such as
- * folding or rotating) and activity restarts do not hit the platform `setWidgetPreview` rate limit.
+ * Ensures picker previews are published at most once per process on a process-scoped IO scope so
+ * mid-flight configuration changes do not cancel publication after [previewsPublished] flips true
+ * or hit the platform `setWidgetPreview` rate limit on subsequent relaunches.
  */
-private var previewsPublished = false
+private val previewsPublished = AtomicBoolean(false)
+private val previewPublishScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
 @Composable
 private fun DemoScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var selectedTemplateId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedUseCaseId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        if (previewsPublished) return@LaunchedEffect
-        val manager = GlanceAdaptiveWidgetManager(context.applicationContext)
-        for (widget in DemoWidgets) {
-            if (widget.isSupported) {
-                manager.setPreview(widgetName = widget.widgetName, previewData = widget.previewData)
+        if (!previewsPublished.compareAndSet(false, true)) return@LaunchedEffect
+        val appContext = context.applicationContext ?: context
+        previewPublishScope.launch {
+            val manager = GlanceAdaptiveWidgetManager(appContext)
+            for (group in DemoTemplateGroups) {
+                for (useCase in group.useCases) {
+                    val preview = useCase.buildPayload()
+                    for (widgetName in useCase.previewWidgetNames()) {
+                        publishPreviewSafely(manager, widgetName, preview)
+                    }
+                }
             }
         }
-        previewsPublished = true
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp)) {
+    val selectedTemplate = DemoTemplateGroups.find { it.id == selectedTemplateId }
+    val selectedUseCase = selectedTemplate?.useCases?.find { it.id == selectedUseCaseId }
+
+    BackHandler(enabled = selectedTemplate != null) {
+        if (selectedUseCase != null) {
+            selectedUseCaseId = null
+        } else {
+            selectedTemplateId = null
+        }
+    }
+
+    when {
+        selectedTemplate != null && selectedUseCase != null -> {
+            UseCaseConfigScreen(
+                useCase = selectedUseCase,
+                onBack = { selectedUseCaseId = null },
+                onPin = { widgetName ->
+                    scope.launch {
+                        pinWidget(
+                            context = context,
+                            widgetName = widgetName,
+                            payload = selectedUseCase.buildPayload(),
+                        )
+                    }
+                },
+            )
+        }
+        selectedTemplate != null -> {
+            UseCasePickerScreen(
+                template = selectedTemplate,
+                onBack = { selectedTemplateId = null },
+                onSelectUseCase = { useCase -> selectedUseCaseId = useCase.id },
+            )
+        }
+        else ->
+            HomeScreen(
+                templates = DemoTemplateGroups,
+                onSelectTemplate = { template ->
+                    selectedTemplateId = template.id
+                    selectedUseCaseId = null
+                },
+            )
+    }
+}
+
+@Composable
+private fun HomeScreen(
+    templates: List<TemplateGroup>,
+    onSelectTemplate: (TemplateGroup) -> Unit,
+) {
+    val itemModifier = Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         item {
             Text(
                 stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = itemModifier.padding(vertical = 8.dp),
             )
         }
         item {
             Text(
-                stringResource(R.string.pin_widget_instructions),
+                stringResource(R.string.home_template_instructions),
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = itemModifier,
             )
         }
 
-        items(DemoWidgets, key = { it.widgetName }) { widget ->
-            HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
-            WidgetRow(
-                label = stringResource(widget.label),
-                enabled = widget.isSupported,
-                onClick = {
-                    val unsupportedRes = widget.unsupportedMessageRes
-                    if (unsupportedRes != null) {
-                        Toast.makeText(context, unsupportedRes, Toast.LENGTH_SHORT).show()
-                    } else {
-                        scope.launch { pin(context, widget) }
-                    }
-                },
-            )
+        items(templates, key = { it.id }) { template ->
+            Column(modifier = itemModifier) {
+                HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+                WidgetRow(
+                    label = stringResource(template.titleRes),
+                    subtitle = stringResource(template.subtitleRes),
+                    onClick = { onSelectTemplate(template) },
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun WidgetRow(label: String, enabled: Boolean, onClick: () -> Unit) {
-    Text(
-        text = label,
-        color =
-            if (enabled) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-            },
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 16.dp),
-    )
+private fun UseCasePickerScreen(
+    template: TemplateGroup,
+    onBack: () -> Unit,
+    onSelectUseCase: (TemplateUseCase) -> Unit,
+) {
+    val itemModifier = Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        item {
+            Box(modifier = itemModifier) {
+                ScreenHeader(title = stringResource(template.titleRes), onBack = onBack)
+            }
+        }
+        item {
+            Text(
+                stringResource(template.pickerInstructionsRes),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = itemModifier,
+            )
+        }
+
+        items(template.useCases, key = { it.id }) { useCase ->
+            Column(modifier = itemModifier) {
+                HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+                WidgetRow(
+                    label = stringResource(useCase.titleRes),
+                    subtitle = stringResource(useCase.subtitleRes),
+                    onClick = { onSelectUseCase(useCase) },
+                )
+            }
+        }
+    }
 }
 
-private suspend fun pin(context: Context, widget: DemoWidget) {
+@Composable
+private fun UseCaseConfigScreen(
+    useCase: TemplateUseCase,
+    onBack: () -> Unit,
+    onPin: (widgetName: String) -> Unit,
+) {
+    val remoteComposeDisabledReasonRes = useCase.remoteComposeDisabledReasonRes()
+    val remoteComposeAvailable = remoteComposeDisabledReasonRes == null
+
+    var selectedBackend by
+        rememberSaveable(useCase.id, remoteComposeAvailable) {
+            mutableStateOf(
+                if (remoteComposeAvailable) {
+                    WidgetBackend.RemoteCompose
+                } else {
+                    WidgetBackend.RemoteViews
+                }
+            )
+        }
+
+    Box(
+        modifier =
+            Modifier.fillMaxSize()
+                .safeDrawingPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Column(
+            modifier = Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            ScreenHeader(title = stringResource(useCase.titleRes), onBack = onBack)
+
+            Text(
+                text = stringResource(useCase.subtitleRes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Text(
+                text = stringResource(R.string.widget_config_renderer_section),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
+
+            BackendOptionRow(
+                label = stringResource(R.string.widget_config_renderer_remotecompose),
+                subtitle = remoteComposeDisabledReasonRes?.let { stringResource(it) },
+                selected = selectedBackend == WidgetBackend.RemoteCompose,
+                enabled = remoteComposeAvailable,
+                onClick = { selectedBackend = WidgetBackend.RemoteCompose },
+            )
+
+            BackendOptionRow(
+                label = stringResource(R.string.widget_config_renderer_remoteviews),
+                subtitle = null,
+                selected = selectedBackend == WidgetBackend.RemoteViews,
+                enabled = true,
+                onClick = { selectedBackend = WidgetBackend.RemoteViews },
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = { onPin(useCase.resolveWidgetName(selectedBackend)) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.widget_config_pin_button))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ScreenHeader(title: String, onBack: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_back),
+                contentDescription = stringResource(R.string.navigate_back),
+            )
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(start = 4.dp),
+        )
+    }
+}
+
+@Composable
+private fun BackendOptionRow(
+    label: String,
+    subtitle: String?,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier.fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .selectable(
+                    selected = selected,
+                    enabled = enabled,
+                    role = Role.RadioButton,
+                    onClick = onClick,
+                )
+                .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, enabled = enabled, onClick = null)
+        Column(modifier = Modifier.padding(start = 8.dp)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                color =
+                    if (enabled) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    },
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WidgetRow(
+    label: String,
+    subtitle: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
+        Icon(
+            painter = painterResource(R.drawable.ic_chevron_right),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 8.dp),
+        )
+    }
+}
+
+private suspend fun publishPreviewSafely(
+    manager: CoreWidgetManager,
+    widgetName: String,
+    previewData: GlanceAdaptiveTemplate,
+) {
+    try {
+        manager.setPreview(widgetName = widgetName, previewData = previewData)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: IllegalArgumentException) {
+        throw e
+    } catch (e: Exception) {
+        // Platform setWidgetPreview is rate-limited across rapid relaunches and may also surface
+        // platform/Binder errors; keep the previously published or static XML preview rather than
+        // crashing the demo.
+        Log.w(TAG, "Failed to publish preview for $widgetName", e)
+    }
+}
+
+private suspend fun pinWidget(
+    context: Context,
+    widgetName: String,
+    payload: GlanceAdaptiveTemplate,
+) {
     val pinned =
-        GlanceAdaptiveWidgetManager(context)
-            .requestPin(widgetName = widget.widgetName, initialData = widget.previewData)
+        try {
+            GlanceAdaptiveWidgetManager(context)
+                .requestPin(widgetName = widgetName, initialData = payload)
+        } catch (e: IllegalStateException) {
+            Log.w(TAG, "Failed to pin widget $widgetName", e)
+            false
+        }
     if (!pinned) {
         Toast.makeText(context, R.string.pin_widget_failed, Toast.LENGTH_SHORT).show()
     }

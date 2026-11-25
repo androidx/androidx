@@ -17,13 +17,15 @@
 
 <resources>
     <string name="app_name">Glance Adaptive Samples</string>
-    <string name="pin_widget_instructions">Tap a widget to pin it to the home screen.</string>
+    <string name="home_template_instructions">Choose a template to explore use cases, configure, and pin widgets.</string>
     <string name="pin_widget_failed">Couldn\'t request to pin this widget.</string>
+    <string name="navigate_back">Back</string>
 
     <string name="track_widget_description">Adaptive Track template widget for fitness metrics</string>
     <string name="track_remoteviews_widget_name">Track Activity Widget (RemoteViews)</string>
     <string name="track_remotecompose_widget_name">Track Activity Widget (RemoteCompose)</string>
     <string name="remotecompose_unsupported_sdk">RemoteCompose widgets require Android 17 (API 37) or higher.</string>
+    <string name="remotecompose_quick_actions_unavailable">RemoteCompose renderer is not yet available for Quick Actions.</string>
 
     <string name="quick_actions_workouts_widget_name">Workouts Quick Actions Widget</string>
     <string name="quick_actions_workouts_widget_description">Adaptive Quick Actions template widget with workout shortcuts under a header</string>
@@ -31,4 +33,23 @@
     <string name="quick_actions_contacts_widget_description">Adaptive Quick Actions template widget with favorite contacts and no header</string>
     <!-- Shown when a Quick Actions demo widget opens the demo. %1$s is the tapped tile's label. -->
     <string name="quick_actions_action_tapped">Quick Actions: %1$s</string>
+
+    <string name="track_template_entry">Track Template</string>
+    <string name="track_template_entry_subtitle">Daily steps progress ring, 7-day bar chart &amp; zone badge</string>
+    <string name="track_use_case_instructions">Choose a Track Template use case to configure and pin.</string>
+    <string name="track_steps_use_case_title">Steps Activity</string>
+    <string name="track_steps_use_case_subtitle">11,056 steps, progress ring, 7-day average bar chart &amp; zone badge</string>
+
+    <string name="quick_actions_template_entry">Quick Actions Template</string>
+    <string name="quick_actions_template_entry_subtitle">Workouts &amp; Favorite Contacts</string>
+    <string name="quick_actions_use_case_instructions">Choose a Quick Actions Template use case to configure and pin.</string>
+    <string name="quick_actions_workouts_use_case_title">Workouts</string>
+    <string name="quick_actions_workouts_use_case_subtitle">Eight workout shortcuts under a header with a trailing Log action</string>
+    <string name="quick_actions_contacts_use_case_title">Contacts</string>
+    <string name="quick_actions_contacts_use_case_subtitle">Eight favorite contacts with no header &amp; lock-screen redaction</string>
+
+    <string name="widget_config_renderer_section">Renderer</string>
+    <string name="widget_config_renderer_remotecompose">RemoteCompose (API 37+)</string>
+    <string name="widget_config_renderer_remoteviews">RemoteViews</string>
+    <string name="widget_config_pin_button">Pin Widget</string>
 </resources>
