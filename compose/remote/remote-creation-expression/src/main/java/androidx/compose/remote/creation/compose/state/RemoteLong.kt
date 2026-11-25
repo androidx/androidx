@@ -350,4 +350,6 @@ internal enum class RemoteLongOp(val symbol: String? = null) : RemoteOperation {
             Mul -> (args[0] as RemoteLong) * (args[1] as RemoteLong)
         }
     }
+
+    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = true
 }

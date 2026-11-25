@@ -666,6 +666,78 @@ internal enum class RemoteFloatOperationKey(
                 )
         }
     }
+
+    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
+        when (this) {
+            Floor,
+            Ceil,
+            Round,
+            ToInt,
+            ToRemoteInt,
+            Sign,
+            CompareEQ,
+            CompareNE,
+            CompareLT,
+            CompareLE,
+            CompareGT,
+            CompareGE,
+            TimeOfReferenceInSeconds,
+            TimeOfReferenceInMinutes,
+            TimeOfReferenceInHours,
+            DayOfMonthForReference,
+            MonthOfYearForReference,
+            DayOfWeekForReference,
+            YearForReference -> true
+            Reference,
+            UnaryMinus,
+            Abs,
+            CopySign -> args.isNotEmpty() && args[0].isResultWholeNumber
+            Plus,
+            Minus,
+            Times,
+            Rem,
+            Min,
+            Max -> args.size >= 2 && args[0].isResultWholeNumber && args[1].isResultWholeNumber
+            Clamp,
+            Mad,
+            Lerp ->
+                args.size >= 3 &&
+                    args[0].isResultWholeNumber &&
+                    args[1].isResultWholeNumber &&
+                    args[2].isResultWholeNumber
+            SelectIfLT,
+            SelectIfLE,
+            SelectIfGT,
+            SelectIfGE,
+            ComparisonOp ->
+                args.size >= 4 && args[2].isResultWholeNumber && args[3].isResultWholeNumber
+            ToRemoteString,
+            Div,
+            Log,
+            Ln,
+            Rand,
+            RandInRange,
+            Sin,
+            Cos,
+            Tan,
+            Asin,
+            Acos,
+            Atan,
+            Atan2,
+            Cbrt,
+            ToDeg,
+            ToRad,
+            Sqrt,
+            Exp,
+            Pow,
+            DeltaFromReferenceInSeconds,
+            DeltaFromReferenceInMinutes,
+            DeltaFromReferenceInHours,
+            Anim,
+            Cubic,
+            Spline,
+            SplineLoop -> false
+        }
 }
 
 internal fun RemoteFloat(

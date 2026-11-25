@@ -71,6 +71,8 @@ private enum class IntArrayOperationKey : RemoteOperation {
                 else -> throw IllegalArgumentException("Unsupported index type: $index")
             }
         }
+
+        override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = true
     },
 }
 

@@ -51,7 +51,8 @@ constructor(
     @Suppress("PrimitiveInCollection") public val kerningTable: Map<String, Short> = emptyMap(),
 ) : RemoteValue<Any>, RemoteValueAccess {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override val cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey()
+    override val cacheKey: RemoteStateCacheKey =
+        RemoteStateInstanceKey().apply { setState(this@RemoteBitmapFont) }
 
     override fun toString(): String = cacheKey.toDebugString()
 
@@ -67,9 +68,35 @@ constructor(
             mutableGlyphs
         }
 
-    internal enum class OperationKey {
+    internal enum class OperationKey : RemoteOperation {
         MeasureWidth,
-        MeasureHeight,
+        MeasureHeight;
+
+        override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+            when (this) {
+                MeasureWidth ->
+                    "${args[0].toDebugString()}.measureWidth(" +
+                        "${args[1].toDebugString()}, ${args[2].toDebugString()})"
+                MeasureHeight ->
+                    "${args[0].toDebugString()}.measureHeight(${args[1].toDebugString()})"
+            }
+
+        override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
+            when (this) {
+                MeasureWidth ->
+                    (args[0] as RemoteBitmapFont).measureWidth(
+                        args[1] as RemoteString,
+                        args[2] as RemoteFloat,
+                    )
+                MeasureHeight ->
+                    (args[0] as RemoteBitmapFont).measureHeight(args[1] as RemoteString)
+            }
+
+        override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
+            when (this) {
+                MeasureHeight -> true
+                MeasureWidth -> args.size >= 3 && args[2].isResultWholeNumber
+            }
     }
 
     /** A Glyph from a [RemoteBitmapFont] which may represent one or more characters. */
@@ -193,7 +220,8 @@ constructor(
             return RemoteFloat(measure(text.constantValue, glyphSpacing.constantValue).width())
         }
         return RemoteFloat(
-            cacheKey = RemoteOperationCacheKey.create(OperationKey.MeasureWidth, this, text)
+            cacheKey =
+                RemoteOperationCacheKey.create(OperationKey.MeasureWidth, this, text, glyphSpacing)
         ) {
             RemoteFloat(
                 document.bitmapTextMeasure(

@@ -516,6 +516,15 @@ internal enum class BooleanOperationKey : RemoteOperation {
 
     private fun asRemoteBoolean(value: RemoteValue<*>): RemoteBoolean =
         value as? RemoteBoolean ?: RemoteBoolean(value as RemoteInt)
+
+    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
+        when (this) {
+            SelectFloat ->
+                args.size >= 3 && args[1].isResultWholeNumber && args[2].isResultWholeNumber
+            SelectInt,
+            SelectBoolean -> true
+            SelectString -> false
+        }
 }
 
 /**

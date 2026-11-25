@@ -373,6 +373,40 @@ class RemoteBitmapFontTest {
             .isEqualTo(expectedState.document.buffer.buffer.cloneBytes())
     }
 
+    @Test
+    fun measureWidthAndHeight_supportRemoteOperationWholeNumberAndTransform() {
+        val dynamicText = RemoteString.createNamedRemoteString("label", "abc")
+        val otherText = RemoteString.createNamedRemoteString("other", "def")
+
+        val widthZeroSpacing = bitmapFont.measureWidth(dynamicText, 0f.rf)
+        val widthIntSpacing = bitmapFont.measureWidth(dynamicText, 2f.rf)
+        val widthFracSpacing = bitmapFont.measureWidth(dynamicText, 0.5f.rf)
+        val height = bitmapFont.measureHeight(dynamicText)
+
+        // Distinct glyphSpacing values must produce distinct cache keys
+        assertThat(widthZeroSpacing.cacheKey).isNotEqualTo(widthIntSpacing.cacheKey)
+
+        // Whole-number checks
+        assertThat(height.cacheKey.isResultWholeNumber).isTrue()
+        assertThat(widthZeroSpacing.cacheKey.isResultWholeNumber).isTrue()
+        assertThat(widthIntSpacing.cacheKey.isResultWholeNumber).isTrue()
+        assertThat(widthFracSpacing.cacheKey.isResultWholeNumber).isFalse()
+
+        // Debug strings & transform reconstruction
+        assertThat(widthIntSpacing.cacheKey.toDebugString())
+            .contains(".measureWidth(user:label, 2.0)")
+        assertThat(height.cacheKey.toDebugString()).contains(".measureHeight(user:label)")
+
+        val transformedWidth = widthIntSpacing.transform {
+            if (it === dynamicText) otherText else null
+        }
+        val transformedHeight = height.transform { if (it === dynamicText) otherText else null }
+        assertThat(transformedWidth.cacheKey)
+            .isEqualTo(bitmapFont.measureWidth(otherText, 2f.rf).cacheKey)
+        assertThat(transformedHeight.cacheKey)
+            .isEqualTo(bitmapFont.measureHeight(otherText).cacheKey)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer
