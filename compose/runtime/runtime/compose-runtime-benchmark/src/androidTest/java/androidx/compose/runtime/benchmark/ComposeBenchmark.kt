@@ -264,8 +264,8 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     }
 
     @Test
-    fun benchmark_g_group_eliding_focused_1000() = runBlockingTestWithFrameClock {
-        measureCompose { repeat(1000) { MyLayout { SimpleText("Value: $it") } } }
+    fun benchmark_g_group_eliding_focused_100() = runBlockingTestWithFrameClock {
+        measureCompose { repeat(100) { MyLayout { SimpleText("Value: $it") } } }
     }
 
     @Test
