@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener
@@ -36,6 +37,8 @@ import kotlinx.atomicfu.atomic
 public class FakeCaptureSequenceProcessor(
     private val cameraId: CameraId = FakeCameraIds.default,
     private val defaultTemplate: RequestTemplate = RequestTemplate(1),
+    private val requestTemplateParameters: Map<RequestTemplate, Map<CaptureRequest.Key<*>, Any?>> =
+        emptyMap(),
 ) : CaptureSequenceProcessor<Request, FakeCaptureSequence> {
     private val debugId = debugIds.incrementAndGet()
     private val lock = Any()
@@ -123,6 +126,7 @@ public class FakeCaptureSequenceProcessor(
                 graphParameters,
                 listeners,
                 sequenceListener,
+                requestTemplateParameters,
             )
         synchronized(lock) {
             if (rejectBuild || shutdown || captureSequence == null) {

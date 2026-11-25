@@ -21,13 +21,21 @@ import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.*
+import android.hardware.camera2.CameraDevice.TEMPLATE_MANUAL
+import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
+import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
+import android.hardware.camera2.CameraDevice.TEMPLATE_STILL_CAPTURE
+import android.hardware.camera2.CameraDevice.TEMPLATE_VIDEO_SNAPSHOT
+import android.hardware.camera2.CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
 import android.hardware.camera2.CameraMetadata.*
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.BlackLevelPattern
 import android.hardware.camera2.params.ColorSpaceTransform
 import android.hardware.camera2.params.DynamicRangeProfiles
+import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.MultiResolutionStreamInfo
+import android.hardware.camera2.params.TonemapCurve
 import android.media.ImageReader
 import android.os.Build
 import android.util.Range
@@ -39,6 +47,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMultiResolutionStreamConfigurationMap
 import androidx.camera.camera2.pipe.CameraStreamConfigurationMap
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
@@ -68,6 +77,16 @@ public object HighEndDeviceTemplate : DeviceTemplate {
         } else {
             null
         }
+    }
+
+    private val backRequestTemplateParameters:
+        Map<RequestTemplate, Map<CaptureRequest.Key<*>, Any?>> by lazy {
+        createRequestTemplateParameters(isFront = false)
+    }
+
+    private val frontRequestTemplateParameters:
+        Map<RequestTemplate, Map<CaptureRequest.Key<*>, Any?>> by lazy {
+        createRequestTemplateParameters(isFront = true)
     }
 
     private val requiredCharacteristics =
@@ -4305,6 +4324,13 @@ public object HighEndDeviceTemplate : DeviceTemplate {
             )
         val allMetadata = (defaultMetadata + metadataOverrides).filterValues { it != null }
 
+        val baseRequestTemplates =
+            if (resolvedLensFacing == LENS_FACING_FRONT) {
+                frontRequestTemplateParameters
+            } else {
+                backRequestTemplateParameters
+            }
+
         return FakeCameraMetadata(
             characteristics = allCharacteristics,
             cameraId = cameraId,
@@ -4334,6 +4360,12 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                     emptySet()
                 } else {
                     defaultPhysicalRequestKeys
+                },
+            requestTemplateParameters =
+                if (characteristicsOverrides.isEmpty()) {
+                    baseRequestTemplates
+                } else {
+                    resolveRequestTemplateParameters(baseRequestTemplates, allCharacteristics)
                 },
         )
     }
@@ -4435,4 +4467,269 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                         ),
                 ),
         )
+
+    @Suppress("UNCHECKED_CAST")
+    private fun createRequestTemplateParameters(
+        isFront: Boolean
+    ): Map<RequestTemplate, Map<CaptureRequest.Key<*>, Any?>> {
+        val preview =
+            mapOf(
+                CaptureRequest.BLACK_LEVEL_LOCK to false,
+                CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE to
+                    COLOR_CORRECTION_ABERRATION_MODE_OFF,
+                CaptureRequest.COLOR_CORRECTION_MODE to COLOR_CORRECTION_MODE_FAST,
+                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE to CONTROL_AE_ANTIBANDING_MODE_AUTO,
+                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION to 0,
+                CaptureRequest.CONTROL_AE_LOCK to false,
+                CaptureRequest.CONTROL_AE_MODE to CONTROL_AE_MODE_ON,
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER to CONTROL_AE_PRECAPTURE_TRIGGER_IDLE,
+                CaptureRequest.CONTROL_AE_REGIONS to
+                    if (isFront) {
+                        arrayOf(MeteringRectangle(0, 0, 3439, 2447, 0))
+                    } else {
+                        arrayOf(MeteringRectangle(0, 0, 4079, 3071, 0))
+                    },
+                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE to Range(15, 30),
+                CaptureRequest.CONTROL_AF_MODE to CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                CaptureRequest.CONTROL_AF_REGIONS to arrayOf(MeteringRectangle(0, 0, 0, 0, 0)),
+                CaptureRequest.CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_IDLE,
+                CaptureRequest.CONTROL_AWB_LOCK to false,
+                CaptureRequest.CONTROL_AWB_MODE to CONTROL_AWB_MODE_AUTO,
+                CaptureRequest.CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_PREVIEW,
+                CaptureRequest.CONTROL_EFFECT_MODE to CONTROL_EFFECT_MODE_OFF,
+                CaptureRequest.CONTROL_MODE to CONTROL_MODE_AUTO,
+                CaptureRequest.CONTROL_POST_RAW_SENSITIVITY_BOOST to 100,
+                CaptureRequest.CONTROL_SCENE_MODE to CONTROL_SCENE_MODE_DISABLED,
+                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to
+                    CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                CaptureRequest.EDGE_MODE to EDGE_MODE_FAST,
+                CaptureRequest.FLASH_MODE to FLASH_MODE_OFF,
+                CaptureRequest.HOT_PIXEL_MODE to HOT_PIXEL_MODE_FAST,
+                CaptureRequest.JPEG_ORIENTATION to 0,
+                CaptureRequest.JPEG_QUALITY to 95.toByte(),
+                CaptureRequest.JPEG_THUMBNAIL_QUALITY to 95.toByte(),
+                CaptureRequest.JPEG_THUMBNAIL_SIZE to Size(0, 0),
+                CaptureRequest.LENS_APERTURE to if (isFront) 2.2f else 1.68f,
+                CaptureRequest.LENS_FILTER_DENSITY to 0.0f,
+                CaptureRequest.LENS_FOCAL_LENGTH to if (isFront) 2.713f else 6.9f,
+                CaptureRequest.LENS_FOCUS_DISTANCE to 0.0f,
+                CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE to
+                    if (isFront) {
+                        LENS_OPTICAL_STABILIZATION_MODE_OFF
+                    } else {
+                        LENS_OPTICAL_STABILIZATION_MODE_ON
+                    },
+                CaptureRequest.NOISE_REDUCTION_MODE to NOISE_REDUCTION_MODE_FAST,
+                CaptureRequest.SCALER_CROP_REGION to
+                    if (isFront) Rect(0, 0, 3440, 2448) else Rect(0, 0, 4080, 3072),
+                CaptureRequest.SENSOR_EXPOSURE_TIME to 10_000_000L,
+                CaptureRequest.SENSOR_FRAME_DURATION to 33_000_000L,
+                CaptureRequest.SENSOR_SENSITIVITY to 100,
+                CaptureRequest.SENSOR_TEST_PATTERN_MODE to SENSOR_TEST_PATTERN_MODE_OFF,
+                CaptureRequest.SHADING_MODE to SHADING_MODE_FAST,
+                CaptureRequest.STATISTICS_FACE_DETECT_MODE to STATISTICS_FACE_DETECT_MODE_OFF,
+                CaptureRequest.STATISTICS_HOT_PIXEL_MAP_MODE to false,
+                CaptureRequest.STATISTICS_LENS_SHADING_MAP_MODE to
+                    STATISTICS_LENS_SHADING_MAP_MODE_OFF,
+                CaptureRequest.TONEMAP_CURVE to
+                    TonemapCurve(
+                        floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f),
+                        floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f),
+                        floatArrayOf(0.0f, 0.0f, 1.0f, 1.0f),
+                    ),
+                CaptureRequest.TONEMAP_MODE to TONEMAP_MODE_FAST,
+            ) +
+                (if (Build.VERSION.SDK_INT >= 26) {
+                    mapOf(CaptureRequest.CONTROL_ENABLE_ZSL to false)
+                } else {
+                    emptyMap()
+                }) +
+                (if (Build.VERSION.SDK_INT >= 28) {
+                    mapOf(
+                        CaptureRequest.DISTORTION_CORRECTION_MODE to DISTORTION_CORRECTION_MODE_FAST
+                    )
+                } else {
+                    emptyMap()
+                }) +
+                (if (Build.VERSION.SDK_INT >= 30) {
+                    if (isFront) {
+                        mapOf(CaptureRequest.CONTROL_ZOOM_RATIO to 1.0f)
+                    } else {
+                        mapOf(
+                            CaptureRequest.CONTROL_EXTENDED_SCENE_MODE to
+                                CONTROL_EXTENDED_SCENE_MODE_DISABLED,
+                            CaptureRequest.CONTROL_ZOOM_RATIO to 1.0f,
+                        )
+                    }
+                } else {
+                    emptyMap()
+                }) +
+                (if (Build.VERSION.SDK_INT >= 34) {
+                    mapOf(CaptureRequest.CONTROL_AUTOFRAMING to CONTROL_AUTOFRAMING_OFF)
+                } else {
+                    emptyMap()
+                }) +
+                (if (Build.VERSION.SDK_INT >= 36) {
+                    mapOf(CaptureRequest.CONTROL_ZOOM_METHOD to CONTROL_ZOOM_METHOD_AUTO)
+                } else {
+                    emptyMap()
+                }) +
+                (if (Build.VERSION.SDK_INT >= 37 && !isFront) {
+                    mapOf(CaptureRequest.LOGICAL_MULTI_CAMERA_ADDITIONAL_RESULTS to false)
+                } else {
+                    emptyMap()
+                })
+
+        val stillCapture =
+            preview +
+                mapOf(
+                    CaptureRequest.CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_STILL_CAPTURE,
+                    CaptureRequest.EDGE_MODE to EDGE_MODE_HIGH_QUALITY,
+                    CaptureRequest.HOT_PIXEL_MODE to HOT_PIXEL_MODE_HIGH_QUALITY,
+                    CaptureRequest.NOISE_REDUCTION_MODE to NOISE_REDUCTION_MODE_HIGH_QUALITY,
+                    CaptureRequest.SHADING_MODE to SHADING_MODE_HIGH_QUALITY,
+                    CaptureRequest.STATISTICS_LENS_SHADING_MAP_MODE to
+                        STATISTICS_LENS_SHADING_MAP_MODE_ON,
+                    CaptureRequest.TONEMAP_MODE to TONEMAP_MODE_HIGH_QUALITY,
+                ) +
+                (if (Build.VERSION.SDK_INT >= 26) {
+                    mapOf(CaptureRequest.CONTROL_ENABLE_ZSL to true)
+                } else {
+                    emptyMap()
+                })
+
+        val record =
+            preview +
+                mapOf(
+                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE to Range(30, 30),
+                    CaptureRequest.CONTROL_AF_MODE to CONTROL_AF_MODE_CONTINUOUS_VIDEO,
+                    CaptureRequest.CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_VIDEO_RECORD,
+                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to
+                        CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                )
+
+        val videoSnapshot =
+            preview +
+                mapOf(
+                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE to Range(30, 30),
+                    CaptureRequest.CONTROL_AF_MODE to CONTROL_AF_MODE_CONTINUOUS_VIDEO,
+                    CaptureRequest.CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_VIDEO_SNAPSHOT,
+                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to
+                        CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                )
+
+        val zeroShutterLag =
+            preview +
+                mapOf(
+                    CaptureRequest.CONTROL_CAPTURE_INTENT to
+                        CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG,
+                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to
+                        CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                    CaptureRequest.EDGE_MODE to EDGE_MODE_ZERO_SHUTTER_LAG,
+                    CaptureRequest.NOISE_REDUCTION_MODE to NOISE_REDUCTION_MODE_OFF,
+                )
+
+        val manual =
+            preview +
+                mapOf(
+                    CaptureRequest.CONTROL_AE_MODE to CONTROL_AE_MODE_OFF,
+                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE to Range(30, 30),
+                    CaptureRequest.CONTROL_AF_MODE to CONTROL_AF_MODE_OFF,
+                    CaptureRequest.CONTROL_AWB_MODE to CONTROL_AWB_MODE_OFF,
+                    CaptureRequest.CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_MANUAL,
+                    CaptureRequest.CONTROL_MODE to CONTROL_MODE_OFF,
+                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to
+                        CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                )
+
+        return mapOf(
+                RequestTemplate(TEMPLATE_PREVIEW) to preview,
+                RequestTemplate(TEMPLATE_STILL_CAPTURE) to stillCapture,
+                RequestTemplate(TEMPLATE_RECORD) to record,
+                RequestTemplate(TEMPLATE_VIDEO_SNAPSHOT) to videoSnapshot,
+                RequestTemplate(TEMPLATE_ZERO_SHUTTER_LAG) to zeroShutterLag,
+                RequestTemplate(TEMPLATE_MANUAL) to manual,
+            )
+            .mapValues { (_, parameters) ->
+                (parameters as Map<CaptureRequest.Key<*>?, Any?>).filterKeys { it != null }
+                    as Map<CaptureRequest.Key<*>, Any?>
+            }
+    }
+
+    private fun resolveRequestTemplateParameters(
+        baseTemplates: Map<RequestTemplate, Map<CaptureRequest.Key<*>, Any?>>,
+        allCharacteristics: Map<CameraCharacteristics.Key<*>, Any?>,
+    ): Map<RequestTemplate, Map<CaptureRequest.Key<*>, Any?>> {
+        val availableAeModes = allCharacteristics[CONTROL_AE_AVAILABLE_MODES] as? IntArray
+        val availableAfModes = allCharacteristics[CONTROL_AF_AVAILABLE_MODES] as? IntArray
+        val availableAwbModes = allCharacteristics[CONTROL_AWB_AVAILABLE_MODES] as? IntArray
+        val minFocusDistance = allCharacteristics[LENS_INFO_MINIMUM_FOCUS_DISTANCE] as? Float
+        val fixedFocus = minFocusDistance != null && minFocusDistance <= 0f
+
+        return baseTemplates.mapValues { (_, parameters) ->
+            val aeMode = parameters[CaptureRequest.CONTROL_AE_MODE] as? Int
+            val resolvedAeMode =
+                if (
+                    aeMode != null &&
+                        aeMode != CONTROL_AE_MODE_OFF &&
+                        availableAeModes != null &&
+                        aeMode !in availableAeModes
+                ) {
+                    if (CONTROL_AE_MODE_ON in availableAeModes) {
+                        CONTROL_AE_MODE_ON
+                    } else {
+                        availableAeModes.firstOrNull() ?: CONTROL_AE_MODE_OFF
+                    }
+                } else {
+                    null
+                }
+
+            val afMode = parameters[CaptureRequest.CONTROL_AF_MODE] as? Int
+            val resolvedAfMode =
+                if (afMode != null && afMode != CONTROL_AF_MODE_OFF) {
+                    if (fixedFocus) {
+                        CONTROL_AF_MODE_OFF
+                    } else if (availableAfModes != null && afMode !in availableAfModes) {
+                        when {
+                            CONTROL_AF_MODE_CONTINUOUS_PICTURE in availableAfModes ->
+                                CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                            CONTROL_AF_MODE_AUTO in availableAfModes -> CONTROL_AF_MODE_AUTO
+                            else -> availableAfModes.firstOrNull() ?: CONTROL_AF_MODE_OFF
+                        }
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+
+            val awbMode = parameters[CaptureRequest.CONTROL_AWB_MODE] as? Int
+            val resolvedAwbMode =
+                if (
+                    awbMode != null &&
+                        awbMode != CONTROL_AWB_MODE_OFF &&
+                        availableAwbModes != null &&
+                        awbMode !in availableAwbModes
+                ) {
+                    if (CONTROL_AWB_MODE_AUTO in availableAwbModes) {
+                        CONTROL_AWB_MODE_AUTO
+                    } else {
+                        availableAwbModes.firstOrNull() ?: CONTROL_AWB_MODE_OFF
+                    }
+                } else {
+                    null
+                }
+
+            if (resolvedAeMode == null && resolvedAfMode == null && resolvedAwbMode == null) {
+                parameters
+            } else {
+                buildMap {
+                    putAll(parameters)
+                    resolvedAeMode?.let { put(CaptureRequest.CONTROL_AE_MODE, it) }
+                    resolvedAfMode?.let { put(CaptureRequest.CONTROL_AF_MODE, it) }
+                    resolvedAwbMode?.let { put(CaptureRequest.CONTROL_AWB_MODE, it) }
+                }
+            }
+        }
+    }
 }

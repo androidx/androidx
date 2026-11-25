@@ -41,7 +41,7 @@ import androidx.camera.common.CameraId
  * take time to configure and become ready.
  */
 public class CameraControllerSimulator(
-    cameraContext: CameraContext,
+    private val cameraContext: CameraContext,
     private val graphId: CameraGraphId,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
@@ -99,8 +99,19 @@ public class CameraControllerSimulator(
             }
             cameraStarted = true
 
+            val cameraBackend =
+                graphConfig.cameraBackendId?.let { cameraContext.cameraBackends[it] }
+                    ?: cameraContext.cameraBackends.default
+            val requestTemplateParameters =
+                (cameraBackend.awaitCameraMetadata(graphConfig.camera) as? FakeCameraMetadata)
+                    ?.requestTemplateParameters
+                    .orEmpty()
             val captureSequenceProcessor =
-                FakeCaptureSequenceProcessor(graphConfig.camera, graphConfig.defaultTemplate)
+                FakeCaptureSequenceProcessor(
+                    graphConfig.camera,
+                    graphConfig.defaultTemplate,
+                    requestTemplateParameters,
+                )
             val graphRequestProcessor = GraphRequestProcessor.from(captureSequenceProcessor)
             captureSequenceProcessor.surfaceMap =
                 checkNotNull(currentSurfaceMap) { "Surfaces have not been initialized!" }

@@ -25,6 +25,7 @@ import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import java.lang.Class
@@ -80,6 +81,8 @@ public class FakeCameraMetadata(
     override val isRedacted: Boolean = false,
     override val restrictedKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
     override val dynamicKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
+    public val requestTemplateParameters: Map<RequestTemplate, Map<CaptureRequest.Key<*>, Any?>> =
+        emptyMap(),
 ) : FakeMetadata(metadata), CameraMetadata {
 
     override val keys: Set<CameraCharacteristics.Key<*>> = keys ?: characteristics.keys
