@@ -60,6 +60,66 @@ class ZslDisablerQuirkTest {
     }
 
     @Test
+    fun xiaomiRedmiNote12TapasGlobal_loadsQuirk() {
+        ShadowBuild.setManufacturer("Xiaomi")
+        ShadowBuild.setBrand("Redmi")
+        ShadowBuild.setDevice("tapas")
+        ShadowBuild.setModel("23021RAAEG")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNotNull()
+    }
+
+    @Test
+    fun xiaomiRedmiNote12TapasDeviceCaseInsensitive_loadsQuirk() {
+        ShadowBuild.setManufacturer("Xiaomi")
+        ShadowBuild.setBrand("Redmi")
+        ShadowBuild.setDevice("TAPAS")
+        ShadowBuild.setModel("23027RAD4I")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNotNull()
+    }
+
+    @Test
+    fun redmiNote12ModelPrefix_loadsQuirk() {
+        ShadowBuild.setManufacturer("Xiaomi")
+        ShadowBuild.setBrand("Redmi")
+        ShadowBuild.setDevice("other")
+        ShadowBuild.setModel("23028RA60L")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNotNull()
+    }
+
+    @Test
+    fun xiaomiBrandTapasDevice_loadsQuirk() {
+        ShadowBuild.setManufacturer("Xiaomi")
+        ShadowBuild.setBrand("Xiaomi")
+        ShadowBuild.setDevice("tapas")
+        ShadowBuild.setModel("23021RAAEG")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNotNull()
+    }
+
+    @Test
+    fun xiaomiRedmiNote12TopazUnaffectedDevice_doesNotLoadQuirk() {
+        ShadowBuild.setManufacturer("Xiaomi")
+        ShadowBuild.setBrand("Redmi")
+        ShadowBuild.setDevice("topaz")
+        ShadowBuild.setModel("23021RAA2Y")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNull()
+    }
+
+    @Test
+    fun nonXiaomiTapasDevice_doesNotLoadQuirk() {
+        ShadowBuild.setManufacturer("Google")
+        ShadowBuild.setBrand("Google")
+        ShadowBuild.setDevice("tapas")
+        ShadowBuild.setModel("Pixel 8")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNull()
+    }
+
+    @Test
     fun samsungUnaffectedModel_doesNotLoadQuirk() {
         ShadowBuild.setBrand("samsung")
         ShadowBuild.setModel("SM-F966U1")
