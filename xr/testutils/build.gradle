@@ -32,7 +32,7 @@ dependencies {
     api(libs.kotlinTest)
     api("androidx.activity:activity:1.9.3")
     api("androidx.compose.animation:animation-core:1.7.5")
-    api(project(":lifecycle:lifecycle-common"))
+    api("androidx.lifecycle:lifecycle-common:2.11.1")
     api(project(":xr:runtime:runtime"))
     api(project(":xr:runtime:runtime-manifest"))
 
@@ -40,18 +40,18 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.7.5")
     implementation(libs.kotlinCoroutinesAndroid)
 
-    androidTestImplementation(project(":compose:foundation:foundation"))
-    androidTestImplementation(project(":compose:material3:material3"))
-    androidTestImplementation(project(":compose:ui:ui"))
-    androidTestImplementation(project(":compose:ui:ui-test"))
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation("androidx.compose.foundation:foundation:1.13.0")
+    androidTestImplementation("androidx.compose.material3:material3:1.5.0")
+    androidTestImplementation("androidx.compose.ui:ui:1.13.0")
+    androidTestImplementation("androidx.compose.ui:ui-test:1.13.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.13.0")
     androidTestImplementation(project(":xr:compose:compose"))
     androidTestImplementation(libs.androidx.activity.compose)
     androidTestImplementation(libs.testUiautomator)
 }
 
 android {
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
     namespace = "androidx.xr.testutils"
 }
 
