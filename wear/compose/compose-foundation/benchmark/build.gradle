@@ -43,16 +43,12 @@ dependencies {
 
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:runtime:runtime"))
-    androidTestImplementation(project(":compose:ui:ui-text:ui-text-benchmark"))
     androidTestImplementation(project(":compose:foundation:foundation"))
-    androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(project(":wear:compose:compose-foundation"))
-    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinReflect)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.truth)
 }
 androidx {
     type = SoftwareType.BENCHMARK

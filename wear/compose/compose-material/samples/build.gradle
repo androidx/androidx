@@ -31,7 +31,6 @@ plugins {
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
-    implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.compose.animation:animation-graphics:1.6.0")
     implementation("androidx.compose.foundation:foundation:1.6.0")
     implementation("androidx.compose.foundation:foundation-layout:1.6.0")
@@ -40,18 +39,15 @@ dependencies {
     implementation("androidx.compose.ui:ui-util:1.6.0")
     implementation("androidx.compose.ui:ui-text:1.6.0")
     implementation("androidx.compose.ui:ui-tooling:1.6.0")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.6.0")
-    implementation("androidx.compose.material:material-icons-core:1.6.0")
     implementation(project(":wear:compose:compose-material"))
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-ui-tooling"))
 
-    androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    // Provides ComponentActivity manifest entry required at runtime by createComposeRule()
     androidTestImplementation(project(":compose:test-utils"))
 
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.truth)
 }
 
 android {

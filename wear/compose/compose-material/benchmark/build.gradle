@@ -40,21 +40,15 @@ android {
 }
 
 dependencies {
-
+    // Intentionally empty scaffold kept after legacy benchmarks were removed (e027009582).
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:runtime:runtime"))
-    androidTestImplementation(project(":compose:ui:ui-text:ui-text-benchmark"))
     androidTestImplementation(project(":compose:foundation:foundation"))
-    androidTestImplementation(project(":compose:material:material"))
-    androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(project(":wear:compose:compose-foundation"))
     androidTestImplementation(project(":wear:compose:compose-material"))
-    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinReflect)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.truth)
 }
 androidx {
     type = SoftwareType.BENCHMARK

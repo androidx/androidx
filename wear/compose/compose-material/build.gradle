@@ -44,19 +44,13 @@ dependencies {
     implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.lifecycle:lifecycle-common:2.7.0")
 
-    // This :foundation dependency can be removed once the material libraries are updated to use
-    // 1.7.0 stable.
-    androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-
-    testImplementation(libs.testRules)
-    testImplementation(libs.testRunner)
-    testImplementation(libs.junit)
 }
 
 android {

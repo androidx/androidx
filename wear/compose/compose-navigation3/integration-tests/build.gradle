@@ -42,9 +42,7 @@ dependencies {
     implementation(project(":wear:compose:compose-material"))
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-foundation"))
-    implementation(project(":wear:compose:compose-foundation-samples"))
     implementation(project(":wear:compose:compose-navigation3"))
-    implementation(project(":wear:compose:integration-tests:demos:common"))
     implementation(libs.kotlinSerializationCore)
 }
 
