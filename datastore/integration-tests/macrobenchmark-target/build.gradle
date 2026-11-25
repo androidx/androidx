@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    implementation project(":core:core-ktx")
+    implementation("androidx.core:core-ktx:1.19.1")
     implementation project(":datastore:datastore-preferences")
     implementation libs.protobufKotlinLite
     implementation libs.kotlinSerializationJson
