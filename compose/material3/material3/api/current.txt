@@ -1991,6 +1991,57 @@ package androidx.compose.material3 {
     property public static androidx.compose.ui.layout.HorizontalAlignmentLine MinimumInteractiveTopAlignmentLine;
   }
 
+  @androidx.compose.runtime.Immutable public final class InteractiveScrollbarColors {
+    ctor @KotlinOnly public InteractiveScrollbarColors(androidx.compose.ui.graphics.Color thumbColor, androidx.compose.ui.graphics.Color hoveredThumbColor, androidx.compose.ui.graphics.Color pressedThumbColor, androidx.compose.ui.graphics.Color draggedThumbColor, androidx.compose.ui.graphics.Color trackColor);
+    ctor @BytecodeOnly public InteractiveScrollbarColors(long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.compose.material3.InteractiveScrollbarColors copy(optional androidx.compose.ui.graphics.Color thumbColor, optional androidx.compose.ui.graphics.Color hoveredThumbColor, optional androidx.compose.ui.graphics.Color pressedThumbColor, optional androidx.compose.ui.graphics.Color draggedThumbColor, optional androidx.compose.ui.graphics.Color trackColor);
+    method @BytecodeOnly public androidx.compose.material3.InteractiveScrollbarColors copy-t635Npw(long, long, long, long, long);
+    method @BytecodeOnly public static androidx.compose.material3.InteractiveScrollbarColors! copy-t635Npw$default(androidx.compose.material3.InteractiveScrollbarColors!, long, long, long, long, long, int, Object!);
+    method @BytecodeOnly public long getDraggedThumbColor-0d7_KjU();
+    method @BytecodeOnly public long getHoveredThumbColor-0d7_KjU();
+    method @BytecodeOnly public long getPressedThumbColor-0d7_KjU();
+    method @BytecodeOnly public long getThumbColor-0d7_KjU();
+    method @BytecodeOnly public long getTrackColor-0d7_KjU();
+    property public androidx.compose.ui.graphics.Color draggedThumbColor;
+    property public androidx.compose.ui.graphics.Color hoveredThumbColor;
+    property public androidx.compose.ui.graphics.Color pressedThumbColor;
+    property public androidx.compose.ui.graphics.Color thumbColor;
+    property public androidx.compose.ui.graphics.Color trackColor;
+  }
+
+  public final class InteractiveScrollbarDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.InteractiveScrollbarColors colors();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.InteractiveScrollbarColors colors(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.InteractiveScrollbarColors colors(optional androidx.compose.ui.graphics.Color thumbColor, optional androidx.compose.ui.graphics.Color hoveredThumbColor, optional androidx.compose.ui.graphics.Color pressedThumbColor, optional androidx.compose.ui.graphics.Color draggedThumbColor, optional androidx.compose.ui.graphics.Color trackColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.InteractiveScrollbarColors colors-zjMxDiM(long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly public float getCrossAxisTrackInset-D9Ej5fM();
+    method @InaccessibleFromKotlin public float getHoveredThumbOpacity();
+    method @BytecodeOnly public float getMainAxisTrackInset-D9Ej5fM();
+    method @InaccessibleFromKotlin public float getPressedThumbOpacity();
+    method @BytecodeOnly public float getThickness-D9Ej5fM();
+    method @InaccessibleFromKotlin public int getThumbFadeDelayMillis();
+    method @InaccessibleFromKotlin public int getThumbFadeDurationMillis();
+    method @InaccessibleFromKotlin public float getThumbMaxLengthFraction();
+    method @BytecodeOnly public float getThumbMinLength-D9Ej5fM();
+    method @InaccessibleFromKotlin public float getThumbOpacity();
+    property public androidx.compose.ui.unit.Dp CrossAxisTrackInset;
+    property public float HoveredThumbOpacity;
+    property public androidx.compose.ui.unit.Dp MainAxisTrackInset;
+    property public float PressedThumbOpacity;
+    property public androidx.compose.ui.unit.Dp Thickness;
+    property public int ThumbFadeDelayMillis;
+    property public int ThumbFadeDurationMillis;
+    property public float ThumbMaxLengthFraction;
+    property public androidx.compose.ui.unit.Dp ThumbMinLength;
+    property public float ThumbOpacity;
+    field public static final androidx.compose.material3.InteractiveScrollbarDefaults INSTANCE;
+  }
+
+  public final class InteractiveScrollbarKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier interactiveScrollbar(androidx.compose.ui.Modifier, androidx.compose.foundation.ScrollIndicatorState state, androidx.compose.foundation.gestures.Orientation orientation, kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit> onThumbDrag, kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit> onTrackPress, optional androidx.compose.ui.unit.Dp thickness, optional androidx.compose.ui.unit.Dp thumbMinLength, optional @FloatRange(from=0.0, to=1.0) float thumbMaxLengthFraction, optional boolean isFadeEnabled, optional int fadeDurationMillis, optional int fadeDelayMillis, optional androidx.compose.ui.unit.Dp mainAxisTrackInset, optional androidx.compose.ui.unit.Dp crossAxisTrackInset, optional androidx.compose.material3.InteractiveScrollbarColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? thumbInteractionSource);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier interactiveScrollbar-p4Js-fc(androidx.compose.ui.Modifier, androidx.compose.foundation.ScrollIndicatorState, androidx.compose.foundation.gestures.Orientation, kotlin.jvm.functions.Function1<? super java.lang.Float!,kotlin.Unit!>, kotlin.jvm.functions.Function1<? super java.lang.Float!,kotlin.Unit!>, float, float, @FloatRange(from=0.0, to=1.0) float, boolean, int, int, float, float, androidx.compose.material3.InteractiveScrollbarColors?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int, int);
+  }
+
   @SuppressCompatibility public final class LabelKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void Label(kotlin.jvm.functions.Function1<androidx.compose.material3.TooltipScope,kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional boolean isPersistent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void Label(kotlin.jvm.functions.Function3<? super androidx.compose.material3.TooltipScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.ui.Modifier?, androidx.compose.foundation.interaction.MutableInteractionSource?, boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
