@@ -48,6 +48,14 @@ public object DeviceQuirksLoader {
         }
         if (
             quirkSettings.shouldEnableQuirk(
+                ConcurrentCameraUnsupportedQuirk::class.java,
+                ConcurrentCameraUnsupportedQuirk.isEnabled(),
+            )
+        ) {
+            quirks.add(ConcurrentCameraUnsupportedQuirk())
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
                 CrashWhenTakingPhotoWithAutoFlashAEModeQuirk::class.java,
                 CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.isEnabled(),
             )
