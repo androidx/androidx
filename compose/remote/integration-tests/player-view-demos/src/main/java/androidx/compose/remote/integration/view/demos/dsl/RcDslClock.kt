@@ -44,7 +44,7 @@ fun RcDslClockPreview() {
 /** Reimplementation of MClock using the new type-safe DSL. */
 @Suppress("RestrictedApiAndroidX")
 fun dslClock(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val color = RcDslClockColors(this)
 
         val days = remoteArrayOf("Mon ", "Tue ", "Wed ", "Thu ", "Fri ", "Sat ", "Sun ")

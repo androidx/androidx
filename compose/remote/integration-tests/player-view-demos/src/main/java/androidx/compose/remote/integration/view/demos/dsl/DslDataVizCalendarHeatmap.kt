@@ -82,8 +82,7 @@ public fun dslDemoCalendarHeatmap(): ByteArray {
     val currentDayIndex = 33
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Calendar Heatmap Grid"),

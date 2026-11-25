@@ -36,7 +36,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 /** A demo showcasing the new idiomatic enums and types in the Remote Compose DSL. */
 @Suppress("RestrictedApiAndroidX")
 public fun enumsDemo(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Column(
             modifier = Modifier.fillMaxSize().background(0xFFF0F0F0.toInt()).padding(86.rdp),
             horizontal = RcHorizontalPositioning.Center,

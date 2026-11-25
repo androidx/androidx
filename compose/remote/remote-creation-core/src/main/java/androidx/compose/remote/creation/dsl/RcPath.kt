@@ -45,16 +45,17 @@ public value class RcPathType internal constructor(internal val value: Int) {
 /** Path operations for combining paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcPathCombineOp internal constructor(internal val value: Byte) {
+public value class RcPathCombineOp internal constructor(internal val value: Int) {
     public companion object {
         public val Difference: RcPathCombineOp =
-            RcPathCombineOp(RemoteComposeWriter.COMBINE_DIFFERENCE)
+            RcPathCombineOp(RemoteComposeWriter.COMBINE_DIFFERENCE.toInt())
         public val Intersect: RcPathCombineOp =
-            RcPathCombineOp(RemoteComposeWriter.COMBINE_INTERSECT)
+            RcPathCombineOp(RemoteComposeWriter.COMBINE_INTERSECT.toInt())
         public val ReverseDifference: RcPathCombineOp =
-            RcPathCombineOp(RemoteComposeWriter.COMBINE_REVERSE_DIFFERENCE)
-        public val Union: RcPathCombineOp = RcPathCombineOp(RemoteComposeWriter.COMBINE_UNION)
-        public val Xor: RcPathCombineOp = RcPathCombineOp(RemoteComposeWriter.COMBINE_XOR)
+            RcPathCombineOp(RemoteComposeWriter.COMBINE_REVERSE_DIFFERENCE.toInt())
+        public val Union: RcPathCombineOp =
+            RcPathCombineOp(RemoteComposeWriter.COMBINE_UNION.toInt())
+        public val Xor: RcPathCombineOp = RcPathCombineOp(RemoteComposeWriter.COMBINE_XOR.toInt())
     }
 }
 
@@ -62,13 +63,19 @@ public value class RcPathCombineOp internal constructor(internal val value: Byte
 @JvmInline
 public value class RcPath internal constructor(internal val id: Int)
 
-/** Path fill types for complex paths. */
+/** Interior winding / fill rule for paths registered via [RcScope.remotePathData]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcPathFillType internal constructor(internal val value: Int) {
     public companion object {
+        /** Non-zero winding rule (default). */
         public val Winding: RcPathFillType = RcPathFillType(0)
+        /** Even-odd alternating fill rule. */
         public val EvenOdd: RcPathFillType = RcPathFillType(1)
+        /** Inverse of [EvenOdd] (fills the exterior of the even-odd region). */
+        public val InverseEvenOdd: RcPathFillType = RcPathFillType(2)
+        /** Inverse of [Winding] (fills the exterior of the non-zero winding region). */
+        public val InverseWinding: RcPathFillType = RcPathFillType(3)
     }
 }
 
@@ -168,19 +175,6 @@ public class RcPathData internal constructor(internal val base: RemotePathBase) 
 
     /** Appends an oval arc bounded by `(left, top, right, bottom)` in degrees. */
     public fun arcTo(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        startAngle: Float,
-        sweepAngle: Float,
-        forceMoveTo: Boolean = false,
-    ) {
-        base.addArc(left, top, right, bottom, startAngle, sweepAngle, forceMoveTo)
-    }
-
-    /** Appends an oval arc bounded by `(left, top, right, bottom)` in degrees. */
-    public fun addArc(
         left: Float,
         top: Float,
         right: Float,

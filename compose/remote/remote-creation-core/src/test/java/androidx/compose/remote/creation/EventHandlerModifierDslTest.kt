@@ -275,8 +275,7 @@ class EventHandlerModifierDslTest {
     private fun buildDocument(content: RcScope.() -> Unit): CoreDocument {
         val bytes =
             createRcBuffer(
-                profile,
-                experimental = true,
+                RcProfile(profile.profile, isExperimental = true),
                 RcHeaderTag.docWidth(100),
                 RcHeaderTag.docHeight(100),
                 content = content,

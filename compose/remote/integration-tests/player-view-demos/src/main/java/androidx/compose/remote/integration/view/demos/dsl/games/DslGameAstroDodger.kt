@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.dsl.RcTouchStopMode
 import androidx.compose.remote.creation.dsl.RcWaveform
 import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.background
+import androidx.compose.remote.creation.dsl.conditionalOperations
 import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -44,7 +45,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
  */
 @Suppress("RestrictedApiAndroidX")
 fun dslGameAstroDodger(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val explosionSound =
             remoteSoundExpression(
                 type = RcSoundType.Tone,

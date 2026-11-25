@@ -142,10 +142,10 @@ class RcTypesTest {
 
     @Test
     fun testTypedValueClasses() {
-        assertEquals(0, RcTextureFilterMode.Default.value.toInt())
-        assertEquals(1, RcTextureFilterMode.Nearest.value.toInt())
+        assertEquals(0, RcTextureFilterMode.Default.value)
+        assertEquals(1, RcTextureFilterMode.Nearest.value)
 
-        assertEquals(0, RcParticleComparisonFlags.None.value.toInt())
+        assertEquals(0, RcParticleComparisonFlags.None.value)
 
         val combinedMeasure = RcTextMeasureMode.Width or RcTextMeasureMode.MonospaceWidth
         assertEquals(
@@ -162,5 +162,20 @@ class RcTypesTest {
         assertEquals(1, RcMarqueeAnimationMode.WhileFocused.value)
 
         assertEquals(7, RcVisibilityAnimation(7).id)
+    }
+
+    @Test
+    fun testRcColorValueConstructors() {
+        val opaqueRed = RcColorValue(0xFFFF0000)
+        assertEquals(0xFFFF0000.toInt(), opaqueRed.color)
+        assertEquals(RcColorValue(0xFFFF0000.toInt()), opaqueRed)
+        assertEquals(0xFFFF0000.rcColor(), opaqueRed)
+        assertEquals(RcColorValue(color = 0xFFFF0000), opaqueRed)
+
+        val transparentBlue = RcColorValue(0x000000FF)
+        assertEquals(0x000000FF, transparentBlue.color)
+        assertEquals(RcColorValue(0x000000FFL), transparentBlue)
+        assertEquals(0x000000FF.rcColor(), transparentBlue)
+        assertEquals(RcColorValue(color = 0x000000FF), transparentBlue)
     }
 }

@@ -48,7 +48,7 @@ fun dslCountdown(): ByteArray {
             Color.hsv(300f, 0.9f, 0.9f).toArgb(),
             Color.hsv(360f, 0.9f, 0.9f).toArgb(),
         )
-    return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = false) {
+    return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX)) {
         paint { textSize(50f) }
         val pi2 = (PI * 2).toFloat()
         val sec = continuousSeconds()

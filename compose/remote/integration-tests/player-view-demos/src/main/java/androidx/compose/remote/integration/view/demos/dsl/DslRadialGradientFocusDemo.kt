@@ -64,8 +64,7 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
     val stops = floatArrayOf(0f, 0.35f, 0.7f, 1f)
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Radial Gradient Focus"),
@@ -95,12 +94,12 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
                     0 ->
                         paint {
                             radialGradient(
-                                startX = cx.toFloat(),
-                                startY = cy.toFloat(),
-                                startRadius = (radius * 0.45f).toFloat(),
-                                endX = cx.toFloat(),
-                                endY = cy.toFloat(),
-                                endRadius = radius.toFloat(),
+                                startX = cx,
+                                startY = cy,
+                                startRadius = radius * 0.45f,
+                                endX = cx,
+                                endY = cy,
+                                endRadius = radius,
                                 colors = colors,
                                 positions = stops,
                                 tileMode = RcTileMode.Clamp,
@@ -111,12 +110,12 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
                     1 ->
                         paint {
                             radialGradient(
-                                startX = (cx - radius * 0.45f).toFloat(),
-                                startY = (cy - radius * 0.45f).toFloat(),
-                                startRadius = 0f,
-                                endX = cx.toFloat(),
-                                endY = cy.toFloat(),
-                                endRadius = radius.toFloat(),
+                                startX = cx - radius * 0.45f,
+                                startY = cy - radius * 0.45f,
+                                startRadius = 0f.rf,
+                                endX = cx,
+                                endY = cy,
+                                endRadius = radius,
                                 colors = colors,
                                 positions = stops,
                                 tileMode = RcTileMode.Clamp,
@@ -127,17 +126,16 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
                     2 -> {
                         val angle = time * 1.6f
                         val orbit = radius * 0.55f
-                        // Hoisted: the paint DSL scope does not expose the RcFloat math helpers.
-                        val focalX = (cx + cos(angle) * orbit).toFloat()
-                        val focalY = (cy + sin(angle) * orbit).toFloat()
+                        val focalX = cx + cos(angle) * orbit
+                        val focalY = cy + sin(angle) * orbit
                         paint {
                             radialGradient(
                                 startX = focalX,
                                 startY = focalY,
-                                startRadius = 0f,
-                                endX = cx.toFloat(),
-                                endY = cy.toFloat(),
-                                endRadius = radius.toFloat(),
+                                startRadius = 0f.rf,
+                                endX = cx,
+                                endY = cy,
+                                endRadius = radius,
                                 colors = colors,
                                 positions = stops,
                                 tileMode = RcTileMode.Clamp,
@@ -151,12 +149,12 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
                         val pulse = radius * ((sin(time * 2.2f) + 1f) * 0.25f + 0.05f)
                         paint {
                             radialGradient(
-                                startX = cx.toFloat(),
-                                startY = cy.toFloat(),
-                                startRadius = pulse.toFloat(),
-                                endX = cx.toFloat(),
-                                endY = cy.toFloat(),
-                                endRadius = (radius * 0.6f).toFloat(),
+                                startX = cx,
+                                startY = cy,
+                                startRadius = pulse,
+                                endX = cx,
+                                endY = cy,
+                                endRadius = radius * 0.6f,
                                 colors = colors,
                                 positions = stops,
                                 tileMode = RcTileMode.Repeat,

@@ -53,8 +53,7 @@ fun RcDslDemoPreview() {
 @Suppress("RestrictedApiAndroidX")
 fun dslDemo(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
     ) {
         val count = remoteNamedFloat("count", 0f)
@@ -118,7 +117,7 @@ fun RcDslTheme2Preview() {
 
 @Suppress("RestrictedApiAndroidX")
 fun dslTheme1(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val color1 =
             remoteThemedColor(
                 light = "color.system_neutral1_10",
@@ -146,7 +145,7 @@ fun dslTheme1(): ByteArray {
 
 @Suppress("RestrictedApiAndroidX")
 fun dslTheme2(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val color1 =
             remoteThemedColor(
                 light = "color.system_neutral1_10",
@@ -197,11 +196,11 @@ fun dslSimpleDemo(): ByteArray {
                 val cy = h / 2f
                 val rad = min(cx, cy)
 
-                paint { color(RcColorValue(0xFF000000.toInt())) }
+                paint { color(RcColorValue(0xFF000000)) }
                 drawRoundRect(0.rf, 0.rf, w, h, rad, rad)
 
                 paint {
-                    color(RcColorValue(0xFFFFFFFF.toInt()))
+                    color(RcColorValue(0xFFFFFFFF))
                     strokeWidth(11f)
                 }
 
@@ -225,12 +224,12 @@ fun dslSimpleClock(): ByteArray {
                 val rad = min(cx, cy)
 
                 paint {
-                    color(RcColorValue(0xFF0000FF.toInt())) // Blue
+                    color(RcColorValue(0xFF0000FF)) // Blue
                 }
                 drawRoundRect(0.rf, 0.rf, w, h, rad / 4f, rad / 4f)
 
                 paint {
-                    color(RcColorValue(0xFF888888.toInt())) // Gray
+                    color(RcColorValue(0xFF888888)) // Gray
                     strokeWidth(32f)
                     strokeCap(RcStrokeCap.Round)
                 }
@@ -245,7 +244,7 @@ fun dslSimpleClock(): ByteArray {
                 }
 
                 paint {
-                    color(RcColorValue(0xFFFFFFFF.toInt())) // White
+                    color(RcColorValue(0xFFFFFFFF)) // White
                     strokeWidth(4f)
                 }
                 drawLine(

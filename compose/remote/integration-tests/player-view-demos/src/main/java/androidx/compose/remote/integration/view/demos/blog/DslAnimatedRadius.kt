@@ -46,8 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Suppress("RestrictedApiAndroidX")
 public fun dslAnimatedRadius(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Animated Radius"),

@@ -100,8 +100,7 @@ private const val REFERENCE_COLOR = 0xFFFFFFFF.toInt()
 @Suppress("RestrictedApiAndroidX")
 public fun dslAnimatedChanges(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.contentDescription("Animated changes"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(PAGE_COLOR)) {

@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.dsl.RcSoundType
 import androidx.compose.remote.creation.dsl.RcWaveform
 import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.background
+import androidx.compose.remote.creation.dsl.conditionalOperations
 import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -35,7 +36,7 @@ import kotlin.math.PI
 
 @Suppress("RestrictedApiAndroidX")
 fun dslMetronomeDemo(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val tick =
             remoteSoundExpression(
                 type = RcSoundType.Tone,

@@ -48,8 +48,7 @@ public fun dslDemoBatteryRadialGauge(): ByteArray {
     val data = floatArrayOf(67f, 8.5f) // percentage, estimatedHoursRemaining
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Battery Radial Gauge"),

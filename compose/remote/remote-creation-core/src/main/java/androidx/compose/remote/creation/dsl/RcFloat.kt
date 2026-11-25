@@ -18,6 +18,8 @@
 
 package androidx.compose.remote.creation.dsl
 
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_DELTA_TIME
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_TIME
@@ -89,6 +91,10 @@ public class RcFloat {
         return this
     }
 
+    /**
+     * Evaluates and returns the raw wire float (or NaN-encoded expression ID) for internal writers.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toFloat(): Float {
         if (!isEvaluated) {
             if (array.size == 1 && animation == null) {
@@ -223,21 +229,33 @@ public class RcFloat {
         initialValue: Float = Float.NaN,
         wrap: Float = Float.NaN,
     ): RcFloat {
-        animation = writer?.anim(duration, type, spec, initialValue, wrap)
-        this.flush()
-        return this
+        val animSpec = writer?.anim(duration, type, spec, initialValue, wrap)
+        return RcFloat(
+                writer = writer,
+                array = toArray(),
+                id = 0f,
+                animation = animSpec,
+                isEvaluated = false,
+            )
+            .flush()
     }
 
     /** Animates changes to this expression using a spring physics model. */
     public fun spring(
-        stiffness: Float,
-        damping: Float,
-        stopThreshold: Float,
+        @FloatRange(from = 0.0, fromInclusive = false) stiffness: Float,
+        @FloatRange(from = 0.0) damping: Float,
+        @FloatRange(from = 0.0) stopThreshold: Float,
         boundaryMode: RcSpringBoundaryMode = RcSpringBoundaryMode.Overshoot,
     ): RcFloat {
-        animation = writer?.spring(stiffness, damping, stopThreshold, boundaryMode.value)
-        this.flush()
-        return this
+        val springSpec = writer?.spring(stiffness, damping, stopThreshold, boundaryMode.value)
+        return RcFloat(
+                writer = writer,
+                array = toArray(),
+                id = 0f,
+                animation = springSpec,
+                isEvaluated = false,
+            )
+            .flush()
     }
 
     /**
@@ -247,7 +265,7 @@ public class RcFloat {
      * containing the control points; the other curves ignore [spec].
      */
     public fun anim(
-        duration: Float,
+        @FloatRange(from = 0.0) duration: Float,
         curve: RcAnimationCurve = RcAnimationCurve.CubicStandard,
         spec: FloatArray? = null,
         initialValue: Float = Float.NaN,
@@ -261,7 +279,16 @@ public class RcFloat {
         spec: FloatArray? = null,
         initialValue: Float = Float.NaN,
         wrap: Float = Float.NaN,
-    ): RcFloat = anim(duration.id, curve.value, spec, initialValue, wrap)
+    ): RcFloat {
+        val resolvedWriter = writer ?: duration.writer
+        val durationFloat =
+            if (resolvedWriter != null) duration.withWriter(resolvedWriter).toFloat()
+            else duration.toFloat()
+        val receiver =
+            if (writer == null && resolvedWriter != null) RcFloat(resolvedWriter, toArray())
+            else this
+        return receiver.anim(durationFloat, curve.value, spec, initialValue, wrap)
+    }
 
     /** Returns the absolute value of this expression. */
     public fun abs(): RcFloat = RcFloat(writer, floatArrayOf(*toArray(), Rc.FloatExpression.ABS))
@@ -292,8 +319,8 @@ public class RcFloat {
      * @param spec typed formatting specification
      */
     public fun format(
-        whole: Int,
-        decimal: Int = 0,
+        @IntRange(from = 0) whole: Int,
+        @IntRange(from = 0) decimal: Int = 0,
         spec: RcTextFromFloatSpec = RcTextFromFloatSpec.Default,
     ): RcText {
         val w = writer ?: throw IllegalStateException("RcFloat must be associated with a writer")
@@ -318,6 +345,13 @@ public class RcFloat {
         result = 31 * result + animation.remoteContentHashCode()
         return result
     }
+
+    override fun toString(): String =
+        if (array.size == 1 && !array[0].isNaN() && animation == null) {
+            "RcFloat(${array[0]})"
+        } else {
+            "RcFloat(expr=${array.size})"
+        }
 }
 
 internal fun arrayValue(array: Float, b: RcFloat): RcFloat {
@@ -397,16 +431,19 @@ public fun sign(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.SIGN))
 }
 
+/** Returns a value with the magnitude of [a] and the sign of [b]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: RcFloat, b: Float): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), b, Rc.FloatExpression.COPY_SIGN))
 }
 
+/** Returns a value with the magnitude of [a] and the sign of [b]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: Float, b: RcFloat): RcFloat {
     return RcFloat(b.writer, floatArrayOf(a, *b.toArray(), Rc.FloatExpression.COPY_SIGN))
 }
 
+/** Returns a value with the magnitude of [a] and the sign of [b]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: RcFloat, b: RcFloat): RcFloat {
     return RcFloat(
@@ -415,51 +452,61 @@ public fun copySign(a: RcFloat, b: RcFloat): RcFloat {
     )
 }
 
+/** Returns Euler's number *e* raised to the power of [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun exp(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.EXP))
 }
 
+/** Rounds [a] up to the smallest integer value greater than or equal to [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun ceil(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.CEIL))
 }
 
+/** Rounds [a] down to the largest integer value less than or equal to [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun floor(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.FLOOR))
 }
 
+/** Returns the base-10 logarithm of [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun log(a: RcFloat): RcFloat {
+public fun log10(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.LOG))
 }
 
+/** Returns the base-2 logarithm of [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun log2(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.LOG2))
 }
 
+/** Returns the natural logarithm (base *e*) of [a]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun ln(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.LN))
 }
 
+/** Rounds [a] to the nearest integer value. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun round(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.ROUND))
 }
 
+/** Returns the multiplicative inverse `1 / a`. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun inverse(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.INV))
 }
 
+/** Returns the fractional part of [a] (`a - floor(a)`). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun fraction(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.FRACT))
 }
 
+/** Returns the square of [a] (`a * a`). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun square(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.SQUARE))
@@ -471,6 +518,7 @@ public fun sin(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.SIN))
 }
 
+/** Returns the cosine of [a] (in radians). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun cos(a: RcFloat): RcFloat {
     return RcFloat(a.writer, floatArrayOf(*a.toArray(), Rc.FloatExpression.COS))
@@ -554,21 +602,24 @@ public fun toRadians(a: RcFloat): RcFloat {
 }
 
 /**
- * Refers to property [a] of the second particle in a dual-particle
- * [RcCanvasScope.particlesComparison].
+ * Scope providing [first] and [second] particle property selectors for pairwise conditions and
+ * updates in [RcScope.particlesComparison].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun second(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.toArray(), AnimatedFloatExpression.CMD2))
+public sealed interface RcParticleComparisonScope {
+    /** Selects property [property] of the first particle in a compared pair. */
+    public fun first(property: RcFloat): RcFloat
+
+    /** Selects property [property] of the second particle in a compared pair. */
+    public fun second(property: RcFloat): RcFloat
 }
 
-/**
- * Refers to property [a] of the first particle in a dual-particle
- * [RcCanvasScope.particlesComparison].
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun first(a: RcFloat): RcFloat {
-    return RcFloat(a.writer, floatArrayOf(*a.toArray(), AnimatedFloatExpression.CMD1))
+internal object RcParticleComparisonScopeImpl : RcParticleComparisonScope {
+    override fun first(property: RcFloat): RcFloat =
+        RcFloat(property.writer, floatArrayOf(*property.toArray(), AnimatedFloatExpression.CMD1))
+
+    override fun second(property: RcFloat): RcFloat =
+        RcFloat(property.writer, floatArrayOf(*property.toArray(), AnimatedFloatExpression.CMD2))
 }
 
 /** Calculates a deterministic pseudo-random `0..1` number based on seed [a]. */
@@ -658,7 +709,7 @@ internal fun toArray(a: RcFloat): FloatArray = a.toArray()
 
 /** Clamps [value] between [min] and [max]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun clamp(min: RcFloat, max: RcFloat, value: RcFloat): RcFloat {
+public fun clamp(value: RcFloat, min: RcFloat, max: RcFloat): RcFloat {
     return RcFloat(
         value.writer ?: min.writer ?: max.writer,
         floatArrayOf(*min.toArray(), *max.toArray(), *value.toArray(), Rc.FloatExpression.CLAMP),
@@ -667,8 +718,8 @@ public fun clamp(min: RcFloat, max: RcFloat, value: RcFloat): RcFloat {
 
 /** Evaluates a cubic Bézier curve with control points ([x1], [y1]) and ([x2], [y2]) at [value]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun cubic(x1: RcFloat, x2: RcFloat, y1: RcFloat, y2: RcFloat, value: RcFloat): RcFloat {
-    val writer = value.writer ?: x1.writer ?: x2.writer ?: y1.writer ?: y2.writer
+public fun cubic(x1: RcFloat, y1: RcFloat, x2: RcFloat, y2: RcFloat, value: RcFloat): RcFloat {
+    val writer = value.writer ?: x1.writer ?: y1.writer ?: x2.writer ?: y2.writer
     return RcFloat(
         writer,
         floatArrayOf(
@@ -713,7 +764,7 @@ public fun arraySum(a: RcFloat, index: RcFloat): RcFloat {
 
 /** Returns the dot product (sum of element-wise products) of arrays [a] and [b]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun arraySumXY(a: RcFloat, b: RcFloat): RcFloat {
+public fun arraySumXy(a: RcFloat, b: RcFloat): RcFloat {
     return RcFloat(
         a.writer ?: b.writer,
         floatArrayOf(*a.toArray(), *b.toArray(), Rc.FloatExpression.A_SUM_XY),

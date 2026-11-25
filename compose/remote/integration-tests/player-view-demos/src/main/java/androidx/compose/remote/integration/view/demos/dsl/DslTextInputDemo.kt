@@ -54,8 +54,7 @@ private const val ACCENT = 0xFF8AB4F8
  */
 public fun dslTextInputDemo(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
     ) {
         val name = remoteNamedText("name", "")

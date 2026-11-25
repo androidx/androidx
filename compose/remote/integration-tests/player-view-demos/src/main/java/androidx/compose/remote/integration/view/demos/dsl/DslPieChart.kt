@@ -58,8 +58,7 @@ public fun dslPieChart(): ByteArray {
         )
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(500),
         RcHeaderTag.docHeight(500),
         RcHeaderTag.contentDescription("Pie Chart Demo"),

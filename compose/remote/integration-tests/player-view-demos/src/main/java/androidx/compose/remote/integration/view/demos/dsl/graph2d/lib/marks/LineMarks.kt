@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.RcStrokeJoin
 import androidx.compose.remote.creation.dsl.arraySpline
+import androidx.compose.remote.creation.dsl.pathEffect
 import androidx.compose.remote.creation.dsl.smoothStep
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.AreaLayout
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.Cartesian

@@ -33,7 +33,7 @@ fun SmallAnimatedPreview() {
 
 @Suppress("RestrictedApiAndroidX")
 fun smallAnimated(): ByteArray {
-    return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRawRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         val sec = continuousSeconds()
         val text = sec.format(2, 2)
 

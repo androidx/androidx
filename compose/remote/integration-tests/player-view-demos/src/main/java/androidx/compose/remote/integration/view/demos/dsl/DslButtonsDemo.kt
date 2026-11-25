@@ -43,8 +43,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 @Suppress("RestrictedApiAndroidX")
 public fun dslButtonsDemo(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
     ) {
         val headerText = remoteNamedText("header", "buttons")

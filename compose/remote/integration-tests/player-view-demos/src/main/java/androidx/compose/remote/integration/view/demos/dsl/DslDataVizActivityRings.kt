@@ -49,8 +49,7 @@ public fun dslDemoActivityRings(): ByteArray {
     val labels = arrayOf("Move", "Exercise", "Stand")
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Activity Rings"),

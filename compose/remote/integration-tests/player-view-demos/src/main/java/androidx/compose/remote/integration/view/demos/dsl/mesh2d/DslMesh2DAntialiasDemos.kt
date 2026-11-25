@@ -163,8 +163,7 @@ private fun RcCanvasScope.drawSideBySide(
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DAntialiasShapes(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D antialias shapes"),
@@ -203,7 +202,7 @@ public fun dslMesh2DAntialiasShapes(): ByteArray {
                 }
 
             val orbit =
-                remoteXYPath(
+                remoteXyPath(
                     remoteFunction { s -> sin(s * TURN) * (w * 0.18f) },
                     remoteFunction { s -> sin(s * (TURN * 2f)) * (w * 0.075f) },
                     0f,
@@ -309,8 +308,7 @@ private fun RcCanvasScope.drawMagnified(
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DAntialiasZoom(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D antialias zoom"),
@@ -385,8 +383,7 @@ public fun dslMesh2DAntialiasZoom(): ByteArray {
 @Suppress("RestrictedApiAndroidX")
 public fun dslMesh2DAntialiasTextured(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Mesh2D antialias textured"),
@@ -398,7 +395,7 @@ public fun dslMesh2DAntialiasTextured(): ByteArray {
 
             // A checkerboard, drawn by the document into an offscreen bitmap.
             val checks = createBitmap(64, 64)
-            drawOnBitmap(checks, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF1D4ED8.toInt())) {
+            drawOnBitmap(checks, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF1D4ED8)) {
                 paint {
                     style(RcPaintStyle.Fill)
                     color(0xFFFBBF24.toInt())

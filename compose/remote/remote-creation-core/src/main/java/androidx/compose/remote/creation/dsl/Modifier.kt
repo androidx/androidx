@@ -19,6 +19,9 @@
 
 package androidx.compose.remote.creation.dsl
 
+import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
@@ -26,7 +29,6 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.ClickActionModifier
 import androidx.compose.remote.creation.modifiers.EventHandlerModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.remote.creation.modifiers.Shape
 import androidx.compose.remote.creation.modifiers.TouchActionModifier
 
 /**
@@ -68,6 +70,11 @@ private class CombinedModifier(private val outer: Modifier, private val inner: M
     Modifier {
     override fun <R> foldIn(initial: R, operation: (R, Modifier.Element) -> R): R =
         inner.foldIn(outer.foldIn(initial, operation), operation)
+
+    override fun equals(other: Any?): Boolean =
+        other is CombinedModifier && outer == other.outer && inner == other.inner
+
+    override fun hashCode(): Int = outer.hashCode() + 31 * inner.hashCode()
 
     override fun toString(): String =
         "[" +
@@ -116,34 +123,40 @@ public fun Modifier.height(height: RcFloat): Modifier = then(HeightRcFloatModifi
 
 public fun Modifier.height(height: RcDp): Modifier = height(height.value)
 
-/** Basic background modifier. */
-public fun Modifier.background(color: Int): Modifier = then(BackgroundModifier(color))
+/** Draws a solid background fill using a packed ARGB color int (`0xAARRGGBB`). */
+public fun Modifier.background(@ColorInt color: Int): Modifier = then(BackgroundModifier(color))
 
+/** Draws a solid background fill using a 32-bit packed ARGB `Long` hex literal (`0xAARRGGBB`). */
 public fun Modifier.background(color: Long): Modifier = background(color.toInt())
 
+/** Draws a solid background fill using a static [RcColorValue]. */
 public fun Modifier.background(color: RcColorValue): Modifier = then(BackgroundColorModifier(color))
 
+/** Draws a solid background fill using a dynamic [RcColor] reference. */
 public fun Modifier.background(color: RcColor): Modifier = then(BackgroundColorIdModifier(color))
 
-/** horizontalWeight modifier. */
-public fun Modifier.horizontalWeight(weight: Float): Modifier =
-    then(WeightModifier(weight, vertical = false))
+/** Allocates horizontal space inside a [RcScope.Row] proportionally to [weight]. */
+public fun Modifier.horizontalWeight(
+    @FloatRange(from = 0.0, fromInclusive = false) weight: Float
+): Modifier = then(WeightModifier(weight, vertical = false))
 
-/** verticalWeight modifier. */
-public fun Modifier.verticalWeight(weight: Float): Modifier =
-    then(WeightModifier(weight, vertical = true))
+/** Allocates vertical space inside a [RcScope.Column] proportionally to [weight]. */
+public fun Modifier.verticalWeight(
+    @FloatRange(from = 0.0, fromInclusive = false) weight: Float
+): Modifier = then(WeightModifier(weight, vertical = true))
 
-/** Basic fillMaxWidth modifier. */
-public fun Modifier.fillMaxWidth(fraction: Float = Float.NaN): Modifier =
-    then(FillMaxWidthModifier(fraction))
+/** Fills [fraction] (`0f..1f`) of the maximum available width. */
+public fun Modifier.fillMaxWidth(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f): Modifier =
+    then(FillMaxWidthModifier(if (fraction == 1f) Float.NaN else fraction))
 
-/** Basic fillMaxHeight modifier. */
-public fun Modifier.fillMaxHeight(fraction: Float = Float.NaN): Modifier =
-    then(FillMaxHeightModifier(fraction))
+/** Fills [fraction] (`0f..1f`) of the maximum available height. */
+public fun Modifier.fillMaxHeight(
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
+): Modifier = then(FillMaxHeightModifier(if (fraction == 1f) Float.NaN else fraction))
 
-/** Basic fillMaxSize modifier. */
-public fun Modifier.fillMaxSize(fraction: Float = Float.NaN): Modifier =
-    then(FillMaxSizeModifier(fraction))
+/** Fills [fraction] (`0f..1f`) of the maximum available width and height. */
+public fun Modifier.fillMaxSize(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f): Modifier =
+    then(FillMaxSizeModifier(if (fraction == 1f) Float.NaN else fraction))
 
 /** Basic wrapContentSize modifier. */
 public fun Modifier.wrapContentSize(): Modifier = then(WrapContentSizeModifier)
@@ -167,8 +180,8 @@ public fun Modifier.verticalScroll(position: Float = 0f): Modifier =
 public fun Modifier.verticalScroll(position: RcFloat): Modifier =
     then(VerticalScrollRcFloatModifier(position))
 
-/** clip modifier. */
-public fun Modifier.clip(shape: RcShape): Modifier = then(ClipModifier(shape.legacyShape))
+/** Clips the component content to [shape]. */
+public fun Modifier.clip(shape: RcShape): Modifier = then(ClipModifier(shape))
 
 /** widthIn modifier. */
 public fun Modifier.widthIn(min: Float = 0f, max: Float = Float.MAX_VALUE): Modifier =
@@ -220,6 +233,7 @@ public fun Modifier.onTouchCancel(block: RcActionScope.() -> Unit): Modifier =
  * @param condition optional RPN condition used to conditionally trigger actions
  * @param block the actions to execute
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Modifier.onEvent(
     type: Int,
     filter: Int,
@@ -232,17 +246,20 @@ public fun Modifier.onEvent(
 /** horizontalScroll modifier. */
 public fun Modifier.horizontalScroll(): Modifier = then(HorizontalScrollModifier)
 
-/** fillParentMaxWidth modifier. */
-public fun Modifier.fillParentMaxWidth(fraction: Float = 1f): Modifier =
-    then(FillParentMaxWidthModifier(fraction))
+/** Fills [fraction] (`0f..1f`) of the parent's maximum available width. */
+public fun Modifier.fillParentMaxWidth(
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
+): Modifier = then(FillParentMaxWidthModifier(fraction))
 
-/** fillParentMaxHeight modifier. */
-public fun Modifier.fillParentMaxHeight(fraction: Float = 1f): Modifier =
-    then(FillParentMaxHeightModifier(fraction))
+/** Fills [fraction] (`0f..1f`) of the parent's maximum available height. */
+public fun Modifier.fillParentMaxHeight(
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
+): Modifier = then(FillParentMaxHeightModifier(fraction))
 
-/** fillParentMaxSize modifier. */
-public fun Modifier.fillParentMaxSize(fraction: Float = 1f): Modifier =
-    then(FillParentMaxSizeModifier(fraction))
+/** Fills [fraction] (`0f..1f`) of the parent's maximum available width and height. */
+public fun Modifier.fillParentMaxSize(
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
+): Modifier = then(FillParentMaxSizeModifier(fraction))
 
 /** Draws a border with static [RcDp] dimensions and a static [RcColorValue]. */
 public fun Modifier.border(
@@ -250,7 +267,15 @@ public fun Modifier.border(
     roundedCorner: RcDp,
     color: RcColorValue,
     shape: RcBorderShape = RcBorderShape.Rectangle,
-): Modifier = then(BorderModifier(width.value, roundedCorner.value, color.id, shape.value))
+): Modifier = then(BorderModifier(width.value, roundedCorner.value, color.color, shape.value))
+
+/** Draws a border with static [RcDp] dimensions and a 32-bit packed ARGB `Long` hex literal. */
+public fun Modifier.border(
+    width: RcDp,
+    roundedCorner: RcDp,
+    color: Long,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier = border(width, roundedCorner, RcColorValue(color), shape)
 
 /** Draws a border with static [RcDp] dimensions and a dynamic [RcColor]. */
 public fun Modifier.border(
@@ -267,7 +292,15 @@ public fun Modifier.border(
     roundedCorner: Float,
     color: RcColorValue,
     shape: RcBorderShape = RcBorderShape.Rectangle,
-): Modifier = then(BorderModifier(width, roundedCorner, color.id, shape.value))
+): Modifier = then(BorderModifier(width, roundedCorner, color.color, shape.value))
+
+/** Draws a border with static `Float` dimensions and a 32-bit packed ARGB `Long` hex literal. */
+public fun Modifier.border(
+    width: Float,
+    roundedCorner: Float,
+    color: Long,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier = border(width, roundedCorner, RcColorValue(color), shape)
 
 /** Draws a border with static `Float` dimensions and a dynamic [RcColor]. */
 public fun Modifier.border(
@@ -283,7 +316,16 @@ public fun Modifier.border(
     roundedCorner: RcFloat,
     color: RcColorValue,
     shape: RcBorderShape = RcBorderShape.Rectangle,
-): Modifier = then(BorderModifier(width.toFloat(), roundedCorner.toFloat(), color.id, shape.value))
+): Modifier =
+    then(BorderModifier(width.toFloat(), roundedCorner.toFloat(), color.color, shape.value))
+
+/** Draws a border with dynamic [RcFloat] dimensions and a 32-bit packed ARGB `Long` hex literal. */
+public fun Modifier.border(
+    width: RcFloat,
+    roundedCorner: RcFloat,
+    color: Long,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
+): Modifier = border(width, roundedCorner, RcColorValue(color), shape)
 
 /** Draws a border with dynamic [RcFloat] dimensions and a dynamic [RcColor]. */
 public fun Modifier.border(
@@ -307,9 +349,9 @@ public fun Modifier.visibility(visible: RcInteger): Modifier = then(VisibilityMo
 /** Configures layout motion and enter/exit visibility animations on this component. */
 public fun Modifier.animationSpec(
     animationId: Int = -1,
-    motionDuration: Float = 300f,
+    @FloatRange(from = 0.0) motionDuration: Float = 300f,
     motionEasing: RcAnimationCurve = RcAnimationCurve.CubicStandard,
-    visibilityDuration: Float = 300f,
+    @FloatRange(from = 0.0) visibilityDuration: Float = 300f,
     visibilityEasing: RcAnimationCurve = RcAnimationCurve.CubicStandard,
     enterAnimation: RcEnterExitAnimation = RcEnterExitAnimation.FadeIn,
     exitAnimation: RcEnterExitAnimation = RcEnterExitAnimation.FadeOut,
@@ -334,9 +376,6 @@ public fun Modifier.animationSpec(
         )
     )
 
-public fun Modifier.animationSpec(spec: RcAnimationSpec): Modifier =
-    then(AnimationSpecModifier(spec.id))
-
 /** alignByBaseline modifier. */
 public fun Modifier.alignByBaseline(): Modifier = then(AlignByBaselineModifier)
 
@@ -350,10 +389,10 @@ public fun Modifier.requiredHeightIn(min: Float = 0f, max: Float = Float.MAX_VAL
 
 /** Scrolls overflowing horizontal content using a marquee animation. */
 public fun Modifier.marquee(
-    iterations: Int = Int.MAX_VALUE,
+    @IntRange(from = 0) iterations: Int = Int.MAX_VALUE,
     animationMode: RcMarqueeAnimationMode = RcMarqueeAnimationMode.Immediately,
-    repeatDelayMillis: Float = 0f,
-    initialDelayMillis: Float = 0f,
+    @FloatRange(from = 0.0) repeatDelayMillis: Float = 0f,
+    @FloatRange(from = 0.0) initialDelayMillis: Float = 0f,
     spacing: Float = 0f,
     velocity: Float = 20f,
 ): Modifier =
@@ -374,74 +413,104 @@ public fun Modifier.zIndex(value: Float): Modifier = then(ZIndexModifier(value))
 /** Builder scope for [Modifier.graphicsLayer]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public class RcGraphicsLayerScope internal constructor() {
-    internal val attributes: HashMap<Int, Any> = HashMap()
-
+public sealed interface RcGraphicsLayerScope {
     public var scaleX: Float
+
+    public fun scaleX(value: RcFloat)
+
+    public var scaleY: Float
+
+    public fun scaleY(value: RcFloat)
+
+    public var alpha: Float
+
+    public fun alpha(value: RcFloat)
+
+    public var rotationZ: Float
+
+    public fun rotationZ(value: RcFloat)
+
+    public var translationX: Float
+
+    public fun translationX(value: RcDp)
+
+    public fun translationX(value: RcFloat)
+
+    public var translationY: Float
+
+    public fun translationY(value: RcDp)
+
+    public fun translationY(value: RcFloat)
+}
+
+private class RcGraphicsLayerScopeImpl : RcGraphicsLayerScope {
+    val attributes: LinkedHashMap<Int, Any> = LinkedHashMap()
+
+    override var scaleX: Float
         get() = (attributes[0] as? Float) ?: 1f
         set(value) {
             attributes[0] = value
         }
 
-    public fun scaleX(value: RcFloat) {
+    override fun scaleX(value: RcFloat) {
         attributes[0] = value
     }
 
-    public var scaleY: Float
+    override var scaleY: Float
         get() = (attributes[1] as? Float) ?: 1f
         set(value) {
             attributes[1] = value
         }
 
-    public fun scaleY(value: RcFloat) {
+    override fun scaleY(value: RcFloat) {
         attributes[1] = value
     }
 
-    public var alpha: Float
+    override var alpha: Float
         get() = (attributes[11] as? Float) ?: 1f
         set(value) {
             attributes[11] = value
         }
 
-    public fun alpha(value: RcFloat) {
+    override fun alpha(value: RcFloat) {
         attributes[11] = value
     }
 
-    public var rotationZ: Float
+    override var rotationZ: Float
         get() = (attributes[4] as? Float) ?: 0f
         set(value) {
             attributes[4] = value
         }
 
-    public fun rotationZ(value: RcFloat) {
+    override fun rotationZ(value: RcFloat) {
         attributes[4] = value
     }
 
-    public var translationX: Float
+    override var translationX: Float
         get() = (attributes[7] as? Float) ?: 0f
         set(value) {
             attributes[7] = value
         }
 
-    public fun translationX(value: RcDp) {
+    override fun translationX(value: RcDp) {
         attributes[7] = value.value
     }
 
-    public fun translationX(value: RcFloat) {
+    override fun translationX(value: RcFloat) {
         attributes[7] = value
     }
 
-    public var translationY: Float
+    override var translationY: Float
         get() = (attributes[8] as? Float) ?: 0f
         set(value) {
             attributes[8] = value
         }
 
-    public fun translationY(value: RcDp) {
+    override fun translationY(value: RcDp) {
         attributes[8] = value.value
     }
 
-    public fun translationY(value: RcFloat) {
+    override fun translationY(value: RcFloat) {
         attributes[8] = value
     }
 }
@@ -452,7 +521,7 @@ internal fun Modifier.graphicsLayer(attributes: Map<Int, Any>): Modifier =
 
 /** graphicsLayer modifier with type-safe builder lambda. */
 public fun Modifier.graphicsLayer(block: RcGraphicsLayerScope.() -> Unit): Modifier =
-    graphicsLayer(RcGraphicsLayerScope().apply(block).attributes)
+    graphicsLayer(RcGraphicsLayerScopeImpl().apply(block).attributes)
 
 /** Ripple modifier for standard material design touch feedback. */
 public fun Modifier.ripple(): Modifier = then(RippleModifierElement)
@@ -495,7 +564,7 @@ public fun Modifier.computeMeasure(block: RcLayoutScope.() -> Unit): Modifier =
 public fun Modifier.computePosition(block: RcLayoutScope.() -> Unit): Modifier =
     then(ComponentLayoutComputeModifierElement(1 /* TYPE_POSITION */, block))
 
-internal class PaddingModifier(
+internal data class PaddingModifier(
     val start: Float,
     val top: Float,
     val end: Float,
@@ -506,25 +575,25 @@ internal class PaddingModifier(
     }
 }
 
-internal class SizeModifier(val width: Float, val height: Float) : RecordingModifierElement {
+internal data class SizeModifier(val width: Float, val height: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.width(width).height(height)
     }
 }
 
-internal class WidthModifier(val width: Float) : RecordingModifierElement {
+internal data class WidthModifier(val width: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.width(width)
     }
 }
 
-internal class HeightModifier(val height: Float) : RecordingModifierElement {
+internal data class HeightModifier(val height: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.height(height)
     }
 }
 
-internal class WidthRcFloatModifier(val width: RcFloat) :
+internal data class WidthRcFloatModifier(val width: RcFloat) :
     RecordingModifierElement, RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
@@ -535,7 +604,7 @@ internal class WidthRcFloatModifier(val width: RcFloat) :
     }
 }
 
-internal class HeightRcFloatModifier(val height: RcFloat) :
+internal data class HeightRcFloatModifier(val height: RcFloat) :
     RecordingModifierElement, RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
@@ -546,25 +615,26 @@ internal class HeightRcFloatModifier(val height: RcFloat) :
     }
 }
 
-internal class BackgroundModifier(val color: Int) : RecordingModifierElement {
+internal data class BackgroundModifier(val color: Int) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.background(color)
     }
 }
 
-internal class BackgroundColorIdModifier(val color: RcColor) : RecordingModifierElement {
+internal data class BackgroundColorIdModifier(val color: RcColor) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.backgroundId(color.id)
     }
 }
 
-internal class BackgroundColorModifier(val color: RcColorValue) : RecordingModifierElement {
+internal data class BackgroundColorModifier(val color: RcColorValue) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
-        modifier.background(color.id)
+        modifier.background(color.color)
     }
 }
 
-internal class WeightModifier(val weight: Float, val vertical: Boolean) : RecordingModifierElement {
+internal data class WeightModifier(val weight: Float, val vertical: Boolean) :
+    RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         if (vertical) {
             modifier.verticalWeight(weight)
@@ -574,55 +644,55 @@ internal class WeightModifier(val weight: Float, val vertical: Boolean) : Record
     }
 }
 
-internal class FillMaxWidthModifier(val fraction: Float) : RecordingModifierElement {
+internal data class FillMaxWidthModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillMaxWidth(fraction)
     }
 }
 
-internal class FillMaxHeightModifier(val fraction: Float) : RecordingModifierElement {
+internal data class FillMaxHeightModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillMaxHeight(fraction)
     }
 }
 
-internal class FillMaxSizeModifier(val fraction: Float) : RecordingModifierElement {
+internal data class FillMaxSizeModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillMaxSize(fraction)
     }
 }
 
-internal object WrapContentSizeModifier : RecordingModifierElement {
+internal data object WrapContentSizeModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.wrapContentSize()
     }
 }
 
-internal object WrapContentWidthModifier : RecordingModifierElement {
+internal data object WrapContentWidthModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.wrapContentWidth()
     }
 }
 
-internal object WrapContentHeightModifier : RecordingModifierElement {
+internal data object WrapContentHeightModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.wrapContentHeight()
     }
 }
 
-internal class OffsetModifier(val x: Float, val y: Float) : RecordingModifierElement {
+internal data class OffsetModifier(val x: Float, val y: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.offset(x, y)
     }
 }
 
-internal class VerticalScrollModifier(val position: Float) : RecordingModifierElement {
+internal data class VerticalScrollModifier(val position: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.verticalScroll(position)
     }
 }
 
-internal class VerticalScrollRcFloatModifier(val position: RcFloat) :
+internal data class VerticalScrollRcFloatModifier(val position: RcFloat) :
     RecordingModifierElement, RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
@@ -634,25 +704,25 @@ internal class VerticalScrollRcFloatModifier(val position: RcFloat) :
     }
 }
 
-internal class ClipModifier(val shape: Shape) : RecordingModifierElement {
+internal data class ClipModifier(val shape: RcShape) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
-        modifier.clip(shape)
+        modifier.clip(shape.legacyShape)
     }
 }
 
-internal class WidthInModifier(val min: Float, val max: Float) : RecordingModifierElement {
+internal data class WidthInModifier(val min: Float, val max: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.widthIn(min, max)
     }
 }
 
-internal class HeightInModifier(val min: Float, val max: Float) : RecordingModifierElement {
+internal data class HeightInModifier(val min: Float, val max: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.heightIn(min, max)
     }
 }
 
-internal class ComponentIdModifier(val id: Int) : RecordingModifierElement {
+internal data class ComponentIdModifier(val id: Int) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.componentId(id)
     }
@@ -708,31 +778,31 @@ internal class EventHandlerModifierElement(
     }
 }
 
-internal object HorizontalScrollModifier : RecordingModifierElement {
+internal data object HorizontalScrollModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.horizontalScroll()
     }
 }
 
-internal class FillParentMaxWidthModifier(val fraction: Float) : RecordingModifierElement {
+internal data class FillParentMaxWidthModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillParentMaxWidth(fraction)
     }
 }
 
-internal class FillParentMaxHeightModifier(val fraction: Float) : RecordingModifierElement {
+internal data class FillParentMaxHeightModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillParentMaxHeight(fraction)
     }
 }
 
-internal class FillParentMaxSizeModifier(val fraction: Float) : RecordingModifierElement {
+internal data class FillParentMaxSizeModifier(val fraction: Float) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.fillParentMaxSize(fraction)
     }
 }
 
-internal class BorderModifier(
+internal data class BorderModifier(
     val width: Float,
     val roundedCorner: Float,
     val color: Int,
@@ -743,7 +813,7 @@ internal class BorderModifier(
     }
 }
 
-internal class DynamicBorderModifier(
+internal data class DynamicBorderModifier(
     val width: Float,
     val roundedCorner: Float,
     val color: Short,
@@ -754,13 +824,13 @@ internal class DynamicBorderModifier(
     }
 }
 
-internal class VisibilityModifier(val visible: RcInteger) : RecordingModifierElement {
+internal data class VisibilityModifier(val visible: RcInteger) : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.visibility(visible.id.toInt())
     }
 }
 
-internal class AnimationSpecModifier(
+internal data class AnimationSpecModifier(
     val animationId: Int = -1,
     val motionDuration: Float = 300f,
     val motionEasingType: Int =
@@ -806,25 +876,27 @@ internal class AnimationSpecModifier(
     }
 }
 
-internal object AlignByBaselineModifier : RecordingModifierElement {
+internal data object AlignByBaselineModifier : RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.alignByBaseline()
     }
 }
 
-internal class RequiredWidthInModifier(val min: Float, val max: Float) : RecordingModifierElement {
+internal data class RequiredWidthInModifier(val min: Float, val max: Float) :
+    RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.requiredWidthIn(min, max)
     }
 }
 
-internal class RequiredHeightInModifier(val min: Float, val max: Float) : RecordingModifierElement {
+internal data class RequiredHeightInModifier(val min: Float, val max: Float) :
+    RecordingModifierElement {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.requiredHeightIn(min, max)
     }
 }
 
-internal class MarqueeModifier(
+internal data class MarqueeModifier(
     val iterations: Int,
     val animationMode: Int,
     val repeatDelayMillis: Float,
@@ -848,7 +920,7 @@ internal class MarqueeModifier(
     }
 }
 
-internal class ZIndexModifier(val value: Float) :
+internal data class ZIndexModifier(val value: Float) :
     RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
@@ -859,19 +931,22 @@ internal class ZIndexModifier(val value: Float) :
     }
 }
 
-internal class GraphicsLayerModifier(val attributes: Map<Int, Any>) :
+internal data class GraphicsLayerModifier(val attributes: Map<Int, Any>) :
     RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
     }
 
     override fun write(writer: RemoteComposeWriter) {
-        val hashMap = HashMap<Int, Any>().apply { putAll(attributes) }
-        @Suppress("UNCHECKED_CAST") writer.addModifierGraphicsLayer(hashMap as HashMap<Int, Any>)
+        val hashMap = HashMap<Int, Any>(attributes.size)
+        for ((key, value) in attributes) {
+            hashMap[key] = if (value is RcFloat) value.withWriter(writer).toFloat() else value
+        }
+        writer.addModifierGraphicsLayer(hashMap)
     }
 }
 
-internal object RippleModifierElement :
+internal data object RippleModifierElement :
     RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)
@@ -896,7 +971,7 @@ internal class DrawWithContentModifierElement(val block: RcCanvasScope.() -> Uni
     }
 }
 
-internal class CollapsiblePriorityModifierElement(val orientation: Int, val priority: Float) :
+internal data class CollapsiblePriorityModifierElement(val orientation: Int, val priority: Float) :
     RecordingModifierElement, androidx.compose.remote.creation.modifiers.RecordingModifier.Element {
     override fun applyTo(modifier: RecordingModifier) {
         modifier.then(this)

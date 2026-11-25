@@ -37,8 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Suppress("RestrictedApiAndroidX")
 public fun dslClickTouchDemo(unifiedPointerInput: Boolean = true): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.densityBehavior(RcDensityBehavior.Dp),
         RcHeaderTag.docWidth(420),
         RcHeaderTag.docHeight(840),

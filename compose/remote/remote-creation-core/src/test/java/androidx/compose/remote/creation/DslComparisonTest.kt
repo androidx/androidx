@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.onClick
 import androidx.compose.remote.creation.dsl.padding
+import androidx.compose.remote.creation.dsl.rcColor
 import androidx.compose.remote.creation.dsl.rsp
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -357,18 +358,18 @@ class DslComparisonTest {
     }
 
     @Test
-    fun testLongColorComparison() {
+    fun testColorValueComparison() {
         val profile = RcProfile(testProfile)
         val colorInt = 0xFFEEEEEE.toInt()
-        val colorLong = 0xFFEEEEEE
+        val colorValue = 0xFFEEEEEE.rcColor()
 
         val dslBytesInt =
             createRcBuffer(profile) { Box(modifier = Modifier.background(colorInt)) {} }
 
-        val dslBytesLong =
-            createRcBuffer(profile) { Box(modifier = Modifier.background(colorLong)) {} }
+        val dslBytesValue =
+            createRcBuffer(profile) { Box(modifier = Modifier.background(colorValue)) {} }
 
-        assertThat(dslBytesLong).isEqualTo(dslBytesInt)
+        assertThat(dslBytesValue).isEqualTo(dslBytesInt)
     }
 
     @Test
@@ -476,15 +477,12 @@ class DslComparisonTest {
 
     @Test
     fun testCompressedExperimentalDocumentComparison() {
-        val profile = RcProfile(testProfile)
+        val profile = RcProfile(testProfile, isExperimental = true)
         val compress = RcHeaderTag.compress()
 
-        val plainBytes =
-            createRcBuffer(profile, experimental = true) { Canvas { drawLine(0f, 0f, 100f, 100f) } }
+        val plainBytes = createRcBuffer(profile) { Canvas { drawLine(0f, 0f, 100f, 100f) } }
         val compressedBytes =
-            createRcBuffer(profile, experimental = true, compress) {
-                Canvas { drawLine(0f, 0f, 100f, 100f) }
-            }
+            createRcBuffer(profile, compress) { Canvas { drawLine(0f, 0f, 100f, 100f) } }
 
         assertThat(compressedBytes).isEqualTo(Header.compressDocument(plainBytes, plainBytes.size))
     }

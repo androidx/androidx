@@ -108,6 +108,7 @@ public class RemoteComposeWriter {
     private int mOriginalHeight = 0;
     private @Nullable String mContentDescription = null;
     private int mCompression = Header.COMPRESSION_NONE;
+    private int mDensityBehavior = CoreDocument.DENSITY_BEHAVIOR_LEGACY;
     protected boolean mHasForceSendingNewPaint = false;
 
     public static final float TIME_IN_CONTINUOUS_SEC = RemoteContext.FLOAT_CONTINUOUS_SEC;
@@ -137,6 +138,13 @@ public class RemoteComposeWriter {
 
     public int getApiLevel() {
         return mApiLevel;
+    }
+
+    /**
+     * Returns the document's configured density behavior ({@code CoreDocument.DENSITY_BEHAVIOR_*}).
+     */
+    public int getDensityBehavior() {
+        return mDensityBehavior;
     }
 
     private static HTag[] filterAndValidateTags(int apiLevel, HTag[] tags) {
@@ -295,6 +303,7 @@ public class RemoteComposeWriter {
         Object w = HTag.getValue(tags, Header.DOC_WIDTH);
         Object h = HTag.getValue(tags, Header.DOC_HEIGHT);
         Object d = HTag.getValue(tags, Header.DOC_CONTENT_DESCRIPTION);
+        Object db = HTag.getValue(tags, Header.DOC_DENSITY_BEHAVIOR);
 
         if (w instanceof Integer) {
             mOriginalWidth = (int) w;
@@ -304,6 +313,9 @@ public class RemoteComposeWriter {
         }
         if (d instanceof String) {
             mContentDescription = (String) d;
+        }
+        if (db instanceof Integer) {
+            mDensityBehavior = (int) db;
         }
 
         Set<Integer> supportedOperations = profile.getSupportedOperations();
@@ -415,6 +427,7 @@ public class RemoteComposeWriter {
         Object w = HTag.getValue(tags, Header.DOC_WIDTH);
         Object h = HTag.getValue(tags, Header.DOC_HEIGHT);
         Object d = HTag.getValue(tags, Header.DOC_CONTENT_DESCRIPTION);
+        Object db = HTag.getValue(tags, Header.DOC_DENSITY_BEHAVIOR);
         int profiles = HTag.getProfiles(tags);
 
         if (w instanceof Integer) {
@@ -425,6 +438,9 @@ public class RemoteComposeWriter {
         }
         if (d instanceof String) {
             mContentDescription = (String) d;
+        }
+        if (db instanceof Integer) {
+            mDensityBehavior = (int) db;
         }
 
         mBuffer.setVersion(apiLevel, profiles, (Set<Integer>) null);
@@ -467,6 +483,7 @@ public class RemoteComposeWriter {
         Object w = HTag.getValue(tags, Header.DOC_WIDTH);
         Object h = HTag.getValue(tags, Header.DOC_HEIGHT);
         Object d = HTag.getValue(tags, Header.DOC_CONTENT_DESCRIPTION);
+        Object db = HTag.getValue(tags, Header.DOC_DENSITY_BEHAVIOR);
 
         if (w instanceof Integer) {
             mOriginalWidth = (int) w;
@@ -476,6 +493,9 @@ public class RemoteComposeWriter {
         }
         if (d instanceof String) {
             mContentDescription = (String) d;
+        }
+        if (db instanceof Integer) {
+            mDensityBehavior = (int) db;
         }
 
         mBuffer.setVersion(mApiLevel, HTag.getProfiles(tags), profile.getSupportedOperations());

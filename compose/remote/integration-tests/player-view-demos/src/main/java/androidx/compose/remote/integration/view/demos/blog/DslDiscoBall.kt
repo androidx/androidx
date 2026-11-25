@@ -61,8 +61,7 @@ public fun dslDiscoBall(): ByteArray {
     val rotationPeriodSec = 24f
 
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(400),
         RcHeaderTag.docHeight(400),
         RcHeaderTag.contentDescription("Disco Ball"),

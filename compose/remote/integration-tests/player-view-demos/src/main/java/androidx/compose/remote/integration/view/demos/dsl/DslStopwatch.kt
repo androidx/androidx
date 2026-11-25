@@ -23,8 +23,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 @Suppress("RestrictedApiAndroidX")
 public fun dslStopwatchDemo(): ByteArray {
     return createRawRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.raw(Header.FEATURE_MEASURE_VERSION, 2),
     ) {
         val len = 5f

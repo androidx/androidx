@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo
 public sealed interface RcPositioning {
     public companion object {
         /** Centers children along the axis. */
-        @get:JvmStatic public val Center: RcPositioning = CenterPositioning
+        public val Center: RcPositioning = CenterPositioning
     }
 }
 
@@ -35,15 +35,17 @@ private object CenterPositioning :
     RcHorizontalPositioning,
     RcVerticalPositioning,
     RcRowHorizontalPositioning,
-    RcColumnVerticalPositioning
+    RcColumnVerticalPositioning {
+    override fun toString(): String = "RcPositioning.Center"
+}
 
 /** Horizontal child positioning. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface RcHorizontalPositioning : RcPositioning {
     public companion object {
-        @get:JvmStatic public val Start: RcHorizontalPositioning = StartPositioning
-        @get:JvmStatic public val Center: RcHorizontalPositioning = CenterPositioning
-        @get:JvmStatic public val End: RcHorizontalPositioning = EndPositioning
+        public val Start: RcHorizontalPositioning = StartPositioning
+        public val Center: RcHorizontalPositioning = CenterPositioning
+        public val End: RcHorizontalPositioning = EndPositioning
     }
 }
 
@@ -51,9 +53,9 @@ public sealed interface RcHorizontalPositioning : RcPositioning {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface RcVerticalPositioning : RcPositioning {
     public companion object {
-        @get:JvmStatic public val Top: RcVerticalPositioning = TopPositioning
-        @get:JvmStatic public val Center: RcVerticalPositioning = CenterPositioning
-        @get:JvmStatic public val Bottom: RcVerticalPositioning = BottomPositioning
+        public val Top: RcVerticalPositioning = TopPositioning
+        public val Center: RcVerticalPositioning = CenterPositioning
+        public val Bottom: RcVerticalPositioning = BottomPositioning
     }
 }
 
@@ -61,12 +63,12 @@ public sealed interface RcVerticalPositioning : RcPositioning {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface RcRowHorizontalPositioning : RcHorizontalPositioning {
     public companion object {
-        @get:JvmStatic public val Start: RcRowHorizontalPositioning = StartPositioning
-        @get:JvmStatic public val Center: RcRowHorizontalPositioning = CenterPositioning
-        @get:JvmStatic public val End: RcRowHorizontalPositioning = EndPositioning
-        @get:JvmStatic public val SpaceBetween: RcRowHorizontalPositioning = SpaceBetweenPositioning
-        @get:JvmStatic public val SpaceEvenly: RcRowHorizontalPositioning = SpaceEvenlyPositioning
-        @get:JvmStatic public val SpaceAround: RcRowHorizontalPositioning = SpaceAroundPositioning
+        public val Start: RcRowHorizontalPositioning = StartPositioning
+        public val Center: RcRowHorizontalPositioning = CenterPositioning
+        public val End: RcRowHorizontalPositioning = EndPositioning
+        public val SpaceBetween: RcRowHorizontalPositioning = SpaceBetweenPositioning
+        public val SpaceEvenly: RcRowHorizontalPositioning = SpaceEvenlyPositioning
+        public val SpaceAround: RcRowHorizontalPositioning = SpaceAroundPositioning
     }
 }
 
@@ -74,29 +76,42 @@ public sealed interface RcRowHorizontalPositioning : RcHorizontalPositioning {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface RcColumnVerticalPositioning : RcVerticalPositioning {
     public companion object {
-        @get:JvmStatic public val Top: RcColumnVerticalPositioning = TopPositioning
-        @get:JvmStatic public val Center: RcColumnVerticalPositioning = CenterPositioning
-        @get:JvmStatic public val Bottom: RcColumnVerticalPositioning = BottomPositioning
-        @get:JvmStatic
+        public val Top: RcColumnVerticalPositioning = TopPositioning
+        public val Center: RcColumnVerticalPositioning = CenterPositioning
+        public val Bottom: RcColumnVerticalPositioning = BottomPositioning
         public val SpaceBetween: RcColumnVerticalPositioning = SpaceBetweenPositioning
-        @get:JvmStatic public val SpaceEvenly: RcColumnVerticalPositioning = SpaceEvenlyPositioning
-        @get:JvmStatic public val SpaceAround: RcColumnVerticalPositioning = SpaceAroundPositioning
+        public val SpaceEvenly: RcColumnVerticalPositioning = SpaceEvenlyPositioning
+        public val SpaceAround: RcColumnVerticalPositioning = SpaceAroundPositioning
     }
 }
 
-private object StartPositioning : RcHorizontalPositioning, RcRowHorizontalPositioning
+private object StartPositioning : RcHorizontalPositioning, RcRowHorizontalPositioning {
+    override fun toString(): String = "RcPositioning.Start"
+}
 
-private object EndPositioning : RcHorizontalPositioning, RcRowHorizontalPositioning
+private object EndPositioning : RcHorizontalPositioning, RcRowHorizontalPositioning {
+    override fun toString(): String = "RcPositioning.End"
+}
 
-private object TopPositioning : RcVerticalPositioning, RcColumnVerticalPositioning
+private object TopPositioning : RcVerticalPositioning, RcColumnVerticalPositioning {
+    override fun toString(): String = "RcPositioning.Top"
+}
 
-private object BottomPositioning : RcVerticalPositioning, RcColumnVerticalPositioning
+private object BottomPositioning : RcVerticalPositioning, RcColumnVerticalPositioning {
+    override fun toString(): String = "RcPositioning.Bottom"
+}
 
-private object SpaceBetweenPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning
+private object SpaceBetweenPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning {
+    override fun toString(): String = "RcPositioning.SpaceBetween"
+}
 
-private object SpaceEvenlyPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning
+private object SpaceEvenlyPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning {
+    override fun toString(): String = "RcPositioning.SpaceEvenly"
+}
 
-private object SpaceAroundPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning
+private object SpaceAroundPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning {
+    override fun toString(): String = "RcPositioning.SpaceAround"
+}
 
 internal val RcPositioning.value: Int
     get() =

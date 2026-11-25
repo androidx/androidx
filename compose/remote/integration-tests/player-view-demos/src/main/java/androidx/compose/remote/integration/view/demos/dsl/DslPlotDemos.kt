@@ -32,7 +32,7 @@ import kotlin.math.PI
  * DSL conversion of `examples/Demo.kt` `plot3()` and `plot4()`.
  *
  * Demonstrates the typed path-expression API:
- * - `remoteXYPath(expressionX, expressionY, start, end, count, type)` for XY plots
+ * - `remoteXyPath(expressionX, expressionY, start, end, count, type)` for XY plots
  * - `remotePolarPath(expression, start, end, count, centerX, centerY, type)` for polar plots
  *
  * Plus `RcFloat.anim(duration, RcAnimationCurve)` for animation, `remoteFunction { x -> … }` for
@@ -45,7 +45,7 @@ import kotlin.math.PI
  */
 @Suppress("RestrictedApiAndroidX")
 public fun dslPlot3(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize().background(0xFF127799.toInt())) {
                 paint {
@@ -71,7 +71,7 @@ public fun dslPlot3(): ByteArray {
                 }
                 val equ = remoteFunction { x -> sin(x + continuousSeconds() * 3f) }
                 val pathId =
-                    remoteXYPath(
+                    remoteXyPath(
                         expressionX = remoteFunction { x -> x * scaleX + offsetX },
                         expressionY = equ * scaleY + offsetY,
                         start = minX,
@@ -88,7 +88,7 @@ public fun dslPlot3(): ByteArray {
 /** Polar-path variant of [dslPlot3]. */
 @Suppress("RestrictedApiAndroidX")
 public fun dslPlot4(): ByteArray {
-    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX), experimental = true) {
+    return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true)) {
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize().background(0xFF127799.toInt())) {
                 paint {

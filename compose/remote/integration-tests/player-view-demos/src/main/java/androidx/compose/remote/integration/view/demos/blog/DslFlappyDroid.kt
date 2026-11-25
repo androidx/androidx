@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.dsl.RcPath
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.abs
+import androidx.compose.remote.creation.dsl.conditionalOperations
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
 import androidx.compose.remote.creation.dsl.floor
@@ -67,8 +68,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Suppress("RestrictedApiAndroidX")
 public fun dslFlappyDroid(): ByteArray {
     return createRcBuffer(
-        RcProfile(RcPlatformProfiles.ANDROIDX),
-        experimental = true,
+        RcProfile(RcPlatformProfiles.ANDROIDX, isExperimental = true),
         RcHeaderTag.docWidth(1000),
         RcHeaderTag.docHeight(1000),
         RcHeaderTag.contentDescription("Flappy Droid"),

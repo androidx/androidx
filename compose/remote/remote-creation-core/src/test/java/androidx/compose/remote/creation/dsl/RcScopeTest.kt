@@ -223,14 +223,107 @@ class RcScopeTest {
 
     @Test
     fun testTextStyles() {
-        val writer = RemoteComposeWriter(testProfile)
-        val scope = RcScopeImpl(writer)
+        val bytes =
+            createRcBuffer(RcProfile.CoreAndroidX) {
+                val style =
+                    remoteTextStyle(
+                        color = 0xFF00FF00.rcColor(),
+                        fontSize = 20.rsp,
+                        fontStyle = RcFontStyle.Italic,
+                        fontWeight = RcFontWeight.Bold,
+                        underline = true,
+                    )
+                assertTrue(style.id >= 0)
+                Text(
+                    "Styled Text",
+                    fontSize = 20.rsp,
+                    fontStyle = RcFontStyle.Italic,
+                    underline = true,
+                    strikethrough = true,
+                    style = style,
+                )
+            }
+        CoreDocument()
+            .initFromBuffer(
+                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                    java.io.ByteArrayInputStream(bytes)
+                )
+            )
+        assertTrue(bytes.isNotEmpty())
+    }
 
-        scope.apply {
-            val style = remoteTextStyle(fontSize = 20.rsp, color = 0xFF00FF00.toInt())
-            assertEquals(true, style.id >= 0)
-            Text("Styled Text", fontSize = 20.rsp)
-        }
+    @Test
+    fun testSoundPathFillDataMapAndPathEffects() {
+        val dash1 = RcPathEffect.dash(floatArrayOf(10f, 5f), phase = 2f)
+        val dash2 = RcPathEffect.dash(floatArrayOf(10f, 5f), phase = 2f)
+        assertEquals(dash1, dash2)
+        assertEquals(dash1.hashCode(), dash2.hashCode())
+
+        val soundBytes =
+            createRcBuffer(RcProfile.core(isExperimental = true)) {
+                val sound = remoteSound(byteArrayOf(1, 2, 3, 4))
+                playSound(sound)
+            }
+        CoreDocument()
+            .initFromBuffer(
+                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                    java.io.ByteArrayInputStream(soundBytes)
+                )
+            )
+        assertTrue(soundBytes.isNotEmpty())
+
+        val bytes =
+            createRcBuffer(RcProfile.CoreAndroidX) {
+                val dataMap = remoteDataMap {
+                    string("label", "Hello")
+                    float("value", 3.5f)
+                    int("count", 7)
+                    long("timestamp", 123456L)
+                    boolean("enabled", true)
+                }
+                val label = dataMap.lookupText("label")
+                val value = dataMap.lookupFloat("value")
+                val count = dataMap.lookupInt("count")
+                val enabled = dataMap.lookupBoolean("enabled")
+                assertTrue(label.id >= 0)
+                assertTrue(java.lang.Float.isNaN(value.toFloat()))
+                assertTrue(count.id != 0L)
+                assertEquals(enabled, dataMap.lookupBoolean("enabled"))
+
+                val star =
+                    remotePathData(fillType = RcPathFillType.EvenOdd) {
+                        moveTo(0f, 0f)
+                        lineTo(50f, 50f)
+                        lineTo(0f, 50f)
+                        close()
+                    }
+                val chained =
+                    RcPathEffect.chain(
+                        dash1,
+                        RcPathEffect.discrete(segmentLength = 4f, deviation = 1.5f),
+                    )
+                val stamped =
+                    RcPathEffect.pathDash(
+                        shape = star,
+                        advance = 12f,
+                        phase = 0f,
+                        style = RcStampedPathStyle.Rotate,
+                    )
+                val combined = RcPathEffect.sum(chained, stamped)
+
+                Canvas(Modifier.fillMaxSize()) {
+                    paint { pathEffect(combined) }
+                    drawPath(star)
+                    paint { clearPathEffect() }
+                }
+            }
+        CoreDocument()
+            .initFromBuffer(
+                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                    java.io.ByteArrayInputStream(bytes)
+                )
+            )
+        assertTrue(bytes.isNotEmpty())
     }
 
     @Test
@@ -409,7 +502,7 @@ class RcScopeTest {
     @Test
     fun testDefineMacroAndInflateWithValueAndBlockArgs() {
         val bytes =
-            createRcBuffer(RcProfile(testProfile), experimental = true) {
+            createRcBuffer(RcProfile(testProfile, isExperimental = true)) {
                 Box {
                     val cardMacro =
                         defineMacro("card", listOf("title", "tint", "slot")) { args ->
@@ -506,5 +599,291 @@ class RcScopeTest {
         assertEquals(combined, customCore.profileFlags)
         assertTrue(customCore.isExperimental)
         assertEquals(setOf(42, 99), customCore.profile.supportedOperations)
+        assertEquals(RcProfile.CoreAndroidX, RcProfile.core())
+    }
+
+    @Test
+    fun testValueSemanticsAndImmutability() {
+        assertEquals(0f rcAt 0f, RcPoint.Zero)
+        assertEquals((10f rcAt 20f).hashCode(), (10f rcAt 20f).hashCode())
+        assertEquals(RcRect.ltrb(1f, 2f, 3f, 4f), RcRect.xywh(1f, 2f, 2f, 2f))
+        assertEquals(RcShape.roundedCorner(8.rdp), RcShape.roundedCorner(8.rdp))
+        assertEquals(RcHeaderTag.docWidth(320), RcHeaderTag.docWidth(320))
+        assertEquals(
+            Modifier.padding(8.rdp).fillMaxWidth(),
+            Modifier.padding(8f).fillMaxWidth(1f),
+        )
+        assertEquals("RcPositioning.Center", RcPositioning.Center.toString())
+
+        val bytes =
+            createRcBuffer(RcProfile.CoreAndroidX) {
+                val base = remoteFloat(10f)
+                val beforeHash = base.hashCode()
+                val animated = base.anim(remoteFloat(0.25f))
+                assertEquals(beforeHash, base.hashCode())
+                assertFalse(base === animated)
+
+                val t0 = remoteLong(1000L)
+                val t1 = remoteLong(2000L)
+                val elapsed = timeAttribute(t1, RcTimeAttr.TimeFromArgSec, t0)
+
+                val icon = remoteBitmap(1, 1, byteArrayOf(0))
+                Box(
+                    modifier =
+                        Modifier.graphicsLayer {
+                            scaleX(animated)
+                            alpha(elapsed)
+                        }
+                ) {
+                    Image(icon, contentDescription = "Sample Icon")
+                }
+            }
+        CoreDocument()
+            .initFromBuffer(
+                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                    java.io.ByteArrayInputStream(bytes)
+                )
+            )
+        assertTrue(bytes.isNotEmpty())
+    }
+
+    @Test
+    fun testMathParamOrderScopedParticlesAndDynamicGradients() {
+        // Verify clamp(value, min, max) emits RPN [min, max, value, CLAMP]
+        val clamped = clamp(value = RcFloat(5f), min = RcFloat(0f), max = RcFloat(10f))
+        assertEquals(0f, clamped.toArray()[0], 0f)
+        assertEquals(10f, clamped.toArray()[1], 0f)
+        assertEquals(5f, clamped.toArray()[2], 0f)
+
+        // Verify cubic(x1, y1, x2, y2, value) emits RPN [x1, y1, x2, y2, value, CUBIC]
+        val eased = cubic(RcFloat(0.1f), RcFloat(0.2f), RcFloat(0.3f), RcFloat(0.4f), RcFloat(0.5f))
+        assertEquals(0.1f, eased.toArray()[0], 0f)
+        assertEquals(0.2f, eased.toArray()[1], 0f)
+        assertEquals(0.3f, eased.toArray()[2], 0f)
+        assertEquals(0.4f, eased.toArray()[3], 0f)
+        assertEquals(0.5f, eased.toArray()[4], 0f)
+
+        // Verify 0-arg RcShape.roundedCorner() is unambiguous & RectShape ignores unused coords
+        assertEquals(RcShape.roundedCorner(0.rdp), RcShape.roundedCorner())
+        val customRect =
+            RcShape(androidx.compose.remote.creation.modifiers.RectShape(1f, 2f, 3f, 4f))
+        assertEquals(RcShape.Rectangle, customRect)
+        assertEquals(RcShape.Rectangle.hashCode(), customRect.hashCode())
+
+        // Verify Modifier.clip(RcShape.Circle) emits a rounded clip modifier (both px and dp)
+        for (density in listOf(RcDensityBehavior.Pixels, RcDensityBehavior.Dp)) {
+            val circleClipBytes =
+                createRcBuffer(RcProfile.CoreAndroidX, RcHeaderTag.densityBehavior(density)) {
+                    Box(modifier = Modifier.size(100f, 40f).clip(RcShape.Circle)) {}
+                }
+            val circleDoc = CoreDocument()
+            circleDoc.initFromBuffer(
+                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                    java.io.ByteArrayInputStream(circleClipBytes)
+                )
+            )
+            assertTrue(circleDoc.displayHierarchy().contains("ROUNDED_CLIP_RECT"))
+        }
+
+        val bytes =
+            createRcBuffer(RcProfile.CoreAndroidX) {
+                val a = remoteFloatList(floatArrayOf(1f, 2f, 3f))
+                val b = remoteFloatList(floatArrayOf(4f, 5f, 6f))
+                val dot = arraySumXy(a, b)
+                val l10 = log10(dot + 1f)
+
+                val c = remoteColor(0xFF336699.toInt())
+                val hue = colorAttribute(c, RcColorAttr.Hue)
+                val style = remoteTextStyle(color = 0xFF112233.toInt(), fontSize = 18.rsp)
+
+                Text("Colored", c, fontSize = 16.rsp, style = style)
+                Text("Static", 0xFF445566.rcColor(), Modifier.padding(4.rdp))
+
+                val curve =
+                    remoteXyPath(
+                        remoteFunction { t -> t * 100f },
+                        remoteFunction { t -> sin(t) * 50f },
+                        0f,
+                        1f,
+                        16,
+                    )
+
+                Canvas(Modifier.fillMaxSize()) {
+                    val touch = addTouch(0.5f, 0f..1f, touchPosX())
+                    val vars = FloatArray(2)
+                    val ps = createParticles(vars, listOf(0f.rf, 0f.rf), 4)
+                    val (px, py) = rcFloats(vars)
+                    particlesComparison(
+                        id = ps,
+                        min = (-1f).rf,
+                        max = (-1f).rf,
+                        condition = {
+                            10f.rf - hypot(first(px) - second(px), first(py) - second(py))
+                        },
+                        then1 = { listOf(second(px), first(py)) },
+                        then2 = { listOf(first(px), second(py)) },
+                    ) {
+                        drawCircle(px, py, 4f.rf)
+                    }
+                    paint {
+                        linearGradient(
+                            startX = 0f.rf,
+                            startY = 0f.rf,
+                            endX = touch,
+                            endY = l10,
+                            colors = intArrayOf(0xFFFF0000.toInt(), 0xFF0000FF.toInt()),
+                        )
+                    }
+                    drawPath(curve)
+                    paint {
+                        radialGradient(
+                            startX = hue,
+                            startY = touch,
+                            startRadius = 0f.rf,
+                            endX = 50f.rf,
+                            endY = 50f.rf,
+                            endRadius = 40f.rf,
+                            colors = listOf(c, RcColor.None),
+                        )
+                    }
+                    drawCircle(50f.rf, 50f.rf, 40f.rf)
+                }
+            }
+        CoreDocument()
+            .initFromBuffer(
+                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                    java.io.ByteArrayInputStream(bytes)
+                )
+            )
+        assertTrue(bytes.isNotEmpty())
+    }
+
+    @Test
+    fun testRcColorValueOverloadsMatchColorIntWireOutput() {
+        val redInt = 0xFFFF0000.toInt()
+        val greenInt = 0xFF00FF00.toInt()
+        val blueInt = 0xFF0000FF.toInt()
+        val tintInt = 0x88112233.toInt()
+
+        val intBytes =
+            createRcBuffer(RcProfile.CoreAndroidX) {
+                remoteColor(redInt)
+                remoteNamedColor("accent", greenInt)
+                remoteThemedColor(redInt, blueInt)
+                remoteThemedColor("light", redInt, "dark", blueInt)
+                Canvas(Modifier.fillMaxSize()) {
+                    paint {
+                        colorFilter(tintInt, RcBlendMode.SrcIn)
+                        linearGradient(0f, 0f, 100f, 100f, intArrayOf(redInt, blueInt))
+                        linearGradient(0f.rf, 0f.rf, 100f.rf, 100f.rf, intArrayOf(redInt, blueInt))
+                        radialGradient(50f, 50f, 40f, intArrayOf(redInt, blueInt))
+                        radialGradient(50f.rf, 50f.rf, 40f.rf, intArrayOf(redInt, blueInt))
+                        radialGradient(40f, 40f, 5f, 50f, 50f, 40f, intArrayOf(redInt, blueInt))
+                        radialGradient(
+                            40f.rf,
+                            40f.rf,
+                            5f.rf,
+                            50f.rf,
+                            50f.rf,
+                            40f.rf,
+                            intArrayOf(redInt, blueInt),
+                        )
+                        sweepGradient(50f, 50f, intArrayOf(redInt, greenInt, blueInt))
+                        sweepGradient(50f.rf, 50f.rf, intArrayOf(redInt, greenInt, blueInt))
+                    }
+                    drawRect(0f, 0f, 100f, 100f)
+                }
+            }
+
+        val red = RcColorValue(0xFFFF0000)
+        val green = RcColorValue(0xFF00FF00)
+        val blue = RcColorValue(0xFF0000FF)
+        val tint = RcColorValue(0x88112233)
+
+        val valueBytes =
+            createRcBuffer(RcProfile.CoreAndroidX) {
+                remoteColor(red)
+                remoteNamedColor("accent", green)
+                remoteThemedColor(red, blue)
+                remoteThemedColor("light", red, "dark", blue)
+                Canvas(Modifier.fillMaxSize()) {
+                    paint {
+                        colorFilter(tint, RcBlendMode.SrcIn)
+                        linearGradient(0f, 0f, 100f, 100f, listOf(red, blue))
+                        linearGradient(0f.rf, 0f.rf, 100f.rf, 100f.rf, listOf(red, blue))
+                        radialGradient(50f, 50f, 40f, listOf(red, blue))
+                        radialGradient(50f.rf, 50f.rf, 40f.rf, listOf(red, blue))
+                        radialGradient(40f, 40f, 5f, 50f, 50f, 40f, listOf(red, blue))
+                        radialGradient(
+                            40f.rf,
+                            40f.rf,
+                            5f.rf,
+                            50f.rf,
+                            50f.rf,
+                            40f.rf,
+                            listOf(red, blue),
+                        )
+                        sweepGradient(50f, 50f, listOf(red, green, blue))
+                        sweepGradient(50f.rf, 50f.rf, listOf(red, green, blue))
+                    }
+                    drawRect(0f, 0f, 100f, 100f)
+                }
+            }
+
+        org.junit.Assert.assertArrayEquals(intBytes, valueBytes)
+    }
+
+    @Test
+    fun testLongColorOverloadsMatchColorIntWireOutput() {
+        val experimentalProfile = RcProfile.core(isExperimental = true)
+        val intBytes =
+            createRcBuffer(experimentalProfile) {
+                remoteColor(0xFFFF0000.toInt())
+                remoteNamedColor("accent", 0xFF00FF00.toInt())
+                remoteThemedColor(0xFFFF0000.toInt(), 0xFF0000FF.toInt())
+                remoteThemedColor("light", 0xFFFF0000.toInt(), "dark", 0xFF0000FF.toInt())
+                val style = remoteTextStyle(color = 0xFF112233.toInt(), fontSize = 18.rsp)
+                val label = remoteText("hi")
+                Box(
+                    modifier =
+                        Modifier.background(0xFFEEEEEE.toInt())
+                            .border(2.rdp, 4.rdp, RcColorValue(0xFF222222))
+                ) {
+                    Text("Hello", color = 0xFFFFFFFF.toInt(), style = style)
+                    Text(label, color = 0xFFCCCCCC.toInt())
+                    EditableText(label, color = 0xFFAAAAAA.toInt())
+                }
+                Canvas(Modifier.fillMaxSize()) {
+                    paint {
+                        color(0xFF0000AA.toInt())
+                        colorFilter(0x88112233.toInt(), RcBlendMode.SrcIn)
+                    }
+                    drawRect(0f, 0f, 100f, 100f)
+                }
+            }
+
+        val longBytes =
+            createRcBuffer(experimentalProfile) {
+                remoteColor(0xFFFF0000)
+                remoteNamedColor("accent", 0xFF00FF00)
+                remoteThemedColor(0xFFFF0000, 0xFF0000FF)
+                remoteThemedColor("light", 0xFFFF0000, "dark", 0xFF0000FF)
+                val style = remoteTextStyle(color = 0xFF112233, fontSize = 18.rsp)
+                val label = remoteText("hi")
+                Box(modifier = Modifier.background(0xFFEEEEEE).border(2.rdp, 4.rdp, 0xFF222222)) {
+                    Text("Hello", color = 0xFFFFFFFF, style = style)
+                    Text(label, color = 0xFFCCCCCC)
+                    EditableText(label, color = 0xFFAAAAAA)
+                }
+                Canvas(Modifier.fillMaxSize()) {
+                    paint {
+                        color(0xFF0000AA)
+                        colorFilter(0x88112233, RcBlendMode.SrcIn)
+                    }
+                    drawRect(0f, 0f, 100f, 100f)
+                }
+            }
+
+        org.junit.Assert.assertArrayEquals(intBytes, longBytes)
     }
 }
