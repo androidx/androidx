@@ -114,29 +114,7 @@ internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderI
 /** Issues capture requests and waits for them to be saved. */
 internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle(
     captureRequestsCount: Int = 1
-) {
-    // Ensure the UI thread has processed onCreate/onResume and layout passes
-    waitUntilViewReady(R.id.Picture)
-
-    val latch = withActivity {
-        cleanTakePictureErrorMessage()
-        resetImageSavedIdlingLatch(captureRequestsCount)
-    }
-
-    try {
-        repeat(captureRequestsCount) { clickView(R.id.Picture) }
-
-        latch.awaitOrThrow(
-            message = "Captured images failed to save within $DEFAULT_TIMEOUT_SECONDS seconds."
-        )
-    } finally {
-        withActivity {
-            val error = lastTakePictureErrorMessage
-            deleteSessionImages()
-            if (error != null) throw Exception("Image capture error: $error")
-        }
-    }
-}
+) = takePictureAndWaitForImageSavedIdleDirect(captureRequestsCount)
 
 /** Waits until ImageAnalysis receives the required frames. */
 internal fun ActivityScenario<CameraXActivity>.waitForImageAnalysisIdle() {
@@ -256,17 +234,41 @@ internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedId
         resetImageSavedIdlingLatch(captureRequestsCount)
     }
 
+    var primaryError: Throwable? = null
     try {
         repeat(captureRequestsCount) { clickView(R.id.Picture) }
 
         latch.awaitOrThrow(
             message = "Captured images failed to save within $DEFAULT_TIMEOUT_SECONDS seconds."
         )
+    } catch (t: Throwable) {
+        primaryError = t
+        throw t
     } finally {
-        withActivity {
-            val error = lastTakePictureErrorMessage
-            deleteSessionImages()
-            if (error != null) throw Exception("Image capture error: $error")
+        var captureErrorMessage: String? = null
+        var cleanupFailure: Throwable? = null
+        try {
+            withActivity {
+                captureErrorMessage = lastTakePictureErrorMessage
+                deleteSessionImages()
+            }
+        } catch (t: Throwable) {
+            cleanupFailure = t
+        }
+        val captureError =
+            captureErrorMessage
+                ?.takeIf { it.isNotEmpty() }
+                ?.let {
+                    AssertionError("Image capture error: $it")
+                }
+        if (primaryError != null) {
+            captureError?.let(primaryError::addSuppressed)
+            cleanupFailure?.let(primaryError::addSuppressed)
+        } else if (captureError != null) {
+            cleanupFailure?.let(captureError::addSuppressed)
+            throw captureError
+        } else if (cleanupFailure != null) {
+            throw cleanupFailure
         }
     }
 }
