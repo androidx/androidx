@@ -581,23 +581,23 @@ public object DatePickerDefaults {
                         // TODO(b/234060211): Apply this from the MenuButton tokens or defaults.
                         navigationContentColor = onSurfaceVariant,
                         yearContentColor =
-                            fromToken(DatePickerModalTokens.SelectionYearUnselectedLabelTextColor),
+                            fromToken(DatePickerModalTokens.YearUnselectedLabelTextColor),
                         // TODO: Using DisabledAlpha as there are no token values for the disabled
                         // states.
                         disabledYearContentColor =
-                            fromToken(DatePickerModalTokens.SelectionYearUnselectedLabelTextColor)
+                            fromToken(DatePickerModalTokens.YearUnselectedLabelTextColor)
                                 .copy(alpha = DisabledAlpha),
                         currentYearContentColor =
                             fromToken(DatePickerModalTokens.DateTodayLabelTextColor),
                         selectedYearContentColor =
-                            fromToken(DatePickerModalTokens.SelectionYearSelectedLabelTextColor),
+                            fromToken(DatePickerModalTokens.YearSelectedLabelTextColor),
                         disabledSelectedYearContentColor =
-                            fromToken(DatePickerModalTokens.SelectionYearSelectedLabelTextColor)
+                            fromToken(DatePickerModalTokens.YearSelectedLabelTextColor)
                                 .copy(alpha = DisabledAlpha),
                         selectedYearContainerColor =
-                            fromToken(DatePickerModalTokens.SelectionYearSelectedContainerColor),
+                            fromToken(DatePickerModalTokens.YearSelectedContainerColor),
                         disabledSelectedYearContainerColor =
-                            fromToken(DatePickerModalTokens.SelectionYearSelectedContainerColor)
+                            fromToken(DatePickerModalTokens.YearSelectedContainerColor)
                                 .copy(alpha = DisabledAlpha),
                         dayContentColor =
                             fromToken(DatePickerModalTokens.DateUnselectedLabelTextColor),
@@ -619,7 +619,9 @@ public object DatePickerDefaults {
                         todayDateBorderColor =
                             fromToken(DatePickerModalTokens.DateTodayContainerOutlineColor),
                         dayInSelectionRangeContentColor =
-                            fromToken(DatePickerModalTokens.SelectionDateInRangeLabelTextColor),
+                            fromToken(
+                                DatePickerModalTokens.SelectionDateInRangeRangeLabelTextColor
+                            ),
                         dayInSelectionRangeContainerColor =
                             fromToken(
                                 DatePickerModalTokens.RangeSelectionActiveIndicatorContainerColor
@@ -2319,7 +2321,7 @@ private fun YearPicker(
     onYearShiftTabPressed: () -> Unit,
     onYearTabPressed: () -> Unit,
 ) {
-    ProvideTextStyle(value = DatePickerModalTokens.SelectionYearLabelTextFont.value) {
+    ProvideTextStyle(value = DatePickerModalTokens.YearLabelTextFont.value) {
         val currentYear = calendarModel.getMonth(calendarModel.today).year
         val displayedYear = calendarModel.getMonth(displayedMonthMillis).year
         val lazyGridState =
@@ -2344,8 +2346,8 @@ private fun YearPicker(
                     text = localizedYear,
                     modifier =
                         Modifier.requiredSize(
-                                width = DatePickerModalTokens.SelectionYearContainerWidth,
-                                height = DatePickerModalTokens.SelectionYearContainerHeight,
+                                width = DatePickerModalTokens.YearContainerWidth,
+                                height = DatePickerModalTokens.YearContainerHeight,
                             )
                             .onKeyEvent {
                                 if (it.isShiftTab) {
@@ -2423,7 +2425,7 @@ private fun Year(
                 this.role = Role.Button
             },
         enabled = enabled,
-        shape = DatePickerModalTokens.SelectionYearStateLayerShape.value,
+        shape = DatePickerModalTokens.YearStateLayerShape.value,
         color = colors.yearContainerColor(selected = selected, enabled = enabled).value,
         border = border,
     ) {

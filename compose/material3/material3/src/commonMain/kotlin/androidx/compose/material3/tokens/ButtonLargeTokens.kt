@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,36 +21,41 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ButtonLargeTokens {
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 96.0.dp
-
+    // References
     inline val ContainerShapeRound: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
     inline val ContainerShapeSquare: ShapeToken
         get() = ShapeKeyTokens.CornerExtraLarge
 
-    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
-        get() = 12.0.dp
-
-    inline val IconSize: androidx.compose.ui.unit.Dp
-        get() = 32.0.dp
-
-    inline val LeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 48.0.dp
-
-    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 2.0.dp
+    inline val LabelText: TypographyToken
+        get() = TypographyKeyTokens.HeadlineSmall
 
     inline val PressedContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerLarge
 
     inline val SelectedContainerShapeRound: ShapeToken
-        get() = ShapeKeyTokens.CornerFull
-
-    inline val SelectedContainerShapeSquare: ShapeToken
         get() = ShapeKeyTokens.CornerExtraLarge
 
+    inline val SelectedContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    // Values
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
+
+    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space150
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space600
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
     inline val TrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 48.0.dp
+        get() = MeasurementTokens.Space600
 }

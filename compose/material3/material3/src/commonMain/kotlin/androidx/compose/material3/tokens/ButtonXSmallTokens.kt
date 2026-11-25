@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,36 +21,41 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ButtonXSmallTokens {
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 32.0.dp
-
+    // References
     inline val ContainerShapeRound: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
     inline val ContainerShapeSquare: ShapeToken
         get() = ShapeKeyTokens.CornerMedium
 
-    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
-
-    inline val IconSize: androidx.compose.ui.unit.Dp
-        get() = 20.0.dp
-
-    inline val LeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
-    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
+    inline val LabelText: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
 
     inline val PressedContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerSmall
 
     inline val SelectedContainerShapeRound: ShapeToken
-        get() = ShapeKeyTokens.CornerFull
-
-    inline val SelectedContainerShapeSquare: ShapeToken
         get() = ShapeKeyTokens.CornerMedium
 
+    inline val SelectedContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    // Values
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
     inline val TrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
+        get() = 12.0.dp
 }

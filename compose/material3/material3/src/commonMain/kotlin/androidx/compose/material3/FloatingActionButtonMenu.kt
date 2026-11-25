@@ -388,7 +388,7 @@ public fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
         Surface(
             modifier =
                 modifier.then(MenuItemAnimationElement(widthProgress, widthSpring, alphaSpring)),
-            shape = FabMenuBaselineTokens.ListItemContainerShape.value,
+            shape = FabMenuBaselineTokens.ItemContainerShape.value,
             color = containerColor,
             contentColor = contentColor,
             onClick = onClick,
@@ -806,7 +806,8 @@ private val FabLargeInitialSize
     get() = FabLargeTokens.ContainerHeight
 private val FabLargeInitialCornerRadius
     get() = 28.dp
-private val FabLargeInitialIconSize = 36.dp // TODO: FabLargeTokens.IconSize is incorrect
+private val FabLargeInitialIconSize
+    get() = FabLargeTokens.IconSize
 private val FabFinalSize
     get() = FabMenuBaselineTokens.CloseButtonContainerHeight
 private val FabFinalCornerRadius = FabFinalSize.div(2)
@@ -821,14 +822,14 @@ private val FabMenuPaddingBottom
 private val FabMenuButtonPaddingBottom
     get() = 16.dp
 private val FabMenuItemMinWidth
-    get() = FabMenuBaselineTokens.ListItemContainerHeight
+    get() = FabMenuBaselineTokens.ItemContainerHeight
 private val FabMenuItemHeight
-    get() = FabMenuBaselineTokens.ListItemContainerHeight
+    get() = FabMenuBaselineTokens.ItemContainerHeight
 private val FabMenuItemSpacingVertical
-    get() = FabMenuBaselineTokens.ListItemBetweenSpace
+    get() = FabMenuBaselineTokens.ItemBetweenSpace
 private val FabMenuItemContentPaddingStart
-    get() = FabMenuBaselineTokens.ListItemLeadingSpace
+    get() = FabMenuBaselineTokens.ItemLeadingSpace
 private val FabMenuItemContentPaddingEnd
-    get() = FabMenuBaselineTokens.ListItemTrailingSpace
+    get() = FabMenuBaselineTokens.ItemTrailingSpace
 private val FabMenuItemContentSpacingHorizontal
-    get() = FabMenuBaselineTokens.ListItemIconLabelSpace
+    get() = FabMenuBaselineTokens.ItemIconLabelSpace

@@ -13,43 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
+
 package androidx.compose.material3.tokens
+
 internal object TextButtonTokens {
+    // References
     inline val DisabledContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledContainerOpacity = 0.1f
     inline val DisabledIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    // TODO(b/588071802): This value is outdated, but updating it is a breaking visual change
+    inline val DisabledLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
-    const val DisabledIconOpacity = 0.38f
-    inline val DisabledLabelColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
-
-    const val DisabledLabelOpacity = 0.38f
     inline val FocusedIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+        get() = ColorSchemeKeyTokens.Primary
 
-    inline val FocusedLabelColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val FocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
 
     inline val HoveredIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+        get() = ColorSchemeKeyTokens.Primary
 
-    inline val HoveredLabelColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val HoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
 
     inline val IconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+        get() = ColorSchemeKeyTokens.Primary
 
-    inline val LabelColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val LabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
 
     inline val PressedIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+        get() = ColorSchemeKeyTokens.Primary
 
-    inline val PressedLabelColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val PressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    // Values
+    const val DisabledContainerOpacity: Float = 0.1f
+    const val DisabledIconOpacity: Float = 0.38f
+    const val DisabledLabelTextOpacity: Float = 0.38f
 }

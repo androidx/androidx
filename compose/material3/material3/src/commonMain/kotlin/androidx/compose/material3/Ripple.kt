@@ -26,7 +26,7 @@ import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material3.RippleThemeConfiguration.Focus
 import androidx.compose.material3.ripple.RippleNodeConfiguration
 import androidx.compose.material3.ripple.createRippleModifierNode
-import androidx.compose.material3.tokens.StateTokens
+import androidx.compose.material3.tokens.StateLayerTokens
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
@@ -333,10 +333,10 @@ public object RippleDefaults {
     )
     public val RippleAlpha: RippleAlpha =
         RippleAlpha(
-            pressedAlpha = StateTokens.PressedStateLayerOpacity,
-            focusedAlpha = StateTokens.FocusStateLayerOpacity,
-            draggedAlpha = StateTokens.DraggedStateLayerOpacity,
-            hoveredAlpha = StateTokens.HoverStateLayerOpacity,
+            pressedAlpha = StateLayerTokens.PressedOpacity,
+            focusedAlpha = StateLayerTokens.FocusOpacity,
+            draggedAlpha = StateLayerTokens.DraggedOpacity,
+            hoveredAlpha = StateLayerTokens.HoverOpacity,
         )
 
     /** A [RippleThemeConfiguration] that corresponds to an opacity based indication style. */
@@ -832,7 +832,7 @@ private class DelegatingThemeAwareRippleNode(
                 if (enablePressIndication) {
                     RippleNodeConfiguration.PressConfiguration.Opacity(
                         @Suppress("DEPRECATION") rippleConfiguration?.rippleAlpha?.pressedAlpha
-                            ?: StateTokens.PressedStateLayerOpacity
+                            ?: StateLayerTokens.PressedOpacity
                     )
                 } else {
                     RippleNodeConfiguration.PressConfiguration.None
@@ -845,7 +845,7 @@ private class DelegatingThemeAwareRippleNode(
                             @Suppress("DEPRECATION")
                             val focusedAlpha =
                                 rippleConfiguration?.rippleAlpha?.focusedAlpha
-                                    ?: StateTokens.FocusStateLayerOpacity
+                                    ?: StateLayerTokens.FocusOpacity
                             RippleNodeConfiguration.FocusConfiguration.Opacity(focusedAlpha)
                         }
                         is RippleThemeConfiguration.Focus.InsetRing -> {
@@ -878,7 +878,7 @@ private class DelegatingThemeAwareRippleNode(
                 if (enableHoverIndication) {
                     RippleNodeConfiguration.HoverConfiguration.Opacity(
                         @Suppress("DEPRECATION") rippleConfiguration?.rippleAlpha?.hoveredAlpha
-                            ?: StateTokens.HoverStateLayerOpacity
+                            ?: StateLayerTokens.HoverOpacity
                     )
                 } else {
                     RippleNodeConfiguration.HoverConfiguration.None
@@ -888,7 +888,7 @@ private class DelegatingThemeAwareRippleNode(
                 if (enableDragIndication) {
                     RippleNodeConfiguration.DragConfiguration.Opacity(
                         @Suppress("DEPRECATION") rippleConfiguration?.rippleAlpha?.draggedAlpha
-                            ?: StateTokens.DraggedStateLayerOpacity
+                            ?: StateLayerTokens.DraggedOpacity
                     )
                 } else {
                     RippleNodeConfiguration.DragConfiguration.None

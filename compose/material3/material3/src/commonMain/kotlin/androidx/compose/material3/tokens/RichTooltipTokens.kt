@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object RichTooltipTokens {
+    // References
     inline val ActionFocusLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
 
@@ -37,9 +38,6 @@ internal object RichTooltipTokens {
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainer
 
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level2
-
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerMedium
 
@@ -54,4 +52,8 @@ internal object RichTooltipTokens {
 
     inline val SupportingTextFont: TypographyToken
         get() = TypographyKeyTokens.BodyMedium
+
+    // Values
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
 }

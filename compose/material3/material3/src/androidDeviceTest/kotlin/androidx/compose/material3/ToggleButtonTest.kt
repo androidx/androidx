@@ -30,8 +30,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
+import androidx.compose.material3.tokens.FilledTonalButtonTokens
 import androidx.compose.material3.tokens.OutlinedButtonTokens
-import androidx.compose.material3.tokens.TonalButtonTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -264,18 +264,19 @@ class ToggleButtonTest {
                 )
                 .isEqualTo(
                     ToggleButtonColors(
-                        containerColor = TonalButtonTokens.UnselectedContainerColor.value,
-                        contentColor = TonalButtonTokens.UnselectedLabelTextColor.value,
+                        containerColor = FilledTonalButtonTokens.UnselectedContainerColor.value,
+                        contentColor = FilledTonalButtonTokens.UnselectedLabelTextColor.value,
                         disabledContainerColor =
-                            TonalButtonTokens.DisabledContainerColor.value.copy(
-                                alpha = TonalButtonTokens.DisabledContainerOpacity
+                            FilledTonalButtonTokens.DisabledContainerColor.value.copy(
+                                alpha = FilledTonalButtonTokens.DisabledContainerOpacity
                             ),
                         disabledContentColor =
-                            TonalButtonTokens.DisabledLabelTextColor.value.copy(
-                                alpha = TonalButtonTokens.DisabledLabelTextOpacity
+                            FilledTonalButtonTokens.DisabledLabelTextColor.value.copy(
+                                alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity
                             ),
-                        checkedContainerColor = TonalButtonTokens.SelectedContainerColor.value,
-                        checkedContentColor = TonalButtonTokens.SelectedLabelTextColor.value,
+                        checkedContainerColor =
+                            FilledTonalButtonTokens.SelectedContainerColor.value,
+                        checkedContentColor = FilledTonalButtonTokens.SelectedLabelTextColor.value,
                     )
                 )
         }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_7_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,6 +21,7 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object LinearProgressIndicatorTokens {
+    // Values
     inline val ActiveThickness: androidx.compose.ui.unit.Dp
         get() = 4.0.dp
 
@@ -36,18 +37,18 @@ internal object LinearProgressIndicatorTokens {
     inline val IndeterminateActiveWaveWavelength: androidx.compose.ui.unit.Dp
         get() = 20.0.dp
 
+    inline val LargeHeight: androidx.compose.ui.unit.Dp
+        get() = 10.0.dp
+
     inline val StopSize: androidx.compose.ui.unit.Dp
         get() = 4.0.dp
 
     inline val StopTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 0.0.dp
+        get() = MeasurementTokens.Space0
 
     inline val TrackActiveSpace: androidx.compose.ui.unit.Dp
-        get() = 4.0.dp
+        get() = MeasurementTokens.Space50
 
     inline val TrackThickness: androidx.compose.ui.unit.Dp
         get() = 4.0.dp
-
-    inline val WaveHeight: androidx.compose.ui.unit.Dp
-        get() = 10.0.dp
 }

@@ -447,7 +447,7 @@ private fun LegacyOneRowSnackbar(
         val containerHeight: Int
         val actionButtonPlaceY: Int
         if (isOneLine) {
-            val minContainerHeight = SnackbarTokens.SingleLineContainerHeight.roundToPx()
+            val minContainerHeight = SnackbarTokens.ContainerHeight.roundToPx()
             val contentHeight = max(actionButtonHeight, dismissButtonHeight)
             containerHeight = max(minContainerHeight, contentHeight)
             textPlaceY = (containerHeight - textPlaceable.height) / 2
@@ -466,7 +466,7 @@ private fun LegacyOneRowSnackbar(
         } else {
             val baselineOffset = HeightToFirstLine.roundToPx()
             textPlaceY = baselineOffset - firstTextBaseline
-            val minContainerHeight = SnackbarTokens.TwoLinesContainerHeight.roundToPx()
+            val minContainerHeight = SnackbarTokens.LargeContainerHeight.roundToPx()
             val contentHeight = textPlaceY + textPlaceable.height
             containerHeight = max(minContainerHeight, contentHeight)
             actionButtonPlaceY =
@@ -530,7 +530,7 @@ private fun OneRowSnackbar(
                 end = if (dismissAction == null) TextEndExtraSpacing else 0.dp,
             ),
     ) { measurables, constraints ->
-        val minContainerHeight = SnackbarTokens.SingleLineContainerHeight.roundToPx()
+        val minContainerHeight = SnackbarTokens.ContainerHeight.roundToPx()
         val containerWidth = min(constraints.maxWidth, ContainerMaxWidth.roundToPx())
         val actionButtonPlaceable =
             measurables.fastFirstOrNull { it.layoutId == actionTag }?.measure(constraints)

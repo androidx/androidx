@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
-internal object StateTokens {
-    const val DraggedStateLayerOpacity = 0.16f
-    const val FocusStateLayerOpacity = 0.1f
-    const val HoverStateLayerOpacity = 0.08f
-    const val PressedStateLayerOpacity = 0.1f
+import androidx.compose.ui.unit.dp
+
+internal object StandardButtonGroupSmallTokens {
+    // Values
+    inline val BetweenSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space150
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    const val PressedItemWidthMultiplierPercent = 15.0f
 }

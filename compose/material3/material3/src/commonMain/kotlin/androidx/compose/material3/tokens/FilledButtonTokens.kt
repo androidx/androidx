@@ -13,44 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object FilledButtonTokens {
+    // References
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
-
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level0
 
     inline val DisabledContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    inline val DisabledContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level0
-
-    const val DisabledContainerOpacity = 0.1f
     inline val DisabledIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+        get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledIconOpacity = 0.38f
+    // TODO(b/588071802): This value is outdated, but updating it is a breaking visual change
     inline val DisabledLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
-
-    const val DisabledLabelTextOpacity = 0.38f
-    inline val FocusedContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level0
 
     inline val FocusedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimary
 
     inline val FocusedLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimary
-
-    inline val HoveredContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level1
 
     inline val HoveredIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimary
@@ -63,15 +50,6 @@ internal object FilledButtonTokens {
 
     inline val LabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimary
-
-    inline val LabelTextSelectedColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnPrimary
-
-    inline val LabelTextUnselectedColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
-
-    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level0
 
     inline val PressedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimary
@@ -95,6 +73,9 @@ internal object FilledButtonTokens {
         get() = ColorSchemeKeyTokens.OnPrimary
 
     inline val SelectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnPrimary
 
     inline val SelectedPressedIconColor: ColorToken
@@ -121,9 +102,31 @@ internal object FilledButtonTokens {
     inline val UnselectedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
+    inline val UnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
     inline val UnselectedPressedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
     inline val UnselectedPressedLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    // Values
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val DisabledContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    const val DisabledContainerOpacity: Float = 0.1f
+    const val DisabledIconOpacity: Float = 0.38f
+    const val DisabledLabelTextOpacity: Float = 0.38f
+    inline val FocusedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val HoveredContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
 }

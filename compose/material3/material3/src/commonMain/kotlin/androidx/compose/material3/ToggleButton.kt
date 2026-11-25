@@ -54,7 +54,6 @@ import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.FilledTonalButtonTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedButtonTokens
-import androidx.compose.material3.tokens.TonalButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -1196,8 +1195,8 @@ public object FilledTonalToggleButtonDefaults {
     public fun elevation(
         defaultElevation: Dp = FilledTonalButtonTokens.ContainerElevation,
         pressedElevation: Dp = FilledTonalButtonTokens.PressedContainerElevation,
-        focusedElevation: Dp = FilledTonalButtonTokens.FocusContainerElevation,
-        hoveredElevation: Dp = FilledTonalButtonTokens.HoverContainerElevation,
+        focusedElevation: Dp = FilledTonalButtonTokens.FocusedContainerElevation,
+        hoveredElevation: Dp = FilledTonalButtonTokens.HoveredContainerElevation,
         disabledElevation: Dp = 0.dp,
     ): ToggleButtonElevation =
         ToggleButtonElevation(
@@ -1212,16 +1211,19 @@ public object FilledTonalToggleButtonDefaults {
         get() {
             return defaultFilledTonalToggleButtonColorsCached
                 ?: ToggleButtonColors(
-                        containerColor = fromToken(TonalButtonTokens.UnselectedContainerColor),
-                        contentColor = fromToken(TonalButtonTokens.UnselectedLabelTextColor),
+                        containerColor =
+                            fromToken(FilledTonalButtonTokens.UnselectedContainerColor),
+                        contentColor = fromToken(FilledTonalButtonTokens.UnselectedLabelTextColor),
                         disabledContainerColor =
-                            fromToken(TonalButtonTokens.DisabledContainerColor)
-                                .copy(alpha = TonalButtonTokens.DisabledContainerOpacity),
+                            fromToken(FilledTonalButtonTokens.DisabledContainerColor)
+                                .copy(alpha = FilledTonalButtonTokens.DisabledContainerOpacity),
                         disabledContentColor =
-                            fromToken(TonalButtonTokens.DisabledLabelTextColor)
-                                .copy(alpha = TonalButtonTokens.DisabledLabelTextOpacity),
-                        checkedContainerColor = fromToken(TonalButtonTokens.SelectedContainerColor),
-                        checkedContentColor = fromToken(TonalButtonTokens.SelectedLabelTextColor),
+                            fromToken(FilledTonalButtonTokens.DisabledLabelTextColor)
+                                .copy(alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity),
+                        checkedContainerColor =
+                            fromToken(FilledTonalButtonTokens.SelectedContainerColor),
+                        checkedContentColor =
+                            fromToken(FilledTonalButtonTokens.SelectedLabelTextColor),
                     )
                     .also { defaultFilledTonalToggleButtonColorsCached = it }
         }

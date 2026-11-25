@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: 14_1_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -22,14 +21,16 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ConnectedButtonGroupSmallTokens {
+    // References
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    // Values
     inline val BetweenSpace: androidx.compose.ui.unit.Dp
-        get() = 2.0.dp
+        get() = MeasurementTokens.Space25
 
     inline val ContainerHeight: androidx.compose.ui.unit.Dp
         get() = 40.0.dp
-
-    inline val ContainerShape: ShapeToken
-        get() = ShapeKeyTokens.CornerFull
 
     val InnerCornerCornerSize = ShapeTokens.CornerValueSmall
     val PressedInnerCornerCornerSize = ShapeTokens.CornerValueExtraSmall

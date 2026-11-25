@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
+
 package androidx.compose.material3.tokens
 
 import androidx.compose.ui.unit.dp
 
 internal object TimePickerTokens {
+    // References
     inline val ClockDialColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerHighest
-
-    inline val ClockDialContainerSize: androidx.compose.ui.unit.Dp
-        get() = 256.0.dp
 
     inline val ClockDialLabelTextFont: TypographyToken
         get() = TypographyKeyTokens.BodyLarge
@@ -39,23 +37,14 @@ internal object TimePickerTokens {
     inline val ClockDialSelectorCenterContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
-    inline val ClockDialSelectorCenterContainerSize: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
-
     inline val ClockDialSelectorHandleContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
 
     inline val ClockDialSelectorHandleContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
-    inline val ClockDialSelectorHandleContainerSize: androidx.compose.ui.unit.Dp
-        get() = 48.0.dp
-
     inline val ClockDialSelectorTrackContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
-
-    inline val ClockDialSelectorTrackContainerWidth: androidx.compose.ui.unit.Dp
-        get() = 2.0.dp
 
     inline val ClockDialShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
@@ -65,9 +54,6 @@ internal object TimePickerTokens {
 
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerHigh
-
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level3
 
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerExtraLarge
@@ -81,20 +67,11 @@ internal object TimePickerTokens {
     inline val PeriodSelectorContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerSmall
 
-    inline val PeriodSelectorHorizontalContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 38.0.dp
-
-    inline val PeriodSelectorHorizontalContainerWidth: androidx.compose.ui.unit.Dp
-        get() = 216.0.dp
-
     inline val PeriodSelectorLabelTextFont: TypographyToken
         get() = TypographyKeyTokens.TitleMedium
 
     inline val PeriodSelectorOutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.Outline
-
-    inline val PeriodSelectorOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
 
     inline val PeriodSelectorSelectedContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.TertiaryContainer
@@ -123,23 +100,8 @@ internal object TimePickerTokens {
     inline val PeriodSelectorUnselectedPressedLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
-    inline val PeriodSelectorVerticalContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 80.0.dp
-
-    inline val PeriodSelectorVerticalContainerWidth: androidx.compose.ui.unit.Dp
-        get() = 52.0.dp
-
-    inline val TimeSelector24HVerticalContainerWidth: androidx.compose.ui.unit.Dp
-        get() = 114.0.dp
-
-    inline val TimeSelectorContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 80.0.dp
-
     inline val TimeSelectorContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerSmall
-
-    inline val TimeSelectorContainerWidth: androidx.compose.ui.unit.Dp
-        get() = 96.0.dp
 
     inline val TimeSelectorLabelTextFont: TypographyToken
         get() = TypographyKeyTokens.DisplayLarge
@@ -179,4 +141,44 @@ internal object TimePickerTokens {
 
     inline val TimeSelectorUnselectedPressedLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
+
+    // Values
+    inline val ClockDialContainerSize: androidx.compose.ui.unit.Dp
+        get() = 256.0.dp
+
+    inline val ClockDialSelectorCenterContainerSize: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val ClockDialSelectorHandleContainerSize: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val ClockDialSelectorTrackContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val PeriodSelectorHorizontalContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 38.0.dp
+
+    inline val PeriodSelectorHorizontalContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 216.0.dp
+
+    inline val PeriodSelectorOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val PeriodSelectorVerticalContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 80.0.dp
+
+    inline val PeriodSelectorVerticalContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 52.0.dp
+
+    inline val TimeSelector24HVerticalContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 114.0.dp
+
+    inline val TimeSelectorContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 80.0.dp
+
+    inline val TimeSelectorContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
 }

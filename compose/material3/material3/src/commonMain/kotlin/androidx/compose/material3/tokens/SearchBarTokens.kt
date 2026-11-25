@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,20 +21,15 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SearchBarTokens {
+    // References
     inline val AvatarShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
-    inline val AvatarSize: androidx.compose.ui.unit.Dp
-        get() = 30.0.dp
+    inline val ContainedMotionSpring: MotionSchemeToken
+        get() = MotionSchemeKeyTokens.FastSpatial
 
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerHigh
-
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level3
-
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 56.0.dp
 
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
@@ -65,4 +60,62 @@ internal object SearchBarTokens {
 
     inline val TrailingIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    // Values
+    inline val AvatarSize: androidx.compose.ui.unit.Dp
+        get() = 30.0.dp
+
+    inline val ContainedActionsTrailingTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
+    inline val ContainedAvatarTargetSize: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val ContainedIconLabelGap: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
+    inline val ContainedLeadingMargin: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space300
+
+    inline val ContainedLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
+    inline val ContainedNoActionsLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val ContainedNoActionsTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val ContainedTrailingActionsGap: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space0
+
+    inline val ContainedTrailingActionsLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
+    inline val ContainedTrailingMargin: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space300
+
+    inline val ContainedTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val LabelTrailingTrailingIconIconSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val LeadingLeadingIconIconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val TrailingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
 }

@@ -75,8 +75,11 @@ import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.FabBaselineTokens
 import androidx.compose.material3.tokens.FabMediumTokens
+import androidx.compose.material3.tokens.FloatingToolbarFabTokens
 import androidx.compose.material3.tokens.FloatingToolbarTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
+import androidx.compose.material3.tokens.StandardToolbarTokens
+import androidx.compose.material3.tokens.VibrantToolbarTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -632,7 +635,7 @@ private class ExitAlwaysFloatingToolbarScrollBehavior(
 public object FloatingToolbarDefaults {
 
     /** Default size used for [HorizontalFloatingToolbar] and [VerticalFloatingToolbar] container */
-    public val ContainerSize: Dp = FloatingToolbarTokens.ContainerHeight
+    public val ContainerSize: Dp = FloatingToolbarTokens.HorizontalContainerHeight
 
     /**
      * Default expanded elevation used for [HorizontalFloatingToolbar] and [VerticalFloatingToolbar]
@@ -686,7 +689,7 @@ public object FloatingToolbarDefaults {
      * Default offset from the edge of the screen used for [HorizontalFloatingToolbar] and
      * [VerticalFloatingToolbar].
      */
-    public val ScreenOffset: Dp = FloatingToolbarTokens.ContainerExternalPadding
+    public val ScreenOffset: Dp = FloatingToolbarTokens.HorizontalContainerExternalSpace
 
     /**
      * Returns a default animation spec used for [HorizontalFloatingToolbar]s and
@@ -1111,12 +1114,9 @@ public object FloatingToolbarDefaults {
                 ?: FloatingToolbarColors(
                         // TODO load colors from the toolbar tokens. If possible, remove the usage
                         //  of contentColorFor.
-                        toolbarContainerColor =
-                            fromToken(FloatingToolbarTokens.StandardContainerColor),
+                        toolbarContainerColor = fromToken(StandardToolbarTokens.ContainerColor),
                         toolbarContentColor =
-                            contentColorFor(
-                                fromToken(FloatingToolbarTokens.StandardContainerColor)
-                            ),
+                            contentColorFor(fromToken(StandardToolbarTokens.ContainerColor)),
                         fabContainerColor = fromToken(ColorSchemeKeyTokens.PrimaryContainer),
                         fabContentColor =
                             contentColorFor(fromToken(ColorSchemeKeyTokens.PrimaryContainer)),
@@ -1130,10 +1130,9 @@ public object FloatingToolbarDefaults {
                 ?: FloatingToolbarColors(
                         // TODO load colors from the toolbar tokens. If possible, remove the usage
                         //  of contentColorFor.
-                        toolbarContainerColor =
-                            fromToken(FloatingToolbarTokens.VibrantContainerColor),
+                        toolbarContainerColor = fromToken(VibrantToolbarTokens.ContainerColor),
                         toolbarContentColor =
-                            contentColorFor(fromToken(FloatingToolbarTokens.VibrantContainerColor)),
+                            contentColorFor(fromToken(VibrantToolbarTokens.ContainerColor)),
                         fabContainerColor = fromToken(ColorSchemeKeyTokens.TertiaryContainer),
                         fabContentColor =
                             contentColorFor(fromToken(ColorSchemeKeyTokens.TertiaryContainer)),
@@ -1156,8 +1155,7 @@ public object FloatingToolbarDefaults {
      * Default gap between the [HorizontalFloatingToolbar] or [VerticalFloatingToolbar] toolbar
      * content and its adjacent FAB.
      */
-    // TODO Load this from the component tokens?
-    internal val ToolbarToFabGap = 8.dp
+    internal val ToolbarToFabGap = FloatingToolbarFabTokens.BetweenSpace
 }
 
 /**

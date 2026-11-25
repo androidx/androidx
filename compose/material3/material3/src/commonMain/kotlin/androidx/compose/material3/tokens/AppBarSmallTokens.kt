@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: 14_0_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -22,12 +21,23 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object AppBarSmallTokens {
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 64.0.dp
+    // References
+    inline val SearchContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val SearchLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
 
     inline val SubtitleFont: TypographyToken
         get() = TypographyKeyTokens.LabelMedium
 
     inline val TitleFont: TypographyToken
         get() = TypographyKeyTokens.TitleLarge
+
+    // Values
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
+
+    inline val SearchContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
 }

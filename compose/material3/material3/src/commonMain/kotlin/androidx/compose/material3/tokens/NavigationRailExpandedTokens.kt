@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,11 +21,22 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationRailExpandedTokens {
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level0
+    // References
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
 
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerNone
+
+    inline val ModalContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val ModalContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    // Values
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
 
     inline val ContainerWidthMaximum: androidx.compose.ui.unit.Dp
         get() = 360.0.dp
@@ -36,13 +47,6 @@ internal object NavigationRailExpandedTokens {
     inline val ModalContainerElevation: androidx.compose.ui.unit.Dp
         get() = ElevationTokens.Level2
 
-    inline val ModalContainerShape: ShapeToken
-        get() = ShapeKeyTokens.CornerLarge
-
     inline val TopSpace: androidx.compose.ui.unit.Dp
         get() = 44.0.dp
-
-    // TODO: Update this file to include the following missing tokens:
-    inline val ModalContainerColor: ColorToken
-        get() = ColorSchemeKeyTokens.SurfaceContainer
 }

@@ -13,50 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: 12_0_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
+
 package androidx.compose.material3.tokens
 
 import androidx.compose.ui.unit.dp
 
 internal object FloatingToolbarTokens {
-    inline val ContainerBetweenSpace: androidx.compose.ui.unit.Dp
-        get() = 4.0.dp
-
-    inline val ContainerExternalPadding: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 64.0.dp
-
-    inline val ContainerLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
-
+    // References
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
+    // Values
+    inline val ContainerBetweenSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space100
+
     inline val ContainerTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
+        get() = MeasurementTokens.Space100
 
-    inline val StandardContainerColor: ColorToken
-        get() = ColorSchemeKeyTokens.SurfaceContainer
+    inline val HorizontalContainerExternalSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
 
-    inline val VibrantButtonSelectedContainerColor: ColorToken
-        get() = ColorSchemeKeyTokens.SurfaceContainer
+    inline val HorizontalContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
 
-    inline val VibrantButtonSelectedIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurface
+    inline val VerticalContainerExternalSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space300
 
-    inline val VibrantButtonSelectedTextColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurface
-
-    inline val VibrantButtonUnselectedIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnPrimaryContainer
-
-    inline val VibrantButtonUnselectedTextColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnPrimaryContainer
-
-    inline val VibrantContainerColor: ColorToken
-        get() = ColorSchemeKeyTokens.PrimaryContainer
+    inline val VerticalContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
 }

@@ -32,7 +32,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.tokens.ExtendedFabPrimaryTokens
+import androidx.compose.material3.tokens.ExtendedFabSmallTokens
 import androidx.compose.material3.tokens.FabBaselineTokens
 import androidx.compose.material3.tokens.FabLargeTokens
 import androidx.compose.material3.tokens.FabSmallTokens
@@ -209,7 +209,7 @@ class FloatingActionButtonTest {
 
         rule
             .onNodeWithTag("FAB")
-            .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
+            .assertHeightIsEqualTo(ExtendedFabSmallTokens.ContainerHeight)
             .assertWidthIsAtLeast(FabBaselineTokens.ContainerHeight)
     }
 
@@ -225,7 +225,7 @@ class FloatingActionButtonTest {
 
         rule
             .onNodeWithTag("FAB")
-            .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
+            .assertHeightIsEqualTo(ExtendedFabSmallTokens.ContainerHeight)
             .assertWidthIsEqualTo(80.dp)
     }
 
@@ -252,7 +252,7 @@ class FloatingActionButtonTest {
                     },
                 )
             }
-            expectedTextStyle = ExtendedFabPrimaryTokens.LabelTextFont.value
+            expectedTextStyle = ExtendedFabSmallTokens.LabelText.value
         }
         rule.runOnIdle {
             assertThat(fontFamily).isEqualTo(expectedTextStyle!!.fontFamily)
@@ -285,7 +285,7 @@ class FloatingActionButtonTest {
                     },
                 )
             }
-            expectedTextStyle = ExtendedFabPrimaryTokens.LabelTextFont.value
+            expectedTextStyle = ExtendedFabSmallTokens.LabelText.value
         }
         rule.runOnIdle {
             assertThat(fontFamily).isEqualTo(expectedTextStyle!!.fontFamily)
@@ -442,12 +442,12 @@ class FloatingActionButtonTest {
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)
-            .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
-            .assertWidthIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
+            .assertHeightIsEqualTo(ExtendedFabSmallTokens.IconSize)
+            .assertWidthIsEqualTo(ExtendedFabSmallTokens.IconSize)
 
         rule
             .onNodeWithTag("FAB")
-            .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
+            .assertHeightIsEqualTo(ExtendedFabSmallTokens.ContainerHeight)
             .assertWidthIsAtLeast(80.dp)
 
         rule.onNodeWithTag("text", useUnmergedTree = true).assertIsDisplayed()
@@ -470,8 +470,8 @@ class FloatingActionButtonTest {
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)
-            .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
-            .assertWidthIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
+            .assertHeightIsEqualTo(ExtendedFabSmallTokens.IconSize)
+            .assertWidthIsEqualTo(ExtendedFabSmallTokens.IconSize)
 
         rule.onNodeWithTag("text", useUnmergedTree = true).assertDoesNotExist()
         rule.onNodeWithTag("icon", useUnmergedTree = true).assertIsDisplayed()
@@ -494,7 +494,7 @@ class FloatingActionButtonTest {
 
         rule
             .onNodeWithTag("FAB")
-            .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
+            .assertHeightIsEqualTo(ExtendedFabSmallTokens.ContainerHeight)
             .assertWidthIsAtLeast(80.dp)
 
         rule.runOnIdle { expanded = false }

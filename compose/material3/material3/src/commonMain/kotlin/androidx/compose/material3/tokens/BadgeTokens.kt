@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,6 +21,7 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object BadgeTokens {
+    // References
     inline val Color: ColorToken
         get() = ColorSchemeKeyTokens.Error
 
@@ -36,11 +37,12 @@ internal object BadgeTokens {
     inline val LargeShape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
-    inline val LargeSize: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
     inline val Shape: ShapeToken
         get() = ShapeKeyTokens.CornerFull
+
+    // Values
+    inline val LargeSize: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
 
     inline val Size: androidx.compose.ui.unit.Dp
         get() = 6.0.dp

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: 14_1_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -28,45 +28,15 @@ internal object ShapeTokens {
     val CornerExtraExtraLarge = RoundedCornerShape(48.0.dp)
     val CornerExtraLarge = RoundedCornerShape(28.0.dp)
     val CornerExtraLargeIncreased = RoundedCornerShape(32.0.dp)
-    val CornerExtraLargeTop =
-        RoundedCornerShape(
-            topStart = 28.0.dp,
-            topEnd = 28.0.dp,
-            bottomEnd = 0.0.dp,
-            bottomStart = 0.0.dp,
-        )
+    val CornerExtraLargeTop = RoundedCornerShape(28.0.dp, 28.0.dp, 0.0.dp, 0.0.dp)
     val CornerExtraSmall = RoundedCornerShape(4.0.dp)
-    val CornerExtraSmallTop =
-        RoundedCornerShape(
-            topStart = 4.0.dp,
-            topEnd = 4.0.dp,
-            bottomEnd = 0.0.dp,
-            bottomStart = 0.0.dp,
-        )
+    val CornerExtraSmallTop = RoundedCornerShape(4.0.dp, 4.0.dp, 0.0.dp, 0.0.dp)
     val CornerFull = CircleShape
     val CornerLarge = RoundedCornerShape(16.0.dp)
-    val CornerLargeEnd =
-        RoundedCornerShape(
-            topStart = 0.0.dp,
-            topEnd = 16.0.dp,
-            bottomEnd = 16.0.dp,
-            bottomStart = 0.0.dp,
-        )
+    val CornerLargeEnd = RoundedCornerShape(0.0.dp, 16.0.dp, 16.0.dp, 0.0.dp)
     val CornerLargeIncreased = RoundedCornerShape(20.0.dp)
-    val CornerLargeStart =
-        RoundedCornerShape(
-            topStart = 16.0.dp,
-            topEnd = 0.0.dp,
-            bottomEnd = 0.0.dp,
-            bottomStart = 16.0.dp,
-        )
-    val CornerLargeTop =
-        RoundedCornerShape(
-            topStart = 16.0.dp,
-            topEnd = 16.0.dp,
-            bottomEnd = 0.0.dp,
-            bottomStart = 0.0.dp,
-        )
+    val CornerLargeStart = RoundedCornerShape(16.0.dp, 0.0.dp, 0.0.dp, 16.0.dp)
+    val CornerLargeTop = RoundedCornerShape(16.0.dp, 16.0.dp, 0.0.dp, 0.0.dp)
     val CornerMedium = RoundedCornerShape(12.0.dp)
     val CornerNone = RectangleShape
     val CornerSmall = RoundedCornerShape(8.0.dp)

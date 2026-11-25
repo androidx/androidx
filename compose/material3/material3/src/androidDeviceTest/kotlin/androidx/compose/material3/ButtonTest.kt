@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.FilledTonalButtonTokens
@@ -638,10 +639,15 @@ class ButtonTest {
                         contentColor = FilledTonalButtonTokens.LabelTextColor.value,
                         disabledContainerColor =
                             FilledTonalButtonTokens.DisabledContainerColor.value.copy(
-                                alpha = FilledTonalButtonTokens.DisabledContainerOpacity
+                                // TODO(b/588071802): This value is outdated, but updating it is a
+                                //  breaking visual change
+                                alpha = 0.12f
                             ),
                         disabledContentColor =
-                            FilledTonalButtonTokens.DisabledLabelTextColor.value.copy(
+                            // TODO(b/588071802): Use
+                            //  FilledTonalButtonTokens.DisabledLabelTextColor once its value is
+                            //  updated to OnSurface
+                            ColorSchemeKeyTokens.OnSurface.value.copy(
                                 alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity
                             ),
                     )
@@ -716,13 +722,11 @@ class ButtonTest {
                 .isEqualTo(
                     ButtonColors(
                         containerColor = Color.Transparent,
-                        // TODO change this back to the TextButtonTokens.LabelColor once the tokens
-                        // are updated
-                        contentColor = MaterialTheme.colorScheme.primary,
+                        contentColor = TextButtonTokens.LabelTextColor.value,
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
-                            TextButtonTokens.DisabledLabelColor.value.copy(
-                                alpha = TextButtonTokens.DisabledLabelOpacity
+                            TextButtonTokens.DisabledLabelTextColor.value.copy(
+                                alpha = TextButtonTokens.DisabledLabelTextOpacity
                             ),
                     )
                 )

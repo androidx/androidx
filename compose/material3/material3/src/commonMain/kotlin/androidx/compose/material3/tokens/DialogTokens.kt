@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_210
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,6 +21,7 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DialogTokens {
+    // References
     inline val ActionFocusLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.Primary
 
@@ -39,9 +40,6 @@ internal object DialogTokens {
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.SurfaceContainerHigh
 
-    inline val ContainerElevation: androidx.compose.ui.unit.Dp
-        get() = ElevationTokens.Level3
-
     inline val ContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerExtraLarge
 
@@ -51,14 +49,18 @@ internal object DialogTokens {
     inline val HeadlineFont: TypographyToken
         get() = TypographyKeyTokens.HeadlineSmall
 
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
     inline val SupportingTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
     inline val SupportingTextFont: TypographyToken
         get() = TypographyKeyTokens.BodyMedium
 
-    inline val IconColor: ColorToken
-        get() = ColorSchemeKeyTokens.Secondary
+    // Values
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
 
     inline val IconSize: androidx.compose.ui.unit.Dp
         get() = 24.0.dp

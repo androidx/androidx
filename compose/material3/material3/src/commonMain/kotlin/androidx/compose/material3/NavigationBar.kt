@@ -200,7 +200,7 @@ public fun RowScope.NavigationBarItem(
 
     val styledLabel: @Composable (() -> Unit)? = label?.let {
         @Composable {
-            val style = NavigationBarTokens.LabelTextFont.value
+            val style = NavigationBarVerticalItemTokens.LabelTextFont.value
             val textColor by
                 animateColorAsState(
                     targetValue = colors.textColor(selected = selected, enabled = enabled),
@@ -740,13 +740,11 @@ internal val NavigationBarIndicatorToLabelPadding: Dp
     get() = 4.dp
 
 private val IndicatorHorizontalPadding: Dp =
-    (NavigationBarVerticalItemTokens.ActiveIndicatorWidth -
-        NavigationBarVerticalItemTokens.IconSize) / 2
+    (NavigationBarVerticalItemTokens.ActiveIndicatorWidth - NavigationBarTokens.ItemIconSize) / 2
 
 /*@VisibleForTesting*/
 internal val IndicatorVerticalPadding: Dp =
-    (NavigationBarVerticalItemTokens.ActiveIndicatorHeight -
-        NavigationBarVerticalItemTokens.IconSize) / 2
+    (NavigationBarVerticalItemTokens.ActiveIndicatorHeight - NavigationBarTokens.ItemIconSize) / 2
 
 private val IndicatorVerticalOffset: Dp
     get() = 12.dp

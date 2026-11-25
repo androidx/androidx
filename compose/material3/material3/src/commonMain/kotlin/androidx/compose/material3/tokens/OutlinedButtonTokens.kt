@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object OutlinedButtonTokens {
-    const val DisabledContainerOpacity = 0.1f
+    // References
     inline val DisabledIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+        get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledIconOpacity = 0.38f
+    // TODO(b/588071802): This value is outdated, but updating it is a breaking visual change
     inline val DisabledLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurfaceVariant
 
-    const val DisabledLabelTextOpacity = 0.38f
     inline val DisabledOutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.OutlineVariant
 
@@ -132,4 +131,9 @@ internal object OutlinedButtonTokens {
 
     inline val UnselectedPressedOutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.OutlineVariant
+
+    // Values
+    const val DisabledContainerOpacity: Float = 0.1f
+    const val DisabledIconOpacity: Float = 0.38f
+    const val DisabledLabelTextOpacity: Float = 0.38f
 }

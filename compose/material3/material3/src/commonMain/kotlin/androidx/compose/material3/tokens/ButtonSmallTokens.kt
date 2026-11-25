@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,36 +21,42 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ButtonSmallTokens {
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 40.0.dp
-
+    // References
     inline val ContainerShapeRound: ShapeToken
         get() = ShapeKeyTokens.CornerFull
 
     inline val ContainerShapeSquare: ShapeToken
         get() = ShapeKeyTokens.CornerMedium
 
-    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
-        get() = 8.0.dp
-
-    inline val IconSize: androidx.compose.ui.unit.Dp
-        get() = 20.0.dp
-
-    inline val LeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
-    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
+    inline val LabelText: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
 
     inline val PressedContainerShape: ShapeToken
         get() = ShapeKeyTokens.CornerSmall
 
     inline val SelectedContainerShapeRound: ShapeToken
-        get() = ShapeKeyTokens.CornerFull
+        get() = ShapeKeyTokens.CornerMedium
 
+    // TODO(b/588071802): This value is outdated, but updating it is a breaking visual change
     inline val SelectedContainerShapeSquare: ShapeToken
         get() = ShapeKeyTokens.CornerMedium
 
+    // Values
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space100
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space200
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
     inline val TrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
+        get() = MeasurementTokens.Space200
 }

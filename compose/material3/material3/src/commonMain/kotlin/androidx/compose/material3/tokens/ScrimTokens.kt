@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_117
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object ScrimTokens {
+    // References
     inline val ContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.Scrim
 
-    const val ContainerOpacity = 0.32f
+    // Values
+    const val ContainerOpacity: Float = 0.32f
 }

@@ -45,9 +45,9 @@ import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.outlineCutout
+import androidx.compose.material3.tokens.IconButtonSmallTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.MotionTokens.EasingEmphasizedAccelerateCubicBezier
-import androidx.compose.material3.tokens.SmallIconButtonTokens
 import androidx.compose.material3.tokens.TypeScaleTokens
 import androidx.compose.material3.value
 import androidx.compose.runtime.Composable
@@ -2285,7 +2285,7 @@ internal const val ContainerId = "Container"
 internal fun textFieldHorizontalIconPadding(): Dp {
     val interactiveSizeOrNaN = LocalMinimumInteractiveComponentSize.current
     val interactiveSize = if (interactiveSizeOrNaN.isUnspecified) 0.dp else interactiveSizeOrNaN
-    return ((interactiveSize - SmallIconButtonTokens.IconSize) / 2).coerceAtLeast(0.dp)
+    return ((interactiveSize - IconButtonSmallTokens.IconSize) / 2).coerceAtLeast(0.dp)
 }
 
 @Composable

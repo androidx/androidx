@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,15 +21,20 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationBarHorizontalItemTokens {
+    // References
+    inline val LabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelMedium
+
+    // Values
     inline val ActiveIndicatorHeight: androidx.compose.ui.unit.Dp
         get() = 40.0.dp
 
+    inline val ActiveIndicatorIconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = MeasurementTokens.Space50
+
     inline val ActiveIndicatorLeadingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
+        get() = MeasurementTokens.Space200
 
     inline val ActiveIndicatorTrailingSpace: androidx.compose.ui.unit.Dp
-        get() = 16.0.dp
-
-    inline val IconSize: androidx.compose.ui.unit.Dp
-        get() = 24.0.dp
+        get() = MeasurementTokens.Space200
 }

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: v0_162
+// VERSION: 41.1.19
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -22,29 +21,24 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object OutlinedSegmentedButtonTokens {
-    inline val ContainerHeight: androidx.compose.ui.unit.Dp
-        get() = 40.0.dp
-
+    // References
     inline val DisabledIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledIconOpacity = 0.38f
     inline val DisabledLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledLabelTextOpacity = 0.38f
     inline val DisabledOutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    const val DisabledOutlineOpacity = 0.12f
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
     inline val LabelTextFont: TypographyToken
         get() = TypographyKeyTokens.LabelLarge
 
     inline val OutlineColor: ColorToken
         get() = ColorSchemeKeyTokens.Outline
-
-    inline val OutlineWidth: androidx.compose.ui.unit.Dp
-        get() = 1.0.dp
 
     inline val SelectedContainerColor: ColorToken
         get() = ColorSchemeKeyTokens.SecondaryContainer
@@ -61,6 +55,9 @@ internal object OutlinedSegmentedButtonTokens {
     inline val SelectedHoverLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSecondaryContainer
 
+    inline val SelectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
     inline val SelectedLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSecondaryContainer
 
@@ -68,9 +65,6 @@ internal object OutlinedSegmentedButtonTokens {
         get() = ColorSchemeKeyTokens.OnSecondaryContainer
 
     inline val SelectedPressedLabelTextColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSecondaryContainer
-
-    inline val SelectedIconColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSecondaryContainer
 
     inline val Shape: ShapeToken
@@ -88,6 +82,9 @@ internal object OutlinedSegmentedButtonTokens {
     inline val UnselectedHoverLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
+    inline val UnselectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
     inline val UnselectedLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
@@ -97,9 +94,16 @@ internal object OutlinedSegmentedButtonTokens {
     inline val UnselectedPressedLabelTextColor: ColorToken
         get() = ColorSchemeKeyTokens.OnSurface
 
-    inline val UnselectedIconColor: ColorToken
-        get() = ColorSchemeKeyTokens.OnSurface
+    // Values
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
 
+    const val DisabledIconOpacity: Float = 0.38f
+    const val DisabledLabelTextOpacity: Float = 0.38f
+    const val DisabledOutlineOpacity: Float = 0.12f
     inline val IconSize: androidx.compose.ui.unit.Dp
         get() = 18.0.dp
+
+    inline val OutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
 }
