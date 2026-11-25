@@ -78,6 +78,7 @@ import org.mockito.kotlin.atLeast
 import org.mockito.kotlin.clearInvocations
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doReturnConsecutively
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -893,6 +894,71 @@ class ContentCaptureTest {
 
             // Verify that view.measureAndLayout() was never called (exited early)
             verify(view, never()).measureAndLayout()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun pendingChangeChecker_whenStoppedBeforeExecution_resetsFlagSoOnStartRecovers() {
+        var textValue by mutableStateOf("initial")
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithContentCaptureEnabled {
+            Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
+        }
+
+        val manager = androidComposeView.contentCaptureManager
+        rule.runOnIdle {
+            manager.onSemanticsChange()
+            manager.onStop(mock())
+        }
+        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            manager.onStart(mock())
+            clearInvocations(contentCaptureSessionWrapper)
+            textValue = "updated"
+        }
+        repeat(2) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+        }
+
+        rule.runOnIdle {
+            verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("updated"))
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun onViewDetachedFromWindow_whileChangeCheckerPending_resetsFlagSoReattachRecovers() {
+        var textValue by mutableStateOf("initial")
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithContentCaptureEnabled {
+            Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
+        }
+
+        val manager = androidComposeView.contentCaptureManager
+        rule.runOnIdle {
+            manager.onSemanticsChange()
+            manager.onViewDetachedFromWindow(androidComposeView)
+        }
+        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            manager.onViewAttachedToWindow(androidComposeView)
+            manager.onStart(mock())
+            clearInvocations(contentCaptureSessionWrapper)
+            textValue = "updated"
+        }
+        repeat(2) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+        }
+
+        rule.runOnIdle {
+            verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("updated"))
         }
     }
 }

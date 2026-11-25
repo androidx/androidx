@@ -151,8 +151,7 @@ internal class AndroidContentCaptureManager(
     private var checkingForSemanticsChanges = false
 
     private val contentCaptureChangeChecker = Runnable {
-        if (!isEnabled) return@Runnable
-        if (!view.isAttachedToWindow) {
+        if (!isEnabled || !view.isAttachedToWindow) {
             checkingForSemanticsChanges = false
             return@Runnable
         }
@@ -187,6 +186,7 @@ internal class AndroidContentCaptureManager(
         // TODO: b/498432814 - Handler shouldn't be null on detach; investigate re-entrant
         //  detachment to see if handler? can be removed.
         handler?.removeCallbacks(contentCaptureChangeChecker)
+        checkingForSemanticsChanges = false
         contentCaptureSession = null
     }
 
