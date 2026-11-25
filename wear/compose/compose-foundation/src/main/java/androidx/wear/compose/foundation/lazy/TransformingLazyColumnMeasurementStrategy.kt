@@ -103,6 +103,7 @@ internal fun emptyMeasureResult(
     containerConstraints: Constraints,
     beforeContentPadding: Int,
     afterContentPadding: Int,
+    reverseLayout: Boolean,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): TransformingLazyColumnMeasureResult =
     TransformingLazyColumnMeasureResult(
@@ -121,7 +122,7 @@ internal fun emptyMeasureResult(
         afterContentPadding = afterContentPadding,
         itemSpacing = 0,
         childConstraints = Constraints(),
-        reverseLayout = false,
+        reverseLayout = reverseLayout,
         consumedScroll = 0f,
         measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {},
     )

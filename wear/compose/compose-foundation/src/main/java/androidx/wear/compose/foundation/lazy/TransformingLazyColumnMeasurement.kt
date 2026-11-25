@@ -66,6 +66,7 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
         horizontalAlignment,
         verticalArrangement,
         measurementStrategy,
+        reverseLayout,
     ) {
         LazyLayoutMeasurePolicy { containerConstraints ->
             val placeablesCache = mutableIntObjectMapOf<List<Placeable>>()
