@@ -21,9 +21,14 @@ import androidx.camera.camera2.impl.UseCaseManager
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -32,8 +37,11 @@ import org.junit.runner.RunWith
 import org.mockito.InOrder
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.doSuspendableAnswer
+import org.mockito.kotlin.mock as ktMock
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -104,9 +112,68 @@ class CameraInternalAdapterTest {
     fun release_closesUseCaseManager() =
         runTest(testDispatcher) {
             // Act
-            cameraInternalAdapter.release()
+            val releaseFuture = cameraInternalAdapter.release()
+            val secondReleaseFuture = cameraInternalAdapter.release()
 
-            // Assert: Verify that the UseCaseManager is closed, which handles all resource cleanup.
-            verify(useCaseManager).close()
+            // Assert: Verify that UseCaseManager.close() runs once, the release future completes
+            // normally (not self-cancelled), and threads.scope is cancelled afterward.
+            verify(useCaseManager, times(1)).close()
+            assertThat(releaseFuture.isDone).isTrue()
+            assertThat(releaseFuture.isCancelled).isFalse()
+            assertThat(releaseFuture.get()).isNull()
+            assertThat(threads.scope.isActive).isFalse()
+            assertThat(secondReleaseFuture.isDone).isTrue()
+            assertThat(secondReleaseFuture.isCancelled).isFalse()
+            assertThat(secondReleaseFuture.get()).isNull()
         }
+
+    @Test
+    fun release_suspendingClose_cancelsScopeAfterCompletionAndIsolatesCallerCancel() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val scope = CoroutineScope(SupervisorJob() + dispatcher)
+        val closeGate = CompletableDeferred<Unit>()
+        val suspendingManager =
+            ktMock<UseCaseManager> {
+                onBlocking { close() } doSuspendableAnswer { closeGate.await() }
+            }
+        val suspendingThreads = mock(UseCaseThreads::class.java)
+        `when`(suspendingThreads.scope).thenReturn(scope)
+
+        val adapter =
+            CameraInternalAdapter(
+                cameraConfig,
+                suspendingManager,
+                cameraInfo,
+                cameraController,
+                suspendingThreads,
+                cameraStateAdapter,
+            )
+
+        val firstFuture = adapter.release()
+        val secondFuture = adapter.release()
+        testScheduler.advanceUntilIdle()
+
+        assertThat(firstFuture.isDone).isFalse()
+        assertThat(secondFuture.isDone).isFalse()
+        assertThat(scope.isActive).isTrue()
+
+        // Cancelling one caller's pending future must not cancel other waiters or abort close().
+        firstFuture.cancel(true)
+        assertThat(firstFuture.isCancelled).isTrue()
+        assertThat(secondFuture.isDone).isFalse()
+        assertThat(scope.isActive).isTrue()
+
+        closeGate.complete(Unit)
+        testScheduler.advanceUntilIdle()
+
+        assertThat(secondFuture.isDone).isTrue()
+        assertThat(secondFuture.isCancelled).isFalse()
+        assertThat(secondFuture.get()).isNull()
+        assertThat(scope.isActive).isFalse()
+
+        val thirdFuture = adapter.release()
+        assertThat(thirdFuture.isDone).isTrue()
+        assertThat(thirdFuture.isCancelled).isFalse()
+        verify(suspendingManager, times(1)).close()
+    }
 }

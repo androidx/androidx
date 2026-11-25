@@ -36,6 +36,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -93,14 +94,20 @@ constructor(
         useCaseManager.setActiveResumeMode(enabled)
     }
 
-    override fun release(): ListenableFuture<Void> {
-        return threads.scope
-            .launch {
-                useCaseManager.close()
-                threads.scope.cancel()
-            }
-            .asListenableFuture()
+    private val releaseJob: Job by lazy {
+        val job = threads.scope.launch { useCaseManager.close() }
+        job.invokeOnCompletion { threads.scope.cancel() }
+        job
     }
+
+    /**
+     * Permanently closes this camera instance.
+     *
+     * Repeated calls share the single [UseCaseManager.close] job so [threads]'s scope is cancelled
+     * only after teardown completes, while returning an independent [ListenableFuture] per caller
+     * so cancelling one caller's future does not affect other waiters.
+     */
+    override fun release(): ListenableFuture<Void> = releaseJob.asListenableFuture()
 
     override fun getCameraInfoInternal(): CameraInfoInternal = cameraInfo
 
