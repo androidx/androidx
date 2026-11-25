@@ -23,7 +23,7 @@ plugins {
 
 android {
     defaultConfig {
-        minSdkVersion 29 // todo: temp
+        minSdk = 29 // todo: temp
     }
 }
 

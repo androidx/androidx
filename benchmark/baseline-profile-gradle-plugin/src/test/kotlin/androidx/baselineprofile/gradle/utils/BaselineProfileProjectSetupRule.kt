@@ -131,8 +131,6 @@ class BaselineProfileProjectSetupRule(
                         "-Xmx4g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1g",
                     )
                     props.setProperty("android.useAndroidX", "true")
-                    // b/443311090
-                    props.setProperty("android.newDsl", "false")
                     props.store(it, null)
                 }
 
