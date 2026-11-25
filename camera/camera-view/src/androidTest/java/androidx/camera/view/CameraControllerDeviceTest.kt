@@ -19,8 +19,11 @@ package androidx.camera.view
 import android.content.ContentValues
 import android.content.Context
 import android.os.Build
+import android.os.SystemClock
 import android.provider.MediaStore
+import android.util.Size
 import android.view.View
+import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
@@ -38,6 +41,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExtensionsUtil
+import androidx.camera.testing.impl.GarbageCollectionUtil
 import androidx.camera.testing.impl.ParameterizedTestConfigUtil
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
@@ -50,14 +54,19 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.video.AudioConfig
+import androidx.lifecycle.Observer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
+import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -746,6 +755,143 @@ class CameraControllerDeviceTest(
         // Assert: recording started
         instrumentation.runOnMainSync { recording2!!.stop() }
         assertThat(recordingFinalizedLatch2.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun unbindAndFinishActivity_doesNotLeakActivityOrViewOrAnalyzer() {
+        // Release the ActivityScenario and controller created in setUp() so only the helper's
+        // instances exist and are torn down cleanly inside the helper scope.
+        instrumentation.runOnMainSync { controller?.unbind() }
+        controller = null
+        activityScenario?.close()
+        activityScenario = null
+
+        val (activityRef, previewViewRef, controllerRef, analyzerRef) =
+            runBindAnalyzeUnbindAndFinish()
+
+        // Some OEM frameworks (e.g., Samsung OneUI InputMethodManager) retain the last focused
+        // Activity window until focus moves to a subsequent window, even after all CameraX
+        // objects have been released. Flush window focus without touching CameraX before GC.
+        ActivityScenario.launch(FakeActivity::class.java).use { flushScenario ->
+            flushScenario.onActivity { activity -> activity.finish() }
+        }
+
+        awaitGarbageCollected(activityRef, previewViewRef, controllerRef, analyzerRef)
+
+        assertWithMessage("Activity leaked after unbind and finish")
+            .that(activityRef.get())
+            .isNull()
+        assertWithMessage("PreviewView leaked after unbind and finish")
+            .that(previewViewRef.get())
+            .isNull()
+        assertWithMessage("LifecycleCameraController leaked after unbind and finish")
+            .that(controllerRef.get())
+            .isNull()
+        assertWithMessage("ImageAnalysis.Analyzer leaked after unbind and finish")
+            .that(analyzerRef.get())
+            .isNull()
+    }
+
+    private fun awaitGarbageCollected(
+        vararg refs: WeakReference<*>,
+        timeoutMs: Long = TimeUnit.SECONDS.toMillis(TIMEOUT_SECONDS),
+    ) {
+        val deadline = SystemClock.elapsedRealtime() + timeoutMs
+        while (true) {
+            GarbageCollectionUtil.runFinalization()
+            if (refs.all { it.get() == null } || SystemClock.elapsedRealtime() >= deadline) {
+                return
+            }
+            runBlocking { delay(100) }
+        }
+    }
+
+    private data class LeakedTargetRefs(
+        val activityRef: WeakReference<FakeActivity>,
+        val previewViewRef: WeakReference<PreviewView>,
+        val controllerRef: WeakReference<LifecycleCameraController>,
+        val analyzerRef: WeakReference<ImageAnalysis.Analyzer>,
+    )
+
+    private fun runBindAnalyzeUnbindAndFinish(): LeakedTargetRefs {
+        val scenario = ActivityScenario.launch(FakeActivity::class.java)
+        val streamingLatch = CountDownLatch(1)
+        val analysisLatch = CountDownLatch(1)
+        val analyzerObservedMask = AtomicInteger(-1)
+        var activityRef: WeakReference<FakeActivity>? = null
+        var previewViewRef: WeakReference<PreviewView>? = null
+        var controllerRef: WeakReference<LifecycleCameraController>? = null
+        var analyzerRef: WeakReference<ImageAnalysis.Analyzer>? = null
+        var initFuture: ListenableFuture<Void>? = null
+
+        try {
+            scenario.onActivity { activity ->
+                val localPreviewView = PreviewView(activity)
+                val localController = LifecycleCameraController(activity)
+                localController.cameraSelector = defaultCameraSelector
+                initFuture = localController.initializationFuture
+
+                // Capture Activity, PreviewView, and Controller inside the Analyzer, mirroring how
+                // MLKit/barcode scanner consumers keep UI references in their detection callback.
+                val localAnalyzer =
+                    object : ImageAnalysis.Analyzer {
+                        override fun getDefaultTargetResolution(): Size = Size(1280, 720)
+
+                        override fun analyze(imageProxy: ImageProxy) {
+                            val mask =
+                                (if (localPreviewView.isAttachedToWindow) 1 else 0) or
+                                    (if (!activity.isDestroyed) 2 else 0) or
+                                    (if (localController.isImageAnalysisEnabled) 4 else 0)
+                            analyzerObservedMask.compareAndSet(-1, mask)
+                            imageProxy.close()
+                            analysisLatch.countDown()
+                        }
+                    }
+
+                val observer =
+                    object : Observer<PreviewView.StreamState> {
+                        override fun onChanged(value: PreviewView.StreamState) {
+                            if (value == PreviewView.StreamState.STREAMING) {
+                                streamingLatch.countDown()
+                                localPreviewView.previewStreamState.removeObserver(this)
+                            }
+                        }
+                    }
+                localPreviewView.previewStreamState.observe(activity, observer)
+
+                activity.setContentView(localPreviewView)
+                localPreviewView.controller = localController
+                localController.setImageAnalysisAnalyzer(mainThreadExecutor(), localAnalyzer)
+                localController.bindToLifecycle(activity)
+
+                activityRef = WeakReference(activity)
+                previewViewRef = WeakReference(localPreviewView)
+                controllerRef = WeakReference(localController)
+                analyzerRef = WeakReference(localAnalyzer)
+            }
+
+            checkNotNull(initFuture).get(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            assertThat(streamingLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+            assertThat(analysisLatch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+            assertThat(analyzerObservedMask.get()).isAtLeast(0)
+        } finally {
+            runCatching {
+                scenario.onActivity { activity ->
+                    controllerRef?.get()?.unbind()
+                    val previewView = previewViewRef?.get()
+                    (previewView?.parent as? ViewGroup)?.removeView(previewView)
+                    activity.finish()
+                }
+            }
+            scenario.close()
+        }
+
+        return LeakedTargetRefs(
+            checkNotNull(activityRef),
+            checkNotNull(previewViewRef),
+            checkNotNull(controllerRef),
+            checkNotNull(analyzerRef),
+        )
     }
 
     private fun assertCanAnalyzeImage(controller: CameraController) {
