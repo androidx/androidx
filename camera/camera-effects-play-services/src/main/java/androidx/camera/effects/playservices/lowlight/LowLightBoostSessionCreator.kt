@@ -154,9 +154,9 @@ internal class LowLightBoostSessionCreator(
     /**
      * Requests the module installation for [target] once Google Play Services reports the device
      * and the camera as supported. The module can't be installed on an unsupported device, so the
-     * current SurfaceRequest then fails with [LowLightBoostEffectState.ERROR] right away, without
-     * [LowLightBoostEffectState.PENDING_INSTALLATION]. If support can't be determined, e.g. because
-     * the query timed out, the installation is requested anyway.
+     * current SurfaceRequest then fails with an error right away, without
+     * [LowLightBoostEffect.STATUS_PENDING_INSTALLATION]. If support can't be determined, e.g.
+     * because the query timed out, the installation is requested anyway.
      */
     @RequiresApi(Build.VERSION_CODES.R)
     private fun checkSupportAndInstallModule(
@@ -199,8 +199,8 @@ internal class LowLightBoostSessionCreator(
     }
 
     /**
-     * Reports [LowLightBoostEffectState.PENDING_INSTALLATION] while frames are passed through, and
-     * requests the module installation via [LowLightBoostClient.installModule].
+     * Reports [LowLightBoostEffect.STATUS_PENDING_INSTALLATION] while frames are passed through,
+     * and requests the module installation via [LowLightBoostClient.installModule].
      */
     @RequiresApi(Build.VERSION_CODES.R)
     private fun installModule(
@@ -221,13 +221,20 @@ internal class LowLightBoostSessionCreator(
                 .addOnFailureListener(glExecutor) { e ->
                     Logger.w(TAG, "Module installation request failed", e)
                     callback.handleInstallTerminated(
-                        IllegalStateException("Module install failed: ${e.message}", e)
+                        LowLightBoostException(
+                            LowLightBoostException.ERROR_MODULE_INSTALL_FAILED,
+                            "Module install failed: ${e.message}",
+                            e,
+                        )
                     )
                 }
                 .addOnCanceledListener(glExecutor) {
                     Logger.w(TAG, "Module installation request cancelled")
                     callback.handleInstallTerminated(
-                        IllegalStateException("Module install cancelled")
+                        LowLightBoostException(
+                            LowLightBoostException.ERROR_MODULE_INSTALL_FAILED,
+                            "Module install cancelled",
+                        )
                     )
                 }
         } catch (e: Exception) {
@@ -260,15 +267,25 @@ internal class LowLightBoostSessionCreator(
 
         override fun onError(errorMsg: String) {
             Logger.w(TAG, "Module installation failed: $errorMsg")
-            handleInstallTerminated(IllegalStateException("Module install failed: $errorMsg"))
+            handleInstallTerminated(
+                LowLightBoostException(
+                    LowLightBoostException.ERROR_MODULE_INSTALL_FAILED,
+                    "Module install failed: $errorMsg",
+                )
+            )
         }
 
         override fun onCancelled() {
             Logger.w(TAG, "Module installation cancelled")
-            handleInstallTerminated(IllegalStateException("Module install cancelled"))
+            handleInstallTerminated(
+                LowLightBoostException(
+                    LowLightBoostException.ERROR_MODULE_INSTALL_FAILED,
+                    "Module install cancelled",
+                )
+            )
         }
 
-        fun handleInstallTerminated(error: IllegalStateException) {
+        fun handleInstallTerminated(error: LowLightBoostException) {
             glExecutor.execute {
                 if (host.isCurrentCreation(creationId)) {
                     host.onCreationFailed(error, unrecoverable = false)
@@ -330,19 +347,34 @@ internal class LowLightBoostSessionCreator(
                     renderPipeline.outputBridge.inputSurface?.isUnusedForSession != true,
             )
         val targetSurface = renderPipeline.outputBridge.inputSurface
-        val targetSurfaceError =
+        val targetSurfaceFailure =
             when {
                 !isOutputBridgeUsable || targetSurface == null ->
-                    "Failed to initialize the OpenGL pipeline for Low Light Boost"
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_UNKNOWN,
+                        "Failed to initialize the OpenGL pipeline for Low Light Boost",
+                    )
                 !targetSurface.markConsumedForCreateSession() ->
-                    "The OpenGL target surface was already used for a session"
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_SESSION_FAILED,
+                        "The OpenGL target surface was already used for a session",
+                    )
                 else -> null
             }
-        // targetSurface == null implies targetSurfaceError != null; checking it smart-casts it.
-        if (targetSurface == null || targetSurfaceError != null) {
-            // A failed creation round: background recovery stops until a new round is allowed.
-            Logger.w(TAG, "$targetSurfaceError; no session is created.")
-            host.onCreationFailed(IllegalStateException(targetSurfaceError), unrecoverable = false)
+        if (targetSurface == null || targetSurfaceFailure != null) {
+            // An OpenGL setup failure persists for the stream; a consumed surface retries on a new
+            // creation round.
+            val failure =
+                targetSurfaceFailure
+                    ?: LowLightBoostException(
+                        LowLightBoostException.ERROR_UNKNOWN,
+                        "Failed to initialize the OpenGL pipeline for Low Light Boost",
+                    )
+            Logger.w(TAG, "${failure.message}; no session is created.")
+            host.onCreationFailed(
+                failure,
+                unrecoverable = !isOutputBridgeUsable || targetSurface == null,
+            )
             return
         }
 
@@ -557,7 +589,7 @@ internal class LowLightBoostSessionCreator(
          * Delays between `createSession` retries after a transient failure, e.g. while the service
          * is still releasing a previous session or is being updated. Recreating the service's
          * processing pipeline takes about 2 seconds, so a session can usually be created again
-         * within about 4 seconds, before ERROR is reported.
+         * within about 4 seconds, before an error is reported.
          */
         private val RETRY_DELAYS_MS = longArrayOf(1000L, 1000L, 2000L)
         private val MAX_RETRIES = RETRY_DELAYS_MS.size
@@ -576,6 +608,10 @@ internal class LowLightBoostSessionCreator(
          * transient error (such as `MAX_SESSIONS_REACHED` or a temporary disconnect).
          */
         internal fun isUnrecoverableError(exception: Throwable): Boolean {
+            if (exception is LowLightBoostException) {
+                return exception.errorCode == LowLightBoostException.ERROR_NOT_SUPPORTED ||
+                    exception.errorCode == LowLightBoostException.ERROR_UNSUPPORTED_STREAM
+            }
             if (
                 exception is IllegalArgumentException ||
                     exception is UnsupportedOperationException ||

@@ -17,6 +17,9 @@
 package androidx.camera.effects.playservices.lowlight
 
 import android.util.Size
+import com.google.android.gms.cameralowlight.LowLightBoostStatusCodes
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 
 /**
  * Checks whether Low Light Boost can be used for a camera stream: the resolution limits of the
@@ -26,7 +29,7 @@ import android.util.Size
  */
 internal object LowLightBoostSupport {
     /** Why Low Light Boost can't be used: the [error] to report and a [logMessage]. */
-    internal class UnsupportedReason(val error: Throwable, val logMessage: String)
+    internal class UnsupportedReason(val error: LowLightBoostException, val logMessage: String)
 
     /** Maximum width or height (in pixels) supported by Google Play Services Low Light Boost. */
     private const val MAX_SUPPORTED_DIMENSION = 2560
@@ -57,11 +60,12 @@ internal object LowLightBoostSupport {
         if (!isResolutionSupported(resolution)) {
             return UnsupportedReason(
                 error =
-                    IllegalArgumentException(
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_UNSUPPORTED_STREAM,
                         "Unsupported resolution for Low Light Boost: $resolution. " +
                             "Low Light Boost requires width <= $MAX_SUPPORTED_DIMENSION, " +
                             "height <= $MAX_SUPPORTED_DIMENSION, and area <= " +
-                            "$MAX_SUPPORTED_AREA_PIXELS pixels (4MP)."
+                            "$MAX_SUPPORTED_AREA_PIXELS pixels (4MP).",
                     ),
                 logMessage =
                     "Resolution $resolution exceeds maximum supported resolution for Low Light " +
@@ -82,8 +86,9 @@ internal object LowLightBoostSupport {
         if (PlayServicesLowLightBoostAvailability.getCachedCameraSupported(cameraId) == false) {
             return UnsupportedReason(
                 error =
-                    UnsupportedOperationException(
-                        "Low Light Boost is not supported on camera $cameraId."
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_NOT_SUPPORTED,
+                        "Low Light Boost is not supported on camera $cameraId.",
                     ),
                 logMessage =
                     "Camera $cameraId does not support Low Light Boost. Falling back to " +
@@ -97,7 +102,62 @@ internal object LowLightBoostSupport {
     internal fun unsupportedDeviceReason(): UnsupportedReason =
         UnsupportedReason(
             error =
-                UnsupportedOperationException("Low Light Boost is not supported on this device."),
+                LowLightBoostException(
+                    LowLightBoostException.ERROR_NOT_SUPPORTED,
+                    "Low Light Boost is not supported on this device.",
+                ),
             logMessage = "Device does not support Low Light Boost. Falling back to passthrough.",
         )
+
+    /**
+     * Normalizes internal failures into a [LowLightBoostException] with an error code documented by
+     * [LowLightBoostEffect.error].
+     */
+    internal fun toPublicError(error: Throwable): LowLightBoostException {
+        if (error is LowLightBoostException) {
+            return error
+        }
+        if (error is ApiException) {
+            return when (error.statusCode) {
+                LowLightBoostStatusCodes.CAMERA_NOT_SUPPORTED,
+                LowLightBoostStatusCodes.MISSING_CAMERA_CHARACTERISTICS ->
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_NOT_SUPPORTED,
+                        "Low Light Boost is not supported on this camera: ${error.message}",
+                        error,
+                    )
+                LowLightBoostStatusCodes.UNSUPPORTED_DATASPACE ->
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_UNSUPPORTED_STREAM,
+                        "Unsupported dataspace for Low Light Boost: ${error.message}",
+                        error,
+                    )
+                CommonStatusCodes.API_NOT_CONNECTED ->
+                    if (PlayServicesLowLightBoostAvailability.getCachedDeviceSupported() == false) {
+                        LowLightBoostException(
+                            LowLightBoostException.ERROR_NOT_SUPPORTED,
+                            "Low Light Boost is not supported on this device: ${error.message}",
+                            error,
+                        )
+                    } else {
+                        LowLightBoostException(
+                            LowLightBoostException.ERROR_SESSION_FAILED,
+                            "Low Light Boost session failed: ${error.message}",
+                            error,
+                        )
+                    }
+                else ->
+                    LowLightBoostException(
+                        LowLightBoostException.ERROR_SESSION_FAILED,
+                        "Low Light Boost session failed: ${error.message}",
+                        error,
+                    )
+            }
+        }
+        return LowLightBoostException(
+            LowLightBoostException.ERROR_UNKNOWN,
+            error.message ?: "Low Light Boost failed",
+            error,
+        )
+    }
 }

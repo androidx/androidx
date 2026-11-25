@@ -31,8 +31,8 @@ import androidx.camera.core.impl.ForwardingCameraInfo
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.lifecycle.Observer
 import androidx.test.filters.SdkSuppress
+import com.google.android.gms.cameralowlight.LowLightBoostStatusCodes
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
@@ -105,9 +105,16 @@ class LowLightBoostSessionManagerTest {
 
     @After
     fun tearDown() {
+        shadowOf(getMainLooper()).idle()
         sessionManager.destroySessionInternal()
+        // Run any delayed resource release scheduled for an aborted session creation.
+        shadowOf(getMainLooper()).idleFor(1, TimeUnit.SECONDS)
         surfaceRequests.forEach { it.deferrableSurface.close() }
-        createdSessions.forEach { it.cameraSurfaceTexture.release() }
+        shadowOf(getMainLooper()).idle()
+        createdSessions.forEach {
+            it.release()
+            it.cameraSurfaceTexture.release()
+        }
         outputSurface.release()
         outputTexture.release()
         PlayServicesLowLightBoostAvailability.reset()
@@ -121,7 +128,7 @@ class LowLightBoostSessionManagerTest {
 
         // Assert.
         assertThat(sessionManager.getCurrentSession()).isSameInstanceAs(createdSessions[0])
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
     }
 
     @Test
@@ -138,7 +145,8 @@ class LowLightBoostSessionManagerTest {
         // Assert: the session is released once, ERROR is reported while frames pass through, and a
         // new session is requested.
         assertThat(createdSessions[0].releaseCount).isEqualTo(1)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error?.errorCode)
+            .isEqualTo(LowLightBoostException.ERROR_SESSION_FAILED)
         shadowOf(getMainLooper()).idleFor(1, TimeUnit.SECONDS)
         assertThat(client.createSessionCount).isEqualTo(2)
     }
@@ -180,7 +188,9 @@ class LowLightBoostSessionManagerTest {
         // Assert: the session is treated as dead instead of crashing the GL thread.
         assertThat(createdSessions[0].releaseCount).isEqualTo(1)
         assertThat(sessionManager.getCurrentSession()).isNull()
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        val error = currentState().error
+        assertThat(error?.errorCode).isEqualTo(LowLightBoostException.ERROR_SESSION_FAILED)
+        assertThat(error).hasMessageThat().contains("camera surface is invalid")
     }
 
     @Test
@@ -191,12 +201,12 @@ class LowLightBoostSessionManagerTest {
         createdSessions[0].throwOnCall = true
 
         // Act.
-        processor.setLowLightBoostEnabled(false)
+        processor.isLowLightBoostEnabled = false
         shadowOf(getMainLooper()).idle()
 
         // Assert: the dead session is released, and the state stays OFF while disabled.
         assertThat(createdSessions[0].releaseCount).isEqualTo(1)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -206,14 +216,18 @@ class LowLightBoostSessionManagerTest {
 
         // Act.
         startSession()
-        processor.setLowLightBoostEnabled(false)
-        processor.setLowLightBoostEnabled(true)
+        val initialError = currentState().error
+        assertThat(initialError?.errorCode).isEqualTo(LowLightBoostException.ERROR_UNKNOWN)
+        processor.isLowLightBoostEnabled = false
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+        processor.isLowLightBoostEnabled = true
         shadowOf(getMainLooper()).idle()
 
-        // Assert: no broken Surface is connected to the camera, ERROR is reported, and no session
-        // is created.
+        // Assert: no broken Surface is connected to the camera, the same error instance is
+        // re-reported, and no session is created.
         assertThat(sessionManager.renderPipeline.inputBridge.inputSurface).isNull()
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isSameInstanceAs(initialError)
         assertThat(client.createSessionCount).isEqualTo(0)
     }
 
@@ -225,7 +239,7 @@ class LowLightBoostSessionManagerTest {
         val surfaceOutput = FakeSurfaceOutput(outputSurface)
         processor.onOutputSurface(surfaceOutput)
         shadowOf(getMainLooper()).idleFor(3, TimeUnit.SECONDS)
-        val stateWhileBound = currentState().type
+        val stateWhileBound = currentState()
 
         // Act: the effect is unbound, which removes the output.
         sessionManager.renderPipeline.unregisterOutputSurface(surfaceOutput)
@@ -233,8 +247,8 @@ class LowLightBoostSessionManagerTest {
         shadowOf(getMainLooper()).idleFor(3, TimeUnit.SECONDS)
 
         // Assert: ERROR stays while bound, and returns to OFF after the idle delay.
-        assertThat(stateWhileBound).isEqualTo(LowLightBoostEffectState.ERROR)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(stateWhileBound.error).isNotNull()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -251,7 +265,7 @@ class LowLightBoostSessionManagerTest {
 
         // Assert: the session is still released, since no camera stream feeds the output.
         assertThat(createdSessions[0].releaseCount).isEqualTo(1)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -270,22 +284,22 @@ class LowLightBoostSessionManagerTest {
 
         // Assert: the session is still released.
         assertThat(createdSessions[0].releaseCount).isEqualTo(1)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
     fun toggleAfterUnrecoverableError_keepsErrorAndDoesNotCreateSession() {
         // Arrange: a resolution that Low Light Boost doesn't support.
         startSession(resolution = Size(3840, 2160))
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
 
         // Act.
-        processor.setLowLightBoostEnabled(false)
-        processor.setLowLightBoostEnabled(true)
+        processor.isLowLightBoostEnabled = false
+        processor.isLowLightBoostEnabled = true
         shadowOf(getMainLooper()).idle()
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
         assertThat(client.createSessionCount).isEqualTo(0)
     }
 
@@ -306,7 +320,7 @@ class LowLightBoostSessionManagerTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
     }
 
     @Test
@@ -321,7 +335,7 @@ class LowLightBoostSessionManagerTest {
 
         // Assert: the session is released, ERROR is reported, and a new session is requested.
         assertThat(createdSessions[0].releaseCount).isEqualTo(1)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
         shadowOf(getMainLooper()).idleFor(1, TimeUnit.SECONDS)
         assertThat(client.createSessionCount).isEqualTo(2)
     }
@@ -348,22 +362,22 @@ class LowLightBoostSessionManagerTest {
         startSession()
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.PENDING_INSTALLATION)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
         assertThat(client.createSessionCount).isEqualTo(0)
 
         // Act.
         requireNotNull(client.installCallbacks.single()).onInstalled()
         shadowOf(getMainLooper()).idle()
 
-        // Assert: PENDING_INSTALLATION ends when the module is installed, before the session is
-        // created.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        // Assert: PENDING_INSTALLATION ends when the module is installed, staying OFF while the
+        // session is still initializing.
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
 
         // Act.
         completeSessionCreation(0)
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
     }
 
     @Test
@@ -371,26 +385,26 @@ class LowLightBoostSessionManagerTest {
         // Arrange: device support isn't cached yet, and the device is unsupported.
         client.moduleInstalledTask = { Tasks.forResult(false) }
         client.deviceSupportedTask = { Tasks.forResult(false) }
-        val postedStates = mutableListOf<LowLightBoostEffectState>()
-        val observer = Observer<LowLightBoostEffectState> { postedStates.add(it) }
-        processor.stateLiveData.observeForever(observer)
+        val postedStates = mutableListOf<LowLightBoostStateSnapshot>()
+        val observer = Runnable { postedStates.add(processor.committedSnapshot) }
+        processor.addTransitionObserver(observer)
 
         // Act.
         startSession()
         processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
-        processor.setLowLightBoostEnabled(false)
-        processor.setLowLightBoostEnabled(true)
+        processor.isLowLightBoostEnabled = false
+        processor.isLowLightBoostEnabled = true
         feedCameraFrames(durationMs = 3_000L)
 
         // Assert: the module isn't installed, and ERROR stays after enabling again.
-        assertThat(postedStates.map { it.type })
-            .doesNotContain(LowLightBoostEffectState.PENDING_INSTALLATION)
+        assertThat(postedStates.map { it.status })
+            .doesNotContain(LowLightBoostEffect.STATUS_PENDING_INSTALLATION)
         assertThat(client.installCallbacks).isEmpty()
         assertThat(client.createSessionCount).isEqualTo(0)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
-        assertThat(currentState().error).isInstanceOf(UnsupportedOperationException::class.java)
+        assertThat(currentState().error?.errorCode)
+            .isEqualTo(LowLightBoostException.ERROR_NOT_SUPPORTED)
         assertThat(PlayServicesLowLightBoostAvailability.getCachedDeviceSupported()).isFalse()
-        processor.stateLiveData.removeObserver(observer)
+        processor.removeTransitionObserver(observer)
     }
 
     @Test
@@ -400,12 +414,12 @@ class LowLightBoostSessionManagerTest {
         startSession()
 
         // Act: Low Light Boost is disabled while the session is being created.
-        processor.setLowLightBoostEnabled(false)
+        processor.isLowLightBoostEnabled = false
         completeSessionCreation(0)
 
         // Assert.
         assertThat(createdSessions[0].isLowLightBoostEnabled()).isFalse()
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -421,7 +435,7 @@ class LowLightBoostSessionManagerTest {
         // Assert.
         assertThat(createdSessions[0].releaseCount).isEqualTo(1)
         assertThat(sessionManager.getCurrentSession()).isNull()
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
     }
 
     @Test
@@ -436,7 +450,8 @@ class LowLightBoostSessionManagerTest {
         feedCameraFrames(durationMs = 10_000L)
 
         // Assert: no background recovery requests the installation again.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error?.errorCode)
+            .isEqualTo(LowLightBoostException.ERROR_MODULE_INSTALL_FAILED)
         assertThat(client.createSessionCount).isEqualTo(0)
         assertThat(client.installCallbacks).hasSize(1)
     }
@@ -448,18 +463,18 @@ class LowLightBoostSessionManagerTest {
         startSession()
         processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
         shadowOf(getMainLooper()).idleFor(30, TimeUnit.SECONDS)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
 
         // Act: camera frames keep arriving after ERROR is reported.
         feedCameraFrames(durationMs = 10_000L)
 
         // Assert: ERROR stays, and no background recovery creates a session.
         assertThat(client.createSessionCount).isEqualTo(1 + MAX_RETRIES)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
 
         // Act: the app disables and enables Low Light Boost again.
-        processor.setLowLightBoostEnabled(false)
-        processor.setLowLightBoostEnabled(true)
+        processor.isLowLightBoostEnabled = false
+        processor.isLowLightBoostEnabled = true
         shadowOf(getMainLooper()).idle()
 
         // Assert: a new session creation is attempted.
@@ -474,7 +489,7 @@ class LowLightBoostSessionManagerTest {
         processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
         feedCameraFrames(durationMs = 10_000L)
         val countAfterFailure = client.createSessionCount
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
 
         // Act: the camera stream pauses, e.g. while the app is in the background, then resumes,
         // and the session can be created now.
@@ -487,7 +502,7 @@ class LowLightBoostSessionManagerTest {
         // Assert: one new session creation is attempted, and it recovers Low Light Boost.
         assertThat(countAfterFailure).isEqualTo(1 + MAX_RETRIES)
         assertThat(client.createSessionCount).isEqualTo(countAfterFailure + 1)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
     }
 
     @Test
@@ -505,7 +520,7 @@ class LowLightBoostSessionManagerTest {
         // Assert.
         assertThat(releaseCountBeforeDelay).isEqualTo(0)
         assertThat(createdSessions[0].releaseCount).isEqualTo(1)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -513,14 +528,14 @@ class LowLightBoostSessionManagerTest {
         // Arrange.
         client.moduleInstalledTask = { Tasks.forResult(false) }
         startSession()
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.PENDING_INSTALLATION)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
 
         // Act: the effect is unbound, so the request completes without an output.
         surfaceRequests[0].deferrableSurface.close()
         shadowOf(getMainLooper()).idleFor(3, TimeUnit.SECONDS)
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -528,14 +543,14 @@ class LowLightBoostSessionManagerTest {
         // Arrange: the module is being installed while the camera stream has no output.
         client.moduleInstalledTask = { Tasks.forResult(false) }
         startSession()
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.PENDING_INSTALLATION)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
 
         // Act: the idle release aborts the installation, while the request stays active.
         sessionManager.scheduleSessionReleaseIfIdle()
         shadowOf(getMainLooper()).idleFor(3, TimeUnit.SECONDS)
 
         // Assert: the aborted installation isn't reported as pending anymore.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -544,14 +559,14 @@ class LowLightBoostSessionManagerTest {
         client.createSessionError = ApiException(Status(CommonStatusCodes.INTERNAL_ERROR))
         startSession()
         shadowOf(getMainLooper()).idleFor(30, TimeUnit.SECONDS)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
 
         // Act: the effect is unbound, so the request completes without an output.
         surfaceRequests[0].deferrableSurface.close()
         shadowOf(getMainLooper()).idleFor(3, TimeUnit.SECONDS)
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -605,7 +620,7 @@ class LowLightBoostSessionManagerTest {
         client.callbacks[0].onSessionDestroyed()
         shadowOf(getMainLooper()).idleFor(10, TimeUnit.SECONDS)
         val countAfterFailure = client.createSessionCount
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
         client.createSessionError = null
         skipCameraTimestamps(durationMs = 10_000L)
         sessionManager.onInputBridgeFrameAvailable(nextTimestampNs(), IDENTITY)
@@ -626,12 +641,22 @@ class LowLightBoostSessionManagerTest {
         feedCameraFrames(durationMs = 10_000L)
 
         // Assert: ERROR is reported once, the camera frames are passed through, and no session or
-        // background recovery is attempted.
+        // background recovery is attempted. Toggling false -> true clears and re-reports the same
+        // error instance without creating a session.
         assertThat(sessionManager.renderPipeline.inputBridge.inputSurface).isNotNull()
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
-        assertThat(currentState().error).isInstanceOf(IllegalStateException::class.java)
+        val initialError = currentState().error
+        assertThat(initialError?.errorCode).isEqualTo(LowLightBoostException.ERROR_UNKNOWN)
         assertThat(client.createSessionCount).isEqualTo(0)
         assertThat(inputRenderer().renderedSurfaces).contains(outputSurface)
+
+        processor.isLowLightBoostEnabled = false
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+
+        processor.isLowLightBoostEnabled = true
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState().error).isSameInstanceAs(initialError)
+        assertThat(client.createSessionCount).isEqualTo(0)
     }
 
     @Test
@@ -645,11 +670,11 @@ class LowLightBoostSessionManagerTest {
         client.createSessionError = null
 
         // Act: the app enables Low Light Boost, which is already enabled.
-        processor.setLowLightBoostEnabled(true)
+        processor.isLowLightBoostEnabled = true
         feedCameraFrames(durationMs = 5_000L)
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
         assertThat(client.createSessionCount).isEqualTo(countAfterFailure)
     }
 
@@ -670,7 +695,7 @@ class LowLightBoostSessionManagerTest {
 
         // Assert: no session is created for a stream that nothing shows.
         assertThat(client.createSessionCount).isEqualTo(1)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -678,7 +703,7 @@ class LowLightBoostSessionManagerTest {
         // Arrange.
         client.moduleInstalledTask = { Tasks.forResult(false) }
         startSession()
-        processor.setLowLightBoostEnabled(false)
+        processor.isLowLightBoostEnabled = false
         shadowOf(getMainLooper()).idle()
 
         // Act.
@@ -687,7 +712,7 @@ class LowLightBoostSessionManagerTest {
         completeSessionCreation(0)
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
         assertThat(createdSessions[0].isLowLightBoostEnabled()).isFalse()
     }
 
@@ -698,7 +723,7 @@ class LowLightBoostSessionManagerTest {
         startSession()
         processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
         requireNotNull(client.installCallbacks.single()).onError("No network")
-        processor.setLowLightBoostEnabled(false)
+        processor.isLowLightBoostEnabled = false
         feedCameraFrames(durationMs = 1_000L)
 
         // Act: the camera stream pauses and resumes.
@@ -707,7 +732,7 @@ class LowLightBoostSessionManagerTest {
         feedCameraFrames(durationMs = 5_000L)
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
         assertThat(client.installCallbacks).hasSize(1)
         assertThat(client.createSessionCount).isEqualTo(0)
     }
@@ -721,21 +746,21 @@ class LowLightBoostSessionManagerTest {
             PlayServicesLowLightBoostSurfaceProcessor(context, { client }, sessionManager)
 
         // Act.
-        otherProcessor.setLowLightBoostEnabled(false)
+        otherProcessor.isLowLightBoostEnabled = false
         shadowOf(getMainLooper()).idle()
 
         // Assert: only the other processor's own state changes.
         assertThat(createdSessions[0].isLowLightBoostEnabled()).isTrue()
-        assertThat(otherProcessor.stateLiveData.value?.type).isEqualTo(LowLightBoostEffectState.OFF)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        assertThat(otherProcessor.committedSnapshot).isEqualTo(LowLightBoostStateSnapshot.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
 
         // Act.
-        otherProcessor.setLowLightBoostEnabled(true)
+        otherProcessor.isLowLightBoostEnabled = true
         shadowOf(getMainLooper()).idle()
 
         // Assert.
         assertThat(createdSessions[0].isLowLightBoostEnabled()).isTrue()
-        assertThat(otherProcessor.stateLiveData.value?.type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(otherProcessor.committedSnapshot).isEqualTo(LowLightBoostStateSnapshot.OFF)
         assertThat(client.createSessionCount).isEqualTo(1)
     }
 
@@ -745,7 +770,7 @@ class LowLightBoostSessionManagerTest {
         startSession()
         completeSessionCreation(0)
         processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
-        processor.setLowLightBoostEnabled(false)
+        processor.isLowLightBoostEnabled = false
         client.callbacks[0].onSessionDestroyed()
         shadowOf(getMainLooper()).idle()
         val otherProcessor =
@@ -765,24 +790,49 @@ class LowLightBoostSessionManagerTest {
         client.moduleInstalledTask = { Tasks.forResult(false) }
         startSession()
         val previousProcessor = processor
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.PENDING_INSTALLATION)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
 
         // Act: another processor binds the same camera stream.
         processor = PlayServicesLowLightBoostSurfaceProcessor(context, { client }, sessionManager)
         startSession()
 
         // Assert: the installation continues for the new owner.
-        assertThat(previousProcessor.stateLiveData.value?.type)
-            .isEqualTo(LowLightBoostEffectState.OFF)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.PENDING_INSTALLATION)
+        assertThat(previousProcessor.committedSnapshot).isEqualTo(LowLightBoostStateSnapshot.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
         assertThat(client.installCallbacks).hasSize(1)
 
         // Act.
         requireNotNull(client.installCallbacks.single()).onInstalled()
         shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+
+        completeSessionCreation(0)
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
+    }
+
+    @Test
+    fun newOwnerDuringRecoveryAfterError_reportsPreviousOwnerError() {
+        // Arrange: the session dies, which reports an error, and a recovery creation is in flight.
+        startSession()
+        completeSessionCreation(0)
+        processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
+        client.callbacks[0].onSessionDestroyed()
+        shadowOf(getMainLooper()).idleFor(1, TimeUnit.SECONDS)
+        assertThat(client.createSessionCount).isEqualTo(2)
+        val previousProcessor = processor
+        val previousError = requireNotNull(currentState().error)
+
+        // Act: another processor binds the same camera stream.
+        processor = PlayServicesLowLightBoostSurfaceProcessor(context, { client }, sessionManager)
+        startSession()
+
+        // Assert: the recovery continues for the new owner, which reports the error of the
+        // previous owner, even though its status is STATUS_OFF.
+        assertThat(previousProcessor.committedSnapshot).isEqualTo(LowLightBoostStateSnapshot.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.error(previousError))
+        assertThat(client.createSessionCount).isEqualTo(2)
     }
 
     @Test
@@ -791,7 +841,7 @@ class LowLightBoostSessionManagerTest {
         client.moduleInstalledTask = { Tasks.forResult(false) }
         startSession()
         val previousProcessor = processor
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.PENDING_INSTALLATION)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
 
         // Act: another processor binds a camera stream with another resolution, and the module is
         // installed meanwhile.
@@ -800,9 +850,8 @@ class LowLightBoostSessionManagerTest {
         startSession(resolution = Size(1280, 720))
 
         // Assert: the new creation reports its own state.
-        assertThat(previousProcessor.stateLiveData.value?.type)
-            .isEqualTo(LowLightBoostEffectState.OFF)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(previousProcessor.committedSnapshot).isEqualTo(LowLightBoostStateSnapshot.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
         // The session is created after the cooldown of the cancelled creation.
         shadowOf(getMainLooper()).idleFor(1, TimeUnit.SECONDS)
         assertThat(client.createSessionCount).isEqualTo(1)
@@ -820,7 +869,7 @@ class LowLightBoostSessionManagerTest {
         sessionManager.onBoostEnabledChanged(processor, enabled = true)
 
         // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.PENDING_INSTALLATION)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
     }
 
     @Test
@@ -829,22 +878,22 @@ class LowLightBoostSessionManagerTest {
         // everything is released after the idle delay.
         startSession(resolution = Size(3840, 2160))
         val firstProcessor = processor
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
         surfaceRequests[0].deferrableSurface.close()
         shadowOf(getMainLooper()).idleFor(3, TimeUnit.SECONDS)
         val otherProcessor =
             PlayServicesLowLightBoostSurfaceProcessor(context, { client }, sessionManager)
 
         // Act: both unbound processors toggle Low Light Boost.
-        firstProcessor.setLowLightBoostEnabled(false)
-        firstProcessor.setLowLightBoostEnabled(true)
-        otherProcessor.setLowLightBoostEnabled(false)
-        otherProcessor.setLowLightBoostEnabled(true)
+        firstProcessor.isLowLightBoostEnabled = false
+        firstProcessor.isLowLightBoostEnabled = true
+        otherProcessor.isLowLightBoostEnabled = false
+        otherProcessor.isLowLightBoostEnabled = true
         shadowOf(getMainLooper()).idle()
 
         // Assert.
-        assertThat(firstProcessor.stateLiveData.value?.type).isEqualTo(LowLightBoostEffectState.OFF)
-        assertThat(otherProcessor.stateLiveData.value?.type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(firstProcessor.committedSnapshot).isEqualTo(LowLightBoostStateSnapshot.OFF)
+        assertThat(otherProcessor.committedSnapshot).isEqualTo(LowLightBoostStateSnapshot.OFF)
     }
 
     @Test
@@ -859,14 +908,24 @@ class LowLightBoostSessionManagerTest {
             )
 
         // Assert: the initial state stays OFF.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
 
         // Act.
         startSession()
 
-        // Assert.
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
-        assertThat(currentState().error).isSameInstanceAs(clientError)
+        // Assert: the error clears when disabled and re-reports the same error when re-enabled.
+        val initialError = currentState().error
+        assertThat(initialError?.errorCode).isEqualTo(LowLightBoostException.ERROR_UNKNOWN)
+        assertThat(initialError?.cause).isSameInstanceAs(clientError)
+
+        processor.isLowLightBoostEnabled = false
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+
+        processor.isLowLightBoostEnabled = true
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState().error).isSameInstanceAs(initialError)
+        assertThat(client.createSessionCount).isEqualTo(0)
     }
 
     @Test
@@ -875,22 +934,21 @@ class LowLightBoostSessionManagerTest {
         startSession()
         completeSessionCreation(0)
         val previousProcessor = processor
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
 
         // Act: another processor binds a new request.
         processor = PlayServicesLowLightBoostSurfaceProcessor(context, { client }, sessionManager)
         startSession()
 
         // Assert.
-        assertThat(previousProcessor.stateLiveData.value?.type)
-            .isEqualTo(LowLightBoostEffectState.OFF)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.INACTIVE)
+        assertThat(previousProcessor.committedSnapshot).isEqualTo(LowLightBoostStateSnapshot.OFF)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
     }
 
     @Test
     fun outputKeptAcrossSameStreamRequest_isRenderedByNewInputRendererOnly() {
         // Arrange: Low Light Boost is disabled, so frames are passed through to the output.
-        processor.setLowLightBoostEnabled(false)
+        processor.isLowLightBoostEnabled = false
         startSession()
         processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
         feedCameraFrames(durationMs = 300L)
@@ -919,9 +977,9 @@ class LowLightBoostSessionManagerTest {
         processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
         feedCameraFrames(durationMs = 500L)
         val oldInputSurface = requireNotNull(sessionManager.renderPipeline.inputBridge.inputSurface)
-        val postedStates = mutableListOf<LowLightBoostEffectState>()
-        val observer = Observer<LowLightBoostEffectState> { postedStates.add(it) }
-        processor.stateLiveData.observeForever(observer)
+        val postedStates = mutableListOf<LowLightBoostStateSnapshot>()
+        val observer = Runnable { postedStates.add(processor.committedSnapshot) }
+        processor.addTransitionObserver(observer)
         postedStates.clear()
 
         // Act: CameraX recreates the pipeline for the same camera stream, e.g. after a Preview
@@ -946,7 +1004,7 @@ class LowLightBoostSessionManagerTest {
         assertThat(inputRenderer().registeredSurfaces).contains(cameraSurface)
         assertThat(inputRenderer().renderedSurfaces).contains(cameraSurface)
         assertThat(postedStates).isEmpty()
-        processor.stateLiveData.removeObserver(observer)
+        processor.removeTransitionObserver(observer)
     }
 
     @Test
@@ -956,10 +1014,10 @@ class LowLightBoostSessionManagerTest {
         startSession()
         shadowOf(getMainLooper()).idleFor(30, TimeUnit.SECONDS)
         val errorState = currentState()
-        assertThat(errorState.type).isEqualTo(LowLightBoostEffectState.ERROR)
-        val postedStates = mutableListOf<LowLightBoostEffectState>()
-        val observer = Observer<LowLightBoostEffectState> { postedStates.add(it) }
-        processor.stateLiveData.observeForever(observer)
+        assertThat(errorState.error).isNotNull()
+        val postedStates = mutableListOf<LowLightBoostStateSnapshot>()
+        val observer = Runnable { postedStates.add(processor.committedSnapshot) }
+        processor.addTransitionObserver(observer)
         postedStates.clear()
 
         // Act: a new SurfaceRequest for the same camera stream.
@@ -970,7 +1028,7 @@ class LowLightBoostSessionManagerTest {
         assertThat(client.createSessionCount).isEqualTo(1 + MAX_RETRIES)
         assertThat(currentState()).isSameInstanceAs(errorState)
         assertThat(postedStates).isEmpty()
-        processor.stateLiveData.removeObserver(observer)
+        processor.removeTransitionObserver(observer)
     }
 
     @Test
@@ -979,7 +1037,7 @@ class LowLightBoostSessionManagerTest {
         client.createSessionError = ApiException(Status(CommonStatusCodes.INTERNAL_ERROR))
         startSession()
         shadowOf(getMainLooper()).idleFor(30, TimeUnit.SECONDS)
-        assertThat(currentState().type).isEqualTo(LowLightBoostEffectState.ERROR)
+        assertThat(currentState().error).isNotNull()
 
         // Act: a SurfaceRequest for another resolution.
         startSession(resolution = Size(1280, 720))
@@ -1005,10 +1063,10 @@ class LowLightBoostSessionManagerTest {
         PlayServicesLowLightBoostAvailability.setCameraSupported("0", false)
         sendRequestFromVirtualCamera("virtual-0-a")
         val errorState = currentState()
-        assertThat(errorState.type).isEqualTo(LowLightBoostEffectState.ERROR)
-        val postedStates = mutableListOf<LowLightBoostEffectState>()
-        val observer = Observer<LowLightBoostEffectState> { postedStates.add(it) }
-        processor.stateLiveData.observeForever(observer)
+        assertThat(errorState.error).isNotNull()
+        val postedStates = mutableListOf<LowLightBoostStateSnapshot>()
+        val observer = Runnable { postedStates.add(processor.committedSnapshot) }
+        processor.addTransitionObserver(observer)
         postedStates.clear()
 
         // Act: StreamSharing is recreated, e.g. after a rebind, with a new virtual camera ID.
@@ -1017,7 +1075,7 @@ class LowLightBoostSessionManagerTest {
         // Assert: it is the same camera stream, so ERROR isn't reported again.
         assertThat(currentState()).isSameInstanceAs(errorState)
         assertThat(postedStates).isEmpty()
-        processor.stateLiveData.removeObserver(observer)
+        processor.removeTransitionObserver(observer)
     }
 
     private fun sendRequestFromVirtualCamera(virtualCameraId: String) {
@@ -1053,6 +1111,186 @@ class LowLightBoostSessionManagerTest {
         // Assert.
         assertThat(oldInputSurface.isValid).isFalse()
         assertThat(oldRenderer.isReleased).isTrue()
+    }
+
+    @Test
+    fun backToBackDisableEnableWithPostingExecutor_clearsErrorAndStartsNewAttempt() {
+        createSessionManager(postingExecutor = true)
+        client.createSessionError = ApiException(Status(CommonStatusCodes.INTERNAL_ERROR))
+        startSession()
+        processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
+        shadowOf(getMainLooper()).idleFor(30, TimeUnit.SECONDS)
+        val countAfterFailure = client.createSessionCount
+        val events = mutableListOf<String>()
+        processor.addListener(
+            executor = null,
+            object : LowLightBoostEffect.Listener {
+                override fun onLowLightBoostEnabledChanged(enabled: Boolean) {
+                    events.add("enabled:$enabled")
+                }
+
+                override fun onStatusChanged(status: Int) {
+                    events.add("status:$status")
+                }
+
+                override fun onErrorChanged(error: LowLightBoostException?) {
+                    events.add("error:${error?.errorCode}")
+                }
+            },
+        )
+
+        // Toggle false -> true synchronously in the same frame after transient failures.
+        client.createSessionError = null
+        processor.isLowLightBoostEnabled = false
+        processor.isLowLightBoostEnabled = true
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(client.createSessionCount).isEqualTo(countAfterFailure + 1)
+        // Enabled transitions fire in order, error clears to null, and INACTIVE is not emitted
+        // prematurely before the new session is created.
+        assertThat(events).containsExactly("enabled:false", "enabled:true", "error:null").inOrder()
+
+        completeSessionCreation(countAfterFailure)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
+        assertThat(events)
+            .containsExactly(
+                "enabled:false",
+                "enabled:true",
+                "error:null",
+                "status:${LowLightBoostEffect.STATUS_INACTIVE}",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun reEnablingDuringActiveSessionCallFailure_doesNotFlashInactive() {
+        startSession()
+        completeSessionCreation(0)
+        processor.onOutputSurface(FakeSurfaceOutput(outputSurface))
+        val observedStatuses = mutableListOf<Int>()
+        val observer = Runnable { observedStatuses.add(processor.committedSnapshot.status) }
+        processor.addTransitionObserver(observer)
+
+        processor.isLowLightBoostEnabled = false
+        shadowOf(getMainLooper()).idle()
+        observedStatuses.clear()
+
+        createdSessions[0].throwOnCall = true
+        processor.isLowLightBoostEnabled = true
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(observedStatuses).doesNotContain(LowLightBoostEffect.STATUS_INACTIVE)
+        val error = currentState().error
+        assertThat(error?.errorCode).isEqualTo(LowLightBoostException.ERROR_SESSION_FAILED)
+        assertThat(error?.cause).isInstanceOf(IllegalStateException::class.java)
+        processor.removeTransitionObserver(observer)
+    }
+
+    @Test
+    fun toggleFalseThenTrueDuringModuleInstallation_restoresPendingInstallation() {
+        client.moduleInstalledTask = { Tasks.forResult(false) }
+        startSession()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
+
+        processor.isLowLightBoostEnabled = false
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+
+        processor.isLowLightBoostEnabled = true
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.PENDING_INSTALLATION)
+
+        requireNotNull(client.installCallbacks.single()).onInstalled()
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+
+        completeSessionCreation(0)
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.INACTIVE)
+    }
+
+    @Test
+    fun boundWhileDisabled_suppressesPendingInstallationAndErrorUntilEnabled() {
+        // Case 1: unrecoverable resolution error while disabled stays (OFF, null) until enabled.
+        processor.isLowLightBoostEnabled = false
+        startSession(resolution = Size(3840, 2160))
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+
+        processor.isLowLightBoostEnabled = true
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState().error?.errorCode)
+            .isEqualTo(LowLightBoostException.ERROR_UNSUPPORTED_STREAM)
+
+        // Reset stream for Case 2: module install + failure while disabled stays (OFF, null).
+        surfaceRequests[0].deferrableSurface.close()
+        shadowOf(getMainLooper()).idleFor(3, TimeUnit.SECONDS)
+        client.moduleInstalledTask = { Tasks.forResult(false) }
+        processor.isLowLightBoostEnabled = false
+        startSession()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+        requireNotNull(client.installCallbacks.single()).onError("Network down")
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+    }
+
+    @Test
+    fun createSessionFailsWithApiException_normalizesAndPreservesUnrecoverableIdentity() {
+        // UNSUPPORTED_DATASPACE -> ERROR_UNSUPPORTED_STREAM preserving original cause and identity.
+        val dataspaceException =
+            ApiException(Status(LowLightBoostStatusCodes.UNSUPPORTED_DATASPACE))
+        client.createSessionError = dataspaceException
+        startSession()
+        val firstError = currentState().error
+        assertThat(firstError?.errorCode).isEqualTo(LowLightBoostException.ERROR_UNSUPPORTED_STREAM)
+        assertThat(firstError?.cause).isSameInstanceAs(dataspaceException)
+
+        processor.isLowLightBoostEnabled = false
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+
+        processor.isLowLightBoostEnabled = true
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState().error).isSameInstanceAs(firstError)
+
+        // CAMERA_NOT_SUPPORTED -> ERROR_NOT_SUPPORTED with cause.
+        surfaceRequests[0].deferrableSurface.close()
+        shadowOf(getMainLooper()).idleFor(3, TimeUnit.SECONDS)
+        val cameraNotSupported = ApiException(Status(LowLightBoostStatusCodes.CAMERA_NOT_SUPPORTED))
+        client.createSessionError = cameraNotSupported
+        startSession()
+        val cameraError = currentState().error
+        assertThat(cameraError?.errorCode).isEqualTo(LowLightBoostException.ERROR_NOT_SUPPORTED)
+        assertThat(cameraError?.cause).isSameInstanceAs(cameraNotSupported)
+    }
+
+    @Test
+    fun unrecoverableSessionError_toggleClearsAndReReportsSameErrorWithoutRetry() {
+        val developerError = ApiException(Status(CommonStatusCodes.DEVELOPER_ERROR))
+        client.createSessionError = developerError
+        startSession()
+        val initialError = currentState().error
+        assertThat(initialError?.errorCode).isEqualTo(LowLightBoostException.ERROR_SESSION_FAILED)
+        assertThat(initialError?.cause).isSameInstanceAs(developerError)
+        assertThat(client.createSessionCount).isEqualTo(1)
+
+        processor.isLowLightBoostEnabled = false
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState()).isEqualTo(LowLightBoostStateSnapshot.OFF)
+
+        processor.isLowLightBoostEnabled = true
+        shadowOf(getMainLooper()).idle()
+        assertThat(currentState().error).isSameInstanceAs(initialError)
+        assertThat(client.createSessionCount).isEqualTo(1)
+    }
+
+    @Test
+    fun synchronousInternalIllegalArgumentFromCreateSession_isWrappedAsUnknown() {
+        val internalArgError = IllegalArgumentException("Unexpected GMS internal argument")
+        client.createSessionThrowable = internalArgError
+        startSession()
+        val error = currentState().error
+        assertThat(error?.errorCode).isEqualTo(LowLightBoostException.ERROR_UNKNOWN)
+        assertThat(error?.cause).isSameInstanceAs(internalArgError)
+        assertThat(client.createSessionCount).isEqualTo(1)
     }
 
     private var lastTimestampNs = 0L
@@ -1106,9 +1344,9 @@ class LowLightBoostSessionManagerTest {
         shadowOf(getMainLooper()).idle()
     }
 
-    private fun currentState(): LowLightBoostEffectState {
+    private fun currentState(): LowLightBoostStateSnapshot {
         shadowOf(getMainLooper()).idle()
-        return requireNotNull(processor.stateLiveData.value)
+        return processor.committedSnapshot
     }
 
     private companion object {
