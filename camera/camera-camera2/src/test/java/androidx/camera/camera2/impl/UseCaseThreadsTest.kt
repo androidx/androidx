@@ -21,12 +21,15 @@ import android.os.HandlerThread
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -38,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -130,6 +134,80 @@ class UseCaseThreadsTest {
 
         assertThat(job.isCancelled).isTrue()
         assertThat(job.isCompleted).isTrue()
+    }
+
+    @Test
+    fun executorServiceDelegate_forwardsActiveExecutionAndShutdownRejection() {
+        val executorService = Executors.newSingleThreadScheduledExecutor()
+        val dispatcher = executorService.asCoroutineDispatcher()
+        val parentScope = CoroutineScope(SupervisorJob() + dispatcher)
+        val releaseGate = CountDownLatch(1)
+        try {
+            val threads = UseCaseThreads(parentScope, executorService, dispatcher, schedulerHandler)
+            val scheduledSequential = threads.sequentialExecutor as ScheduledExecutorService
+            assertThat(scheduledSequential).isNotSameInstanceAs(executorService)
+            assertThat(scheduledSequential.isShutdown).isFalse()
+            assertThat(scheduledSequential.isTerminated).isFalse()
+
+            // Verify active execution through confinedExecutorService sets isOnSequentialThread
+            // and cleans up pending withTimeoutOrNull timers on early completion.
+            val enteredTimeout = CountDownLatch(1)
+            val completedLatch = CountDownLatch(1)
+            var ranOnSequentialThread = false
+            var result: String? = null
+            var workerFailure: Throwable? = null
+            threads.sequentialScope.launch {
+                try {
+                    result =
+                        withTimeoutOrNull(DELAY_MS) {
+                            enteredTimeout.countDown()
+                            assertThat(releaseGate.await(5, TimeUnit.SECONDS)).isTrue()
+                            threads.checkOnSequentialThread()
+                            ranOnSequentialThread = threads.isOnSequentialThread()
+                            "ok"
+                        }
+                } catch (t: Throwable) {
+                    workerFailure = t
+                } finally {
+                    completedLatch.countDown()
+                }
+            }
+            assertThat(enteredTimeout.await(5, TimeUnit.SECONDS)).isTrue()
+            assertThat(schedulerHandler.hasMessages(0)).isTrue()
+
+            releaseGate.countDown()
+            assertThat(completedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+            workerFailure?.let { throw it }
+            assertThat(ranOnSequentialThread).isTrue()
+            assertThat(result).isEqualTo("ok")
+            assertThat(schedulerHandler.hasMessages(0)).isFalse()
+
+            // Shut down the backing ExecutorService while schedulerHandler stays alive and verify
+            // post-shutdown timers reject up front instead of posting never-resuming callbacks.
+            executorService.shutdown()
+            assertThat(executorService.awaitTermination(5, TimeUnit.SECONDS)).isTrue()
+            assertThat(scheduledSequential.isShutdown).isTrue()
+            assertThat(scheduledSequential.isTerminated).isTrue()
+
+            val delayJob =
+                threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    delay(DELAY_MS)
+                }
+            val timeoutJob =
+                threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    withTimeoutOrNull(DELAY_MS) { awaitCancellation() }
+                }
+
+            assertThat(delayJob.isCancelled).isTrue()
+            assertThat(delayJob.isCompleted).isTrue()
+            assertThat(timeoutJob.isCancelled).isTrue()
+            assertThat(timeoutJob.isCompleted).isTrue()
+            assertThat(schedulerHandler.hasMessages(0)).isFalse()
+        } finally {
+            releaseGate.countDown()
+            parentScope.cancel()
+            executorService.shutdownNow()
+        }
     }
 
     @Test
