@@ -243,6 +243,8 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?,
         retainLocks: Boolean,
+        frameLimit: Int,
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         update3ACalls.add(Update3ACall(aeRegions, afRegions, awbRegions))
         callOrder.add("update3A")

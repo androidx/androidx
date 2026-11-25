@@ -664,4 +664,166 @@ internal class Controller3AUpdate3ATest {
         assertThat(warnMessages.any { it.contains("flashMode") }).isTrue()
         assertThat(warnMessages.any { it.contains("controlMode") }).isTrue()
     }
+
+    @Test
+    fun testUpdate3A_defaultFrameLimitReached() = runTest {
+        val result = controller3A.update3A(afMode = AfMode.OFF)
+        val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
+        listener3A.onRequestSequenceCreated(requestMetadata)
+
+        // Frame 100 anchors frameNumberOfFirstUpdate; frame 160 is at diff == 60 (still within
+        // default frameLimit = 60); frame 161 exceeds default frameLimit = 60.
+        for (frame in 100L..160L) {
+            listener3A.onPartialCaptureResult(
+                requestMetadata,
+                CameraFrameNumber(frame),
+                FakeFrameMetadata(
+                    frameNumber = CameraFrameNumber(frame),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_MODE to
+                                CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                        ),
+                ),
+            )
+            assertThat(result.isCompleted).isFalse()
+        }
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(161L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(161L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_MODE to
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                    ),
+            ),
+        )
+
+        val result3A = result.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.FRAME_LIMIT_REACHED)
+        assertThat(requireNotNull(result3A.frameMetadata).frameNumber.value).isEqualTo(161L)
+    }
+
+    @Test
+    fun testUpdate3A_customFrameLimitReached() = runTest {
+        val result = controller3A.update3A(afMode = AfMode.OFF, frameLimit = 5)
+        val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
+        listener3A.onRequestSequenceCreated(requestMetadata)
+
+        for (frame in 100L..105L) {
+            listener3A.onPartialCaptureResult(
+                requestMetadata,
+                CameraFrameNumber(frame),
+                FakeFrameMetadata(
+                    frameNumber = CameraFrameNumber(frame),
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_MODE to
+                                CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                        ),
+                ),
+            )
+            assertThat(result.isCompleted).isFalse()
+        }
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(106L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(106L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_MODE to
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                    ),
+            ),
+        )
+
+        val result3A = result.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.FRAME_LIMIT_REACHED)
+        assertThat(requireNotNull(result3A.frameMetadata).frameNumber.value).isEqualTo(106L)
+    }
+
+    @Test
+    fun testUpdate3A_defaultTimeLimitReached() = runTest {
+        val result = controller3A.update3A(afMode = AfMode.OFF)
+        val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
+        listener3A.onRequestSequenceCreated(requestMetadata)
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(100L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(100L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_MODE to
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                        CaptureResult.SENSOR_TIMESTAMP to 1_000_000_000L,
+                    ),
+            ),
+        )
+        assertThat(result.isCompleted).isFalse()
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(101L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(101L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_MODE to
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                        CaptureResult.SENSOR_TIMESTAMP to 4_000_000_001L,
+                    ),
+            ),
+        )
+
+        val result3A = result.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(requireNotNull(result3A.frameMetadata).frameNumber.value).isEqualTo(101L)
+    }
+
+    @Test
+    fun testUpdate3A_customTimeLimitReached() = runTest {
+        val result = controller3A.update3A(afMode = AfMode.OFF, timeLimitNs = 500_000_000L)
+        val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
+        listener3A.onRequestSequenceCreated(requestMetadata)
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(100L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(100L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_MODE to
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                        CaptureResult.SENSOR_TIMESTAMP to 1_000_000_000L,
+                    ),
+            ),
+        )
+        assertThat(result.isCompleted).isFalse()
+
+        listener3A.onPartialCaptureResult(
+            requestMetadata,
+            CameraFrameNumber(101L),
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(101L),
+                resultMetadata =
+                    mapOf(
+                        CaptureResult.CONTROL_AF_MODE to
+                            CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                        CaptureResult.SENSOR_TIMESTAMP to 1_500_000_001L,
+                    ),
+            ),
+        )
+
+        val result3A = result.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(requireNotNull(result3A.frameMetadata).frameNumber.value).isEqualTo(101L)
+    }
 }

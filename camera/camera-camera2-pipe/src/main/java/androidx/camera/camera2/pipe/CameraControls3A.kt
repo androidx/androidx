@@ -81,9 +81,15 @@ public interface CameraControls3A {
      * is not supported by the camera device, the returned [Deferred] completes immediately with
      * [Result3A.Status.SUBMIT_FAILED] and the current 3A state is left unchanged.
      *
+     * @param frameLimit the maximum number of frames to wait before giving up waiting for the
+     *   update to take effect. Defaults to [DEFAULT_FRAME_LIMIT].
+     * @param timeLimitNs the maximum time limit in nanoseconds to wait before giving up waiting for
+     *   the update to take effect. Defaults to [DEFAULT_TIME_LIMIT_NS].
      * @return A [Deferred] of [Result3A] value which will contain the frame number at which the
-     *   capture result has all the needed applied parameters. It may be canceled with a
-     *   [CancellationException] if a newer request is submitted before completion.
+     *   capture result has all the needed applied parameters, or the frame at which the method
+     *   returned early because either [frameLimit] or [timeLimitNs] was reached (with
+     *   [Result3A.Status.FRAME_LIMIT_REACHED] or [Result3A.Status.TIME_LIMIT_REACHED]). It may be
+     *   canceled with a [CancellationException] if a newer request is submitted before completion.
      */
     public fun update3A(
         aeMode: AeMode? = null,
@@ -95,6 +101,8 @@ public interface CameraControls3A {
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
         retainLocks: Boolean = false,
+        frameLimit: Int = DEFAULT_FRAME_LIMIT,
+        timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
     ): Deferred<Result3A>
 
     /**
@@ -163,8 +171,9 @@ public interface CameraControls3A {
      * the returned [Deferred] completes immediately with [Result3A.Status.SUBMIT_FAILED] and the
      * current 3A state, including the AE mode, is left unchanged.
      *
-     * @return the CameraFrameNumber at which the torch was fully turned on if switch was ON, or the
-     *   CameraFrameNumber at which it was completely turned off when the switch was OFF.
+     * @return A [Deferred] of [Result3A] containing the frame at which the torch was turned on, or
+     *   the frame at which the method returned early because [DEFAULT_FRAME_LIMIT] or
+     *   [DEFAULT_TIME_LIMIT_NS] was reached.
      */
     public fun setTorchOn(): Deferred<Result3A>
 
@@ -173,8 +182,9 @@ public interface CameraControls3A {
      *
      * @param aeMode The [AeMode] to set while disabling the torch value. If null which is the
      *   default value, the current AE mode is used.
-     * @return the CameraFrameNumber at which the torch was fully turned on if switch was ON, or the
-     *   CameraFrameNumber at which it was completely turned off when the switch was OFF.
+     * @return A [Deferred] of [Result3A] containing the frame at which the torch was turned off, or
+     *   the frame at which the method returned early because [DEFAULT_FRAME_LIMIT] or
+     *   [DEFAULT_TIME_LIMIT_NS] was reached.
      */
     public fun setTorchOff(aeMode: AeMode? = null): Deferred<Result3A>
 

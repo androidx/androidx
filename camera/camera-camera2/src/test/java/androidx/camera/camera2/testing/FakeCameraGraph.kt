@@ -152,6 +152,8 @@ class FakeCameraGraph(
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?,
         retainLocks: Boolean,
+        frameLimit: Int,
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }

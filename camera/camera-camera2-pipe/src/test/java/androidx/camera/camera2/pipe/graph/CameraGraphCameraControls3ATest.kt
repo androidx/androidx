@@ -87,6 +87,82 @@ class CameraGraphCameraControls3ATest {
     }
 
     @Test
+    fun update3A_reachesFrameLimitWhenModeNeverMatches() = testScope.runTest {
+        val result3ADeferred = cameraGraph.update3A(aeMode = AeMode.OFF, frameLimit = 3)
+
+        // 4 frames (diffs 0, 1, 2, 3) do not exceed frameLimit = 3; 5th frame (diff 4 > 3) does.
+        repeat(4) {
+            cameraGraph
+                .simulateNextFrame()
+                .simulateTotalCaptureResult(
+                    mapOf(CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON)
+                )
+            advanceUntilIdle()
+            assertThat(result3ADeferred.isCompleted).isFalse()
+        }
+
+        cameraGraph
+            .simulateNextFrame()
+            .simulateTotalCaptureResult(
+                mapOf(CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON)
+            )
+        advanceUntilIdle()
+
+        val result3A = result3ADeferred.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.FRAME_LIMIT_REACHED)
+        assertThat(result3A.frameMetadata).isNotNull()
+        assertThat(result3A.frameInfo.isCompleted).isTrue()
+    }
+
+    @Test
+    fun update3A_reachesTimeLimitWhenModeNeverMatches() = testScope.runTest {
+        val result3ADeferred = cameraGraph.update3A(aeMode = AeMode.OFF, timeLimitNs = 500_000_000L)
+
+        cameraGraph
+            .simulateNextFrame(advanceClockByNanos = 100_000_000L)
+            .simulateTotalCaptureResult(
+                mapOf(CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON)
+            )
+        advanceUntilIdle()
+        assertThat(result3ADeferred.isCompleted).isFalse()
+
+        cameraGraph
+            .simulateNextFrame(advanceClockByNanos = 600_000_000L)
+            .simulateTotalCaptureResult(
+                mapOf(CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON)
+            )
+        advanceUntilIdle()
+
+        val result3A = result3ADeferred.await()
+        assertThat(result3A.status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(result3A.frameMetadata).isNotNull()
+        assertThat(result3A.frameInfo.isCompleted).isTrue()
+    }
+
+    @Test
+    fun sessionUpdate3A_forwardsFrameLimit() = testScope.runTest {
+        val updateDeferred = cameraGraph.useSession { session ->
+            session.update3A(aeMode = AeMode.OFF, frameLimit = 2)
+        }
+        repeat(3) {
+            cameraGraph
+                .simulateNextFrame()
+                .simulateTotalCaptureResult(
+                    mapOf(CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON)
+                )
+            advanceUntilIdle()
+            assertThat(updateDeferred.isCompleted).isFalse()
+        }
+        cameraGraph
+            .simulateNextFrame()
+            .simulateTotalCaptureResult(
+                mapOf(CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON)
+            )
+        advanceUntilIdle()
+        assertThat(updateDeferred.await().status).isEqualTo(Result3A.Status.FRAME_LIMIT_REACHED)
+    }
+
+    @Test
     fun lock3A_completesWithStatusOK() = testScope.runTest {
         val result3ADeferred =
             cameraGraph.lock3A(afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN)

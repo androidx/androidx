@@ -234,6 +234,8 @@ constructor(
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?,
         retainLocks: Boolean,
+        frameLimit: Int,
+        timeLimitNs: Long,
     ): Deferred<Result3A> = withSessionLockAsync {
         controller3A.update3A(
             aeMode = aeMode,
@@ -245,6 +247,8 @@ constructor(
             afRegions = afRegions,
             awbRegions = awbRegions,
             retainLocks = retainLocks,
+            frameLimit = frameLimit,
+            timeLimitNs = timeLimitNs,
         )
     }
 
