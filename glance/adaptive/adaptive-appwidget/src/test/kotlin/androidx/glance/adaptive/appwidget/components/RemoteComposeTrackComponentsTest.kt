@@ -58,6 +58,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @Suppress("RestrictedApiAndroidX")
 @Config(sdk = [37], qualifiers = "xhdpi")
@@ -90,6 +91,38 @@ class RemoteComposeTrackComponentsTest {
         assertThat(zeroProgress.operationsOfType<DrawArc>()).hasSize(1)
         // Both secondaryContainer (fill) and primary (track) are exposed for host theme updates.
         assertThat(checkNotNull(zeroProgress.document.themedColors)).hasSize(2)
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun ring_inNonSquareContainer_drawsCenteredCircularRingInsideShorterAxis() = runTest {
+        val rendered =
+            captureAndRender(context, widthDp = 56, heightDp = 32) {
+                Ring(progress = 0.75f, icon = null).Content(56.dp)
+            }
+        val bitmap = rendered.bitmap
+        var minX = bitmap.width
+        var maxX = -1
+        var minY = bitmap.height
+        var maxY = -1
+        for (y in 0 until bitmap.height) {
+            for (x in 0 until bitmap.width) {
+                if ((bitmap.getPixel(x, y) ushr 24) > 0) {
+                    if (x < minX) minX = x
+                    if (x > maxX) maxX = x
+                    if (y < minY) minY = y
+                    if (y > maxY) maxY = y
+                }
+            }
+        }
+        val drawnWidth = maxX - minX + 1
+        val drawnHeight = maxY - minY + 1
+        val expectedDiameter = 32.dpToPxInt(context)
+        assertThat(drawnWidth).isIn((expectedDiameter - 2)..(expectedDiameter + 2))
+        assertThat(drawnHeight).isIn((expectedDiameter - 2)..(expectedDiameter + 2))
+        // Ring stays horizontally centered inside the wider 56 dp canvas.
+        val centerX = (minX + maxX) / 2f
+        assertThat(centerX).isWithin(1.5f).of(bitmap.width / 2f)
     }
 
     @Test

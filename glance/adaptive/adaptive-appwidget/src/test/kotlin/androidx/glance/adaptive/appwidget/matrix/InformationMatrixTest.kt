@@ -91,6 +91,40 @@ class InformationMatrixTest {
     }
 
     @Test
+    fun card_rowHeaderGivesUpPaddingBeforeShrinkingTheLeadingComponentInShortContainers() {
+        val content =
+            MatrixCardContent(leading = Ring(progress = 0.5f), primary = TemplateText("11,056"))
+
+        val nominal = resolve(content, at(176, 88))
+        assertThat(nominal.padding).isEqualTo(16.dp)
+        assertThat(nominal.leadingSize).isEqualTo(56.dp)
+        assertThat(nominal.headerRowMinHeight).isEqualTo(56.dp)
+
+        // Tight H1 cell gives up padding first so the ring keeps its full 56 dp size.
+        val tightHome = resolve(content, at(176, 76))
+        assertThat(tightHome.padding).isEqualTo(10.dp)
+        assertThat(tightHome.leadingSize).isEqualTo(56.dp)
+        assertThat(tightHome.headerRowMinHeight).isEqualTo(56.dp)
+
+        // Lock screen 176x56 dp hits the 8 dp padding floor and shrinks the ring and row minHeight
+        // to the remaining 40 dp content height.
+        val lockScreen = resolve(content, at(176, 56, AppWidgetSurface.MOBILE_LOCK_SCREEN))
+        assertThat(lockScreen.padding).isEqualTo(8.dp)
+        assertThat(lockScreen.leadingSize).isEqualTo(40.dp)
+        assertThat(lockScreen.headerRowMinHeight).isEqualTo(40.dp)
+
+        // A standard row header with no leading component (e.g. bar-chart-only TrackTemplate on
+        // lock screen) also yields padding against the 56 dp row minHeight.
+        val textOnly =
+            resolve(
+                MatrixCardContent(primary = TemplateText("11,056")),
+                at(176, 56, AppWidgetSurface.MOBILE_LOCK_SCREEN),
+            )
+        assertThat(textOnly.padding).isEqualTo(8.dp)
+        assertThat(textOnly.headerRowMinHeight).isEqualTo(40.dp)
+    }
+
+    @Test
     fun card_rowHeaderShortensThePrimaryTextToItsBudget() {
         val card =
             resolve(
@@ -322,6 +356,45 @@ class InformationMatrixTest {
         // metric, or 24 dp with a 64 dp trailing pill + 8 dp gap: too narrow for it at 16 sp.
         assertThat((without.primary as TemplateText).value).isEqualTo("1,234,567")
         assertThat((with.primary as TemplateText).value).isNotEqualTo("1,234,567")
+    }
+
+    @Test
+    fun card_containedTrailingButtonShrinksWithLeadingInShortContainers() {
+        val content =
+            MatrixCardContent(
+                leading = Icon(GLYPH),
+                primary = TemplateText("Workout"),
+                trailing = IconButton(GLYPH, "Start", ACTION),
+                padding = 12.dp,
+                leadingSize = 56.dp,
+            )
+
+        val nominal = resolve(content, at(264, 88))
+        assertThat(nominal.leadingSize).isEqualTo(56.dp)
+        assertThat(nominal.trailingSize).isEqualTo(56.dp)
+
+        // Tight H1 cell (76 - 24 = 52 dp content height) shrinks both slots together.
+        val tight = resolve(content, at(264, 76))
+        assertThat(tight.leadingSize).isEqualTo(52.dp)
+        assertThat(tight.trailingSize).isEqualTo(52.dp)
+
+        // With default padding and a small leading icon, the 56 dp contained trailing button
+        // still yields padding first before shrinking.
+        val smallLeading =
+            MatrixCardContent(
+                leading = Icon(GLYPH),
+                primary = TemplateText("Workout"),
+                trailing = IconButton(GLYPH, "Start", ACTION),
+                leadingSize = 20.dp,
+            )
+        val tightDefaultPadding = resolve(smallLeading, at(176, 76))
+        assertThat(tightDefaultPadding.padding).isEqualTo(10.dp)
+        assertThat(tightDefaultPadding.trailingSize).isEqualTo(56.dp)
+
+        val shortDefaultPadding =
+            resolve(smallLeading, at(176, 56, AppWidgetSurface.MOBILE_LOCK_SCREEN))
+        assertThat(shortDefaultPadding.padding).isEqualTo(8.dp)
+        assertThat(shortDefaultPadding.trailingSize).isEqualTo(40.dp)
     }
 
     @Test

@@ -335,10 +335,10 @@ private fun RowHeader(taps: RemoteComposeActions, card: ResolvedMatrixCard) {
     val rowModifier =
         if (card.headerHorizontalPadding.value > 0f) {
             RemoteModifier.fillMaxWidth()
-                .heightIn(min = MatrixDefaults.HeaderRowMinHeight.asRdp())
+                .heightIn(min = card.headerRowMinHeight.asRdp())
                 .padding(horizontal = card.headerHorizontalPadding.asRdp())
         } else {
-            RemoteModifier.fillMaxWidth().heightIn(min = MatrixDefaults.HeaderRowMinHeight.asRdp())
+            RemoteModifier.fillMaxWidth().heightIn(min = card.headerRowMinHeight.asRdp())
         }
     RemoteRow(
         modifier = rowModifier,
