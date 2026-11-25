@@ -3205,6 +3205,122 @@ class TransformingLazyColumnTest {
         assertEdgeClick(isTopEdge = false, isBiggerThanThreshold = false)
     }
 
+    @Test
+    fun reverseLayout_edgeItems_blocksClippedTopItemAndAllowsVisibleBottomItem() {
+        lateinit var state: TransformingLazyColumnState
+        val itemHeightPx = with(rule.density) { 50.dp.roundToPx() }
+        val clippedTopHeightPx = with(rule.density) { 10.dp.roundToPx() }
+        val containerHeightPx = itemHeightPx * 3 + clippedTopHeightPx
+        val itemHeight = with(rule.density) { itemHeightPx.toDp() }
+        val containerHeight = with(rule.density) { containerHeightPx.toDp() }
+        var clickedIndex = -1
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(containerHeight).testTag(lazyListTag),
+                reverseLayout = true,
+                verticalArrangement =
+                    Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
+            ) {
+                items(10) { index ->
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .clickable(onClick = { clickedIndex = index })
+                    )
+                }
+            }
+        }
+        val (topSliverOffset, bottomVisibleOffset) =
+            rule.runOnIdle {
+                val centerX = state.layoutInfo.viewportSize.width / 2f
+                val tapInsetPx = clippedTopHeightPx / 2f
+                Offset(centerX, tapInsetPx) to
+                    Offset(centerX, state.layoutInfo.viewportSize.height - tapInsetPx)
+            }
+
+        // Tap the 10.dp clipped sliver of item 3 at the physical top edge.
+        rule.onNodeWithTag(lazyListTag).performTouchInput {
+            down(topSliverOffset)
+            move()
+            up()
+        }
+
+        rule.runOnIdle { assertThat(clickedIndex).isEqualTo(-1) }
+
+        // Tap the fully visible 50.dp item 0 at the physical bottom edge.
+        rule.onNodeWithTag(lazyListTag).performTouchInput {
+            down(bottomVisibleOffset)
+            move()
+            up()
+        }
+
+        rule.runOnIdle { assertThat(clickedIndex).isEqualTo(0) }
+    }
+
+    @Test
+    fun offScreenAnimatedEdgeItem_clippedVisibleEdgeItemIsNotClickable() {
+        lateinit var state: TransformingLazyColumnState
+        val itemHeightPx = with(rule.density) { 50.dp.roundToPx() }
+        val clippedTopHeightPx = with(rule.density) { 10.dp.roundToPx() }
+        val containerHeightPx = itemHeightPx * 3 + clippedTopHeightPx
+        val firstItemOffsetPx = -(itemHeightPx * 2 - clippedTopHeightPx)
+        val itemHeight = with(rule.density) { itemHeightPx.toDp() }
+        val containerHeight = with(rule.density) { containerHeightPx.toDp() }
+        var clickedIndex = -1
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                state = state,
+                modifier = Modifier.size(containerHeight).testTag(lazyListTag),
+                verticalArrangement = Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Top),
+                firstLayoutItemProvider = {
+                    TransformingLazyColumnFirstLayoutItemProvider.ItemInfo(
+                        index = 0,
+                        itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.Start,
+                        offset = firstItemOffsetPx,
+                    )
+                },
+            ) {
+                items(10) { index ->
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(itemHeight)
+                            .animateItem()
+                            .clickable(onClick = { clickedIndex = index })
+                    )
+                }
+            }
+        }
+        val (topSliverOffset, bottomVisibleOffset) =
+            rule.runOnIdle {
+                val centerX = state.layoutInfo.viewportSize.width / 2f
+                val tapInsetPx = clippedTopHeightPx / 2f
+                Offset(centerX, tapInsetPx) to
+                    Offset(centerX, state.layoutInfo.viewportSize.height - tapInsetPx)
+            }
+
+        // Tap the 10.dp clipped sliver of item 1 at the top edge while item 0 with animateItem()
+        // is positioned off-screen above the viewport.
+        rule.onNodeWithTag(lazyListTag).performTouchInput {
+            down(topSliverOffset)
+            move()
+            up()
+        }
+
+        rule.runOnIdle { assertThat(clickedIndex).isEqualTo(-1) }
+
+        // Tap the fully visible 50.dp item 4 at the bottom edge.
+        rule.onNodeWithTag(lazyListTag).performTouchInput {
+            down(bottomVisibleOffset)
+            move()
+            up()
+        }
+
+        rule.runOnIdle { assertThat(clickedIndex).isEqualTo(4) }
+    }
+
     private fun assertEdgeClick(
         isTopEdge: Boolean,
         isBiggerThanThreshold: Boolean,
