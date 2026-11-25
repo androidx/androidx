@@ -20,8 +20,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.concurrent.futures.ResolvableFuture;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.webkit.WebViewFeature;
+import androidx.webkit.WebViewOutcomeReceiver;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -38,6 +39,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 /**
  * Helper methods for common webkit test tasks.
@@ -91,15 +93,14 @@ public final class WebkitUtils {
      */
     public static <T> @NonNull ListenableFuture<T> onMainThreadDelayed(
             long delayMs, final @NonNull Callable<T> callable) {
-        final ResolvableFuture<T> future = ResolvableFuture.create();
-        sMainHandler.postDelayed(() -> {
+        return callbackToFuture(receiver -> sMainHandler.postDelayed(() -> {
             try {
-                future.set(callable.call());
+                receiver.onResult(callable.call());
             } catch (Throwable t) {
-                future.setException(t);
+                receiver.onError(t);
             }
-        }, delayMs);
-        return future;
+        }, delayMs));
+
     }
 
     /**
@@ -144,15 +145,15 @@ public final class WebkitUtils {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new IllegalStateException("This cannot be called from the UI thread.");
         }
-        final ResolvableFuture<Void> exceptionPropagatingFuture = ResolvableFuture.create();
-        onMainThread(() -> {
-            try {
-                runnable.run();
-                exceptionPropagatingFuture.set(null);
-            } catch (Throwable t) {
-                exceptionPropagatingFuture.setException(t);
-            }
-        });
+        ListenableFuture<Void> exceptionPropagatingFuture = callbackToFuture(
+                receiver -> onMainThread(() -> {
+                    try {
+                        runnable.run();
+                        receiver.onResult(null);
+                    } catch (Throwable t) {
+                        receiver.onError(t);
+                    }
+                }));
         waitForFuture(exceptionPropagatingFuture);
     }
 
@@ -299,6 +300,31 @@ public final class WebkitUtils {
      */
     public static boolean isCurrentThread(@NonNull Looper looper) {
         return Thread.currentThread().equals(looper.getThread());
+    }
+
+    /**
+     * Get a future that is set by the {@link WebViewOutcomeReceiver} passed to the block.
+     *
+     * @param block code to run
+     * @return Future that completes with the result of the {@link WebViewOutcomeReceiver}
+     */
+    @NonNull
+    public static <T, E extends Throwable> ListenableFuture<T> callbackToFuture(
+            @NonNull Consumer<WebViewOutcomeReceiver<T, E>> block) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            block.accept(new WebViewOutcomeReceiver<>() {
+                @Override
+                public void onResult(T result) {
+                    completer.set(result);
+                }
+
+                @Override
+                public void onError(@NonNull E error) {
+                    completer.setException(error);
+                }
+            });
+            return "";
+        });
     }
 
     // Do not instantiate this class.

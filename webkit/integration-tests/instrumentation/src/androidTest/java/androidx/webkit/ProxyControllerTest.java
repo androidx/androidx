@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.webkit.internal.ProxyControllerImpl;
@@ -37,7 +36,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.mockwebserver.MockWebServer;
@@ -284,25 +282,17 @@ public class ProxyControllerTest {
     }
 
     private void setProxyOverrideSync(final ProxyConfig proxyRules) {
-        final ResolvableFuture<Void> future = ResolvableFuture.create();
-        ProxyController.getInstance().setProxyOverride(proxyRules, new SynchronousExecutor(),
-                () -> future.set(null));
         // This future is used to ensure that setProxyOverride's callback was called
-        WebkitUtils.waitForFuture(future);
+        WebkitUtils.waitForFuture(WebkitUtils.callbackToFuture(
+                receiver -> ProxyController.getInstance().setProxyOverride(proxyRules,
+                        Runnable::run,
+                        () -> receiver.onResult(null))));
     }
 
     private void clearProxyOverrideSync() {
-        final ResolvableFuture<Void> future = ResolvableFuture.create();
-        ProxyController.getInstance().clearProxyOverride(
-                new SynchronousExecutor(), () -> future.set(null));
-        // This future is used to ensure that clearProxyOverride's callback was called
-        WebkitUtils.waitForFuture(future);
-    }
-
-    static class SynchronousExecutor implements Executor {
-        @Override
-        public void execute(Runnable r) {
-            r.run();
-        }
+        // This future is used to ensure that setProxyOverride's callback was called
+        WebkitUtils.waitForFuture(WebkitUtils.callbackToFuture(
+                receiver -> ProxyController.getInstance().clearProxyOverride(
+                        Runnable::run, () -> receiver.onResult(null))));
     }
 }

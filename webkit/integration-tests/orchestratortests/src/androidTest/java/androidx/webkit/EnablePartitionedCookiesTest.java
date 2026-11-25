@@ -19,7 +19,6 @@ package androidx.webkit;
 import android.content.Context;
 import android.webkit.CookieManager;
 
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -151,9 +150,8 @@ public class EnablePartitionedCookiesTest {
     }
 
     private void clearCookies() {
-        final ResolvableFuture<Boolean> future = ResolvableFuture.create();
-        WebkitUtils.onMainThread(() ->
-                CookieManager.getInstance().removeAllCookies(future::set));
-        WebkitUtils.waitForFuture(future);
+        WebkitUtils.waitForFuture(
+                WebkitUtils.callbackToFuture(receiver -> WebkitUtils.onMainThread(() ->
+                        CookieManager.getInstance().removeAllCookies(receiver::onResult))));
     }
 }

@@ -21,7 +21,6 @@ import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
@@ -50,38 +49,32 @@ public class WebViewRenderProcessTest {
         return WebkitUtils.onMainThreadSync(() -> WebViewCompat.getWebViewRenderProcess(webView));
     }
 
-    private ListenableFuture<WebViewRenderProcess> startAndGetRenderProcess(
-            final WebView webView) throws Throwable {
-        final ResolvableFuture<WebViewRenderProcess> future = ResolvableFuture.create();
-
-        WebkitUtils.onMainThread(() -> {
-            webView.setWebViewClient(new WebViewClient() {
-                @Override
-                public void onPageFinished(WebView view, String url) {
-                    WebViewRenderProcess result =
-                            WebViewCompat.getWebViewRenderProcess(webView);
-                    future.set(result);
-                }
-            });
-            webView.loadUrl("about:blank");
-        });
-
-        return future;
+    private ListenableFuture<WebViewRenderProcess> startAndGetRenderProcess(final WebView webView) {
+        return WebkitUtils.callbackToFuture(receiver ->
+                WebkitUtils.onMainThread(() -> {
+                    webView.setWebViewClient(new WebViewClient() {
+                        @Override
+                        public void onPageFinished(WebView view, String url) {
+                            WebViewRenderProcess result =
+                                    WebViewCompat.getWebViewRenderProcess(webView);
+                            receiver.onResult(result);
+                        }
+                    });
+                    webView.loadUrl("about:blank");
+                }));
     }
 
     ListenableFuture<Boolean> catchRenderProcessTermination(final WebView webView) {
-        final ResolvableFuture<Boolean> future = ResolvableFuture.create();
-
-        WebkitUtils.onMainThread(() -> webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
-                view.destroy();
-                future.set(true);
-                return true;
-            }
-        }));
-
-        return future;
+        return WebkitUtils.callbackToFuture(receiver -> WebkitUtils.onMainThread(
+                () -> webView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean onRenderProcessGone(WebView view,
+                            RenderProcessGoneDetail detail) {
+                        view.destroy();
+                        receiver.onResult(true);
+                        return true;
+                    }
+                })));
     }
 
     @Before

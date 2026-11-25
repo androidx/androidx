@@ -19,7 +19,6 @@ package androidx.webkit;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -28,6 +27,8 @@ import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.Assert;
@@ -65,21 +66,9 @@ public class AsyncStartUpTest {
     public void testAsyncStartUp_onSuccessLoadsWebView() throws Throwable {
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
 
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture.set(result);
-                    }
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(config);
 
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture.setException(error);
-                    }
-                });
         // Wait until the callback has triggered.
         WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -97,21 +86,7 @@ public class AsyncStartUpTest {
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
-
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture.setException(error);
-                    }
-                });
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(config);
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -130,21 +105,7 @@ public class AsyncStartUpTest {
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
-
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture.setException(error);
-                    }
-                });
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(config);
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -171,8 +132,6 @@ public class AsyncStartUpTest {
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
 
         CountDownLatch latch = new CountDownLatch(1);
         // Triggers provider init.
@@ -181,18 +140,7 @@ public class AsyncStartUpTest {
             latch.countDown();
         });
         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture.setException(error);
-                    }
-                });
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(config);
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -205,7 +153,7 @@ public class AsyncStartUpTest {
         Assert.assertTrue(
                 convertToString(
                         result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation())
-                .contains("Provider init"));
+                        .contains("Provider init"));
 
         Assert.assertEquals(0,
                 Objects.requireNonNull(result.getNonUiThreadBlockingStartUpLocations()).size());
@@ -223,23 +171,11 @@ public class AsyncStartUpTest {
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
 
         WebViewGlueCommunicator.getWebViewClassLoader();
         try (WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
-            WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                    new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                        @Override
-                        public void onResult(@NonNull WebViewStartUpResult result) {
-                            startUpFinishedFuture.set(result);
-                        }
-
-                        @Override
-                        public void onError(@NonNull WebViewStartupException error) {
-                            startUpFinishedFuture.setException(error);
-                        }
-                    });
+            ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(
+                    config);
             // Wait until the callback has triggered.
             WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -253,7 +189,7 @@ public class AsyncStartUpTest {
             Assert.assertTrue(
                     convertToString(result.getUiThreadBlockingStartUpLocations().get(0)
                             .getStackInformation())
-                    .contains("Chromium init"));
+                            .contains("Chromium init"));
             if (WebViewFeatureInternal
                     .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
                 Assert.assertEquals(0,
@@ -278,21 +214,9 @@ public class AsyncStartUpTest {
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
         try (WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
-            WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                    new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                        @Override
-                        public void onResult(@NonNull WebViewStartUpResult result) {
-                            startUpFinishedFuture.set(result);
-                        }
-
-                        @Override
-                        public void onError(@NonNull WebViewStartupException error) {
-                            startUpFinishedFuture.setException(error);
-                        }
-                    });
+            ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(
+                    config);
             // Wait until the callback has triggered.
             WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -306,11 +230,11 @@ public class AsyncStartUpTest {
             Assert.assertTrue(
                     convertToString(result.getUiThreadBlockingStartUpLocations().get(0)
                             .getStackInformation())
-                    .contains("Chromium init"));
+                            .contains("Chromium init"));
             Assert.assertTrue(
                     convertToString(result.getUiThreadBlockingStartUpLocations().get(1)
                             .getStackInformation())
-                    .contains("Provider init"));
+                            .contains("Provider init"));
             if (WebViewFeatureInternal
                     .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
                 Assert.assertEquals(0,
@@ -333,12 +257,6 @@ public class AsyncStartUpTest {
 
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture1 =
-                ResolvableFuture.create();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture2 =
-                ResolvableFuture.create();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture3 =
-                ResolvableFuture.create();
 
         CountDownLatch latch = new CountDownLatch(1);
         // Triggers provider init.
@@ -347,42 +265,9 @@ public class AsyncStartUpTest {
             latch.countDown();
         });
         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture1.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture1.setException(error);
-                    }
-                });
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture2.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture2.setException(error);
-                    }
-                });
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture3.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture3.setException(error);
-                    }
-                });
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture1 = startupWebViewAsync(config);
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture2 = startupWebViewAsync(config);
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture3 = startupWebViewAsync(config);
         // Wait until the callback has triggered.
         WebViewStartUpResult result1 = WebkitUtils.waitForFuture(startUpFinishedFuture1);
         WebViewStartUpResult result2 = WebkitUtils.waitForFuture(startUpFinishedFuture2);
@@ -434,21 +319,7 @@ public class AsyncStartUpTest {
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor())
                 .setShouldRunUiThreadStartUpTasks(false).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
-
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture.setException(error);
-                    }
-                });
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(config);
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -476,21 +347,8 @@ public class AsyncStartUpTest {
                 Executors.newSingleThreadExecutor())
                 .setShouldRunUiThreadStartUpTasks(true).setProfilesToLoadDuringStartup(
                         Set.of("TestX", "TestY")).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
 
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture.setException(error);
-                    }
-                });
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(config);
         // Wait until the callback has triggered.
         WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -520,8 +378,6 @@ public class AsyncStartUpTest {
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor())
                 .setShouldRunUiThreadStartUpTasks(false).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
         CountDownLatch latch = new CountDownLatch(1);
         // Triggers provider init.
         new Handler(Looper.getMainLooper()).post(() -> {
@@ -529,18 +385,7 @@ public class AsyncStartUpTest {
             latch.countDown();
         });
         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture.setException(error);
-                    }
-                });
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(config);
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -555,7 +400,7 @@ public class AsyncStartUpTest {
         Assert.assertTrue(
                 convertToString(
                         result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation())
-                .contains("Provider init"));
+                        .contains("Provider init"));
     }
 
     /**
@@ -576,21 +421,9 @@ public class AsyncStartUpTest {
         );
         WebViewStartUpConfig config = new WebViewStartUpConfig.Builder(
                 Executors.newSingleThreadExecutor()).build();
-        final ResolvableFuture<WebViewStartUpResult> startUpFinishedFuture =
-                ResolvableFuture.create();
         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-        WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        startUpFinishedFuture.set(result);
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        startUpFinishedFuture.setException(error);
-                    }
-                });
+        ListenableFuture<WebViewStartUpResult> startUpFinishedFuture = startupWebViewAsync(
+                config);
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -606,7 +439,7 @@ public class AsyncStartUpTest {
         Assert.assertTrue(
                 convertToString(result.getNonUiThreadBlockingStartUpLocations().get(0)
                         .getStackInformation())
-                .contains("Chromium init"));
+                        .contains("Chromium init"));
     }
 
     /**
@@ -626,29 +459,39 @@ public class AsyncStartUpTest {
             callbackExecutorThread.set(t);
             return t;
         });
-        final ResolvableFuture<Thread> callbackThreadFuture = ResolvableFuture.create();
+        ListenableFuture<Thread> callbackThreadFuture =
+                WebkitUtils.callbackToFuture(receiver ->
+                        WebViewCompat.startUpWebView(
+                                ApplicationProvider.getApplicationContext(),
+                                config,
+                                callbackExecutor,
+                                new WebViewOutcomeReceiver<>() {
+                                    @Override
+                                    public void onResult(@NonNull WebViewStartUpResult result) {
+                                        receiver.onResult(Thread.currentThread());
+                                    }
 
-        WebViewCompat.startUpWebView(
-                ApplicationProvider.getApplicationContext(),
-                config,
-                callbackExecutor,
-                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
-                    @Override
-                    public void onResult(@NonNull WebViewStartUpResult result) {
-                        callbackThreadFuture.set(Thread.currentThread());
-                    }
-
-                    @Override
-                    public void onError(@NonNull WebViewStartupException error) {
-                        callbackThreadFuture.setException(error);
-                    }
-                });
+                                    @Override
+                                    public void onError(@NonNull WebViewStartupException error) {
+                                        receiver.onError(error);
+                                    }
+                                }));
         Thread actualThread = WebkitUtils.waitForFuture(callbackThreadFuture);
 
         Assert.assertTrue(webViewCurrentlyLoaded());
         Assert.assertNotNull(callbackExecutorThread.get());
         Assert.assertSame(callbackExecutorThread.get(), actualThread);
         Assert.assertNotSame(Looper.getMainLooper().getThread(), actualThread);
+    }
+
+
+    @NonNull
+    private static ListenableFuture<WebViewStartUpResult> startupWebViewAsync(
+            WebViewStartUpConfig config) {
+        return WebkitUtils.<WebViewStartUpResult, WebViewStartupException>callbackToFuture(
+                receiver -> WebViewCompat.startUpWebView(
+                        ApplicationProvider.getApplicationContext(), config,
+                        receiver));
     }
 
     private static String convertToString(Throwable t) {

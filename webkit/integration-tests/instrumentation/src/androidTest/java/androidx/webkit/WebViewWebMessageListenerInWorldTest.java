@@ -16,14 +16,12 @@
 
 package androidx.webkit;
 
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.webkit.test.common.TestWebMessageListener;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
 
-import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -193,28 +191,26 @@ public class WebViewWebMessageListenerInWorldTest {
         Assert.assertEquals("hello", data.mMessage.getData());
 
         // Set a variable in the isolated world via executeJavaScript
-        final ResolvableFuture<String> setVarFuture = ResolvableFuture.create();
-        WebkitUtils.onMainThreadSync(
-                () -> {
-                    data.mReplyProxy.executeJavaScript(
-                            "window.isolatedWorldVar",
-                            new WebViewOutcomeReceiver<String, JavaScriptExecutionException>() {
-                                @Override
-                                public void onResult(String result) {
-                                    setVarFuture.set(result);
-                                }
-
-                                @Override
-                                public void onError(@NonNull JavaScriptExecutionException error) {
-                                    setVarFuture.setException(error);
-                                }
-                            });
-                });
-        Assert.assertEquals("\"isolatedValue\"", WebkitUtils.waitForFuture(setVarFuture));
+        String jsResult = executeJavascriptAndWaitForResult(data, "window.isolatedWorldVar");
+        Assert.assertEquals("\"isolatedValue\"", jsResult);
 
         // Verify the variable does NOT exist in the page world
         Assert.assertEquals(
                 "null", mWebViewOnUiThread.evaluateJavascriptSync("window.isolatedWorldVar"));
+    }
+
+    private static String executeJavascriptAndWaitForResult(
+            TestWebMessageListener.Data data,
+            String script) {
+        return WebkitUtils.waitForFuture(
+                WebkitUtils.<String, JavaScriptExecutionException>callbackToFuture(
+                        receiver -> WebkitUtils.onMainThreadSync(
+                                () -> {
+                                    Assert.assertNotNull(data.mReplyProxy);
+                                    data.mReplyProxy.executeJavaScript(
+                                            script,
+                                            receiver);
+                                })));
     }
 
     @Test
@@ -251,64 +247,18 @@ public class WebViewWebMessageListenerInWorldTest {
         Assert.assertEquals("fromIframe", iframeData.mMessage.getData());
 
         // Execute JavaScript in main frame and verify it can access mainFrameMarker
-        final ResolvableFuture<String> mainFrameFuture = ResolvableFuture.create();
-        WebkitUtils.onMainThreadSync(
-                () -> {
-                    mainData.mReplyProxy.executeJavaScript(
-                            "window.mainFrameMarker",
-                            new WebViewOutcomeReceiver<String, JavaScriptExecutionException>() {
-                                @Override
-                                public void onResult(String result) {
-                                    mainFrameFuture.set(result);
-                                }
-
-                                @Override
-                                public void onError(@NonNull JavaScriptExecutionException error) {
-                                    mainFrameFuture.setException(error);
-                                }
-                            });
-                });
-        Assert.assertEquals("\"main\"", WebkitUtils.waitForFuture(mainFrameFuture));
+        String mainFrameMarker = executeJavascriptAndWaitForResult(mainData,
+                "window.mainFrameMarker");
+        Assert.assertEquals("\"main\"", mainFrameMarker);
 
         // Execute JavaScript in iframe and verify it can access iframeMarker
-        final ResolvableFuture<String> iframeFuture = ResolvableFuture.create();
-        WebkitUtils.onMainThreadSync(
-                () -> {
-                    iframeData.mReplyProxy.executeJavaScript(
-                            "window.iframeMarker",
-                            new WebViewOutcomeReceiver<String, JavaScriptExecutionException>() {
-                                @Override
-                                public void onResult(String result) {
-                                    iframeFuture.set(result);
-                                }
-
-                                @Override
-                                public void onError(@NonNull JavaScriptExecutionException error) {
-                                    iframeFuture.setException(error);
-                                }
-                            });
-                });
-        Assert.assertEquals("\"iframe\"", WebkitUtils.waitForFuture(iframeFuture));
+        String iframeMarker = executeJavascriptAndWaitForResult(iframeData, "window.iframeMarker");
+        Assert.assertEquals("\"iframe\"", iframeMarker);
 
         // Verify main frame proxy cannot access iframe's variable
-        final ResolvableFuture<String> mainAccessIframeFuture = ResolvableFuture.create();
-        WebkitUtils.onMainThreadSync(
-                () -> {
-                    mainData.mReplyProxy.executeJavaScript(
-                            "window.iframeMarker",
-                            new WebViewOutcomeReceiver<String, JavaScriptExecutionException>() {
-                                @Override
-                                public void onResult(String result) {
-                                    mainAccessIframeFuture.set(result);
-                                }
-
-                                @Override
-                                public void onError(@NonNull JavaScriptExecutionException error) {
-                                    mainAccessIframeFuture.setException(error);
-                                }
-                            });
-                });
-        Assert.assertEquals("null", WebkitUtils.waitForFuture(mainAccessIframeFuture));
+        String mainAccessIframeMarker = executeJavascriptAndWaitForResult(mainData,
+                "window.iframeMarker");
+        Assert.assertEquals("null", mainAccessIframeMarker);
     }
 
     @Test
@@ -336,64 +286,17 @@ public class WebViewWebMessageListenerInWorldTest {
         TestWebMessageListener.Data data2 = listener2.waitForOnPostMessage();
 
         // Set a variable in world1
-        final ResolvableFuture<String> setVar1Future = ResolvableFuture.create();
-        WebkitUtils.onMainThreadSync(
-                () -> {
-                    data1.mReplyProxy.executeJavaScript(
-                            "window.worldVar = 'value1'; 'done'",
-                            new WebViewOutcomeReceiver<String, JavaScriptExecutionException>() {
-                                @Override
-                                public void onResult(String result) {
-                                    setVar1Future.set(result);
-                                }
-
-                                @Override
-                                public void onError(@NonNull JavaScriptExecutionException error) {
-                                    setVar1Future.setException(error);
-                                }
-                            });
-                });
-        Assert.assertEquals("\"done\"", WebkitUtils.waitForFuture(setVar1Future));
+        String setVar1Result = executeJavascriptAndWaitForResult(data1,
+                "window.worldVar = 'value1'; 'done'");
+        Assert.assertEquals("\"done\"", setVar1Result);
 
         // Verify world1 can read its own variable
-        final ResolvableFuture<String> getVar1Future = ResolvableFuture.create();
-        WebkitUtils.onMainThreadSync(
-                () -> {
-                    data1.mReplyProxy.executeJavaScript(
-                            "window.worldVar",
-                            new WebViewOutcomeReceiver<String, JavaScriptExecutionException>() {
-                                @Override
-                                public void onResult(String result) {
-                                    getVar1Future.set(result);
-                                }
-
-                                @Override
-                                public void onError(@NonNull JavaScriptExecutionException error) {
-                                    getVar1Future.setException(error);
-                                }
-                            });
-                });
-        Assert.assertEquals("\"value1\"", WebkitUtils.waitForFuture(getVar1Future));
+        String getVar1Result = executeJavascriptAndWaitForResult(data1, "window.worldVar");
+        Assert.assertEquals("\"value1\"", getVar1Result);
 
         // Verify world2 cannot read world1's variable
-        final ResolvableFuture<String> world2AccessFuture = ResolvableFuture.create();
-        WebkitUtils.onMainThreadSync(
-                () -> {
-                    data2.mReplyProxy.executeJavaScript(
-                            "window.worldVar",
-                            new WebViewOutcomeReceiver<String, JavaScriptExecutionException>() {
-                                @Override
-                                public void onResult(String result) {
-                                    world2AccessFuture.set(result);
-                                }
-
-                                @Override
-                                public void onError(@NonNull JavaScriptExecutionException error) {
-                                    world2AccessFuture.setException(error);
-                                }
-                            });
-                });
-        Assert.assertEquals("null", WebkitUtils.waitForFuture(world2AccessFuture));
+        String world2AccessResult = executeJavascriptAndWaitForResult(data2, "window.worldVar");
+        Assert.assertEquals("null", world2AccessResult);
     }
 
     private void loadHtmlSync(String html) {

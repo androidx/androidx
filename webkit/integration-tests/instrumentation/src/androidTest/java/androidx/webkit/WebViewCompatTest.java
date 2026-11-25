@@ -33,12 +33,13 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
@@ -91,8 +92,9 @@ public class WebViewCompatTest {
 
         mWebViewOnUiThread.loadUrl("about:blank");
 
-        final ResolvableFuture<Long> visualStateFuture = ResolvableFuture.create();
-        mWebViewOnUiThread.postVisualStateCallbackCompat(kRequest, visualStateFuture::set);
+        ListenableFuture<Long> visualStateFuture = WebkitUtils.callbackToFuture(receiver -> {
+            mWebViewOnUiThread.postVisualStateCallbackCompat(kRequest, receiver::onResult);
+        });
 
         assertEquals(kRequest, (long) WebkitUtils.waitForFuture(visualStateFuture));
     }
@@ -141,9 +143,9 @@ public class WebViewCompatTest {
         final MockContext ctx =
                 new MockContext(
                         ApplicationProvider.getApplicationContext().getApplicationContext());
-        final ResolvableFuture<Boolean> startSafeBrowsingFuture = ResolvableFuture.create();
-        WebViewCompat.startSafeBrowsing(ctx,
-                value -> startSafeBrowsingFuture.set(ctx.wasGetApplicationContextCalled()));
+        ListenableFuture<Boolean> startSafeBrowsingFuture = WebkitUtils.callbackToFuture(
+                receiver -> WebViewCompat.startSafeBrowsing(ctx,
+                        value -> receiver.onResult(ctx.wasGetApplicationContextCalled())));
         assertTrue(WebkitUtils.waitForFuture(startSafeBrowsingFuture));
     }
 
@@ -171,18 +173,18 @@ public class WebViewCompatTest {
     public void testStartSafeBrowsingInvokesCallback() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.START_SAFE_BROWSING);
 
-        final ResolvableFuture<Boolean> startSafeBrowsingFuture = ResolvableFuture.create();
-        WebViewCompat.startSafeBrowsing(
-                ApplicationProvider.getApplicationContext().getApplicationContext(),
-                value -> startSafeBrowsingFuture.set(
-                        WebkitUtils.isCurrentThread(Looper.getMainLooper())));
+        ListenableFuture<Boolean> startSafeBrowsingFuture = WebkitUtils.callbackToFuture(
+                receiver -> WebViewCompat.startSafeBrowsing(
+                        ApplicationProvider.getApplicationContext().getApplicationContext(),
+                        value -> receiver.onResult(
+                                WebkitUtils.isCurrentThread(Looper.getMainLooper()))));
         assertTrue(WebkitUtils.waitForFuture(startSafeBrowsingFuture));
     }
 
     private static boolean setSafeBrowsingAllowlistSync(Set<String> allowlist) {
-        final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
-        WebViewCompat.setSafeBrowsingAllowlist(allowlist,
-                safeBrowsingAllowlistFuture::set);
+        ListenableFuture<Boolean> safeBrowsingAllowlistFuture = WebkitUtils.callbackToFuture(
+                receiver -> WebViewCompat.setSafeBrowsingAllowlist(allowlist,
+                        receiver::onResult));
         return WebkitUtils.waitForFuture(safeBrowsingAllowlistFuture);
     }
 
@@ -217,21 +219,21 @@ public class WebViewCompatTest {
         allowlist.add("safe-browsing");
         assertTrue("Valid allowlist should be successful", setSafeBrowsingAllowlistSync(allowlist));
 
-        final ResolvableFuture<Void> pageFinishedFuture = ResolvableFuture.create();
-        mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                pageFinishedFuture.set(null);
-            }
+        ListenableFuture<Void> pageFinishedFuture = WebkitUtils.callbackToFuture(
+                receiver -> mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
+                    @Override
+                    public void onPageFinished(WebView view, String url) {
+                        receiver.onResult(null);
+                    }
 
-            @Override
-            public void onSafeBrowsingHit(@NonNull WebView view,
-                    @NonNull WebResourceRequest request, int threatType,
-                    @NonNull SafeBrowsingResponseCompat callback) {
-                pageFinishedFuture.setException(new IllegalStateException(
-                        "Should not invoke onSafeBrowsingHit"));
-            }
-        });
+                    @Override
+                    public void onSafeBrowsingHit(@NonNull WebView view,
+                            @NonNull WebResourceRequest request, int threatType,
+                            @NonNull SafeBrowsingResponseCompat callback) {
+                        receiver.onError(new IllegalStateException(
+                                "Should not invoke onSafeBrowsingHit"));
+                    }
+                }));
 
         mWebViewOnUiThread.loadUrl("chrome://safe-browsing/match?type=malware");
 

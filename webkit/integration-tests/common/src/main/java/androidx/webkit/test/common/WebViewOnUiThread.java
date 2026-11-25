@@ -35,7 +35,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.CallSuper;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.webkit.JavaScriptExecutionWorld;
 import androidx.webkit.NavigationParameters;
@@ -46,6 +45,8 @@ import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewRenderProcessClient;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -446,9 +447,8 @@ public class WebViewOnUiThread implements AutoCloseable {
      * Execute javascript synchronously, returning the result.
      */
     public @Nullable String evaluateJavascriptSync(final @NonNull String script) {
-        final ResolvableFuture<String> future = ResolvableFuture.create();
-        evaluateJavascript(script, future::set);
-        return WebkitUtils.waitForFuture(future);
+        return WebkitUtils.waitForFuture(WebkitUtils.callbackToFuture(
+                receiver -> evaluateJavascript(script, receiver::onResult)));
     }
 
     public void evaluateJavascript(final @NonNull String script,
@@ -489,10 +489,11 @@ public class WebViewOnUiThread implements AutoCloseable {
      * Wait for the current state of the DOM to be ready to render on the next draw.
      */
     public void waitForDOMReadyToRender() {
-        final ResolvableFuture<Void> future = ResolvableFuture.create();
-        postVisualStateCallbackCompat(0, requestId -> future.set(null));
+        ListenableFuture<Long> requestIdFuture = WebkitUtils.callbackToFuture(receiver -> {
+            postVisualStateCallbackCompat(0, receiver::onResult);
+        });
         try {
-            WebkitUtils.waitForFuture(future);
+            WebkitUtils.waitForFuture(requestIdFuture);
         } catch (RuntimeException e) {
             if (e.getCause() instanceof TimeoutException) {
                 throw new RuntimeException(
