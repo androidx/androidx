@@ -54,6 +54,7 @@ import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.PointerCaptureComponent
 import androidx.xr.scenecore.runtime.PositionalAudioComponent
 import androidx.xr.scenecore.runtime.ResizableComponent
+import androidx.xr.scenecore.runtime.RotatableComponent
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SoundEffectPool
@@ -523,6 +524,9 @@ internal constructor(
         maximumSize: Dimensions,
     ): ResizableComponent =
         TODO("OpenXrSceneRuntime.createResizableComponent is not yet implemented")
+
+    override fun createRotatableComponent(): RotatableComponent =
+        TODO("OpenXrSceneRuntime.createRotatableComponent is not yet implemented")
 
     override fun createPointerCaptureComponent(
         executor: Executor,
