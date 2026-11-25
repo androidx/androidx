@@ -26,15 +26,23 @@ description: >-
   on specific device models, while working correctly on others, or appears in
   daily automated CI runs.
 - **Investigation Steps & Blast-Radius Analysis**:
-  1. **Identify Test & Check Daily Suite Status**:
-     - Query historical test runs across the physical device fleet over the past
-       14 days to determine the issue scope:
-       - `[SINGLE_DEVICE]`: Isolated failure on one model (likely vendor HAL or
-         tight timeout).
-       - `[MULTI_DEVICE_SUBSET]`: Failures across specific SoC or OEM families
-         (e.g., Samsung Snapdragon, MediaTek, Exynos, Pixel).
-       - `[FLEET_WIDE_ALL_DEVICES]`: Generic regression affecting the entire
-         device fleet (>80% failure rate).
+  1. **Verify Bug Reality on `HEAD` & Check Historical Suite Incidence**:
+     - Before authoring a fix or reviving an unmerged CL, verify **both**
+       current `HEAD` source/reproduction status and historical test runs across
+       the physical device fleet (past 14–60 days when CI history is available):
+       - *Speculative or Already-Resolved Non-Bug*: If `HEAD` already resolves
+         the defect, or `0` historical failures occur *and* no deterministic
+         reproduction exists on `HEAD`, close/abandon rather than landing
+         speculative changes.
+       - *Deterministic Defect with `0` CI Hits (`0` CI Hits != Non-Bug)*:
+         Absence of historical CI failures does **not** disprove a bug when
+         existing suites lack coverage of that API combination or async
+         interleaving—prove it first via a deterministic red-to-green host unit
+         or device reproduction test.
+       - *Fleet Scope*: Classify active CI failures as `[SINGLE_DEVICE]`
+         (isolated vendor HAL or tight timeout), `[MULTI_DEVICE_SUBSET]` (SoC or
+         OEM family such as Samsung Snapdragon, MediaTek, Exynos, Pixel), or
+         `[FLEET_WIDE_ALL_DEVICES]` (>80% failure rate).
      - When internal test tooling is configured, use test runner query
        options (see `AGENTS_INTERNAL.md`) to extract blast radius, AI
        diagnostic insights, and culprit CLs.

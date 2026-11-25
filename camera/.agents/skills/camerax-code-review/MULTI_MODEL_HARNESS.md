@@ -34,6 +34,51 @@ Authoring* bullet below alongside the fail-closed contract in their brief.
         trigger the issue in library code), and (c) **Deep-Module
         Simplicity & Object Job** (selecting the simplest minimal-state
         design before coding the fix).
+        - *Configurable Pre-Draft Parallel Co-Investigation & Co-Planning
+          (`CAMERAX_EARLY_MULTI_FAMILY` & Anti-Waste Merge Rule):* Before
+          writing `draft_deliverable.md` or locking onto one hypothesis when
+          cross-family quota is healthy (`>= 35%` on daily quota-limited pools),
+          evaluate the early multi-family threshold (configured via the
+          `CAMERAX_EARLY_MULTI_FAMILY` environment variable—read from the shell
+          when available—or user instruction; default `complicated`):
+          1. **`complicated` (Default — Covers All Necessary High-Risk Cases):**
+             Triggers on (a) multi-module or cross-layer boundary bugs
+             (`camera-core` <-> `camera-camera2` <-> `camera-camera2-pipe`, or
+             app <-> CameraX <-> HAL/`MediaCodec`/GL), (b)
+             `@CameraScope`/`@UseCaseCameraScope`, lock-order DAG, or async
+             executor/teardown state-machine races, (c) public API or dual-path
+             spec-divergence puzzles (`FeatureCombinationQuery`, `DynamicRange`,
+             `StreamConfigurationMap`, legacy parity), and (d) multi-device
+             stress/A/B harnesses, `DeviceQuirk` vs. `workaround/` `Rungs W1-W4`
+             trade-offs, or `>= 2`-class behavioral changes with non-obvious
+             root cause or layer ownership.
+          2. **`moderate` (`somewhat_complicated` — Proactive Opt-In):** Also
+             triggers early/multi-stage parallel cross-family co-investigation
+             on somewhat-complicated tasks (single-module multi-method fixes,
+             subtle capability/quirk boundaries, non-trivial fake/test design,
+             or multi-hypothesis "why" inquiries).
+          3. **`not_easy` (`proactive` — Broadest Quality Opt-In):** Triggers on
+             any non-easy problem (anything beyond a trivial typo, single-fact
+             lookup, mechanical format/rename, or obvious 1-line fix).
+          When triggered, spawn **2 parallel cross-family cold investigators**
+          briefed with Checkpoint 1's (a)-(c) checks on the raw logs and source
+          files upfront (comparing `>= 2` candidate placements and prioritizing
+          `camera-core`/`camera-camera2` over `camera-camera2-pipe`; e.g., an
+          `AudioSource` pause/flush case where one family caught latch
+          happens-before timing while the other traced upstream encoder state
+          transitions and an OEM timestamp quirk exception). **Anti-Waste Merge
+          Rule:** Those 2 parallel reports **directly satisfy** Checkpoint 1's
+          cross-family gate via `1` coordinator synthesis step into
+          `draft_deliverable.md` (**`0` extra Checkpoint 1 verifier rounds**)
+          unless they disagree on the first causal failure or owning layer, or
+          the synthesized draft adopts a fix placement/design not proposed by
+          either report (`1` focused adjudication check); keep **`0` upfront
+          co-investigators** below the active threshold. *User Option Hint:*
+          When `complicated` is active and a task is "somewhat complicated /
+          not easy" below that bar (with healthy quota), include a 1-line note
+          in the mode notification letting the user know they can opt into
+          `CAMERAX_EARLY_MULTI_FAMILY=moderate` or `not_easy` (or ask in chat)
+          for proactive early/multi-stage cross-family exploration.
       - *Checkpoint 2 — Deterministic Pre-Gate & Recursive Post-Fix
         Convergence Audit:* Run deterministic checks first—formatting
         (`./gradlew :ktCheckFile --format`), compilation/ErrorProne, and
@@ -161,8 +206,12 @@ Authoring* bullet below alongside the fail-closed contract in their brief.
          same-vendor blind spots are broken on the first pass (when only one
          vendor has quota, still prefer a distinct model family/bucket for
          `R1`).
-    - **Automatic User Notification:** Inform the user of the active
-      verification mode and the models/tiers selected:
+    - **Automatic User Notification & Proactive Early-Threshold Hint:** Inform
+      the user of the active verification mode and the models/tiers selected
+      (and when `CAMERAX_EARLY_MULTI_FAMILY` is at its default `complicated` on
+      a somewhat-complicated / non-easy task with healthy cross-family quota,
+      append a 1-line option hint noting they can opt into `moderate` or
+      `not_easy` for earlier multi-stage cross-family checks):
       - `CROSS_FAMILY_MULTI_MODEL` (`MULTI_MODEL`): Spawning independent
         verifier sub-agents across distinct model families.
       - `TIER_MULTI_MODEL`: Spawning independent verifier sub-agents across

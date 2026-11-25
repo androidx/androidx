@@ -203,10 +203,18 @@ When directed to an index page, directory list, or guide linking to sub-guides
      added and confirm standalone single-skill (`0-hop`) entrypoints remain
      self-sufficient (keeping AOSP doc/skill edits scoped inside `camera/**`
      unless explicitly requested).
-  2. **Per-Root-Cause Decomposition (`1` Root Cause = `1` Atomic CL)**: Split
+  2. **Per-Root-Cause Decomposition, CameraX-First Partial-Fix Split & Deduped
+     Non-Illusion Follow-Ups (`1` Root Cause = `1` Atomic CL)**: Split
      multi-symptom or multi-device issues by independent causal mechanism (`1`
      root cause per atomic commit; split remaining device/symptom clusters into
-     tracked sub-issues before closing any umbrella issue).
+     tracked sub-issues before closing any umbrella issue). When a cohesive
+     `camera-core` or `camera-camera2` change cleanly resolves the primary
+     CameraX contract defect while an orthogonal `camera-camera2-pipe` or
+     secondary edge case remains independent, ship the high-confidence CameraX
+     fix cleanly rather than entangling cross-layer churn—and file a follow-up
+     issue **only** after verifying against current `HEAD` source and tests that
+     the remaining gap is a real unfixed defect (never filing speculative
+     follow-ups) and searching open issues first to avoid duplicates.
   3. **Dual-Path Platform Spec Grounding (`Path A != Path B`), Shared Pure
      Builders & Submodule Idioms**:
      - *Platform / CTS / HAL Ground Truth*: When two internal paths disagree
@@ -424,12 +432,12 @@ When directed to an index page, directory list, or guide linking to sub-guides
   Never skip verification or declare a task complete without executing both
   stages (full checklist in [`references/COMMIT_AND_AMEND.md`][commit-ref]):
   - **Stage 1 (Deep Self-Review & Multi-Model Verification Loop)**: Audit wide
-    structural design/"object job", the `Hunk-Necessity Gate`,
-    concurrency/latches, resource cleanup, modern APIs, line lengths (80 md / 72
-    commit / 100 kt), and run the Step 6 convergence loop
-    (`camerax-code-review/SKILL.md`) to `0` `OPEN`, `0` `REGRESSED`, `0`
-    `PATCHED_PENDING_REAUDIT`, and `0` unadjudicated `DISMISSED_WITH_PROOF`
-    items (looping back if Stage 2 makes semantic edits).
+    structural design/"object job", concise inline code comments on non-obvious
+    invariants, the `Hunk-Necessity Gate`, concurrency/latches, resource
+    cleanup, modern APIs, line lengths (80 md / 72 commit / 100 kt), and run the
+    Step 6 convergence loop (`camerax-code-review/SKILL.md`) to `0` `OPEN`, `0`
+    `REGRESSED`, `0` `PATCHED_PENDING_REAUDIT`, and `0` unadjudicated
+    `DISMISSED_WITH_PROOF` items (looping back if Stage 2 makes semantic edits).
   - **Stage 2 (Pre-Upload Tooling & Repohook Gate)**: Run `:ktCheckFile
     --format --file <f>`, `<project>:javaFormat` (`--no-watch-fs` if needed),
     `runErrorProneRelease`, host/device tests, and
@@ -461,26 +469,16 @@ When directed to an index page, directory list, or guide linking to sub-guides
 
 ## Commit, Stack Hygiene & Amend Discipline
 
-When stacking CLs, drafting commit messages, or amending existing commits, read
-[`references/COMMIT_AND_AMEND.md`][commit-ref] in
-`camera/.agents/skills/camerax-guidelines-governance/` in full (alongside
-repo-wide `manage_commits` when present):
-- **Multi-Commit Stack Hygiene & Tip-Only Presubmit Voting**: Keep each commit
-  self-contained with zero intermediate churn, and apply `Presubmit-Ready+1`
-  only to standalone CLs or the stack tip—never pass
-  `-o label=Presubmit-Ready+1` on multi-commit `repo upload` (see
-  [`references/COMMIT_AND_AMEND.md`][commit-ref]).
-- **Unreviewed-CL Holistic Re-Evaluation vs. Assigned/Active Review Lock**:
-  Re-architect `< 9/10` author-owned CLs with `0` human reviewers/comments from
-  root cause (preserving `Change-Id:`), and never rewrite wholesale once a
-  human reviewer is assigned/commented or when reviewing another author's CL
-  (canonical rule in [`references/COMMIT_AND_AMEND.md`][commit-ref]).
-- **Commit Message & Trailers**: Imperative title strictly `<= 50` chars; plain
-  body lines `<= 72` chars; `RelNote:` ONLY for public API (`camera/**/api/`) or
-  user-impacting bugs (omit `RelNote` entirely for internal, test, doc, or
-  `@RestrictTo` changes); contiguous `Bug:` and `Test:` trailers.
-- **Git Commit Amend**: Preserve `Change-Id:` verbatim (never run bare
-  `git commit --amend -m` without appending the existing `Change-Id:`).
+Read [`references/COMMIT_AND_AMEND.md`][commit-ref] in full (alongside
+repo-wide `manage_commits` when present) before stacking, committing, or
+amending:
+- **Stack Hygiene, `Presubmit-Ready+1` & Unreviewed-CL Holistic Re-Evaluation**:
+  Keep each commit atomic without intermediate churn, vote `Presubmit-Ready+1`
+  only on standalone CLs or stack tips, and re-architect `< 9/10` author-owned
+  CLs with `0` human reviewers/comments while locking reviewer-active CLs.
+- **Message & Amend**: Imperative `<= 50` char title, `<= 72` char body, omit
+  `RelNote:` unless public API (`camera/**/api/`) or user bug, contiguous `Bug:`
+  / `Test:`, and preserve `Change-Id:` verbatim on `git commit --amend`.
 
 ## Skill: CameraX Agent Guidelines & Experience Capture
 

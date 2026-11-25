@@ -300,12 +300,14 @@ CameraX involves complex hardware interactions, making robust testing essential.
   4. *Study Existing Unit & Instrumentation Tests Before Coding*: Read existing
      `src/test/` and `src/androidTest/` tests and `camera-testing` fakes for the
      target class before designing or placing code changes.
-  5. *Check Recent Upstream Commits, Open Changes & Existing Seams*: Check
-     recent `git --no-lazy-fetch log` history, open Gerrit changes, and
-     existing CameraX/AndroidX primitives or builder factories (e.g.,
-     `UseCaseThreads`, `Recorder.Builder` muxer/encoder seams, platform
-     `MediaExtractor`) so fixes and tests reuse proven seams rather than adding
-     state flags or hand-rolled binary container (MP4) parsers.
+  5. *Check Recent Upstream Commits, Open Changes, Platform/1P Helpers & Fakes*:
+     Check recent `git --no-lazy-fetch log` history, open Gerrit changes,
+     Android platform / first-party Jetpack utilities (e.g., `MediaExtractor`,
+     `ImageConvertUtils`, `YuvToJpegProcessor`), and existing CameraX/AndroidX
+     primitives or `camera-testing` builders/fakes (`UseCaseThreads`,
+     `Recorder.Builder` muxer/encoder seams, `FakeCamera`, `FakeUseCase`) so
+     fixes and tests reuse proven seams rather than adding state flags, ad-hoc
+     mocks, or hand-rolled format/container converters.
 - **API Surface & Pre-Call Contract Check (`api/current.txt` &
   `restricted_current.txt`)**: Verify whether your change modifies or calls
   public or restricted APIs by inspecting `camera/<module>/api/current.txt` and
@@ -378,10 +380,15 @@ CameraX involves complex hardware interactions, making robust testing essential.
     `setTurnScreenOn(true)` on API 27+, or matching
     `WindowManager.LayoutParams` flags on older APIs, plus
     `FLAG_KEEP_SCREEN_ON`).
-  - *Signal*: `NoActivityResumedException` with the Activity stuck in
-    `STARTED` or `CREATED` typically indicates a violated rule/window
-    precondition or an environment overlay rather than a camera bug. Fix the
-    test setup instead of adding retries or sleeps.
+  - *Signal & Sibling-Suite Harness Sweep*: `NoActivityResumedException` with
+    the Activity stuck in `STARTED` or `CREATED` typically indicates a violated
+    rule/window precondition or an environment overlay rather than a camera bug.
+    Fix the test setup instead of adding retries or sleeps, and whenever fixing
+    a shared test-harness, `@Rule` ordering, orientation-lock, or window
+    readiness defect in an `androidTest` class, scan sibling test classes across
+    `camera/` (`git --no-lazy-fetch grep`) for the identical harness
+    anti-pattern (fixing same-suite occurrences in-scope or opening a deduped
+    follow-up issue for cross-module suites per `Strict Scope Isolation`).
 - **Main Thread Requirements & Off-Main Blocking Teardown**:
   - Ensure lifecycle binding (`bindToLifecycle`, `unbindAll`) and surface
     provider interactions are executed on the Main thread (using
@@ -501,11 +508,13 @@ CameraX involves complex hardware interactions, making robust testing essential.
     or splitting CL logic, stratify physical device runs across distinct
     execution branches (e.g., framework `*CompositeStream` fallback vs.
     HAL-native output, `HLG10` vs. `HDR10`) confirming `>= 1` `Fail -> Pass` on
-    the reproduced path and `0` `Pass -> Fail` regressions; ensure non-zero
-    scene illumination (enclosure lighting or torch) when benchmarking camera
-    FPS so 0-lux auto-exposure frame-duration drops do not skew encoder FPS; and
-    re-run the **exact original failing test** after any post-review or rebase
-    semantic edit.
+    the reproduced path and `0` `Pass -> Fail` regressions; pair `Before` and
+    `After` repetitions (`5x–10x`) on the same device model(s) for intermittent
+    races/timeouts; ensure non-zero scene illumination (enclosure lighting or
+    torch) when benchmarking camera FPS so 0-lux auto-exposure frame-duration
+    drops do not skew encoder FPS; and re-run the **exact original failing
+    test** and affected device suites on the current `PSn+1` patchset whenever
+    post-review or rebase edits rewrite production logic or locking.
 - **FTL Run (if no device connected)**:
   - Discover FTL tasks for your project:
     `./gradlew <project>:tasks --all | grep ftl` (e.g.,

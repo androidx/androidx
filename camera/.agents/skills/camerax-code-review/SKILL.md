@@ -315,12 +315,13 @@ applicable. Prioritize clarity and conciseness.
           parsing, camera lens facing tags, and module disambiguation, and
           confirm every test run URL and issue tracker ID matches the raw output
           verbatim (zero hallucinated or transposed IDs).
-        - **Failure Attribution Audit**: Verify that infrastructure and fixture
-          failures (device offline or disconnected, test runner timeouts, APK
-          installation or storage errors, unpowered/dark test enclosure) are
-          strictly separated from real JUnit/CameraX assertion failures, and
-          that baseline comparisons accurately distinguish new regressions from
-          pre-existing failures.
+        - **Failure Attribution & Patchset Freshness Audit**: Verify that
+          infrastructure and fixture failures (device offline or disconnected,
+          test runner timeouts, APK installation or storage errors,
+          unpowered/dark test enclosure) are strictly separated from real
+          JUnit/CameraX assertion failures, baseline comparisons distinguish new
+          regressions from pre-existing failures, and cited device/test results
+          match the current patchset rather than a pre-rewrite revision.
     *   **Mode 5 — Open-Ended Trade-Offs, Quirk Scoping & Test/Doc Synthesis
         (Multi-Perspective Quality Audit):**
         - **Competing Design Trade-Offs & Batch Quality Scoring**: When multiple
@@ -354,12 +355,14 @@ applicable. Prioritize clarity and conciseness.
     is present, it supplies internal model-routing/CLI commands and
     programmatic loop runners but **never** relaxes the verification gates,
     zero-priming rules, or convergence exit criteria below):
-    *   **Orchestrator Trigger Scope, 4-Role Model Routing & Evidence Handoff
-        (`read_file` Reference — Coordinators Only):** When orchestrating
-        verification or multi-model delegation (Checkpoints 1 & 2, live
-        model-catalog probing, 4-role `monitor`/`runner`/`architect`/`verifier`
-        routing, fail-closed test-runner delegation, quota-floor stability, user
-        mode notification, and Mode 1–5 raw evidence / draft handoff), read
+    *   **Orchestrator Trigger Scope, Pre-Draft Co-Investigation, 4-Role Model
+        Routing & Evidence Handoff (`read_file` — Coordinators Only):**
+        When orchestrating verification or multi-model delegation (Checkpoints 1
+        & 2 including complexity-gated pre-draft parallel co-investigation and
+        its Anti-Waste Merge Rule, live model-catalog probing, 4-role
+        `monitor`/`runner`/`architect`/`verifier` routing, fail-closed
+        test-runner delegation, quota-floor stability, user mode notification,
+        and Mode 1–5 raw evidence / draft handoff), read
         `camera/.agents/skills/camerax-code-review/MULTI_MODEL_HARNESS.md` in
         full (read-only leaf verifiers skip `MULTI_MODEL_HARNESS.md`).
     *   **Zero-Priming ("Second-Console") Briefs, Orthogonal Critic Lenses,
@@ -562,10 +565,7 @@ applicable. Prioritize clarity and conciseness.
                 it executes in **1 turn** (no multi-round sequential ping-pong
                 loops or unnecessary token waste) while capturing complementary
                 cross-family perspectives on full call chains and OEM device
-                quirks (e.g. an `AudioSource` pause/flush review where one
-                family caught latch happens-before timing while the other
-                traced upstream encoder state transitions and an OEM timestamp
-                quirk exception).
+                quirks (case study in `MULTI_MODEL_HARNESS.md` Checkpoint 1).
              R1 findings merged into `<scratch_or_tmp>/draft_deliverable.md`
              after direct `file:line` verification are logged
              `VERIFIED_RESOLVED (coordinator-verified)` rather than
