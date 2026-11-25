@@ -156,6 +156,9 @@ private enum class ImageBitmapOperationKey : RemoteOperation {
             Height -> (args[0] as RemoteImageBitmap).height
         }
 
+    override val resultKind: RemoteValueKind
+        get() = RemoteValueKind.FLOAT
+
     override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = true
 }
 
@@ -163,6 +166,11 @@ private abstract class BaseRemoteImageBitmap(cacheKey: RemoteStateCacheKey) :
     BaseRemoteValue<Any>(cacheKey), RemoteImageBitmap {
     override val equalityType: KClass<*>
         get() = RemoteImageBitmap::class
+
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.IMAGE_BITMAP
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteImageBitmap.createForId(id)
 
     override val width: RemoteFloat
         get() =
@@ -236,6 +244,9 @@ private class MutableRemoteImageBitmapImpl(
 ) : BaseRemoteImageBitmap(cacheKey), MutableRemoteImageBitmap {
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider.provide(creationState).id
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is MutableRemoteImageBitmap) candidate else this
 }
 
 /**

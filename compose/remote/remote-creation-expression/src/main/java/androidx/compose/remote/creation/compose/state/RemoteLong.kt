@@ -139,6 +139,11 @@ private abstract class BaseRemoteLong(cacheKey: RemoteStateCacheKey) :
     override val equalityType: KClass<*>
         get() = RemoteLong::class
 
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.LONG
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteLong.createForId(id)
+
     abstract val low: RemoteInt
     abstract val high: RemoteInt
     override val constantValueOrNull: Long?
@@ -286,6 +291,9 @@ private class MutableRemoteLongImpl(
 ) : BaseRemoteLong(cacheKey), MutableRemoteLong {
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is MutableRemoteLong) candidate else this
 }
 
 /**
@@ -351,5 +359,6 @@ internal enum class RemoteLongOp(val symbol: String? = null) : RemoteOperation {
         }
     }
 
-    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = true
+    override val resultKind: RemoteValueKind
+        get() = RemoteValueKind.LONG
 }

@@ -21,6 +21,7 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.runtime.Immutable
@@ -71,14 +72,79 @@ public interface RemoteStateCacheKey {
     public val isResultWholeNumber: Boolean
         get() = false
 
+    /**
+     * Returns the static [RemoteValueKind] denoted by this [RemoteStateCacheKey].
+     *
+     * Checks [RemoteOperation.resultKind] for operation keys, an attached live [RemoteValue] when
+     * present, and constant/container key types otherwise. For detached [RemoteStateIdKey] and
+     * [RemoteNamedCacheKey] leaves, delegates to [stateIdKind] and [namedKeyKind] so callers backed
+     * by a document index can supply declared variable types.
+     *
+     * @param stateIdKind fallback classifier for detached [RemoteStateIdKey] IDs
+     * @param namedKeyKind fallback classifier for detached [RemoteNamedCacheKey] keys
+     * @return static [RemoteValueKind] of this key, or [RemoteValueKind.OTHER] when unknown
+     */
+    public fun getValueKind(
+        stateIdKind: (Int) -> RemoteValueKind = { RemoteValueKind.OTHER },
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind = { RemoteValueKind.OTHER },
+    ): RemoteValueKind = RemoteValueKind.OTHER
+
+    /**
+     * Returns the live [RemoteValue] currently attached to this cache key, or constructs a new
+     * [RemoteValue] wrapper if this key is self-contained.
+     *
+     * Because [RemoteOperationCacheKey.args] stores cache keys rather than strong references to
+     * child values (and may wrap raw primitive constants with no attached [RemoteValue]), AST
+     * passes use this method to obtain a [RemoteValue] for a child key:
+     * 1. If a live [RemoteValue] is attached ([BaseRemoteStateCacheKey.getState]), returns it.
+     * 2. Otherwise, creates a wrapper for self-contained keys: constant primitives, strings, and
+     *    colors ([RemoteConstantCacheKey], [RemoteColorConstantCacheKey]), literal float arrays,
+     *    and [RemoteStateIdKey] leaves via [createForStateId] (which defaults to a NaN-boxed
+     *    [RemoteFloat]).
+     * 3. Returns `null` if no live [RemoteValue] is attached and the key cannot be reconstructed
+     *    from its contents alone (such as detached named, component, instance, array, or operation
+     *    keys, or unsupported constant types).
+     *
+     * @param createForStateId factory invoked for unattached [RemoteStateIdKey] leaves
+     * @return the attached or newly constructed [RemoteValue], or `null` if unavailable
+     */
+    public fun getOrCreateValueOrNull(
+        createForStateId: (Int) -> RemoteValue<*>? = { RemoteFloat(Utils.asNan(it)) }
+    ): RemoteValue<*>? = null
+
+    /**
+     * Reports whether this cache-key DAG can safely be replaced with a constant literal when its
+     * runtime value is statically known.
+     *
+     * Structurally rejects instance-keyed values, mutable array keys, unknown operations, random
+     * generators, stateful animations, and `forceRemote = true` references in `O(1)` via
+     * precomputed flags on [BaseRemoteStateCacheKey].
+     *
+     * When [canFoldStateId] is `null`, or when the DAG contains no [RemoteStateIdKey] leaves, the
+     * check finishes in `O(1)` without traversing children. When [canFoldStateId] is non-null and
+     * the DAG contains [RemoteStateIdKey] nodes, only branches containing state IDs are traversed
+     * and [canFoldStateId] is invoked with each reachable [RemoteStateIdKey.id]; this method
+     * returns `true` only if [canFoldStateId] returns `true` for every reachable state ID
+     * (short-circuiting to `false` on the first rejection). Callers use this predicate to block
+     * folding of specific variable IDs such as mutable/output slots or animated variables. If a
+     * branch containing a state ID exceeds the internal traversal depth limit, this method
+     * conservatively returns `false`.
+     *
+     * @param canFoldStateId optional predicate tested against each reachable [RemoteStateIdKey.id];
+     *   returning `false` for any ID prevents constant folding of the enclosing DAG (`null` permits
+     *   all state IDs in `O(1)`)
+     * @return `true` if replacing with a constant preserves runtime behavior
+     */
+    public fun canConstantFold(canFoldStateId: ((Int) -> Boolean)? = null): Boolean = true
+
     public fun toDebugString(): String
 
     /**
      * Checks whether this cache key's expression DAG evaluates deterministically.
      *
      * Returns `false` when any node in the DAG may produce a different value on repeated
-     * evaluations within the same frame—for example, expressions calling [rand] or [randRange], or
-     * unkeyed `RemoteFloat { ... }` lambdas.
+     * evaluations within the same frame—for example, expressions calling [rand] or [randRange],
+     * stateful animations, or unkeyed `RemoteFloat { ... }` lambdas.
      *
      * @param requireFiniteFloats when `true`, also rejects expressions that contain or may produce
      *   non-finite [Float] values (`Infinity` or `NaN`, such as `x / 0f` or `ln(x)`)
@@ -95,6 +161,18 @@ internal const val FLAG_HAS_NON_FINITE_FLOAT: Int = 1 shl 1
 
 /** Bit flag indicating every finite evaluation of this expression has no fractional part. */
 internal const val FLAG_RESULT_WHOLE_NUMBER: Int = 1 shl 2
+
+/**
+ * Bit flag indicating this expression DAG is structurally eligible for constant folding (ignoring
+ * caller-supplied per-state-ID restrictions).
+ */
+internal const val FLAG_CAN_CONSTANT_FOLD: Int = 1 shl 3
+
+/**
+ * Bit flag indicating this expression DAG contains at least one [RemoteStateIdKey] (or custom
+ * non-[BaseRemoteStateCacheKey] leaf) that requires consulting `canFoldStateId`.
+ */
+internal const val FLAG_HAS_STATE_ID: Int = 1 shl 4
 
 /**
  * Traverses this [RemoteStateCacheKey] DAG using the provided [visitor].
@@ -173,9 +251,9 @@ public interface RemoteOperation {
     /**
      * Whether evaluating this operation with identical inputs always yields the same result.
      *
-     * Operations that sample fresh state on every evaluation—such as [RemoteFloatOperationKey.Rand]
-     * and [RemoteFloatOperationKey.RandInRange]—return `false` so `rand() - rand()` is never
-     * simplified to `0f`.
+     * Operations that sample fresh or animated state—such as [RemoteFloatOperationKey.Rand],
+     * [RemoteFloatOperationKey.RandInRange], and [RemoteFloatOperationKey.Anim]—return `false` so
+     * `rand() - rand()` is never simplified to `0f`.
      */
     public val isDeterministic: Boolean
         get() = true
@@ -211,7 +289,59 @@ public interface RemoteOperation {
      * @param args operand cache keys in [RemoteStateCacheKey.args]
      * @return `true` if every finite result has no fractional part
      */
-    public fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = false
+    public fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = resultKind.isIntegral
+
+    /**
+     * Reports whether this operation can be replaced with a constant literal when its runtime value
+     * is statically known.
+     *
+     * Defaults to [isDeterministic]; explicit `forceRemote = true` references return `false`
+     * because they must remain runtime remote variables.
+     *
+     * @param args operation operand cache keys
+     * @return `true` if replacing with a constant preserves runtime behavior
+     */
+    public fun canConstantFoldWithArgs(args: List<RemoteStateCacheKey>): Boolean = isDeterministic
+
+    /**
+     * Reports whether operand [operandIndex] must stay a compile-time constant during wire
+     * encoding.
+     *
+     * AST rewrites (such as templating or subtree capture) keep constant-only operands as literals
+     * rather than replacing them with dynamic variables.
+     *
+     * ```kotlin
+     * // x.toRemoteStringOptions(before = 2, after = 1, flags = 0) has args [x, 2, 1, 0]:
+     * op.requiresConstantForOperandIndex(0) // false — value `x` may be dynamic
+     * op.requiresConstantForOperandIndex(1) // true  — `before` digit count is a wire literal
+     *
+     * // x.createReference(forceRemote = true) has args [x, true]:
+     * op.requiresConstantForOperandIndex(0) // false — referenced float `x` may be dynamic
+     * op.requiresConstantForOperandIndex(1) // true  — `forceRemote` stays a literal Boolean
+     * ```
+     *
+     * * Other constant-only operands include animation specs ([RemoteFloatOperationKey.Anim] index
+     *   `1`), color component tags, and `fromAHSV` alpha / `lerp` ARGB endpoints.
+     *
+     * @param operandIndex zero-based operand index in [RemoteStateCacheKey.args]
+     * @return `true` if operand [operandIndex] cannot be replaced by a dynamic expression
+     */
+    public fun requiresConstantForOperandIndex(operandIndex: Int): Boolean = false
+
+    /**
+     * Reports whether this operation can fail at runtime on invalid values of operand
+     * [operandIndex] (such as integer division by zero or out-of-bounds array/string indexing).
+     *
+     * @param operandIndex zero-based operand index in [RemoteStateCacheKey.args]
+     * @return `true` if guards protecting operand [operandIndex] must not be dropped eagerly
+     */
+    public fun canFailOnOperandIndex(operandIndex: Int): Boolean = false
+
+    /**
+     * Static [RemoteValueKind] produced by this operation (defaults to [RemoteValueKind.OTHER]).
+     */
+    public val resultKind: RemoteValueKind
+        get() = RemoteValueKind.OTHER
 }
 
 /**
@@ -261,11 +391,11 @@ public abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
 
     /**
      * Precomputed bitmask of expression properties ([FLAG_DETERMINISTIC],
-     * [FLAG_HAS_NON_FINITE_FLOAT], [FLAG_RESULT_WHOLE_NUMBER]) synthesized bottom-up at
-     * construction time in `O(1)`.
+     * [FLAG_HAS_NON_FINITE_FLOAT], [FLAG_RESULT_WHOLE_NUMBER], [FLAG_CAN_CONSTANT_FOLD],
+     * [FLAG_HAS_STATE_ID]) synthesized bottom-up at construction time in `O(1)`.
      */
     internal open val expressionFlags: Int
-        get() = FLAG_DETERMINISTIC
+        get() = FLAG_DETERMINISTIC or FLAG_CAN_CONSTANT_FOLD
 
     override val isResultWholeNumber: Boolean
         get() = (expressionFlags and FLAG_RESULT_WHOLE_NUMBER) != 0
@@ -273,6 +403,44 @@ public abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
     override fun isDeterministic(requireFiniteFloats: Boolean): Boolean =
         (expressionFlags and FLAG_DETERMINISTIC) != 0 &&
             (!requireFiniteFloats || (expressionFlags and FLAG_HAS_NON_FINITE_FLOAT) == 0)
+
+    final override fun canConstantFold(canFoldStateId: ((Int) -> Boolean)?): Boolean =
+        canConstantFold(DEFAULT_MAX_FOLD_DEPTH, canFoldStateId)
+
+    internal fun canConstantFold(
+        maxDepth: Int,
+        canFoldStateId: ((Int) -> Boolean)? = null,
+        visited: MutableSet<RemoteStateCacheKey>? = null,
+    ): Boolean {
+        if (maxDepth < 0 || (expressionFlags and FLAG_CAN_CONSTANT_FOLD) == 0) return false
+        if (canFoldStateId == null || (expressionFlags and FLAG_HAS_STATE_ID) == 0) return true
+        if (visited != null && !visited.add(this)) return true
+        return canConstantFoldStateIds(maxDepth, canFoldStateId, visited)
+    }
+
+    internal open fun canConstantFoldStateIds(
+        maxDepth: Int,
+        canFoldStateId: (Int) -> Boolean,
+        visited: MutableSet<RemoteStateCacheKey>? = null,
+    ): Boolean = true
+
+    override fun getValueKind(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind = getState()?.valueKind ?: getValueKindUnattached(stateIdKind, namedKeyKind)
+
+    protected open fun getValueKindUnattached(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind = RemoteValueKind.OTHER
+
+    final override fun getOrCreateValueOrNull(
+        createForStateId: (Int) -> RemoteValue<*>?
+    ): RemoteValue<*>? = getState() ?: createUnattachedValueOrNull(createForStateId)
+
+    protected open fun createUnattachedValueOrNull(
+        createForStateId: (Int) -> RemoteValue<*>?
+    ): RemoteValue<*>? = null
 
     final override fun hashCode(): Int {
         if (_hashCode == 0) {
@@ -327,6 +495,14 @@ internal class RemoteStateArrayKey(internal val size: Int) : BaseRemoteStateCach
         this.state = state
     }
 
+    override val expressionFlags: Int
+        get() = FLAG_DETERMINISTIC
+
+    override fun getValueKindUnattached(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind = RemoteValueKind.FLOAT_ARRAY
+
     override fun hashCodeImpl(): Int = System.identityHashCode(this)
 
     override fun equals(other: Any?): Boolean = this === other
@@ -344,6 +520,32 @@ public class RemoteConstantCacheKey(public val value: Any?) : BaseRemoteStateCac
     override fun setState(state: RemoteValue<*>?) {
         stateRef = if (state != null) WeakReference(state) else null
     }
+
+    override fun getValueKindUnattached(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind =
+        when (value) {
+            is Float,
+            is Double -> RemoteValueKind.FLOAT
+            is Int,
+            is Short,
+            is Byte -> RemoteValueKind.INT
+            is Boolean -> RemoteValueKind.BOOLEAN
+            is String -> RemoteValueKind.STRING
+            is Long -> RemoteValueKind.LONG
+            is Enum<*> -> RemoteValueKind.ENUM
+            else -> RemoteValueKind.OTHER
+        }
+
+    override fun createUnattachedValueOrNull(
+        createForStateId: (Int) -> RemoteValue<*>?
+    ): RemoteValue<*>? =
+        try {
+            resolveConstantState(this)
+        } catch (_: IllegalArgumentException) {
+            null
+        }
 
     init {
         if (value is Float) {
@@ -382,6 +584,7 @@ public class RemoteConstantCacheKey(public val value: Any?) : BaseRemoteStateCac
 
     private val baseExpressionFlags: Int =
         FLAG_DETERMINISTIC or
+            FLAG_CAN_CONSTANT_FOLD or
             (if (value is Float && !value.isFinite()) FLAG_HAS_NON_FINITE_FLOAT else 0) or
             (if (value.isConstantWholeNumber()) FLAG_RESULT_WHOLE_NUMBER else 0)
 
@@ -395,7 +598,8 @@ public class RemoteConstantCacheKey(public val value: Any?) : BaseRemoteStateCac
 }
 
 /** A cache key for constant color values, identified by their packed ARGB integer value. */
-internal class RemoteColorConstantCacheKey(@ColorInt internal val color: Int) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteColorConstantCacheKey(@ColorInt public val color: Int) :
     BaseRemoteStateCacheKey() {
     private var state: RemoteValue<*>? = null
 
@@ -413,6 +617,15 @@ internal class RemoteColorConstantCacheKey(@ColorInt internal val color: Int) :
 
     override fun hashCodeImpl(): Int = color.hashCode()
 
+    override fun getValueKindUnattached(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind = RemoteValueKind.COLOR
+
+    override fun createUnattachedValueOrNull(
+        createForStateId: (Int) -> RemoteValue<*>?
+    ): RemoteValue<*> = RemoteColor(color)
+
     override fun toString(): String =
         "RemoteColorConstantCacheKey(color=0x${color.toUInt().toString(16)})"
 
@@ -425,6 +638,10 @@ public class RemoteNamedCacheKey(
     public val domain: RemoteValue.Domain,
     public val name: String,
 ) : BaseRemoteStateCacheKey() {
+    /** Qualified wire name including [domain] prefix (e.g., `"USER:count"` or `"SYSTEM:theme"`). */
+    public val wireName: String
+        get() = domain.prefixed(name)
+
     private var state: RemoteValue<*>? = null
 
     override fun getState(): RemoteValue<*>? = state
@@ -444,10 +661,15 @@ public class RemoteNamedCacheKey(
     override val expressionFlags: Int
         get() =
             if (state.isIntegralValueType()) {
-                FLAG_DETERMINISTIC or FLAG_RESULT_WHOLE_NUMBER
+                FLAG_DETERMINISTIC or FLAG_CAN_CONSTANT_FOLD or FLAG_RESULT_WHOLE_NUMBER
             } else {
-                FLAG_DETERMINISTIC
+                FLAG_DETERMINISTIC or FLAG_CAN_CONSTANT_FOLD
             }
+
+    override fun getValueKindUnattached(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind = namedKeyKind(this)
 
     override fun hashCodeImpl(): Int {
         var result = domain.hashCode()
@@ -461,7 +683,8 @@ public class RemoteNamedCacheKey(
 }
 
 /** A cache key for variable by id. */
-internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteStateIdKey(public val id: Int) : BaseRemoteStateCacheKey() {
     private var state: RemoteValue<*>? = null
 
     override fun getState(): RemoteValue<*>? = state
@@ -481,6 +704,8 @@ internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey(
 
     private val baseExpressionFlags: Int =
         FLAG_DETERMINISTIC or
+            FLAG_CAN_CONSTANT_FOLD or
+            FLAG_HAS_STATE_ID or
             (if (id <= 0) {
                 // id == 0 (Utils.idFromNan) or id == -1 (NanEncoding.idFromNan) encodes literal
                 // IEEE Float.NaN rather than a valid variable ID.
@@ -499,6 +724,21 @@ internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey(
                 else -> baseExpressionFlags
             }
         }
+
+    override fun getValueKindUnattached(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind = stateIdKind(id)
+
+    override fun createUnattachedValueOrNull(
+        createForStateId: (Int) -> RemoteValue<*>?
+    ): RemoteValue<*>? = createForStateId(id)
+
+    override fun canConstantFoldStateIds(
+        maxDepth: Int,
+        canFoldStateId: (Int) -> Boolean,
+        visited: MutableSet<RemoteStateCacheKey>?,
+    ): Boolean = canFoldStateId(id)
 
     override fun toString(): String = "RemoteStateIdKey(id=$id)"
 
@@ -567,6 +807,15 @@ internal class FloatArrayRemoteValue(internal val floatArray: FloatArray, key: F
  * rather than [FloatArray.contentEquals], which treats all NaNs as equal.
  */
 internal class FloatArrayCacheKey(internal val floatArray: FloatArray) : BaseRemoteStateCacheKey() {
+    override fun getValueKindUnattached(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind = RemoteValueKind.FLOAT_ARRAY
+
+    override fun createUnattachedValueOrNull(
+        createForStateId: (Int) -> RemoteValue<*>?
+    ): RemoteValue<*> = FloatArrayRemoteValue(floatArray, this)
+
     override fun equals(other: Any?): Boolean {
         return other is FloatArrayCacheKey && floatArray.nanIdContentEquals(other.floatArray)
     }
@@ -646,6 +895,64 @@ public class RemoteOperationCacheKey(
         this.state = state
     }
 
+    override fun getValueKind(
+        stateIdKind: (Int) -> RemoteValueKind,
+        namedKeyKind: (RemoteNamedCacheKey) -> RemoteValueKind,
+    ): RemoteValueKind {
+        val opKind = (op as? RemoteOperation)?.resultKind
+        if (opKind != null && opKind != RemoteValueKind.OTHER) return opKind
+        return getState()?.valueKind ?: RemoteValueKind.OTHER
+    }
+
+    override fun canConstantFoldStateIds(
+        maxDepth: Int,
+        canFoldStateId: (Int) -> Boolean,
+        visited: MutableSet<RemoteStateCacheKey>?,
+    ): Boolean {
+        val seen =
+            visited ?: HashSet<RemoteStateCacheKey>().apply { add(this@RemoteOperationCacheKey) }
+        val childMaxDepth = maxDepth - 1
+        for (i in 0 until args.size) {
+            val child = args[i]
+            if (child is BaseRemoteStateCacheKey) {
+                if (
+                    (child.expressionFlags and FLAG_HAS_STATE_ID) != 0 &&
+                        !child.canConstantFold(childMaxDepth, canFoldStateId, seen)
+                ) {
+                    return false
+                }
+            } else if (childMaxDepth < 0) {
+                return false
+            } else if (seen.add(child) && !child.canConstantFold(canFoldStateId)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * Reconstructs this [RemoteOperationCacheKey] with replacement [args], returning `null` on
+     * failure.
+     *
+     * Callers needing a specific wrapper subtype can adapt the result via
+     * [RemoteValue.adaptToType].
+     *
+     * @param args replacement operand values matching this operation's arity and types
+     * @return reconstructed [RemoteValue], or `null` if reconstruction is unsupported or fails
+     */
+    public fun reconstructOrNull(args: List<RemoteValue<*>>): RemoteValue<*>? {
+        val operation = op as? RemoteOperation ?: return null
+        return try {
+            if (op == EnumOperationKey.RemoteEnum) {
+                val enumNode = getState() as? RemoteEnum<*> ?: return null
+                return RemoteEnum(args[0] as RemoteInt, enumNode.enumEntries)
+            }
+            operation.reconstruct(args)
+        } catch (_: RuntimeException) {
+            null
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteOperationCacheKey) return false
@@ -695,11 +1002,15 @@ public class RemoteOperationCacheKey(
          *   already carries [FLAG_HAS_NON_FINITE_FLOAT].
          * * Sets [FLAG_RESULT_WHOLE_NUMBER] if [op] is a [RemoteOperation] whose
          *   [RemoteOperation.isResultWholeNumber] returns `true` for [args].
+         * * Sets [FLAG_CAN_CONSTANT_FOLD] if [op] is a [RemoteOperation] whose
+         *   [RemoteOperation.canConstantFoldWithArgs] returns `true` for [args] and every child in
+         *   [args] is foldable.
+         * * Sets [FLAG_HAS_STATE_ID] if any child in [args] carries [FLAG_HAS_STATE_ID] (or is a
+         *   custom non-[BaseRemoteStateCacheKey]).
          *
          * @param op operation key identifying the AST node
          * @param args child operand cache keys
-         * @return combined bitmask of [FLAG_DETERMINISTIC], [FLAG_HAS_NON_FINITE_FLOAT], and
-         *   [FLAG_RESULT_WHOLE_NUMBER]
+         * @return combined bitmask of expression flags
          */
         internal fun computeExpressionFlags(op: Enum<*>, args: List<RemoteStateCacheKey>): Int {
             val remoteOp = op as? RemoteOperation
@@ -710,22 +1021,40 @@ public class RemoteOperationCacheKey(
                 } else {
                     0
                 }
-            val integerValued =
+            val wholeNumber =
                 if (remoteOp?.isResultWholeNumber(args) == true) FLAG_RESULT_WHOLE_NUMBER else 0
+            var canFold =
+                if (remoteOp != null && remoteOp.canConstantFoldWithArgs(args)) {
+                    FLAG_CAN_CONSTANT_FOLD
+                } else {
+                    0
+                }
+            var hasStateId = 0
             for (i in args.indices) {
+                val child = args[i]
                 val childFlags =
-                    (args[i] as? BaseRemoteStateCacheKey)?.expressionFlags
-                        ?: if (!args[i].isDeterministic(requireFiniteFloats = false)) {
-                            0
-                        } else if (!args[i].isDeterministic(requireFiniteFloats = true)) {
-                            FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT
-                        } else {
-                            FLAG_DETERMINISTIC
+                    if (child is BaseRemoteStateCacheKey) {
+                        child.expressionFlags
+                    } else {
+                        var flags =
+                            if (!child.isDeterministic(requireFiniteFloats = false)) {
+                                0
+                            } else if (!child.isDeterministic(requireFiniteFloats = true)) {
+                                FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT
+                            } else {
+                                FLAG_DETERMINISTIC
+                            }
+                        if ((flags and FLAG_DETERMINISTIC) != 0 && child.canConstantFold()) {
+                            flags = flags or FLAG_CAN_CONSTANT_FOLD or FLAG_HAS_STATE_ID
                         }
+                        flags
+                    }
                 det = det and (childFlags and FLAG_DETERMINISTIC)
                 nonFinite = nonFinite or (childFlags and FLAG_HAS_NON_FINITE_FLOAT)
+                canFold = canFold and (childFlags and FLAG_CAN_CONSTANT_FOLD)
+                hasStateId = hasStateId or (childFlags and FLAG_HAS_STATE_ID)
             }
-            return det or nonFinite or integerValued
+            return det or nonFinite or wholeNumber or canFold or hasStateId
         }
 
         /** Creates a [RemoteOperationCacheKey] by converting [args] to a list of cache keys. */
@@ -803,8 +1132,114 @@ private fun isIntegerContextId(id: Int): Boolean =
         else -> false
     }
 
+/**
+ * Default traversal depth limit when checking per-state-ID foldability in
+ * [BaseRemoteStateCacheKey].
+ */
+internal const val DEFAULT_MAX_FOLD_DEPTH: Int = 16
+
 /** The canonical domain identifier for user-defined state in the RemoteCompose wire protocol. */
 internal const val USER_DOMAIN: String = "USER"
 
 /** The canonical domain identifier for system-defined state in the RemoteCompose wire protocol. */
 internal const val SYSTEM_DOMAIN: String = "SYSTEM"
+
+/**
+ * Value-domain classification of a [RemoteValue] for AST memoization and operand typing.
+ *
+ * Distinct [RemoteValue] wrappers (such as [RemoteFloat], [RemoteInt], and [RemoteBoolean]) can
+ * share identical [RemoteStateCacheKey] instances; keying memo tables by `(value.valueKind,
+ * value.cacheKey)` prevents type collisions across passes.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class RemoteValueKind {
+    /** [RemoteFloat] value. */
+    FLOAT,
+
+    /** [RemoteInt] value. */
+    INT,
+
+    /** [RemoteBoolean] value. */
+    BOOLEAN,
+
+    /** [RemoteString] value. */
+    STRING,
+
+    /** [RemoteColor] value. */
+    COLOR,
+
+    /** [RemoteDp] value. */
+    DP,
+
+    /** [RemoteTextUnit] value. */
+    TEXT_UNIT,
+
+    /** [RemoteLong] value. */
+    LONG,
+
+    /** [RemoteImageBitmap] value. */
+    IMAGE_BITMAP,
+
+    /** [RemoteFloatArray] or [RemoteMutableFloatArray] value. */
+    FLOAT_ARRAY,
+
+    /** [RemoteIntArray] value. */
+    INT_ARRAY,
+
+    /** [RemoteStringArray] value. */
+    STRING_ARRAY,
+
+    /** [RemoteMatrix3x3] value. */
+    MATRIX,
+
+    /** [RemoteEnum] value. */
+    ENUM,
+
+    /** Any other [RemoteValue] subtype. */
+    OTHER;
+
+    /**
+     * Reports whether values of this kind are wire-encoded as 32-bit integers ([INT] or [BOOLEAN]).
+     */
+    public val isIntEncoded: Boolean
+        get() = this == INT || this == BOOLEAN
+
+    /**
+     * Reports whether every finite value of this kind is an exact whole number ([INT], [BOOLEAN],
+     * or [LONG]).
+     */
+    public val isIntegral: Boolean
+        get() = this == INT || this == BOOLEAN || this == LONG
+}
+
+/** Classifies this [RemoteValue] into its [RemoteValueKind]. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val RemoteValue<*>.valueKind: RemoteValueKind
+    get() = (this as? RemoteValueAccess)?.valueKind ?: RemoteValueKind.OTHER
+
+/**
+ * Creates an ID-backed [RemoteValue] matching this value's concrete domain for wire [id].
+ *
+ * Useful when synthesizing formal parameters for patterns or expression templates whose type must
+ * mirror an existing template value.
+ *
+ * @param id raw document variable or resource ID
+ * @return ID-backed [RemoteValue] of the same domain, or `null` if this type cannot be bound by ID
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteValue<*>.createForIdOrNull(id: Int): RemoteValue<*>? =
+    (this as? RemoteValueAccess)?.createForIdOrNull(id)
+
+/**
+ * Adapts [candidate] to match this value's concrete [RemoteValue] type, or returns `this`.
+ *
+ * Converts between [RemoteFloat], [RemoteInt], [RemoteBoolean], [RemoteDp], and [RemoteEnum] when
+ * compatible, validates matching [RemoteEnum.enumEntries] for enums, and preserves public
+ * [MutableRemoteValue] subtypes without downcasting to immutable supertypes.
+ *
+ * @param candidate replacement value to adapt
+ * @return type-compatible [RemoteValue], or `this` if adaptation is not possible
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteValue<*>.adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+    (this as? RemoteValueAccess)?.adaptToType(candidate) ?: this

@@ -136,6 +136,30 @@ private abstract class BaseRemoteEnum<T : Enum<T>>(
     override val equalityType: KClass<*>
         get() = RemoteEnum::class
 
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.ENUM
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> =
+        RemoteEnum(
+            intValue = RemoteInt.createForId(NanEncoding.encodeLongId(id)),
+            enumEntries = enumEntries,
+            cacheKey = RemoteStateIdKey(id),
+        )
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        when (candidate) {
+            is RemoteEnum<*> -> if (candidate.enumEntries == enumEntries) candidate else this
+            is RemoteInt -> {
+                val constOrdinal = candidate.constantValueOrNull
+                if (constOrdinal == null || constOrdinal in enumEntries.indices) {
+                    RemoteEnum(candidate, enumEntries)
+                } else {
+                    this
+                }
+            }
+            else -> this
+        }
+
     abstract val intValue: RemoteInt
 
     override fun equals(other: Any?): Boolean =
@@ -260,7 +284,16 @@ internal enum class EnumOperationKey : RemoteOperation {
         }
     }
 
-    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = this == Ordinal
+    override fun canFailOnOperandIndex(operandIndex: Int): Boolean =
+        this == ToString && operandIndex == 0
+
+    override val resultKind: RemoteValueKind
+        get() =
+            when (this) {
+                ToString -> RemoteValueKind.STRING
+                Ordinal -> RemoteValueKind.INT
+                RemoteEnum -> RemoteValueKind.ENUM
+            }
 }
 
 /**
@@ -337,6 +370,13 @@ private class MutableRemoteEnumImpl<T : Enum<T>>(
 
     override val asEncodedMutable: MutableRemoteInt
         get() = remoteInt
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is MutableRemoteEnum<*> && candidate.enumEntries == enumEntries) {
+            candidate
+        } else {
+            this
+        }
 }
 
 /**

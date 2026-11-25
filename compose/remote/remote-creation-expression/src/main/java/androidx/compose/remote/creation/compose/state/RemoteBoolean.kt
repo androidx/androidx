@@ -210,6 +210,14 @@ public sealed interface RemoteBoolean : RemoteValue<Boolean> {
             )
 
         /**
+         * Wraps [intValue] (`0` = `false`, non-zero = `true`) as a [RemoteBoolean], folding
+         * immediately when [intValue] has a constant value.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun fromRemoteInt(intValue: RemoteInt): RemoteBoolean =
+            intValue.constantValueOrNull?.let { RemoteBoolean(it != 0) } ?: RemoteBoolean(intValue)
+
+        /**
          * Creates a named [RemoteBoolean] with an initial value. Named remote booleans can be set
          * via AndroidRemoteContext.setNamedBoolean.
          *
@@ -260,6 +268,21 @@ private abstract class BaseRemoteBoolean(cacheKey: RemoteStateCacheKey) :
     BaseRemoteValue<Boolean>(cacheKey), RemoteBoolean {
     override val equalityType: KClass<*>
         get() = RemoteBoolean::class
+
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.BOOLEAN
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteBoolean.createForId(id)
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        when (candidate) {
+            is RemoteBoolean -> candidate
+            is RemoteInt -> RemoteBoolean.fromRemoteInt(candidate)
+            is RemoteFloat ->
+                candidate.constantValueOrNull?.let { RemoteBoolean(it.toInt() != 0) }
+                    ?: RemoteBoolean.fromRemoteInt(candidate.toRemoteInt())
+            else -> this
+        }
 
     abstract val intValue: RemoteInt
 
@@ -658,21 +681,28 @@ internal enum class BooleanOperationKey(override val precedence: Int = 100) : Re
     }
 
     override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
-        when (this) {
-            SelectFloat ->
-                args.size >= 3 && args[1].isResultWholeNumber && args[2].isResultWholeNumber
-            Not,
-            And,
-            Or,
-            Xor,
-            Equal,
-            NotEqual,
-            ToRemoteInt,
-            RemoteBoolean,
-            SelectInt,
-            SelectBoolean -> true
-            SelectString -> false
+        if (this == SelectFloat) {
+            args.size >= 3 && args[1].isResultWholeNumber && args[2].isResultWholeNumber
+        } else {
+            resultKind.isIntegral
         }
+
+    override val resultKind: RemoteValueKind
+        get() =
+            when (this) {
+                Not,
+                Equal,
+                NotEqual,
+                And,
+                Or,
+                Xor,
+                RemoteBoolean,
+                SelectBoolean -> RemoteValueKind.BOOLEAN
+                ToRemoteInt,
+                SelectInt -> RemoteValueKind.INT
+                SelectFloat -> RemoteValueKind.FLOAT
+                SelectString -> RemoteValueKind.STRING
+            }
 }
 
 /**
@@ -706,6 +736,9 @@ private class MutableRemoteBooleanImpl(
 ) : BaseRemoteBoolean(cacheKey), MutableRemoteBoolean {
     override val asEncodedMutable: MutableRemoteInt
         get() = intValue
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is MutableRemoteBoolean) candidate else this
 }
 
 /**

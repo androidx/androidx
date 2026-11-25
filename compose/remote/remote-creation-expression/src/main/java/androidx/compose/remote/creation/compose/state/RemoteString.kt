@@ -313,8 +313,17 @@ private enum class StringOperationKey(override val precedence: Int = 100) : Remo
         }
     }
 
-    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
-        this == Length || this == IsEmpty || this == IsNotEmpty
+    override fun canFailOnOperandIndex(operandIndex: Int): Boolean =
+        this == Substring && (operandIndex == 1 || operandIndex == 2)
+
+    override val resultKind: RemoteValueKind
+        get() =
+            when (this) {
+                Length -> RemoteValueKind.INT
+                IsEmpty,
+                IsNotEmpty -> RemoteValueKind.BOOLEAN
+                else -> RemoteValueKind.STRING
+            }
 }
 
 internal fun RemoteString(
@@ -347,6 +356,11 @@ private abstract class BaseRemoteString(
 ) : BaseRemoteValue<String>(cacheKey), RemoteString {
     override val equalityType: KClass<*>
         get() = RemoteString::class
+
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.STRING
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteString.createForId(id)
 
     override val length: RemoteInt
         get() {
@@ -1163,6 +1177,9 @@ private class MutableRemoteStringImpl(
                 ) = null
             },
     )
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is MutableRemoteString) candidate else this
 }
 
 /**

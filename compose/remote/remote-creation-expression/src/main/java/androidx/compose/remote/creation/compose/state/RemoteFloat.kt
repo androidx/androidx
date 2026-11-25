@@ -482,7 +482,7 @@ internal enum class RemoteFloatOperationKey(
     CompareLE(Float.NaN, 1, "<="),
     CompareGT(Float.NaN, 1, ">"),
     CompareGE(Float.NaN, 1, ">="),
-    Anim(Float.NaN) {
+    Anim(Float.NaN, isDeterministic = false) {
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "animate(${args[0].toDebugString()})"
     },
@@ -738,6 +738,41 @@ internal enum class RemoteFloatOperationKey(
             Spline,
             SplineLoop -> false
         }
+
+    override fun canConstantFoldWithArgs(args: List<RemoteStateCacheKey>): Boolean {
+        if (!isDeterministic) return false
+        if (
+            this == Reference &&
+                args.size >= 2 &&
+                (args[1] as? RemoteConstantCacheKey)?.value == true
+        ) {
+            return false
+        }
+        return true
+    }
+
+    override fun requiresConstantForOperandIndex(operandIndex: Int): Boolean =
+        when (this) {
+            ToRemoteString -> operandIndex >= 1
+            Reference,
+            Anim -> operandIndex == 1
+            else -> false
+        }
+
+    override val resultKind: RemoteValueKind
+        get() =
+            when (this) {
+                ToInt,
+                ToRemoteInt -> RemoteValueKind.INT
+                CompareEQ,
+                CompareNE,
+                CompareLT,
+                CompareLE,
+                CompareGT,
+                CompareGE -> RemoteValueKind.BOOLEAN
+                ToRemoteString -> RemoteValueKind.STRING
+                else -> RemoteValueKind.FLOAT
+            }
 }
 
 internal fun RemoteFloat(
@@ -779,6 +814,19 @@ internal abstract class BaseRemoteFloat(cacheKey: RemoteStateCacheKey) :
     BaseRemoteValue<Float>(cacheKey), RemoteFloat {
     override val equalityType: KClass<*>
         get() = RemoteFloat::class
+
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.FLOAT
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteFloat.createForId(asNan(id))
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        when (candidate) {
+            is RemoteFloat -> candidate
+            is RemoteInt -> candidate.toRemoteFloat()
+            is RemoteBoolean -> candidate.toRemoteInt().toRemoteFloat()
+            else -> this
+        }
 
     abstract val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
 
@@ -1561,6 +1609,9 @@ private class MutableRemoteFloatImpl(
 
     override val constantValueOrNull: Float?
         get() = null
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is MutableRemoteFloat) candidate else this
 
     override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
         get() = { creationState ->

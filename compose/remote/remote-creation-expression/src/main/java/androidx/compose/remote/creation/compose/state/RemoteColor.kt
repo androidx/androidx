@@ -464,6 +464,11 @@ private class RemoteColorImpl(
     override val equalityType: KClass<*>
         get() = RemoteColor::class
 
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.COLOR
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteColor.createForId(id)
+
     constructor(
         cacheKey: RemoteStateCacheKey,
         idProvider: (creationState: RemoteComposeCreationState) -> Int,
@@ -653,6 +658,17 @@ private enum class ColorOperationKey : RemoteOperation {
             }
         }
     }
+
+    override fun requiresConstantForOperandIndex(operandIndex: Int): Boolean =
+        when (this) {
+            FromAHSV -> operandIndex == 0
+            Component -> operandIndex == 1
+            TweenInt -> operandIndex == 0 || operandIndex == 1
+            else -> false
+        }
+
+    override val resultKind: RemoteValueKind
+        get() = if (this == Component) RemoteValueKind.FLOAT else RemoteValueKind.COLOR
 }
 
 internal fun RemoteColor(

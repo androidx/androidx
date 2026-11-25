@@ -483,6 +483,23 @@ internal enum class RemoteIntOperationKey(
 
     override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
         this != ToRemoteString
+
+    override fun canFailOnOperandIndex(operandIndex: Int): Boolean =
+        operandIndex == 1 && (this == Div || this == Mod)
+
+    override val resultKind: RemoteValueKind
+        get() =
+            when (this) {
+                ToFloat -> RemoteValueKind.FLOAT
+                ToRemoteString -> RemoteValueKind.STRING
+                CompareEQ,
+                CompareNE,
+                CompareLT,
+                CompareLE,
+                CompareGT,
+                CompareGE -> RemoteValueKind.BOOLEAN
+                else -> RemoteValueKind.INT
+            }
 }
 
 internal fun RemoteInt(
@@ -525,6 +542,20 @@ internal abstract class BaseRemoteInt(cacheKey: RemoteStateCacheKey) :
     BaseRemoteValue<Int>(cacheKey), RemoteInt {
     override val equalityType: KClass<*>
         get() = RemoteInt::class
+
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.INT
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> =
+        RemoteInt.createForId(0x100000000L + id)
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        when (candidate) {
+            is RemoteInt -> candidate
+            is RemoteFloat -> candidate.toRemoteInt()
+            is RemoteBoolean -> candidate.toRemoteInt()
+            else -> this
+        }
 
     abstract val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray
 
@@ -889,6 +920,9 @@ private class MutableRemoteIntImpl(
                 }
             longArrayOf(id.toLong() + 0x100000000L)
         }
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is MutableRemoteInt) candidate else this
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         Utils.idFromLong(idProvider(creationState)).toInt()

@@ -199,6 +199,9 @@ private class RemoteMatrix3x3Impl(
     override val equalityType: KClass<*>
         get() = RemoteMatrix3x3::class
 
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.MATRIX
+
     val isIdentity: Boolean
         get() = (cacheKey as? RemoteOperationCacheKey)?.op == MatrixOperationKey.IDENTITY
 
@@ -284,4 +287,7 @@ private enum class MatrixOperationKey(override val precedence: Int = 100) : Remo
             MUL -> (args[0] as RemoteMatrix3x3) * (args[1] as RemoteMatrix3x3)
         }
     }
+
+    override val resultKind: RemoteValueKind
+        get() = RemoteValueKind.MATRIX
 }

@@ -68,6 +68,9 @@ private class RemoteTextUnitImpl(
     override val equalityType: KClass<*>
         get() = RemoteTextUnit::class
 
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.TEXT_UNIT
+
     override val constantValueOrNull: Float?
         get() = value.constantValueOrNull
 
@@ -127,6 +130,10 @@ private enum class TextUnitOperationKey : RemoteOperation {
             ToPx -> "${args[0].toOperandString(100)}.toPx()"
         }
     }
+
+    // DpToSp backs the inner RemoteFloat scalar; Sp wraps it in RemoteTextUnit.
+    override val resultKind: RemoteValueKind
+        get() = if (this == Sp) RemoteValueKind.TEXT_UNIT else RemoteValueKind.FLOAT
 }
 
 /**

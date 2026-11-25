@@ -31,6 +31,10 @@ public interface RemoteValueAccess {
     /** The cache key identifying this [RemoteValue] within [RemoteComposeCreationState]. */
     public val cacheKey: RemoteStateCacheKey
 
+    /** The static [RemoteValueKind] domain of this [RemoteValue]. */
+    public val valueKind: RemoteValueKind
+        get() = RemoteValueKind.OTHER
+
     /** The underlying encoded [RemoteValue] representation for this value. */
     public val asEncoded: RemoteValue<*>
         get() = this as RemoteValue<*>
@@ -38,6 +42,18 @@ public interface RemoteValueAccess {
     /** The underlying encoded [MutableRemoteValue] representation for this value. */
     public val asEncodedMutable: MutableRemoteValue<*>
         get() = this as MutableRemoteValue<*>
+
+    /**
+     * Creates an ID-backed [RemoteValue] matching this value's concrete domain for wire [id], or
+     * returns `null` if this type cannot be bound by ID.
+     */
+    public fun createForIdOrNull(id: Int): RemoteValue<*>? = null
+
+    /**
+     * Adapts [candidate] to match this value's concrete [RemoteValue] type (preserving mutability
+     * and enum entry identity), or returns `this` if adaptation is not possible.
+     */
+    public fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> = this as RemoteValue<*>
 
     /**
      * Returns a new or cached id for this [RemoteValue] within the [RemoteComposeCreationState].

@@ -56,6 +56,9 @@ constructor(
 
     override fun toString(): String = cacheKey.toDebugString()
 
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is RemoteBitmapFont) candidate else this
+
     public val glyphs: List<Glyph> =
         if (glyphs.size <= 1) {
             glyphs
@@ -91,6 +94,9 @@ constructor(
                 MeasureHeight ->
                     (args[0] as RemoteBitmapFont).measureHeight(args[1] as RemoteString)
             }
+
+        override val resultKind: RemoteValueKind
+            get() = RemoteValueKind.FLOAT
 
         override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
             when (this) {

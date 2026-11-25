@@ -42,6 +42,9 @@ public sealed interface RemoteStringArray : RemoteValue<List<RemoteString>> {
 
 private enum class StringArrayOperationKey : RemoteOperation {
     Create {
+        override val resultKind: RemoteValueKind
+            get() = RemoteValueKind.STRING_ARRAY
+
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "arrayOf(${args.joinToDebugString()})"
 
@@ -52,11 +55,16 @@ private enum class StringArrayOperationKey : RemoteOperation {
         override val precedence: Int
             get() = 100
 
+        override val resultKind: RemoteValueKind
+            get() = RemoteValueKind.STRING
+
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             args.formatArrayAccess(precedence)
 
         override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
             (args[0] as RemoteStringArray)[args[1] as RemoteInt]
+
+        override fun canFailOnOperandIndex(operandIndex: Int): Boolean = operandIndex == 1
     },
 }
 
@@ -66,6 +74,11 @@ private class RemoteStringArrayImpl(
 ) : BaseRemoteValue<List<RemoteString>>(cacheKey), RemoteStringArray {
     override val equalityType: KClass<*>
         get() = RemoteStringArray::class
+
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.STRING_ARRAY
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteStringArray.createForId(id)
 
     override fun get(v: Int): RemoteString = constantValueOrNull?.get(v) ?: get(RemoteInt(v))
 
