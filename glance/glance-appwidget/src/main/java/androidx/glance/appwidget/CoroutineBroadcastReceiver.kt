@@ -38,8 +38,8 @@ internal fun BroadcastReceiver.goAsync(
     coroutineContext: CoroutineContext = Dispatchers.Default,
     block: suspend CoroutineScope.() -> Unit,
 ) {
-    check(!DisableGoAsyncForTesting.get()) {
-        "goAsync must never be called when DisableGoAsyncForTesting is enabled"
+    check(!ForceAsyncRequestWorker.get()) {
+        "goAsync must never be called when the AsyncRequestWorker is meant to be used"
     }
     val parentScope = CoroutineScope(coroutineContext)
     val pendingResult = goAsync()

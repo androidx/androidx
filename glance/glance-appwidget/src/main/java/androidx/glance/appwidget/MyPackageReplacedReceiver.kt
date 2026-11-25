@@ -19,10 +19,7 @@ package androidx.glance.appwidget
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import androidx.glance.appwidget.proto.LayoutProto.AsyncRequest
 
 /**
  * Broadcast receiver handling updates after a package update. Useful to know if classes appeared or
@@ -32,19 +29,11 @@ public open class MyPackageReplacedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         checkNotNull(context) { "onReceive context is null" }
         checkNotNull(intent) { "onReceive intent is null" }
-        // This is not tied to a widget, so there is no UpdateStrategy to defer to.
-        if (isGoAsyncBroken()) {
-            // Run without goAsync (and without WorkManager); the cleanup is short and best-effort.
-            CoroutineScope(Dispatchers.Default).launch {
-                try {
-                    GlanceAppWidgetManager(context).cleanReceivers()
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Throwable) {
-                    logException(e)
-                }
+        val handled =
+            maybeLaunchAsyncRequestWorker(context) {
+                myPackageReplaced = AsyncRequest.MyPackageReplaced.newBuilder().build()
             }
-        } else {
+        if (!handled) {
             goAsync {
                 val manager = GlanceAppWidgetManager(context)
                 manager.cleanReceivers()

@@ -42,7 +42,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -152,56 +151,6 @@ public fun GlanceAppWidget.runComposition(
             this@coroutineScope.cancel()
         }
         session.lastRemoteViews.filterNotNull().collect { emit(it) }
-    }
-}
-
-/**
- * Runs a composition session for a bound [id] under
- * [androidx.glance.appwidget.updatestrategy.UpdateStrategy.IMMEDIATE] without registering with
- * [UnmanagedSessionReceiver].
- *
- * @param actionKey if not null, the lambda action with this key is run on the first result, and
- *   only results reflecting the lambda action are emitted.
- */
-internal fun GlanceAppWidget.runImmediateComposition(
-    context: Context,
-    id: AppWidgetId,
-    options: Bundle,
-    lambdaReceiver: ComponentName,
-    actionKey: String? = null,
-): Flow<RemoteViews> = flow {
-    val session =
-        AppWidgetSession(
-            widget = this@runImmediateComposition,
-            id = id,
-            initialOptions = options,
-            lambdaReceiver = lambdaReceiver,
-            shouldPublish = false,
-        )
-    coroutineScope {
-        launch {
-            session.runSession(context)
-            this@coroutineScope.cancel()
-        }
-        val results = session.lastRemoteViews.filterNotNull()
-        if (actionKey == null) {
-            // No action to run; emit composition results starting from the initial render.
-            results.collect { emit(it) }
-        } else {
-            // Else-branch will execute a lambda
-            // Wait for the initial composition so the session registers its lambdas.
-            results.first()
-            // Queue the lambda on the session's event channel.
-            session.runLambda(actionKey)
-            // Queue a WaitForReady barrier behind it and join until the lambda has run.
-            session.waitForReady().join()
-            // Capture the current RemoteViews so we can filter out StateFlow's replay below.
-            val previous = session.lastRemoteViews.value
-            // Force recomposition so a new result is emitted even if no state changed.
-            session.updateGlance()
-            // Emit the post-action RemoteViews.
-            results.filter { it !== previous }.collect { emit(it) }
-        }
     }
 }
 
