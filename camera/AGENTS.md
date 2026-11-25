@@ -142,28 +142,21 @@ traversal protocol in [`camerax-guidelines-governance`][skill-gov]):
   overrides (`:testReleaseUnitTest --tests` instead of `:test --tests`, `<= 50`
   char commit titles, and CameraX's Two-Stage Pre-Upload Gate). If operating
   standalone without parent AndroidX skills, use the defaults below.
-- **Kotlin Formatting**: When modifying any .kt file, format it using `ktfmt`
-  via the following command:
-  `./gradlew :ktCheckFile --format --file <file>`.
-  If more than one file needs formatting, continue adding
-  `--file <next-file>` to the command.
-  **CRITICAL**: Only format the files you have modified. Do not perform
+- **Kotlin Formatting**: Format modified `.kt` files via `ktfmt`:
+  `./gradlew :ktCheckFile --format --file <file>` (repeat `--file <next-file>`
+  for multiple files). **CRITICAL**: Only format files you modified; never run
   project-wide or unrelated formatting to keep git diffs clean.
-- **Respect User's Local Changes**: Before modifying or creating any file,
-  check for local uncommitted changes in the workspace. Do not overwrite,
-  revert, or discard the user's modifications without explicit instructions.
-  If your changes might conflict with theirs, seek clarification first.
-- **Public API**: When a public API is changed or when asked to update the
-  public API files, execute: `./gradlew <project>:updateApi`. The projects and
-  their root paths can be found in `settings.gradle`.
-- **File Management**: When moving files, use `git mv` to keep version control
-  history.
-- **Git Commits & Uploads**: Do not make a git commit or run `repo upload`
-  unless specifically requested.
-- **Strict Scope Isolation**: Maintain clean and atomic changes. Do not bundle
-  unrelated modifications (such as fixing pre-existing lint issues or test
-  cleanup in unrelated files) into a feature or bug-fix CL. Always split
-  unrelated issues into separate tracking bugs and independent CLs.
+- **Respect User's Local Changes**: Before modifying or creating files, check
+  local uncommitted changes. Never overwrite, revert, or discard user edits
+  without explicit instructions; clarify potential conflicts first.
+- **Public API**: When a public API changes or when asked to update API files,
+  run `./gradlew <project>:updateApi` (project paths are in `settings.gradle`).
+- **File Management**: Use `git mv` when moving files to preserve git history.
+- **Git Commits & Uploads**: Do not commit or run `repo upload` unless
+  explicitly requested.
+- **Strict Scope Isolation**: Keep changes clean and atomic; never bundle
+  unrelated edits (e.g., pre-existing lint fixes or unrelated test cleanup) into
+  a feature or bug-fix CL. Split unrelated issues into separate bugs and CLs.
 - **Scoping Builds**: Always use `PROJECT_PREFIX` to speed up Gradle
   configuration, e.g.,
   `PROJECT_PREFIX=:camera:camera-core ./gradlew :camera:camera-core:assemble`.
@@ -237,6 +230,12 @@ invariants:
     `CompletableDeferred`, or `Semaphore`. Always call
     `DeferrableSurface.close()` in `@After` to prevent Robolectric
     `FutureGarbageCollectedException` leaks.
+  - **Broad Multi-OEM `androidTest` Coverage**: On non-test library changes
+    touching camera/HAL execution paths without a provably narrow single-device,
+    quirk, or chart-only scope, verify comprehensive related module +
+    `integration-tests` `androidTest` suites across broad multi-OEM device pools
+    against fleet baselines rather than narrow smoke runs
+    ([`camerax-testing`][skill-test]).
   - **Section 9 Test Pyramid & Smoke Guardrail**: When migrating resolver/config
     tests from `androidTest/` to `test/`, retain at least **one end-to-end smoke
     test on real devices** in `androidTest/` (and sync downstream CI targets per
@@ -337,36 +336,27 @@ committing:
   devices (`Camera2DeviceManager`), capture sessions (`CameraGraph`), and
   low-level request/frame pipelines.
 - camera-camera2-pipe-testing: Testing library for `camera-camera2-pipe`.
-- camera-common: Contains common utility classes and constants used across
-  CameraX modules.
-- camera-common-testing: Provides testing utilities and fakes for
-  `camera-common`.
-- camera-compose: A library that provides Jetpack Compose integration for
-  CameraX.
-- camera-core: The core library of CameraX. It provides the basic camera
-  functionalities. Its Camera2-dependent implementations are provided by
-  `camera-camera2`.
-- camera-effects: A library for applying visual effects to camera streams.
-- camera-extensions: A library that provides access to device-specific camera
-  effects and features.
-- camera-extensions-stub: A stub implementation for camera extensions.
-- camera-lifecycle: A library that provides lifecycle management for CameraX.
-- camera-mlkit-vision: A library for integrating ML Kit Vision with CameraX.
-- camera-testing: A library providing testing utilities for CameraX.
+- camera-common: Common utility classes and constants shared across CameraX.
+- camera-common-testing: Testing utilities and fakes for `camera-common`.
+- camera-compose: Jetpack Compose integration for CameraX.
+- camera-core: Core CameraX library providing fundamental camera APIs; Camera2
+  implementations are provided by `camera-camera2`.
+- camera-effects: Visual effects pipeline library for camera streams.
+- camera-extensions: Device-specific OEM camera effects and extensions library.
+- camera-extensions-stub: Stub implementation for camera extensions.
+- camera-lifecycle: Lifecycle management integration for CameraX.
+- camera-mlkit-vision: ML Kit Vision integration for CameraX.
+- camera-testing: Testing utilities and fakes for CameraX.
 - camera-testlib-extensions: Testing libraries for camera extensions.
-- camera-video: A library that provides video recording functionalities.
-- camera-view: A library that provides a custom View for camera preview.
-- featurecombinationquery: A group of standalone Camera2 libraries for querying
-  supported combinations of camera features. These can be used independently of
-  CameraX. Includes `featurecombinationquery` and
-  `featurecombinationquery-play-services`.
-- integration-tests: A project containing integration tests for the camera
-  libraries.
-- media3-effect: A library that provides seamless integration for applying
-  Media3-based effects to camera streams in CameraX.
-- viewfinder: A group of standalone Camera2 libraries providing a `Viewfinder`
-  widget for camera previews. These can be used independently of CameraX.
-  Includes `viewfinder-compose`, `viewfinder-core`, and `viewfinder-view`.
+- camera-video: Video recording library for CameraX.
+- camera-view: Custom `PreviewView` and controller widgets for CameraX.
+- featurecombinationquery: Standalone Camera2 feature-combination query
+  libraries (`featurecombinationquery`,
+  `featurecombinationquery-play-services`), usable independently of CameraX.
+- integration-tests: Integration test apps and suites for CameraX libraries.
+- media3-effect: Media3-based effects integration for CameraX streams.
+- viewfinder: Standalone Camera2 `Viewfinder` libraries (`viewfinder-compose`,
+  `viewfinder-core`, `viewfinder-view`), usable independently of CameraX.
 
 ## Documentation links:
 

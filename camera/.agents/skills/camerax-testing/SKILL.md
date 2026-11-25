@@ -515,6 +515,38 @@ CameraX involves complex hardware interactions, making robust testing essential.
     drops do not skew encoder FPS; and re-run the **exact original failing
     test** and affected device suites on the current `PSn+1` patchset whenever
     post-review or rebase edits rewrite production logic or locking.
+  - **Broad Multi-OEM Pool Verification & Quality-First Suite Rubric**:
+    When a non-test CameraX library change exercises camera or HAL execution
+    paths without a provably narrow single-device, quirk, or chart-only blast
+    radius, do **not** rely on 1–2 smoke-test classes or narrow flagship-only
+    sampling as the sole pre-submit gate. Instead, run **comprehensive related
+    module + `integration-tests` `androidTest` suites** across a **broad
+    multi-OEM physical device pool** (scaling parallel execution with available
+    host memory and multi-unit pool capacity, comparing against continuous-CI
+    fleet baselines, and pairing chart-calibrated rigs whenever
+    `@LabTestRule.LabTestFrontCamera` / `@LabTestRule.LabTestRearCamera` suites
+    apply; see `AGENTS_INTERNAL.md` when internal lab runners are configured):
+    - *`@CameraScope` controls, 3A & rebind*: `CameraControlAdapterDeviceTest`,
+      `CaptureConfigAdapterDeviceTest` (`camera-camera2`),
+      `FocusMeteringDeviceTest`, `ZoomControlDeviceTest`,
+      `UseCaseCombinationTest` (`camera-testapp-core`).
+    - *Still capture & ZSL*: `ImageCaptureTest` (`camera-core`),
+      `ImageCaptureTest`, `TakePictureTest`, `FlashTest` (`camera-testapp-core`;
+      run chart-based flash/capture suites on calibrated chart rigs, not
+      chartless pools).
+    - *Interop callbacks*: `Camera2CameraControlDeviceTest`,
+      `TapToFocusDeviceTest` (`camera-camera2`), `Camera2InteropIntegrationTest`
+      (`camera-testapp-core`).
+    - *Surface & scope lifecycle*: `SurfaceRequestTest` (`camera-core`),
+      `UseCaseSurfaceManagerDeviceTest` (`camera-camera2`),
+      `OpenCloseCaptureSessionStressTest`, `CameraDisconnectTest`
+      (`camera-testapp-core`), `ProcessCameraProviderTest` (`camera-lifecycle`).
+    - *Video & stream sharing*: `VideoRecordingTest`,
+      `VideoRecordingStreamSharingTest`, `AudioVideoSyncTest` (`camera-video`),
+      `StreamSharingTest`, `VideoRecordingEffectTest` (`camera-testapp-core`).
+    - *Feature combinations*: `FeatureCombinationDeviceTest`,
+      `BackCamSingleFeatureQbaTest`, `FrontCamSingleFeatureQbaTest`,
+      `BackCamMultiFeatureQbaTest` (`camera-testapp-featurecombo`).
 - **FTL Run (if no device connected)**:
   - Discover FTL tasks for your project:
     `./gradlew <project>:tasks --all | grep ftl` (e.g.,

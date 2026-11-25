@@ -330,6 +330,29 @@ Authoring* bullet below alongside the fail-closed contract in their brief.
       other-author CLs, follow the canonical rule in
       `camerax-guidelines-governance/references/COMMIT_AND_AMEND.md`
       (*Unreviewed-CL Holistic Re-Evaluation vs. Assigned/Active Review Lock*).
+    - **Flexible Early Exit for Read-Only Deliverables (`0` Repository Files
+      Modified — Mode 1 CL Reviews & Modes 2–5 Non-Code Q&A/Triage/Plans/
+      Reports):** Adapt review depth by complexity:
+      1. *Lightweight / Localized Reviews* (typos, single-function logic, doc
+         updates, localized test additions): **1 cross-family blind pass** (`1`
+         opposite-family verifier + coordinator direct `file:line` &
+         `git --no-lazy-fetch blame` verification) suffices for early exit.
+      2. *Non-Trivial / Architectural Reviews* (concurrency, lifecycle state
+         machines, cross-class audio/video pipelines, multi-class boundary
+         changes, public API, or `DeviceQuirk`/HAL/5-Gate root causes): Mandate
+         spawning **2 distinct vendor families in parallel** (`1` turn on the
+         same snapshot, zero sequential ping-pong or token waste) to capture
+         complementary cross-family perspectives on full call chains and OEM
+         device quirks (see Checkpoint 1 above).
+      R1 findings merged into `<scratch_or_tmp>/draft_deliverable.md` after
+      direct `file:line` verification are logged `VERIFIED_RESOLVED
+      (coordinator-verified)` rather than `PATCHED_PENDING_REAUDIT` and satisfy
+      the exit gate without R2–R5 codebase re-audits. *Fundamental-Pivot
+      Anti-Ping-Pong Guard:* Spawn a focused Round 2 clean-context check on a
+      non-code deliverable **only** when R1 **overturned the core root cause or
+      replaced the proposed Checkpoint 1 fix architecture**, or when parallel R1
+      verifiers have an **unresolved factual contradiction** on `file:line` /
+      specification behavior.
     - **Post-Review Fix Sign-Off Fast-Path & Cold Newly-Authored R2 Gate:**
       When applying localized code fixes to a CL after a prior cross-family
       clean-context review or Gerrit review (seeding `convergence_ledger.md`

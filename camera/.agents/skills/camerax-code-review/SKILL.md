@@ -197,7 +197,14 @@ applicable. Prioritize clarity and conciseness.
           migrations, and design antipatterns.
         - **Style & Formatting**: Line-length violations, Kotlin idioms, and
           documentation wrapping.
-        - **Testing & Coverage**: Missing test cases or assertion improvements.
+        - **Testing, Coverage & Tested-Rate**: Missing test cases, assertion
+          improvements, and—for non-test library changes exercising camera/HAL
+          execution paths without a provably narrow single-device, quirk, or
+          chart-only scope—verification of comprehensive related module +
+          `integration-tests` `androidTest` suites across broad multi-OEM device
+          pools against fleet baselines (plus calibrated chart rigs for
+          `@LabTestRule.LabTestFrontCamera` / `@LabTestRule.LabTestRearCamera`
+          suites; see `camerax-testing` Section 3).
         - **Clean-Context Elegance (`1–10`), Safe-to-Go (`1–10`) &
           Anti-Quirk-Shortcut Gate (`>= 9/10` Target)**: Every full-depth Mode 1
           review (prose/typo-only reviews exempt) must score both **`Elegance
@@ -229,8 +236,11 @@ applicable. Prioritize clarity and conciseness.
             `CountDownLatch.await()`, or nested `runBlocking`, assertion-masking
             `assumeTrue` in unit tests, unexplained `assumeFalse(...,
             isEmulator())` masking `EmulatedCamera` rejections in `androidTest`,
-            tautological tests passing with the fix reverted, or unisolated
-            static `DeviceQuirks` / `Build.*` mutations in Robolectric tests.
+            tautological tests passing with the fix reverted, unisolated static
+            `DeviceQuirks` / `Build.*` mutations in Robolectric tests, or
+            broad camera/HAL library changes verified only via 1–2 smoke-test
+            classes instead of the broad multi-OEM pool rubric in
+            `camerax-testing` Section 3.
           - *(d) Deep Modules & Callers*: existing primitives/builder seams
             ignored in favor of shadow-loop patches (vs. 1 shared pure builder),
             custom flags/locks/test-only hooks/binary container parsers,
@@ -324,14 +334,16 @@ applicable. Prioritize clarity and conciseness.
           match the current patchset rather than a pre-rewrite revision.
     *   **Mode 5 — Open-Ended Trade-Offs, Quirk Scoping & Test/Doc Synthesis
         (Multi-Perspective Quality Audit):**
-        - **Competing Design Trade-Offs & Batch Quality Scoring**: When multiple
-          valid solutions or candidate CLs exist, compare independent model
-          perspectives using **Elegance** and **Safe-to-Go** readiness (`1–10`—
-          where `>= 9` denotes minimal diff, zero test-only seams, `0 OPEN
-          P0-P2`, and green verification; `7.5–8.9` with `0 OPEN P0-P2` denotes
-          unavoidable HAL/quirk surface after 1 holistic simplification pass;
-          and `<= 8` with open `P1–P2` rubric items or `<= 6` with open `P0`
-          defects) to select the most idiomatic design.
+        - **Competing Design Trade-Offs, Tested-Rate & Batch Quality Scoring**:
+          When multiple valid solutions or candidate CLs exist, compare
+          independent model perspectives using **Elegance** and **Safe-to-Go**
+          readiness (`1–10`—where `>= 9` denotes minimal diff, zero test-only
+          seams, `0 OPEN P0-P2`, and green verification; `7.5–8.9` with `0 OPEN
+          P0-P2` denotes unavoidable HAL/quirk surface after 1 holistic
+          simplification pass; and `<= 8` with open `P1–P2` rubric items or `<=
+          6` with open `P0` defects), plus a **Tested-Rate** gate per
+          `camerax-testing` Section 3 for broad camera/HAL library changes, to
+          select the most idiomatic design.
         - **Quirk Precision, Workaround-First & 5-Gate Anti-Broad-Quirk Audit**:
           Verify that proposed `Quirk` mappings avoid magic heuristics, satisfy
           the Mode 1 anti-quirk-shortcut check (Section 5 *Quirk as Last Resort*
@@ -547,48 +559,19 @@ applicable. Prioritize clarity and conciseness.
            holistically re-evaluating author-owned unreviewed CLs with `0`
            assigned human reviewers and `0` human comments scoring `< 9/10` per
            `MULTI_MODEL_HARNESS.md`).
-        7. *Flexible Early Exit (Adaptive Depth by Deliverable Type &
-           Anti-Ping-Pong Guards):*
-           - **Read-Only Deliverables (`0` Repository Files Modified — Mode 1
-             CL Reviews & Modes 2–5 Non-Code Q&A/Triage/Plans/Reports):**
-             Adapt review depth by complexity:
-             1. *Lightweight / Localized Reviews* (typos, single-function
-                logic, doc updates, localized test additions): **1 cross-family
-                blind pass** (`1` opposite-family verifier + coordinator direct
-                `file:line` & `git --no-lazy-fetch blame` verification) suffices
-                for early exit.
-             2. *Non-Trivial / Architectural Reviews* (concurrency, lifecycle
-                state machines, cross-class audio/video pipelines, multi-class
-                boundary changes, public API, or `DeviceQuirk`/HAL/5-Gate root
-                causes): Mandate spawning **2 distinct vendor families in
-                parallel**. Because both run in parallel on the same snapshot,
-                it executes in **1 turn** (no multi-round sequential ping-pong
-                loops or unnecessary token waste) while capturing complementary
-                cross-family perspectives on full call chains and OEM device
-                quirks (case study in `MULTI_MODEL_HARNESS.md` Checkpoint 1).
-             R1 findings merged into `<scratch_or_tmp>/draft_deliverable.md`
-             after direct `file:line` verification are logged
-             `VERIFIED_RESOLVED (coordinator-verified)` rather than
-             `PATCHED_PENDING_REAUDIT` and satisfy the exit gate without R2–R5
-             codebase re-audits. *Fundamental-Pivot Anti-Ping-Pong Guard:*
-             Spawn a focused Round 2 clean-context check on a non-code
-             deliverable **only** when R1 **overturned the core root cause or
-             replaced the proposed Checkpoint 1 fix architecture**, or when
-             parallel R1 verifiers have an **unresolved factual contradiction**
-             on `file:line` / specification behavior.
-           - **Post-Review Fix Sign-Off Fast-Path (1 Opposite-Vendor Cold
-             Pass):** For localized post-review fixes (with seeded ledger +
-             green Stage 2, so solved bugs never ping-pong back), **1 fresh
-             clean-context full-diff pass on the opposite model family** +
-             inline Turn 2 `Post-Blind Adjudication Turn` confirming
-             `100% VERIFIED_RESOLVED`, `0` `OPEN` `P0-P2`, `0` `REGRESSED`, and
-             `0` unadjudicated `DISMISSED_WITH_PROOF` (`UPHELD`) satisfies
-             convergence (full rule in `MULTI_MODEL_HARNESS.md`).
-           - **Cold Newly-Authored Changes (Cross-Family R2 Gate):** For new
-             prod, test, or doc/skill changes, run Round 2 on a distinct model
-             family and stop once cross-family + Hard Convergence Exit Gate
-             hold (auto-scaling R3–R5 while converging; see
-             `MULTI_MODEL_HARNESS.md`).
+        7. *Flexible Early Exit (Adaptive Depth & Anti-Ping-Pong Guards — Full
+           Coordinator Rules in `MULTI_MODEL_HARNESS.md`):*
+           - *Read-Only (`0` Repo Edits):* `1` cross-family blind pass
+             (lightweight) or `2` parallel cross-family verifiers in `1` turn
+             (architectural/`DeviceQuirk`/HAL/5-Gate); coordinator-verified R1
+             merges log `VERIFIED_RESOLVED (coordinator-verified)`, spawning R2
+             only under the *Fundamental-Pivot Anti-Ping-Pong Guard*.
+           - *Post-Review Fix Sign-Off Fast-Path:* `1` opposite-vendor cold
+             full-diff pass + inline Turn 2 adjudication (`100%
+             VERIFIED_RESOLVED`, `0` `OPEN` `P0-P2`, `0` `REGRESSED`, `0`
+             unadjudicated dismissals).
+           - *Cold New Changes:* Cross-family R2 gate + Hard Convergence Exit
+             Gate (auto-scaling R3–R5 while converging).
     *   **Read-Only Verifier, Search Discipline & Watchdog Recovery:**
         Verifier sub-agents must never edit repository files, run build/Gradle
         tasks, or run unbounded `find` / recursive `grep` commands across
