@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(ExperimentalUuidApi::class)
-
 package androidx.appstate.statestore
 
-import androidx.appstate.transform.listener
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import kotlin.uuid.ExperimentalUuidApi
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 /**
  * Class that contains a store that maintains compose state beyond individual Android components.
@@ -79,37 +68,26 @@ public class StateStore {
     /**
      * Sets the state for the given key.
      *
-     * If this is the first time the state is being set a listener is added to allow the given key
-     * to be automatically cleared from the map based on the [StateStoreKey.autoClearKey] and
-     * [StateStoreKey.shouldClearState]. For the automatic clearing, [StateStoreKey.autoClearKey]
-     * must be non-null, the value associated with this key must be non-null, and the
-     * [StateStoreKey.shouldClearState] condition must return true. AS long as all 3 of those
-     * conditions are not met, the listener will not be removed.
+     * To automatically reset dependent state when another key changes (for example, clearing form
+     * state when a user logs out or completes a flow), observe the trigger key with `listener` and
+     * reset each dependent key back to its [StateStoreKey.defaultValue] inside a `LaunchedEffect`:
+     * ```kotlin
+     * scope.launch {
+     *     listener {
+     *         val userId by stateStore.getState(UserIdKey)
+     *         LaunchedEffect(userId) {
+     *             if (userId == null) {
+     *                 stateStore.setState(DraftMessageKey, DraftMessageKey.defaultValue)
+     *             }
+     *         }
+     *     }
+     * }
+     * ```
      *
      * @param stateKey the key to set a value for
      * @param value the value to set inside the StateStore
      */
     public fun <T> setState(stateKey: StateStoreKey<T>, value: T) {
-        if (!stateStore.contains(stateKey) && stateKey.autoClearKey != null) {
-            val key = stateKey.autoClearKey
-            val initialTriggerValue = stateStore[key]?.value
-            val dispatcher = Dispatchers.Unconfined
-            val scope = CoroutineScope(dispatcher + SupervisorJob())
-            scope.launch {
-                listener(dispatcher) {
-                    val currentValue = stateStore[key]?.value
-                    if (
-                        currentValue != initialTriggerValue &&
-                            stateKey.shouldClearState(this@StateStore)
-                    ) {
-                        LaunchedEffect(currentValue) {
-                            stateStore.remove(stateKey)
-                            scope.cancel()
-                        }
-                    }
-                }
-            }
-        }
         (getState(stateKey, value) as MutableState<T>).value = value
     }
 
@@ -139,13 +117,5 @@ public class StateStore {
  * be @Serializable along with the extending class.
  *
  * @param defaultValue an instance of the type [T] that is associated with this key by default.
- * @param autoClearKey set this if you would like the state associated with this key to be
- *   automatically cleared from the [StateStore] when [shouldClearState] is `true`.
- * @param shouldClearState the condition to determine whether the state should be cleared or not.
  */
-@Serializable
-public open class StateStoreKey<T>(
-    public val defaultValue: T,
-    @Transient public val autoClearKey: StateStoreKey<*>? = null,
-    @Transient public val shouldClearState: (StateStore) -> Boolean = { true },
-)
+@Serializable public open class StateStoreKey<T>(public val defaultValue: T)

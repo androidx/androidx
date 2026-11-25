@@ -17,6 +17,8 @@
 package androidx.appstate.statestore
 
 import androidx.appstate.transform.listener
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,17 +38,7 @@ import org.junit.runner.RunWith
 class StateStoreDeviceTest {
     @Serializable object StringKey : StateStoreKey<String>("default")
 
-    @Serializable object AutoClearKey : StateStoreKey<Int>(0, autoClearKey = StringKey)
-
-    @Serializable
-    object StringKeyWithPredicate :
-        StateStoreKey<String>(
-            "default",
-            autoClearKey = StringKey,
-            shouldClearState = { stateStore ->
-                stateStore.getState(StringKey, "").value == "clear"
-            },
-        )
+    @Serializable object TriggerKey : StateStoreKey<String?>(null)
 
     @Test
     fun testListenerReceivesStateStoreUpdates() = runTest {
@@ -77,42 +69,29 @@ class StateStoreDeviceTest {
     }
 
     @Test
-    fun testAutoClear() = runTest {
+    fun testManualClearWithListener() = runTest {
         val stateStore = StateStore()
+        stateStore.setState(TriggerKey, "user-1")
+        stateStore.setState(StringKey, "draft")
 
-        stateStore.setState(AutoClearKey, 1)
-        assertThat(stateStore.keys).contains(AutoClearKey)
-
-        // Set key to trigger clear
-        stateStore.setState(StringKey, "triggerValue")
-
-        // Run recomposition to let the listener and LaunchedEffect run
+        val job = backgroundScope.launch {
+            listener(testDispatcher) {
+                val trigger by stateStore.getState(TriggerKey)
+                LaunchedEffect(trigger) {
+                    if (trigger == null) {
+                        stateStore.setState(StringKey, StringKey.defaultValue)
+                    }
+                }
+            }
+        }
         runRecomposition()
+        assertThat(stateStore.getState(StringKey).value).isEqualTo("draft")
 
-        // this clears because the default for StateStoreKey is to autoclear.
-        assertThat(stateStore.keys).doesNotContain(AutoClearKey)
-    }
-
-    @Test
-    fun testAutoClearWithPredicate() = runTest {
-        val stateStore = StateStore()
-
-        stateStore.setState(StringKeyWithPredicate, "targetValue")
-        assertThat(stateStore.keys).contains(StringKeyWithPredicate)
-
-        // Set trigger key to something that does NOT satisfy predicate
-        stateStore.setState(StringKey, "dont-clear")
+        stateStore.setState(TriggerKey, null)
         runRecomposition()
+        assertThat(stateStore.getState(StringKey).value).isEqualTo(StringKey.defaultValue)
 
-        // Verify TargetKeyWithPredicate is NOT cleared
-        assertThat(stateStore.keys).contains(StringKeyWithPredicate)
-
-        // Set trigger key to "clear" which satisfies predicate
-        stateStore.setState(StringKey, "clear")
-        runRecomposition()
-
-        // Verify TargetKeyWithPredicate IS cleared
-        assertThat(stateStore.keys).doesNotContain(StringKeyWithPredicate)
+        job.cancel()
     }
 
     private fun TestScope.runRecomposition() {
