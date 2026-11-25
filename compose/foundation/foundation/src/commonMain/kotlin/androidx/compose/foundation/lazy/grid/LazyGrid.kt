@@ -157,9 +157,14 @@ internal fun LazyGrid(
         )
 
     val bringIntoViewSpec =
-        rememberLazyLayoutBringIntoViewSpec(reverseLayout, isVertical = isVertical) {
-            state.layoutInfoState.value.stickingItemsCombinedSize
-        }
+        rememberLazyLayoutBringIntoViewSpec(
+            reverseLayout = reverseLayout,
+            isVertical = isVertical,
+            layoutInfo = {
+                state.approachLayoutInfo
+                    ?: Snapshot.withoutReadObservation { state.layoutInfoState.value }
+            },
+        )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
 

@@ -16,7 +16,12 @@
 
 package androidx.compose.foundation.lazy.list
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.BringIntoViewSpec
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -27,9 +32,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -41,6 +55,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -787,6 +804,258 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
                 .assertStartPositionInRootIsEqualTo(
                     padding.calculateLeftPadding(LayoutDirection.Rtl)
                 )
+        }
+    }
+
+    @Test
+    fun focusRequest_withAsymmetricContentPadding_scrollsItemIntoUnobstructedRegion() {
+        val containerSize = itemSize * 4
+        val startPadding = itemSize
+        val endPadding = itemSize * 1.5f
+        val focusRequesters = List(10) { FocusRequester() }
+        lateinit var state: LazyListState
+        var config by mutableStateOf(false to LayoutDirection.Ltr)
+
+        rule.setContent {
+            val (reverseLayout, layoutDirection) = config
+            key(config) {
+                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                    LazyColumnOrRow(
+                        modifier = Modifier.mainAxisSize(containerSize).crossAxisSize(itemSize),
+                        state = rememberLazyListState().also { state = it },
+                        reverseLayout = reverseLayout,
+                        contentPadding =
+                            PaddingValues(beforeContent = startPadding, afterContent = endPadding),
+                    ) {
+                        items(focusRequesters.size) { index ->
+                            Spacer(
+                                Modifier.then(fillParentMaxCrossAxis())
+                                    .mainAxisSize(itemSize)
+                                    .testTag("$index")
+                                    .focusRequester(focusRequesters[index])
+                                    .focusable()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        val configs =
+            listOf(
+                false to LayoutDirection.Ltr,
+                false to LayoutDirection.Rtl,
+                true to LayoutDirection.Ltr,
+                true to LayoutDirection.Rtl,
+            )
+
+        configs.forEach { (reverseLayout, layoutDirection) ->
+            rule.runOnIdle { config = reverseLayout to layoutDirection }
+            rule.waitForIdle()
+
+            val isLayoutAxisReversed =
+                reverseLayout xor (!vertical && layoutDirection == LayoutDirection.Rtl)
+            val physicalLeadingPadding =
+                if (!vertical && layoutDirection == LayoutDirection.Rtl) endPadding
+                else startPadding
+            val physicalTrailingPadding =
+                if (!vertical && layoutDirection == LayoutDirection.Rtl) startPadding
+                else endPadding
+            val unobstructedEnd = containerSize - physicalTrailingPadding
+
+            val initialIndex = state.firstVisibleItemIndex
+            val initialOffset = state.firstVisibleItemScrollOffset
+            rule.runOnIdle { focusRequesters[0].requestFocus() }
+            rule.runOnIdle {
+                assertThat(state.firstVisibleItemIndex).isEqualTo(initialIndex)
+                assertThat(state.firstVisibleItemScrollOffset).isEqualTo(initialOffset)
+            }
+
+            rule.runOnIdle { focusRequesters[2].requestFocus() }
+            rule.waitForIdle()
+            val expectedItem2Start =
+                if (isLayoutAxisReversed) physicalLeadingPadding else unobstructedEnd - itemSize
+            rule.onNodeWithTag("2").assertStartPositionInRootIsEqualTo(expectedItem2Start)
+
+            rule.runOnIdle { focusRequesters[1].requestFocus() }
+            rule.waitForIdle()
+            val expectedItem1Start =
+                if (isLayoutAxisReversed) unobstructedEnd - itemSize else physicalLeadingPadding
+            rule.onNodeWithTag("1").assertStartPositionInRootIsEqualTo(expectedItem1Start)
+        }
+    }
+
+    @Test
+    fun bringIntoViewRequester_withAsymmetricContentPadding_scrollsItemIntoUnobstructedRegion() {
+        val containerSize = itemSize * 4
+        val startPadding = itemSize
+        val endPadding = itemSize * 1.5f
+        val requesters = List(6) { BringIntoViewRequester() }
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LazyColumnOrRow(
+                modifier = Modifier.mainAxisSize(containerSize).crossAxisSize(itemSize),
+                contentPadding =
+                    PaddingValues(beforeContent = startPadding, afterContent = endPadding),
+            ) {
+                items(requesters.size) { index ->
+                    Spacer(
+                        Modifier.then(fillParentMaxCrossAxis())
+                            .mainAxisSize(itemSize)
+                            .testTag("$index")
+                            .bringIntoViewRequester(requesters[index])
+                    )
+                }
+            }
+        }
+
+        lateinit var trailingJob: Job
+        rule.runOnIdle { trailingJob = scope.launch { requesters[2].bringIntoView() } }
+        rule.waitForIdle()
+        assertThat(trailingJob.isCompleted && !trailingJob.isCancelled).isTrue()
+        rule
+            .onNodeWithTag("2")
+            .assertStartPositionInRootIsEqualTo(containerSize - endPadding - itemSize)
+
+        lateinit var leadingJob: Job
+        rule.runOnIdle { leadingJob = scope.launch { requesters[1].bringIntoView() } }
+        rule.waitForIdle()
+        assertThat(leadingJob.isCompleted && !leadingJob.isCancelled).isTrue()
+        rule.onNodeWithTag("1").assertStartPositionInRootIsEqualTo(startPadding)
+    }
+
+    @Test
+    fun bringIntoView_withContentPaddingExceedingContainerSize_fallsBackToContainerBounds() {
+        val containerSize = itemSize * 2
+        val excessivePadding = itemSize * 1.5f
+        val requesters = List(4) { BringIntoViewRequester() }
+        lateinit var state: LazyListState
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LazyColumnOrRow(
+                modifier = Modifier.mainAxisSize(containerSize).crossAxisSize(itemSize),
+                state = rememberLazyListState().also { state = it },
+                contentPadding =
+                    PaddingValues(
+                        beforeContent = excessivePadding,
+                        afterContent = excessivePadding,
+                    ),
+            ) {
+                items(requesters.size) { index ->
+                    Spacer(
+                        Modifier.then(fillParentMaxCrossAxis())
+                            .mainAxisSize(itemSize)
+                            .testTag("$index")
+                            .bringIntoViewRequester(requesters[index])
+                    )
+                }
+            }
+        }
+
+        lateinit var firstJob: Job
+        rule.runOnIdle { firstJob = scope.launch { requesters[0].bringIntoView() } }
+        rule.waitForIdle()
+        assertThat(firstJob.isCompleted && !firstJob.isCancelled).isTrue()
+        rule.onNodeWithTag("0").assertStartPositionInRootIsEqualTo(containerSize - itemSize)
+
+        rule.runOnIdle { runBlocking { state.scrollBy(itemSizePx * 1.5f) } }
+        lateinit var secondJob: Job
+        rule.runOnIdle { secondJob = scope.launch { requesters[0].bringIntoView() } }
+        rule.waitForIdle()
+        assertThat(secondJob.isCompleted && !secondJob.isCancelled).isTrue()
+        rule.onNodeWithTag("0").assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun bringIntoView_withCustomLocalBringIntoViewSpec_respectsContentPadding() {
+        val containerSize = itemSize * 4
+        val startPadding = itemSize
+        val endPadding = itemSize * 1.5f
+        val focusRequesters = List(6) { FocusRequester() }
+        val observedContainerSizes = mutableListOf<Float>()
+        val customSpec =
+            object : BringIntoViewSpec {
+                override fun calculateScrollDistance(
+                    offset: Float,
+                    size: Float,
+                    containerSize: Float,
+                ): Float {
+                    observedContainerSizes.add(containerSize)
+                    return offset + size - containerSize
+                }
+            }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalBringIntoViewSpec provides customSpec) {
+                LazyColumnOrRow(
+                    modifier = Modifier.mainAxisSize(containerSize).crossAxisSize(itemSize),
+                    contentPadding =
+                        PaddingValues(beforeContent = startPadding, afterContent = endPadding),
+                ) {
+                    items(focusRequesters.size) { index ->
+                        Spacer(
+                            Modifier.then(fillParentMaxCrossAxis())
+                                .mainAxisSize(itemSize)
+                                .testTag("$index")
+                                .focusRequester(focusRequesters[index])
+                                .focusable()
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequesters[2].requestFocus() }
+        rule.waitForIdle()
+        val expectedActiveContainerPx =
+            with(rule.density) { (containerSize - startPadding - endPadding).roundToPx().toFloat() }
+        assertThat(observedContainerSizes).isNotEmpty()
+        assertThat(observedContainerSizes.last()).isEqualTo(expectedActiveContainerPx)
+        rule
+            .onNodeWithTag("2")
+            .assertStartPositionInRootIsEqualTo(containerSize - endPadding - itemSize)
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun focusRequest_withContentPaddingFlagDisabled_ignoresContentPadding() {
+        val previousFlagValue =
+            ComposeFoundationFlags.isLazyLayoutBringIntoViewContentPaddingEnabled
+        ComposeFoundationFlags.isLazyLayoutBringIntoViewContentPaddingEnabled = false
+        try {
+            val containerSize = itemSize * 4
+            val startPadding = itemSize
+            val endPadding = itemSize * 1.5f
+            val focusRequesters = List(6) { FocusRequester() }
+
+            rule.setContent {
+                LazyColumnOrRow(
+                    modifier = Modifier.mainAxisSize(containerSize).crossAxisSize(itemSize),
+                    contentPadding =
+                        PaddingValues(beforeContent = startPadding, afterContent = endPadding),
+                ) {
+                    items(focusRequesters.size) { index ->
+                        Spacer(
+                            Modifier.then(fillParentMaxCrossAxis())
+                                .mainAxisSize(itemSize)
+                                .testTag("$index")
+                                .focusRequester(focusRequesters[index])
+                                .focusable()
+                        )
+                    }
+                }
+            }
+
+            rule.runOnIdle { focusRequesters[2].requestFocus() }
+            rule.waitForIdle()
+            rule.onNodeWithTag("2").assertStartPositionInRootIsEqualTo(containerSize - itemSize)
+        } finally {
+            ComposeFoundationFlags.isLazyLayoutBringIntoViewContentPaddingEnabled =
+                previousFlagValue
         }
     }
 

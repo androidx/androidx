@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.runtime.Composable
@@ -23,59 +25,91 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
+internal interface LazyLayoutViewportInsets {
+    val beforeContentPadding: Int
+    val afterContentPadding: Int
+    val stickingItemsCombinedSize: Int
+        get() = 0
+}
+
 /**
- * Creates and remembers a [StickyHeaderBringIntoViewSpec] that wraps
- * `LocalBringIntoViewSpec.current` and takes the main axis sticky header size into account when
- * calculating scroll distance.
+ * Creates and remembers a [LazyLayoutBringIntoViewSpec] wrapping [LocalBringIntoViewSpec].
  *
- * @param stickyItemsCombinedSizeLambda A lambda that returns the combined size of all sticky items
- *   that are currently sticking to the start of the layout.
- * @param reverseLayout Whether the layout is reversed.
+ * Accounts for main-axis content padding and sticky item insets from [layoutInfo] when calculating
+ * bring-into-view scroll distance.
+ *
+ * @param reverseLayout whether the layout is reversed
+ * @param isVertical whether the layout scrolls vertically
+ * @param layoutInfo returns the current main-axis content padding and sticky item insets
  */
 @Composable
 internal fun rememberLazyLayoutBringIntoViewSpec(
     reverseLayout: Boolean,
     isVertical: Boolean,
-    stickyItemsCombinedSizeLambda: () -> Int,
+    layoutInfo: () -> LazyLayoutViewportInsets,
 ): BringIntoViewSpec {
     val currentBringIntoViewSpec = LocalBringIntoViewSpec.current
-    val layoutDirection = LocalLayoutDirection.current
-    return remember(
-        stickyItemsCombinedSizeLambda,
-        reverseLayout,
-        layoutDirection,
-        currentBringIntoViewSpec,
-        isVertical,
-    ) {
-        StickyHeaderBringIntoViewSpec(
-            stickyItemsCombinedSizeLambda,
-            reverseLayout,
-            layoutDirection,
-            isVertical,
-            currentBringIntoViewSpec,
+    val isLayoutAxisReversed =
+        reverseLayout xor (!isVertical && LocalLayoutDirection.current == LayoutDirection.Rtl)
+    return remember(layoutInfo, isLayoutAxisReversed, currentBringIntoViewSpec) {
+        LazyLayoutBringIntoViewSpec(
+            isLayoutAxisReversed = isLayoutAxisReversed,
+            delegate = currentBringIntoViewSpec,
+            layoutInfo = layoutInfo,
         )
     }
 }
 
-private class StickyHeaderBringIntoViewSpec(
-    private val stickyItemsCombinedSizeLambda: () -> Int,
-    private val reverseLayout: Boolean,
-    private val layoutDirection: LayoutDirection,
-    private val isVertical: Boolean,
-    private val bringIntoViewSpec: BringIntoViewSpec,
-) : BringIntoViewSpec {
+internal class LazyLayoutBringIntoViewSpec(
+    private val isLayoutAxisReversed: Boolean,
+    private val delegate: BringIntoViewSpec,
+    private val layoutInfo: () -> LazyLayoutViewportInsets,
+) : BringIntoViewSpec by delegate {
+    @OptIn(ExperimentalFoundationApi::class)
     override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
-        val nonStickyItemsOffset = stickyItemsCombinedSizeLambda().toFloat()
-        // If we are horizontal with a (!reverse && Ltr) or (reverse && Rtl) then we must offset
-        // because reversing Rtl is equivalent to regular Ltr.
-        // If we are vertical, we must offset if we are not reversed.
-        val isRtl = layoutDirection == LayoutDirection.Rtl
-        val applyStickyOffset = reverseLayout == (!isVertical && isRtl)
-        val validOffset = if (applyStickyOffset) offset - nonStickyItemsOffset else offset
-        return bringIntoViewSpec.calculateScrollDistance(
-            offset = validOffset,
+        val info = layoutInfo()
+        if (!ComposeFoundationFlags.isLazyLayoutBringIntoViewContentPaddingEnabled) {
+            val nonStickyItemsOffset = info.stickingItemsCombinedSize.toFloat()
+            val validOffset = if (!isLayoutAxisReversed) offset - nonStickyItemsOffset else offset
+            return delegate.calculateScrollDistance(
+                offset = validOffset,
+                size = size,
+                containerSize = containerSize - nonStickyItemsOffset,
+            )
+        }
+        val beforeInset = maxOf(info.beforeContentPadding, info.stickingItemsCombinedSize, 0)
+        val afterInset = info.afterContentPadding.coerceAtLeast(0)
+        val leadingInset = (if (isLayoutAxisReversed) afterInset else beforeInset).toFloat()
+        val trailingInset = (if (isLayoutAxisReversed) beforeInset else afterInset).toFloat()
+        val totalInset = leadingInset + trailingInset
+        val activeStart: Float
+        val activeContainerSize: Float
+        if (containerSize > totalInset) {
+            activeStart = leadingInset
+            activeContainerSize = containerSize - totalInset
+        } else {
+            activeStart = 0f
+            activeContainerSize = containerSize
+        }
+        return delegate.calculateScrollDistance(
+            offset = offset - activeStart,
             size = size,
-            containerSize = containerSize - nonStickyItemsOffset,
+            containerSize = activeContainerSize,
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LazyLayoutBringIntoViewSpec) return false
+        return layoutInfo === other.layoutInfo &&
+            isLayoutAxisReversed == other.isLayoutAxisReversed &&
+            delegate == other.delegate
+    }
+
+    override fun hashCode(): Int {
+        var result = layoutInfo.hashCode()
+        result = 31 * result + isLayoutAxisReversed.hashCode()
+        result = 31 * result + delegate.hashCode()
+        return result
     }
 }

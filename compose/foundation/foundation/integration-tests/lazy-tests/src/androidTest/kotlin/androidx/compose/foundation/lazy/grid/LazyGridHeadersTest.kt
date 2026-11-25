@@ -458,6 +458,7 @@ class LazyGridHeadersTest(orientation: Orientation) : BaseLazyGridTestWithOrient
                     viewportSize = 35.dp,
                     itemSize = 10.dp,
                     reverseLayout = false,
+                    contentPadding = contentPadding,
                     focusRequesters = focusRequesters,
                 ) {
                     stickyHeader { Spacer(Modifier.mainAxisSize(headerSize).fillMaxCrossAxis()) }
@@ -556,6 +557,62 @@ class LazyGridHeadersTest(orientation: Orientation) : BaseLazyGridTestWithOrient
                     )
                 }
             }
+    }
+
+    @Test
+    fun lazyGrid_withHeaderAndContentPadding_focusScrollsRespectsMaxOfHeaderAndBeforePadding() {
+        val viewportSizePx = 200
+        val itemSizePx = 50
+        val headerSizePx = 30
+        val afterPaddingPx = 40
+        val viewportSize = with(rule.density) { viewportSizePx.toDp() }
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+        val headerSize = with(rule.density) { headerSizePx.toDp() }
+        val afterPaddingDp = with(rule.density) { afterPaddingPx.toDp() }
+        val focusRequesters = List(10) { FocusRequester() }
+        lateinit var state: LazyGridState
+        var beforePaddingPx by mutableStateOf(10)
+
+        rule.setContentWithTestViewConfiguration {
+            val beforePaddingDp = with(rule.density) { beforePaddingPx.toDp() }
+            key(beforePaddingPx) {
+                LazyGridWithFocussableItems(
+                    viewportSize = viewportSize,
+                    state = rememberLazyGridState().also { state = it },
+                    itemSize = itemSize,
+                    reverseLayout = false,
+                    contentPadding =
+                        PaddingValues(
+                            beforeContent = beforePaddingDp,
+                            afterContent = afterPaddingDp,
+                        ),
+                    focusRequesters = focusRequesters,
+                ) {
+                    stickyHeader { Spacer(Modifier.mainAxisSize(headerSize).fillMaxCrossAxis()) }
+                }
+            }
+        }
+
+        listOf(10, 60).forEach { before ->
+            rule.runOnIdle { beforePaddingPx = before }
+            rule.waitForIdle()
+
+            rule.runOnIdle { focusRequesters[2].requestFocus() }
+            rule.runOnIdle {
+                val thirdItem = state.layoutInfo.visibleItemsInfo.find { it.index == 3 }!!
+                assertEquals(
+                    viewportSizePx - before - afterPaddingPx,
+                    thirdItem.offset.mainAxis + itemSizePx,
+                )
+            }
+
+            rule.runOnIdle { runBlocking { state.scrollToItem(10) } }
+            rule.runOnIdle { focusRequesters[0].requestFocus() }
+            rule.runOnIdle {
+                val firstItem = state.layoutInfo.visibleItemsInfo.find { it.index == 1 }!!
+                assertEquals(maxOf(headerSizePx, before) - before, firstItem.offset.mainAxis)
+            }
+        }
     }
 
     companion object {

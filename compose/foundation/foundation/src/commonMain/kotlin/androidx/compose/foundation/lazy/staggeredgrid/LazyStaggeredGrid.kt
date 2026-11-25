@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
+import androidx.compose.foundation.lazy.layout.rememberLazyLayoutBringIntoViewSpec
 import androidx.compose.foundation.scrollableArea
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -116,6 +117,16 @@ internal fun LazyStaggeredGrid(
             Modifier
         }
 
+    val bringIntoViewSpec =
+        rememberLazyLayoutBringIntoViewSpec(
+            reverseLayout = reverseLayout,
+            isVertical = orientation == Orientation.Vertical,
+            layoutInfo = {
+                state.approachLayoutInfo
+                    ?: Snapshot.withoutReadObservation { state.layoutInfoState.value }
+            },
+        )
+
     LazyLayout(
         modifier =
             modifier
@@ -137,6 +148,7 @@ internal fun LazyStaggeredGrid(
                     flingBehavior = flingBehavior,
                     interactionSource = state.mutableInteractionSource,
                     overscrollEffect = overscrollEffect,
+                    bringIntoViewSpec = bringIntoViewSpec,
                 )
                 .lazyLayoutItemAnimator(state.itemAnimator),
         prefetchState = state.prefetchState,

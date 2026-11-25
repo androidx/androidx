@@ -16,15 +16,16 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.list.assertIsNotPlaced
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
@@ -348,7 +349,6 @@ class LazyStaggeredGridContentPaddingTest(orientation: Orientation) :
     @Test
     fun pinnedItemWorksIsPlacedOnceInContentPadding() {
         state = LazyStaggeredGridState(initialFirstVisibleItemIndex = 0)
-        val focusRequester = FocusRequester()
         rule.setContent {
             Box(Modifier.axisSize(itemSizeDp * 2, itemSizeDp * 4)) {
                 LazyStaggeredGrid(
@@ -358,14 +358,12 @@ class LazyStaggeredGridContentPaddingTest(orientation: Orientation) :
                     state = state,
                 ) {
                     item {
-                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-                        @Suppress("DEPRECATION") // b/552879150
-                        BasicTextField(
-                            "Test",
-                            onValueChange = {},
-                            modifier =
-                                Modifier.focusRequester(focusRequester).mainAxisSize(itemSizeDp),
-                        )
+                        val pinnableContainer = LocalPinnableContainer.current
+                        DisposableEffect(pinnableContainer) {
+                            val handle = pinnableContainer?.pin()
+                            onDispose { handle?.release() }
+                        }
+                        Spacer(Modifier.mainAxisSize(itemSizeDp))
                     }
 
                     items(10) { Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("$it")) }
@@ -377,5 +375,41 @@ class LazyStaggeredGridContentPaddingTest(orientation: Orientation) :
         state.scrollBy(itemSizeDp / 2)
 
         rule.onNodeWithTag("0").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * 1.5f)
+    }
+
+    @Test
+    fun focusRequest_withAsymmetricContentPadding_scrollsItemIntoUnobstructedRegion() {
+        val containerSize = itemSizeDp * 4
+        val startPadding = itemSizeDp
+        val endPadding = itemSizeDp * 1.5f
+        val focusRequesters = List(12) { FocusRequester() }
+
+        rule.setContent {
+            LazyStaggeredGrid(
+                lanes = 2,
+                modifier = Modifier.axisSize(itemSizeDp * 2, containerSize),
+                contentPadding =
+                    PaddingValues(beforeContent = startPadding, afterContent = endPadding),
+            ) {
+                items(focusRequesters.size) { index ->
+                    Spacer(
+                        Modifier.mainAxisSize(itemSizeDp)
+                            .testTag("$index")
+                            .focusRequester(focusRequesters[index])
+                            .focusable()
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle { focusRequesters[4].requestFocus() }
+        rule.waitForIdle()
+        rule
+            .onNodeWithTag("4")
+            .assertMainAxisStartPositionInRootIsEqualTo(containerSize - endPadding - itemSizeDp)
+
+        rule.runOnIdle { focusRequesters[2].requestFocus() }
+        rule.waitForIdle()
+        rule.onNodeWithTag("2").assertMainAxisStartPositionInRootIsEqualTo(startPadding)
     }
 }
