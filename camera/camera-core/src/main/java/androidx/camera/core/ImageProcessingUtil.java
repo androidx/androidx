@@ -32,6 +32,7 @@ import android.view.Surface;
 import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.common.ImagePlane;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
@@ -46,8 +47,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.camera.common.ImagePlane;
-
 /**
  * Utility class to convert an {@link Image} from YUV to RGB.
  *
@@ -56,7 +55,7 @@ import androidx.camera.common.ImagePlane;
 public final class ImageProcessingUtil {
 
     private static final String TAG = "ImageProcessingUtil";
-    public static final String JNI_LIB_NAME = "image_processing_util_jni";
+    public static final String JNI_LIB_NAME = "camerax_image_processing_util_jni";
     private static int sImageCount = 0;
 
     static {
