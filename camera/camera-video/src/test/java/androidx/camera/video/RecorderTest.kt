@@ -28,7 +28,6 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Looper
 import android.os.ParcelFileDescriptor
-import android.os.SystemClock
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.DynamicRange
@@ -109,6 +108,8 @@ import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -2016,11 +2017,10 @@ class RecorderTest {
         audioStream.verifyStartCall(CallTimes(1), VERIFY_AUDIO_STREAM_TIMEOUT_MS)
 
         // Act: wait until the audio source error has been propagated to the recorder.
-        val deadlineMs = SystemClock.uptimeMillis() + VERIFY_AUDIO_STREAM_TIMEOUT_MS
-        while (
-            recorder.mAudioState != AudioState.ERROR_SOURCE &&
-                SystemClock.uptimeMillis() < deadlineMs
-        ) {
+        // Use TimeSource.Monotonic rather than SystemClock.uptimeMillis(), which does not advance
+        // in Robolectric's paused looper mode while draining idle(recorder).
+        val deadline = TimeSource.Monotonic.markNow() + VERIFY_AUDIO_STREAM_TIMEOUT_MS.milliseconds
+        while (recorder.mAudioState != AudioState.ERROR_SOURCE && !deadline.hasPassedNow()) {
             idle(recorder)
         }
         assertThat(recorder.mAudioState).isEqualTo(AudioState.ERROR_SOURCE)
