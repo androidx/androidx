@@ -17,7 +17,6 @@
 package androidx.ink.brush
 
 import android.graphics.Bitmap
-import androidx.annotation.RestrictTo
 
 /**
  * Interface for a callback to allow the caller to provide a particular [Bitmap] corresponding to a
@@ -60,7 +59,6 @@ public fun interface TextureBitmapStore {
      * @param clientTextureId The texture ID used by the `BrushFamily` being encoded.
      * @return The texture ID to write into the serialized `BrushFamily`.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
+    @ExperimentalInkBrushCompatibilityApi
     public fun getEncodedTextureId(clientTextureId: String): String = clientTextureId
 }
