@@ -37,6 +37,7 @@ import androidx.compose.remote.integration.view.demos.blog.DslTouchBounceKt;
 import androidx.compose.remote.integration.view.demos.dsl.DSLJetpackDroidKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslButtonsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslClickTouchDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslClipPathDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCollapsiblePriorityDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslControlledHorizontalScrollKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslControlledScrollKt;
@@ -605,7 +606,8 @@ public abstract class DemosCreation {
                     get("1/61/dslTheme1", RcDslDemoKt::dslTheme1),
                     get("1/62/dslTheme2", RcDslDemoKt::dslTheme2),
                     get("1/63/Buttons", DslButtonsDemoKt::dslButtonsDemo),
-                    get("1/64/TextInput", DslTextInputDemoKt::dslTextInputDemo)
+                    get("1/64/TextInput", DslTextInputDemoKt::dslTextInputDemo),
+                    get("1/65/ClipPath", DslClipPathDemoKt::dslClipPathDemo)
             ));
         }
         if (dsl2) {
