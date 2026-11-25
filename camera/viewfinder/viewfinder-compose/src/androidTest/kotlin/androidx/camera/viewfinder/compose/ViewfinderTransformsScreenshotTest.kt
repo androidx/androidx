@@ -17,6 +17,7 @@
 package androidx.camera.viewfinder.compose
 
 import android.util.Size
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
@@ -63,12 +64,14 @@ class ViewfinderTransformsScreenshotTest(
             }
     }
 
-    // Evaluate screenshotRule before composeTestRule so non-supported devices skip without
-    // launching ComponentActivity.
+    // Evaluate screenshotRule before requireForegroundRule and composeTestRule so non-supported
+    // devices skip without UI preparation or launching ComponentActivity.
     @get:Rule(order = 0)
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_COMPOSE)
 
-    @get:Rule(order = 1) val composeTestRule = createComposeRule()
+    @get:Rule(order = 1) val requireForegroundRule = RequireForegroundRule()
+
+    @get:Rule(order = 2) val composeTestRule = createComposeRule()
 
     @Test
     fun viewfinderTransformsCorrectly() = runBlocking {

@@ -22,7 +22,7 @@
     <application>
         <activity
             android:name="androidx.camera.testing.impl.activity.ForegroundTestActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="true"
             android:label="ForegroundTestActivity" />
         <activity
@@ -37,7 +37,7 @@
             android:label="Camera2 TestActivity" />
         <activity
             android:name="androidx.camera.testing.impl.activity.EmptyActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="true"
             android:label="EmptyActivity"
             android:theme="@style/Theme.AppCompat" />

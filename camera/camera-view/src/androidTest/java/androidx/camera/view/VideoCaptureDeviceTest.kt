@@ -70,7 +70,7 @@ import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.BeforeClass
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -128,11 +128,11 @@ class VideoCaptureDeviceTest(
         private const val VIDEO_SAVED_COUNT_DOWN = 1
         private const val TAG = "VideoCaptureDeviceTest"
 
-        @JvmStatic
-        @BeforeClass
-        fun classSetUp() {
-            RequireForegroundRule.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        }
+        // Class-scoped so natural orientation is locked once across all parameterized cases
+        // without per-test UI prep overhead.
+        @ClassRule
+        @JvmField
+        val requireForegroundRule: RequireForegroundRule = RequireForegroundRule()
 
         @JvmStatic
         @Parameterized.Parameters(name = "initialQuality={0}, nextQuality={1}, lensFacing={3}")
@@ -151,8 +151,7 @@ class VideoCaptureDeviceTest(
                     }
                 }
             } else {
-                // Return empty list since prepareDeviceUI will skip the test if not in the CameraX
-                // lab environment.
+                // Return empty list if not in the CameraX lab environment.
                 emptyList()
             }
     }

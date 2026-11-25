@@ -16,9 +16,19 @@
 
 package androidx.camera.testing.impl
 
+import android.content.Context
+import android.hardware.display.DisplayManager
+import android.os.Build
+import android.view.Display
+import android.view.Surface
+import androidx.camera.testing.impl.activity.EmptyActivity
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.Description
 import org.junit.runner.RunWith
@@ -101,5 +111,61 @@ class RequireForegroundRuleDeviceTest {
 
         rule.apply(statement, description).evaluate()
         assertThat(executionOrder).containsExactly(3, 2, 1).inOrder()
+    }
+
+    @Test
+    fun apply_restoresAndLocksNaturalOrientationBeforeEvaluatingStatement() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val device = UiDevice.getInstance(instrumentation)
+        val displayManager =
+            instrumentation.targetContext.getSystemService(Context.DISPLAY_SERVICE)
+                as DisplayManager
+        val rule = RequireForegroundRule()
+        val description =
+            Description.createTestDescription(
+                RequireForegroundRuleDeviceTest::class.java,
+                "apply_restoresAndLocksNaturalOrientationBeforeEvaluatingStatement",
+            )
+        var preTestRotation: Int? = null
+        var rotationDuringTest: Int? = null
+
+        try {
+            RequireForegroundRule.clearDeviceUI(instrumentation)
+            ActivityScenario.launch(EmptyActivity::class.java).use {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    device.setOrientationLeft(Display.DEFAULT_DISPLAY)
+                } else {
+                    device.setOrientationLeft()
+                }
+                RequireForegroundRule.awaitDefaultDisplayRotation(
+                    displayManager = displayManager,
+                    expectedRotation = Surface.ROTATION_90,
+                    timeoutMs = 5000L,
+                )
+                preTestRotation = RequireForegroundRule.getDefaultDisplayRotation(displayManager)
+            }
+            assumeTrue(
+                "Device display does not rotate away from ROTATION_0 under setOrientationLeft",
+                preTestRotation != null && preTestRotation != Surface.ROTATION_0,
+            )
+
+            val statement =
+                object : Statement() {
+                    override fun evaluate() {
+                        // Launch an unspecified-orientation Activity so portrait-locked Home
+                        // launchers cannot mask an unlocked or non-natural user_rotation state.
+                        ActivityScenario.launch(EmptyActivity::class.java).use {
+                            instrumentation.waitForIdleSync()
+                            rotationDuringTest =
+                                RequireForegroundRule.getDefaultDisplayRotation(displayManager)
+                        }
+                    }
+                }
+            rule.apply(statement, description).evaluate()
+        } finally {
+            RequireForegroundRule.unfreezeRotation(device)
+        }
+
+        assertThat(rotationDuringTest).isEqualTo(Surface.ROTATION_0)
     }
 }

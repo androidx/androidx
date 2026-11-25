@@ -16,6 +16,7 @@
 
 package androidx.camera.viewfinder.compose
 
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
 import androidx.camera.viewfinder.core.TransformationMode
@@ -36,12 +37,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ViewfinderScreenshotTest {
 
-    // Evaluate screenshotRule before composeTestRule so non-supported devices skip without
-    // launching ComponentActivity.
+    // Evaluate screenshotRule before requireForegroundRule and composeTestRule so non-supported
+    // devices skip without UI preparation or launching ComponentActivity.
     @get:Rule(order = 0)
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_COMPOSE)
 
-    @get:Rule(order = 1) val composeTestRule = createComposeRule()
+    @get:Rule(order = 1) val requireForegroundRule = RequireForegroundRule()
+
+    @get:Rule(order = 2) val composeTestRule = createComposeRule()
 
     @Test
     fun embeddedImplementationDrawsUpright_from0DegreeSource() = runBlocking {
