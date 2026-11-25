@@ -17,6 +17,11 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.snap
+import androidx.compose.foundation.LocalOverscrollFactory
+import androidx.compose.foundation.OverscrollEffect
+import androidx.compose.foundation.OverscrollFactory
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
@@ -24,6 +29,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,12 +38,19 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -45,10 +58,12 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
@@ -433,6 +448,210 @@ class ScrollIndicatorTest {
             // Size fraction should be fully shrinked - equal to minimum possible size fraction
             Truth.assertThat(indicatorState.sizeFraction).isWithin(0.05f).of(expectedIndicatorSize)
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun transformingLazyColumn_scrollIndicator_preservesThumbSizeOnColorChange() {
+        var colorsState by
+            mutableStateOf(
+                ScrollIndicatorColors(indicatorColor = Color.Green, trackColor = Color.Blue)
+            )
+        lateinit var state: TransformingLazyColumnState
+        rule.setContentWithTheme {
+            state = rememberTransformingLazyColumnState()
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+                TransformingLazyColumn(
+                    state = state,
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
+                    modifier = Modifier.requiredSize(90.dp),
+                ) {
+                    items(3) { Box(Modifier.requiredSize(30.dp)) }
+                    items(3) { Box(Modifier.requiredSize(100.dp)) }
+                }
+                ScrollIndicator(
+                    state = state,
+                    modifier = Modifier.align(Alignment.CenterEnd).testTag(TEST_TAG),
+                    colors = colorsState,
+                    positionAnimationSpec = snap(),
+                )
+            }
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollBy(5000f) } }
+        val greenThumbPixelsBeforeColorChange =
+            countDominantColorPixels(TEST_TAG, targetColor = Color.Green)
+        Truth.assertThat(greenThumbPixelsBeforeColorChange).isGreaterThan(20)
+        rule.runOnIdle {
+            colorsState = ScrollIndicatorColors(indicatorColor = Color.Red, trackColor = Color.Blue)
+        }
+
+        val redThumbPixelsAfterColorChange =
+            countDominantColorPixels(TEST_TAG, targetColor = Color.Red)
+        Truth.assertThat(redThumbPixelsAfterColorChange.toFloat())
+            .isWithin(5f)
+            .of(greenThumbPixelsBeforeColorChange.toFloat())
+    }
+
+    @Test
+    fun transformingLazyColumnStateAdapter_equalsAndHashCode() {
+        lateinit var state1: TransformingLazyColumnState
+        lateinit var state2: TransformingLazyColumnState
+        lateinit var overscrollEffect1: OffsetOverscrollEffect
+        lateinit var overscrollEffect1Duplicate: OffsetOverscrollEffect
+        lateinit var overscrollEffect2: OffsetOverscrollEffect
+        rule.setContent {
+            state1 = rememberTransformingLazyColumnState()
+            state2 = rememberTransformingLazyColumnState()
+            val innerEffect = checkNotNull(rememberOverscrollEffect())
+            overscrollEffect1 = OffsetOverscrollEffect(innerEffect, viewportHeight = 100)
+            overscrollEffect1Duplicate = OffsetOverscrollEffect(innerEffect, viewportHeight = 100)
+            overscrollEffect2 = OffsetOverscrollEffect(innerEffect, viewportHeight = 200)
+        }
+
+        lateinit var base: TransformingLazyColumnStateAdapter
+        lateinit var identical: TransformingLazyColumnStateAdapter
+        lateinit var differentState: TransformingLazyColumnStateAdapter
+        lateinit var differentReduceMotion: TransformingLazyColumnStateAdapter
+        lateinit var nullOverscroll: TransformingLazyColumnStateAdapter
+        lateinit var differentOverscroll: TransformingLazyColumnStateAdapter
+        rule.runOnIdle {
+            base =
+                TransformingLazyColumnStateAdapter(
+                    state = state1,
+                    overscrollEffect = overscrollEffect1,
+                    reduceMotionEnabled = false,
+                )
+            identical =
+                TransformingLazyColumnStateAdapter(
+                    state = state1,
+                    overscrollEffect = overscrollEffect1Duplicate,
+                    reduceMotionEnabled = false,
+                )
+            differentState =
+                TransformingLazyColumnStateAdapter(
+                    state = state2,
+                    overscrollEffect = overscrollEffect1,
+                    reduceMotionEnabled = false,
+                )
+            differentReduceMotion =
+                TransformingLazyColumnStateAdapter(
+                    state = state1,
+                    overscrollEffect = overscrollEffect1,
+                    reduceMotionEnabled = true,
+                )
+            nullOverscroll =
+                TransformingLazyColumnStateAdapter(
+                    state = state1,
+                    overscrollEffect = null,
+                    reduceMotionEnabled = false,
+                )
+            differentOverscroll =
+                TransformingLazyColumnStateAdapter(
+                    state = state1,
+                    overscrollEffect = overscrollEffect2,
+                    reduceMotionEnabled = false,
+                )
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(base).isEqualTo(identical)
+            Truth.assertThat(base.hashCode()).isEqualTo(identical.hashCode())
+            Truth.assertThat(base).isNotEqualTo(differentState)
+            Truth.assertThat(base).isNotEqualTo(differentReduceMotion)
+            Truth.assertThat(base.hashCode()).isNotEqualTo(differentReduceMotion.hashCode())
+            Truth.assertThat(base).isNotEqualTo(nullOverscroll)
+            Truth.assertThat(base).isNotEqualTo(differentOverscroll)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun transformingLazyColumn_scrollIndicator_updatesOnReduceMotionChange() {
+        val itemsCount = 6
+        val contentPadding = itemSizeDp + itemSpacingDp
+        val indicatorTag = "scroll-indicator"
+        val noOpOverscrollEffect =
+            object : OverscrollEffect {
+                override fun applyToScroll(
+                    delta: Offset,
+                    source: NestedScrollSource,
+                    performScroll: (Offset) -> Offset,
+                ): Offset = performScroll(delta)
+
+                override suspend fun applyToFling(
+                    velocity: Velocity,
+                    performFling: suspend (Velocity) -> Velocity,
+                ) {
+                    performFling(velocity)
+                }
+
+                override val isInProgress: Boolean = false
+                override val node: DelegatableNode = object : Modifier.Node() {}
+            }
+        val offsetOverscrollEffect =
+            OffsetOverscrollEffect(noOpOverscrollEffect, viewportHeight = 200)
+        val overscrollFactory =
+            object : OverscrollFactory {
+                override fun createOverscrollEffect(): OverscrollEffect = offsetOverscrollEffect
+
+                override fun equals(other: Any?): Boolean = this === other
+
+                override fun hashCode(): Int = System.identityHashCode(this)
+            }
+        var activeOverscrollFactory by mutableStateOf<OverscrollFactory?>(null)
+        var reduceMotionEnabled by mutableStateOf(false)
+        rule.setContentWithTheme {
+            val state = rememberTransformingLazyColumnState()
+            CompositionLocalProvider(
+                LocalOverscrollFactory provides activeOverscrollFactory,
+                LocalReduceMotion provides reduceMotionEnabled,
+            ) {
+                Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+                    TransformingLazyColumn(
+                        state = state,
+                        contentPadding = PaddingValues(contentPadding),
+                        modifier = Modifier.testTag(TEST_TAG).requiredSize(viewportSizeDp),
+                    ) {
+                        items(itemsCount) { Box(Modifier.requiredSize(itemSizeDp)) }
+                    }
+                    ScrollIndicator(
+                        state = state,
+                        modifier = Modifier.align(Alignment.CenterEnd).testTag(indicatorTag),
+                        colors =
+                            ScrollIndicatorColors(
+                                indicatorColor = Color.Green,
+                                trackColor = Color.Blue,
+                            ),
+                        positionAnimationSpec = snap(),
+                    )
+                }
+            }
+        }
+        val initialThumbPixels = countDominantColorPixels(indicatorTag, targetColor = Color.Green)
+        Truth.assertThat(initialThumbPixels).isGreaterThan(20)
+
+        // Activate overscroll and provide the factory so overscrollEffect changes from null ->
+        // non-null
+        rule.runOnIdle {
+            offsetOverscrollEffect.applyToScroll(Offset(0f, 200f), NestedScrollSource.UserInput) {
+                Offset.Zero
+            }
+            activeOverscrollFactory = overscrollFactory
+        }
+
+        val overscrolledThumbPixels =
+            countDominantColorPixels(indicatorTag, targetColor = Color.Green)
+        Truth.assertThat(overscrolledThumbPixels).isLessThan(initialThumbPixels - 10)
+
+        // Toggle LocalReduceMotion to true while overscroll is active; thumb should un-shrink
+        rule.runOnIdle { reduceMotionEnabled = true }
+
+        val reducedMotionThumbPixels =
+            countDominantColorPixels(indicatorTag, targetColor = Color.Green)
+        Truth.assertThat(reducedMotionThumbPixels.toFloat())
+            .isWithin(5f)
+            .of(initialThumbPixels.toFloat())
     }
 
     @Test
@@ -834,5 +1053,24 @@ class ScrollIndicatorTest {
             expectedIndicatorPosition(indicatorState.positionFraction)
             expectedIndicatorSize(indicatorState.sizeFraction)
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun countDominantColorPixels(tag: String, targetColor: Color): Int {
+        val pixelMap = rule.onNodeWithTag(tag).captureToImage().toPixelMap()
+        var count = 0
+        for (y in 0 until pixelMap.height) {
+            for (x in 0 until pixelMap.width) {
+                val pixel = pixelMap[x, y]
+                val matchesTarget =
+                    when (targetColor) {
+                        Color.Red -> pixel.red > 0.5f && pixel.green < 0.2f && pixel.blue < 0.2f
+                        Color.Green -> pixel.green > 0.5f && pixel.red < 0.2f && pixel.blue < 0.2f
+                        else -> pixel == targetColor
+                    }
+                if (matchesTarget) count++
+            }
+        }
+        return count
     }
 }

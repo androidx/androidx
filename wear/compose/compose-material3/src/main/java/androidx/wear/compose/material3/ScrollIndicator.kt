@@ -243,14 +243,17 @@ public fun ScrollIndicator(
     positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec,
 ) {
     val overscrollEffect = rememberOverscrollEffect()?.let { it as? OffsetOverscrollEffect }
+    val reduceMotionEnabled = LocalReduceMotion.current
 
     IndicatorImpl(
         state =
-            TransformingLazyColumnStateAdapter(
-                state = state,
-                overscrollEffect = overscrollEffect,
-                reduceMotionEnabled = LocalReduceMotion.current,
-            ),
+            remember(state, overscrollEffect, reduceMotionEnabled) {
+                TransformingLazyColumnStateAdapter(
+                    state = state,
+                    overscrollEffect = overscrollEffect,
+                    reduceMotionEnabled = reduceMotionEnabled,
+                )
+            },
         indicatorHeight = ScrollIndicatorDefaults.indicatorHeight,
         indicatorWidth = ScrollIndicatorDefaults.indicatorWidth,
         paddingHorizontal = ScrollIndicatorDefaults.edgePadding,
@@ -922,11 +925,21 @@ internal class TransformingLazyColumnStateAdapter(
     override var jiggleAmount: Float by mutableFloatStateOf(0.0f)
 
     override fun hashCode(): Int {
-        return state.hashCode()
+        var result = state.hashCode()
+        result = 31 * result + (overscrollEffect?.hashCode() ?: 0)
+        result = 31 * result + reduceMotionEnabled.hashCode()
+        return result
     }
 
     override fun equals(other: Any?): Boolean {
-        return (other as? TransformingLazyColumnStateAdapter)?.state == state
+        if (this === other) return true
+        if (other !is TransformingLazyColumnStateAdapter) return false
+
+        if (state != other.state) return false
+        if (overscrollEffect != other.overscrollEffect) return false
+        if (reduceMotionEnabled != other.reduceMotionEnabled) return false
+
+        return true
     }
 
     private fun TransformingLazyColumnLayoutInfo.decimalLastItemIndex(): Float =
