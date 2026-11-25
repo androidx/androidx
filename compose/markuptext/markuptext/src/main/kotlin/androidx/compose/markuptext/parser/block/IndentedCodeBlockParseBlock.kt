@@ -55,6 +55,14 @@ internal class IndentedCodeBlockParseBlock(
         }
     }
 
+    /**
+     * Trailing blank lines are code only if another code line follows them; if the block closes
+     * first, they are not code ([getCodeContent] excludes them) and separate it from the next
+     * block.
+     */
+    override val consumesTrailingEmptyLines: Boolean
+        get() = false
+
     override fun parseLine(context: ParseContext): ParseResult {
         if (context.isLazyContinuation) {
             return ParseResult.reject()

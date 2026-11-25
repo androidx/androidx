@@ -25,6 +25,12 @@ import androidx.annotation.IntRange
 internal class EmptyLineParseBlock(id: Long, @IntRange(from = 1) lineCount: Int = 1) :
     LeafParseBlock(id, lineCount) {
     override fun parseLine(context: ParseContext): ParseResult {
+        // Only paragraph text continues lazily. A blank line that misses a container's prefix (a
+        // blank line after a `>` line) closes the container, so it moves up to a container whose
+        // prefix matched.
+        if (context.isLazyContinuation) {
+            return ParseResult.reject()
+        }
         if (context.currentLine.isEmptyLine()) {
             return ParseResult.accept()
         }
@@ -33,4 +39,8 @@ internal class EmptyLineParseBlock(id: Long, @IntRange(from = 1) lineCount: Int 
 
     /** Every line of this block is blank, including the line that opened it. */
     override fun countTrailingEmptyLines(): Int = lineCount
+
+    /** Blank lines are not content: they separate the blocks around them. */
+    override val consumesTrailingEmptyLines: Boolean
+        get() = false
 }
