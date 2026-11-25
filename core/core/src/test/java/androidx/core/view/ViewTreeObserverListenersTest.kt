@@ -27,6 +27,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.lang.ref.ReferenceQueue
+import java.lang.ref.WeakReference
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -306,6 +308,34 @@ class ViewTreeObserverListenersTest {
         assertThat(calls).isEqualTo(0)
     }
 
+    @Test
+    fun registration_heldInFragmentFieldAfterDestroy_doesNotRetainViewOrLifecycle() {
+        val fragment = FakeFragment()
+        val (fragmentViewTarget, lifecycleTarget) = attachAndDestroyFragmentView(fragment)
+
+        assertWithMessage("Dead registration retained destroyed fragmentView")
+            .that(fragmentViewTarget.awaitGc())
+            .isTrue()
+        assertWithMessage("Dead registration retained destroyed viewLifecycleOwner.lifecycle")
+            .that(lifecycleTarget.awaitGc())
+            .isTrue()
+        assertThat(fragment.layoutRegistration).isNotNull()
+    }
+
+    @Test
+    fun registration_heldInFieldAfterViewDetach_doesNotRetainTargetOrScopeView() {
+        val fragment = FakeFragment()
+        val (targetViewTarget, scopeViewTarget) = attachAndDetachViewScoped(fragment)
+
+        assertWithMessage("Dead registration retained targetView")
+            .that(targetViewTarget.awaitGc())
+            .isTrue()
+        assertWithMessage("Dead registration retained scopeView")
+            .that(scopeViewTarget.awaitGc())
+            .isTrue()
+        assertThat(fragment.layoutRegistration).isNotNull()
+    }
+
     // Every listener type
 
     @Test
@@ -358,6 +388,86 @@ class ViewTreeObserverListenersTest {
     }
 
     private fun dispatchGlobalLayout() = decorView.viewTreeObserver.dispatchOnGlobalLayout()
+
+    private fun attachAndDestroyFragmentView(
+        fragment: FakeFragment
+    ): Pair<GcTarget<View>, GcTarget<Lifecycle>> {
+        val fragmentView = View(content.context)
+        content.addView(fragmentView)
+        val viewLifecycleOwner = TestLifecycleOwner()
+
+        fragment.startObserving(fragmentView, viewLifecycleOwner)
+        dispatchGlobalLayout()
+        assertThat(fragment.overlayUpdates).isEqualTo(1)
+
+        // Simulate Fragment moving to the back stack (onDestroyView):
+        // viewLifecycleOwner is destroyed and fragmentView is detached, while `fragment`
+        // (and its `layoutRegistration` field) remains alive.
+        viewLifecycleOwner.destroy()
+        content.removeView(fragmentView)
+        dispatchGlobalLayout()
+        assertThat(fragment.overlayUpdates).isEqualTo(1)
+
+        return GcTarget(fragmentView) to GcTarget(viewLifecycleOwner.registry)
+    }
+
+    private fun attachAndDetachViewScoped(
+        fragment: FakeFragment
+    ): Pair<GcTarget<View>, GcTarget<View>> {
+        val targetView = View(content.context)
+        val scopeView = View(content.context)
+        content.addView(targetView)
+        content.addView(scopeView)
+
+        fragment.startObservingWithViewScope(targetView, scopeView)
+        dispatchGlobalLayout()
+        assertThat(fragment.overlayUpdates).isEqualTo(1)
+
+        content.removeView(scopeView)
+        content.removeView(targetView)
+        dispatchGlobalLayout()
+        assertThat(fragment.overlayUpdates).isEqualTo(1)
+
+        return GcTarget(targetView) to GcTarget(scopeView)
+    }
+
+    private class GcTarget<T>(referent: T) {
+        private val queue = ReferenceQueue<T>()
+        private val ref = WeakReference(referent, queue)
+
+        fun awaitGc(maxAttempts: Int = 20): Boolean {
+            repeat(maxAttempts) {
+                if (ref.get() == null) return true
+                System.gc()
+                if (queue.remove(50) != null || ref.get() == null) return true
+            }
+            return ref.get() == null
+        }
+    }
+
+    /** Mirrors a Fragment kept on the back stack after onDestroyView(). */
+    private class FakeFragment {
+        var layoutRegistration: ViewTreeObserverRegistration? = null
+        var overlayUpdates = 0
+
+        fun startObserving(fragmentView: View, viewLifecycleOwner: LifecycleOwner) {
+            layoutRegistration?.remove()
+            layoutRegistration =
+                fragmentView.addOnGlobalLayoutListener(viewLifecycleOwner) {
+                    updateOverlayPosition()
+                }
+        }
+
+        fun startObservingWithViewScope(targetView: View, scopeView: View) {
+            layoutRegistration?.remove()
+            layoutRegistration =
+                targetView.addOnGlobalLayoutListener(scopeView) { updateOverlayPosition() }
+        }
+
+        private fun updateOverlayPosition() {
+            overlayUpdates++
+        }
+    }
 
     private class TestLifecycleOwner : LifecycleOwner {
         val registry = LifecycleRegistry(this).apply { currentState = Lifecycle.State.RESUMED }
