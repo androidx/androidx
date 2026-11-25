@@ -93,7 +93,9 @@ private fun TestWearWidget() {
         horizontalPadding = 8.rdp,
         verticalPadding = 8.rdp,
         cornerRadius = 26.rdp,
-        background = WearWidgetBrush.color(Color.Blue.rc),
+        background = {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Blue.rc))
+        },
     ) {
         RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc))
     }

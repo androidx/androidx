@@ -152,9 +152,10 @@ class WearWidgetPendingIntentContractTest {
         )
 
     private suspend fun capture(content: @Composable () -> Unit): CapturedActions {
-        val rawContent =
-            WearWidgetDocument(background = WearWidgetBrush) { content() }
-                .captureRawContent(context, params, isInspectionMode = false)
+        val rawContent = WearWidgetDocument {
+            content()
+        }
+            .captureRawContent(context, params, isInspectionMode = false)
         val document =
             CoreDocument().apply {
                 ByteArrayInputStream(rawContent.rcDocument).use {

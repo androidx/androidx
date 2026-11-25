@@ -20,12 +20,10 @@ import android.content.Context
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.glance.wear.GlanceWearProfiles
@@ -33,7 +31,6 @@ import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
-import androidx.glance.wear.color
 import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetParams
 import kotlinx.coroutines.runBlocking
@@ -112,19 +109,68 @@ public fun WearWidgetPreview(
  * @param params The [WearWidgetParams] to configure parameters (size, shape, padding) for the
  *   widget container.
  * @param modifier The [Modifier] to be applied to the container box hosting the widget preview.
- * @param background The [WearWidgetBrush] to be used as the background of the widget. Defaults to a
- *   transparent solid color.
  * @param useBaselineHostVersion Whether to render using a baseline host version (a foundational,
  *   definitively supported version representing older hosts). This allows developers to test widget
  *   compatibility against older versions of the Wear OS host. If false, the preview renders using
  *   the latest host version. Defaults to false.
+ * @param background The `@RemoteComposable` background of the widget. Defaults to `null`, which
+ *   renders the default widget container surface color.
  * @param content The [Composable] content of the widget to be previewed.
  */
 @Composable
 public fun WearWidgetPreview(
     params: WearWidgetParams,
     modifier: Modifier = Modifier,
-    background: WearWidgetBrush = WearWidgetBrush.color(Color.Transparent.rc),
+    useBaselineHostVersion: Boolean = false,
+    background: (@RemoteComposable @Composable () -> Unit)? = null,
+    content: @RemoteComposable @Composable () -> Unit,
+) {
+    val widget =
+        remember(background, content) {
+            object : GlanceWearWidget() {
+                override suspend fun provideWidgetData(
+                    context: Context,
+                    params: WearWidgetParams,
+                ): WearWidgetData = WearWidgetDocument(background = background, content = content)
+            }
+        }
+    WearWidgetPreview(
+        widget = widget,
+        params = params,
+        modifier = modifier,
+        useBaselineHostVersion = useBaselineHostVersion,
+    )
+}
+
+/**
+ * Renders a preview of a Wear Widget with the provided Remote Compose [content] and
+ * [WearWidgetBrush] [background].
+ *
+ * This utility facilitates rapid development by allowing developers to visualize how their Glance
+ * Wear widgets will appear on various device configurations without deploying to a physical device
+ * or emulator. It uses the provided [WearWidgetParams] to represent the widget's layout, including
+ * dimensions, padding, and container shape.
+ *
+ * This overload allows to directly preview a Wear Widget by supplying the Remote Compose [content]
+ * and [background]. It is convenient for complex widgets that switch between multiple layouts based
+ * on application state, avoiding the mocking the entire widget or its dependencies.
+ *
+ * @param params The [WearWidgetParams] to configure parameters (size, shape, padding) for the
+ *   widget container.
+ * @param modifier The [Modifier] to be applied to the container box hosting the widget preview.
+ * @param background The [WearWidgetBrush] to be used as the background of the widget.
+ * @param useBaselineHostVersion Whether to render using a baseline host version (a foundational,
+ *   definitively supported version representing older hosts). This allows developers to test widget
+ *   compatibility against older versions of the Wear OS host. If false, the preview renders using
+ *   the latest host version. Defaults to false.
+ * @param content The [Composable] content of the widget to be previewed.
+ */
+// TODO(b/587330676): Remove this overload once WearWidgetBrush is removed.
+@Composable
+public fun WearWidgetPreview(
+    params: WearWidgetParams,
+    @Suppress("KotlinDefaultParameterOrder") modifier: Modifier = Modifier,
+    background: WearWidgetBrush,
     useBaselineHostVersion: Boolean = false,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
@@ -134,7 +180,7 @@ public fun WearWidgetPreview(
                 override suspend fun provideWidgetData(
                     context: Context,
                     params: WearWidgetParams,
-                ): WearWidgetData = WearWidgetDocument(background, content)
+                ): WearWidgetData = WearWidgetDocument(background = background, content = content)
             }
         }
     WearWidgetPreview(

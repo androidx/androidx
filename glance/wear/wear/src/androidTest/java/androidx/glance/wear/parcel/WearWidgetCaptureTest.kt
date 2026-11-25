@@ -58,7 +58,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.core.os.BundleCompat
 import androidx.glance.wear.GlanceWearProfiles
 import androidx.glance.wear.GlanceWearWidget
-import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetContentTooLargeException
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
@@ -308,14 +307,13 @@ ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
                 override suspend fun provideWidgetData(
                     context: Context,
                     params: WearWidgetParams,
-                ): WearWidgetData =
-                    WearWidgetDocument(background = WearWidgetBrush) {
-                        RemoteImage(
-                            bitmap = RemoteImageBitmap(noiseBitmap),
-                            contentDescription = null,
-                            modifier = RemoteModifier.size(60.rdp),
-                        )
-                    }
+                ): WearWidgetData = WearWidgetDocument {
+                    RemoteImage(
+                        bitmap = RemoteImageBitmap(noiseBitmap),
+                        contentDescription = null,
+                        modifier = RemoteModifier.size(60.rdp),
+                    )
+                }
             }
         val params =
             WearWidgetParams(

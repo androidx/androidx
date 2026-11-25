@@ -57,23 +57,22 @@ class WearWidgetDocumentTest {
                 verticalPaddingDp = 0f,
                 cornerRadiusDp = 0f,
             )
-        val document =
-            WearWidgetDocument(background = WearWidgetBrush) {
-                // This should return CombinedAction() in inspection mode
-                RemoteBox(
-                    modifier =
-                        RemoteModifier.clickable(
-                            rememberPendingIntentAction { context ->
-                                PendingIntent.getActivity(
-                                    context,
-                                    0,
-                                    Intent(),
-                                    PendingIntent.FLAG_IMMUTABLE,
-                                )
-                            }
-                        )
-                )
-            }
+        val document = WearWidgetDocument {
+            // This should return CombinedAction() in inspection mode
+            RemoteBox(
+                modifier =
+                    RemoteModifier.clickable(
+                        rememberPendingIntentAction { context ->
+                            PendingIntent.getActivity(
+                                context,
+                                0,
+                                Intent(),
+                                PendingIntent.FLAG_IMMUTABLE,
+                            )
+                        }
+                    )
+            )
+        }
 
         val rawContent = document.captureRawContent(context, params, isInspectionMode = true)
 
@@ -95,23 +94,22 @@ class WearWidgetDocumentTest {
                 verticalPaddingDp = 0f,
                 cornerRadiusDp = 0f,
             )
-        val document =
-            WearWidgetDocument(background = WearWidgetBrush) {
-                // This should return PendingIntentAction in normal mode
-                RemoteBox(
-                    modifier =
-                        RemoteModifier.clickable(
-                            rememberPendingIntentAction { context ->
-                                PendingIntent.getActivity(
-                                    context,
-                                    0,
-                                    Intent(),
-                                    PendingIntent.FLAG_IMMUTABLE,
-                                )
-                            }
-                        )
-                )
-            }
+        val document = WearWidgetDocument {
+            // This should return PendingIntentAction in normal mode
+            RemoteBox(
+                modifier =
+                    RemoteModifier.clickable(
+                        rememberPendingIntentAction { context ->
+                            PendingIntent.getActivity(
+                                context,
+                                0,
+                                Intent(),
+                                PendingIntent.FLAG_IMMUTABLE,
+                            )
+                        }
+                    )
+            )
+        }
 
         val rawContent = document.captureRawContent(context, params, isInspectionMode = false)
 
@@ -134,10 +132,9 @@ class WearWidgetDocumentTest {
                 cornerRadiusDp = 0f,
                 rendererVersion = RendererVersion.MAX_RENDERER_VERSION,
             )
-        val document =
-            WearWidgetDocument(background = WearWidgetBrush) {
-                RemoteBox { RemoteText(text = "Hello Wear Widget".rs) }
-            }
+        val document = WearWidgetDocument {
+            RemoteBox { RemoteText(text = "Hello Wear Widget".rs) }
+        }
 
         val rawContent = document.captureRawContent(context, params, isInspectionMode = true)
         val profile =
@@ -156,5 +153,63 @@ class WearWidgetDocumentTest {
                 initFromBuffer(buffer)
             }
         assertThat(coreDoc.getProfileMask()).isEqualTo(RcProfiles.PROFILE_WEAR_WIDGETS)
+    }
+
+    @Test
+    fun captureRawContent_nullBackground_appliesDefaultBackgroundModifier() = runTest {
+        val context = getApplicationContext<Context>()
+        val params =
+            WearWidgetParams(
+                WidgetInstanceId("ns", 1),
+                ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 100f,
+                heightDp = 100f,
+                horizontalPaddingDp = 0f,
+                verticalPaddingDp = 0f,
+                cornerRadiusDp = 0f,
+            )
+        val document = WearWidgetDocument(background = null) { RemoteText("Content".rs) }
+
+        val rawContent = document.captureRawContent(context, params, isInspectionMode = false)
+        val coreDoc =
+            CoreDocument().apply {
+                initFromBuffer(
+                    RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(rawContent.rcDocument))
+                )
+            }
+
+        assertThat(coreDoc.displayHierarchy()).contains("BACKGROUND =")
+    }
+
+    @Test
+    fun captureRawContent_nonNullBackground_rendersBackgroundWithoutDefaultModifier() = runTest {
+        val context = getApplicationContext<Context>()
+        val params =
+            WearWidgetParams(
+                WidgetInstanceId("ns", 1),
+                ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 100f,
+                heightDp = 100f,
+                horizontalPaddingDp = 0f,
+                verticalPaddingDp = 0f,
+                cornerRadiusDp = 0f,
+            )
+        val document =
+            WearWidgetDocument(background = { RemoteText("Bg".rs) }) {
+                RemoteText("Content".rs)
+            }
+
+        val rawContent = document.captureRawContent(context, params, isInspectionMode = false)
+        val coreDoc =
+            CoreDocument().apply {
+                initFromBuffer(
+                    RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(rawContent.rcDocument))
+                )
+            }
+
+        val hierarchy = coreDoc.displayHierarchy()
+        assertThat(hierarchy).doesNotContain("BACKGROUND =")
+        assertThat(hierarchy).contains("\"Bg\"")
+        assertThat(hierarchy).contains("\"Content\"")
     }
 }

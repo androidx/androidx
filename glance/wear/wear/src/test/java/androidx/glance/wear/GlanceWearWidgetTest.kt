@@ -792,7 +792,7 @@ class GlanceWearWidgetTest {
             if (params.instanceId in oversizedInstanceIds) {
                 OversizedWidgetData()
             } else {
-                WearWidgetDocument(background = WearWidgetBrush) {}
+                WearWidgetDocument {}
             }
 
         override suspend fun findActiveWidgetById(context: Context, instanceId: WidgetInstanceId) =

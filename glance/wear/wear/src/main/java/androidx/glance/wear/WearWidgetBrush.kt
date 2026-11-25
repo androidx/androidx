@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
  * restricts the available options to ensure compatibility with surfaces that support a limited
  * feature set, such as [WearWidgetDocument.background].
  */
+// TODO(b/587330676): Remove WearWidgetBrush and its factory functions.
 public sealed class WearWidgetBrush {
 
     /**
