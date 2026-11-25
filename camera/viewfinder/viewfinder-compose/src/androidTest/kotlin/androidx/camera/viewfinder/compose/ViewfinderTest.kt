@@ -628,7 +628,10 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
         var renderJob: Job? = null
         val surfaceSessionFlow = MutableStateFlow<ViewfinderSurfaceSessionScope?>(null)
         val sessionCompleteCount = MutableStateFlow(0)
-        val paused = MutableStateFlow(!withRenderAnimation)
+        // Keep rendering paused until initial composition is idle; otherwise the render loop
+        // draws on every Choreographer frame on the main thread and prevents rule.setContent's
+        // synchronous idle wait from completing.
+        val paused = MutableStateFlow(true)
 
         var numSessions = 0
         val onInit: ViewfinderInitScope.() -> Unit = {
@@ -670,6 +673,10 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
         }
 
         rule.setContent { composeContent(onInit) }
+
+        if (withRenderAnimation) {
+            paused.value = false
+        }
 
         val baseSessionTestScope =
             BaseSessionTestScope(surfaceSessionFlow, sessionCompleteCount, paused)
