@@ -19,7 +19,6 @@
 
 package androidx.ink.storage
 
-import androidx.annotation.RestrictTo
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
 import androidx.ink.brush.Version
@@ -79,8 +78,13 @@ public fun BrushFamily.Companion.decode(
  * versions of Ink which have no concept of nested brush families. Creates new fallbacks from the
  * [BrushFamily] objects passed in, overriding any existing fallbacks on any individual
  * [BrushFamily].
+ *
+ * @param output [OutputStream] to write the encoded [BrushFamily]s to.
+ * @param textureIdToPngBytes An optional interface for providing both a mapping from texture IDs to
+ *   PNG bytes, and a callback to rename texture IDs when encoding (see
+ *   [TexturePngBytesLookup.getEncodedTextureId]). If null (the default), then no textures will be
+ *   encoded, and the texture IDs will be encoded as-is.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkBrushCompatibilityApi
 public fun List<BrushFamily>.encodeMultiple(
     output: OutputStream,
@@ -100,13 +104,13 @@ public fun List<BrushFamily>.encodeMultiple(
  *   [BrushFamily]s have a `min_version` of greater than maxVersion, deserialization will fail.
  * @param onDecodeTexture A callback to store any decoded texture image, if any were encoded inside
  *   the serialized [BrushFamily]. This is called synchronously as part of this function call, on
- *   the same thread, once for each texture image.
+ *   the same thread, once for each texture image. If null (the default), then any encoded texture
+ *   images will be ignored, and the texture IDs will be decoded as-is.
  * @return The [List] of [BrushFamily]s parsed from the [InputStream].
  * @throws [java.io.IOException] if gzip-format bytes cannot be read from [input].
  * @throws [IllegalArgumentException] [input] does not provide a valid `ink.proto.BrushFamily` proto
  *   message, or any of the corresponding [BrushFamily]s are invalid.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkBrushCompatibilityApi
 @Throws(IOException::class)
 public fun BrushFamily.Companion.decodeMultiple(
@@ -228,8 +232,14 @@ public object BrushFamilySerialization {
      * versions of Ink which have no concept of nested brush families. Creates new fallbacks from
      * the [BrushFamily] objects passed in, overriding any existing fallbacks on any individual
      * [BrushFamily].
+     *
+     * @param brushFamilies [List] of [BrushFamily]s to encode.
+     * @param output [OutputStream] to write the encoded [BrushFamily]s to.
+     * @param textureIdToPngBytes An optional interface for providing both a mapping from texture
+     *   IDs to PNG bytes, and a callback to rename texture IDs when encoding (see
+     *   [TexturePngBytesLookup.getEncodedTextureId]). If null (the default), then no textures will
+     *   be encoded, and the texture IDs will be encoded as-is.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @JvmOverloads
@@ -253,8 +263,14 @@ public object BrushFamilySerialization {
      * versions of Ink which have no concept of nested brush families. Creates new fallbacks from
      * the [BrushFamily] objects passed in, overriding any existing fallbacks on any individual
      * [BrushFamily].
+     *
+     * @param brushFamilies [List] of [BrushFamily]s to encode.
+     * @param textureIdToPngBytes An optional interface for providing both a mapping from texture
+     *   IDs to PNG bytes, and a callback to rename texture IDs when encoding (see
+     *   [TexturePngBytesLookup.getEncodedTextureId]). If null (the default), then no textures will
+     *   be encoded, and the texture IDs will be encoded as-is.
+     * @return The encoded [ByteArray] representing the [List] of [BrushFamily]s.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @JvmOverloads
@@ -276,13 +292,13 @@ public object BrushFamilySerialization {
      *   will fail.
      * @param onDecodeTexture A callback to store any decoded texture image, if any were encoded
      *   inside the serialized [BrushFamily]s. This is called synchronously as part of this function
-     *   call, on the same thread, once for each texture image.
+     *   call, on the same thread, once for each texture image. If null (the default), then any
+     *   encoded texture images will be ignored, and the texture IDs will be decoded as-is.
      * @return The [List] of [BrushFamily]s parsed from the [InputStream].
      * @throws [java.io.IOException] if gzip-format bytes cannot be read from [input].
      * @throws [IllegalArgumentException] [input] does not provide a valid `ink.proto.BrushFamily`
      *   proto message, or any of the corresponding [BrushFamily]s are invalid.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @JvmOverloads
@@ -294,7 +310,6 @@ public object BrushFamilySerialization {
     ): List<BrushFamily> = BrushFamily.decodeMultiple(input, maxVersion, onDecodeTexture)
 
     /** See [decodeMultiple] above. This overload uses [Version.MAX_SUPPORTED]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @Throws(IOException::class)
@@ -304,7 +319,7 @@ public object BrushFamilySerialization {
     ): List<BrushFamily> = decodeMultiple(input, Version.MAX_SUPPORTED, onDecodeTexture)
 
     /**
-     * Read a serialized [BrushFamily] from the given [InputStream] and parse it into a [List] of
+     * Read a serialized [BrushFamily] from the given [ByteArray] and parse it into a [List] of
      * [BrushFamily]s, throwing an exception if parsing or validation was not successful. Kotlin
      * callers should use [BrushFamily.Companion.decodeMultiple] instead.
      *
@@ -315,13 +330,13 @@ public object BrushFamilySerialization {
      *   will fail.
      * @param onDecodeTexture A callback to store any decoded texture image, if any were encoded
      *   inside the serialized [BrushFamily]s. This is called synchronously as part of this function
-     *   call, on the same thread, once for each texture image.
+     *   call, on the same thread, once for each texture image. If null (the default), then any
+     *   encoded texture images will be ignored, and the texture IDs will be decoded as-is.
      * @return The [List] of [BrushFamily]s parsed from the [ByteArray].
      * @throws [java.io.IOException] if gzip-format bytes cannot be read from [input].
      * @throws [IllegalArgumentException] [input] does not provide a valid `ink.proto.BrushFamily`
      *   proto message, or any of the corresponding [BrushFamily]s are invalid.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @JvmOverloads
@@ -333,7 +348,6 @@ public object BrushFamilySerialization {
     ): List<BrushFamily> = BrushFamily.decodeMultiple(input, maxVersion, onDecodeTexture)
 
     /** See [decodeMultiple] above. This overload uses [Version.MAX_SUPPORTED]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBrushCompatibilityApi
     @JvmStatic
     @Throws(IOException::class)

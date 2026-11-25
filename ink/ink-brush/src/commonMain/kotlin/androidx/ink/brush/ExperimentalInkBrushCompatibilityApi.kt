@@ -16,8 +16,6 @@
 
 package androidx.ink.brush
 
-import androidx.annotation.RestrictTo
-
 /**
  * Marks declarations that are are an **experimental** Ink API that allows providing fallback
  * implementations of brush styles for compatibility with older versions of Ink. These declarations
@@ -43,6 +41,5 @@ import androidx.annotation.RestrictTo
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.TYPEALIAS,
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class ExperimentalInkBrushCompatibilityApi

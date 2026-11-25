@@ -117,11 +117,11 @@ internal fun BrushFamily.Companion.decodeUncompressed(
  * [BrushFamily] objects passed in, overriding any existing fallbacks on any individual
  * [BrushFamily].
  *
- * @param textureIdToPngBytes A callback to retrieve the PNG bytes of the texture bitmap for a given
- *   client texture ID, and the texture ID to write in its place (see
- *   [TexturePngBytesLookup.getEncodedTextureId]).
+ * @param textureIdToPngBytes An optional interface for providing both a mapping from texture IDs to
+ *   PNG bytes, and a callback to rename texture IDs when encoding (see
+ *   [TexturePngBytesLookup.getEncodedTextureId]). If null (the default), then no textures will be
+ *   encoded, and the texture IDs will be encoded as-is.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkBrushCompatibilityApi
 public fun List<BrushFamily>.encodeMultiple(
     textureIdToPngBytes: TexturePngBytesLookup? = null
@@ -163,13 +163,13 @@ internal fun List<BrushFamily>.encodeMultipleUncompressed(
  *   [BrushFamily]s have a `min_version` of greater than maxVersion, deserialization will fail.
  * @param onDecodeTexture A callback to store any decoded texture image, if any were encoded inside
  *   the serialized [BrushFamily]. This is called synchronously as part of this function call, on
- *   the same thread, once for each texture image.
+ *   the same thread, once for each texture image. If null (the default), then any encoded texture
+ *   images will be ignored, and the texture IDs will be decoded as-is.
  * @return The [List] of [BrushFamily]s parsed from the [ByteArray].
  * @throws [IllegalArgumentException] [input] does not provide a valid `ink.proto.BrushFamily` proto
  *   message, or any of the corresponding [BrushFamily]s are invalid.
  * @throws [IOException] if gzip-format bytes cannot be read from [input].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkBrushCompatibilityApi
 @Throws(IOException::class)
 public fun BrushFamily.Companion.decodeMultiple(

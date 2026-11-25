@@ -107,7 +107,6 @@ private constructor(
      * proto. Fallback data is not preserved when modifying a [BrushFamily] with [copy] or
      * [toBuilder].
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkBrushCompatibilityApi
     @get:JvmName("hasFallbacks")
     // Uses lazy to avoid the opt-in annotation not applying to Java callers (can't be applied to
