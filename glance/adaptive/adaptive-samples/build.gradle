@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.ApkCopyHelperKt
 import androidx.build.SoftwareType
 
 plugins {
@@ -42,6 +43,9 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.5.0")
     implementation(project(":lifecycle:lifecycle-runtime"))
 }
+
+// Publish the release APK to dist/apks so the demo app is available from Android CI.
+ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 androidx {
     name = "Glance Adaptive Samples"
