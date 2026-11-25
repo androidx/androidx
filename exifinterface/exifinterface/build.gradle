@@ -20,6 +20,7 @@ dependencies {
     androidTestImplementation libs.truth
     androidTestImplementation libs.guavaAndroid
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testParameterInjector)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
 }

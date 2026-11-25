@@ -16,6 +16,7 @@
 
 package androidx.exifinterface.media;
 
+import static androidx.exifinterface.media.ExifInterfaceTestUtil.countOccurrences;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -62,7 +63,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -2726,42 +2726,8 @@ public class ExifInterfaceTest {
 
     private File copyFromResourceToFile(int resourceId, String filename) throws IOException {
         File file = tempFolder.newFile(filename);
-        try (InputStream inputStream =
-                        getApplicationContext().getResources().openRawResource(resourceId);
-                FileOutputStream outputStream = new FileOutputStream(file)) {
-            ByteStreams.copy(inputStream, outputStream);
-        }
+        ExifInterfaceTestUtil.copyFromResourceToFile(resourceId, file);
         return file;
-    }
-
-    /**
-     * Returns the number of times {@code pattern} appears in {@code source}.
-     *
-     * <p>Overlapping occurrences are counted multiple times, e.g. {@code countOccurrences([0, 1, 0,
-     * 1, 0], [0, 1, 0])} will return 2.
-     */
-    private static int countOccurrences(byte[] source, byte[] pattern) {
-        int count = 0;
-        for (int i = 0; i < source.length - pattern.length; i++) {
-            if (containsAtIndex(source, i, pattern)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /**
-     * Returns {@code true} if {@code source} contains {@code pattern} starting at {@code index}.
-     *
-     * @throws IndexOutOfBoundsException if {@code source.length < index + pattern.length}.
-     */
-    private static boolean containsAtIndex(byte[] source, int index, byte[] pattern) {
-        for (int i = 0; i < pattern.length; i++) {
-            if (pattern[i] != source[index + i]) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
