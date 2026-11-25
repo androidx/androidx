@@ -1195,29 +1195,6 @@ internal operator fun <T : TransitionEffect> EnterTransition.get(key: Transition
 internal operator fun <T : TransitionEffect> ExitTransition.get(key: TransitionEffectKey<T>): T? =
     config.effectsMap[key] as? T
 
-/**
- * The fade of an enter/exit transition, applied by a layer other than the enter/exit layer.
- *
- * [createEnterExitModifier] owns the fade animation. Given an [EnterExitFade], it keeps its own
- * layer at alpha 1f and sets [alphaProvider]. The layer that applies the fade reads [alpha] in its
- * graphics layer block.
- *
- * [SharedTransitionScope.sharedBounds] uses this to fade on the scaleToBounds layer. That layer
- * keeps its lookahead size for the whole transition, so the renderer rasterizes it once instead of
- * every frame.
- */
-internal class EnterExitFade {
-    /** Set by [createEnterExitModifier]. */
-    var alphaProvider: () -> Float = NoFade
-        internal set
-
-    /** Fade alpha for the current frame. 1f until [alphaProvider] is set. */
-    val alpha: Float
-        get() = alphaProvider()
-}
-
-private val NoFade: () -> Float = { 1f }
-
 @OptIn(ExperimentalAnimationApi::class)
 @Suppress("ModifierFactoryExtensionFunction", "ComposableModifierFactory")
 @Composable
@@ -1226,7 +1203,6 @@ internal fun Transition<EnterExitState>.createEnterExitModifier(
     isEnabled: () -> Boolean = { true },
     provideTransformState: Boolean = false,
     label: String,
-    fade: EnterExitFade? = null,
 ): Modifier {
     val activeEnter = state.enter
     val activeExit = state.exit
@@ -1290,7 +1266,7 @@ internal fun Transition<EnterExitState>.createEnterExitModifier(
             ?: false
 
     val graphicsLayerBlock =
-        createGraphicsLayerBlock(activeEnter, activeExit, activeMutableState, label, fade)
+        createGraphicsLayerBlock(activeEnter, activeExit, activeMutableState, label)
 
     return (if (shouldVeilMatchParentSize) veilModifierElement else Modifier)
         .then(Modifier.graphicsLayer { clip = !disableClip && isEnabled() })
@@ -1503,7 +1479,6 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
     exit: ExitTransition,
     mutableTransformState: SharedMutableTransformState,
     label: String,
-    fade: EnterExitFade?,
 ): GraphicsLayerBlockForEnterExit {
 
     val shouldAnimateAlpha =
@@ -1604,15 +1579,8 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                 } ?: TransformOrigin.Center
             }
 
-        val fadeAlpha: () -> Float = {
-            mutableTransformState.combinedAlpha(transitionValue = alpha?.value ?: 1f)
-        }
-        // Another layer applies the fade. This layer stays at alpha 1f, so it never renders
-        // offscreen.
-        fade?.alphaProvider = fadeAlpha
-
         val block: GraphicsLayerScope.() -> Unit = {
-            this.alpha = if (fade == null) fadeAlpha() else 1f
+            this.alpha = mutableTransformState.combinedAlpha(transitionValue = alpha?.value ?: 1f)
             val combinedScale =
                 mutableTransformState.combinedScale(transitionValue = scale?.value ?: 1f)
             this.scaleX = combinedScale

@@ -42,13 +42,9 @@ import kotlin.math.roundToInt
 internal class SkipToLookaheadSizeNode(
     scaleToBounds: ScaleToBoundsImpl?,
     isEnabled: () -> Boolean,
-    fade: EnterExitFade?,
 ) : LayoutModifierNode, Modifier.Node() {
     var scaleToBounds: ScaleToBoundsImpl? by mutableStateOf(scaleToBounds)
     var isEnabled: () -> Boolean by mutableStateOf(isEnabled)
-
-    /** When set, the scale layer applies this fade. See [EnterExitFade]. */
-    var fade: EnterExitFade? = fade
 
     private var lookaheadConstraints: Constraints? = null
     private var lookaheadSize: IntSize = InvalidSize
@@ -96,17 +92,10 @@ internal class SkipToLookaheadSizeNode(
                         constrainedSize,
                         layoutDirection,
                     )
-                val fade = fade
                 p.placeWithLayer(x, y) {
                     scaleX = resolvedScale.scaleX
                     scaleY = resolvedScale.scaleY
                     transformOrigin = TransformOrigin(0f, 0f)
-                    if (fade != null) {
-                        // This layer has stable bounds: the content is measured once at lookahead
-                        // size and only scaled. Fading here lets the renderer cache the layer for
-                        // the whole transition.
-                        alpha = fade.alpha
-                    }
                 }
             }
         }
@@ -168,35 +157,31 @@ internal class SkipToLookaheadSizeNode(
 internal class SkipToLookaheadSizeElement(
     val scaleToBounds: ScaleToBoundsImpl? = null,
     val isEnabled: () -> Boolean = DefaultEnabled,
-    val fade: EnterExitFade? = null,
 ) : ModifierNodeElement<SkipToLookaheadSizeNode>() {
     override fun create(): SkipToLookaheadSizeNode {
-        return SkipToLookaheadSizeNode(scaleToBounds, isEnabled, fade)
+        return SkipToLookaheadSizeNode(scaleToBounds, isEnabled)
     }
 
     override fun update(node: SkipToLookaheadSizeNode) {
         node.scaleToBounds = scaleToBounds
         node.isEnabled = isEnabled
-        node.fade = fade
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "skipToLookahead"
         properties["scaleToBounds"] = scaleToBounds
         properties["isEnabled"] = isEnabled
-        properties["fade"] = fade
     }
 
     override fun hashCode(): Int {
-        return (isEnabled.hashCode() * 31 + scaleToBounds.hashCode()) * 31 + fade.hashCode()
+        return isEnabled.hashCode() * 31 + scaleToBounds.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
         return other is SkipToLookaheadSizeElement &&
             // Reference equality check
             other.isEnabled === isEnabled &&
-            other.scaleToBounds == scaleToBounds &&
-            other.fade === fade
+            other.scaleToBounds == scaleToBounds
     }
 }
 
@@ -204,11 +189,10 @@ private val DefaultEnabled: () -> Boolean = { true }
 
 internal fun Modifier.createContentScaleModifier(
     scaleToBounds: ScaleToBoundsImpl,
-    fade: EnterExitFade?,
     isEnabled: () -> Boolean,
 ): Modifier =
     this.then(
         if (scaleToBounds.contentScale == ContentScale.Crop) {
             Modifier.graphicsLayer { clip = isEnabled() }
         } else Modifier
-    ) then SkipToLookaheadSizeElement(scaleToBounds, isEnabled, fade)
+    ) then SkipToLookaheadSizeElement(scaleToBounds, isEnabled)
