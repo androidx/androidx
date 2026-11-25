@@ -17,7 +17,7 @@
 package androidx.camera.integration.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.measureRepeatedOnMainThread
+import androidx.benchmark.junit4.measureRepeated
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -31,6 +31,7 @@ import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -68,7 +69,11 @@ class SessionConfigBindBenchmark(
         ProcessCameraProvider.configureInstance(cameraXConfig)
 
         withContext(Dispatchers.Main) {
-            fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
+            // Keep the lifecycle in the CREATED state so binding doesn't attach the use cases to
+            // the camera. Otherwise every iteration triggers asynchronous camera (and encoder)
+            // reconfiguration in the background, which makes iteration times noisy and prevents
+            // warmup from converging within the warmup time limit.
+            fakeLifecycleOwner = FakeLifecycleOwner()
         }
     }
 
@@ -95,8 +100,18 @@ class SessionConfigBindBenchmark(
                     )
             )
 
-        benchmarkRule.measureRepeatedOnMainThread {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        benchmarkRule.measureRepeated {
+            instrumentation.runOnMainSync {
+                cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)
+            }
+            // Unbind so that each iteration binds from the same unbound state, and drain the main
+            // thread so that resources released by unbind (e.g. ImageReaders) don't pile up and
+            // trigger GCs during measurement.
+            runWithMeasurementDisabled {
+                instrumentation.runOnMainSync { cameraProvider.unbindAll() }
+                instrumentation.waitForIdleSync()
+            }
         }
     }
 
