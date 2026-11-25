@@ -1903,9 +1903,12 @@ class BaselineProfileConsumerPluginTestWithAgp83(private val agpVersion: TestAgp
 class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
 
     companion object {
+        // AGP 9 and later don't support applying org.jetbrains.kotlin.multiplatform together
+        // with com.android.application or com.android.library. KMP on newer AGP versions is
+        // tested in BaselineProfileKotlinMultiplatformLibraryTest.
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_5_2)
+        fun parameters() = listOf(TEST_AGP_VERSION_8_5_2)
     }
 
     @get:Rule
@@ -1968,16 +1971,6 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
                     f.deleteOnExit()
                 }
 
-        // TODO: remove when b/442018105 is fixed
-        projectSetup.rootFolder.root
-            .resolve("gradle.properties")
-            .writeText(
-                """
-                android.newDsl=false
-                android.builtInKotlin=false
-                """
-                    .trimIndent()
-            )
         gradleRunner.buildAndAssertThatOutput("releaseSources") {
             expected.forEach { e -> contains(e.absolutePath) }
         }
@@ -2031,16 +2024,6 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
                     f.deleteOnExit()
                 }
 
-        // TODO: remove when b/442018105 is fixed
-        projectSetup.rootFolder.root
-            .resolve("gradle.properties")
-            .writeText(
-                """
-                android.newDsl=false
-                android.builtInKotlin=false
-                """
-                    .trimIndent()
-            )
         gradleRunner.buildAndAssertThatOutput("releaseSources") {
             expected.forEach { e -> contains(e.absolutePath) }
         }
