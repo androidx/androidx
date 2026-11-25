@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp">
+
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/compose_viewfinder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <LinearLayout
+            android:id="@+id/bottom_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:background="#99000000">
+
+            <TextView
+                android:id="@+id/status_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="2dp"
+                android:text="Checking Low Light Boost support..."/>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="always"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioGroup
+                        android:id="@+id/implementation_mode_group"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingTop="1dp"
+                        android:paddingBottom="1dp">
+
+                        <RadioButton
+                            android:id="@+id/radio_mode_performance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PERFORMANCE"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:checked="true"
+                            android:layout_marginEnd="8dp"/>
+
+                        <RadioButton
+                            android:id="@+id/radio_mode_compatible"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="COMPATIBLE"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"/>
+                    </RadioGroup>
+
+                    <RadioGroup
+                        android:id="@+id/lifecycle_strategy_group"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingTop="1dp"
+                        android:paddingBottom="1dp">
+
+                        <RadioButton
+                            android:id="@+id/radio_bind_once"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Bind Once"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:checked="true"
+                            android:layout_marginEnd="8dp"/>
+
+                        <RadioButton
+                            android:id="@+id/radio_rebind_on_resume"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rebind on Resume"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"/>
+                    </RadioGroup>
+
+                    <RadioGroup
+                        android:id="@+id/target_strategy_group"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingTop="1dp"
+                        android:paddingBottom="1dp">
+
+                        <RadioButton
+                            android:id="@+id/radio_target_preview"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PREVIEW"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            android:checked="true"
+                            android:layout_marginEnd="4dp"/>
+
+                        <RadioButton
+                            android:id="@+id/radio_target_preview_video"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PREV|VIDEO"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            android:layout_marginEnd="4dp"/>
+
+                        <RadioButton
+                            android:id="@+id/radio_target_all"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ALL"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"/>
+                    </RadioGroup>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingBottom="4dp">
+
+                        <Button
+                            android:id="@+id/flip_camera_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/flip"
+                            android:textSize="11sp"
+                            android:layout_margin="2dp"/>
+
+                        <Button
+                            android:id="@+id/toggle_llb_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/llb_disable"
+                            android:textSize="11sp"
+                            android:layout_margin="2dp"/>
+
+                        <Button
+                            android:id="@+id/capture_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/llb_capture"
+                            android:textSize="11sp"
+                            android:layout_margin="2dp"
+                            android:visibility="gone"/>
+
+                        <Button
+                            android:id="@+id/record_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/llb_record"
+                            android:textSize="11sp"
+                            android:layout_margin="2dp"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

@@ -80,8 +80,6 @@ import kotlinx.coroutines.withContext
  * @see LowLightBoostState
  * @see CameraEffect
  */
-// TODO: b/448524973 - Remove @RestrictTo when making this API public in next alpha.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LowLightBoostEffect
 internal constructor(
     @CameraEffect.Targets targets: Int,

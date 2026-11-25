@@ -70,5 +70,12 @@ limitations under the License.
     <string name="mirror_on">mirror on</string>
     <string name="mirror_off">mirror off</string>
     <string name="mlkit">MLKit</string>
+    <string name="low_light_boost_effect">Low Light Boost</string>
+    <string name="app_name_low_light_boost">Low Light Boost (Compose)</string>
+    <string name="llb_disable">Disable LLB</string>
+    <string name="llb_enable">Enable LLB</string>
+    <string name="llb_capture">Capture</string>
+    <string name="llb_record">Record</string>
+    <string name="llb_stop_recording">Stop</string>
 
 </resources>

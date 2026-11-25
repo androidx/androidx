@@ -1,2 +1,64 @@
 // Signature format: 5.0
 // - surface=public
+package androidx.camera.effects.playservices.lowlight {
+
+  public final class LowLightBoostEffect extends androidx.camera.core.CameraEffect {
+    ctor public LowLightBoostEffect(android.content.Context context, int targets);
+    method public void addListener(androidx.camera.effects.playservices.lowlight.LowLightBoostEffect.Listener listener);
+    method public void addListener(java.util.concurrent.Executor executor, androidx.camera.effects.playservices.lowlight.LowLightBoostEffect.Listener listener);
+    method @InaccessibleFromKotlin public androidx.camera.effects.playservices.lowlight.LowLightBoostException? getError();
+    method @InaccessibleFromKotlin public int getStatus();
+    method @InaccessibleFromKotlin public boolean isLowLightBoostEnabled();
+    method public static suspend Object? isSupported(android.content.Context context, androidx.camera.core.CameraInfo cameraInfo, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public static com.google.common.util.concurrent.ListenableFuture<java.lang.Boolean> isSupportedAsync(android.content.Context context, androidx.camera.core.CameraInfo cameraInfo);
+    method public suspend Object? observe(kotlin.jvm.functions.Function1<? super androidx.camera.effects.playservices.lowlight.LowLightBoostEffect,kotlin.Unit> onChanged, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method public void removeListener(androidx.camera.effects.playservices.lowlight.LowLightBoostEffect.Listener listener);
+    method @InaccessibleFromKotlin public void setLowLightBoostEnabled(boolean);
+    property public androidx.camera.effects.playservices.lowlight.LowLightBoostException? error;
+    property public boolean isLowLightBoostEnabled;
+    property public int status;
+    field public static final androidx.camera.effects.playservices.lowlight.LowLightBoostEffect.Companion Companion;
+    field public static final int STATUS_ACTIVE = 1; // 0x1
+    field public static final int STATUS_INACTIVE = 0; // 0x0
+    field public static final int STATUS_OFF = -1; // 0xffffffff
+    field public static final int STATUS_PENDING_INSTALLATION = 2; // 0x2
+  }
+
+  public static final class LowLightBoostEffect.Companion {
+    method public suspend Object? isSupported(android.content.Context context, androidx.camera.core.CameraInfo cameraInfo, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Boolean> isSupportedAsync(android.content.Context context, androidx.camera.core.CameraInfo cameraInfo);
+    property public static int STATUS_ACTIVE;
+    property public static int STATUS_INACTIVE;
+    property public static int STATUS_OFF;
+    property public static int STATUS_PENDING_INSTALLATION;
+  }
+
+  public static interface LowLightBoostEffect.Listener {
+    method public default void onErrorChanged(androidx.camera.effects.playservices.lowlight.LowLightBoostException? error);
+    method public default void onLowLightBoostEnabledChanged(boolean enabled);
+    method public default void onStatusChanged(int status);
+  }
+
+  public final class LowLightBoostException extends java.lang.Exception {
+    ctor public LowLightBoostException(int errorCode, String? message);
+    ctor public LowLightBoostException(int errorCode, String? message, Throwable? cause);
+    method @InaccessibleFromKotlin public int getErrorCode();
+    property public int errorCode;
+    field public static final androidx.camera.effects.playservices.lowlight.LowLightBoostException.Companion Companion;
+    field public static final int ERROR_MODULE_INSTALL_FAILED = 3; // 0x3
+    field public static final int ERROR_NOT_SUPPORTED = 1; // 0x1
+    field public static final int ERROR_SESSION_FAILED = 4; // 0x4
+    field public static final int ERROR_UNKNOWN = 0; // 0x0
+    field public static final int ERROR_UNSUPPORTED_STREAM = 2; // 0x2
+  }
+
+  public static final class LowLightBoostException.Companion {
+    property public static int ERROR_MODULE_INSTALL_FAILED;
+    property public static int ERROR_NOT_SUPPORTED;
+    property public static int ERROR_SESSION_FAILED;
+    property public static int ERROR_UNKNOWN;
+    property public static int ERROR_UNSUPPORTED_STREAM;
+  }
+
+}
+

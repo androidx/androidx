@@ -49,6 +49,7 @@ dependencies {
     implementation(project(":camera:camera-view"))
     implementation(project(":camera:camera-video"))
     implementation(project(":camera:camera-effects"))
+    implementation(project(":camera:camera-effects-play-services"))
     implementation(project(":camera:media3:media3-effect"))
     implementation(libs.guavaAndroid)
     implementation("androidx.exifinterface:exifinterface:1.4.2")

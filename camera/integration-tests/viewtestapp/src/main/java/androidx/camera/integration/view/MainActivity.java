@@ -45,10 +45,12 @@ import java.util.Collections;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    // Possible values for this intent key (case-insensitive): "PreviewView", "ComposeUi".
+    // Possible values for this intent key (case-insensitive): "PreviewView", "ComposeUi",
+    // "LowLightBoostEffect".
     private static final String INTENT_FRAGMENT_TYPE = "fragment_type";
     private static final String PREVIEW_VIEW_FRAGMENT = "PreviewView";
     private static final String COMPOSE_UI_FRAGMENT = "ComposeUi";
+    private static final String LOW_LIGHT_BOOST_EFFECT_FRAGMENT = "LowLightBoostEffect";
 
     private static final String[] REQUIRED_PERMISSIONS;
 
@@ -176,6 +178,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actionbar_menu, menu);
+        // LowLightBoostEffectFragment requires API level 30.
+        menu.findItem(R.id.low_light_boost_effect)
+                .setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
         return true;
     }
 
@@ -199,6 +204,8 @@ public class MainActivity extends AppCompatActivity {
             mFragmentType = FragmentType.OVERLAY_EFFECTS;
         } else if (itemId == R.id.media3effect) {
             mFragmentType = FragmentType.MEDIA3_EFFECT;
+        } else if (itemId == R.id.low_light_boost_effect) {
+            mFragmentType = FragmentType.LOW_LIGHT_BOOST_EFFECT;
         }
         startFragment();
         return true;
@@ -220,6 +227,8 @@ public class MainActivity extends AppCompatActivity {
             mFragmentType = FragmentType.PREVIEW_VIEW;
         } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
             mFragmentType = FragmentType.COMPOSE_UI;
+        } else if (LOW_LIGHT_BOOST_EFFECT_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.LOW_LIGHT_BOOST_EFFECT;
         }
     }
 
@@ -250,6 +259,18 @@ public class MainActivity extends AppCompatActivity {
             case MEDIA3_EFFECT:
                 fragment = new Media3EffectsFragment();
                 break;
+            case LOW_LIGHT_BOOST_EFFECT:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    fragment = new LowLightBoostEffectFragment();
+                    if (getIntent() != null && getIntent().getExtras() != null) {
+                        fragment.setArguments(getIntent().getExtras());
+                    }
+                } else {
+                    report("LowLightBoostEffect requires API 30+");
+                    mFragmentType = FragmentType.PREVIEW_VIEW;
+                    fragment = new PreviewViewFragment();
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown fragment type: " + mFragmentType);
         }
@@ -274,6 +295,8 @@ public class MainActivity extends AppCompatActivity {
                 return R.string.overlay_effect;
             case MEDIA3_EFFECT:
                 return R.string.media3_effect;
+            case LOW_LIGHT_BOOST_EFFECT:
+                return R.string.low_light_boost_effect;
             default:
                 throw new IllegalArgumentException("Unknown fragment type: " + type);
         }
@@ -298,6 +321,6 @@ public class MainActivity extends AppCompatActivity {
 
     private enum FragmentType {
         PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT, EFFECTS, OVERLAY_EFFECTS,
-        MEDIA3_EFFECT
+        MEDIA3_EFFECT, LOW_LIGHT_BOOST_EFFECT,
     }
 }
