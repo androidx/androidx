@@ -189,31 +189,21 @@ public fun GlanceAdaptiveWidgetManager.setConfigurationResult(
 }
 
 /**
- * Draws templates of type [T] for [widgetName] on [surface] with [renderer] instead of the library
- * default.
+ * Registers [renderer] to render [T] templates for [widgetName] on [surface], overriding the
+ * default renderer.
  *
- * - Applies to the whole process, not only to this manager. Call it from
- *   [android.app.Application.onCreate], which runs before any widget renders, even when the process
- *   starts for a widget broadcast.
- * - The last registration for a widget, template and surface wins, including over the library
- *   default. Placed widgets switch to it on their next update.
+ * Registration is process-wide. Registering from [android.app.Application.onCreate] is recommended
+ * so it is in place before any widget renders. Calling this again for the same [widgetName], [T],
+ * and [surface] replaces the previous renderer, and placed widgets use it on their next update.
+ * Does not check whether [widgetName] matches a declared receiver in the manifest.
  *
- * Renderers produce AppWidget-specific output, so this operation is provided by this artifact as an
- * extension rather than by [GlanceAdaptiveWidgetManager] itself.
- *
- * @param T The concrete template type implementing [GlanceAdaptiveTemplate], inferred from
- *   [renderer]. Templates are matched by their exact runtime class.
- * @param widgetName Developer widget definition String identifier matching
- *   [GlanceAdaptiveWidgetReceiver.widgetName].
- * @param surface The [AppWidgetSurface] to draw [T] on.
- * @param renderer Draws [T] as [AppWidgetRenderOutput]. The
- *   [androidx.glance.adaptive.core.selection.GlanceSurface.dimensions] of the surface it receives
- *   may be `(0, 0)` when the host has not reported a positive size or during widget picker preview
- *   rendering, so it must handle zero dimensions.
- * @throws IllegalStateException if this manager is not backed by an AppWidget delegate, for example
- *   if it was created for another surface.
- * @throws IllegalArgumentException if [T] is an interface or an abstract class, as no template
- *   instance can have it as its runtime class.
+ * @param T concrete [GlanceAdaptiveTemplate] type matched by exact runtime class
+ * @param widgetName non-blank widget identifier matching [GlanceAdaptiveWidgetReceiver.widgetName]
+ * @param surface target [AppWidgetSurface]
+ * @param renderer renders [T] into [AppWidgetRenderOutput]; must handle `Dimensions(0, 0)`
+ * @throws IllegalStateException if this manager was not created for AppWidget hosts
+ * @throws IllegalArgumentException if [widgetName] is blank or [T] is an interface or abstract
+ *   class
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public inline fun <reified T : GlanceAdaptiveTemplate> GlanceAdaptiveWidgetManager.registerRenderer(

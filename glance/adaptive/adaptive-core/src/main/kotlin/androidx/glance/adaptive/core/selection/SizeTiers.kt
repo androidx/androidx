@@ -16,16 +16,35 @@
 
 package androidx.glance.adaptive.core.selection
 
+import androidx.annotation.Dimension
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 
 /**
- * Represents 2D container dimensions in density-independent pixels.
+ * Container width and height in dp.
  *
- * @param widthDp Container width in DP.
- * @param heightDp Container height in DP.
+ * @property widthDp non-negative width in dp
+ * @property heightDp non-negative height in dp
+ * @throws IllegalArgumentException if [widthDp] or [heightDp] is negative
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Dimensions(public val widthDp: Int, public val heightDp: Int) {
+public class Dimensions(
+    @param:Dimension(unit = Dimension.DP)
+    @get:Dimension(unit = Dimension.DP)
+    @param:IntRange(from = 0)
+    @get:IntRange(from = 0)
+    public val widthDp: Int,
+    @param:Dimension(unit = Dimension.DP)
+    @get:Dimension(unit = Dimension.DP)
+    @param:IntRange(from = 0)
+    @get:IntRange(from = 0)
+    public val heightDp: Int,
+) {
+    init {
+        require(widthDp >= 0) { "widthDp must be non-negative, was $widthDp." }
+        require(heightDp >= 0) { "heightDp must be non-negative, was $heightDp." }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Dimensions) return false

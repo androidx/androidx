@@ -22,20 +22,18 @@ import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.Dimensions
 
-/**
- * Output produced by a [TemplateRenderer] targeting platform AppWidget surfaces.
- *
- * Encapsulates the UI representations that can be translated into platform [RemoteViews].
- */
+/** Output produced by a [TemplateRenderer] for AppWidget surfaces. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface AppWidgetRenderOutput {
     /**
-     * Translates this render output into a platform [RemoteViews] for the given application
-     * [context] and target container [dimensions].
+     * Builds [RemoteViews] for [context] and [dimensions].
      *
-     * @param context The application [Context] used to construct or compose the [RemoteViews].
-     * @param dimensions The target container [Dimensions] in dp.
-     * @return The [RemoteViews] to deliver to the host.
+     * May run concurrently on background threads and multiple times per update for different
+     * placement sizes. Must handle `Dimensions(0, 0)` when no positive size is available.
+     *
+     * @param context application [Context] used to build the [RemoteViews]
+     * @param dimensions target container [Dimensions] in dp
+     * @return [RemoteViews] to deliver to the host
      */
     public suspend fun toRemoteViews(
         context: Context,
