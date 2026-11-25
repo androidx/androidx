@@ -158,6 +158,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ClipPathModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
@@ -410,6 +411,7 @@ public class Operations {
     public static final int MODIFIER_PADDING = 58;
     public static final int MODIFIER_CLIP_RECT = 108;
     public static final int MODIFIER_ROUNDED_CLIP_RECT = 54;
+    public static final int MODIFIER_CLIP_PATH = 109;
 
     public static final int MODIFIER_CLICK = 59;
     public static final int MODIFIER_MULTI_CLICK = 83;
@@ -495,6 +497,7 @@ public class Operations {
         LAYOUT_TEXT_INPUT,
         LAYOUT_FLOW,
         MODIFIER_MULTI_CLICK,
+        MODIFIER_CLIP_PATH,
         MODIFIER_DIMENSION_CONSTRAINTS,
         REFERENCED_OPERATIONS,
         INCLUDE_REFERENCED_OPERATIONS,
@@ -546,6 +549,7 @@ public class Operations {
         LAYOUT_COMPUTE,
         LAYOUT_FLOW,
         MODIFIER_MULTI_CLICK,
+        MODIFIER_CLIP_PATH,
         MODIFIER_DIMENSION_CONSTRAINTS,
         REFERENCED_OPERATIONS,
         INCLUDE_REFERENCED_OPERATIONS,
@@ -632,6 +636,7 @@ public class Operations {
                 sAllOperationsV7.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
                 sAllOperationsV7.put(LAYOUT_FLOW, FlowLayout::read);
                 sAllOperationsV7.put(MODIFIER_MULTI_CLICK, MultiClickModifier::read);
+                sAllOperationsV7.put(MODIFIER_CLIP_PATH, ClipPathModifierOperation::read);
                 sAllOperationsV7.put(
                         MODIFIER_DIMENSION_CONSTRAINTS,
                         DimensionConstraintsModifierOperation::read);

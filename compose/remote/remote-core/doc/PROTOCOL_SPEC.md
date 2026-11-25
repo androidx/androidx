@@ -25,6 +25,7 @@ This is not authoritative but is provided to give a feel for the protocol.
 | 81 | `ANIMATED_FLOAT` | Dynamic expression | Float ID, RPN operations |
 | 101 | `DATA_BITMAP` | Serialized image | Bitmap ID, width, height, pixels |
 | 102 | `DATA_TEXT` | Serialized string | Text ID, string content |
+| 109 | `MODIFIER_CLIP_PATH` | Clip component to path (experimental) | Path ID |
 | 123 | `DATA_PATH` | Serialized path | Path ID, points/commands |
 | 124 | `DRAW_PATH` | Draw vector path | Path ID |
 | 126-129 | `MATRIX_*` | Transformations | Scale, Translate, Skew, Rotate |

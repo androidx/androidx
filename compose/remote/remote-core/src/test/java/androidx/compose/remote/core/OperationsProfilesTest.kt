@@ -128,6 +128,7 @@ import androidx.compose.remote.core.Operations.MODIFIER_ALIGN_BY
 import androidx.compose.remote.core.Operations.MODIFIER_BACKGROUND
 import androidx.compose.remote.core.Operations.MODIFIER_BORDER
 import androidx.compose.remote.core.Operations.MODIFIER_CLICK
+import androidx.compose.remote.core.Operations.MODIFIER_CLIP_PATH
 import androidx.compose.remote.core.Operations.MODIFIER_CLIP_RECT
 import androidx.compose.remote.core.Operations.MODIFIER_COLLAPSIBLE_PRIORITY
 import androidx.compose.remote.core.Operations.MODIFIER_DIMENSION_CONSTRAINTS
@@ -325,6 +326,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextStyle
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.ClipPathModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
@@ -988,6 +990,7 @@ class OperationsProfilesTest {
                     DATA_FLOAT to FloatConstant::class.java,
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
+                    MODIFIER_CLIP_PATH to ClipPathModifierOperation::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
                     MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
                     LAYOUT_TEXT_INPUT to TextInputLayout::class.java,
@@ -1330,6 +1333,7 @@ class OperationsProfilesTest {
                     DATA_FLOAT to FloatConstant::class.java,
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
+                    MODIFIER_CLIP_PATH to ClipPathModifierOperation::class.java,
                     LAYOUT_CUSTOM to Custom::class.java,
                     MODIFIER_EVENT_HANDLER to EventHandlerModifierOperation::class.java,
                     LAYOUT_TEXT_INPUT to TextInputLayout::class.java,
@@ -1667,6 +1671,7 @@ class OperationsProfilesTest {
                     DATA_FLOAT to FloatConstant::class.java,
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
+                    MODIFIER_CLIP_PATH to ClipPathModifierOperation::class.java,
                     DATA_BITMAP to BitmapData::class.java,
                     DATA_TEXT to TextData::class.java,
                     ROOT_CONTENT_DESCRIPTION to RootContentDescription::class.java,
@@ -2002,6 +2007,7 @@ class OperationsProfilesTest {
                     DATA_FLOAT to FloatConstant::class.java,
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
+                    MODIFIER_CLIP_PATH to ClipPathModifierOperation::class.java,
                     DATA_BITMAP to BitmapData::class.java,
                     DATA_TEXT to TextData::class.java,
                     ROOT_CONTENT_DESCRIPTION to RootContentDescription::class.java,
@@ -2335,6 +2341,7 @@ class OperationsProfilesTest {
                     DATA_FLOAT to FloatConstant::class.java,
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
+                    MODIFIER_CLIP_PATH to ClipPathModifierOperation::class.java,
                     DATA_BITMAP to BitmapData::class.java,
                     DATA_TEXT to TextData::class.java,
                     ROOT_CONTENT_DESCRIPTION to RootContentDescription::class.java,
@@ -2678,6 +2685,7 @@ class OperationsProfilesTest {
                     DATA_FLOAT to FloatConstant::class.java,
                     ANIMATED_FLOAT to FloatExpression::class.java,
                     MODIFIER_MULTI_CLICK to MultiClickModifier::class.java,
+                    MODIFIER_CLIP_PATH to ClipPathModifierOperation::class.java,
                     DATA_BITMAP to BitmapData::class.java,
                     DATA_TEXT to TextData::class.java,
                     ROOT_CONTENT_DESCRIPTION to RootContentDescription::class.java,

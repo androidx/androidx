@@ -129,6 +129,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ClipPathModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
@@ -321,6 +322,7 @@ public class BinaryRoundTripTest {
         originalOps.add(new DrawContentOperation());
         originalOps.add(new ClipRectModifierOperation());
         originalOps.add(new RoundedClipRectModifierOperation(0, 0, 10, 10));
+        originalOps.add(new ClipPathModifierOperation(101));
         originalOps.add(new CollapsiblePriorityModifierOperation(1, 10f));
         originalOps.add(new ComponentVisibilityOperation(2));
         originalOps.add(new DimensionConstraintsModifierOperation((byte) 0, 0f, 100f));
