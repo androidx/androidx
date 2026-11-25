@@ -22,7 +22,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.adapter.completeFailing
 import androidx.camera.camera2.adapter.propagateTo
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import java.util.concurrent.AbstractExecutorService
 import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
@@ -89,7 +92,13 @@ constructor(
      */
     public val sequentialExecutor: Executor =
         if (schedulerHandler != null) {
-            CameraXExecutors.asScheduledExecutor(confinedSequentialExecutor, schedulerHandler)
+            val delegate =
+                if (backgroundExecutor is ExecutorService) {
+                    confinedExecutorService(backgroundExecutor)
+                } else {
+                    confinedSequentialExecutor
+                }
+            CameraXExecutors.asScheduledExecutor(delegate, schedulerHandler)
         } else {
             confinedSequentialExecutor
         }
@@ -100,6 +109,33 @@ constructor(
     public var sequentialScope: CoroutineScope =
         CoroutineScope(scope.coroutineContext + SupervisorJob() + sequentialDispatcher)
         @VisibleForTesting set
+
+    /**
+     * Wraps [confinedSequentialExecutor] as a non-owning [ExecutorService] so
+     * [CameraXExecutors.asScheduledExecutor] observes [lifecycleDelegate]'s shutdown state.
+     */
+    private fun confinedExecutorService(lifecycleDelegate: ExecutorService): ExecutorService =
+        object : AbstractExecutorService() {
+            override fun execute(command: Runnable) = confinedSequentialExecutor.execute(command)
+
+            override fun isShutdown(): Boolean = lifecycleDelegate.isShutdown
+
+            override fun isTerminated(): Boolean = lifecycleDelegate.isTerminated
+
+            override fun shutdown(): Unit = unsupportedShutdown()
+
+            override fun shutdownNow(): List<Runnable> = unsupportedShutdown()
+
+            override fun awaitTermination(timeout: Long, unit: TimeUnit): Boolean =
+                unsupportedShutdown()
+
+            private fun unsupportedShutdown(): Nothing =
+                throw UnsupportedOperationException(
+                    "UseCaseThreads sequentialExecutor cannot be shut down."
+                )
+
+            override fun toString(): String = "ConfinedExecutorService($lifecycleDelegate)"
+        }
 
     /**
      * Verifies that the current thread is the one associated with the [sequentialScope].
