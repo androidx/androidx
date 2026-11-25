@@ -71,6 +71,8 @@ public class ClipModifier implements RecordingModifier.Element {
                     rShape.getTopEnd(),
                     rShape.getBottomStart(),
                     rShape.getBottomEnd());
+        } else if (mShape instanceof PathShape) {
+            writer.addClipPathModifier(((PathShape) mShape).getPathId());
         }
     }
 }

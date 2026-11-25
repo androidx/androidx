@@ -5364,6 +5364,13 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Add a clip path modifier
+     */
+    public void addClipPathModifier(int pathId) {
+        mBuffer.addClipPathModifier(pathId);
+    }
+
+    /**
      * Add a round clip rect modifier
      *
      * @param topStart    the top start value

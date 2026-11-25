@@ -879,6 +879,13 @@ object OpcodeRegistry {
         )
         reg(
             OpSpec(
+                Operations.MODIFIER_CLIP_PATH,
+                "MODIFIER_CLIP_PATH",
+                FieldSpec("pathId", FieldType.INT),
+            )
+        )
+        reg(
+            OpSpec(
                 Operations.MODIFIER_ALIGN_BY,
                 "MODIFIER_ALIGN_BY",
                 FieldSpec("line", FieldType.FLOAT),

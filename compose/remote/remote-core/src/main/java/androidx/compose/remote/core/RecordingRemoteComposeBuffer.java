@@ -135,6 +135,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ClipPathModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
@@ -1060,6 +1061,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     @Override
     public void addClipRectModifier() {
         addOperation(new ClipRectModifierOperation());
+    }
+
+    @Override
+    public void addClipPathModifier(int pathId) {
+        addOperation(new ClipPathModifierOperation(pathId));
     }
 
     @Override

@@ -147,6 +147,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ClipPathModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
@@ -2011,6 +2012,15 @@ public class RemoteComposeBuffer {
     /** Add a clip rect modifier */
     public void addClipRectModifier() {
         ClipRectModifierOperation.apply(mBuffer);
+    }
+
+    /**
+     * Add a clip path modifier, clipping the component's content to the given path
+     *
+     * @param pathId id of the path to clip with
+     */
+    public void addClipPathModifier(int pathId) {
+        ClipPathModifierOperation.apply(mBuffer, pathId);
     }
 
     /**

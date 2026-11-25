@@ -2478,6 +2478,27 @@
       "restrictToLibraryGroup": true
     },
     {
+      "id": 109,
+      "name": "ClipPathModifierOperation",
+      "opCodeName": "MODIFIER_CLIP_PATH",
+      "category": "Modifier Operations",
+      "description": "Clip the component's content to the given path. The path coordinates are relative to the component's content box (after any preceding padding), like canvas drawing operations, and are not scaled by density. Subsequent modifiers and the component's content are clipped.",
+      "addedVersion": 7,
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "restrictToLibraryGroup": true,
+      "fields": [
+        {
+          "name": "pathId",
+          "type": "int",
+          "description": "The id of the path to clip with"
+        }
+      ]
+    },
+    {
       "id": 121,
       "name": "RcDocLayout",
       "opCodeName": "LAYOUT_RC_DOC",

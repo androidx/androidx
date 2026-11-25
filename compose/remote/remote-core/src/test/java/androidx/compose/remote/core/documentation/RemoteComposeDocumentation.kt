@@ -131,6 +131,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextStyle
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.ClipPathModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
@@ -520,6 +521,7 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
             Operations.MODIFIER_ROUNDED_CLIP_RECT,
             RoundedClipRectModifierOperation::documentation,
         )
+        operationsMap.put(Operations.MODIFIER_CLIP_PATH, ClipPathModifierOperation::documentation)
         operationsMap.put(Operations.CLICK_AREA, ClickArea::documentation)
         operationsMap.put(Operations.MODIFIER_CLICK, ClickModifierOperation::documentation)
         operationsMap.put(Operations.MODIFIER_MULTI_CLICK, MultiClickModifier::documentation)

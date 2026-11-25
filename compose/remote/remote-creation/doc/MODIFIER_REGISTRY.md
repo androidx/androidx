@@ -11,7 +11,7 @@ This document lists the available layout modifiers in the `remote-creation` API 
 | `.background(color)` | `BackgroundModifierOperation` | Solid color layer |
 | `.backgroundId(id)` | `DynamicBackgroundModifier` | Theme-aware color layer |
 | `.border(w, r, c)` | `BorderModifierOperation` | Stroke around boundary |
-| `.clip(shape)` | `ClipRectModifierOperation` | Restrict content to shape |
+| `.clip(shape)` | `ClipRectModifierOperation` / `RoundedClipRectModifierOperation` / `ClipPathModifierOperation` (experimental, via `RcShape.path(path)`) | Restrict content to a rectangle, rounded rectangle or path |
 | `.offset(x, y)` | `OffsetModifierOperation` | Positional translation |
 | `.zIndex(z)` | `ZIndexModifierOperation` | Layer order |
 | `.graphicsLayer(...)` | `GraphicsLayerModifierOperation`| Opacity, Rotation, Scaling |
@@ -39,3 +39,4 @@ Used with `.clip()` or `.border()`:
 - `RectShape`
 - `RoundedRectShape`
 - `CircleShape`
+- `PathShape` (clip only, experimental; `RcShape.path(path)` in the DSL): clips to a path previously added to the document.
