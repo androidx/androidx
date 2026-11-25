@@ -91,8 +91,8 @@ private val ContentMaxWidth = 600.dp
 /**
  * Demo app for Glance Adaptive widgets.
  *
- * Organizes templates under a unified three-level flow (template catalog -> use-case picker ->
- * renderer configuration -> pin), publishes picker previews through
+ * Organizes templates under a unified three-level flow (template catalog -> use-case picker -> live
+ * preview & renderer configuration -> pin), publishes picker previews through
  * [GlanceAdaptiveWidgetManager.setPreview], and pins widgets through
  * [GlanceAdaptiveWidgetManager.requestPin]. Opened from a Quick Actions demo widget, it shows which
  * tile or button was tapped.
@@ -151,6 +151,8 @@ private data class TemplateGroup(
     @StringRes val titleRes: Int,
     @StringRes val subtitleRes: Int,
     @StringRes val pickerInstructionsRes: Int,
+    val previewPresets: List<WidgetPreviewPreset>,
+    val defaultPreviewPreset: WidgetPreviewPreset,
     val useCases: List<TemplateUseCase>,
 )
 
@@ -197,13 +199,22 @@ private data class TemplateUseCase(
     }
 }
 
-private enum class WidgetBackend {
+internal enum class WidgetBackend {
     RemoteCompose,
     RemoteViews,
 }
 
 private val isRemoteComposeSupported: Boolean
     get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+
+private val TrackPreviewPresets =
+    listOf(
+        WidgetPreviewPreset.Home1x1,
+        WidgetPreviewPreset.Home2x2,
+        WidgetPreviewPreset.Home4x2,
+        WidgetPreviewPreset.Home4x3,
+        WidgetPreviewPreset.LockMini,
+    )
 
 private val DemoTemplateGroups =
     listOf(
@@ -212,6 +223,8 @@ private val DemoTemplateGroups =
             titleRes = R.string.track_template_entry,
             subtitleRes = R.string.track_template_entry_subtitle,
             pickerInstructionsRes = R.string.track_use_case_instructions,
+            previewPresets = TrackPreviewPresets,
+            defaultPreviewPreset = WidgetPreviewPreset.Home4x2,
             useCases =
                 listOf(
                     TemplateUseCase(
@@ -229,6 +242,8 @@ private val DemoTemplateGroups =
             titleRes = R.string.quick_actions_template_entry,
             subtitleRes = R.string.quick_actions_template_entry_subtitle,
             pickerInstructionsRes = R.string.quick_actions_use_case_instructions,
+            previewPresets = WidgetPreviewPreset.entries,
+            defaultPreviewPreset = WidgetPreviewPreset.Home4x2,
             useCases =
                 listOf(
                     TemplateUseCase(
@@ -301,6 +316,8 @@ private fun DemoScreen() {
         selectedTemplate != null && selectedUseCase != null -> {
             UseCaseConfigScreen(
                 useCase = selectedUseCase,
+                previewPresets = selectedTemplate.previewPresets,
+                defaultPreviewPreset = selectedTemplate.defaultPreviewPreset,
                 onBack = { selectedUseCaseId = null },
                 onPin = { widgetName ->
                     scope.launch {
@@ -409,6 +426,8 @@ private fun UseCasePickerScreen(
 @Composable
 private fun UseCaseConfigScreen(
     useCase: TemplateUseCase,
+    previewPresets: List<WidgetPreviewPreset>,
+    defaultPreviewPreset: WidgetPreviewPreset,
     onBack: () -> Unit,
     onPin: (widgetName: String) -> Unit,
 ) {
@@ -425,6 +444,7 @@ private fun UseCaseConfigScreen(
                 }
             )
         }
+    var selectedPreset by rememberSaveable(useCase.id) { mutableStateOf(defaultPreviewPreset) }
 
     Box(
         modifier =
@@ -445,6 +465,17 @@ private fun UseCaseConfigScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
+            WidgetLivePreviewSection(
+                useCaseKey = useCase.id,
+                backend = selectedBackend,
+                presets = previewPresets,
+                selectedPreset = selectedPreset,
+                onSelectPreset = { selectedPreset = it },
+                buildPayload = useCase.buildPayload,
+            )
+
+            HorizontalDivider()
 
             Text(
                 text = stringResource(R.string.widget_config_renderer_section),

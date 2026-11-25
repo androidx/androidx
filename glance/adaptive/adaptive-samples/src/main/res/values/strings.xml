@@ -52,4 +52,19 @@
     <string name="widget_config_renderer_remotecompose">RemoteCompose (API 37+)</string>
     <string name="widget_config_renderer_remoteviews">RemoteViews</string>
     <string name="widget_config_pin_button">Pin Widget</string>
+
+    <string name="widget_preview_section">Preview</string>
+    <string name="widget_preview_surface_home">Home screen</string>
+    <string name="widget_preview_surface_lock">Lock screen</string>
+    <!-- Dimensions and surface caption for the in-app widget preview. %1$d is width dp, %2$d is height dp, %3$s is the surface name. -->
+    <string name="widget_preview_dimensions_summary">%1$d×%2$ddp · %3$s</string>
+    <string name="widget_preview_preset_1x1">1×1</string>
+    <string name="widget_preview_preset_2x2">2×2</string>
+    <string name="widget_preview_preset_4x2">4×2</string>
+    <string name="widget_preview_preset_4x3">4×3</string>
+    <string name="widget_preview_preset_lock_linear">Lock</string>
+    <string name="widget_preview_preset_lock_mini">Mini</string>
+    <!-- Shown when rendering the in-app widget preview fails. %1$s is the error detail. -->
+    <string name="widget_preview_error">Couldn\'t render preview: %1$s</string>
+    <string name="widget_preview_error_generic">Couldn\'t render preview.</string>
 </resources>
