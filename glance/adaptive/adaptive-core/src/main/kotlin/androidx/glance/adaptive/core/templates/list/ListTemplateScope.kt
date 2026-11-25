@@ -35,8 +35,10 @@ import androidx.glance.adaptive.core.templates.buildTemplateText
 /**
  * Builds a [ListTemplate] using scoped slot blocks.
  *
- * Populates [ListTemplateScope.items], with optional header slots [ListTemplateScope.leading],
- * [ListTemplateScope.title], and [ListTemplateScope.trailing]:
+ * Populates [ListTemplateScope.items] (`item`, `checkboxItem`, `detailCard`, and `divider`), with
+ * optional header slots [ListTemplateScope.leading], [ListTemplateScope.title], and either
+ * [ListTemplateScope.trailing] (header utility action) or [ListTemplateScope.actions] (adaptive
+ * quick-action FAB / rail):
  * ```kotlin
  * val template = listTemplate {
  *     leading { icon(TemplateIcon.fromResource(R.drawable.ic_calendar)) }
@@ -59,10 +61,11 @@ import androidx.glance.adaptive.core.templates.buildTemplateText
  *
  * @param content DSL block configuring the slots of the [ListTemplate]
  * @return validated [ListTemplate] instance
- * @throws IllegalArgumentException if a component argument is invalid, or [ListTemplateScope.items]
- *   is missing, empty, contains only dividers, or has more than 25 items
- * @throws IllegalStateException if a header slot block is empty or any slot block is configured
- *   more than once
+ * @throws IllegalArgumentException if a component argument is invalid, [ListTemplateScope.items] is
+ *   missing, empty, contains only dividers, or has more than 25 items, or
+ *   [ListTemplateScope.actions] is empty or has more than 6 actions
+ * @throws IllegalStateException if a header slot block is empty, any slot block is configured more
+ *   than once, or both [ListTemplateScope.trailing] and [ListTemplateScope.actions] are configured
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun listTemplate(content: ListTemplateScope.() -> Unit): ListTemplate =
@@ -77,6 +80,7 @@ public class ListTemplateScope internal constructor() {
     private var trailing: TrailingComponent? = null
     private var compactTitle: TemplateText? = null
     private var items: List<ListItem> = emptyList()
+    private var actions: List<IconButton> = emptyList()
     private var scrollableOverride: Boolean? = null
     private var showHeaderInCompactHeightOverride: Boolean? = null
 
@@ -111,13 +115,16 @@ public class ListTemplateScope internal constructor() {
     }
 
     /**
-     * Configures the header's optional trailing button, shown where the widget has room.
+     * Configures the header's optional trailing utility button, shown where the widget has room.
+     * Mutually exclusive with [actions].
      *
      * @param content block adding a single component in [TrailingScope]
-     * @throws IllegalStateException if [trailing] was already called or [content] adds no component
+     * @throws IllegalStateException if [trailing] was already called, [actions] was already
+     *   configured, or [content] adds no component
      */
     public fun trailing(content: TrailingScope.() -> Unit) {
         check(trailing == null) { "The trailing slot was already configured." }
+        check(actions.isEmpty()) { "The trailing and actions slots cannot both be configured." }
         val scope = TrailingScope().apply(content)
         trailing =
             checkNotNull(scope.component) {
@@ -138,6 +145,26 @@ public class ListTemplateScope internal constructor() {
     public fun items(content: ItemsScope.() -> Unit) {
         check(items.isEmpty()) { "The items slot was already configured." }
         items = ItemsScope().apply(content).build()
+    }
+
+    /**
+     * Configures up to 6 optional adaptive quick actions, ordered by priority. Mutually exclusive
+     * with [trailing].
+     *
+     * Compact sizes display the first action as a bottom-right floating action button, while
+     * expanded sizes (`W3–W4 × H3+`) display a trailing vertical action rail led by the first
+     * action.
+     *
+     * @param content block adding 1 to 6 actions in [ActionsScope]
+     * @throws IllegalArgumentException if [content] adds no actions (and [listTemplate] throws if
+     *   more than 6 actions are added)
+     * @throws IllegalStateException if [actions] was already called or [trailing] was already
+     *   configured
+     */
+    public fun actions(content: ActionsScope.() -> Unit) {
+        check(actions.isEmpty()) { "The actions slot was already configured." }
+        check(trailing == null) { "The trailing and actions slots cannot both be configured." }
+        actions = ActionsScope().apply(content).build()
     }
 
     /**
@@ -166,8 +193,8 @@ public class ListTemplateScope internal constructor() {
     }
 
     /**
-     * Configures an optional short title (for example, `"10/6"`) used in narrow headers or prefixed
-     * to the first item when the header is hidden at compact heights.
+     * Configures an optional short title (for example, `"10/6"` or `"Brief"`) shown in narrow `W1`
+     * headers or prefixed to the first item when the header is hidden at compact heights.
      *
      * @param value non-blank compact title text
      * @param options optional block configuring [TextScope] settings such as [TextScope.sensitive]
@@ -188,6 +215,7 @@ public class ListTemplateScope internal constructor() {
             isScrollable = scrollableOverride ?: true,
             showHeaderInCompactHeight = showHeaderInCompactHeightOverride ?: true,
             compactTitle = compactTitle,
+            actions = actions,
         )
 
     /** Populates the [ListTemplateScope.leading] slot of a [ListTemplate]. */
@@ -228,7 +256,7 @@ public class ListTemplateScope internal constructor() {
          */
         public fun text(value: String, options: TextScope.() -> Unit = {}) {
             check(component == null) { "The title slot accepts only one component." }
-            component = buildTemplateText(value, options)
+            component = buildTemplateText(value, options = options)
         }
     }
 
@@ -270,6 +298,49 @@ public class ListTemplateScope internal constructor() {
         }
     }
 
+    /** Populates the [ListTemplateScope.actions] quick-action slot of a [ListTemplate]. */
+    @GlanceAdaptiveTemplateDsl
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class ActionsScope internal constructor() {
+        private val actions: MutableList<IconButton> = mutableListOf()
+
+        /**
+         * Appends a quick action button. Index `0` is always styled as the primary button (the
+         * bottom-right floating action button on compact sizes and the top pill button of the
+         * trailing action rail on expanded sizes), while subsequent actions render as uncontained
+         * secondary rail icons.
+         *
+         * @param icon [TemplateIcon] of the action's glyph
+         * @param label non-blank accessibility label describing the action
+         * @param options optional block configuring [ClickableScope.onClick] and
+         *   [ClickableScope.sensitive]
+         * @throws IllegalArgumentException if [label] is blank
+         */
+        public fun action(
+            icon: TemplateIcon,
+            label: String,
+            options: ClickableScope.() -> Unit = {},
+        ) {
+            require(label.isNotBlank()) { "An action label must not be blank." }
+            val scope = ClickableScope().apply(options)
+            actions.add(
+                IconButton(
+                    icon = icon.resId,
+                    contentDescription = label,
+                    action = scope.action,
+                    sensitiveReplacement = scope.sensitiveReplacement,
+                )
+            )
+        }
+
+        internal fun build(): List<IconButton> {
+            require(actions.isNotEmpty()) {
+                "The actions block must contain at least one action (for example, action(...))."
+            }
+            return actions
+        }
+    }
+
     /** Populates the [ListTemplateScope.items] list of a [ListTemplate]. */
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -277,7 +348,7 @@ public class ListTemplateScope internal constructor() {
         private val items: MutableList<ListItem> = mutableListOf()
 
         /**
-         * Appends a list item with a required [title] and optional metadata configured in
+         * Appends a compact list item with a required [title] and optional metadata configured in
          * [options].
          *
          * @param title non-blank item headline (for example, `"Widget Weekly Sync"`)
@@ -289,7 +360,7 @@ public class ListTemplateScope internal constructor() {
             val scope = ItemScope().apply(options)
             val struck = scope.isStruckThrough
             items.add(
-                ListItem(
+                ListItem.Compact(
                     title =
                         TemplateText(
                             value = title,
@@ -306,9 +377,68 @@ public class ListTemplateScope internal constructor() {
                             explicit = scope.tertiaryTextStruckThroughExplicit,
                             itemStruckThrough = struck,
                         ),
+                    tertiaryIcon = scope.tertiaryIcon,
                     leadingIcon = scope.leadingIcon,
                     trailingIcon = scope.trailingIcon,
                     trailingChip = scope.trailingChip,
+                    action = scope.clickable.action,
+                    style = scope.style,
+                )
+            )
+        }
+
+        /**
+         * Appends a standalone checkable list row with [title] and [isChecked] state.
+         *
+         * Checked rows render with strikethrough by default unless
+         * [CheckboxItemScope.strikethrough] explicitly overrides it.
+         *
+         * @param title non-blank label text
+         * @param isChecked whether the checkbox is checked (defaults to `false`)
+         * @param options optional block configuring [CheckboxItemScope] settings
+         * @throws IllegalArgumentException if [title] is blank
+         */
+        public fun checkboxItem(
+            title: String,
+            isChecked: Boolean = false,
+            options: CheckboxItemScope.() -> Unit = {},
+        ) {
+            require(title.isNotBlank()) { "A checkbox item title must not be blank." }
+            val scope = CheckboxItemScope().apply(options)
+            items.add(
+                ListItem.Checkbox(
+                    title =
+                        TemplateText(
+                            value = title,
+                            sensitiveReplacement = scope.clickable.sensitiveReplacement,
+                            isStruckThrough = scope.isStruckThrough ?: isChecked,
+                        ),
+                    isChecked = isChecked,
+                    action = scope.clickable.action,
+                )
+            )
+        }
+
+        /**
+         * Appends a multi-line detail card with [title] and optional body text or read-only inline
+         * checklist preview configured in [options].
+         *
+         * @param title non-blank card headline
+         * @param options optional block configuring [DetailCardScope] properties
+         * @throws IllegalArgumentException if [title] is blank
+         */
+        public fun detailCard(title: String, options: DetailCardScope.() -> Unit = {}) {
+            require(title.isNotBlank()) { "A detail card title must not be blank." }
+            val scope = DetailCardScope().apply(options)
+            items.add(
+                ListItem.DetailCard(
+                    title =
+                        TemplateText(
+                            value = title,
+                            sensitiveReplacement = scope.clickable.sensitiveReplacement,
+                        ),
+                    body = scope.body,
+                    checklistItems = scope.checklistItems,
                     action = scope.clickable.action,
                     style = scope.style,
                 )
@@ -325,20 +455,21 @@ public class ListTemplateScope internal constructor() {
          */
         public fun divider(label: String, options: TextScope.() -> Unit = {}) {
             require(label.isNotBlank()) { "A list divider label must not be blank." }
-            items.add(ListItem(title = buildTemplateText(label, options), isDivider = true))
+            items.add(ListItem.Divider(title = buildTemplateText(label, options = options)))
         }
 
         internal fun build(): List<ListItem> {
             require(items.isNotEmpty()) {
                 "The items block must contain at least one item (for example, item(...))."
             }
-            return items.toList()
+            return items
         }
     }
 
     /**
      * Configures optional settings on list item text fields that support both lock-screen redaction
-     * and strikethrough styling (such as [ItemScope.subtitle] and [ItemScope.tertiaryText]).
+     * and strikethrough styling (such as [ItemScope.subtitle], [ItemScope.tertiaryText],
+     * [DetailCardScope.body], and [ChecklistScope.item]).
      */
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -374,7 +505,7 @@ public class ListTemplateScope internal constructor() {
         }
     }
 
-    /** Configures an individual item inside [ItemsScope]. */
+    /** Configures an individual compact item inside [ItemsScope]. */
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class ItemScope internal constructor() {
@@ -391,6 +522,9 @@ public class ListTemplateScope internal constructor() {
         internal var tertiaryTextStruckThroughExplicit: Boolean? = null
             private set
 
+        internal var tertiaryIcon: Icon? = null
+            private set
+
         internal var leadingIcon: Icon? = null
             private set
 
@@ -400,14 +534,13 @@ public class ListTemplateScope internal constructor() {
         internal var trailingChip: Badge? = null
             private set
 
-        internal var style: ListItemStyle = ListItemStyle.Default
-            private set
+        private var styleOverride: ListItemStyle? = null
+        internal val style: ListItemStyle
+            get() = styleOverride ?: ListItemStyle.Default
 
-        private var styleSet: Boolean = false
-        internal var isStruckThrough: Boolean = false
-            private set
-
-        private var strikethroughSet: Boolean = false
+        private var struckThroughOverride: Boolean? = null
+        internal val isStruckThrough: Boolean
+            get() = struckThroughOverride ?: false
 
         /**
          * Adds a secondary label on the item, such as a time range (`"10:30 - 11:30"`), shown above
@@ -421,9 +554,9 @@ public class ListTemplateScope internal constructor() {
          */
         public fun subtitle(value: String, options: ItemTextScope.() -> Unit = {}) {
             check(subtitle == null) { "Subtitle was already set." }
-            val (text, explicit) = buildItemTemplateText(value, options)
-            subtitleStruckThroughExplicit = explicit
+            val (text, explicit) = buildItemTemplateText(value, options = options)
             subtitle = text
+            subtitleStruckThroughExplicit = explicit
         }
 
         /**
@@ -431,16 +564,22 @@ public class ListTemplateScope internal constructor() {
          * featured first item where height allows.
          *
          * @param value non-blank detail text
+         * @param icon optional small [TemplateIcon] drawn before [value]
          * @param options optional block configuring [ItemTextScope] settings such as
          *   [ItemTextScope.sensitive] or [ItemTextScope.strikethrough]
          * @throws IllegalArgumentException if [value] is blank
          * @throws IllegalStateException if [tertiaryText] was already called in this scope
          */
-        public fun tertiaryText(value: String, options: ItemTextScope.() -> Unit = {}) {
+        public fun tertiaryText(
+            value: String,
+            icon: TemplateIcon? = null,
+            options: ItemTextScope.() -> Unit = {},
+        ) {
             check(tertiaryText == null) { "Tertiary text was already set." }
-            val (text, explicit) = buildItemTemplateText(value, options)
-            tertiaryTextStruckThroughExplicit = explicit
+            val (text, explicit) = buildItemTemplateText(value, options = options)
             tertiaryText = text
+            tertiaryTextStruckThroughExplicit = explicit
+            tertiaryIcon = icon?.let { Icon(icon = it.resId) }
         }
 
         /**
@@ -516,9 +655,8 @@ public class ListTemplateScope internal constructor() {
          * @throws IllegalStateException if [style] was already called in this scope
          */
         public fun style(style: ListItemStyle) {
-            check(!styleSet) { "Item container style was already set." }
-            styleSet = true
-            this.style = style
+            check(styleOverride == null) { "Item container style was already set." }
+            styleOverride = style
         }
 
         /**
@@ -530,9 +668,8 @@ public class ListTemplateScope internal constructor() {
          * @throws IllegalStateException if [strikethrough] was already called in this scope
          */
         public fun strikethrough(value: Boolean = true) {
-            check(!strikethroughSet) { "Item strikethrough was already set." }
-            strikethroughSet = true
-            isStruckThrough = value
+            check(struckThroughOverride == null) { "Item strikethrough was already set." }
+            struckThroughOverride = value
         }
 
         /**
@@ -545,10 +682,183 @@ public class ListTemplateScope internal constructor() {
             clickable.onClick(action)
         }
     }
+
+    /** Configures an individual [ListItem.Checkbox] inside [ItemsScope]. */
+    @GlanceAdaptiveTemplateDsl
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class CheckboxItemScope internal constructor() {
+        internal val clickable: ClickableScope = ClickableScope()
+        internal var isStruckThrough: Boolean? = null
+            private set
+
+        /**
+         * Replaces the checkbox label with [replacement] on locked or privacy-restricted surfaces.
+         *
+         * @param replacement non-blank placeholder string shown when content is redacted
+         * @throws IllegalArgumentException if [replacement] is blank
+         * @throws IllegalStateException if [sensitive] was already called in this scope
+         */
+        public fun sensitive(replacement: String) {
+            clickable.sensitive(replacement)
+        }
+
+        /**
+         * Explicitly controls strikethrough on the checkbox label (defaults to matching
+         * `isChecked`).
+         *
+         * @param value whether to apply strikethrough (defaults to `true`)
+         * @throws IllegalStateException if [strikethrough] was already called in this scope
+         */
+        public fun strikethrough(value: Boolean = true) {
+            check(isStruckThrough == null) { "Checkbox strikethrough was already set." }
+            isStruckThrough = value
+        }
+
+        /**
+         * Runs [action] when the checkbox row is tapped (for example, a
+         * [GlanceAdaptiveAction.CallbackAction] toggling checked state).
+         *
+         * @param action what the tap does
+         * @throws IllegalStateException if [onClick] was already called in this scope
+         */
+        public fun onClick(action: GlanceAdaptiveAction) {
+            clickable.onClick(action)
+        }
+    }
+
+    /** Configures an individual [ListItem.DetailCard] inside [ItemsScope]. */
+    @GlanceAdaptiveTemplateDsl
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class DetailCardScope internal constructor() {
+        internal val clickable: ClickableScope = ClickableScope()
+        internal var body: TemplateText? = null
+            private set
+
+        internal var checklistItems: List<ListItem.DetailCard.ChecklistEntry> = emptyList()
+            private set
+
+        private var styleOverride: ListItemStyle? = null
+        internal val style: ListItemStyle
+            get() = styleOverride ?: ListItemStyle.Default
+
+        /**
+         * Sets a multi-line body text snippet on the detail card. Mutually exclusive with
+         * [checklist].
+         *
+         * @param value non-blank body text
+         * @param options optional block configuring [ItemTextScope] settings
+         * @throws IllegalArgumentException if [value] is blank
+         * @throws IllegalStateException if [body] or [checklist] was already called in this scope
+         */
+        public fun body(value: String, options: ItemTextScope.() -> Unit = {}) {
+            check(body == null && checklistItems.isEmpty()) {
+                "Detail card content was already set."
+            }
+            body = buildItemTemplateText(value, options = options).first
+        }
+
+        /**
+         * Sets a read-only inline checklist preview on the detail card. Mutually exclusive with
+         * [body].
+         *
+         * @param content block adding 1 to 4 entries in [ChecklistScope]
+         * @throws IllegalArgumentException if [content] adds 0 or more than 4 entries
+         * @throws IllegalStateException if [body] or [checklist] was already called in this scope
+         */
+        public fun checklist(content: ChecklistScope.() -> Unit) {
+            check(body == null && checklistItems.isEmpty()) {
+                "Detail card content was already set."
+            }
+            checklistItems = ChecklistScope().apply(content).build()
+        }
+
+        /**
+         * Replaces the card's title with [replacement] on locked or privacy-restricted surfaces.
+         *
+         * @param replacement non-blank placeholder string
+         * @throws IllegalArgumentException if [replacement] is blank
+         * @throws IllegalStateException if [sensitive] was already called in this scope
+         */
+        public fun sensitive(replacement: String) {
+            clickable.sensitive(replacement)
+        }
+
+        /**
+         * Sets the container prominence [style] for this detail card (defaults to
+         * [ListItemStyle.Default]).
+         *
+         * @param style container prominence style
+         * @throws IllegalStateException if [style] was already called in this scope
+         */
+        public fun style(style: ListItemStyle) {
+            check(styleOverride == null) { "Detail card style was already set." }
+            styleOverride = style
+        }
+
+        /**
+         * Runs [action] when the detail card is tapped.
+         *
+         * @param action what the tap does
+         * @throws IllegalStateException if [onClick] was already called in this scope
+         */
+        public fun onClick(action: GlanceAdaptiveAction) {
+            clickable.onClick(action)
+        }
+    }
+
+    /**
+     * Populates read-only inline [ListItem.DetailCard.ChecklistEntry] preview rows inside
+     * [DetailCardScope.checklist].
+     *
+     * Unlike standalone [ItemsScope.checkboxItem] rows, inline checklist entries are non-tappable
+     * previews; tapping the enclosing detail card invokes [DetailCardScope.onClick].
+     */
+    @GlanceAdaptiveTemplateDsl
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class ChecklistScope internal constructor() {
+        private val entries: MutableList<ListItem.DetailCard.ChecklistEntry> = mutableListOf()
+
+        /**
+         * Appends a read-only inline checklist entry. Checked entries apply strikethrough by
+         * default unless overridden in [options].
+         *
+         * @param title non-blank entry text
+         * @param isChecked whether the entry is checked (defaults to `false`)
+         * @param options optional block configuring [ItemTextScope] settings
+         * @throws IllegalArgumentException if [title] is blank
+         */
+        public fun item(
+            title: String,
+            isChecked: Boolean = false,
+            options: ItemTextScope.() -> Unit = {},
+        ) {
+            require(title.isNotBlank()) { "A checklist item title must not be blank." }
+            entries.add(
+                ListItem.DetailCard.ChecklistEntry(
+                    text =
+                        buildItemTemplateText(
+                                title,
+                                defaultStruckThrough = isChecked,
+                                options = options,
+                            )
+                            .first,
+                    isChecked = isChecked,
+                )
+            )
+        }
+
+        internal fun build(): List<ListItem.DetailCard.ChecklistEntry> {
+            require(entries.isNotEmpty()) {
+                "A checklist block must contain at least one entry (for example, item(...))."
+            }
+            return entries
+        }
+    }
 }
 
 private fun buildItemTemplateText(
     value: String,
+    defaultStruckThrough: Boolean = false,
     options: ListTemplateScope.ItemTextScope.() -> Unit,
 ): Pair<TemplateText, Boolean?> {
     require(value.isNotBlank()) { "Text must not be blank." }
@@ -556,7 +866,7 @@ private fun buildItemTemplateText(
     return TemplateText(
         value = value,
         sensitiveReplacement = textScope.sensitiveReplacement,
-        isStruckThrough = textScope.isStruckThrough ?: false,
+        isStruckThrough = textScope.isStruckThrough ?: defaultStruckThrough,
     ) to textScope.isStruckThrough
 }
 

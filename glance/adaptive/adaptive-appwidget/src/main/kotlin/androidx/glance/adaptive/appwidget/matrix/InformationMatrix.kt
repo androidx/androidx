@@ -571,45 +571,117 @@ private fun IconTile.redacted(): IconTile {
 /** This list, with every sensitive item field replaced when [locked]. */
 private fun ItemList.redactedIf(locked: Boolean): ItemList {
     if (!locked) return this
-    val hasSensitive =
-        items.indices.any { i ->
-            val item = items[i]
-            item.title.sensitiveReplacement != null ||
-                item.subtitle?.sensitiveReplacement != null ||
-                item.tertiaryText?.sensitiveReplacement != null
+    var redactedItems: MutableList<ListItem>? = null
+    for (i in items.indices) {
+        val item = items[i]
+        val shown = item.redacted()
+        if (shown !== item) {
+            if (redactedItems == null) {
+                redactedItems = ArrayList(items.size)
+                for (j in 0 until i) {
+                    redactedItems.add(items[j])
+                }
+            }
+            redactedItems.add(shown)
+        } else {
+            redactedItems?.add(item)
         }
-    return if (hasSensitive) {
+    }
+    return if (redactedItems != null) {
         ItemList(
-            items = List(items.size) { i -> items[i].redacted() },
+            items = redactedItems,
             isScrollable = isScrollable,
             showTertiaryText = showTertiaryText,
-            expandSingleItem = expandSingleItem,
-            uncontainedSingleItem = uncontainedSingleItem,
+            layoutMode = layoutMode,
         )
     } else {
         this
     }
 }
 
-private fun ListItem.redacted(): ListItem {
-    val shownTitle = title.redactedIf(locked = true)
-    val shownSubtitle = subtitle?.redactedIf(locked = true)
-    val shownTertiary = tertiaryText?.redactedIf(locked = true)
-    if (shownTitle === title && shownSubtitle === subtitle && shownTertiary === tertiaryText) {
-        return this
+private fun TemplateText.withoutStrikethrough(): TemplateText =
+    if (isStruckThrough) TemplateText(value, sensitiveReplacement = sensitiveReplacement) else this
+
+private fun ListItem.redacted(): ListItem =
+    when (this) {
+        is ListItem.Compact -> {
+            val shownTitle = title.redactedIf(locked = true)
+            val shownSubtitle = subtitle?.redactedIf(locked = true)
+            val shownTertiary = tertiaryText?.redactedIf(locked = true)
+            if (
+                shownTitle === title && shownSubtitle === subtitle && shownTertiary === tertiaryText
+            ) {
+                this
+            } else {
+                // Drop strikethrough across the redacted row so item-level strikethrough on an
+                // unredacted sibling field (e.g. a non-sensitive time range) doesn't leak
+                // declined/completed state.
+                ListItem.Compact(
+                    title = shownTitle.withoutStrikethrough(),
+                    subtitle = shownSubtitle?.withoutStrikethrough(),
+                    tertiaryText = shownTertiary?.withoutStrikethrough(),
+                    tertiaryIcon = tertiaryIcon,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    trailingChip = trailingChip,
+                    action = action,
+                    style = style,
+                )
+            }
+        }
+        is ListItem.Checkbox -> {
+            val shownTitle = title.redactedIf(locked = true)
+            // Reset isChecked when redacted so completion state isn't leaked via icon/TalkBack or
+            // left visually inconsistent with the non-struck replacement text.
+            if (shownTitle === title) {
+                this
+            } else {
+                ListItem.Checkbox(shownTitle, isChecked = false, action = action)
+            }
+        }
+        is ListItem.DetailCard -> {
+            val shownTitle = title.redactedIf(locked = true)
+            val shownBody = body?.redactedIf(locked = true)
+            var redactedChecklist: MutableList<ListItem.DetailCard.ChecklistEntry>? = null
+            for (i in checklistItems.indices) {
+                val entry = checklistItems[i]
+                val shownText = entry.text.redactedIf(locked = true)
+                if (shownText !== entry.text) {
+                    if (redactedChecklist == null) {
+                        redactedChecklist = ArrayList(checklistItems.size)
+                        for (j in 0 until i) {
+                            redactedChecklist.add(checklistItems[j])
+                        }
+                    }
+                    // Reset isChecked when redacted so completion state isn't leaked or left
+                    // inconsistent with the non-struck replacement text.
+                    redactedChecklist.add(
+                        ListItem.DetailCard.ChecklistEntry(shownText, isChecked = false)
+                    )
+                } else {
+                    redactedChecklist?.add(entry)
+                }
+            }
+            if (shownTitle === title && shownBody === body && redactedChecklist == null) {
+                this
+            } else {
+                ListItem.DetailCard(
+                    title = shownTitle,
+                    body = shownBody,
+                    checklistItems = redactedChecklist ?: checklistItems,
+                    action = action,
+                    style = style,
+                )
+            }
+        }
+        is ListItem.Divider -> {
+            val shownTitle = title.redactedIf(locked = true)
+            if (shownTitle === title) this else ListItem.Divider(shownTitle)
+        }
+        // ListItem is not sealed, so new item types can be added without breaking callers; this
+        // is only reachable if one is added without being handled here.
+        else -> error("Unsupported ListItem type: ${this::class.java.name}")
     }
-    return ListItem(
-        title = shownTitle,
-        subtitle = shownSubtitle,
-        tertiaryText = shownTertiary,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        trailingChip = trailingChip,
-        action = action,
-        style = style,
-        isDivider = isDivider,
-    )
-}
 
 /** Height of a line of text [sizeSp] large, in DP, at [fontScale]. */
 private fun lineHeightDp(sizeSp: Float, fontScale: Float): Float =

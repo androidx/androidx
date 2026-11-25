@@ -109,23 +109,54 @@ class ListTemplateTest {
     }
 
     @Test
-    fun constructor_copiesItemsList() {
-        val source = mutableListOf(EVENT_1)
-        val template = ListTemplate(items = source)
-        source.add(EVENT_2)
+    fun constructor_copiesItemsAndActionsListsAndBoundsActions() {
+        val sourceItems = mutableListOf<ListItem>(EVENT_1)
+        val sourceActions = mutableListOf(IconButton(GLYPH, "Add", ADD_ACTION))
+        val template = ListTemplate(items = sourceItems, actions = sourceActions)
+        sourceItems.add(EVENT_2)
+        sourceActions.add(IconButton(GLYPH, "Checklist"))
 
         assertThat(template.items).containsExactly(EVENT_1)
+        assertThat(template.actions).containsExactly(IconButton(GLYPH, "Add", ADD_ACTION))
+
+        val atMaxActions =
+            ListTemplate(
+                items = listOf(EVENT_1),
+                actions = List(ListTemplate.MAX_ACTIONS) { i -> IconButton(GLYPH, "Action $i") },
+            )
+        assertThat(atMaxActions.actions).hasSize(ListTemplate.MAX_ACTIONS)
+
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                ListTemplate(
+                    items = listOf(EVENT_1),
+                    actions =
+                        List(ListTemplate.MAX_ACTIONS + 1) { i -> IconButton(GLYPH, "Action $i") },
+                )
+            }
+        assertThat(error).hasMessageThat().contains("at most ${ListTemplate.MAX_ACTIONS} actions")
     }
 
     @Test
     fun constructor_dividerOnly_throws() {
         val error =
             assertThrows(IllegalArgumentException::class.java) {
-                ListTemplate(
-                    items = listOf(ListItem(title = TemplateText("TOMORROW"), isDivider = true))
-                )
+                ListTemplate(items = listOf(ListItem.Divider(title = TemplateText("TOMORROW"))))
             }
         assertThat(error).hasMessageThat().contains("at least one non-divider item")
+    }
+
+    @Test
+    fun constructor_trailingAndActionsTogether_throws() {
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                ListTemplate(
+                    items = listOf(EVENT_1),
+                    trailing = IconButton(GLYPH, "Add"),
+                    actions = listOf(IconButton(GLYPH, "New note")),
+                )
+            }
+        assertThat(error).hasMessageThat().contains("at most one of trailing or actions")
     }
 
     @Test
@@ -133,11 +164,16 @@ class ListTemplateTest {
         val error =
             assertThrows(IllegalArgumentException::class.java) {
                 ListTemplate(
-                    items = List(26) { ListItem(title = TemplateText("DIV $it"), isDivider = true) }
+                    items = List(26) { ListItem.Divider(title = TemplateText("DIV $it")) },
+                    trailing = IconButton(GLYPH, "Add"),
+                    actions =
+                        List(ListTemplate.MAX_ACTIONS + 1) { i -> IconButton(GLYPH, "Action $i") },
                 )
             }
         assertThat(error).hasMessageThat().contains("1 to 25 items")
         assertThat(error).hasMessageThat().contains("at least one non-divider item")
+        assertThat(error).hasMessageThat().contains("at most ${ListTemplate.MAX_ACTIONS} actions")
+        assertThat(error).hasMessageThat().contains("at most one of trailing or actions")
     }
 
     @Test
@@ -211,8 +247,18 @@ class ListTemplateTest {
                     compactTitle = TemplateText("10/6", sensitiveReplacement = "Date"),
                 )
             )
+        assertThat(ListTemplate(items = base.items, leading = base.leading, title = base.title))
+            .isNotEqualTo(
+                ListTemplate(
+                    items = base.items,
+                    leading = base.leading,
+                    title = base.title,
+                    actions = listOf(IconButton(GLYPH, "Add note")),
+                )
+            )
         assertThat(base.toString()).contains("ListTemplate(")
         assertThat(base.toString()).contains("isScrollable=true")
+        assertThat(base.toString()).contains("actions=")
     }
 
     private companion object {
@@ -220,17 +266,17 @@ class ListTemplateTest {
         val OPEN_ACTION = GlanceAdaptiveAction.LaunchAction<Activity>()
         val ADD_ACTION = GlanceAdaptiveAction.CallbackAction<GlanceAdaptiveActionCallback>()
         val EVENT_1 =
-            ListItem(
+            ListItem.Compact(
                 title = TemplateText("Widget Weekly Sync"),
                 subtitle = TemplateText("10:30 - 11:30"),
                 tertiaryText = TemplateText("204-Phone-Room"),
                 trailingChip = Badge("Now"),
                 action = OPEN_ACTION,
             )
-        val EVENT_2 = ListItem(title = TemplateText("Lunch"))
+        val EVENT_2 = ListItem.Compact(title = TemplateText("Lunch"))
 
         fun items(count: Int): List<ListItem> =
-            List(count) { i -> ListItem(title = TemplateText("Item $i")) }
+            List(count) { i -> ListItem.Compact(title = TemplateText("Item $i")) }
 
         fun fullTemplate(): ListTemplate =
             ListTemplate(

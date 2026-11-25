@@ -32,6 +32,7 @@ import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.IconGrid
 import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.ItemList
+import androidx.glance.adaptive.core.slots.ItemListLayoutMode
 import androidx.glance.adaptive.core.slots.ListItem
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
@@ -516,41 +517,78 @@ class InformationMatrixTest {
     fun card_itemListRedactionPreservesLayoutAndItemMetadata() {
         val leadingIcon = Icon(GLYPH, "Check")
         val trailingIcon = Icon(GLYPH, "Video")
+        val tertiaryIcon = Icon(GLYPH)
         val trailingChip = Badge("New")
-        val sensitiveItem =
-            ListItem(
+        val sensitiveCompact =
+            ListItem.Compact(
                 title =
                     TemplateText(
                         "Salary review",
                         sensitiveReplacement = "Busy",
                         isStruckThrough = true,
                     ),
-                subtitle = TemplateText("10:00", sensitiveReplacement = "Morning"),
+                subtitle = TemplateText("10:00", isStruckThrough = true),
                 tertiaryText = TemplateText("Room 204", sensitiveReplacement = "Office"),
+                tertiaryIcon = tertiaryIcon,
                 leadingIcon = leadingIcon,
                 trailingChip = trailingChip,
                 action = ACTION,
                 style = ListItemStyle.Focused,
             )
-        val plainItem =
-            ListItem(
+        val plainCompact =
+            ListItem.Compact(
                 title = TemplateText("Team Lunch", isStruckThrough = true),
                 trailingIcon = trailingIcon,
                 action = ACTION,
             )
-        val dividerItem = ListItem(title = TemplateText("TOMORROW"), isDivider = true)
-        val sensitiveDividerItem =
-            ListItem(
-                title = TemplateText("MON, NOV 24", sensitiveReplacement = "UPCOMING"),
-                isDivider = true,
+        val sensitiveCheckbox =
+            ListItem.Checkbox(
+                title = TemplateText("Buy birthday gift", sensitiveReplacement = "Task"),
+                isChecked = true,
+                action = ACTION,
             )
+        val sensitiveCard =
+            ListItem.DetailCard(
+                title = TemplateText("Passcodes", sensitiveReplacement = "Note"),
+                body = TemplateText("1234", sensitiveReplacement = "Hidden"),
+                action = ACTION,
+                style = ListItemStyle.Neutral,
+            )
+        val plainChecklistEntry =
+            ListItem.DetailCard.ChecklistEntry(
+                TemplateText("Flour", isStruckThrough = true),
+                isChecked = true,
+            )
+        val sensitiveChecklistCard =
+            ListItem.DetailCard(
+                title = TemplateText("Bread"),
+                checklistItems =
+                    listOf(
+                        plainChecklistEntry,
+                        ListItem.DetailCard.ChecklistEntry(
+                            TemplateText("Secret spice", sensitiveReplacement = "Ingredient"),
+                            isChecked = true,
+                        ),
+                    ),
+            )
+        val plainDivider = ListItem.Divider(title = TemplateText("TOMORROW"))
+        val sensitiveDivider =
+            ListItem.Divider(title = TemplateText("Q4 REVIEW", sensitiveReplacement = "UPCOMING"))
         val list =
             ItemList(
-                items = listOf(sensitiveItem, plainItem, dividerItem, sensitiveDividerItem),
-                isScrollable = true,
+                items =
+                    listOf(
+                        sensitiveCompact,
+                        plainCompact,
+                        sensitiveCheckbox,
+                        sensitiveCard,
+                        sensitiveChecklistCard,
+                        plainDivider,
+                        sensitiveDivider,
+                    ),
+                isScrollable = false,
                 showTertiaryText = true,
-                expandSingleItem = true,
-                uncontainedSingleItem = true,
+                layoutMode = ItemListLayoutMode.ExpandFeatured,
             )
         val content =
             MatrixCardContent(
@@ -575,31 +613,51 @@ class InformationMatrixTest {
         assertThat(lockedTrailing.contentDescription).isEqualTo("Action")
         assertThat(lockedTrailing.contained).isFalse()
         val lockedList = resolved.hero as ItemList
-        assertThat(lockedList.isScrollable).isTrue()
+        assertThat(lockedList.isScrollable).isFalse()
         assertThat(lockedList.showTertiaryText).isTrue()
-        assertThat(lockedList.expandSingleItem).isTrue()
-        assertThat(lockedList.uncontainedSingleItem).isTrue()
+        assertThat(lockedList.layoutMode).isEqualTo(ItemListLayoutMode.ExpandFeatured)
 
-        val lockedFirst = lockedList.items[0]
+        val lockedFirst = lockedList.items[0] as ListItem.Compact
         assertThat(lockedFirst.title.value).isEqualTo("Busy")
-        // Redacted text drops strikethrough so declined/completed state is not leaked.
+        // Redacted rows drop strikethrough across all fields (including unredacted siblings) so
+        // declined/completed state is not leaked.
         assertThat(lockedFirst.title.isStruckThrough).isFalse()
-        assertThat(lockedFirst.subtitle?.value).isEqualTo("Morning")
+        assertThat(lockedFirst.subtitle?.value).isEqualTo("10:00")
+        assertThat(lockedFirst.subtitle?.isStruckThrough).isFalse()
         assertThat(lockedFirst.tertiaryText?.value).isEqualTo("Office")
+        assertThat(lockedFirst.tertiaryIcon).isEqualTo(tertiaryIcon)
         assertThat(lockedFirst.leadingIcon).isEqualTo(leadingIcon)
         assertThat(lockedFirst.trailingChip).isEqualTo(trailingChip)
         assertThat(lockedFirst.action).isEqualTo(ACTION)
         assertThat(lockedFirst.style).isEqualTo(ListItemStyle.Focused)
+        val lockedCheckbox = lockedList.items[2] as ListItem.Checkbox
+        assertThat(lockedCheckbox.title.value).isEqualTo("Task")
+        // Redacted checkable items reset isChecked so completion state is not leaked.
+        assertThat(lockedCheckbox.isChecked).isFalse()
+        assertThat(lockedCheckbox.action).isEqualTo(ACTION)
+
+        val lockedCard = lockedList.items[3] as ListItem.DetailCard
+        assertThat(lockedCard.title.value).isEqualTo("Note")
+        assertThat(lockedCard.body?.value).isEqualTo("Hidden")
+        assertThat(lockedCard.style).isEqualTo(ListItemStyle.Neutral)
+
+        val lockedChecklistCard = lockedList.items[4] as ListItem.DetailCard
+        assertThat(lockedChecklistCard.title.value).isEqualTo("Bread")
+        assertThat(lockedChecklistCard.checklistItems[0]).isSameInstanceAs(plainChecklistEntry)
+        assertThat(lockedChecklistCard.checklistItems[0].isChecked).isTrue()
+        assertThat(lockedChecklistCard.checklistItems[1].text.value).isEqualTo("Ingredient")
+        assertThat(lockedChecklistCard.checklistItems[1].isChecked).isFalse()
+
+        val lockedSensitiveDivider = lockedList.items[6] as ListItem.Divider
+        assertThat(lockedSensitiveDivider.title.value).isEqualTo("UPCOMING")
+
         // Non-sensitive items (including strikethrough) and dividers are reused as-is.
-        assertThat(lockedList.items[1]).isSameInstanceAs(plainItem)
+        assertThat(lockedList.items[1]).isSameInstanceAs(plainCompact)
         assertThat(lockedList.items[1].title.isStruckThrough).isTrue()
-        assertThat(lockedList.items[2]).isSameInstanceAs(dividerItem)
-        // Sensitive dividers are redacted while keeping their divider flag.
-        assertThat(lockedList.items[3].title.value).isEqualTo("UPCOMING")
-        assertThat(lockedList.items[3].isDivider).isTrue()
+        assertThat(lockedList.items[5]).isSameInstanceAs(plainDivider)
 
         // An ItemList with no sensitive fields returns itself on the lock screen too.
-        val nonSensitiveList = ItemList(listOf(plainItem, dividerItem))
+        val nonSensitiveList = ItemList(listOf(plainCompact, plainDivider))
         val lockedPlain =
             resolve(
                 MatrixCardContent(hero = nonSensitiveList),
@@ -683,7 +741,7 @@ class InformationMatrixTest {
                 primary = TemplateText("Agenda"),
                 secondary = TemplateText("Sub"),
                 trailing = IconButton(GLYPH, "Add", ACTION, contained = true),
-                hero = ItemList(listOf(ListItem(TemplateText("Event")))),
+                hero = ItemList(listOf(ListItem.Compact(TemplateText("Event")))),
                 leadingSize = 20.dp,
                 compactHeader = true,
             )
@@ -693,7 +751,7 @@ class InformationMatrixTest {
                 primary = TemplateText("Morning Brief"),
                 secondary = TemplateText("Sub"),
                 trailing = IconButton(GLYPH, "Refresh", ACTION, contained = false),
-                hero = ItemList(listOf(ListItem(TemplateText("Event")))),
+                hero = ItemList(listOf(ListItem.Compact(TemplateText("Event")))),
                 leadingSize = 20.dp,
                 compactHeader = true,
             )

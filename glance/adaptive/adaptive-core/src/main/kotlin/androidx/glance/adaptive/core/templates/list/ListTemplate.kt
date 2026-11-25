@@ -68,7 +68,11 @@ public value class ListItemStyle private constructor(private val value: Int) {
  * - [items] (required): 1 to 25 items in display order, including at least one non-divider item.
  * - [leading] (optional): the header's icon.
  * - [title] (optional): the header's title.
- * - [trailing] (optional): a button at the header's end.
+ * - [trailing] (optional): a header utility button pinned at the header's end (mutually exclusive
+ *   with [actions]).
+ * - [actions] (optional): up to 6 adaptive quick actions rendered as a bottom-right floating action
+ *   button on compact sizes or a trailing action rail on expanded sizes (`W3–W4 × H3+`), mutually
+ *   exclusive with [trailing].
  *
  * ```kotlin
  * val template = listTemplate {
@@ -85,8 +89,10 @@ public value class ListItemStyle private constructor(private val value: Int) {
  *
  * @param items The list items, in display order, copied so later changes to the caller's list are
  *   not seen.
- * @throws IllegalArgumentException if [items] has fewer than 1 or more than 25 entries or contains
- *   only dividers.
+ * @param actions Optional adaptive quick actions (up to 6, index `0` is the primary FAB action),
+ *   copied so later changes to the caller's list are not seen. Mutually exclusive with [trailing].
+ * @throws IllegalArgumentException if [items] has fewer than 1 or more than 25 entries, contains
+ *   only dividers, [actions] exceeds 6 entries, or both [trailing] and [actions] are populated.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ListTemplate
@@ -97,7 +103,10 @@ public constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val leading: LeadingComponent? = null,
     /** Optional header title, such as a [TemplateText]. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val title: PrimaryComponent? = null,
-    /** Optional button at the header's end, such as an [IconButton]. */
+    /**
+     * Optional button pinned at the header's end, such as an [IconButton]. Mutually exclusive with
+     * [actions].
+     */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val trailing: TrailingComponent? = null,
     /**
      * Whether the list may scroll on scrollable surfaces (non-scrollable surfaces always slice).
@@ -108,15 +117,25 @@ public constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val showHeaderInCompactHeight: Boolean = true,
     /**
-     * Optional short title (e.g. `TemplateText("10/6")`) used in narrow headers or prefixed to the
-     * first item when the header is hidden at compact heights.
+     * Optional short title (e.g. `TemplateText("10/6")` or `TemplateText("Brief")`) used in narrow
+     * `W1` headers or prefixed to the first [ListItem.Compact] row when the header is hidden at
+     * compact heights.
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val compactTitle: TemplateText? = null,
+    actions: List<IconButton> = emptyList(),
 ) : GlanceAdaptiveTemplate(templateId = TEMPLATE_ID) {
 
     /** The list items, in display order (1 to 25). */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val items: List<ListItem> = items.toList()
+    public val items: List<ListItem> = List(items.size) { i -> items[i] }
+
+    /**
+     * Adaptive quick actions (0 to 6; index `0` is the primary FAB action and subsequent indices
+     * are secondary rail actions — visual container styling is determined by index rather than
+     * [IconButton.contained]).
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val actions: List<IconButton> = List(actions.size) { i -> actions[i] }
 
     init {
         Rule.check(this)
@@ -134,6 +153,7 @@ public constructor(
             title == other.title &&
             trailing == other.trailing &&
             items == other.items &&
+            actions == other.actions &&
             isScrollable == other.isScrollable &&
             showHeaderInCompactHeight == other.showHeaderInCompactHeight &&
             compactTitle == other.compactTitle
@@ -144,6 +164,7 @@ public constructor(
         result = 31 * result + (title?.hashCode() ?: 0)
         result = 31 * result + (trailing?.hashCode() ?: 0)
         result = 31 * result + items.hashCode()
+        result = 31 * result + actions.hashCode()
         result = 31 * result + isScrollable.hashCode()
         result = 31 * result + showHeaderInCompactHeight.hashCode()
         result = 31 * result + (compactTitle?.hashCode() ?: 0)
@@ -152,8 +173,8 @@ public constructor(
 
     override fun toString(): String =
         "ListTemplate(leading=$leading, title=$title, trailing=$trailing, items=$items, " +
-            "isScrollable=$isScrollable, showHeaderInCompactHeight=$showHeaderInCompactHeight, " +
-            "compactTitle=$compactTitle)"
+            "actions=$actions, isScrollable=$isScrollable, " +
+            "showHeaderInCompactHeight=$showHeaderInCompactHeight, compactTitle=$compactTitle)"
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
@@ -163,6 +184,9 @@ public constructor(
         /** Most items a [ListTemplate] holds to stay well within Binder IPC limits. */
         internal const val MAX_ITEMS: Int = 25
 
+        /** Most adaptive quick actions a [ListTemplate] holds (1 primary FAB + up to 5 rail). */
+        internal const val MAX_ACTIONS: Int = 6
+
         internal val Rule: TemplateRule<ListTemplate> =
             TemplateRule(
                 templateName = "ListTemplate",
@@ -170,8 +194,21 @@ public constructor(
                     it.items.size in 1..MAX_ITEMS
                 },
                 Requirement("at least one non-divider item (call items { item(...) })") {
-                    it.items.isEmpty() || it.items.any { item -> !item.isDivider }
+                    it.items.isEmpty() || hasNonDividerItem(it.items)
+                },
+                Requirement("at most $MAX_ACTIONS actions (call actions { action(...) })") {
+                    it.actions.size <= MAX_ACTIONS
+                },
+                Requirement("at most one of trailing or actions") {
+                    it.trailing == null || it.actions.isEmpty()
                 },
             )
+
+        private fun hasNonDividerItem(items: List<ListItem>): Boolean {
+            for (i in items.indices) {
+                if (items[i] !is ListItem.Divider) return true
+            }
+            return false
+        }
     }
 }
