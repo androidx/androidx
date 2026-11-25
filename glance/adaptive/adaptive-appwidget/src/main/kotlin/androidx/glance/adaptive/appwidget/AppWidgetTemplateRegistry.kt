@@ -87,6 +87,18 @@ internal object AppWidgetTemplateRegistry {
     }
 
     /**
+     * Removes the override for [widgetName] and [templateClass] on [surface], or on every
+     * [AppWidgetSurface] when [surface] is `null`.
+     */
+    fun <T : GlanceAdaptiveTemplate> unregister(
+        widgetName: String,
+        templateClass: Class<T>,
+        surface: AppWidgetSurface? = null,
+    ) {
+        registry.removeOverride(widgetName, templateClass, surface)
+    }
+
+    /**
      * Renders [data] on [surface] with the override for [widgetName] (if any) or the default.
      *
      * @see TemplateRegistry.render
