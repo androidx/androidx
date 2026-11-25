@@ -744,4 +744,52 @@ class RemoteStateVisitorTest {
         assertThat(key.args[1]).isEqualTo(RemoteConstantCacheKey(20f))
         assertThat(key.args[2]).isEqualTo(otherValue.cacheKey)
     }
+
+    @Test
+    fun testComparisonSelectAndBooleanOps_partialTransformDoesNotThrowClassCastException() {
+        val a = RemoteFloat.createNamedRemoteFloat("a", 1f)
+        val b = RemoteFloat.createNamedRemoteFloat("b", 5f)
+        val c = RemoteFloat.createNamedRemoteFloat("c", 9f)
+
+        // Partial dynamic replacement triggers Compare*.reconstruct inside Select and boolean ops.
+        val floatLtSelect = a.isLessThan(b).select(100f.rf, 200f.rf)
+        val transformedFloatLt = floatLtSelect.replaceNamedVariables(mapOf(a to c))
+        assertThat(transformedFloatLt).isEqualTo(c.isLessThan(b).select(100f.rf, 200f.rf))
+        assertThat(
+                transformedFloatLt
+                    .replaceNamedVariables(mapOf(c to 2f.rf, b to 5f.rf))
+                    .constantValue
+            )
+            .isEqualTo(100f)
+
+        val floatEqSelect = a.isEqualTo(b).select(100f.rf, 200f.rf)
+        val transformedFloatEq = floatEqSelect.replaceNamedVariables(mapOf(a to c))
+        assertThat(transformedFloatEq).isEqualTo(c.isEqualTo(b).select(100f.rf, 200f.rf))
+        assertThat(
+                transformedFloatEq
+                    .replaceNamedVariables(mapOf(c to 5f.rf, b to 5f.rf))
+                    .constantValue
+            )
+            .isEqualTo(100f)
+
+        val negatedCmp = !(a.isLessThan(b))
+        val transformedNegated = negatedCmp.replaceNamedVariables(mapOf(a to c))
+        assertThat(transformedNegated).isEqualTo(!(c.isLessThan(b)))
+
+        val strCmpSelect = a.isLessThan(b).select("lt".rs, "ge".rs)
+        val transformedStrSelect = strCmpSelect.replaceNamedVariables(mapOf(a to c))
+        assertThat(transformedStrSelect).isEqualTo(c.isLessThan(b).select("lt".rs, "ge".rs))
+
+        val ia = RemoteInt.createNamedRemoteInt("ia", 1)
+        val ib = RemoteInt.createNamedRemoteInt("ib", 5)
+        val ic = RemoteInt.createNamedRemoteInt("ic", 9)
+
+        val intLtSelect = ia.isLessThan(ib).select(10.ri, 20.ri)
+        val transformedIntLt = intLtSelect.replaceNamedVariables(mapOf(ia to ic))
+        assertThat(transformedIntLt).isEqualTo(ic.isLessThan(ib).select(10.ri, 20.ri))
+
+        val intEqSelect = ia.isEqualTo(ib).select(10.ri, 20.ri)
+        val transformedIntEq = intEqSelect.replaceNamedVariables(mapOf(ia to ic))
+        assertThat(transformedIntEq).isEqualTo(ic.isEqualTo(ib).select(10.ri, 20.ri))
+    }
 }

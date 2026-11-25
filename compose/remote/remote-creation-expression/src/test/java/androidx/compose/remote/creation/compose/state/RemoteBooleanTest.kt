@@ -897,6 +897,53 @@ class RemoteBooleanTest {
         assertThat(MutableRemoteBoolean(false)).isNotEqualTo(MutableRemoteBoolean(false))
     }
 
+    @Test
+    fun comparisonSelect_canonicalizesCacheKeyWithSelectIfHelpers() {
+        val fa = RemoteFloat.createNamedRemoteFloat("fa", 1f)
+        val fb = RemoteFloat.createNamedRemoteFloat("fb", 2f)
+
+        assertThat(fa.isLessThan(fb).select(10f.rf, 20f.rf))
+            .isEqualTo(selectIfLt(fa, fb, 10f.rf, 20f.rf))
+        assertThat(fa.isLessThanOrEqualTo(fb).select(10f.rf, 20f.rf))
+            .isEqualTo(selectIfLe(fa, fb, 10f.rf, 20f.rf))
+        assertThat(fa.isGreaterThan(fb).select(10f.rf, 20f.rf))
+            .isEqualTo(selectIfGt(fa, fb, 10f.rf, 20f.rf))
+        assertThat(fa.isGreaterThanOrEqualTo(fb).select(10f.rf, 20f.rf))
+            .isEqualTo(selectIfGe(fa, fb, 10f.rf, 20f.rf))
+        assertThat(fa.isEqualTo(fb).select(10f.rf, 20f.rf))
+            .isEqualTo(
+                SelectFloatCondition.FloatComparison(fa, fb, FloatComparisonOp.EQ)
+                    .createSelect(10f.rf, 20f.rf)
+            )
+        assertThat(fa.isNotEqualTo(fb).select(10f.rf, 20f.rf))
+            .isEqualTo(
+                SelectFloatCondition.FloatComparison(fa, fb, FloatComparisonOp.NE)
+                    .createSelect(10f.rf, 20f.rf)
+            )
+
+        val ia = RemoteInt.createNamedRemoteInt("ia", 1)
+        val ib = RemoteInt.createNamedRemoteInt("ib", 2)
+
+        assertThat(ia.isLessThan(ib).select(10.ri, 20.ri))
+            .isEqualTo(selectIfLt(ia, ib, 10.ri, 20.ri))
+        assertThat(ia.isLessThanOrEqualTo(ib).select(10.ri, 20.ri))
+            .isEqualTo(selectIfLe(ia, ib, 10.ri, 20.ri))
+        assertThat(ia.isGreaterThan(ib).select(10.ri, 20.ri))
+            .isEqualTo(selectIfGt(ia, ib, 10.ri, 20.ri))
+        assertThat(ia.isGreaterThanOrEqualTo(ib).select(10.ri, 20.ri))
+            .isEqualTo(selectIfGe(ia, ib, 10.ri, 20.ri))
+        assertThat(ia.isEqualTo(ib).select(10.ri, 20.ri))
+            .isEqualTo(
+                SelectIntCondition.IntComparison(ia, ib, IntComparisonOp.EQ)
+                    .createSelect(10.ri, 20.ri)
+            )
+        assertThat(ia.isNotEqualTo(ib).select(10.ri, 20.ri))
+            .isEqualTo(
+                SelectIntCondition.IntComparison(ia, ib, IntComparisonOp.NE)
+                    .createSelect(10.ri, 20.ri)
+            )
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

@@ -42,6 +42,48 @@ internal const val OP_XOR = NanEncoding.LONG_ID_OFFSET + IntegerExpressionEvalua
 
 internal const val MAX_SAFE_LONG_ARRAY = 30
 
+/**
+ * Unary [RemoteInt] AST operation node retaining its typed [operand] for optimization and RPN
+ * lowering.
+ */
+internal class UnaryRemoteIntOp(
+    val op: RemoteIntOperationKey,
+    val operand: RemoteInt,
+    val opCode: Long = op.opCode,
+) : BaseRemoteInt(RemoteOperationCacheKey.create(op, operand)) {
+    override val constantValueOrNull: Int?
+        get() = null
+
+    override val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray =
+        { creationState ->
+            combineToLongArray(creationState, arrayOf(operand), opCode)
+        }
+}
+
+/**
+ * Binary [RemoteInt] AST operation node retaining typed [left] and [right] operands for
+ * optimization and RPN lowering.
+ */
+internal class BinaryRemoteIntOp(
+    val op: RemoteIntOperationKey,
+    val left: RemoteInt,
+    val right: RemoteInt,
+    val opCode: Long = op.opCode,
+) : BaseRemoteInt(RemoteOperationCacheKey.create(op, left, right)) {
+    override val constantValueOrNull: Int?
+        get() = null
+
+    override val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray =
+        { creationState ->
+            val rConst = right.constantValueOrNull
+            if (rConst != null) {
+                combineToLongArray(creationState, arrayOf(left), rConst.toLong(), opCode)
+            } else {
+                combineToLongArray(creationState, arrayOf(left, right), opCode)
+            }
+        }
+}
+
 /** Comparison operators for evaluating [RemoteInt] select conditions. */
 internal enum class IntComparisonOp {
     LT,
@@ -81,37 +123,63 @@ internal sealed class SelectIntCondition {
      * @property b right-hand operand
      * @property op comparison operator
      */
-    class IntComparison(
+    data class IntComparison(
         val a: RemoteInt,
         val b: RemoteInt,
         val op: IntComparisonOp,
-        private val booleanSource: RemoteBoolean? = null,
     ) : SelectIntCondition() {
-        fun withBooleanSource(bool: RemoteBoolean): IntComparison = IntComparison(a, b, op, bool)
-
         override fun createSelect(ifTrue: RemoteInt, ifFalse: RemoteInt): RemoteInt {
             if (ifTrue.cacheKey == ifFalse.cacheKey) {
                 return ifTrue
             }
             val key =
-                if (booleanSource != null) {
-                    RemoteOperationCacheKey.create(
-                        BooleanOperationKey.SelectInt,
-                        booleanSource,
-                        ifTrue,
-                        ifFalse,
-                    )
-                } else {
-                    val selectOp =
-                        when (op) {
-                            IntComparisonOp.LT -> RemoteIntOperationKey.SelectIfLT
-                            IntComparisonOp.LE -> RemoteIntOperationKey.SelectIfLE
-                            IntComparisonOp.GT -> RemoteIntOperationKey.SelectIfGT
-                            IntComparisonOp.GE -> RemoteIntOperationKey.SelectIfGE
-                            IntComparisonOp.EQ -> return a.isEqualTo(b).select(ifTrue, ifFalse)
-                            IntComparisonOp.NE -> return a.isNotEqualTo(b).select(ifTrue, ifFalse)
-                        }
-                    RemoteOperationCacheKey.create(selectOp, a, b, ifTrue, ifFalse)
+                when (op) {
+                    IntComparisonOp.LT ->
+                        RemoteOperationCacheKey.create(
+                            RemoteIntOperationKey.SelectIfLT,
+                            a,
+                            b,
+                            ifTrue,
+                            ifFalse,
+                        )
+                    IntComparisonOp.LE ->
+                        RemoteOperationCacheKey.create(
+                            RemoteIntOperationKey.SelectIfLE,
+                            a,
+                            b,
+                            ifTrue,
+                            ifFalse,
+                        )
+                    IntComparisonOp.GT ->
+                        RemoteOperationCacheKey.create(
+                            RemoteIntOperationKey.SelectIfGT,
+                            a,
+                            b,
+                            ifTrue,
+                            ifFalse,
+                        )
+                    IntComparisonOp.GE ->
+                        RemoteOperationCacheKey.create(
+                            RemoteIntOperationKey.SelectIfGE,
+                            a,
+                            b,
+                            ifTrue,
+                            ifFalse,
+                        )
+                    IntComparisonOp.EQ ->
+                        RemoteOperationCacheKey.create(
+                            BooleanOperationKey.SelectInt,
+                            a.isEqualTo(b),
+                            ifTrue,
+                            ifFalse,
+                        )
+                    IntComparisonOp.NE ->
+                        RemoteOperationCacheKey.create(
+                            BooleanOperationKey.SelectInt,
+                            a.isNotEqualTo(b),
+                            ifTrue,
+                            ifFalse,
+                        )
                 }
             return RemoteIntSelect(
                 condition = this,
@@ -172,17 +240,6 @@ internal sealed class SelectIntCondition {
                         OP_IFELSE,
                     )
             }
-
-        override fun equals(other: Any?): Boolean =
-            this === other ||
-                (other is IntComparison && a == other.a && b == other.b && op == other.op)
-
-        override fun hashCode(): Int {
-            var result = a.hashCode()
-            result = 31 * result + b.hashCode()
-            result = 31 * result + op.hashCode()
-            return result
-        }
     }
 
     /**

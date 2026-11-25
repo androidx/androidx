@@ -511,28 +511,12 @@ public fun RemoteInt.arrayForCreationState(creationState: RemoteComposeCreationS
 internal fun RemoteInt.hasBeenWrittenToDoc(creationState: RemoteComposeCreationState): Boolean =
     creationState.remoteVariableToId.contains(cacheKey)
 
-/**
- * Boilerplate for implementing an unary operation.
- *
- * @param opCode The opcode to insert in the generated [LongArray] if the source isn't a const int.
- * @param directEval When the source is a const int, this lambda will be called to evaluate the
- *   result directly.
- */
-private fun RemoteInt.unaryOp(
+/** Simplifies and constructs a unary [RemoteInt] operation via [IntPeepholeOptimizer]. */
+internal fun unaryOp(
+    a: RemoteInt,
     op: RemoteIntOperationKey,
-    opCode: Long,
     directEval: (Int) -> Int,
-): RemoteInt {
-    constantValueOrNull?.let {
-        return RemoteInt(directEval(it))
-    }
-    return RemoteInt(
-        constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(op, this),
-    ) { creationState ->
-        combineToLongArray(creationState, arrayOf(this), opCode)
-    }
-}
+): RemoteInt = IntPeepholeOptimizer.simplifyUnaryOp(op, a, directEval)
 
 internal abstract class BaseRemoteInt(cacheKey: RemoteStateCacheKey) :
     BaseRemoteValue<Int>(cacheKey), RemoteInt {
@@ -591,101 +575,42 @@ internal abstract class BaseRemoteInt(cacheKey: RemoteStateCacheKey) :
         )
     }
 
-    override fun plus(other: Int): RemoteInt {
-        if (other == 0) {
-            return this
-        }
-        return binaryOp(this, other, RemoteIntOperationKey.Add, OP_ADD) { a, b -> a + b }
-    }
+    override fun plus(other: Int): RemoteInt =
+        binaryOp(this, other, RemoteIntOperationKey.Add) { a, b -> a + b }
 
-    override fun minus(other: Int): RemoteInt {
-        if (other == 0) {
-            return this
-        }
-        return binaryOp(this, other, RemoteIntOperationKey.Sub, OP_SUB) { a, b -> a - b }
-    }
+    override fun minus(other: Int): RemoteInt =
+        binaryOp(this, other, RemoteIntOperationKey.Sub) { a, b -> a - b }
 
-    override fun times(other: Int): RemoteInt {
-        if (other == 0) {
-            return RemoteInt(0)
-        }
-        if (other == 1) {
-            return this
-        }
-        if (constantValueOrNull != null && constantValueOrNull == 1) {
-            return RemoteInt(other)
-        }
-        return binaryOp(this, other, RemoteIntOperationKey.Mul, OP_MUL) { a, b -> a * b }
-    }
+    override fun times(other: Int): RemoteInt =
+        binaryOp(this, other, RemoteIntOperationKey.Mul) { a, b -> a * b }
 
-    override fun div(other: Int): RemoteInt {
-        if (constantValueOrNull != null && constantValueOrNull == 0) {
-            return RemoteInt(0)
-        }
-        if (other == 1) {
-            return this
-        }
-        return binaryOp(this, other, RemoteIntOperationKey.Div, OP_DIV) { a, b -> a / b }
-    }
+    override fun div(other: Int): RemoteInt =
+        binaryOp(this, other, RemoteIntOperationKey.Div) { a, b -> a / b }
 
     override fun rem(other: Int): RemoteInt =
-        binaryOp(this, other, RemoteIntOperationKey.Mod, OP_MOD) { a, b -> a % b }
+        binaryOp(this, other, RemoteIntOperationKey.Mod) { a, b -> a % b }
 
-    override fun plus(other: RemoteInt): RemoteInt {
-        other.constantValueOrNull?.let {
-            return plus(it)
-        }
-        constantValueOrNull?.let {
-            return other.plus(it)
-        }
-        return binaryOp(this, other, RemoteIntOperationKey.Add, OP_ADD) { a, b -> a + b }
-    }
+    override fun plus(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, RemoteIntOperationKey.Add) { a, b -> a + b }
 
-    override fun minus(other: RemoteInt): RemoteInt {
-        other.constantValueOrNull?.let {
-            return minus(it)
-        }
-        constantValueOrNull?.let {
-            return (-other).plus(it)
-        }
-        return binaryOp(this, other, RemoteIntOperationKey.Sub, OP_SUB) { a, b -> a - b }
-    }
+    override fun minus(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, RemoteIntOperationKey.Sub) { a, b -> a - b }
 
-    override fun times(other: RemoteInt): RemoteInt {
-        if (
-            (constantValueOrNull != null && constantValueOrNull == 0) ||
-                (other.constantValueOrNull != null && other.constantValueOrNull == 0)
-        ) {
-            return RemoteInt(0)
-        }
-        other.constantValueOrNull?.let {
-            return times(it)
-        }
-        constantValueOrNull?.let {
-            return other.times(it)
-        }
-        return binaryOp(this, other, RemoteIntOperationKey.Mul, OP_MUL) { a, b -> a * b }
-    }
+    override fun times(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, RemoteIntOperationKey.Mul) { a, b -> a * b }
 
-    override fun div(other: RemoteInt): RemoteInt {
-        if (constantValueOrNull != null && constantValueOrNull == 0) {
-            return RemoteInt(0)
-        }
-        other.constantValueOrNull?.let {
-            return div(it)
-        }
-        return binaryOp(this, other, RemoteIntOperationKey.Div, OP_DIV) { a, b -> a / b }
-    }
+    override fun div(other: RemoteInt): RemoteInt =
+        binaryOp(this, other, RemoteIntOperationKey.Div) { a, b -> a / b }
 
     override fun rem(other: RemoteInt): RemoteInt =
-        binaryOp(this, other, RemoteIntOperationKey.Mod, OP_MOD) { a, b -> a % b }
+        binaryOp(this, other, RemoteIntOperationKey.Mod) { a, b -> a % b }
 
-    override fun unaryMinus(): RemoteInt = unaryOp(RemoteIntOperationKey.Neg, OP_NEG) { v -> -v }
+    override fun unaryMinus(): RemoteInt = unaryOp(this, RemoteIntOperationKey.Neg) { v -> -v }
 
-    override fun inv(): RemoteInt = unaryOp(RemoteIntOperationKey.Not, OP_NOT) { v -> v.inv() }
+    override fun inv(): RemoteInt = unaryOp(this, RemoteIntOperationKey.Not) { v -> v.inv() }
 
     override val absoluteValue: RemoteInt
-        get() = unaryOp(RemoteIntOperationKey.Abs, OP_ABS) { v -> abs(v) }
+        get() = unaryOp(this, RemoteIntOperationKey.Abs) { v -> abs(v) }
 
     override fun isEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
@@ -754,19 +679,19 @@ internal abstract class BaseRemoteInt(cacheKey: RemoteStateCacheKey) :
         }
 
     override fun shl(other: RemoteInt): RemoteInt =
-        binaryOp(this, other, RemoteIntOperationKey.Shl, OP_SHL) { a, b -> a shl b }
+        binaryOp(this, other, RemoteIntOperationKey.Shl) { a, b -> a shl b }
 
     override fun shr(other: RemoteInt): RemoteInt =
-        binaryOp(this, other, RemoteIntOperationKey.Shr, OP_SHR) { a, b -> a shr b }
+        binaryOp(this, other, RemoteIntOperationKey.Shr) { a, b -> a shr b }
 
     override fun or(other: RemoteInt): RemoteInt =
-        binaryOp(this, other, RemoteIntOperationKey.Or, OP_OR) { a, b -> a or b }
+        binaryOp(this, other, RemoteIntOperationKey.Or) { a, b -> a or b }
 
     override fun and(other: RemoteInt): RemoteInt =
-        binaryOp(this, other, RemoteIntOperationKey.And, OP_AND) { a, b -> a and b }
+        binaryOp(this, other, RemoteIntOperationKey.And) { a, b -> a and b }
 
     override fun xor(other: RemoteInt): RemoteInt =
-        binaryOp(this, other, RemoteIntOperationKey.Xor, OP_XOR) { a, b -> a xor b }
+        binaryOp(this, other, RemoteIntOperationKey.Xor) { a, b -> a xor b }
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         writeIntToDocument(creationState)
@@ -781,152 +706,21 @@ private class RemoteIntImpl(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun LongArray.isLiteral(): Boolean = size == 1 && RemoteInt.isLiteral(get(0))
 
-/**
- * Boilerplate for implementing a binary operation with automatic peephole optimizations (e.g.
- * ternary branch folding, associativity with trailing constants).
- *
- * @param a The left hand side value of the binary operation
- * @param b The right hand side value of the binary operation
- * @param opCode The opcode to insert in the generated [LongArray] if both sources aren't a const
- *   int.
- * @param directEval When the source is a const int, this lambda will be called to evaluate the
- *   result directly.
- */
+/** Simplifies and constructs a binary [RemoteInt] operation with a literal right-hand operand. */
 internal fun binaryOp(
     a: RemoteInt,
     b: Int,
     op: RemoteIntOperationKey,
-    opCode: Long,
     directEval: (Int, Int) -> Int,
-): RemoteInt {
-    val aConst = a.constantValueOrNull
-    if (aConst != null) {
-        return RemoteInt(directEval(aConst, b))
-    }
+): RemoteInt = IntPeepholeOptimizer.simplifyBinaryOpRightConst(op, a, b, directEval)
 
-    // 1. Principled Ternary Peephole: operate directly on the RemoteInt AST
-    if (a is RemoteIntSelect && a.hasConstantBranches) {
-        if ((op != RemoteIntOperationKey.Div && op != RemoteIntOperationKey.Mod) || b != 0) {
-            val newTrue = directEval(a.ifTrue.constantValueOrNull!!, b)
-            val newFalse = directEval(a.ifFalse.constantValueOrNull!!, b)
-            return a.condition.createSelect(RemoteInt(newTrue), RemoteInt(newFalse))
-        }
-    }
-
-    return RemoteInt(
-        constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(op, a, b),
-    ) { creationState ->
-        // 2. Trailing Constant Peephole (associativity): only evaluate aArray when needed
-        val aArray = a.arrayForCreationState(creationState)
-        val last = aArray.last()
-        if (aArray.size > 2 && last >= 0x100000000L) {
-            foldTrailingConstantForOp(aArray, last, op, b)
-                ?: combineToLongArray(creationState, arrayOf(a), b.toLong(), opCode)
-        } else {
-            combineToLongArray(creationState, arrayOf(a), b.toLong(), opCode)
-        }
-    }
-}
-
-private fun foldTrailingConstantForOp(
-    array: LongArray,
-    lastOp: Long,
-    op: RemoteIntOperationKey,
-    v: Int,
-): LongArray? =
-    when (op) {
-        RemoteIntOperationKey.Add ->
-            when (lastOp) {
-                OP_ADD -> array.foldTrailingConstant({ it + v }, ::maybeTrimIfZero)
-                OP_SUB -> array.foldTrailingConstant({ it - v }, ::maybeTrimIfZero)
-                else -> null
-            }
-        RemoteIntOperationKey.Sub ->
-            when (lastOp) {
-                OP_ADD -> array.foldTrailingConstant({ it - v }, ::maybeTrimIfZero)
-                OP_SUB -> array.foldTrailingConstant({ it + v }, ::maybeTrimIfZero)
-                else -> null
-            }
-        RemoteIntOperationKey.Mul ->
-            when (lastOp) {
-                OP_MUL -> array.foldTrailingConstant({ it * v }, ::maybeTrimIfOne)
-                else -> null
-            }
-        RemoteIntOperationKey.Div ->
-            when (lastOp) {
-                OP_MUL ->
-                    if (
-                        v != 0 &&
-                            array.size >= 2 &&
-                            array[array.size - 2] < 0x100000000L &&
-                            array[array.size - 2] % v == 0L
-                    ) {
-                        array.foldTrailingConstant({ it / v }, ::maybeTrimIfOne)
-                    } else {
-                        null
-                    }
-                OP_DIV -> array.foldTrailingConstant({ it * v }, ::maybeTrimIfOne)
-                else -> null
-            }
-        else -> null
-    }
-
-private inline fun LongArray.foldTrailingConstant(
-    update: (Long) -> Long,
-    trim: (LongArray) -> LongArray = { it },
-): LongArray? {
-    val idx = size - 2
-    if (idx < 0 || get(idx) >= 0x100000000L) return null
-    val copy = clone()
-    copy[idx] = update(copy[idx]).toInt().toLong()
-    return trim(copy)
-}
-
-private fun maybeTrimIfZero(array: LongArray) =
-    if (array.size >= 2 && array[array.size - 2] == 0L) {
-        array.copyOfRange(0, array.size - 2)
-    } else {
-        array
-    }
-
-private fun maybeTrimIfOne(array: LongArray) =
-    if (array.size >= 2 && array[array.size - 2] == 1L) {
-        array.copyOfRange(0, array.size - 2)
-    } else {
-        array
-    }
-
-/**
- * Boilerplate for implementing a binary operation.
- *
- * @param a The left hand side value of the binary operation
- * @param b The right hand side value of the binary operation
- * @param opCode The opcode to insert in the generated [LongArray] if both sources aren\'t a const
- *   int.
- * @param directEval When the source is a const int, this lambda will be called to evaluate the
- *   result directly.
- */
+/** Simplifies and constructs a binary [RemoteInt] operation via [IntPeepholeOptimizer]. */
 internal fun binaryOp(
     a: RemoteInt,
     b: RemoteInt,
     op: RemoteIntOperationKey,
-    opCode: Long,
     directEval: (Int, Int) -> Int,
-): RemoteInt {
-    val aConst = a.constantValueOrNull
-    val bConst = b.constantValueOrNull
-    if (aConst != null && bConst != null) {
-        return RemoteInt(directEval(aConst, bConst))
-    }
-
-    return RemoteInt(
-        constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(op, a, b),
-    ) { creationState ->
-        combineToLongArray(creationState, arrayOf(a, b), opCode)
-    }
-}
+): RemoteInt = IntPeepholeOptimizer.simplifyBinaryOp(op, a, b, directEval)
 
 /**
  * Boilerplate for implementing a binary comparison operation.
@@ -984,7 +778,7 @@ internal fun comparisonOp(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(v: RemoteInt, sign: RemoteInt): RemoteInt =
-    binaryOp(v, sign, RemoteIntOperationKey.CopySign, OP_COPY_SIGN) { a, b ->
+    binaryOp(v, sign, RemoteIntOperationKey.CopySign) { a, b ->
         a.toDouble().withSign(b.toDouble()).toInt()
     }
 
@@ -997,7 +791,7 @@ public fun copySign(v: RemoteInt, sign: RemoteInt): RemoteInt =
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun min(a: RemoteInt, b: RemoteInt): RemoteInt =
-    binaryOp(a, b, RemoteIntOperationKey.Min, OP_MIN) { a, b -> min(a, b) }
+    binaryOp(a, b, RemoteIntOperationKey.Min) { a, b -> min(a, b) }
 
 /**
  * Returns a [RemoteInt] that evaluates to the maximum of [a] and [b].
@@ -1008,7 +802,7 @@ public fun min(a: RemoteInt, b: RemoteInt): RemoteInt =
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun max(a: RemoteInt, b: RemoteInt): RemoteInt =
-    binaryOp(a, b, RemoteIntOperationKey.Max, OP_MAX) { a, b -> max(a, b) }
+    binaryOp(a, b, RemoteIntOperationKey.Max) { a, b -> max(a, b) }
 
 /**
  * Returns a [RemoteInt] that evaluates to [value] clamped between [min] and [max].

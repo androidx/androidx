@@ -1076,6 +1076,55 @@ class RemoteIntTest {
     }
 
     @Test
+    fun peepholeOptimization_zeroDivByZero_doesNotThrow() {
+        assertThat((0.ri / 0).constantValueOrNull).isEqualTo(0)
+        assertThat((0.ri / 0.ri).constantValueOrNull).isEqualTo(0)
+
+        val divZero = 10.ri / 0
+        val modZero = 10.ri % 0
+        val divZeroId = creationState.getId(divZero)
+        val modZeroId = creationState.getId(modZero)
+        makeAndPaintCoreDocument()
+        assertThat(context.getInteger(divZeroId)).isEqualTo(0)
+        assertThat(context.getInteger(modZeroId)).isEqualTo(0)
+    }
+
+    @Test
+    fun peepholeOptimization_divDiv_overflowAndNegOne_doesNotMisFold() {
+        val x99 = createNamedRemoteInt("x99", 99)
+        // 3 * -1_431_655_765 == 1 in wrapping 32-bit Int; must NOT fold to Identity (x99).
+        val modInvExpr = (x99 / 3) / -1_431_655_765
+        val modInvId = creationState.getId(modInvExpr)
+
+        // 65536 * 65536 == 0 in wrapping 32-bit Int; must NOT rewrite to x99 / 0.
+        val wrapZeroExpr = (x99 / 65536) / 65536
+        assertThat(wrapZeroExpr.toString()).isEqualTo("user:x99 / 65536 / 65536")
+        val wrapZeroId = creationState.getId(wrapZeroExpr)
+        val substituted = wrapZeroExpr.transform { state -> if (state == x99) 100.ri else null }
+        assertThat(substituted.constantValueOrNull).isEqualTo(0)
+
+        val xBig = createNamedRemoteInt("xBig", 2_000_000_000)
+        val overflowProdExpr = (xBig / 2_000_000_000) / 3
+        val overflowProdId = creationState.getId(overflowProdExpr)
+
+        val xMin = createNamedRemoteInt("xMin", Int.MIN_VALUE)
+        val wrapMinExpr = (xMin / 65536) / 32768
+        val wrapMinId = creationState.getId(wrapMinExpr)
+
+        val negOneDivTwoExpr = (xMin / -1) / 2
+        val negOneDivTwoId = creationState.getId(negOneDivTwoExpr)
+
+        assertThat((xMin / -1) / -1).isEqualTo(xMin)
+
+        makeAndPaintCoreDocument()
+        assertThat(context.getInteger(modInvId)).isEqualTo(0)
+        assertThat(context.getInteger(wrapZeroId)).isEqualTo(0)
+        assertThat(context.getInteger(overflowProdId)).isEqualTo(0)
+        assertThat(context.getInteger(wrapMinId)).isEqualTo(-1)
+        assertThat(context.getInteger(negOneDivTwoId)).isEqualTo(-1_073_741_824)
+    }
+
+    @Test
     fun mutableRemoteInt_applyExpression() {
         val timeId = creationState.getId(time)
         val mutableTime = MutableRemoteInt.createMutableForId(timeId.toLong())
