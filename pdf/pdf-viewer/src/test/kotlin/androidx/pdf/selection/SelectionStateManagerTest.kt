@@ -49,17 +49,20 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -811,6 +814,44 @@ class SelectionStateManagerTest {
         // Verify getSelectAllSelectionBounds was called twice (once before clear, once after)
         verify(pdfDocument, times(2)).getSelectAllSelectionBounds(0)
     }
+
+    @Test
+    fun fullPageSelectionCache_concurrentSelectAllAndClear_doesNotThrow() =
+        runBlocking(Dispatchers.Default) {
+            val fakeDoc =
+                object : FakePdfDocument() {
+                    override suspend fun getSelectAllSelectionBounds(
+                        pageNumber: Int
+                    ): PageSelection {
+                        yield()
+                        return pageSelectionFor(pageNumber, PointF(0f, 0f), PointF(INF, INF))
+                    }
+                }
+            val initialSelection =
+                SelectionModel(
+                    DocumentSelection(SparseArray()),
+                    UiSelectionBoundary(PdfPoint(pageNum = 0, PointF(0f, 0f)), isRtl = false),
+                    UiSelectionBoundary(PdfPoint(pageNum = 20, PointF(0f, 0f)), isRtl = false),
+                )
+
+            repeat(15) {
+                val manager =
+                    SelectionStateManager(
+                        pdfDocument = fakeDoc,
+                        backgroundScope = this,
+                        handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                        errorFlow = MutableSharedFlow(),
+                        pageLayoutManager = null,
+                        pageManager = null,
+                        initialSelection = initialSelection,
+                    )
+                repeat(20) {
+                    manager.selectAllText()
+                    yield()
+                }
+                manager.clearCurrentSelection()
+            }
+        }
 
     @Test
     fun processInitialSelection_withTextSelection_isSetCorrectly() = runTest {

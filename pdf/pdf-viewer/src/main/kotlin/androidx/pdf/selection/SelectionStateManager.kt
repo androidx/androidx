@@ -23,6 +23,7 @@ import android.os.RemoteException
 import android.util.SparseArray
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import androidx.annotation.GuardedBy
 import androidx.annotation.IntDef
 import androidx.annotation.VisibleForTesting
 import androidx.pdf.ExperimentalPdfApi
@@ -201,9 +202,12 @@ internal class SelectionStateManager(
     /** Context for the current OCR selection, if any */
     private var ocrContext: OcrContext? = null
 
+    private val fullPageSelectionCacheLock = Any()
+
     /**
      * Cache for full-page selection bounds results for selection handle drag session and select all
      */
+    @GuardedBy("fullPageSelectionCacheLock")
     private val fullPageSelectionCache = SparseArray<PageSelection?>()
 
     /**
@@ -457,7 +461,7 @@ internal class SelectionStateManager(
     fun clearCurrentSelection() {
         draggingState = null
         ocrContext = null
-        fullPageSelectionCache.clear()
+        synchronized(fullPageSelectionCacheLock) { fullPageSelectionCache.clear() }
         setSelectionJob?.cancel()
         setSelectionJob = null
         _selectionUiSignalBus.tryEmit(SelectionUiSignal.ToggleActionMode(show = false))
@@ -756,12 +760,15 @@ internal class SelectionStateManager(
     ): List<PageSelection?> {
         val selections = mutableListOf<PageSelection?>()
         for (currentPage in startPage..endPage) {
-            val cachedSelection = fullPageSelectionCache[currentPage]
+            val cachedSelection =
+                synchronized(fullPageSelectionCacheLock) { fullPageSelectionCache[currentPage] }
             if (cachedSelection != null) {
                 selections.add(cachedSelection)
             } else {
                 val selection = pdfDocument.getSelectAllSelectionBounds(currentPage)
-                fullPageSelectionCache.put(currentPage, selection)
+                synchronized(fullPageSelectionCacheLock) {
+                    fullPageSelectionCache.put(currentPage, selection)
+                }
                 selections.add(selection)
             }
         }
