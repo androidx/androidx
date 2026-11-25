@@ -25,7 +25,6 @@ import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.annotation.RequiresApi
-import androidx.glance.ExperimentalGlanceApi
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -113,17 +112,22 @@ public open class GlanceRemoteViewsService : RemoteViewsService() {
             }
         }
 
-        @OptIn(ExperimentalGlanceApi::class)
         private suspend fun startSessionIfNeededAndWaitUntilReady(glanceId: AppWidgetId) {
-            val widget = getGlanceAppWidget()
-            if (widget != null) {
-                widget.updateStrategy.handleLoadListData(context, widget, glanceId)
-            } else {
-                // The following join() may throw CancellationException if the session is closed
-                // before it is ready. This will have the effect of cancelling the runBlocking
-                // scope.
-                UnmanagedSessionReceiver.getSession(appWidgetId)?.waitForReady()?.join()
-            }
+            val job =
+                getGlanceAppWidget()?.getOrCreateAppWidgetSession(
+                    context = context,
+                    glanceId = glanceId,
+                    options = null,
+                ) { session, wasRunning ->
+                    // If session is already running, data must have already been loaded
+                    // into
+                    // the store during composition.
+                    if (wasRunning) return@getOrCreateAppWidgetSession null
+                    session.waitForReady()
+                } ?: UnmanagedSessionReceiver.getSession(appWidgetId)?.waitForReady()
+            // The following join() may throw CancellationException if the session is closed before
+            // it is ready. This will have the effect of cancelling the runBlocking scope.
+            job?.join()
         }
 
         private fun getGlanceAppWidget(): GlanceAppWidget? {

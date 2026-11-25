@@ -19,7 +19,6 @@ package androidx.glance.appwidget.multiprocess
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
-import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.AppWidgetSession
@@ -28,7 +27,6 @@ import androidx.glance.appwidget.MyPackageReplacedReceiver
 import androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver
 import androidx.glance.appwidget.action.ActionTrampolineActivity
 import androidx.glance.appwidget.action.InvisibleActionTrampolineActivity
-import androidx.glance.appwidget.updatestrategy.SessionBasedUpdateStrategy
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.multiprocess.RemoteWorkerService
 import com.google.common.truth.Truth.assertThat
@@ -83,11 +81,9 @@ class MultiProcessGlanceAppWidgetTest {
         }
     }
 
-    @OptIn(ExperimentalGlanceApi::class)
     @Test
-    fun updateStrategy() {
-        val strategy = assertIs<SessionBasedUpdateStrategy>(testWidget.updateStrategy)
-        assertThat(strategy.getSessionManager(context)).isEqualTo(RemoteSessionManager)
+    fun getSessionManager() {
+        assertThat(testWidget.getSessionManager(context)).isEqualTo(RemoteSessionManager)
     }
 
     @Test

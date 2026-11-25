@@ -27,9 +27,10 @@ import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
 import androidx.glance.ExperimentalGlanceApi
+import androidx.glance.appwidget.AsyncRequestWorker.Companion.toBytes
 import androidx.glance.appwidget.action.LambdaActionBroadcasts
-import androidx.glance.appwidget.updatestrategy.BroadcastRequest
-import androidx.glance.appwidget.updatestrategy.UpdateStrategy
+import androidx.glance.appwidget.proto.LayoutProto.AsyncRequest
+import androidx.glance.appwidget.protobuf.ByteString
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
@@ -37,7 +38,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -105,17 +105,26 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
                 "Using Glance in devices with API<23 is untested and might behave unexpectedly.",
             )
         }
-        glanceAppWidget.updateStrategy.handleBroadcast(
-            context,
-            BroadcastRequest.Update(this, appWidgetIds),
-        )
+        val handled =
+            maybeLaunchAsyncRequestWorker(
+                context = context,
+                developerRequestsForce = shouldLaunchAsyncRequestWorker(),
+            ) {
+                update =
+                    AsyncRequest.Update.newBuilder().run {
+                        receiver = this@GlanceAppWidgetReceiver::class.java.canonicalName
+                        addAllAppWidgetIds(appWidgetIds.toList())
+                        build()
+                    }
+            }
+        if (!handled) {
+            goAsync(coroutineContext) { doUpdate(context, appWidgetIds) }
+        }
     }
 
-    internal suspend fun doUpdate(context: Context, appWidgetIds: IntArray) {
-        coroutineScope {
-            updateManager(this, context)
-            appWidgetIds.map { async { glanceAppWidget.update(context, it) } }.awaitAll()
-        }
+    internal suspend fun CoroutineScope.doUpdate(context: Context, appWidgetIds: IntArray) {
+        updateManager(context)
+        appWidgetIds.map { async { glanceAppWidget.update(context, it) } }.awaitAll()
     }
 
     @CallSuper
@@ -125,40 +134,59 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         appWidgetId: Int,
         newOptions: Bundle,
     ) {
-        glanceAppWidget.updateStrategy.handleBroadcast(
-            context,
-            BroadcastRequest.OptionsChanged(this, appWidgetId, newOptions),
-        )
+        val handled =
+            maybeLaunchAsyncRequestWorker(
+                context = context,
+                developerRequestsForce = shouldLaunchAsyncRequestWorker(),
+            ) {
+                optionsChanged =
+                    AsyncRequest.OptionsChanged.newBuilder().run {
+                        receiver = this@GlanceAppWidgetReceiver::class.java.canonicalName
+                        setAppWidgetId(appWidgetId)
+                        bundle = ByteString.copyFrom(newOptions.toBytes())
+                        build()
+                    }
+            }
+        if (!handled) {
+            goAsync(coroutineContext) { doOptionsChanged(context, appWidgetId, newOptions) }
+        }
     }
 
-    internal suspend fun doOptionsChanged(
+    internal suspend fun CoroutineScope.doOptionsChanged(
         context: Context,
         appWidgetId: Int,
         newOptions: Bundle,
     ) {
-        coroutineScope {
-            updateManager(this, context)
-            glanceAppWidget.resize(context, appWidgetId, newOptions)
-        }
+        updateManager(context)
+        glanceAppWidget.resize(context, appWidgetId, newOptions)
     }
 
     @CallSuper
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        glanceAppWidget.updateStrategy.handleBroadcast(
-            context,
-            BroadcastRequest.Delete(this, appWidgetIds),
-        )
-    }
-
-    internal suspend fun doDelete(context: Context, appWidgetIds: IntArray) {
-        coroutineScope {
-            updateManager(this, context)
-            appWidgetIds.forEach { glanceAppWidget.deleted(context, it) }
+        val handled =
+            maybeLaunchAsyncRequestWorker(
+                context = context,
+                developerRequestsForce = shouldLaunchAsyncRequestWorker(),
+            ) {
+                delete =
+                    AsyncRequest.Delete.newBuilder().run {
+                        receiver = this@GlanceAppWidgetReceiver::class.java.canonicalName
+                        addAllAppWidgetIds(appWidgetIds.toList())
+                        build()
+                    }
+            }
+        if (!handled) {
+            goAsync(coroutineContext) { doDelete(context, appWidgetIds) }
         }
     }
 
-    private fun updateManager(scope: CoroutineScope, context: Context) {
-        scope.launch {
+    internal suspend fun CoroutineScope.doDelete(context: Context, appWidgetIds: IntArray) {
+        updateManager(context)
+        appWidgetIds.forEach { glanceAppWidget.deleted(context, it) }
+    }
+
+    private fun CoroutineScope.updateManager(context: Context) {
+        launch {
             runAndLogExceptions {
                 GlanceAppWidgetManager(context)
                     .updateReceiver(this@GlanceAppWidgetReceiver, glanceAppWidget)
@@ -166,11 +194,9 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         }
     }
 
-    internal suspend fun doLambda(context: Context, id: Int, actionKey: String) {
-        coroutineScope {
-            updateManager(this, context)
-            glanceAppWidget.triggerAction(context, id, actionKey)
-        }
+    internal suspend fun CoroutineScope.doLambda(context: Context, id: Int, actionKey: String) {
+        updateManager(context)
+        glanceAppWidget.triggerAction(context, id, actionKey)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -198,10 +224,23 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
                             ?: error("Intent is missing ActionKey extra")
                     val id = intent.getIntExtra(LambdaActionBroadcasts.ExtraAppWidgetId, -1)
                     if (id == -1) error("Intent is missing AppWidgetId extra")
-                    glanceAppWidget.updateStrategy.handleBroadcast(
-                        context,
-                        BroadcastRequest.Lambda(this, id, actionKey),
-                    )
+                    val handled =
+                        maybeLaunchAsyncRequestWorker(
+                            context = context,
+                            developerRequestsForce = shouldLaunchAsyncRequestWorker(),
+                        ) {
+                            lambda =
+                                AsyncRequest.Lambda.newBuilder().run {
+                                    receiver =
+                                        this@GlanceAppWidgetReceiver::class.java.canonicalName
+                                    appWidgetId = id
+                                    setActionKey(actionKey)
+                                    build()
+                                }
+                        }
+                    if (!handled) {
+                        goAsync(coroutineContext) { doLambda(context, id, actionKey) }
+                    }
                 }
                 else -> super.onReceive(context, intent)
             }
@@ -216,26 +255,48 @@ public abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
      * This will incur a slight performance penalty compared to responding within the broadcast
      * receiver's goAsync because it has to serialize parameters.
      *
-     * Only applies when using WorkManager; ignored by [UpdateStrategy.IMMEDIATE].
-     *
-     * @return true if the worker should be launched. Apps may choose to return true on certain
+     * @return true if the worker should be launcher. Apps may choose to return true on certain
      *   devices, or according to some other internal business logic.
      */
     @ExperimentalGlanceApi
     protected open fun shouldLaunchAsyncRequestWorker(): Boolean {
         return false
     }
-
-    /** Exposes the protected [shouldLaunchAsyncRequestWorker] to [UpdateStrategy]. */
-    internal fun requestsAsyncRequestWorker(): Boolean = shouldLaunchAsyncRequestWorker()
 }
 
 /**
- * Whether goAsync must not be used: it is broken on certain OEMs, or disabled for testing (see
- * [DisableGoAsyncForTesting]).
+ * goAsync is broken on certain OEMs, so we start a Worker in order to have a CoroutineScope in
+ * which to call suspend functions.
+ *
+ * @param context Context to use to start the service
+ * @param developerRequestsForce if the client code invoking this function wants to force use of a
+ *   worker. This is expected during normal execution, unlike [ForceAsyncRequestWorker] which is
+ *   intended only for testing.
+ * @param request the request to be run by the worker
+ * @return true if the worker was launched and no further action needs to be taken by the receiver.
+ *   If false, the receiver should continue processing the request using
+ *   [android.content.BroadcastReceiver.goAsync].
  */
-internal fun isGoAsyncBroken(): Boolean =
-    DisableGoAsyncForTesting.get() || (Build.MANUFACTURER == "vivo" && Build.VERSION.SDK_INT < 35)
+internal fun maybeLaunchAsyncRequestWorker(
+    context: Context,
+    developerRequestsForce: Boolean = false,
+    request: AsyncRequest.Builder.() -> Unit,
+): Boolean {
+    val testingRequestsForce = ForceAsyncRequestWorker.get()
+
+    if (
+        developerRequestsForce ||
+            testingRequestsForce ||
+            (Build.MANUFACTURER == "vivo" && Build.VERSION.SDK_INT < 35)
+    ) {
+        AsyncRequestWorker.launchAsyncRequestWorker(
+            context,
+            AsyncRequest.newBuilder().apply(request).build(),
+        )
+        return true
+    }
+    return false
+}
 
 private inline fun runAndLogExceptions(block: () -> Unit) {
     try {
@@ -247,12 +308,12 @@ private inline fun runAndLogExceptions(block: () -> Unit) {
     }
 }
 
-/** Disables goAsync for all receivers during testing to exercise fallback paths. */
+/** This is used to force using the service for all receivers during testing. */
 @VisibleForTesting
-internal object DisableGoAsyncForTesting {
-    private val disabled = AtomicBoolean(false)
+internal object ForceAsyncRequestWorker {
+    private val forceService = AtomicBoolean(false)
 
-    fun get() = disabled.get()
+    fun get() = forceService.get()
 
-    fun set(newValue: Boolean) = disabled.set(newValue)
+    fun set(newValue: Boolean) = forceService.set(newValue)
 }
