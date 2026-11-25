@@ -461,27 +461,55 @@ private fun View.addScopedListener(
     remove: (ViewTreeObserver) -> Unit,
 ): ViewTreeObserverRegistration {
     if (scope.isEnded) return ViewTreeObserverRegistration {}
-
-    var observer = viewTreeObserver
+    val observer = viewTreeObserver
     add(observer)
-    // A view that is not attached has a floating observer. On the first attach the framework
-    // merges it into the window's observer and kills it, so follow the listener there. A view that
-    // is attached already uses the window's observer, which keeps the listener after a detach.
-    doOnAttach { observer = it.viewTreeObserver }
+    return ViewTreeObserverRegistrationImpl(this, observer, scope, remove)
+}
 
-    // Cleared on removal, so that removal happens once and the handle lets go of the listener.
-    var pendingRemove: ((ViewTreeObserver) -> Unit)? = remove
-    var cancelScope: () -> Unit = {}
-    val registration = ViewTreeObserverRegistration {
-        pendingRemove?.let { removeFrom ->
-            pendingRemove = null
-            cancelScope()
-            // The observer is dead only if this runs while the view is being attached, after the
-            // merge and before the attach listener above ran. The listener is then in the observer
-            // that this view has now.
-            removeFrom(if (observer.isAlive) observer else viewTreeObserver)
+private class ViewTreeObserverRegistrationImpl(
+    view: View,
+    observer: ViewTreeObserver,
+    scope: ListenerScope,
+    removeFrom: (ViewTreeObserver) -> Unit,
+) : ViewTreeObserverRegistration {
+    private var view: View? = view
+    private var observer: ViewTreeObserver? = observer
+    private var removeFrom: ((ViewTreeObserver) -> Unit)? = removeFrom
+    private var cancelScope: (() -> Unit)? = null
+
+    init {
+        // A view that is not attached has a floating observer. On the first attach the framework
+        // merges it into the window's observer and kills it, so follow the listener there. A view
+        // that is attached already uses the window's observer, which keeps the listener after a
+        // detach.
+        view.doOnAttach {
+            if (this.removeFrom != null) {
+                this.observer = it.viewTreeObserver
+            }
+        }
+        val cancel = scope.doOnEnd(::remove)
+        if (this.removeFrom != null) {
+            this.cancelScope = cancel
         }
     }
-    cancelScope = scope.doOnEnd(registration::remove)
-    return registration
+
+    override fun remove() {
+        val removeFrom = removeFrom ?: return
+        val observer = observer ?: return
+        val view = view ?: return
+        val cancelScope = cancelScope
+
+        // Clear all references so removal happens once and a retained handle cannot leak the view,
+        // observer, scope, or listener.
+        this.removeFrom = null
+        this.observer = null
+        this.view = null
+        this.cancelScope = null
+
+        cancelScope?.invoke()
+        // The observer is dead only if this runs while the view is being attached, after the
+        // merge and before the attach listener above ran. The listener is then in the observer
+        // that this view has now.
+        removeFrom(if (observer.isAlive) observer else view.viewTreeObserver)
+    }
 }
