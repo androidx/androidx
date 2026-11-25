@@ -20,11 +20,13 @@ package androidx.camera.camera2.impl
 
 import android.content.Context
 import android.media.MediaCodec
+import android.util.Range
 import androidx.annotation.GuardedBy
 import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.SessionConfigAdapter
+import androidx.camera.camera2.adapter.SessionConfigAdapter.Companion.getSessionConfig
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.adapter.ZslControl
 import androidx.camera.camera2.config.CameraScope
@@ -36,7 +38,6 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.concurrent.CameraCoordinator
@@ -48,6 +49,8 @@ import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.ResolvedStreamInfo
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
 import androidx.camera.core.impl.SurfaceConfig
 import javax.inject.Inject
 import javax.inject.Provider
@@ -382,9 +385,11 @@ constructor(
             pendingModeSwitch = null
             val previousEnabledUseCases = enabledUseCases
             enabledUseCases = useCases.toSet()
+            val meteringSpecToAdd =
+                resolveMeteringSpecToAdd(attachedUseCases.intersect(activeUseCases))
             val addedRepeating =
-                if (shouldAddRepeatingUseCase(attachedUseCases.intersect(activeUseCases))) {
-                    addRepeatingUseCase()
+                if (meteringSpecToAdd != null) {
+                    addRepeatingUseCase(meteringSpecToAdd)
                     true
                 } else {
                     false
@@ -457,8 +462,9 @@ constructor(
         }
 
         val runningUseCases = getRunningUseCases()
+        val meteringSpecToAdd = resolveMeteringSpecToAdd(runningUseCases)
         when {
-            shouldAddRepeatingUseCase(runningUseCases) -> addRepeatingUseCase()
+            meteringSpecToAdd != null -> addRepeatingUseCase(meteringSpecToAdd)
             shouldRemoveRepeatingUseCase(runningUseCases) -> removeRepeatingUseCase()
             else -> updateRunningUseCases(runningUseCases)
         }
@@ -509,12 +515,19 @@ constructor(
         if (newUseCases.contains(meteringRepeating)) {
             newUseCases
                 .filter { it != meteringRepeating }
-                .getMeteringRepeatingDynamicRange()
-                ?.let { meteringDynamicRange ->
+                .resolveMeteringStreamInfo()
+                ?.streamSpec
+                ?.let { targetSpec ->
                     if (
-                        meteringRepeating.attachedStreamSpec?.dynamicRange != meteringDynamicRange
+                        meteringRepeating.attachedStreamSpec?.dynamicRange !=
+                            targetSpec.dynamicRange ||
+                            meteringRepeating.attachedSurfaceResolution != targetSpec.resolution
                     ) {
-                        meteringRepeating.setupSession(meteringDynamicRange)
+                        meteringRepeating.setupSession(
+                            targetSpec.dynamicRange,
+                            targetSpec.expectedFrameRateRange,
+                            targetSpec.resolution,
+                        )
                     }
                 }
         }
@@ -695,8 +708,9 @@ constructor(
      */
     @GuardedBy("lock")
     private fun addOrRemoveRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
-        if (shouldAddRepeatingUseCase(runningUseCases)) {
-            addRepeatingUseCase()
+        val meteringSpecToAdd = resolveMeteringSpecToAdd(runningUseCases)
+        if (meteringSpecToAdd != null) {
+            addRepeatingUseCase(meteringSpecToAdd)
             return true
         }
         if (shouldRemoveRepeatingUseCase(runningUseCases)) {
@@ -707,31 +721,33 @@ constructor(
     }
 
     @GuardedBy("lock")
-    private fun isMeteringRepeatingRequired(runningUseCases: Set<UseCase>): Boolean {
+    private fun resolveRequiredMeteringStreamSpec(runningUseCases: Set<UseCase>): StreamSpec? {
         if (!cameraXConfig.isRepeatingStreamForced) {
-            return false
+            return null
         }
 
         val attachedWithoutMetering = attachedUseCases.filter { it != meteringRepeating }
 
         if (attachedWithoutMetering.isEmpty()) {
-            return false
+            return null
         }
 
         if (enabledUseCases != null) {
-            return attachedWithoutMetering.any { listOf(it).shouldForceRepeatingStream() } &&
-                attachedWithoutMetering.isMeteringCombinationSupported()
+            return if (attachedWithoutMetering.any { listOf(it).shouldForceRepeatingStream() }) {
+                attachedWithoutMetering.resolveMeteringStreamInfo()?.streamSpec
+            } else {
+                null
+            }
         }
 
         val hasActiveSurfaces = runningUseCases.any {
             it != meteringRepeating && it.sessionConfig.surfaces.isNotEmpty()
         }
-        if (!hasActiveSurfaces) {
-            return false
+        if (!hasActiveSurfaces || !attachedWithoutMetering.shouldForceRepeatingStream()) {
+            return null
         }
 
-        return attachedWithoutMetering.shouldForceRepeatingStream() &&
-            attachedWithoutMetering.isMeteringCombinationSupported()
+        return attachedWithoutMetering.resolveMeteringStreamInfo()?.streamSpec
     }
 
     private fun Collection<UseCase>.shouldForceRepeatingStream(): Boolean {
@@ -756,13 +772,13 @@ constructor(
     }
 
     @GuardedBy("lock")
-    private fun shouldAddRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
-        if (!cameraXConfig.isRepeatingStreamForced) {
-            return false
+    private fun resolveMeteringSpecToAdd(runningUseCases: Set<UseCase>): StreamSpec? {
+        if (
+            !cameraXConfig.isRepeatingStreamForced || attachedUseCases.contains(meteringRepeating)
+        ) {
+            return null
         }
-
-        val isMeteringEnabled = attachedUseCases.contains(meteringRepeating)
-        return !isMeteringEnabled && isMeteringRepeatingRequired(runningUseCases)
+        return resolveRequiredMeteringStreamSpec(runningUseCases)
     }
 
     @GuardedBy("lock")
@@ -771,16 +787,17 @@ constructor(
             return false
         }
         return activeUseCases.contains(meteringRepeating) &&
-            !isMeteringRepeatingRequired(runningUseCases)
+            resolveRequiredMeteringStreamSpec(runningUseCases) == null
     }
 
     @GuardedBy("lock")
-    private fun addRepeatingUseCase() {
-        val meteringDynamicRange =
-            attachedUseCases.filter { it != meteringRepeating }.getMeteringRepeatingDynamicRange()
-                ?: DynamicRange.SDR
+    private fun addRepeatingUseCase(resolvedSpec: StreamSpec) {
         meteringRepeating.bindToCamera(cameraInternal.get(), null, null, null)
-        meteringRepeating.setupSession(meteringDynamicRange)
+        meteringRepeating.setupSession(
+            resolvedSpec.dynamicRange,
+            resolvedSpec.expectedFrameRateRange,
+            resolvedSpec.resolution,
+        )
         activeUseCases.add(meteringRepeating)
         attach(listOf(meteringRepeating))
     }
@@ -795,9 +812,9 @@ constructor(
     }
 
     @GuardedBy("lock")
-    private fun Collection<UseCase>.isMeteringCombinationSupported(
+    private fun Collection<UseCase>.resolveMeteringStreamInfo(
         forEnabledSubset: Boolean = enabledUseCases != null
-    ): Boolean =
+    ): ResolvedStreamInfo? =
         meteringRepeating.resolveStreamInfo(
             toResolvedStreamInfos(),
             supportedSurfaceCombination,
@@ -808,7 +825,12 @@ constructor(
                 } else {
                     null
                 },
-        ) != null
+        )
+
+    @GuardedBy("lock")
+    private fun Collection<UseCase>.isMeteringCombinationSupported(
+        forEnabledSubset: Boolean = enabledUseCases != null
+    ): Boolean = resolveMeteringStreamInfo(forEnabledSubset) != null
 
     private fun getCameraMode(): Int {
         synchronized(lock) {
@@ -822,13 +844,6 @@ constructor(
 
         return CameraMode.DEFAULT
     }
-
-    private fun Collection<UseCase>.getMeteringRepeatingDynamicRange(): DynamicRange? =
-        meteringRepeating.resolveDynamicRange(
-            toResolvedStreamInfos(),
-            supportedSurfaceCombination,
-            getCameraMode(),
-        )
 
     private fun Collection<UseCase>.toResolvedStreamInfos(): List<ResolvedStreamInfo> = buildList {
         for (useCase in this@toResolvedStreamInfos) {
@@ -844,11 +859,30 @@ constructor(
             add(
                 ResolvedStreamInfo(
                     useCase.currentConfig,
-                    streamSpec.toBuilder().setResolution(surfaceResolution).build(),
+                    streamSpec
+                        .toBuilder()
+                        .setResolution(surfaceResolution)
+                        .setExpectedFrameRateRange(useCase.getRequestedFrameRateRange(streamSpec))
+                        .build(),
                 )
             )
         }
     }
+
+    /**
+     * Returns [streamSpec]'s expected frame rate range only when this [UseCase] propagates a frame
+     * rate into its own [androidx.camera.core.impl.SessionConfig].
+     *
+     * A kept [UseCase] such as `ImageCapture` may retain a session frame rate in its [StreamSpec]
+     * after a sibling is detached in a partial rebind without applying it to its own
+     * [androidx.camera.core.impl.SessionConfig], so it is cleared here to avoid steering
+     * [MeteringRepeating] surface size selection with a stale frame rate.
+     */
+    @GuardedBy("lock")
+    private fun UseCase.getRequestedFrameRateRange(streamSpec: StreamSpec): Range<Int> =
+        streamSpec.expectedFrameRateRange.takeIf {
+            getSessionConfig(isPrimary).expectedFrameRateRange != FRAME_RATE_RANGE_UNSPECIFIED
+        } ?: FRAME_RATE_RANGE_UNSPECIFIED
 
     private fun Collection<UseCase>.getSessionSurfacesConfigs(
         featureSettings: SupportedSurfaceCombination.FeatureSettings

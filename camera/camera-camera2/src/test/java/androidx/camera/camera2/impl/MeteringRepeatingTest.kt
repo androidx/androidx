@@ -17,18 +17,34 @@
 package androidx.camera.camera2.impl
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR
+import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW
 import android.hardware.display.DisplayManager
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.adapter.SupportedSurfaceCombination
+import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.TestShadowWindowManager
+import androidx.camera.common.CameraId
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
+import androidx.camera.core.impl.ResolvedStreamInfo
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -95,11 +111,15 @@ class MeteringRepeatingTest {
 
     private lateinit var meteringRepeating: MeteringRepeating
 
+    private val originalBrand = Build.BRAND
+    private val originalModel = Build.MODEL
+
     private fun addDisplay(width: Int, height: Int) {
         ShadowDisplayManager.addDisplay(String.format("w%ddp-h%ddp", width, height))
     }
 
-    private fun getMeteringRepeatingAndInitDisplay(outputSizeList: List<Size>): MeteringRepeating {
+    private fun initDisplays(outputSizeList: List<Size>) {
+        DisplayInfoManager.releaseInstance()
         for (size in outputSizeList) {
             addDisplay(size.width, size.height)
         }
@@ -117,6 +137,10 @@ class MeteringRepeatingTest {
         }
 
         removeDisplay(0)
+    }
+
+    private fun getMeteringRepeatingAndInitDisplay(outputSizeList: List<Size>): MeteringRepeating {
+        initDisplays(outputSizeList)
 
         return MeteringRepeating.Builder(
                 FakeCameraProperties(getFakeMetadata(outputSizeList)),
@@ -125,8 +149,46 @@ class MeteringRepeatingTest {
             .build()
     }
 
+    private fun createMeteringRepeatingWithMinFrameDurations(
+        minFrameDurationsBySize: Map<Size, Long>,
+        manualSensor: Boolean = true,
+        hardwareLevel: Int = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+    ): Pair<MeteringRepeating, FakeCameraMetadata> {
+        initDisplays(minFrameDurationsBySize.keys.toList())
+        val map =
+            FakeCameraInfoAdapterCreator.createMockStreamConfigurationMap(minFrameDurationsBySize)
+        val capabilities = buildList {
+            if (manualSensor) add(REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR)
+            if (hardwareLevel == INFO_SUPPORTED_HARDWARE_LEVEL_3) {
+                add(REQUEST_AVAILABLE_CAPABILITIES_RAW)
+            }
+        }
+            .toIntArray()
+        val metadata =
+            FakeCameraMetadata(
+                cameraId = CameraId("1"),
+                characteristics =
+                    mapOf(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to map,
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to capabilities,
+                        CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to
+                            android.graphics.Rect(0, 0, 4000, 3000),
+                    ),
+            )
+        val metering =
+            MeteringRepeating.Builder(
+                    FakeCameraProperties(metadata),
+                    DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+                )
+                .build()
+        return metering to metadata
+    }
+
     @After
     fun tearDown() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", originalBrand)
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", originalModel)
         if (::meteringRepeating.isInitialized) {
             meteringRepeating.onUnbind()
         }
@@ -233,5 +295,305 @@ class MeteringRepeatingTest {
         )
         assertThat(meteringRepeating.sessionConfig.outputConfigs.single().dynamicRange)
             .isEqualTo(DynamicRange.HLG_10_BIT)
+    }
+
+    @Test
+    fun setupSession_selectsFpsCompatibleSize_whenVgaMaxFpsIsTooLow() {
+        val (metering, _) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 33_333_332L,
+                    Size(320, 240) to 33_333_332L,
+                )
+            )
+        meteringRepeating = metering
+
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(60, 60))
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+        // The frame rate only steers the surface size; it is not stamped onto the SessionConfig.
+        assertThat(meteringRepeating.sessionConfig.expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+
+        // Mixed [30, 60] also requires 60 FPS upper capability
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(30, 60))
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+
+        // 30 FPS and unspecified preserve VGA 640x480
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(30, 30))
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+        assertThat(meteringRepeating.sessionConfig.expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+        meteringRepeating.setupSession(DynamicRange.SDR, StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+        assertThat(meteringRepeating.sessionConfig.expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+    }
+
+    @Test
+    fun setupSession_acceptsRoundingBoundaryMinFrameDurationFor60Fps() {
+        val (metering, _) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_667L, // 59.999998 FPS -> rounds to 60
+                    Size(640, 480) to 33_333_332L,
+                )
+            )
+        meteringRepeating = metering
+
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(60, 60))
+
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+    }
+
+    @Test
+    fun setupSession_keepsVga_whenVgaSupports60Fps() {
+        val (metering, _) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 16_666_666L,
+                    Size(320, 240) to 33_333_332L,
+                )
+            )
+        meteringRepeating = metering
+
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(60, 60))
+
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+    }
+
+    @Test
+    fun setupSession_treatsZeroMinFrameDurationAsUnlimited_whenManualSensorDisabled() {
+        val (metering, _) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 0L,
+                ),
+                manualSensor = false,
+            )
+        meteringRepeating = metering
+
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(60, 60))
+
+        // Without MANUAL_SENSOR, 0L means unlimited max FPS -> VGA stays eligible.
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+    }
+
+    @Test
+    fun setupSession_treatsZeroMinFrameDurationAsInvalid_whenManualSensorEnabled() {
+        val (metering, _) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 0L,
+                ),
+                manualSensor = true,
+            )
+        meteringRepeating = metering
+
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(60, 60))
+
+        // With MANUAL_SENSOR, 0L is invalid (0 FPS) -> falls forward to 1280x720.
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+    }
+
+    @Test
+    fun setupSession_fallsBackToVga_whenNoSizesMeetTargetFps() {
+        val (metering, _) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1280, 720) to 33_333_332L,
+                    Size(640, 480) to 33_333_332L,
+                    Size(320, 240) to 33_333_332L,
+                )
+            )
+        meteringRepeating = metering
+
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(60, 60))
+
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+    }
+
+    @Test
+    fun setupSession_huaweiMate9QuirkAppliedBeforeFpsFilterFallback() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "Huawei")
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "mha-l29")
+        val (metering, _) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(Size(1280, 720) to 33_333_332L, Size(240, 144) to 33_333_332L)
+            )
+        meteringRepeating = metering
+
+        // Empty FPS fallback must NOT resurrect quirk-excluded 240x144.
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(60, 60))
+
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+    }
+
+    @Test
+    fun setupSessionWithFps_errorResetPreservesFpsSelectedResolution() {
+        val (metering, _) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 33_333_332L,
+                )
+            )
+        meteringRepeating = metering
+        meteringRepeating.setupSession(DynamicRange.SDR, Range(60, 60))
+
+        meteringRepeating.sessionConfig.errorListener?.onError(
+            meteringRepeating.sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET,
+        )
+
+        assertThat(meteringRepeating.sessionConfig.surfaces.single().prescribedSize)
+            .isEqualTo(Size(1280, 720))
+        assertThat(meteringRepeating.sessionConfig.expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+    }
+
+    @Test
+    fun resolveStreamInfo_level3VgaOnlySlot_fallsBackToVgaInsteadOfNull() {
+        val (metering, metadata) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 33_333_332L,
+                ),
+                hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_3,
+            )
+        meteringRepeating = metering
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                ApplicationProvider.getApplicationContext(),
+                metadata,
+                FakeEncoderProfilesProvider.Builder().build(),
+                FeatureCombinationQuery.NO_OP_FEATURE_COMBINATION_QUERY,
+                ExtraSupportedSurfaceCombinationsContainer(),
+            )
+        val factory = FakeUseCaseConfigFactory()
+        val privConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.PREVIEW,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.PREVIEW,
+                    ImageFormat.PRIVATE,
+                )
+                .useCaseConfig
+        val jpegConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.IMAGE_CAPTURE,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.IMAGE_CAPTURE,
+                    ImageFormat.JPEG,
+                )
+                .useCaseConfig
+        val rawConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.IMAGE_CAPTURE,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.IMAGE_CAPTURE,
+                    ImageFormat.RAW_SENSOR,
+                )
+                .useCaseConfig
+        // LEVEL_3 supports (PRIV, PREVIEW) + (PRIV, VGA) + (JPEG, MAX) + (RAW, MAX),
+        // NOT (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAX) + (RAW, MAX).
+        val baseStreams =
+            listOf(
+                ResolvedStreamInfo(
+                    privConfig,
+                    StreamSpec.builder(Size(1280, 720))
+                        .setExpectedFrameRateRange(Range(60, 60))
+                        .build(),
+                ),
+                ResolvedStreamInfo(jpegConfig, StreamSpec.builder(Size(4000, 3000)).build()),
+                ResolvedStreamInfo(rawConfig, StreamSpec.builder(Size(4000, 3000)).build()),
+            )
+        // Falls back to VGA 640x480 when the FPS-compatible 1280x720 overflows LEVEL_3, instead of
+        // dropping the repeating stream.
+        val result = meteringRepeating.resolveStreamInfo(baseStreams, supportedSurfaceCombination)
+        assertThat(requireNotNull(result).streamSpec.resolution).isEqualTo(Size(640, 480))
+    }
+
+    @Test
+    fun resolveStreamInfo_selectsHighestUpperFrameRate() {
+        val (metering, metadata) =
+            createMeteringRepeatingWithMinFrameDurations(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 33_333_332L,
+                )
+            )
+        meteringRepeating = metering
+        val supportedSurfaceCombination =
+            SupportedSurfaceCombination(
+                ApplicationProvider.getApplicationContext(),
+                metadata,
+                FakeEncoderProfilesProvider.Builder().build(),
+                FeatureCombinationQuery.NO_OP_FEATURE_COMBINATION_QUERY,
+                ExtraSupportedSurfaceCombinationsContainer(),
+            )
+        val factory = FakeUseCaseConfigFactory()
+        val jpegConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.IMAGE_CAPTURE,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.IMAGE_CAPTURE,
+                    ImageFormat.JPEG,
+                )
+                .useCaseConfig
+        val videoConfig =
+            FakeUseCaseConfig.Builder(
+                    factory.getConfig(
+                        CaptureType.VIDEO_CAPTURE,
+                        ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    ),
+                    CaptureType.VIDEO_CAPTURE,
+                    ImageFormat.PRIVATE,
+                )
+                .useCaseConfig
+
+        // E.g. a session-level frame rate (SessionConfig.frameRateRange) is propagated through
+        // StreamSpec only, without a per-UseCase target frame rate.
+        val result =
+            meteringRepeating.resolveStreamInfo(
+                listOf(
+                    ResolvedStreamInfo(
+                        jpegConfig,
+                        StreamSpec.builder(Size(4000, 3000))
+                            .setExpectedFrameRateRange(Range(30, 30))
+                            .build(),
+                    ),
+                    ResolvedStreamInfo(
+                        videoConfig,
+                        StreamSpec.builder(Size(1920, 1080))
+                            .setExpectedFrameRateRange(Range(60, 60))
+                            .build(),
+                    ),
+                ),
+                supportedSurfaceCombination,
+            )
+
+        assertThat(requireNotNull(result).streamSpec.resolution).isEqualTo(Size(1280, 720))
+        assertThat(result.streamSpec.expectedFrameRateRange).isEqualTo(Range(60, 60))
     }
 }

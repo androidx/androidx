@@ -29,6 +29,7 @@ import android.hardware.camera2.CameraDevice.TEMPLATE_STILL_CAPTURE
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
 import android.hardware.camera2.CameraMetadata.CONTROL_CAPTURE_INTENT_PREVIEW
 import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT
+import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
@@ -38,6 +39,7 @@ import android.media.MediaCodec
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import android.view.Display
 import android.view.Surface
 import androidx.camera.camera2.adapter.CameraCoordinatorAdapter
 import androidx.camera.camera2.adapter.CameraInternalAdapter
@@ -80,10 +82,12 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCamera2CameraControlCompat
 import androidx.camera.camera2.testing.FakeCameraGraph
+import androidx.camera.camera2.testing.FakeCameraInfoAdapterCreator
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeCapturePipeline
 import androidx.camera.camera2.testing.FakeUseCaseCameraComponentBuilder
 import androidx.camera.camera2.testing.FakeUseCaseSurfaceManager
+import androidx.camera.camera2.testing.TestShadowWindowManager
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.CameraId
 import androidx.camera.core.CameraEffect
@@ -143,6 +147,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
+import org.robolectric.shadows.ShadowDisplayManager
 import org.robolectric.shadows.ShadowLooper
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
@@ -1090,13 +1095,15 @@ class UseCaseManagerTest {
         }
     }
 
-    private fun createImageCapture(): ImageCapture =
+    private fun createImageCapture(activate: Boolean = true): ImageCapture =
         ImageCapture.Builder()
             .setCaptureOptionUnpacker(CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE)
             .setSessionOptionUnpacker(CameraUseCaseAdapter.DefaultSessionOptionsUnpacker)
             .build()
             .also {
-                it.simulateActivation()
+                if (activate) {
+                    it.simulateActivation()
+                }
                 useCaseList.add(it)
             }
 
@@ -2583,4 +2590,350 @@ class UseCaseManagerTest {
                 )
                 .isEqualTo(android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE_OFF)
         }
+
+    @Test
+    @Config(shadows = [TestShadowWindowManager::class])
+    fun videoOnly60Fps_attachesFpsCompatibleMeteringRepeating() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createFpsUseCaseManager()
+        val video60Fps = createVideoUseCase(Range(60, 60))
+
+        useCaseManager.attach(listOf(video60Fps))
+        useCaseManager.activate(video60Fps)
+
+        val runningUseCases = useCaseManager.getRunningUseCasesForTest()
+        val meteringRepeating = runningUseCases.filterIsInstance<MeteringRepeating>().single()
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+        assertThat(meteringRepeating.sessionConfig.expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+        val graphConfig =
+            useCaseManager
+                .createUseCaseCameraConfig(SessionConfigAdapter(runningUseCases), null)
+                .cameraGraphConfig
+        assertThat(graphConfig.sessionParameters[CONTROL_AE_TARGET_FPS_RANGE])
+            .isEqualTo(Range(60, 60))
+    }
+
+    @Test
+    @Config(shadows = [TestShadowWindowManager::class])
+    fun meteringRepeatingResolutionUpdatesBidirectionally_acrossPartialRebind() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createFpsUseCaseManager()
+        val imageCapture = createImageCaptureWithStreamSpec()
+
+        // 1. ImageCapture alone binds MeteringRepeating at 640x480.
+        useCaseManager.attach(listOf(imageCapture))
+        useCaseManager.activate(imageCapture)
+        val meteringRepeating =
+            useCaseManager
+                .getRunningUseCasesForTest()
+                .filterIsInstance<MeteringRepeating>()
+                .single()
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+        val vgaSurface = meteringRepeating.sessionConfig.surfaces.single()
+
+        // 2. Attaching a 60 FPS VideoCapture upgrades MeteringRepeating to 1280x720.
+        val video60Fps = createVideoUseCase(Range(60, 60))
+        useCaseManager.attach(listOf(video60Fps))
+        useCaseManager.activate(video60Fps)
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+        assertThat(vgaSurface.terminationFuture.isDone).isTrue()
+        val hdSurface = meteringRepeating.sessionConfig.surfaces.single()
+
+        // 3. Detaching the VideoCapture shrinks MeteringRepeating back to 640x480.
+        useCaseManager.detach(listOf(video60Fps))
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+        assertThat(hdSurface.terminationFuture.isDone).isTrue()
+    }
+
+    @Test
+    @Config(shadows = [TestShadowWindowManager::class])
+    fun staleInherited30Fps_isIgnored_whenAttaching60FpsVideo() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createFpsUseCaseManager()
+        // ImageCapture inherits the session's (30, 30) in its StreamSpec without requesting it.
+        val preview30Fps = createPreviewWithTargetFrameRate(Range(30, 30))
+        val imageCapture = createImageCaptureWithStreamSpec(Range(30, 30))
+        useCaseManager.attach(listOf(preview30Fps, imageCapture))
+        useCaseManager.activate(preview30Fps)
+        useCaseManager.activate(imageCapture)
+
+        useCaseManager.detach(listOf(preview30Fps))
+        val meteringRepeating =
+            useCaseManager
+                .getRunningUseCasesForTest()
+                .filterIsInstance<MeteringRepeating>()
+                .single()
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+
+        val video60Fps = createVideoUseCase(Range(60, 60))
+        useCaseManager.attach(listOf(video60Fps))
+        useCaseManager.activate(video60Fps)
+
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+        val validSessionConfig =
+            SessionConfigAdapter(useCaseManager.getRunningUseCasesForTest())
+                .getValidSessionConfigOrNull()
+        assertThat(requireNotNull(validSessionConfig).expectedFrameRateRange)
+            .isEqualTo(Range(60, 60))
+    }
+
+    @Test
+    @Config(shadows = [TestShadowWindowManager::class])
+    fun staleInherited60Fps_isIgnored_afterDetachingPreview() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createFpsUseCaseManager()
+        // ImageCapture inherits the session's (60, 60) in its StreamSpec without requesting it.
+        val preview60Fps = createPreviewWithTargetFrameRate(Range(60, 60))
+        val imageCapture = createImageCaptureWithStreamSpec(Range(60, 60))
+        useCaseManager.attach(listOf(preview60Fps, imageCapture))
+        useCaseManager.activate(preview60Fps)
+        useCaseManager.activate(imageCapture)
+
+        useCaseManager.detach(listOf(preview60Fps))
+
+        // MeteringRepeating is not pinned to the stale (60, 60) of the remaining ImageCapture.
+        val meteringRepeating =
+            useCaseManager
+                .getRunningUseCasesForTest()
+                .filterIsInstance<MeteringRepeating>()
+                .single()
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+        assertThat(meteringRepeating.attachedStreamSpec?.expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+    }
+
+    @Test
+    @Config(shadows = [TestShadowWindowManager::class])
+    fun keptSessionFpsVideo_retains60FpsMeteringRepeating_afterDetachingPreview() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createFpsUseCaseManager()
+        val preview60Fps = createPreviewWithTargetFrameRate(Range(60, 60))
+        // VideoUseCase carries (60, 60) via its SessionConfig without OPTION_TARGET_FRAME_RATE.
+        val video60Fps = createVideoUseCase(Range(60, 60))
+        useCaseManager.attach(listOf(preview60Fps, video60Fps))
+        useCaseManager.activate(preview60Fps)
+        useCaseManager.activate(video60Fps)
+
+        useCaseManager.detach(listOf(preview60Fps))
+
+        val meteringRepeating =
+            useCaseManager
+                .getRunningUseCasesForTest()
+                .filterIsInstance<MeteringRepeating>()
+                .single()
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+    }
+
+    @Test
+    @Config(shadows = [TestShadowWindowManager::class])
+    fun fastSwitch60Fps_preAttachesAndSwitchesToFpsCompatibleMeteringRepeating() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createFpsUseCaseManager()
+        val preview60Fps = createPreviewWithTargetFrameRate(Range(60, 60))
+        val imageCapture = createImageCaptureWithStreamSpec(Range(60, 60))
+
+        useCaseManager.setEnabledUseCases(listOf(preview60Fps))
+        useCaseManager.attach(listOf(preview60Fps, imageCapture))
+        useCaseManager.activate(preview60Fps)
+        useCaseManager.activate(imageCapture)
+        assertThat(useCaseManager.getRunningUseCasesForTest()).containsExactly(preview60Fps)
+
+        requireNotNull(useCaseManager.setEnabledUseCases(listOf(imageCapture))).await()
+
+        val runningUseCases = useCaseManager.getRunningUseCasesForTest()
+        val meteringRepeating = runningUseCases.filterIsInstance<MeteringRepeating>().single()
+        assertThat(runningUseCases).containsExactly(imageCapture, meteringRepeating)
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+    }
+
+    @Test
+    @Config(shadows = [TestShadowWindowManager::class])
+    fun legacyAeFpsRangeQuirk_doesNotLeakOntoMeteringRepeating() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager =
+            createFpsUseCaseManager(
+                mapOf(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                )
+            )
+        // With UNSPECIFIED app FPS, AeFpsRangeLegacyQuirk only sets (15, 30) on the UseCase's
+        // SessionConfig, while its StreamSpec keeps UNSPECIFIED.
+        val video =
+            createVideoUseCase(
+                StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED,
+                sessionFrameRateRange = Range(15, 30),
+            )
+
+        useCaseManager.attach(listOf(video))
+        useCaseManager.activate(video)
+
+        val runningUseCases = useCaseManager.getRunningUseCasesForTest()
+        val meteringRepeating = runningUseCases.filterIsInstance<MeteringRepeating>().single()
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(640, 480))
+        assertThat(meteringRepeating.attachedStreamSpec?.expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+        assertThat(meteringRepeating.sessionConfig.expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+        val graphConfig =
+            useCaseManager
+                .createUseCaseCameraConfig(SessionConfigAdapter(runningUseCases), null)
+                .cameraGraphConfig
+        assertThat(graphConfig.sessionParameters[CONTROL_AE_TARGET_FPS_RANGE])
+            .isEqualTo(Range(15, 30))
+    }
+
+    @Test
+    @Config(minSdk = 33, shadows = [TestShadowWindowManager::class])
+    fun hlg10And60Fps_configuresMeteringRepeatingWithBoth() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager =
+            createFpsUseCaseManager(
+                mapOf(
+                    REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                        DynamicRangeProfiles(
+                            longArrayOf(
+                                DynamicRangeProfiles.HLG10,
+                                DynamicRangeProfiles.STANDARD or DynamicRangeProfiles.HLG10,
+                                0L,
+                            )
+                        )
+                ),
+                capabilities =
+                    intArrayOf(
+                        REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                        REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                    ),
+            )
+        val imageCapture = createImageCapture()
+        val hlgVideo60Fps =
+            createVideoUseCase(Range(60, 60), dynamicRange = DynamicRange.HLG_10_BIT)
+
+        useCaseManager.attach(listOf(imageCapture, hlgVideo60Fps))
+        useCaseManager.activate(imageCapture)
+        useCaseManager.activate(hlgVideo60Fps)
+
+        val meteringRepeating =
+            useCaseManager
+                .getRunningUseCasesForTest()
+                .filterIsInstance<MeteringRepeating>()
+                .single()
+        assertThat(meteringRepeating.attachedStreamSpec?.dynamicRange)
+            .isEqualTo(DynamicRange.HLG_10_BIT)
+        assertThat(meteringRepeating.attachedSurfaceResolution).isEqualTo(Size(1280, 720))
+    }
+
+    /**
+     * Creates a [UseCaseManager] whose PRIVATE sizes support 60 FPS only at 1280x720 and above,
+     * while 640x480 is limited to 30 FPS.
+     */
+    private fun createFpsUseCaseManager(
+        extraCharacteristics: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
+        capabilities: IntArray = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR),
+    ): UseCaseManager {
+        ShadowDisplayManager.changeDisplay(Display.DEFAULT_DISPLAY, "w1920dp-h1080dp")
+        DisplayInfoManager.releaseInstance()
+        val fpsMap =
+            FakeCameraInfoAdapterCreator.createMockStreamConfigurationMap(
+                mapOf(
+                    Size(1920, 1080) to 16_666_666L,
+                    Size(1280, 720) to 16_666_666L,
+                    Size(640, 480) to 33_333_332L,
+                )
+            )
+        return createUseCaseManager(
+            characteristicsMap =
+                mapOf(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to fpsMap,
+                    CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to capabilities,
+                ) + extraCharacteristics
+        )
+    }
+
+    /** Creates a VideoCapture-like [FakeUseCase] with a non-repeating [MediaCodec] surface. */
+    private fun createVideoUseCase(
+        frameRateRange: Range<Int>,
+        dynamicRange: DynamicRange = DynamicRange.SDR,
+        sessionFrameRateRange: Range<Int> = frameRateRange,
+    ): FakeUseCase {
+        val videoSurface =
+            createTestDeferrableSurface(MediaCodec::class.java).also { testSurfacesToClose.add(it) }
+        return FakeUseCase().apply {
+            bindToCamera(
+                FakeCamera("0"),
+                null,
+                null,
+                getDefaultConfig(
+                    true,
+                    CameraUseCaseAdapter(ApplicationProvider.getApplicationContext()),
+                ),
+            )
+            updateSuggestedStreamSpec(
+                StreamSpec.builder(Size(1280, 720))
+                    .setDynamicRange(dynamicRange)
+                    .setExpectedFrameRateRange(frameRateRange)
+                    .build(),
+                null,
+            )
+            updateSessionConfigForTesting(
+                SessionConfig.Builder()
+                    .setTemplateType(TEMPLATE_RECORD)
+                    .setExpectedFrameRateRange(sessionFrameRateRange)
+                    .addNonRepeatingSurface(videoSurface, dynamicRange)
+                    .build()
+            )
+            useCaseList.add(this)
+        }
+    }
+
+    private fun createImageCaptureWithStreamSpec(
+        frameRateRange: Range<Int> = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
+    ): ImageCapture =
+        createImageCapture(activate = false).apply {
+            bindToCamera(
+                FakeCamera("0"),
+                null,
+                null,
+                getDefaultConfig(
+                    true,
+                    CameraUseCaseAdapter(ApplicationProvider.getApplicationContext()),
+                ),
+            )
+            updateSuggestedStreamSpec(
+                StreamSpec.builder(Size(4000, 3000))
+                    .setExpectedFrameRateRange(frameRateRange)
+                    .build(),
+                null,
+            )
+        }
+
+    private fun createPreviewWithTargetFrameRate(frameRateRange: Range<Int>): Preview =
+        Preview.Builder()
+            .setTargetFrameRate(frameRateRange)
+            .setCaptureOptionUnpacker(CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE)
+            .setSessionOptionUnpacker(CameraUseCaseAdapter.DefaultSessionOptionsUnpacker)
+            .build()
+            .apply {
+                setSurfaceProvider(
+                    CameraXExecutors.mainThreadExecutor(),
+                    SurfaceTextureProvider.createSurfaceTextureProvider(),
+                )
+                bindToCamera(
+                    FakeCamera("0"),
+                    null,
+                    null,
+                    getDefaultConfig(
+                        true,
+                        CameraUseCaseAdapter(ApplicationProvider.getApplicationContext()),
+                    ),
+                )
+                updateSuggestedStreamSpec(
+                    StreamSpec.builder(Size(1920, 1080))
+                        .setExpectedFrameRateRange(frameRateRange)
+                        .build(),
+                    null,
+                )
+                useCaseList.add(this)
+            }
 }

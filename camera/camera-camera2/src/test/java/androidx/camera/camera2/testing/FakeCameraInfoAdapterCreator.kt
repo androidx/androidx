@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.testing
 
+import android.graphics.ImageFormat
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
@@ -62,6 +64,10 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 object FakeCameraInfoAdapterCreator {
@@ -85,6 +91,29 @@ object FakeCameraInfoAdapterCreator {
             .build()
 
     private val zoomControl = ZoomControl(FakeZoomCompat())
+
+    /**
+     * Creates a [StreamConfigurationMap] test stub with per-size [ImageFormat.PRIVATE] minimum
+     * frame durations (since Robolectric's [StreamConfigurationMapBuilder] returns `0L`).
+     */
+    fun createMockStreamConfigurationMap(
+        minFrameDurationsBySize: Map<Size, Long>,
+        jpegSizes: Array<Size> = arrayOf(Size(4000, 3000)),
+        rawSizes: Array<Size> = arrayOf(Size(4000, 3000)),
+    ): StreamConfigurationMap {
+        val privSizes = minFrameDurationsBySize.keys.toTypedArray()
+        return mock<StreamConfigurationMap>().apply {
+            `when`(getOutputSizes(ImageFormat.PRIVATE)).thenReturn(privSizes)
+            `when`(getOutputSizes(SurfaceTexture::class.java)).thenReturn(privSizes)
+            `when`(getOutputSizes(ImageFormat.JPEG)).thenReturn(jpegSizes)
+            `when`(getOutputSizes(ImageFormat.RAW_SENSOR)).thenReturn(rawSizes)
+            `when`(getOutputMinFrameDuration(anyInt(), any())).thenReturn(0L)
+            `when`(getOutputMinFrameDuration(any<Class<*>>(), any())).thenReturn(0L)
+            for ((size, durationNs) in minFrameDurationsBySize) {
+                `when`(getOutputMinFrameDuration(ImageFormat.PRIVATE, size)).thenReturn(durationNs)
+            }
+        }
+    }
 
     fun createCameraQuirks(
         metadata: androidx.camera.camera2.pipe.CameraMetadata =

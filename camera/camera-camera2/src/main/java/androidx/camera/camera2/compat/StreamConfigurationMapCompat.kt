@@ -18,6 +18,7 @@ package androidx.camera.camera2.compat
 
 import android.graphics.ImageFormat
 import android.graphics.PixelFormat
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Range
@@ -29,6 +30,7 @@ import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.Logger
+import androidx.camera.core.impl.FrameRates.FRAME_RATE_UNLIMITED
 import javax.inject.Inject
 
 /**
@@ -243,4 +245,30 @@ constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMeta
         /** Returns the underlying [StreamConfigurationMap] instance. */
         fun unwrap(): StreamConfigurationMap?
     }
+}
+
+/**
+ * Computes the maximum supported frame rate for [imageFormat] and [size] from its minimum frame
+ * duration, applying [CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR] semantics
+ * for non-positive durations.
+ */
+internal fun StreamConfigurationMapCompat.getMaxFrameRate(
+    imageFormat: Int,
+    size: Size,
+    isManualSensorSupported: Boolean,
+): Int {
+    val minFrameDuration = getOutputMinFrameDuration(imageFormat, size)
+    if (minFrameDuration <= 0L) {
+        if (isManualSensorSupported) {
+            Camera2Logger.warn {
+                "minFrameDuration: $minFrameDuration is invalid for " +
+                    "imageFormat = $imageFormat, size = $size"
+            }
+            return 0
+        }
+        // According to the doc, getOutputMinFrameDuration may return 0 if device doesn't
+        // support manual sensor. Return MAX_VALUE indicates no limit.
+        return FRAME_RATE_UNLIMITED
+    }
+    return (1_000_000_000.0 / minFrameDuration + 0.5).toInt()
 }
