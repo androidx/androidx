@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.wrapContentSize
 import androidx.compose.remote.creation.compose.state.rc
@@ -35,10 +36,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.glance.wear.AssociateWithGlanceWearWidget
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.GlanceWearWidgetService
-import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
-import androidx.glance.wear.color
 import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.tooling.preview.RectangularLargeWidgetPreviewParams
@@ -60,7 +59,11 @@ class UpdateWidget : GlanceWearWidget() {
                 ContainerInfo.CONTAINER_TYPE_LARGE -> Color.Blue
                 else -> Color.Yellow
             }
-        return WearWidgetDocument(WearWidgetBrush.color(backgroundColor.rc)) {
+        return WearWidgetDocument(
+            background = {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(backgroundColor.rc))
+            }
+        ) {
             UpdateWidgetContent()
         }
     }

@@ -23,10 +23,12 @@ import android.health.connect.HealthPermissions
 import android.os.Build
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rs
@@ -39,10 +41,8 @@ import androidx.glance.wear.AssociateWithGlanceWearWidget
 import androidx.glance.wear.ExperimentalGlanceWearApi
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.GlanceWearWidgetService
-import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
-import androidx.glance.wear.color
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.health.HealthData
 
@@ -56,7 +56,11 @@ internal class HealthDataWidget : GlanceWearWidget() {
         context: Context,
         params: WearWidgetParams,
     ): WearWidgetData =
-        WearWidgetDocument(background = WearWidgetBrush.color(Color.Red.rc)) {
+        WearWidgetDocument(
+            background = {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc))
+            }
+        ) {
             HealthDataWidgetContent()
         }
 }
