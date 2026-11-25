@@ -17,6 +17,8 @@
 package androidx.wear.compose.foundation.rotary
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.PackageManager
 import android.os.Build
 import android.view.ViewConfiguration
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -31,6 +33,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
@@ -53,8 +56,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -371,12 +372,17 @@ class RotaryFlingTest {
         val context = LocalContext.current
 
         // Mocking low-res flag
-        val mockContext = Mockito.spy(context)
-        val mockPackageManager = Mockito.spy(context.packageManager)
-        `when`(mockPackageManager.hasSystemFeature("android.hardware.rotaryencoder.lowres"))
-            .thenReturn(lowRes)
-
-        Mockito.doReturn(mockPackageManager).`when`(mockContext).packageManager
+        val mockContext =
+            remember(context, lowRes) {
+                val mockPackageManager =
+                    spy(context.packageManager) {
+                        on { hasSystemFeature("android.hardware.rotaryencoder.lowres") } doReturn
+                            lowRes
+                    }
+                object : ContextWrapper(context) {
+                    override fun getPackageManager(): PackageManager = mockPackageManager
+                }
+            }
 
         CompositionLocalProvider(LocalContext provides mockContext) { content() }
     }

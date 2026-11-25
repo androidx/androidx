@@ -17,6 +17,8 @@
 package androidx.wear.compose.foundation.rotary
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.PackageManager
 import android.hardware.input.InputManager
 import android.view.InputDevice.SOURCE_ROTARY_ENCODER
 import android.view.MotionEvent
@@ -40,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -66,7 +69,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.spy
-import org.mockito.Mockito.`when`
 
 // TODO(b/278705775): Add more tests to check Rotary Snap behavior
 class RotaryScrollTest {
@@ -1094,12 +1096,16 @@ internal fun MockRotaryResolution(lowRes: Boolean = false, content: @Composable 
     val context = LocalContext.current
 
     // Mocking low-res flag
-    val mockContext = spy(context)
-    val mockPackageManager = spy(context.packageManager)
-    `when`(mockPackageManager.hasSystemFeature("android.hardware.rotaryencoder.lowres"))
-        .thenReturn(lowRes)
-
-    doReturn(mockPackageManager).`when`(mockContext).packageManager
+    val mockContext =
+        remember(context, lowRes) {
+            val mockPackageManager = spy(context.packageManager)
+            doReturn(lowRes)
+                .`when`(mockPackageManager)
+                .hasSystemFeature("android.hardware.rotaryencoder.lowres")
+            object : ContextWrapper(context) {
+                override fun getPackageManager(): PackageManager = mockPackageManager
+            }
+        }
 
     CompositionLocalProvider(LocalContext provides mockContext) { content() }
 }
