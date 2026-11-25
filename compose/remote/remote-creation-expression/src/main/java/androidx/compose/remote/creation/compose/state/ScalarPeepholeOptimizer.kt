@@ -23,8 +23,22 @@ internal enum class AlgebraicOpKind {
     Mul,
     Div,
     Neg,
+    Idempotent,
+    SelfZero,
     Other,
 }
+
+/** Polarity of an additive term (`+term` or `-term`). */
+internal enum class TermSign {
+    Positive,
+    Negative;
+
+    /** Flips `+` to `-` and `-` to `+`. */
+    fun flip(): TermSign = if (this == Positive) Negative else Positive
+}
+
+/** Pairs an expression or constant [term] with its additive [sign] (`+term` or `-term`). */
+internal data class SignedTerm<out T>(val term: T, val sign: TermSign = TermSign.Positive)
 
 /** Result of folding two trailing additive constants `(x +/- c1) +/- c2`. */
 internal sealed interface AdditiveConstFold<out T> {
@@ -68,10 +82,35 @@ internal interface ScalarAlgebra<T : Any, E, Op : RemoteOperation, Cond> {
 
     fun isOne(value: T): Boolean
 
+    fun constantsEqualExact(a: T, b: T): Boolean
+
+    /** Checks whether evaluating [expr] twice in the same frame yields identical values. */
+    fun isDeterministic(expr: E): Boolean
+
+    /**
+     * Checks whether `expr - expr` is guaranteed to evaluate to [zero].
+     *
+     * Safe to cancel:
+     * - Deterministic named state or pure integer math (e.g., `(x + y) - x` simplifies to `y`).
+     *
+     * Not safe to cancel:
+     * - Non-deterministic calls such as [rand], where `rand() - rand()` samples two independent
+     *   values.
+     * - [RemoteFloat] expressions that may evaluate to `Infinity` or `NaN` (e.g., `(1f / y) - (1f /
+     *   y)` when `y == 0f`, where `Infinity - Infinity` must remain `NaN` rather than `0f`).
+     */
+    fun isSafeToCancel(expr: E): Boolean
+
+    /** Checks whether [condition] evaluates deterministically without side effects or [rand]. */
+    fun isDeterministicCondition(condition: Cond): Boolean
+
     /** Extracts the known constant value of [expr], or returns `null` if [expr] is dynamic. */
     fun getConstantFrom(expr: E): T?
 
     fun wrapConstant(value: T): E
+
+    /** Returns the structural [RemoteStateCacheKey] identifying [expr]. */
+    fun getCacheKey(expr: E): RemoteStateCacheKey
 
     /** Classifies [op] into its [AlgebraicOpKind] category for unary rewrites. */
     fun classifyUnaryOp(op: Op): AlgebraicOpKind
@@ -79,8 +118,17 @@ internal interface ScalarAlgebra<T : Any, E, Op : RemoteOperation, Cond> {
     /** Classifies [op] into its [AlgebraicOpKind] category for binary rewrites. */
     fun classifyBinaryOp(op: Op): AlgebraicOpKind
 
+    /** Unwraps and returns the inner operand if [expr] is unary negation, or `null`. */
+    fun tryMatchUnaryNeg(expr: E): E?
+
     /** Unpacks [expr] into a [BinaryMatch] if it is a binary node, or returns `null`. */
     fun tryMatchBinary(expr: E): BinaryMatch<E>?
+
+    /**
+     * Unpacks [expr] into a [BinaryMatch] if it is an unpackable [AlgebraicOpKind.Add] or
+     * [AlgebraicOpKind.Sub] node.
+     */
+    fun tryMatchAdditive(expr: E): BinaryMatch<E>?
 
     /**
      * Unpacks [expr] into a [SelectMatch] if it selects between two constants, or returns `null`.
@@ -94,6 +142,8 @@ internal interface ScalarAlgebra<T : Any, E, Op : RemoteOperation, Cond> {
     fun tryEvalUnaryOnSelectBranch(op: Op, value: T, directEval: (T) -> T): T?
 
     fun tryEvalBinaryOnSelectBranch(op: Op, a: T, b: T, directEval: (T, T) -> T): T?
+
+    fun canCancelOppositeConstants(a: SignedTerm<T>, b: SignedTerm<T>): Boolean
 
     fun tryCombineAdditiveConstants(
         prev: T,
@@ -144,8 +194,12 @@ internal interface ScalarAlgebra<T : Any, E, Op : RemoteOperation, Cond> {
  * - Constant folding
  * - Algebraic identities (`x + 0`, `x - 0`, `0 - x`, `x * 0`, `x * 1`, `0 / x`, `x / 1`) and
  *   constant-to-RHS canonicalization (`c + x -> x + c`, `c * x -> x * c`, `c - x -> (-x) + c`)
+ * - Double-negation elimination (`-(-x) -> x`)
  * - Creation-time trailing constant reassociation (`(x +/- c1) +/- c2`, `(x *|/ c1) *|/ c2`)
- * - Conditional `Select` branch folding (`op(select)`, `select op c`)
+ * - Opposite-sign additive cancellation (`y + (c - y) -> c`, `(a + b) - a -> b`, etc.)
+ * - Idempotent / self-cancelling collapse (`min`, `max`, `and`, `or`, `xor`)
+ * - Conditional `Select` lifting (`op(select)`, `c op select`, `select op c`, `select op select`)
+ *   with constant-branch collapse when both branches evaluate to the exact same value
  */
 internal class ScalarPeepholeOptimizer<T : Any, E, Op : RemoteOperation, Cond>(
     internal val algebra: ScalarAlgebra<T, E, Op, Cond>
@@ -161,11 +215,21 @@ internal class ScalarPeepholeOptimizer<T : Any, E, Op : RemoteOperation, Cond>(
             }
         }
 
-        // Lift unary op into constant-branch Select (op(cond.select(t, f)) -> cond.select(...)).
+        // 1. Simplify double negation (-(-x) -> x).
+        if (algebra.classifyUnaryOp(op) == AlgebraicOpKind.Neg) {
+            algebra.tryMatchUnaryNeg(operand)?.let {
+                return it
+            }
+        }
+
+        // 2. Lift unary op into constant-branch Select (op(cond.select(t, f)) -> cond.select(...)).
         algebra.tryMatchConstantSelect(operand)?.let { sel ->
             val newTrue = algebra.tryEvalUnaryOnSelectBranch(op, sel.ifTrue, directEval)
             val newFalse = algebra.tryEvalUnaryOnSelectBranch(op, sel.ifFalse, directEval)
             if (newTrue != null && newFalse != null) {
+                if (algebra.constantsEqualExact(newTrue, newFalse)) {
+                    return algebra.wrapConstant(newTrue)
+                }
                 return algebra.buildSelect(sel.condition, newTrue, newFalse)
             }
         }
@@ -297,20 +361,80 @@ internal class ScalarPeepholeOptimizer<T : Any, E, Op : RemoteOperation, Cond>(
             }
         }
 
-        // 5. Lift binary op across constant-branch Select nodes.
+        // 5. Lift binary op across constant-branch Select nodes before materializing constant
+        //    wrappers.
+        if (lConst != null) {
+            algebra.tryMatchConstantSelect(right!!)?.let { rSel ->
+                foldSelectWithConstant(op, lConst, rSel, isLeftConstant = true, directEval)?.let {
+                    return it
+                }
+            }
+        }
         if (rConst != null) {
             algebra.tryMatchConstantSelect(left!!)?.let { lSel ->
-                foldSelectWithConstant(op, rConst, lSel, directEval)?.let {
+                foldSelectWithConstant(op, rConst, lSel, isLeftConstant = false, directEval)?.let {
+                    return it
+                }
+            }
+        }
+        if (left != null && right != null) {
+            val lSel = algebra.tryMatchConstantSelect(left)
+            val rSel = algebra.tryMatchConstantSelect(right)
+            if (
+                lSel != null &&
+                    rSel != null &&
+                    lSel.condition == rSel.condition &&
+                    algebra.isDeterministicCondition(lSel.condition)
+            ) {
+                foldSelectWithSelect(op, lSel, rSel, directEval)?.let {
                     return it
                 }
             }
         }
 
-        return algebra.buildRawBinaryOp(
-            op,
-            left ?: algebra.wrapConstant(lConst!!),
-            right ?: algebra.wrapConstant(rConst!!),
-        )
+        val leftExpr = left ?: algebra.wrapConstant(lConst!!)
+        val rightExpr = right ?: algebra.wrapConstant(rConst!!)
+
+        // 6. Operation-specific DAG simplifications (additive cancellation, idempotent ops).
+        val simplified =
+            when (kind) {
+                AlgebraicOpKind.Add ->
+                    trySimplifyMatchingOppositeSignTerms(leftExpr, rightExpr, subtractRight = false)
+                AlgebraicOpKind.Sub ->
+                    trySimplifyMatchingOppositeSignTerms(leftExpr, rightExpr, subtractRight = true)
+                AlgebraicOpKind.Idempotent ->
+                    if (
+                        algebra.getCacheKey(leftExpr) == algebra.getCacheKey(rightExpr) &&
+                            algebra.isDeterministic(leftExpr) &&
+                            algebra.isDeterministic(rightExpr)
+                    ) {
+                        if (
+                            leftExpr is MutableRemoteValue<*> && rightExpr !is MutableRemoteValue<*>
+                        ) {
+                            rightExpr
+                        } else {
+                            leftExpr
+                        }
+                    } else {
+                        null
+                    }
+                AlgebraicOpKind.SelfZero ->
+                    if (
+                        algebra.getCacheKey(leftExpr) == algebra.getCacheKey(rightExpr) &&
+                            algebra.isDeterministic(leftExpr) &&
+                            algebra.isDeterministic(rightExpr)
+                    ) {
+                        algebra.wrapConstant(algebra.zero)
+                    } else {
+                        null
+                    }
+                else -> null
+            }
+        if (simplified != null) {
+            return simplified
+        }
+
+        return algebra.buildRawBinaryOp(op, leftExpr, rightExpr)
     }
 
     /**
@@ -365,19 +489,165 @@ internal class ScalarPeepholeOptimizer<T : Any, E, Op : RemoteOperation, Cond>(
             is MulDivConstFold.Div -> algebra.divConst(base, folded.constant)
         }
 
-    /** Distributes `sel op constant` into the constant branches of [sel], or returns `null`. */
+    /**
+     * Absorbs one outer unary negation from [t] by unwrapping [SignedTerm.term] and flipping
+     * [SignedTerm.sign].
+     *
+     * Turns `SignedTerm(-x, Positive)` into `SignedTerm(x, Negative)` and `SignedTerm(-x,
+     * Negative)` into `SignedTerm(x, Positive)`, leaving non-negated terms unchanged.
+     */
+    private fun normalizeSign(t: SignedTerm<E>): SignedTerm<E> {
+        val unwrapped = algebra.tryMatchUnaryNeg(t.term)
+        return if (unwrapped != null) SignedTerm(unwrapped, t.sign.flip()) else t
+    }
+
+    /**
+     * Splits an additive [SignedTerm] into its signed left and right child terms, or `null`.
+     *
+     * Propagates [SignedTerm.sign] across `+` and `-`: `-(a - b)` unpacks to `(-a, +b)`, while
+     * `+(a - b)` unpacks to `(+a, -b)`.
+     */
+    private fun unpackAdditive(t: SignedTerm<E>): Pair<SignedTerm<E>, SignedTerm<E>>? {
+        val bin = algebra.tryMatchAdditive(t.term) ?: return null
+        val rightSign = if (bin.kind == AlgebraicOpKind.Sub) t.sign.flip() else t.sign
+        return SignedTerm(bin.left, t.sign) to SignedTerm(bin.right, rightSign)
+    }
+
+    /**
+     * Materializes [t] back into an expression, negating [SignedTerm.term] when [SignedTerm.sign]
+     * is [TermSign.Negative].
+     */
+    private fun toExpr(t: SignedTerm<E>): E =
+        if (t.sign == TermSign.Positive) t.term else algebra.neg(t.term)
+
+    /**
+     * Checks whether signed terms [a] and [b] sum to zero safely.
+     *
+     * Unwraps at most one unary negation on each operand and delegates determinism/finiteness
+     * safety to [ScalarAlgebra.isSafeToCancel].
+     */
+    internal fun sumsToZero(a: SignedTerm<E>, b: SignedTerm<E>): Boolean {
+        val normA = normalizeSign(a)
+        val normB = normalizeSign(b)
+
+        val aConst = algebra.getConstantFrom(normA.term)
+        val bConst = algebra.getConstantFrom(normB.term)
+        if (aConst != null && bConst != null) {
+            return algebra.canCancelOppositeConstants(
+                SignedTerm(aConst, normA.sign),
+                SignedTerm(bConst, normB.sign),
+            )
+        }
+        if (normA.sign == normB.sign) return false
+        return algebra.getCacheKey(normA.term) == algebra.getCacheKey(normB.term) &&
+            algebra.isSafeToCancel(normA.term) &&
+            algebra.isSafeToCancel(normB.term)
+    }
+
+    /** Sums two signed terms, placing a positive term first when available. */
+    internal fun sumSigned(a: SignedTerm<E>, b: SignedTerm<E>): E =
+        when {
+            a.sign == TermSign.Positive && b.sign == TermSign.Positive ->
+                algebra.add(a.term, b.term)
+            a.sign == TermSign.Positive -> algebra.sub(a.term, b.term)
+            b.sign == TermSign.Positive -> algebra.sub(b.term, a.term)
+            else -> algebra.sub(algebra.neg(a.term), b.term)
+        }
+
+    /**
+     * Cancels matching opposite-sign terms across `left + right` or `left - right` up to one level
+     * deep.
+     *
+     * Handles direct cancellation (`a - a`), one-sided nested cancellation (`y + (c - y)`), and
+     * immediate child cross-cancellation (`(a + c) + (b - c)`).
+     */
+    internal fun trySimplifyMatchingOppositeSignTerms(
+        left: E,
+        right: E,
+        subtractRight: Boolean,
+    ): E? {
+        val a = SignedTerm(left, TermSign.Positive)
+        val b = SignedTerm(right, if (subtractRight) TermSign.Negative else TermSign.Positive)
+        if (sumsToZero(a, b)) {
+            return algebra.wrapConstant(algebra.zero)
+        }
+
+        val aParts = unpackAdditive(a)
+        val bParts = unpackAdditive(b)
+
+        // a + (b0 + b1)
+        if (bParts != null) {
+            val (b0, b1) = bParts
+            if (sumsToZero(a, b0)) return toExpr(b1)
+            if (sumsToZero(a, b1)) return toExpr(b0)
+        }
+        // (a0 + a1) + b
+        if (aParts != null) {
+            val (a0, a1) = aParts
+            if (sumsToZero(a0, b)) return toExpr(a1)
+            if (sumsToZero(a1, b)) return toExpr(a0)
+        }
+        // (a0 + a1) + (b0 + b1)
+        if (aParts != null && bParts != null) {
+            val (a0, a1) = aParts
+            val (b0, b1) = bParts
+            if (sumsToZero(a0, b0)) return sumSigned(a1, b1)
+            if (sumsToZero(a0, b1)) return sumSigned(a1, b0)
+            if (sumsToZero(a1, b0)) return sumSigned(a0, b1)
+            if (sumsToZero(a1, b1)) return sumSigned(a0, b0)
+        }
+        return null
+    }
+
+    /**
+     * Distributes [op] with [constant] into the constant branches of [sel], collapsing equal
+     * branches.
+     */
     private fun foldSelectWithConstant(
         op: Op,
         constant: T,
         sel: SelectMatch<T, Cond>,
+        isLeftConstant: Boolean,
         directEval: (T, T) -> T,
     ): E? {
         val newTrue =
-            algebra.tryEvalBinaryOnSelectBranch(op, sel.ifTrue, constant, directEval) ?: return null
+            if (isLeftConstant) {
+                algebra.tryEvalBinaryOnSelectBranch(op, constant, sel.ifTrue, directEval)
+            } else {
+                algebra.tryEvalBinaryOnSelectBranch(op, sel.ifTrue, constant, directEval)
+            } ?: return null
         val newFalse =
-            algebra.tryEvalBinaryOnSelectBranch(op, sel.ifFalse, constant, directEval)
-                ?: return null
+            if (isLeftConstant) {
+                algebra.tryEvalBinaryOnSelectBranch(op, constant, sel.ifFalse, directEval)
+            } else {
+                algebra.tryEvalBinaryOnSelectBranch(op, sel.ifFalse, constant, directEval)
+            } ?: return null
+        if (algebra.constantsEqualExact(newTrue, newFalse)) {
+            return algebra.wrapConstant(newTrue)
+        }
         return algebra.buildSelect(sel.condition, newTrue, newFalse)
+    }
+
+    /**
+     * Merges [leftSel] and [rightSel] sharing a deterministic condition under [op], collapsing
+     * equal branches.
+     */
+    private fun foldSelectWithSelect(
+        op: Op,
+        leftSel: SelectMatch<T, Cond>,
+        rightSel: SelectMatch<T, Cond>,
+        directEval: (T, T) -> T,
+    ): E? {
+        val newTrue =
+            algebra.tryEvalBinaryOnSelectBranch(op, leftSel.ifTrue, rightSel.ifTrue, directEval)
+                ?: return null
+        val newFalse =
+            algebra.tryEvalBinaryOnSelectBranch(op, leftSel.ifFalse, rightSel.ifFalse, directEval)
+                ?: return null
+        if (algebra.constantsEqualExact(newTrue, newFalse)) {
+            return algebra.wrapConstant(newTrue)
+        }
+        return algebra.buildSelect(leftSel.condition, newTrue, newFalse)
     }
 }
 
@@ -391,9 +661,22 @@ internal object FloatAlgebra :
 
     override fun isOne(value: Float): Boolean = value == 1f
 
+    override fun constantsEqualExact(a: Float, b: Float): Boolean = a.toRawBits() == b.toRawBits()
+
+    override fun isDeterministic(expr: RemoteFloat): Boolean = expr.cacheKey.isDeterministic()
+
+    override fun isSafeToCancel(expr: RemoteFloat): Boolean =
+        (expr !is RemoteFloatSelect || !expr.hasNonFiniteConstantBranch) &&
+            expr.cacheKey.isDeterministic(requireFiniteFloats = true)
+
+    override fun isDeterministicCondition(condition: SelectFloatCondition): Boolean =
+        condition.isDeterministic()
+
     override fun getConstantFrom(expr: RemoteFloat): Float? = expr.constantValueOrNull
 
     override fun wrapConstant(value: Float): RemoteFloat = RemoteFloat(value)
+
+    override fun getCacheKey(expr: RemoteFloat): RemoteStateCacheKey = expr.cacheKey
 
     override fun classifyUnaryOp(op: RemoteFloatOperationKey): AlgebraicOpKind =
         if (op == RemoteFloatOperationKey.UnaryMinus) AlgebraicOpKind.Neg else AlgebraicOpKind.Other
@@ -404,12 +687,38 @@ internal object FloatAlgebra :
             RemoteFloatOperationKey.Minus -> AlgebraicOpKind.Sub
             RemoteFloatOperationKey.Times -> AlgebraicOpKind.Mul
             RemoteFloatOperationKey.Div -> AlgebraicOpKind.Div
+            RemoteFloatOperationKey.Min,
+            RemoteFloatOperationKey.Max -> AlgebraicOpKind.Idempotent
             else -> AlgebraicOpKind.Other
+        }
+
+    override fun tryMatchUnaryNeg(expr: RemoteFloat): RemoteFloat? =
+        if (expr is UnaryRemoteFloatOp && expr.op == RemoteFloatOperationKey.UnaryMinus) {
+            expr.operand
+        } else {
+            null
         }
 
     override fun tryMatchBinary(expr: RemoteFloat): BinaryMatch<RemoteFloat>? {
         if (expr !is BinaryRemoteFloatOp) return null
         return BinaryMatch(classifyBinaryOp(expr.op), expr.left, expr.right)
+    }
+
+    override fun tryMatchAdditive(expr: RemoteFloat): BinaryMatch<RemoteFloat>? {
+        if (expr !is BinaryRemoteFloatOp) return null
+        val kind =
+            when (expr.op) {
+                RemoteFloatOperationKey.Plus -> AlgebraicOpKind.Add
+                RemoteFloatOperationKey.Minus -> AlgebraicOpKind.Sub
+                else -> return null
+            }
+        if (
+            expr.left.constantValueOrNull?.isFinite() == false ||
+                expr.right.constantValueOrNull?.isFinite() == false
+        ) {
+            return null
+        }
+        return BinaryMatch(kind, expr.left, expr.right)
     }
 
     override fun tryMatchConstantSelect(
@@ -449,7 +758,7 @@ internal object FloatAlgebra :
         value: Float,
         directEval: (Float) -> Float,
     ): Float? {
-        if (op != RemoteFloatOperationKey.UnaryMinus) {
+        if (op != RemoteFloatOperationKey.UnaryMinus && op != RemoteFloatOperationKey.Abs) {
             return null
         }
         val result = directEval(value)
@@ -464,6 +773,16 @@ internal object FloatAlgebra :
     ): Float? {
         val result = directEval(a, b)
         return if (result.isNaN()) null else result
+    }
+
+    override fun canCancelOppositeConstants(
+        a: SignedTerm<Float>,
+        b: SignedTerm<Float>,
+    ): Boolean {
+        if (!a.term.isFinite() || !b.term.isFinite()) return false
+        val signedA = if (a.sign == TermSign.Positive) a.term else -a.term
+        val signedB = if (b.sign == TermSign.Positive) b.term else -b.term
+        return signedA + signedB == 0f
     }
 
     override fun tryCombineAdditiveConstants(
@@ -561,9 +880,20 @@ internal object IntAlgebra :
 
     override fun isOne(value: Int): Boolean = value == 1
 
+    override fun constantsEqualExact(a: Int, b: Int): Boolean = a == b
+
+    override fun isDeterministic(expr: RemoteInt): Boolean = expr.cacheKey.isDeterministic()
+
+    override fun isSafeToCancel(expr: RemoteInt): Boolean = expr.cacheKey.isDeterministic()
+
+    override fun isDeterministicCondition(condition: SelectIntCondition): Boolean =
+        condition.isDeterministic()
+
     override fun getConstantFrom(expr: RemoteInt): Int? = expr.constantValueOrNull
 
     override fun wrapConstant(value: Int): RemoteInt = RemoteInt(value)
+
+    override fun getCacheKey(expr: RemoteInt): RemoteStateCacheKey = expr.cacheKey
 
     override fun classifyUnaryOp(op: RemoteIntOperationKey): AlgebraicOpKind =
         if (op == RemoteIntOperationKey.Neg) AlgebraicOpKind.Neg else AlgebraicOpKind.Other
@@ -574,12 +904,31 @@ internal object IntAlgebra :
             RemoteIntOperationKey.Sub -> AlgebraicOpKind.Sub
             RemoteIntOperationKey.Mul -> AlgebraicOpKind.Mul
             RemoteIntOperationKey.Div -> AlgebraicOpKind.Div
+            RemoteIntOperationKey.Min,
+            RemoteIntOperationKey.Max,
+            RemoteIntOperationKey.And,
+            RemoteIntOperationKey.Or -> AlgebraicOpKind.Idempotent
+            RemoteIntOperationKey.Xor -> AlgebraicOpKind.SelfZero
             else -> AlgebraicOpKind.Other
         }
+
+    override fun tryMatchUnaryNeg(expr: RemoteInt): RemoteInt? =
+        if (expr is UnaryRemoteIntOp && expr.op == RemoteIntOperationKey.Neg) expr.operand else null
 
     override fun tryMatchBinary(expr: RemoteInt): BinaryMatch<RemoteInt>? {
         if (expr !is BinaryRemoteIntOp) return null
         return BinaryMatch(classifyBinaryOp(expr.op), expr.left, expr.right)
+    }
+
+    override fun tryMatchAdditive(expr: RemoteInt): BinaryMatch<RemoteInt>? {
+        if (expr !is BinaryRemoteIntOp) return null
+        val kind =
+            when (expr.op) {
+                RemoteIntOperationKey.Add -> AlgebraicOpKind.Add
+                RemoteIntOperationKey.Sub -> AlgebraicOpKind.Sub
+                else -> return null
+            }
+        return BinaryMatch(kind, expr.left, expr.right)
     }
 
     override fun tryMatchConstantSelect(expr: RemoteInt): SelectMatch<Int, SelectIntCondition>? {
@@ -613,7 +962,7 @@ internal object IntAlgebra :
         op: RemoteIntOperationKey,
         value: Int,
         directEval: (Int) -> Int,
-    ): Int? = null
+    ): Int = directEval(value)
 
     override fun tryEvalBinaryOnSelectBranch(
         op: RemoteIntOperationKey,
@@ -631,6 +980,12 @@ internal object IntAlgebra :
             return null
         }
         return directEval(a, b)
+    }
+
+    override fun canCancelOppositeConstants(a: SignedTerm<Int>, b: SignedTerm<Int>): Boolean {
+        val signedA = if (a.sign == TermSign.Positive) a.term else -a.term
+        val signedB = if (b.sign == TermSign.Positive) b.term else -b.term
+        return signedA + signedB == 0
     }
 
     override fun tryCombineAdditiveConstants(

@@ -414,11 +414,14 @@ public sealed interface RemoteFloat : RemoteValue<Float> {
  *   operations without a single float expression opcode
  * @property precedence operator precedence controlling parentheses in [toDebugString]
  * @property symbol infix operator symbol used by [toDebugString], or `null` for non-infix ops
+ * @property isDeterministic whether evaluating this operation with identical inputs always yields
+ *   the same result
  */
 internal enum class RemoteFloatOperationKey(
     internal val opCode: Float,
     override val precedence: Int = 100,
     internal val symbol: String? = null,
+    override val isDeterministic: Boolean = true,
 ) : RemoteOperation {
     ToRemoteInt(Float.NaN),
     ToRemoteString(Float.NaN),
@@ -444,8 +447,8 @@ internal enum class RemoteFloatOperationKey(
     Ceil(AnimatedFloatExpression.CEIL),
     Log(AnimatedFloatExpression.LOG),
     Ln(AnimatedFloatExpression.LN),
-    Rand(AnimatedFloatExpression.RAND),
-    RandInRange(AnimatedFloatExpression.RAND_IN_RANGE),
+    Rand(AnimatedFloatExpression.RAND, isDeterministic = false),
+    RandInRange(AnimatedFloatExpression.RAND_IN_RANGE, isDeterministic = false),
     Round(AnimatedFloatExpression.ROUND),
     Sin(AnimatedFloatExpression.SIN),
     Cos(AnimatedFloatExpression.COS),
@@ -512,6 +515,24 @@ internal enum class RemoteFloatOperationKey(
             else -> formatCamelCaseFunction(args)
         }
     }
+
+    override fun mayProduceNonFiniteFloatForArgs(args: List<RemoteStateCacheKey>): Boolean =
+        when (this) {
+            Div,
+            Rem -> {
+                val divisor = (args.getOrNull(1) as? RemoteConstantCacheKey)?.value as? Float
+                divisor == null || !divisor.isFinite() || divisor == 0f
+            }
+            Log,
+            Ln,
+            Sqrt,
+            Cbrt,
+            Asin,
+            Acos,
+            Exp,
+            Pow -> true
+            else -> false
+        }
 
     override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
         return when (this) {
@@ -1505,7 +1526,7 @@ public fun RemoteFloat(value: Float): RemoteFloat =
 @RememberInComposition
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteFloat(
-    cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey(),
+    cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey(isDeterministicInstance = false),
     value: RemoteComposeCreationState.() -> RemoteFloat,
 ): RemoteFloat =
     RemoteFloat(

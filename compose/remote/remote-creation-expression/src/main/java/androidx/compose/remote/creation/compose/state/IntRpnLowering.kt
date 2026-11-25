@@ -111,6 +111,18 @@ internal sealed class SelectIntCondition {
     ): LongArray
 
     /**
+     * Checks whether this condition always selects the same branch within a frame.
+     *
+     * Returns `false` when an operand derives from a non-deterministic expression—for example,
+     * `selectIfLt((rand() * 10f).toRemoteInt(), 5.ri, ...)` or `((rand() *
+     * 10f).toRemoteInt().isLessThan(5.ri)).select(...)`, where merging two selects would collapse
+     * independent random draws into one.
+     *
+     * @return `true` if all operand cache keys are deterministic
+     */
+    abstract fun isDeterministic(): Boolean
+
+    /**
      * Constructs a canonical [RemoteInt] selecting between [ifTrue] and [ifFalse] under this
      * condition.
      */
@@ -128,6 +140,9 @@ internal sealed class SelectIntCondition {
         val b: RemoteInt,
         val op: IntComparisonOp,
     ) : SelectIntCondition() {
+        override fun isDeterministic(): Boolean =
+            a.cacheKey.isDeterministic() && b.cacheKey.isDeterministic()
+
         override fun createSelect(ifTrue: RemoteInt, ifFalse: RemoteInt): RemoteInt {
             if (ifTrue.cacheKey == ifFalse.cacheKey) {
                 return ifTrue
@@ -248,6 +263,8 @@ internal sealed class SelectIntCondition {
      * @property bool boolean expression driving the branch selection
      */
     data class BooleanCondition(val bool: RemoteBoolean) : SelectIntCondition() {
+        override fun isDeterministic(): Boolean = bool.cacheKey.isDeterministic()
+
         override fun createSelect(ifTrue: RemoteInt, ifFalse: RemoteInt): RemoteInt {
             if (ifTrue.cacheKey == ifFalse.cacheKey) {
                 return ifTrue
