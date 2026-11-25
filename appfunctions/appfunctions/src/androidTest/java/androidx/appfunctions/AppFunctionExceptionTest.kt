@@ -67,6 +67,10 @@ class AppFunctionExceptionTest {
             AppFunctionException.ERROR_NOT_SUPPORTED,
             AppFunctionNotSupportedException::class.java,
         )
+        testCreateFromPlatformExtensionsClass(
+            AppFunctionException.ERROR_INPUT_REQUIRED,
+            AppFunctionInputRequiredException::class.java,
+        )
 
         testCreateFromPlatformExtensionsClass(
             AppFunctionException.ERROR_DENIED,
@@ -117,6 +121,10 @@ class AppFunctionExceptionTest {
         testCreateFromPlatformClass(
             AppFunctionException.ERROR_NOT_SUPPORTED,
             AppFunctionNotSupportedException::class.java,
+        )
+        testCreateFromPlatformClass(
+            AppFunctionException.ERROR_INPUT_REQUIRED,
+            AppFunctionInputRequiredException::class.java,
         )
 
         testCreateFromPlatformClass(

@@ -41,6 +41,8 @@ import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
 import androidx.appfunctions.AppFunctionAccessLevel
 import androidx.appfunctions.AppFunctionBehaviorHints
 import androidx.appfunctions.AppFunctionDeclaration
+import androidx.appfunctions.AppFunctionElicitationRequest
+import androidx.appfunctions.AppFunctionInputRequiredException
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionPatternMatcher
@@ -52,6 +54,7 @@ import androidx.appfunctions.AppFunctionUriGrant
 import androidx.appfunctions.AppFunctionUriValueConstraint
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 
@@ -78,6 +81,46 @@ abstract class BaseTestAppFunctionService :
     @AppFunctionDeclaration(isDescribedByKDoc = false)
     internal fun doThrow() {
         throw AppFunctionInvalidArgumentException("invalid")
+    }
+
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
+    internal fun requestFormElicitation() {
+        throw AppFunctionInputRequiredException(
+            inputRequests =
+                mapOf(
+                    "form" to
+                        AppFunctionElicitationRequest.Form(
+                            instruction = "Which note should be deleted?",
+                            responseDataTypeMetadata =
+                                AppFunctionStringTypeMetadata(
+                                    isNullable = false,
+                                    enumValues = setOf("Groceries", "Packing List"),
+                                ),
+                        )
+                ),
+            errorMessage = "Form input required",
+        )
+    }
+
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
+    internal fun requestPendingActionElicitation() {
+        throw AppFunctionInputRequiredException(
+            inputRequests =
+                mapOf(
+                    "pending_action" to
+                        AppFunctionElicitationRequest.PendingAction(
+                            displayMessage = "Open test app to confirm",
+                            pendingIntent =
+                                PendingIntent.getActivity(
+                                    this,
+                                    0,
+                                    Intent(),
+                                    PendingIntent.FLAG_IMMUTABLE,
+                                ),
+                        )
+                ),
+            errorMessage = "Pending action required",
+        )
     }
 
     @AppFunctionDeclaration(isDescribedByKDoc = false) internal fun voidFunction() {}

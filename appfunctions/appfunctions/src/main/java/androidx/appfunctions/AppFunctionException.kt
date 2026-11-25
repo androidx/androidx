@@ -103,6 +103,7 @@ internal constructor(
                 ERROR_APP_UNKNOWN_ERROR,
                 ERROR_PERMISSION_REQUIRED,
                 ERROR_NOT_SUPPORTED,
+                ERROR_INPUT_REQUIRED,
             ]
     )
     @Retention(AnnotationRetention.SOURCE)
@@ -141,6 +142,8 @@ internal constructor(
                     AppFunctionPermissionRequiredException(exception.errorMessage, exception.extras)
                 ERROR_NOT_SUPPORTED ->
                     AppFunctionNotSupportedException(exception.errorMessage, exception.extras)
+                ERROR_INPUT_REQUIRED ->
+                    AppFunctionInputRequiredException(exception.errorMessage, exception.extras)
                 else ->
                     AppFunctionUnknownException(
                         exception.errorCode,
@@ -183,6 +186,8 @@ internal constructor(
                     AppFunctionPermissionRequiredException(exception.errorMessage, exception.extras)
                 ERROR_NOT_SUPPORTED ->
                     AppFunctionNotSupportedException(exception.errorMessage, exception.extras)
+                ERROR_INPUT_REQUIRED ->
+                    AppFunctionInputRequiredException(exception.errorMessage, exception.extras)
                 else ->
                     AppFunctionUnknownException(
                         exception.errorCode,
@@ -331,6 +336,16 @@ internal constructor(
          * This error is in the [ERROR_CATEGORY_APP] category.
          */
         internal const val ERROR_NOT_SUPPORTED: Int = 3501
+
+        /**
+         * Indicates the app requires input from the user before it can complete the request.
+         *
+         * The caller should resolve the elicitation requests carried by
+         * [AppFunctionInputRequiredException] and call the function again.
+         *
+         * This error is in the [ERROR_CATEGORY_APP] category.
+         */
+        internal const val ERROR_INPUT_REQUIRED: Int = 3502
     }
 }
 
