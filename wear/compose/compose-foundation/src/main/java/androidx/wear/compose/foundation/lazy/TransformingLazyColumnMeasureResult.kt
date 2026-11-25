@@ -35,14 +35,16 @@ internal class TransformingLazyColumnMeasureResult(
     /** The index of the item that should be considered as an anchor during scrolling. */
     val anchorItemIndex: Int,
     /**
-     * The offset of the anchor item to the viewport center.
+     * The offset of the anchor item's untransformed (measured) center to the viewport center.
      *
-     * A positive value indicates that the anchor item's center-line is above the viewport
-     * center-line, a negative value indicates that the anchor item's center-line is below the
-     * viewport center-line.
+     * A positive value indicates that the anchor item's untransformed center-line is above the
+     * viewport center-line, a negative value indicates that the anchor item's untransformed
+     * center-line is below the viewport center-line.
      */
     val anchorItemScrollOffset: Int,
-    /** Last known height for the anchor item or negative number if it hasn't been measured. */
+    /**
+     * Last known measured height for the anchor item or negative number if it hasn't been measured.
+     */
     val lastMeasuredItemHeight: Int,
     /** Scope for animations. */
     val coroutineScope: CoroutineScope,

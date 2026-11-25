@@ -249,14 +249,4 @@ internal data class TransformingLazyColumnMeasuredItem(
                 }
             }
         }
-
-    fun pinToCenter() {
-        measureScrollProgress =
-            downwardMeasuredItemScrollProgress(
-                containerConstraints.maxHeight / 2 - measuredHeight / 2,
-                measuredHeight,
-                containerConstraints.maxHeight,
-            )
-        offset = containerConstraints.maxHeight / 2 - transformedHeight / 2
-    }
 }

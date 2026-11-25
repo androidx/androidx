@@ -43,9 +43,11 @@ internal interface TransformingLazyColumnMeasurementStrategy {
      * @param anchorItemIndex The index of the anchor item. Anchor item is a visible item used to
      *   position the rest of the items before and after it. Should be from 0 (inclusive) to
      *   [itemsCount] (exclusive).
-     * @param anchorItemScrollOffset The scroll offset of the anchor item. Anchor item is a visible
-     *   item used to position the rest of the items before and after it.
-     * @param lastMeasuredAnchorItemHeight Last measured height from the previous measurement.
+     * @param anchorItemScrollOffset The scroll offset of the anchor item's untransformed (measured)
+     *   center relative to the viewport center. Anchor item is a visible item used to position the
+     *   rest of the items before and after it.
+     * @param lastMeasuredAnchorItemHeight Last measured (untransformed) height of the anchor item
+     *   from the previous measurement, or a negative number if it has not been measured.
      * @param coroutineScope Scope for animations.
      * @param density The [Density] of the current layout.
      * @param scrollToBeConsumed The amount of scroll to be consumed.
@@ -98,6 +100,20 @@ internal fun MeasuredItemProvider.upwardMeasuredItem(
             )
         }
         .also { it.offset -= it.transformedHeight }
+
+internal fun MeasuredItemProvider.centeredMeasuredItem(
+    index: Int,
+    centerOffset: Int,
+    maxHeight: Int,
+): TransformingLazyColumnMeasuredItem =
+    measuredItem(index, centerOffset, MeasurementDirection.DOWNWARD) { height ->
+            downwardMeasuredItemScrollProgress(
+                offset = centerOffset - height / 2,
+                height = height,
+                containerHeight = maxHeight,
+            )
+        }
+        .also { it.offset -= it.measuredHeight / 2 }
 
 internal fun emptyMeasureResult(
     containerConstraints: Constraints,

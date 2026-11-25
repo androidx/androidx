@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -124,6 +125,167 @@ class TransformingLazyColumnScrollTest {
         testScroll(scrollBlock = { state.scrollToItem(itemsCount + 2) }) {
             assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 2) // last item fills the space
         }
+
+    @Test
+    fun scrollToItem_withTransformedHeightAndScrollOffset_usesUnscaledCenterAndStaysStable() {
+        val containerSizePx = 300
+        val viewportCenterPx = containerSizePx / 2
+        val itemHeightPx = 160
+        val targetIndex = 8
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            with(rule.density) {
+                TransformingLazyColumn(
+                    Modifier.height(containerSizePx.toDp()).testTag(lazyListTag),
+                    state,
+                    verticalArrangement = Arrangement.spacedBy(0.toDp()),
+                ) {
+                    items(itemsCount) {
+                        Spacer(
+                            modifier =
+                                Modifier.height(itemHeightPx.toDp()).transformedHeight {
+                                    height,
+                                    progress ->
+                                    val centerFraction =
+                                        (progress.topOffsetFraction +
+                                            progress.bottomOffsetFraction) / 2f
+                                    val edgeDist =
+                                        (abs(centerFraction - 0.5f) - 0.05f).coerceAtLeast(0f)
+                                    val scale = (1f - edgeDist * 2f).coerceIn(0.5f, 1f)
+                                    (height * scale).roundToInt().coerceAtLeast(1)
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        for (scrollOffset in listOf(30, -30)) {
+            val expectedOffset = viewportCenterPx - itemHeightPx / 2 - scrollOffset
+            runBlocking(Dispatchers.Main) { state.scrollToItem(targetIndex, scrollOffset) }
+
+            var settledTransformedHeight = 0
+            rule.runOnIdle {
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.isScrollInProgress)
+                    .isFalse()
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.anchorItemIndex)
+                    .isEqualTo(targetIndex)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.anchorItemScrollOffset)
+                    .isEqualTo(scrollOffset)
+                val targetItem = state.layoutInfo.visibleItems.first { it.index == targetIndex }
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(targetItem.offset)
+                    .isEqualTo(expectedOffset)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(targetItem.transformedHeight)
+                    .isLessThan(itemHeightPx)
+                settledTransformedHeight = targetItem.transformedHeight
+                checkNotNull(state.remeasurement).forceRemeasure()
+            }
+
+            rule.runOnIdle {
+                val targetItem = state.layoutInfo.visibleItems.first { it.index == targetIndex }
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.anchorItemIndex)
+                    .isEqualTo(targetIndex)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.anchorItemScrollOffset)
+                    .isEqualTo(scrollOffset)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(targetItem.offset)
+                    .isEqualTo(expectedOffset)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(targetItem.transformedHeight)
+                    .isEqualTo(settledTransformedHeight)
+            }
+        }
+    }
+
+    @Test
+    fun requestScrollToItem_withTransformedHeightAndScrollOffset_usesUnscaledCenterAndStaysStable() {
+        val containerSizePx = 300
+        val viewportCenterPx = containerSizePx / 2
+        val itemHeightPx = 160
+        val targetIndex = 8
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            with(rule.density) {
+                TransformingLazyColumn(
+                    Modifier.height(containerSizePx.toDp()).testTag(lazyListTag),
+                    state,
+                    verticalArrangement = Arrangement.spacedBy(0.toDp()),
+                ) {
+                    items(itemsCount) {
+                        Spacer(
+                            modifier =
+                                Modifier.height(itemHeightPx.toDp()).transformedHeight {
+                                    height,
+                                    progress ->
+                                    val centerFraction =
+                                        (progress.topOffsetFraction +
+                                            progress.bottomOffsetFraction) / 2f
+                                    val edgeDist =
+                                        (abs(centerFraction - 0.5f) - 0.05f).coerceAtLeast(0f)
+                                    val scale = (1f - edgeDist * 2f).coerceIn(0.5f, 1f)
+                                    (height * scale).roundToInt().coerceAtLeast(1)
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        for (scrollOffset in listOf(30, -30)) {
+            val expectedOffset = viewportCenterPx - itemHeightPx / 2 - scrollOffset
+            rule.runOnIdle {
+                state.requestScrollToItem(targetIndex, scrollOffset)
+                checkNotNull(state.remeasurement).forceRemeasure()
+            }
+
+            var settledTransformedHeight = 0
+            rule.runOnIdle {
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.isScrollInProgress)
+                    .isFalse()
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.anchorItemIndex)
+                    .isEqualTo(targetIndex)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.anchorItemScrollOffset)
+                    .isEqualTo(scrollOffset)
+                val targetItem = state.layoutInfo.visibleItems.first { it.index == targetIndex }
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(targetItem.offset)
+                    .isEqualTo(expectedOffset)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(targetItem.transformedHeight)
+                    .isLessThan(itemHeightPx)
+                settledTransformedHeight = targetItem.transformedHeight
+                checkNotNull(state.remeasurement).forceRemeasure()
+            }
+
+            rule.runOnIdle {
+                val targetItem = state.layoutInfo.visibleItems.first { it.index == targetIndex }
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.anchorItemIndex)
+                    .isEqualTo(targetIndex)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(state.anchorItemScrollOffset)
+                    .isEqualTo(scrollOffset)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(targetItem.offset)
+                    .isEqualTo(expectedOffset)
+                assertWithMessage("scrollOffset=$scrollOffset")
+                    .that(targetItem.transformedHeight)
+                    .isEqualTo(settledTransformedHeight)
+            }
+        }
+    }
 
     @Test
     fun animateScrollToItem_anchorItemWithOffset_scrollsInCorrectDirectionWithoutJump() {
@@ -259,7 +421,7 @@ class TransformingLazyColumnScrollTest {
                 AutoTestFrameClock {
                     state.layoutInfo.visibleItems
                         .firstOrNull { it.index == targetIndex }
-                        ?.let { targetCenters.add(it.offset + it.transformedHeight / 2) }
+                        ?.let { targetCenters.add(it.offset + it.measuredHeight / 2) }
                 }
         ) {
             state.animateScrollToItem(targetIndex, targetScrollOffset)
@@ -272,7 +434,7 @@ class TransformingLazyColumnScrollTest {
             val targetItem = state.layoutInfo.visibleItems.first { it.index == targetIndex }
             assertThat(targetItem.transformedHeight).isLessThan(itemSizePx)
             assertThat(targetItem.offset)
-                .isEqualTo(viewportCenterPx - targetItem.transformedHeight / 2 - targetScrollOffset)
+                .isEqualTo(viewportCenterPx - itemSizePx / 2 - targetScrollOffset)
         }
     }
 

@@ -57,12 +57,14 @@ import kotlinx.coroutines.launch
  *   index is provided, the state will attempt to center this item in the viewport. If a negative
  *   index is provided then the list will be initialized with the first item (index 0) pinned to the
  *   start of the viewport, respecting any content padding. This is the default behavior.
- * @param initialAnchorItemScrollOffset The offset to be applied to the anchor item. Defaults to 0.
- *   This offset is ONLY used when a non-negative `initialAnchorItemIndex` is provided (i.e., when
- *   the item is being centered). It is ignored if `initialAnchorItemIndex` is less than 0. The
- *   offset is used when placing the item in the center of the screen; a positive value scrolls the
- *   item towards the end of the list, and a negative value scrolls it towards the start. This
- *   correlates with [TransformingLazyColumnState.anchorItemScrollOffset].
+ * @param initialAnchorItemScrollOffset The offset, in pixels, to be applied to the anchor item.
+ *   Defaults to 0. This offset is ONLY used when a non-negative `initialAnchorItemIndex` is
+ *   provided (i.e., when the item is being centered). It is ignored if `initialAnchorItemIndex` is
+ *   less than 0. The offset is applied relative to the item's untransformed
+ *   ([TransformingLazyColumnVisibleItemInfo.measuredHeight]) center when placing it in the center
+ *   of the viewport; a positive value shifts the item towards the start of the list (scrolling the
+ *   list forward), and a negative value shifts it towards the end. This correlates with
+ *   [TransformingLazyColumnState.anchorItemScrollOffset].
  */
 @Composable
 public fun rememberTransformingLazyColumnState(
@@ -81,12 +83,14 @@ public fun rememberTransformingLazyColumnState(
  *   index is provided, the state will attempt to center this item in the viewport. If a negative
  *   index is provided then the list will be initialized with the first item (index 0) pinned to the
  *   start of the viewport, respecting any content padding. This is the default behavior.
- * @param initialAnchorItemScrollOffset The offset to be applied to the anchor item. Defaults to 0.
- *   This offset is ONLY used when a non-negative `initialAnchorItemIndex` is provided (i.e., when
- *   the item is being centered). It is ignored if `initialAnchorItemIndex` is less than 0. The
- *   offset is used when placing the item in the center of the screen; a positive value scrolls the
- *   item towards the end of the list, and a negative value scrolls it towards the start. This
- *   correlates with [TransformingLazyColumnState.anchorItemScrollOffset].
+ * @param initialAnchorItemScrollOffset The offset, in pixels, to be applied to the anchor item.
+ *   Defaults to 0. This offset is ONLY used when a non-negative `initialAnchorItemIndex` is
+ *   provided (i.e., when the item is being centered). It is ignored if `initialAnchorItemIndex` is
+ *   less than 0. The offset is applied relative to the item's untransformed
+ *   ([TransformingLazyColumnVisibleItemInfo.measuredHeight]) center when placing it in the center
+ *   of the viewport; a positive value shifts the item towards the start of the list (scrolling the
+ *   list forward), and a negative value shifts it towards the end. This correlates with
+ *   [TransformingLazyColumnState.anchorItemScrollOffset].
  */
 @Stable
 public class TransformingLazyColumnState
@@ -176,8 +180,13 @@ constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int
         private set
 
     /**
-     * The scroll offset of the anchor item. Scrolling forward is positive - i.e., the amount that
-     * the item is offset backwards.
+     * The scroll offset, in pixels, of the anchor item's untransformed
+     * ([TransformingLazyColumnVisibleItemInfo.measuredHeight]) center relative to the viewport
+     * center. Scrolling forward is positive - i.e., the amount that the item is offset backwards.
+     * When height transformation changes the item's height
+     * ([TransformingLazyColumnVisibleItemInfo.transformedHeight] differs from
+     * [TransformingLazyColumnVisibleItemInfo.measuredHeight]), the item's visual center may differ
+     * from its untransformed center.
      *
      * Note that this property is observable and if you use it in the composable function it will be
      * recomposed on every scroll causing potential performance issues.
@@ -333,8 +342,10 @@ constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int
      * This operation happens instantly without animation.
      *
      * @param index The index of the item to scroll to. Must be non-negative.
-     * @param scrollOffset The offset between the center of the screen and item's center. Positive
-     *   offset means the item will be scrolled up.
+     * @param scrollOffset The offset, in pixels, between the viewport center and the item's
+     *   untransformed ([TransformingLazyColumnVisibleItemInfo.measuredHeight]) center. A positive
+     *   offset shifts the item towards the start of the list (e.g., up when `reverseLayout` is
+     *   `false`).
      */
     public suspend fun scrollToItem(
         @androidx.annotation.IntRange(from = 0) index: Int,
@@ -359,8 +370,10 @@ constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int
      * Any scroll in progress will be cancelled.
      *
      * @param index the index to which to scroll. Must be non-negative.
-     * @param scrollOffset The offset between the center of the screen and item's center. Positive
-     *   offset means the item will be scrolled up.
+     * @param scrollOffset The offset, in pixels, between the viewport center and the item's
+     *   untransformed ([TransformingLazyColumnVisibleItemInfo.measuredHeight]) center. A positive
+     *   offset shifts the item towards the start of the list (e.g., up when `reverseLayout` is
+     *   `false`).
      */
     public fun requestScrollToItem(
         @androidx.annotation.IntRange(from = 0) index: Int,
@@ -384,8 +397,10 @@ constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int
      *
      * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnScrollToItemSample
      * @param index the index to which to scroll. Must be non-negative.
-     * @param scrollOffset The offset between the center of the screen and item's center. Positive
-     *   offset means the item will be scrolled up.
+     * @param scrollOffset The offset, in pixels, between the viewport center and the item's
+     *   untransformed ([TransformingLazyColumnVisibleItemInfo.measuredHeight]) center. A positive
+     *   offset shifts the item towards the start of the list (e.g., up when `reverseLayout` is
+     *   `false`).
      */
     public suspend fun animateScrollToItem(
         @androidx.annotation.IntRange(from = 0) index: Int,

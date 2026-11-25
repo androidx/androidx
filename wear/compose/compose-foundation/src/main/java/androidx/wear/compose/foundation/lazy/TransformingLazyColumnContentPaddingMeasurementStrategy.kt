@@ -199,6 +199,9 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                 }
             }
 
+        // Anchor selection intentionally uses visual (transformedHeight) bounds to pick the item
+        // covering or nearest to the viewport center, whereas anchorItemScrollOffset is reported
+        // relative to the item's untransformed (measuredHeight) center.
         fun anchorItem(): TransformingLazyColumnMeasuredItem? =
             with(visibleItems) {
                 if (isEmpty()) return null
@@ -331,7 +334,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             }
         // Restore the position of anchor item from the previous measurement.
         val defaultPreviousAnchorItem =
-            if (lastMeasuredAnchorItemHeight > 0) {
+            if (lastMeasuredAnchorItemHeight >= 0) {
                 val offset =
                     containerConstraints.maxHeight / 2 -
                         lastMeasuredAnchorItemHeight / 2 -
@@ -349,11 +352,13 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                     maxHeight = containerConstraints.maxHeight,
                 )
             } else {
-                resolveMeasuredItemForFixedCenter(
-                    index = anchorItemIndex,
-                    scrollOffset = anchorItemScrollOffset,
+                // Integer division centerOffset - measuredHeight / 2 is symmetric with
+                // maxHeight / 2 - measuredHeight / 2 - offset when reporting
+                // anchorItemScrollOffset, avoiding 1px drift for odd heights.
+                measuredItemProvider.centeredMeasuredItem(
+                    anchorItemIndex,
+                    centerOffset = containerConstraints.maxHeight / 2 - anchorItemScrollOffset,
                     maxHeight = containerConstraints.maxHeight,
-                    measuredItemProvider = measuredItemProvider,
                 )
             }
 
@@ -650,12 +655,12 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                 anchorItemIndex = anchorItem.index,
                 anchorItemScrollOffset =
                     anchorItem.let {
-                        containerConstraints.maxHeight / 2 - it.transformedHeight / 2 - it.offset
+                        containerConstraints.maxHeight / 2 - it.measuredHeight / 2 - it.offset
                     },
                 visibleItems = actuallyVisibleItems,
                 positionedItems = positionedItems,
                 totalItemsCount = itemsCount,
-                lastMeasuredItemHeight = anchorItem.transformedHeight,
+                lastMeasuredItemHeight = anchorItem.measuredHeight,
                 canScrollForward = canScrollForward,
                 canScrollBackward = canScrollBackward,
                 coroutineScope = coroutineScope,
@@ -802,98 +807,9 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
         return item
     }
 
-    /**
-     * Measures the item at [index] so that its center is [scrollOffset] above the viewport center.
-     *
-     * The item is measured downward, with a scroll progress computed from its actual top offset.
-     * This matches how the following measure passes restore the anchor item from its top offset and
-     * last transformed height, so the position doesn't drift on the next remeasure.
-     */
-    private fun resolveMeasuredItemForFixedCenter(
-        index: Int,
-        scrollOffset: Int,
-        maxHeight: Int,
-        measuredItemProvider: MeasuredItemProvider,
-    ): TransformingLazyColumnMeasuredItem {
-        val targetCenter = maxHeight / 2 - scrollOffset
-        // Placeholder offset used only to obtain measuredHeight; transformedHeight isn't read here.
-        val item =
-            measuredItemProvider.downwardMeasuredItem(
-                index = index,
-                offset = targetCenter,
-                maxHeight = maxHeight,
-            )
-
-        // The item isn't scaled when centered, which is the most common case.
-        val unscaledTop = targetCenter - item.measuredHeight / 2
-        item.moveBelow(unscaledTop)
-        val heightAtUnscaledTop = item.transformedHeight
-        val unscaledDiff = unscaledTop + heightAtUnscaledTop / 2 - targetCenter
-        if (unscaledDiff == 0) return item
-
-        // The item has the same transformed height around the target, e.g. when it's offscreen.
-        val scaledTop = targetCenter - heightAtUnscaledTop / 2
-        item.moveBelow(scaledTop)
-        val heightAtScaledTop = item.transformedHeight
-        val scaledDiff = scaledTop + heightAtScaledTop / 2 - targetCenter
-        if (scaledDiff == 0) return item
-
-        var bestTop = unscaledTop
-        var minDiff = abs(unscaledDiff)
-        val absScaledDiff = abs(scaledDiff)
-        if (absScaledDiff < minDiff) {
-            minDiff = absScaledDiff
-            bestTop = scaledTop
-        }
-
-        // Inside a transition area, iterating on the transformed height can oscillate when the
-        // height changes by more than 2px per px of offset. Binary search between offsets where
-        // the item center is above and below the target instead.
-        var lowTop: Int
-        var highTop: Int
-        if (unscaledDiff < 0) {
-            lowTop = if (scaledDiff > 0) unscaledTop + 1 else scaledTop + 1
-            highTop = if (scaledDiff > 0) scaledTop - 1 else targetCenter
-        } else if (scaledDiff < 0) {
-            lowTop = scaledTop + 1
-            highTop = unscaledTop - 1
-        } else {
-            // Brackets the target when the transformation scales up by at most 2x; otherwise falls
-            // back to bestTop.
-            lowTop = targetCenter - heightAtScaledTop
-            highTop = scaledTop - 1
-        }
-
-        var repetitions = 0
-        while (lowTop <= highTop && repetitions < CENTER_OFFSET_RESOLVE_REPETITIONS) {
-            val candidateTop = lowTop + (highTop - lowTop) / 2
-            item.moveBelow(candidateTop)
-            val diff = candidateTop + item.transformedHeight / 2 - targetCenter
-            val absDiff = abs(diff)
-            if (absDiff < minDiff) {
-                minDiff = absDiff
-                bestTop = candidateTop
-            }
-            if (diff == 0) break
-
-            if (diff > 0) {
-                highTop = candidateTop - 1
-            } else {
-                lowTop = candidateTop + 1
-            }
-            repetitions++
-        }
-        // Ensure the mutated item settles at the position that yielded the minimal difference.
-        if (item.offset != bestTop) {
-            item.moveBelow(bestTop)
-        }
-        return item
-    }
-
     private companion object {
         const val GRADIENT_DESCENT_REPETITIONS = 4
         const val OFFSET_RESOLVE_REPETITIONS = 10
-        const val CENTER_OFFSET_RESOLVE_REPETITIONS = 32
     }
 }
 
