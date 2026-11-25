@@ -58,7 +58,7 @@ internal value class TransitionAreaProgress(private val encodedProgress: Float) 
                 variable.transformationZoneExitFraction,
                 progress,
             )
-        return lerp(edgeValue, 1f, easing.transform(transformationZoneProgress))
+        return lerp(edgeValue, variable.targetValue, easing.transform(transformationZoneProgress))
     }
 
     companion object {

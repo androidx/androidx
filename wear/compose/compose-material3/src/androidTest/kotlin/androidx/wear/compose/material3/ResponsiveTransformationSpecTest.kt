@@ -17,11 +17,13 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -285,6 +287,90 @@ class ResponsiveTransformationSpecTest {
 
         rule.waitForIdle()
         assertThat(state!!.layoutInfo.visibleItems.size).isLessThan(100)
+    }
+
+    @Test
+    fun responsive_transformation_spec_respects_custom_target_value() {
+        val spec =
+            ResponsiveTransformationSpec.smallScreen(
+                minElementHeightFraction = 0.2f,
+                maxElementHeightFraction = 0.6f,
+                minTransitionAreaHeightFraction = 0.5f,
+                maxTransitionAreaHeightFraction = 0.5f,
+                easing = LinearEasing,
+                containerAlpha =
+                    TransformationVariableSpec(
+                        topValue = 0.25f,
+                        targetValue = 0.75f,
+                        bottomValue = 0.35f,
+                    ),
+                contentAlpha =
+                    TransformationVariableSpec(
+                        topValue = 0.2f,
+                        targetValue = 0.6f,
+                        bottomValue = 0.4f,
+                    ),
+                scale =
+                    TransformationVariableSpec(
+                        topValue = 0.5f,
+                        targetValue = 0.8f,
+                        bottomValue = 0.5f,
+                    ),
+            )
+        val centerProgress =
+            TransformingLazyColumnItemScrollProgress(
+                topOffsetFraction = 0.45f,
+                bottomOffsetFraction = 0.55f,
+            )
+        val topHalfwayProgress =
+            TransformingLazyColumnItemScrollProgress(
+                topOffsetFraction = 0.125f,
+                bottomOffsetFraction = 0.25f,
+            )
+        val bottomHalfwayProgress =
+            TransformingLazyColumnItemScrollProgress(
+                topOffsetFraction = 0.75f,
+                bottomOffsetFraction = 0.875f,
+            )
+
+        val centerContainerLayer =
+            GraphicsLayerScope().apply {
+                with(spec) { applyContainerTransformation(centerProgress) }
+            }
+        val centerContentLayer =
+            GraphicsLayerScope().apply { with(spec) { applyContentTransformation(centerProgress) } }
+        val topHalfwayContainerLayer =
+            GraphicsLayerScope().apply {
+                with(spec) { applyContainerTransformation(topHalfwayProgress) }
+            }
+        val topHalfwayContentLayer =
+            GraphicsLayerScope().apply {
+                with(spec) { applyContentTransformation(topHalfwayProgress) }
+            }
+        val bottomHalfwayContainerLayer =
+            GraphicsLayerScope().apply {
+                with(spec) { applyContainerTransformation(bottomHalfwayProgress) }
+            }
+        val bottomHalfwayContentLayer =
+            GraphicsLayerScope().apply {
+                with(spec) { applyContentTransformation(bottomHalfwayProgress) }
+            }
+
+        assertThat(spec.getTransformedHeight(100, centerProgress)).isEqualTo(80)
+        assertThat(centerContainerLayer.alpha).isWithin(EPSILON).of(0.75f)
+        assertThat(centerContainerLayer.scaleX).isWithin(EPSILON).of(0.8f)
+        assertThat(centerContainerLayer.scaleY).isWithin(EPSILON).of(0.8f)
+        assertThat(centerContentLayer.alpha).isWithin(EPSILON).of(0.6f)
+        assertThat(spec.getTransformedHeight(100, topHalfwayProgress)).isEqualTo(65)
+        assertThat(topHalfwayContainerLayer.alpha).isWithin(EPSILON).of(0.5f)
+        assertThat(topHalfwayContainerLayer.scaleX).isWithin(EPSILON).of(0.65f)
+        assertThat(topHalfwayContainerLayer.scaleY).isWithin(EPSILON).of(0.65f)
+        assertThat(topHalfwayContentLayer.alpha).isWithin(EPSILON).of(0.4f)
+        assertThat(spec.getTransformedHeight(100, bottomHalfwayProgress)).isEqualTo(65)
+        assertThat(bottomHalfwayContainerLayer.alpha).isWithin(EPSILON).of(0.55f)
+        assertThat(bottomHalfwayContainerLayer.scaleX).isWithin(EPSILON).of(0.65f)
+        assertThat(bottomHalfwayContainerLayer.scaleY).isWithin(EPSILON).of(0.65f)
+        assertThat(bottomHalfwayContentLayer.alpha).isWithin(EPSILON).of(0.5f)
     }
 
     private val EPSILON = 1e-5f
