@@ -16,10 +16,15 @@
 
 package androidx.xr.runtime.testing
 
+import android.companion.virtual.VirtualDeviceManager
+import android.content.Context
+import android.hardware.display.DisplayManager
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DisplayBlendMode
 import androidx.xr.runtime.EyeTrackingMode
@@ -34,8 +39,12 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import org.junit.Before
 import org.junit.Rule
+import org.junit.runner.Description
 import org.junit.runner.RunWith
+import org.junit.runners.model.Statement
 import org.robolectric.Robolectric
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDisplayManager
 
 @RunWith(AndroidJUnit4::class)
 class XrDeviceTestRuleTest {
@@ -50,6 +59,100 @@ class XrDeviceTestRuleTest {
         testDispatcher = StandardTestDispatcher()
         val activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    fun createTestXrDevice_createsVirtualDeviceWithDisplay() {
+        val testDevice = underTest.createTestXrDevice()
+
+        val virtualDevice =
+            activity.getSystemService(VirtualDeviceManager::class.java).virtualDevices.single()
+        assertThat(testDevice.context.deviceId).isEqualTo(virtualDevice.deviceId)
+        assertThat(virtualDevice.displayIds.toList()).containsExactly(testDevice.primaryDisplayId)
+        assertThat(
+                activity
+                    .getSystemService(DisplayManager::class.java)
+                    .getDisplay(testDevice.primaryDisplayId)
+            )
+            .isNotNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    fun createTestXrDevice_calledTwice_createsSeparateDevices() {
+        val testDevice1 = underTest.createTestXrDevice()
+        val testDevice2 = underTest.createTestXrDevice()
+
+        assertThat(testDevice1.context.deviceId).isNotEqualTo(testDevice2.context.deviceId)
+        assertThat(testDevice1.primaryDisplayId).isNotEqualTo(testDevice2.primaryDisplayId)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun createTestXrDevice_onUpsideDownCake_createsDeviceWithDisplay() {
+        val testDevice = underTest.createTestXrDevice()
+
+        assertThat(testDevice.context.deviceId).isNotEqualTo(Context.DEVICE_ID_DEFAULT)
+        assertThat(
+                activity
+                    .getSystemService(DisplayManager::class.java)
+                    .getDisplay(testDevice.primaryDisplayId)
+            )
+            .isNotNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    fun after_closesCreatedDevicesAndReleasesTheirDisplays() {
+        val rule = XrDeviceTestRule()
+        lateinit var testDevice: TestXrDevice
+
+        rule
+            .apply(
+                object : Statement() {
+                    override fun evaluate() {
+                        testDevice = rule.createTestXrDevice()
+                    }
+                },
+                Description.EMPTY,
+            )
+            .evaluate()
+
+        assertThat(activity.getSystemService(VirtualDeviceManager::class.java).virtualDevices)
+            .isEmpty()
+        assertThat(
+                activity
+                    .getSystemService(DisplayManager::class.java)
+                    .getDisplay(testDevice.primaryDisplayId)
+            )
+            .isNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    fun after_displayAlreadyRemoved_closesCreatedDevices() {
+        val rule = XrDeviceTestRule()
+
+        rule
+            .apply(
+                object : Statement() {
+                    override fun evaluate() {
+                        val testDevice = rule.createTestXrDevice()
+                        ShadowDisplayManager.removeDisplay(testDevice.primaryDisplayId)
+                    }
+                },
+                Description.EMPTY,
+            )
+            .evaluate()
+
+        assertThat(activity.getSystemService(VirtualDeviceManager::class.java).virtualDevices)
+            .isEmpty()
     }
 
     @Test
