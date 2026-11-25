@@ -581,6 +581,7 @@ package androidx.ink.brush {
 
   public fun interface TextureBitmapStore {
     method public operator android.graphics.Bitmap? get(String clientTextureId);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkBrushCompatibilityApi public default String getEncodedTextureId(String clientTextureId);
   }
 
   public final class Version implements java.lang.Comparable<androidx.ink.brush.Version> {

@@ -16,7 +16,6 @@
 
 package androidx.ink.brush
 
-import androidx.annotation.RestrictTo
 import platform.UIKit.UIImage
 
 /**
@@ -65,6 +64,6 @@ public fun interface TextureImageStore {
      * @param clientTextureId The texture ID used by the `BrushFamily` being encoded.
      * @return The texture ID to write into the serialized `BrushFamily`.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkBrushCompatibilityApi
     public fun getEncodedTextureId(clientTextureId: String): String = clientTextureId
 }

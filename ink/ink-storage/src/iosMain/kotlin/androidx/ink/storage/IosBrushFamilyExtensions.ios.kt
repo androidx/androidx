@@ -21,7 +21,6 @@ package androidx.ink.storage
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
 import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.TextureImageStore
 import androidx.ink.brush.Version
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -173,7 +172,7 @@ public fun BrushFamily.Companion.decodeMultiple(
         onDecodeTexture.toOnDecodeTexturePngBytes(),
     )
 
-@OptIn(ExperimentalInkCustomBrushApi::class)
+@OptIn(ExperimentalInkBrushCompatibilityApi::class)
 private fun TextureImageStore.toTexturePngBytesLookup(): TexturePngBytesLookup =
     object : TexturePngBytesLookup {
         override fun getTexturePngBytes(clientTextureId: String): ByteArray? =

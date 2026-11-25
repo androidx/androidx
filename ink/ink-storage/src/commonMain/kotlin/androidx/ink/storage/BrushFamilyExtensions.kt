@@ -20,7 +20,6 @@
 
 package androidx.ink.storage
 
-import androidx.annotation.RestrictTo
 import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.ExperimentalInkBrushCompatibilityApi
@@ -236,11 +235,11 @@ public fun interface TexturePngBytesLookup {
      * @param clientTextureId The texture ID used by the [BrushFamily] being encoded.
      * @return The texture ID to write into the serialized [BrushFamily].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @ExperimentalInkCustomBrushApi
+    @ExperimentalInkBrushCompatibilityApi
     public fun getEncodedTextureId(clientTextureId: String): String = clientTextureId
 }
 
+@OptIn(ExperimentalInkBrushCompatibilityApi::class)
 private fun BrushFamily.collectTextures(
     textureMap: MutableMap<String, ByteArray>,
     encodedTextureIds: MutableMap<String, String>,

@@ -115,6 +115,7 @@ package androidx.ink.storage {
   }
 
   public fun interface TexturePngBytesLookup {
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkBrushCompatibilityApi public default String getEncodedTextureId(String clientTextureId);
     method public byte[]? getTexturePngBytes(String clientTextureId);
   }
 
