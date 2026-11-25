@@ -777,6 +777,46 @@ class SessionConfigTest {
         }
     }
 
+    @Test
+    fun sessionConfig_colorSpaceDefaultsToUnspecified() {
+        val sessionConfig = SessionConfig.Builder(useCases).build()
+        assertThat(sessionConfig.colorSpace).isEqualTo(ColorSpace.UNSPECIFIED)
+    }
+
+    @Test
+    fun sessionConfig_builderAndCopyConstructorPreserveColorSpace() {
+        val original = SessionConfig.Builder(useCases).setColorSpace(ColorSpace.DISPLAY_P3).build()
+        val copied = SessionConfig.Builder(original).build()
+
+        assertThat(original.colorSpace).isEqualTo(ColorSpace.DISPLAY_P3)
+        assertThat(copied.colorSpace).isEqualTo(ColorSpace.DISPLAY_P3)
+        assertThat(original.toString()).contains("colorSpace=ColorSpace.DISPLAY_P3")
+    }
+
+    @Test
+    fun sessionConfig_dslSetsColorSpace() {
+        val sessionConfig =
+            sessionConfig(useCases) {
+                colorSpace = ColorSpace.DISPLAY_P3
+                assertThat(colorSpace).isEqualTo(ColorSpace.DISPLAY_P3)
+            }
+
+        assertThat(sessionConfig.colorSpace).isEqualTo(ColorSpace.DISPLAY_P3)
+    }
+
+    @Test
+    fun sessionConfig_withVideoCaptureAndDisplayP3_buildsWithoutThrowing() {
+        val preview = Preview.Builder().build()
+        val videoCapture = createVideoCapture()
+
+        val config =
+            SessionConfig.Builder(preview, videoCapture)
+                .setColorSpace(ColorSpace.DISPLAY_P3)
+                .build()
+
+        assertThat(config.colorSpace).isEqualTo(ColorSpace.DISPLAY_P3)
+    }
+
     private fun createVideoCapture(quality: Quality? = null): VideoCapture<Recorder> {
         return VideoCapture.withOutput(
             Recorder.Builder()

@@ -26,6 +26,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUseCaseAdapterProvider;
+import androidx.camera.core.ColorSpace;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.ExposureState;
@@ -292,6 +293,11 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     public @NonNull Set<DynamicRange> querySupportedDynamicRanges(
             @NonNull Set<DynamicRange> candidateDynamicRanges) {
         return mCameraInfoInternal.querySupportedDynamicRanges(candidateDynamicRanges);
+    }
+
+    @Override
+    public @NonNull Set<ColorSpace> getSupportedColorSpaces(@NonNull DynamicRange dynamicRange) {
+        return mCameraInfoInternal.getSupportedColorSpaces(dynamicRange);
     }
 
     @Override

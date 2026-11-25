@@ -117,6 +117,14 @@ constructor(
      * [ImageAnalysis].
      */
     public val isAutoRotationEnabled: Boolean = false,
+    /**
+     * The desired [ColorSpace] for the camera session. Defaults to [ColorSpace.UNSPECIFIED],
+     * allowing the camera device to select a color space based on the stream configuration,
+     * including the configured [DynamicRange] and outputs.
+     */
+    // TODO: b/561876511 - Make this public
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val colorSpace: ColorSpace = ColorSpace.UNSPECIFIED,
     /** Whether this is a legacy session config. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val isLegacy: Boolean = false,
     /** The type of the camera session. */
@@ -380,6 +388,7 @@ constructor(
             "useCases=$useCases, " +
             "initialEnabledUseCases=$initialEnabledUseCases, " +
             "frameRateRange=$frameRateRange, " +
+            "colorSpace=$colorSpace, " +
             "requiredFeatureGroup=$requiredFeatureGroup, " +
             "preferredFeatureGroup=$preferredFeatureGroup, " +
             "effects=$effects, " +
@@ -427,6 +436,7 @@ constructor(
         private val requiredFeatureGroup = mutableListOf<GroupableFeature>()
         private val preferredFeatureGroup = mutableListOf<GroupableFeature>()
         private var isAutoRotationEnabled = false
+        private var colorSpace: ColorSpace = ColorSpace.UNSPECIFIED
         private var cameraFilter: CameraFilter? = null
         private var sessionType: Int = SESSION_TYPE_REGULAR
         private var requireNonEmptyUseCases: Boolean = true
@@ -442,6 +452,7 @@ constructor(
             requiredFeatureGroup.addAll(sessionConfig.requiredFeatureGroup)
             preferredFeatureGroup.addAll(sessionConfig.preferredFeatureGroup)
             isAutoRotationEnabled = sessionConfig.isAutoRotationEnabled
+            colorSpace = sessionConfig.colorSpace
             cameraFilter = sessionConfig.cameraFilter
             sessionType = sessionConfig.sessionType
             requireNonEmptyUseCases = sessionConfig.requireNonEmptyUseCases
@@ -598,6 +609,29 @@ constructor(
             return this
         }
 
+        /**
+         * Sets the desired [ColorSpace] for the camera session.
+         *
+         * Non-sRGB color spaces (such as [ColorSpace.DISPLAY_P3]) require Android 14 (API 34) or
+         * higher and hardware support for the bound [UseCase] combination. Use
+         * [CameraInfo.getSupportedColorSpaces] to verify which color spaces are supported for the
+         * target [DynamicRange] before setting this option, and use
+         * [CameraInfo.isSessionConfigSupported] to validate the complete [SessionConfig] before
+         * binding (binding an unsupported color space throws [IllegalArgumentException]).
+         *
+         * @param colorSpace The desired [ColorSpace], or [ColorSpace.UNSPECIFIED] to let the camera
+         *   device select its default color space.
+         * @return The [Builder] instance, allowing for method chaining.
+         * @see CameraInfo.getSupportedColorSpaces
+         * @see CameraInfo.isSessionConfigSupported
+         */
+        // TODO: b/561876511 - Make this public
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setColorSpace(colorSpace: ColorSpace): Builder {
+            this.colorSpace = colorSpace
+            return this
+        }
+
         /** Builds a [SessionConfig] from the current configuration. */
         public fun build(): SessionConfig {
             return SessionConfig(
@@ -608,6 +642,7 @@ constructor(
                 requiredFeatureGroup = requiredFeatureGroup.toSet(),
                 preferredFeatureGroup = preferredFeatureGroup.toList(),
                 isAutoRotationEnabled = isAutoRotationEnabled,
+                colorSpace = colorSpace,
                 cameraFilter = cameraFilter,
                 sessionType =
                     interopMutableConfig.retrieveOption(
@@ -740,6 +775,25 @@ internal constructor(
         set(value) {
             _isAutoRotationEnabled = value
             builder.setAutoRotationEnabled(value)
+        }
+
+    private var _colorSpace: ColorSpace = ColorSpace.UNSPECIFIED
+
+    /**
+     * The desired [ColorSpace] for the camera session.
+     *
+     * @see SessionConfig.Builder.setColorSpace
+     */
+    // TODO: b/561876511 - Make this public
+    @get:NonNull
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:NonNull
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var colorSpace: ColorSpace
+        get() = _colorSpace
+        set(value) {
+            _colorSpace = value
+            builder.setColorSpace(value)
         }
 
     internal fun build(): SessionConfig = builder.build()
