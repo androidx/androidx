@@ -333,19 +333,9 @@ private abstract class BaseRemoteBoolean :
             return ifTrue
         }
 
-        val condition = floatComparison ?: SelectFloatCondition.BooleanCondition(this)
-        return RemoteFloatSelect(
-            condition = condition,
-            ifTrue = ifTrue,
-            ifFalse = ifFalse,
-            cacheKey =
-                RemoteOperationCacheKey.create(
-                    BooleanOperationKey.SelectFloat,
-                    this,
-                    ifTrue,
-                    ifFalse,
-                ),
-        )
+        val condition =
+            floatComparison?.withBooleanSource(this) ?: SelectFloatCondition.BooleanCondition(this)
+        return condition.createSelect(ifTrue, ifFalse)
     }
 
     override fun select(ifTrue: RemoteInt, ifFalse: RemoteInt): RemoteInt {
@@ -361,19 +351,9 @@ private abstract class BaseRemoteBoolean :
             return ifTrue
         }
 
-        val condition = intComparison ?: SelectIntCondition.BooleanCondition(this)
-        return RemoteIntSelect(
-            condition = condition,
-            ifTrue = ifTrue,
-            ifFalse = ifFalse,
-            cacheKey =
-                RemoteOperationCacheKey.create(
-                    BooleanOperationKey.SelectInt,
-                    this,
-                    ifTrue,
-                    ifFalse,
-                ),
-        )
+        val condition =
+            intComparison?.withBooleanSource(this) ?: SelectIntCondition.BooleanCondition(this)
+        return condition.createSelect(ifTrue, ifFalse)
     }
 
     override fun select(ifTrue: RemoteBoolean, ifFalse: RemoteBoolean): RemoteBoolean {
@@ -506,7 +486,7 @@ private class RemoteBooleanImpl(
     val intComparison: SelectIntCondition.IntComparison? = null,
 ) : BaseRemoteBoolean()
 
-private enum class BooleanOperationKey : RemoteOperation {
+internal enum class BooleanOperationKey : RemoteOperation {
     SelectString,
     SelectFloat,
     SelectInt,
