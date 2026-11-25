@@ -19,6 +19,7 @@ package androidx.camera.camera2.impl
 import android.content.Context
 import android.hardware.display.DisplayManager
 import android.os.Build
+import android.os.Looper
 import android.util.Size
 import android.view.Display
 import android.view.WindowManager
@@ -240,5 +241,57 @@ class DisplayInfoManagerTest {
         DisplayInfoManager.releaseInstance()
         val displayInfoManager = DisplayInfoManager.getInstance(context)
         assertThat(displayInfoManager.getPreviewSize()).isEqualTo(Size(1600, 720))
+    }
+
+    @Test
+    fun displaySizeIsCached_untilDisplayListenerInvalidates() {
+        // Arrange
+        val displayId = addDisplay(480, 640)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        assertThat(displayInfoManager.getPreviewSize()).isEqualTo(Size(640, 480))
+
+        // Mutate the display size directly without triggering DisplayListener.
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        (Shadow.extract(displayManager.getDisplay(displayId)) as ShadowDisplay).apply {
+            setRealWidth(1000)
+            setRealHeight(1200)
+        }
+
+        // Act: refreshPreviewSize() should still use the cached display size.
+        displayInfoManager.refreshPreviewSize()
+
+        // Assert
+        assertThat(displayInfoManager.getPreviewSize()).isEqualTo(Size(640, 480))
+    }
+
+    @Test
+    fun displaySizeCacheIsInvalidated_whenDisplayChanged() {
+        // Arrange
+        val displayId = addDisplay(480, 640)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        assertThat(displayInfoManager.getPreviewSize()).isEqualTo(Size(640, 480))
+
+        // Act: changeDisplay triggers DisplayListener.onDisplayChanged.
+        ShadowDisplayManager.changeDisplay(displayId, "w1000dp-h1200dp")
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Assert
+        assertThat(displayInfoManager.getPreviewSize()).isEqualTo(Size(1200, 1000))
+    }
+
+    @Test
+    fun displaySizeCacheIsInvalidated_whenDisplayRemoved() {
+        // Arrange
+        val largeDisplayId = addDisplay(2000, 3000)
+        addDisplay(480, 640)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        assertThat(displayInfoManager.getPreviewSize()).isEqualTo(Size(1920, 1080))
+
+        // Act: removeDisplay triggers DisplayListener.onDisplayRemoved.
+        removeDisplay(largeDisplayId)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Assert
+        assertThat(displayInfoManager.getPreviewSize()).isEqualTo(Size(640, 480))
     }
 }
