@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import static androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation.SELF_COMPONENT_ID;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
@@ -83,9 +85,19 @@ public class Component extends PaintOperation
     @NonNull PaintBundle mPaint = new PaintBundle();
     @NonNull protected HashSet<ComponentValue> mComponentValues = new HashSet<>();
 
+    @Nullable protected PropertyBundleModifierOperation mPropertyBundle;
+
     protected float mZIndex = 0f;
 
     private boolean mNeedsBoundsAnimation = false;
+
+    /**
+     * Returns the {@link PropertyBundleModifierOperation} attached to this component, or {@code
+     * null} if none.
+     */
+    public @Nullable PropertyBundleModifierOperation getPropertyBundle() {
+        return mPropertyBundle;
+    }
 
     /** Mark the component as needing a bounds animation pass */
     public void markNeedsBoundsAnimation() {
@@ -461,11 +473,21 @@ public class Component extends PaintOperation
      * the component a chance to do some post-initialization work on its children ops.
      */
     public void inflate() {
+        mPropertyBundle = null;
         for (Operation op : mList) {
             if (op instanceof TouchListener) {
                 // Make sure to set the component of a touch expression that belongs to us!
                 TouchListener touchListener = (TouchListener) op;
                 touchListener.setComponent(this);
+            }
+            if (op instanceof PropertyBundleModifierOperation) {
+                mPropertyBundle = (PropertyBundleModifierOperation) op;
+            }
+            if (op instanceof PropertyBundleLookupOperation) {
+                PropertyBundleLookupOperation lookupOp = (PropertyBundleLookupOperation) op;
+                if (lookupOp.getComponentId() == SELF_COMPONENT_ID) {
+                    lookupOp.setComponentId(getComponentId());
+                }
             }
         }
     }

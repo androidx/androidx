@@ -131,6 +131,8 @@ import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
 import androidx.compose.remote.core.operations.layout.MultiClickModifierOperation2;
+import androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation;
+import androidx.compose.remote.core.operations.layout.PropertyBundleModifierOperation;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation2;
@@ -418,6 +420,8 @@ public class Operations {
     public static final int MODIFIER_TOUCH_DOWN = 219;
     public static final int MODIFIER_TOUCH_UP = 220;
     public static final int MODIFIER_TOUCH_CANCEL = 225;
+    public static final int MODIFIER_PROPERTY_BUNDLE = 95;
+    public static final int PROPERTY_BUNDLE_LOOKUP = 96;
     public static final int MODIFIER_EVENT_HANDLER = 100;
 
     public static final int CONTAINER_END = 214;
@@ -510,6 +514,8 @@ public class Operations {
         DATA_SOUND,
         SOUND_EXPRESSION,
         PLAY_SOUND,
+        MODIFIER_PROPERTY_BUNDLE,
+        PROPERTY_BUNDLE_LOOKUP,
         MODIFIER_EVENT_HANDLER,
         ADD_MESH_2D,
         DRAW_MESH_2D,
@@ -654,6 +660,10 @@ public class Operations {
                 sAllOperationsV7.put(DATA_SOUND, SoundData::read);
                 sAllOperationsV7.put(SOUND_EXPRESSION, SoundExpression::read);
                 sAllOperationsV7.put(PLAY_SOUND, PlaySound::read);
+                sAllOperationsV7.put(
+                        MODIFIER_PROPERTY_BUNDLE, PropertyBundleModifierOperation::read);
+                sAllOperationsV7.put(
+                        PROPERTY_BUNDLE_LOOKUP, PropertyBundleLookupOperation::read);
                 sAllOperationsV7.put(MODIFIER_EVENT_HANDLER, EventHandlerModifierOperation::read);
                 sAllOperationsV7.put(ADD_MESH_2D, AddMesh2D::read);
                 sAllOperationsV7.put(DRAW_MESH_2D, DrawMesh2D::read);

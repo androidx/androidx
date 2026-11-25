@@ -750,6 +750,42 @@ public class RecordingModifier {
         return this;
     }
 
+    /**
+     * Attaches a {@link PropertyBundleModifier} to the component.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of property values
+     * @return this modifier
+     */
+    public @NonNull RecordingModifier propertyBundle(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            int @NonNull [] values) {
+        mList.add(new PropertyBundleModifier(bundleId, parentBundleId, propertyIds, values));
+        return this;
+    }
+
+    /**
+     * Attaches a {@link PropertyBundleModifier} carrying literal integers or {@code
+     * 0x100000000L}-tagged variable identifiers.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of literal integers or {@code 0x100000000L}-tagged variable IDs
+     * @return this modifier
+     */
+    public @NonNull RecordingModifier propertyBundle(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            long @NonNull [] values) {
+        mList.add(new PropertyBundleModifier(bundleId, parentBundleId, propertyIds, values));
+        return this;
+    }
 
     /**
      * Adds a click modifier

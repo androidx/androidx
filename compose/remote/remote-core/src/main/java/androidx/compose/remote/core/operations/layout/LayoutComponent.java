@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import static androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation.SELF_COMPONENT_ID;
 import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.HORIZONTAL_CONSTRAINTS;
 import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS;
 import static androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation.REQUIRED_VERTICAL_CONSTRAINTS;
@@ -243,6 +244,7 @@ public class LayoutComponent extends Component {
         mHeightModifier = null;
         mZIndexModifier = null;
         mGraphicsLayerModifier = null;
+        mPropertyBundle = null;
         mComputedLayoutModifiers = null;
         mHorizontalScrollDelegate = null;
         mVerticalScrollDelegate = null;
@@ -357,6 +359,14 @@ public class LayoutComponent extends Component {
                 ComponentValue componentValue = (ComponentValue) op;
                 componentValue.setComponentId(getComponentId());
             }
+            if (op instanceof PropertyBundleLookupOperation) {
+                PropertyBundleLookupOperation lookupOp = (PropertyBundleLookupOperation) op;
+                if (lookupOp.getComponentId() == SELF_COMPONENT_ID
+                        || (mContent != null
+                                && lookupOp.getComponentId() == mContent.getComponentId())) {
+                    lookupOp.setComponentId(getComponentId());
+                }
+            }
             if (op instanceof TouchListener) {
                 ((TouchListener) op).setComponent(this);
             }
@@ -429,6 +439,8 @@ public class LayoutComponent extends Component {
                 if (scrollDelegate.handlesVerticalScroll()) {
                     mVerticalScrollDelegate = scrollDelegate;
                 }
+            } else if (op instanceof PropertyBundleModifierOperation) {
+                mPropertyBundle = (PropertyBundleModifierOperation) op;
             }
         }
         if (mWidthModifier == null) {

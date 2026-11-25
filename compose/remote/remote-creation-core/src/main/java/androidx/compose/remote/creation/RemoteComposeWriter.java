@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation;
 
+import static androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation.SELF_COMPONENT_ID;
 import static androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation.TYPE_MEASURE;
 import static androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation.TYPE_POSITION;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_DEREF;
@@ -48,6 +49,7 @@ import static androidx.compose.remote.core.operations.utilities.IntegerExpressio
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteComposeState;
@@ -5513,6 +5515,143 @@ public class RemoteComposeWriter {
             int @Nullable [] dataIds,
             float @Nullable [] condition) {
         mBuffer.addEventHandlerModifierOperation(type, filter, flags, dataIds, condition);
+    }
+
+    /**
+     * Adds a {@code PropertyBundleModifierOperation} to the buffer.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of property variable identifiers
+     */
+    public void addPropertyBundleModifierOperation(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            int @NonNull [] values) {
+        mBuffer.addPropertyBundleModifierOperation(bundleId, parentBundleId, propertyIds, values);
+    }
+
+    /**
+     * Materializes literal integer values into {@link IntegerConstant} variables and emits a
+     * {@code PropertyBundleModifierOperation}.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of literal integer property values
+     */
+    public void addPropertyBundleModifier(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            int @NonNull [] values) {
+        int count = propertyIds != null ? propertyIds.length : 0;
+        int valuesLen = values != null ? values.length : 0;
+        validatePropertyBundleArrayLengths(count, valuesLen);
+        int[] valueIds = new int[count];
+        for (int i = 0; i < count; i++) {
+            valueIds[i] = (int) (addInteger(values[i]) - 0x100000000L);
+        }
+        mBuffer.addPropertyBundleModifierOperation(bundleId, parentBundleId, propertyIds, valueIds);
+    }
+
+    /**
+     * Resolves literal integers or {@code 0x100000000L}-tagged variable identifiers into integer
+     * variable IDs and emits a {@code PropertyBundleModifierOperation}.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of literal integers or {@code 0x100000000L}-tagged variable IDs
+     */
+    public void addPropertyBundleModifier(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            long @NonNull [] values) {
+        int count = propertyIds != null ? propertyIds.length : 0;
+        int valuesLen = values != null ? values.length : 0;
+        validatePropertyBundleArrayLengths(count, valuesLen);
+        int[] valueIds = new int[count];
+        for (int i = 0; i < count; i++) {
+            long encoded = values[i];
+            if (encoded >= 0x100000000L) {
+                valueIds[i] = (int) (encoded - 0x100000000L);
+            } else {
+                valueIds[i] = (int) (addInteger((int) encoded) - 0x100000000L);
+            }
+        }
+        mBuffer.addPropertyBundleModifierOperation(bundleId, parentBundleId, propertyIds, valueIds);
+    }
+
+    private static void validatePropertyBundleArrayLengths(int count, int valuesLen) {
+        if (count != valuesLen) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Parallel arrays must have identical lengths:\n "
+                                    + "propertyIds=%d\nvalues=%d",
+                            count, valuesLen));
+        }
+        if (count > Limits.MAX_PROPERTY_BUNDLE_ENTRIES) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Too many property bundle entries: %d > %d",
+                            count, Limits.MAX_PROPERTY_BUNDLE_ENTRIES));
+        }
+    }
+
+    /**
+     * Adds a {@code PropertyBundleLookupOperation} to the buffer.
+     *
+     * @param valueId the destination integer variable identifier
+     * @param componentId the target component identifier, or {@code -1} for the enclosing component
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     */
+    public void addPropertyBundleLookupOperation(
+            int valueId, int componentId, int propertyId, int defaultValue) {
+        mBuffer.addPropertyBundleLookupOperation(valueId, componentId, propertyId, defaultValue);
+    }
+
+    /**
+     * Adds a {@code PropertyBundleLookupOperation} targeting the enclosing component to the buffer.
+     *
+     * @param valueId the destination integer variable identifier
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     */
+    public void addPropertyBundleLookupOperation(
+            int valueId, int propertyId, int defaultValue) {
+        mBuffer.addPropertyBundleLookupOperation(valueId, propertyId, defaultValue);
+    }
+
+    /**
+     * Allocates an integer variable and emits a {@code PropertyBundleLookupOperation} targeting
+     * {@code componentId}.
+     *
+     * @param componentId the target component identifier, or {@code -1} for the enclosing component
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     * @return id of the integer variable encoded as a {@code long} ({@code id + 0x100000000L})
+     */
+    public long addPropertyBundleLookup(int componentId, int propertyId, int defaultValue) {
+        int valueId = mState.createNextAvailableId();
+        mBuffer.addPropertyBundleLookupOperation(valueId, componentId, propertyId, defaultValue);
+        return (long) valueId + 0x100000000L;
+    }
+
+    /**
+     * Allocates an integer variable and emits a {@code PropertyBundleLookupOperation} targeting the
+     * enclosing component.
+     *
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     * @return id of the integer variable encoded as a {@code long} ({@code id + 0x100000000L})
+     */
+    public long addPropertyBundleLookup(int propertyId, int defaultValue) {
+        return addPropertyBundleLookup(SELF_COMPONENT_ID, propertyId, defaultValue);
     }
 
     /**

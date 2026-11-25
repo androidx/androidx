@@ -124,6 +124,8 @@ import androidx.compose.remote.core.operations.layout.ImpulseProcess;
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
+import androidx.compose.remote.core.operations.layout.PropertyBundleLookupOperation;
+import androidx.compose.remote.core.operations.layout.PropertyBundleModifierOperation;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
 import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
@@ -2969,6 +2971,54 @@ public class RemoteComposeBuffer {
             int @Nullable [] dataIds,
             float @Nullable [] condition) {
         EventHandlerModifierOperation.apply(mBuffer, type, filter, flags, dataIds, condition);
+    }
+
+    /**
+     * Adds a {@link PropertyBundleModifierOperation} to the buffer.
+     *
+     * @param bundleId the bundle identifier
+     * @param parentBundleId the parent bundle identifier
+     * @param propertyIds parallel array of property identifiers
+     * @param values parallel array of property variable identifiers
+     */
+    public void addPropertyBundleModifierOperation(
+            int bundleId,
+            int parentBundleId,
+            int @NonNull [] propertyIds,
+            int @NonNull [] values) {
+        PropertyBundleModifierOperation.apply(
+                mBuffer, bundleId, parentBundleId, propertyIds, values);
+    }
+
+    /**
+     * Adds a {@link PropertyBundleLookupOperation} to the buffer.
+     *
+     * @param valueId the destination integer variable identifier
+     * @param componentId the target component identifier, or {@code -1} for the enclosing component
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     */
+    public void addPropertyBundleLookupOperation(
+            int valueId, int componentId, int propertyId, int defaultValue) {
+        PropertyBundleLookupOperation.apply(
+                mBuffer, valueId, componentId, propertyId, defaultValue);
+    }
+
+    /**
+     * Adds a {@link PropertyBundleLookupOperation} targeting the enclosing component to the buffer.
+     *
+     * @param valueId the destination integer variable identifier
+     * @param propertyId the property identifier to look up
+     * @param defaultValue fallback value used when the component, bundle, or property is missing
+     */
+    public void addPropertyBundleLookupOperation(
+            int valueId, int propertyId, int defaultValue) {
+        PropertyBundleLookupOperation.apply(
+                mBuffer,
+                valueId,
+                PropertyBundleLookupOperation.SELF_COMPONENT_ID,
+                propertyId,
+                defaultValue);
     }
 
     /**
