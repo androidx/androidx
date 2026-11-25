@@ -89,7 +89,7 @@ class LifecycleStatusChangeStressTest(
                     cameraProvider =
                         ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
-                    val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
+                    extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
                     // Checks whether the extension mode can be supported first before launching
                     // the activity.
@@ -100,18 +100,27 @@ class LifecycleStatusChangeStressTest(
                     )
                 }
                     .withCleanup {
-                        if (::cameraProvider.isInitialized) {
-                            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-                            val extensionsManager =
-                                ExtensionsManager.getInstance(context, cameraProvider)
-                            extensionsManager.shutdown()
+                        try {
+                            if (::cameraProvider.isInitialized) {
+                                cameraProvider
+                                    .shutdownAsync()[
+                                        CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS,
+                                        TimeUnit.SECONDS,
+                                    ]
+                            }
+                        } finally {
+                            if (::extensionsManager.isInitialized) {
+                                extensionsManager.shutdown()[10, TimeUnit.SECONDS]
+                            }
                         }
                     },
             )
 
     private lateinit var cameraProvider: ProcessCameraProvider
+    private lateinit var extensionsManager: ExtensionsManager
 
     companion object {
+        private const val CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS = 30L
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
