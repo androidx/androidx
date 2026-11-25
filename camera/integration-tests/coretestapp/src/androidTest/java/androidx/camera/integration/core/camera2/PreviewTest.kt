@@ -87,6 +87,7 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.abs
 import kotlinx.coroutines.CompletableDeferred
@@ -1352,6 +1353,56 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
             expectedMode = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION,
         )
     }
+
+    @Test
+    fun previewStabilizationOn_reusedSurfaceAcrossStopAndResume_continuesDeliveringFrames(): Unit =
+        runBlocking {
+            val selectors =
+                CameraUtil.getAvailableCameraSelectors().filter { selector ->
+                    Preview.getPreviewCapabilities(cameraProvider.getCameraInfo(selector))
+                        .isStabilizationSupported
+                }
+            assumeTrue(selectors.isNotEmpty())
+
+            for (selector in selectors) {
+                val localLifecycle = FakeLifecycleOwner().apply { startAndResume() }
+                val localFrameSemaphore = Semaphore(0)
+                val surfaceRequestCount = AtomicInteger(0)
+                val preview = Preview.Builder().setPreviewStabilizationEnabled(true).build()
+                try {
+                    withContext(Dispatchers.Main) {
+                        preview.surfaceProvider =
+                            getSurfaceProvider(
+                                threadNameConsumer = { surfaceRequestCount.incrementAndGet() },
+                                frameAvailableListener = { localFrameSemaphore.release() },
+                            )
+                        cameraProvider.bindToLifecycle(localLifecycle, selector, preview)
+                    }
+                    localFrameSemaphore.verifyFramesReceived(
+                        frameCount = FRAMES_TO_VERIFY,
+                        timeoutInSeconds = 10,
+                    )
+
+                    // Exercise bound ON_STOP -> ON_RESUME reusing the same Preview Surface across
+                    // both immediate and brief-pause lifecycle transitions (b/590283340).
+                    for (pauseMs in listOf(0L, 100L)) {
+                        withContext(Dispatchers.Main) { localLifecycle.pauseAndStop() }
+                        if (pauseMs > 0) {
+                            delay(pauseMs)
+                        }
+                        withContext(Dispatchers.Main) { localLifecycle.startAndResume() }
+                        localFrameSemaphore.drainPermits()
+                        localFrameSemaphore.verifyFramesReceived(
+                            frameCount = FRAMES_TO_VERIFY,
+                            timeoutInSeconds = 10,
+                        )
+                    }
+                    assertThat(surfaceRequestCount.get()).isEqualTo(1)
+                } finally {
+                    withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
+                }
+            }
+        }
 
     @Test
     fun previewStabilizationOnAndVideoOff_videoStabilizationModeIsOff(): Unit = runBlocking {

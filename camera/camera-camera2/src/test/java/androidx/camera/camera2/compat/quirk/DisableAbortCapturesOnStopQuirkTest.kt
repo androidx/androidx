@@ -76,7 +76,11 @@ class DisableAbortCapturesOnStopQuirkTest(
                 arrayOf<Any>("Samsung", "sm-a546b", "a54xnsxx", true),
                 // Poco X3 Pro (b/356792947)
                 arrayOf<Any>("POCO", "M2102J20SG", "vayu", true),
-                // Unaffected Samsung and non-Samsung devices
+                // Xiaomi 14T Pro (b/590283340)
+                arrayOf<Any>("Xiaomi", "2407FPN8EG", "rothko", true),
+                arrayOf<Any>("Xiaomi", "2407FPN8ER", "rothko", true),
+                // Unaffected Xiaomi, Samsung, and non-Samsung devices
+                arrayOf<Any>("Xiaomi", "23127PN0CG", "houji", false),
                 arrayOf<Any>("Samsung", "SM-A536U", "a53x", false),
                 arrayOf<Any>("Samsung", "SM-A556E", "a55x", false),
                 arrayOf<Any>("Samsung", "SM-S921B", "e1s", false),
