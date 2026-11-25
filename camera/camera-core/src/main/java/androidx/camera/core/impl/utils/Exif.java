@@ -99,12 +99,18 @@ public final class Exif {
             TAG_THUMBNAIL_ORIENTATION);
 
     private final ExifInterface mExifInterface;
+    private final @Nullable String mFilePath;
 
     // When true, avoid saving any time. This is a privacy issue.
     private boolean mRemoveTimestamp = false;
 
     private Exif(ExifInterface exifInterface) {
+        this(exifInterface, null);
+    }
+
+    private Exif(ExifInterface exifInterface, @Nullable String filePath) {
         mExifInterface = exifInterface;
+        mFilePath = filePath;
     }
 
     /**
@@ -139,7 +145,7 @@ public final class Exif {
      * @param filePath the path to the file to read exif data from
      */
     public static @NonNull Exif createFromFileString(@NonNull String filePath) throws IOException {
-        return new Exif(new ExifInterface(filePath));
+        return new Exif(new ExifInterface(filePath), filePath);
     }
 
     /**
@@ -167,12 +173,40 @@ public final class Exif {
         return TIME_FORMAT.get().parse(time);
     }
 
-    /** Persists changes to disc. */
+    /**
+     * Persists changes to disk.
+     *
+     * <p>For file-backed Multi-Picture JPEGs (such as Ultra HDR {@code JPEG_R}), also reconciles
+     * {@code APP2 MPF} image size and offset entries shifted by the EXIF rewrite.
+     */
     public void save() throws IOException {
         if (!mRemoveTimestamp) {
             attachLastModifiedTimestamp();
         }
+        File file = mFilePath != null ? new File(mFilePath) : null;
+        JpegMpfUpdater.Snapshot mpfSnapshot = file == null ? null : snapshotMpfQuietly(file);
         mExifInterface.saveAttributes();
+        if (mpfSnapshot != null) {
+            reconcileMpfQuietly(file, mpfSnapshot);
+        }
+    }
+
+    private static JpegMpfUpdater.@Nullable Snapshot snapshotMpfQuietly(@NonNull File file) {
+        try {
+            return JpegMpfUpdater.snapshot(file);
+        } catch (IOException e) {
+            Logger.w(TAG, "Failed to snapshot MPF header before saving Exif attributes.", e);
+            return null;
+        }
+    }
+
+    private static void reconcileMpfQuietly(
+            @NonNull File file, JpegMpfUpdater.@NonNull Snapshot snapshot) {
+        try {
+            JpegMpfUpdater.reconcile(file, snapshot);
+        } catch (IOException e) {
+            Logger.w(TAG, "Failed to reconcile MPF offsets after saving Exif attributes.", e);
+        }
     }
 
     /**

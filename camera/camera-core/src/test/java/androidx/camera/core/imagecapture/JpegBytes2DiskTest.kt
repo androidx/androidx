@@ -42,6 +42,7 @@ import androidx.camera.core.imagecapture.Utils.TEMP_FILE
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.Exif.createFromFileString
+import androidx.camera.core.impl.utils.MpfTestUtil
 import androidx.camera.core.processing.Packet
 import androidx.camera.testing.impl.ExifUtil.createExif
 import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
@@ -316,6 +317,64 @@ class JpegBytes2DiskTest {
             assertThat(provider.updatedUris).isEmpty()
         }
         assertThat(TEMP_FILE.exists()).isFalse()
+    }
+
+    @Test
+    fun saveUltraHdrToFileUriAndOutputStream_reconcilesGainmapMpfOffsets() {
+        val secondaryGainmap = createJpegBytes(32, 24)
+        val compositeJpegr =
+            MpfTestUtil.assembleMultiPictureJpeg(
+                secondaryJpeg = secondaryGainmap,
+                littleEndian = false,
+                placeMpfBeforeExif = true,
+                baseJpegWithExif = MpfTestUtil.createBaseJpegWithExif(WIDTH, HEIGHT),
+            )
+
+        val packetExif = Exif.createFromInputStream(compositeJpegr.inputStream())
+        val packet =
+            Packet.of(
+                compositeJpegr,
+                packetExif,
+                ImageFormat.JPEG_R,
+                Size(WIDTH, HEIGHT),
+                Rect(0, 0, WIDTH, HEIGHT),
+                ROTATION_DEGREES,
+                Matrix(),
+                CAMERA_CAPTURE_RESULT,
+            )
+
+        fun assertValidReconciledGainmap(savedBytes: ByteArray) {
+            val mpf = MpfTestUtil.inspectMpf(savedBytes)
+            val gainmapStart = mpf.mpHeaderOffset + mpf.entries[1].dataOffset
+            assertThat(mpf.entries[0].size).isEqualTo(gainmapStart)
+            assertThat(savedBytes.copyOfRange(gainmapStart, savedBytes.size))
+                .isEqualTo(secondaryGainmap)
+        }
+
+        val targetFile =
+            File.createTempFile("unit_test_jpegr_" + UUID.randomUUID(), ".jpg").also {
+                it.deleteOnExit()
+            }
+        operation.apply(JpegBytes2Disk.In.of(packet, OutputFileOptions.Builder(targetFile).build()))
+        val fileBytes = targetFile.readBytes()
+        targetFile.delete()
+        assertValidReconciledGainmap(fileBytes)
+
+        val streamOut = ByteArrayOutputStream()
+        operation.apply(JpegBytes2Disk.In.of(packet, OutputFileOptions.Builder(streamOut).build()))
+        assertValidReconciledGainmap(streamOut.toByteArray())
+
+        val insertedUri = Uri.parse("content://${MediaStore.AUTHORITY}/external/images/media/99")
+        val provider = FakeMediaStoreProvider(onInsert = { _, _ -> insertedUri })
+        ShadowContentResolver.registerProviderInternal(MediaStore.AUTHORITY, provider)
+        val contentResolver = ApplicationProvider.getApplicationContext<Context>().contentResolver
+        val uriOut = ByteArrayOutputStream()
+        shadowOf(contentResolver).registerOutputStream(insertedUri, uriOut)
+        val collection = Uri.parse("content://${MediaStore.AUTHORITY}/external/images/media")
+        val uriOptions =
+            OutputFileOptions.Builder(contentResolver, collection, ContentValues()).build()
+        operation.apply(JpegBytes2Disk.In.of(packet, uriOptions))
+        assertValidReconciledGainmap(uriOut.toByteArray())
     }
 
     private class FakeMediaStoreProvider(
