@@ -239,7 +239,7 @@ public fun rememberTransformationSpec(
 ): TransformationSpec {
     val screenSize = LocalConfiguration.current.screenWidthDp.dp
     val localReduceMotion = LocalReduceMotion.current
-    return remember(specs, screenSize, localReduceMotion) {
+    return remember(*specs, screenSize, localReduceMotion) {
         if (localReduceMotion) {
             ResponsiveTransformationSpec.NoOpTransformationSpec
         } else {
@@ -354,6 +354,7 @@ internal class ResponsiveTransformationSpecImpl(
 
         other as ResponsiveTransformationSpecImpl
 
+        if (screenSize != other.screenSize) return false
         if (minElementHeightFraction != other.minElementHeightFraction) return false
         if (maxElementHeightFraction != other.maxElementHeightFraction) return false
         if (minTransitionAreaHeightFraction != other.minTransitionAreaHeightFraction) return false
@@ -366,17 +367,15 @@ internal class ResponsiveTransformationSpecImpl(
     }
 
     override fun hashCode(): Int {
-        var result = 1
-
-        result += result * minElementHeightFraction.hashCode()
-        result += result * maxElementHeightFraction.hashCode()
-        result += result * minTransitionAreaHeightFraction.hashCode()
-        result += result * maxTransitionAreaHeightFraction.hashCode()
-        result += result * easing.hashCode()
-        result += result * containerAlpha.hashCode()
-        result += result * contentAlpha.hashCode()
-        result += result * scale.hashCode()
-
+        var result = screenSize.hashCode()
+        result = 31 * result + minElementHeightFraction.hashCode()
+        result = 31 * result + maxElementHeightFraction.hashCode()
+        result = 31 * result + minTransitionAreaHeightFraction.hashCode()
+        result = 31 * result + maxTransitionAreaHeightFraction.hashCode()
+        result = 31 * result + easing.hashCode()
+        result = 31 * result + containerAlpha.hashCode()
+        result = 31 * result + contentAlpha.hashCode()
+        result = 31 * result + scale.hashCode()
         return result
     }
 
