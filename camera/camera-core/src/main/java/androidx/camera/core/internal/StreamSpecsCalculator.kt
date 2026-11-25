@@ -339,15 +339,8 @@ public class StreamSpecsCalculatorImpl(
                     supportedOutputSizesSorter.getSortedSupportedOutputSizes(combinedUseCaseConfig)
             }
 
-            val videoStabilization = newUseCases.getVideoStabilization {
-                val configPair = requireNotNull(configPairMap[it])
-
-                it.mergeConfigs(
-                    cameraInfoInternal,
-                    configPair.mExtendedConfig,
-                    configPair.mCameraConfig,
-                )
-            }
+            // Reuse the use case configs merged above instead of merging them again.
+            val videoStabilization = configToUseCaseMap.keys.getVideoStabilization()
 
             // Get suggested stream specifications and update the use case session configuration
             val (
