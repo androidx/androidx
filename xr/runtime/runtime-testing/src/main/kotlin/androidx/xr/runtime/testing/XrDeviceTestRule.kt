@@ -16,12 +16,19 @@
 
 package androidx.xr.runtime.testing
 
+import android.companion.virtual.VirtualDeviceManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.ServiceInfo
+import android.hardware.display.DisplayManager
+import android.hardware.display.VirtualDisplay
+import android.hardware.display.VirtualDisplayConfig
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.xr.runtime.DepthEstimationMode
@@ -44,6 +51,10 @@ import androidx.xr.runtime.toInternalHandTrackingMode
 import androidx.xr.runtime.toInternalRenderingMode
 import org.junit.rules.ExternalResource
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowVirtualDeviceManager
+import org.robolectric.shadows.ShadowVirtualDeviceManager.ShadowVirtualDevice
+import org.robolectric.shadows.VirtualDeviceParamsBuilder
 
 /** JUnit Rule containing properties that affect the results of [XrDevice] capability APIs. */
 public class XrDeviceTestRule : ExternalResource() {
@@ -232,6 +243,73 @@ public class XrDeviceTestRule : ExternalResource() {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
+    private val createdDevices = mutableListOf<CreatedDevice>()
+
+    /**
+     * Creates a simulated device that is connected to the host device and returns a [TestXrDevice]
+     * for it.
+     *
+     * Use [TestXrDevice.context] to get the [XrDevice] of the simulated device:
+     * ```
+     * val testDevice = xrDeviceTestRule.createTestXrDevice()
+     * val device = XrDevice.getCurrentDevice(testDevice.context)
+     * ```
+     *
+     * Each call creates a new device.
+     *
+     * The simulated device is backed by a virtual device and a virtual display, which are created
+     * through Robolectric's [VirtualDeviceManager] shadow. They are also visible to other Android
+     * APIs for the rest of the test, such as [VirtualDeviceManager.getVirtualDevices] and
+     * [DisplayManager.getDisplays]. The rule closes the virtual device and releases its display
+     * when the test finishes.
+     *
+     * This method requires API 34 for usage of [VirtualDeviceManager].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public fun createTestXrDevice(): TestXrDevice {
+        val virtualDeviceManager = context.getSystemService(VirtualDeviceManager::class.java)
+        val deviceName = "$DEVICE_NAME${createdDevices.size + 1}"
+        val device =
+            Shadow.extract<ShadowVirtualDevice>(
+                Shadow.extract<ShadowVirtualDeviceManager>(virtualDeviceManager)
+                    .createVirtualDevice(
+                        ASSOCIATION_ID,
+                        VirtualDeviceParamsBuilder.newBuilder().setName(deviceName).build(),
+                    )
+            )
+        val display =
+            device.createVirtualDisplay(
+                VirtualDisplayConfig.Builder(
+                        DISPLAY_NAME,
+                        DISPLAY_WIDTH,
+                        DISPLAY_HEIGHT,
+                        DISPLAY_DENSITY,
+                    )
+                    .build(),
+                /* executor= */ null,
+                /* callback= */ null,
+            )
+        createdDevices.add(CreatedDevice(device, display))
+        val deviceId = virtualDeviceManager.virtualDevices.single { it.name == deviceName }.deviceId
+        return TestXrDevice(context.createDeviceContext(deviceId), display.display.displayId)
+    }
+
+    private fun closeCreatedDevices() {
+        val displayManager = context.getSystemService(DisplayManager::class.java)
+        createdDevices.forEach { createdDevice ->
+            // ShadowDisplayManager.removeDisplay() removes the display from DisplayManager
+            // without updating VirtualDisplay, which would cause release() to throw.
+            if (displayManager.getDisplay(createdDevice.display.display.displayId) != null) {
+                createdDevice.display.release()
+            }
+            createdDevice.device.close()
+        }
+        createdDevices.clear()
+    }
+
+    private class CreatedDevice(val device: ShadowVirtualDevice, val display: VirtualDisplay)
+
     internal fun DisplayBlendMode.toInternal() =
         when (this) {
             DisplayBlendMode.ALPHA_BLEND ->
@@ -259,6 +337,7 @@ public class XrDeviceTestRule : ExternalResource() {
     override fun after() {
         FakeXrDeviceCapabilityProviderFactory.xrDeviceTestRule = null
         FakeSpatialApiVersionProvider.xrDeviceTestRule = null
+        closeCreatedDevices()
     }
 
     private fun enableProjectedService() {
@@ -279,6 +358,13 @@ public class XrDeviceTestRule : ExternalResource() {
     }
 
     private companion object {
+        // The names of the virtual devices and displays that simulate connected devices.
+        private const val DEVICE_NAME = "TestXrDevice"
+        private const val DISPLAY_NAME = "TestXrDeviceDisplay"
+        private const val ASSOCIATION_ID = 1
+        private const val DISPLAY_WIDTH = 640
+        private const val DISPLAY_HEIGHT = 480
+        private const val DISPLAY_DENSITY = 160
         private const val XR_PROJECTED_SYSTEM_FEATURE = "com.google.android.feature.XR_PROJECTED"
         private const val PROJECTED_ACTION_BIND = "androidx.xr.projected.ACTION_BIND"
         private const val PROJECTED_SERVICE_PACKAGE_NAME = "com.system.service"
