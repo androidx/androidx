@@ -16,10 +16,20 @@
 
 package androidx.xr.scenecore.spatial.rendering
 
+import android.app.Activity
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.testing.math.assertRotation
+import androidx.xr.scenecore.runtime.GeometryAffordanceState
 import androidx.xr.scenecore.runtime.GltfFeature
+import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.MaterialResource
+import androidx.xr.scenecore.runtime.ReformAffordanceFlag
+import androidx.xr.scenecore.spatial.core.SpatialSceneRuntime
 import androidx.xr.scenecore.spatial.rendering.impress.FakeImpressApiImpl
 import androidx.xr.scenecore.spatial.rendering.impress.GltfModel
 import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
@@ -29,6 +39,9 @@ import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
+import com.android.extensions.xr.node.ShadowInputEvent
+import com.android.extensions.xr.node.ShadowNode
+import com.android.extensions.xr.node.Vec3
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.androidxr.splitengine.SubspaceNode
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer
@@ -56,6 +69,7 @@ import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -182,6 +196,42 @@ class GltfFeatureImplTest {
         val resultNodes = gltfFeature.nodes
 
         assertThat(resultNodes).hasSize(2)
+    }
+
+    @Test
+    fun setReformAffordanceEnabled_forwardsRecommendedAffordanceRotationOnInputEvent() {
+        val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
+        val spatialRuntime = SpatialSceneRuntime.create(activity, executor)
+        val entity =
+            spatialRuntime.createGltfEntity(
+                gltfFeature,
+                Pose.Identity,
+                spatialRuntime.activitySpace,
+            )
+        val expectedRotation = Quaternion.fromAxisAngle(Vector3.Up, 60f)
+        val expectedScale = Vector3(1.5f, 1.5f, 1.5f)
+        `when`(mockImpressApi.getReformAffordanceState(modelImpressNode)).thenReturn(3) // ROTATION
+        `when`(mockImpressApi.getRecommendedAffordanceTransform(modelImpressNode))
+            .thenReturn(Matrix4.fromTrs(Vector3.Zero, expectedRotation, expectedScale))
+
+        var listenerObservedRotation: Quaternion? = null
+        entity.addInputEventListener(
+            executor,
+            InputEventListener { listenerObservedRotation = entity.recommendedAffordanceRotation },
+        )
+
+        gltfFeature.setReformAffordanceEnabled(entity, true, ReformAffordanceFlag.ROTATABLE)
+        val shadowSubspaceNode = ShadowNode.extract(subspaceNode)
+        val xrInputEvent = ShadowInputEvent.create(Vec3(0f, 0f, 0f), Vec3(0f, 0f, -1f))
+        shadowSubspaceNode.inputExecutor.execute {
+            shadowSubspaceNode.inputListener.accept(xrInputEvent)
+        }
+        executor.runAll()
+
+        verify(splitEngineSubspaceManager).forwardInputEvent(anyNotNull(), eq(SUBSPACE_ID))
+        assertThat(entity.affordanceState).isEqualTo(GeometryAffordanceState.ROTATION)
+        assertRotation(entity.recommendedAffordanceRotation, expectedRotation)
+        assertRotation(checkNotNull(listenerObservedRotation), expectedRotation)
     }
 
     @Suppress("UNCHECKED_CAST")
