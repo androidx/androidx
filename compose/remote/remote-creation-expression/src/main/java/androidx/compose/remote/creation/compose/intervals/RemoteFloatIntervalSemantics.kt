@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.intervals
 
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
+import androidx.compose.remote.creation.compose.state.FloatArrayCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatOperationKey
@@ -26,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.RemoteValueKind
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
+import androidx.compose.remote.document.intervals.FloatAnimationBounds
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.IntInterval
 import androidx.compose.remote.document.intervals.IntervalComparison
@@ -434,8 +436,26 @@ internal object RemoteFloatIntervalSemantics : RemoteOperationIntervalSemantics 
                 } else {
                     FloatInterval.UNBOUNDED
                 }
-            RemoteFloatOperationKey.Anim,
-            RemoteFloatOperationKey.Cubic,
+            RemoteFloatOperationKey.Anim -> {
+                val spec = (args.getOrNull(1) as? FloatArrayCacheKey)?.floatArray
+                if (args.isNotEmpty() && spec != null) {
+                    FloatAnimationBounds.boundAnimatedFloat(spec, evaluator.evalFloatKey(args[0]))
+                } else {
+                    FloatInterval.UNBOUNDED
+                }
+            }
+            RemoteFloatOperationKey.Cubic ->
+                if (args.size >= 5) {
+                    FloatAnimationBounds.evalCubicEasingInterval(
+                        x1 = evaluator.evalFloatKey(args[0]),
+                        y1 = evaluator.evalFloatKey(args[1]),
+                        x2 = evaluator.evalFloatKey(args[2]),
+                        y2 = evaluator.evalFloatKey(args[3]),
+                        pos = evaluator.evalFloatKey(args[4]),
+                    )
+                } else {
+                    FloatInterval.UNBOUNDED
+                }
             RemoteFloatOperationKey.ToRemoteString,
             RemoteFloatOperationKey.SelectIfLT,
             RemoteFloatOperationKey.SelectIfLE,
