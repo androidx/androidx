@@ -25,10 +25,10 @@ import androidx.camera.core.impl.Quirk
  * behaviors such as camera HAL crashing.
  *
  * QuirkSummary
- * - Bug Id: 356792947, 431912245, 583056763
+ * - Bug Id: 356792947, 431912245, 583056763, 590283340
  * - Description: Instructs CameraPipe to not abort captures when stopping.
  * - Device(s): Tecno devices, Samsung Galaxy Note 10+ (d2q), Samsung Galaxy A54 5G (a54x /
- *   SM-A546), Poco X3 Pro (M2102J20SG)
+ *   SM-A546), Poco X3 Pro (M2102J20SG), Xiaomi 14T Pro / Redmi K70 Ultra (rothko)
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -40,7 +40,8 @@ public class DisableAbortCapturesOnStopQuirk : Quirk {
             return Device.isTecnoDevice() ||
                 isSamsungNote10PlusDevice ||
                 isSamsungGalaxyA54Device ||
-                isPocoX3ProDevice
+                isPocoX3ProDevice ||
+                isXiaomi14TProDevice
         }
 
         private val isSamsungNote10PlusDevice: Boolean
@@ -54,5 +55,8 @@ public class DisableAbortCapturesOnStopQuirk : Quirk {
 
         private val isPocoX3ProDevice: Boolean
             get() = Device.isPocoDevice() && "M2102J20SG".equals(Build.MODEL, ignoreCase = true)
+
+        private val isXiaomi14TProDevice: Boolean
+            get() = Device.isXiaomiDevice() && "rothko".equals(Build.DEVICE, ignoreCase = true)
     }
 }
