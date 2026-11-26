@@ -149,4 +149,13 @@ public object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isNestedScrollInteropMeasureAndLayoutEnabled: Boolean = true
+
+    /**
+     * Enables batching ContentCapture semantics change checks into the recurring 100ms event loop
+     * instead of dispatching on every semantics invalidation.
+     */
+    // TODO(b/587879235): Cleanup once proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isContentCaptureSemanticsBatchingEnabled: Boolean = true
 }

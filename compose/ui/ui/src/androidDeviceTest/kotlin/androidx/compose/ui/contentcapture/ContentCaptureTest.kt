@@ -38,6 +38,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AndroidComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.createAndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeView
@@ -897,6 +899,17 @@ class ContentCaptureTest {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun AndroidContentCaptureManager.hasPendingChangeChecker(): Boolean {
+        val checker =
+            AndroidContentCaptureManager::class
+                .java
+                .getDeclaredField("contentCaptureChangeChecker")
+                .apply { isAccessible = true }
+                .get(this) as Runnable
+        return checkNotNull(handler).hasCallbacks(checker)
+    }
+
     @Test
     @SdkSuppress(minSdkVersion = 29)
     fun pendingChangeChecker_whenStoppedBeforeExecution_resetsFlagSoOnStartRecovers() {
@@ -905,13 +918,18 @@ class ContentCaptureTest {
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
         }
+        repeat(2) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+        }
 
         val manager = androidComposeView.contentCaptureManager
-        rule.runOnIdle {
+        rule.runOnUiThread {
             manager.onSemanticsChange()
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(manager.hasPendingChangeChecker()).isTrue()
             manager.onStop(mock())
         }
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
         rule.waitForIdle()
 
         rule.runOnIdle {
@@ -937,13 +955,18 @@ class ContentCaptureTest {
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
         }
+        repeat(2) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+        }
 
         val manager = androidComposeView.contentCaptureManager
-        rule.runOnIdle {
+        rule.runOnUiThread {
             manager.onSemanticsChange()
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(manager.hasPendingChangeChecker()).isTrue()
             manager.onViewDetachedFromWindow(androidComposeView)
         }
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
         rule.waitForIdle()
 
         rule.runOnIdle {
@@ -959,6 +982,146 @@ class ContentCaptureTest {
 
         rule.runOnIdle {
             verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("updated"))
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun onSemanticsChange_batchesRapidChangesWithinRecurringInterval() {
+        var textValue by mutableStateOf("t0")
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithContentCaptureEnabled {
+            Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
+        }
+        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        rule.waitForIdle()
+        rule.runOnIdle { clearInvocations(contentCaptureSessionWrapper, viewStructure) }
+
+        for (i in 1..4) {
+            rule.runOnUiThread { textValue = "t$i" }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+        repeat(2) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+        }
+
+        rule.runOnIdle {
+            verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("t1"))
+            verify(contentCaptureSessionWrapper, never()).notifyViewTextChanged(any(), eq("t2"))
+            verify(contentCaptureSessionWrapper, never()).notifyViewTextChanged(any(), eq("t3"))
+            verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("t4"))
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun onSemanticsChange_whenBatchingFlagDisabled_dispatchesEveryChangeImmediately() {
+        val saved = AndroidComposeUiFlags.isContentCaptureSemanticsBatchingEnabled
+        AndroidComposeUiFlags.isContentCaptureSemanticsBatchingEnabled = false
+        try {
+            var textValue by mutableStateOf("t0")
+            rule.mainClock.autoAdvance = false
+            rule.setContentWithContentCaptureEnabled {
+                Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
+            }
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+            rule.runOnIdle { clearInvocations(contentCaptureSessionWrapper, viewStructure) }
+
+            for (i in 1..4) {
+                rule.runOnUiThread { textValue = "t$i" }
+                rule.mainClock.advanceTimeByFrame()
+                rule.waitForIdle()
+            }
+
+            rule.runOnIdle {
+                verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("t1"))
+                verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("t2"))
+                verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("t3"))
+                verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("t4"))
+            }
+        } finally {
+            AndroidComposeUiFlags.isContentCaptureSemanticsBatchingEnabled = saved
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun lazyColumnScroll_batchesSemanticsChangeWithinRecurringInterval() = runBlocking {
+        var listState: LazyListState? = null
+        var scope: CoroutineScope? = null
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithContentCaptureEnabled {
+            listState = rememberLazyListState()
+            scope = rememberCoroutineScope()
+            ContentCaptureTestLazyList(listState!!)
+        }
+        whenever(viewStructure.extras).thenAnswer { Bundle() }
+
+        rule.runOnIdle { scope?.launch { listState?.scrollToItem(index = 1) } }
+        repeat(2) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+        }
+        rule.runOnIdle { clearInvocations(contentCaptureSessionWrapper, viewStructure) }
+
+        rule.runOnIdle { scope?.launch { listState?.scrollToItem(index = 2) } }
+        rule.mainClock.advanceTimeBy(32)
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            verify(contentCaptureSessionWrapper, never()).newVirtualViewStructure(any(), any())
+        }
+
+        repeat(2) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+        }
+
+        rule.runOnIdle {
+            verify(contentCaptureSessionWrapper, times(1)).notifyViewAppeared(any())
+            verify(contentCaptureSessionWrapper, times(1)).notifyViewDisappeared(any())
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun boundsUpdatesEventLoop_whenStoppedWhilePending_doesNotPostCallback() {
+        var textValue by mutableStateOf("initial")
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithContentCaptureEnabled {
+            Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
+        }
+        // Advance past the initial startup cooldown and start a fresh 100ms batch window.
+        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        rule.waitForIdle()
+
+        val manager = androidComposeView.contentCaptureManager
+        rule.runOnIdle { manager.onLayoutChange() }
+
+        rule.runOnUiThread {
+            manager.onLayoutChange()
+            manager.onStop(mock())
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            assertThat(manager.hasPendingChangeChecker()).isFalse()
+        }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            manager.onStart(mock())
+            clearInvocations(contentCaptureSessionWrapper)
+            textValue = "afterRestart"
+        }
+        repeat(2) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            rule.waitForIdle()
+        }
+
+        rule.runOnIdle {
+            verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("afterRestart"))
         }
     }
 }
