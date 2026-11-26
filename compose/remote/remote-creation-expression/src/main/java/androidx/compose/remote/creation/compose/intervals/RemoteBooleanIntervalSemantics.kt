@@ -353,6 +353,142 @@ internal object RemoteBooleanIntervalSemantics : RemoteOperationIntervalSemantic
             key.getValueKind() == RemoteValueKind.BOOLEAN
     }
 
+    override fun extractFloatAffine(
+        key: RemoteOperationCacheKey,
+        range: FloatInterval,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): FloatAffineForm? {
+        if (key.op != BooleanOperationKey.SelectFloat || key.args.size < 3) return null
+        if (!evaluator.hasBoundedFloatOperands(key.args[0])) return null
+        return when (evaluator.evalBoolKey(key.args[0])) {
+            TriState.TRUE -> evaluator.extractFloatAffineForm(key.args[1], depth + 1)
+            TriState.FALSE -> evaluator.extractFloatAffineForm(key.args[2], depth + 1)
+            TriState.UNKNOWN -> null
+        }
+    }
+
+    override fun extractIntAffine(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): IntAffineForm? =
+        when (key.op as BooleanOperationKey) {
+            BooleanOperationKey.ToRemoteInt,
+            BooleanOperationKey.RemoteBoolean ->
+                key.args.firstOrNull()?.let { evaluator.extractIntAffineForm(it, depth + 1) }
+            BooleanOperationKey.SelectInt,
+            BooleanOperationKey.SelectBoolean ->
+                if (key.args.size < 3 || !evaluator.hasBoundedFloatOperands(key.args[0])) {
+                    null
+                } else {
+                    when (evaluator.evalBoolKey(key.args[0])) {
+                        TriState.TRUE -> evaluator.extractIntAffineForm(key.args[1], depth + 1)
+                        TriState.FALSE -> evaluator.extractIntAffineForm(key.args[2], depth + 1)
+                        TriState.UNKNOWN -> null
+                    }
+                }
+            else -> null
+        }
+
+    override fun refineBoolean(
+        key: RemoteOperationCacheKey,
+        holds: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? {
+        val op = key.op as BooleanOperationKey
+        val args = key.args
+        return when (op) {
+            BooleanOperationKey.Not -> {
+                val target = args.firstOrNull() ?: return null
+                val r = evaluator.evalIntKey(target)
+                when {
+                    !r.isEmpty && r.min >= 0 && r.max <= 1 -> environment.refine(target, !holds)
+                    !holds && !r.isEmpty && r.min >= 0 ->
+                        applyIntKeyNarrowing(environment, target, IntInterval.point(1))
+                    else -> null
+                }
+            }
+            BooleanOperationKey.And ->
+                if (holds && args.size >= 2) {
+                    val r0 = evaluator.evalIntKey(args[0])
+                    val r1 = evaluator.evalIntKey(args[1])
+                    if (!r0.isEmpty && r0.min >= 0 && !r1.isEmpty && r1.min >= 0) {
+                        environment.refine(args[0], true).refine(args[1], true)
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            BooleanOperationKey.Or ->
+                if (!holds && args.size >= 2) {
+                    val r0 = evaluator.evalIntKey(args[0])
+                    val r1 = evaluator.evalIntKey(args[1])
+                    if (!r0.isEmpty && r0.min >= 0 && !r1.isEmpty && r1.min >= 0) {
+                        environment.refine(args[0], false).refine(args[1], false)
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            BooleanOperationKey.Equal,
+            BooleanOperationKey.NotEqual -> {
+                if (args.size < 2) return null
+                val expectEqual = if (op == BooleanOperationKey.Equal) holds else !holds
+                val r0 = evaluator.evalIntKey(args[0])
+                val r1 = evaluator.evalIntKey(args[1])
+                val bothCanonical =
+                    !r0.isEmpty &&
+                        r0.min >= 0 &&
+                        r0.max <= 1 &&
+                        !r1.isEmpty &&
+                        r1.min >= 0 &&
+                        r1.max <= 1
+                if (bothCanonical) {
+                    val b0 = evaluator.evalBoolKey(args[0]).booleanValueOrNull
+                    val b1 = evaluator.evalBoolKey(args[1]).booleanValueOrNull
+                    when {
+                        b1 != null ->
+                            return environment.refine(args[0], if (expectEqual) b1 else !b1)
+                        b0 != null ->
+                            return environment.refine(args[1], if (expectEqual) b0 else !b0)
+                    }
+                }
+                val effCond = if (expectEqual) IntervalComparison.EQ else IntervalComparison.NEQ
+                environment.narrowComparison(effCond, args[0], args[1], asInt = true)
+            }
+            BooleanOperationKey.ToRemoteInt,
+            BooleanOperationKey.RemoteBoolean ->
+                args.firstOrNull()?.let { environment.refine(it, holds) }
+            else -> null
+        }
+    }
+
+    override fun unwrapAliasKey(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): RemoteStateCacheKey? =
+        when (key.op as BooleanOperationKey) {
+            BooleanOperationKey.ToRemoteInt,
+            BooleanOperationKey.RemoteBoolean -> key.args.firstOrNull()
+            BooleanOperationKey.SelectFloat,
+            BooleanOperationKey.SelectInt,
+            BooleanOperationKey.SelectBoolean ->
+                if (key.args.size < 3 || !evaluator.hasBoundedFloatOperands(key.args[0])) {
+                    null
+                } else {
+                    when (evaluator.evalBoolKey(key.args[0])) {
+                        TriState.TRUE -> key.args[1]
+                        TriState.FALSE -> key.args[2]
+                        TriState.UNKNOWN -> null
+                    }
+                }
+            else -> null
+        }
+
     private fun isBooleanComplementKeys(
         aKey: RemoteStateCacheKey,
         bKey: RemoteStateCacheKey,

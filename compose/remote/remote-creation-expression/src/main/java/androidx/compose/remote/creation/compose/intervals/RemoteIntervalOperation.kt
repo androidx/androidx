@@ -126,6 +126,74 @@ public interface RemoteIntervalOperation : RemoteOperation {
         key: RemoteOperationCacheKey,
         evaluator: RemoteValueIntervalEvaluator,
     ): ColorInterval = ColorInterval.UNKNOWN
+
+    /**
+     * Extracts a rounding-error-aware [FloatAffineForm] for [key] given its standard interval
+     * [range], [evaluator], and recursion [depth], or returns `null` if this operation does not
+     * have a linear float affine representation.
+     */
+    public fun extractFloatAffine(
+        key: RemoteOperationCacheKey,
+        range: FloatInterval,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): FloatAffineForm? = null
+
+    /**
+     * Extracts an overflow-verified [IntAffineForm] for [key] under [evaluator] and recursion
+     * [depth], or returns `null` if this operation does not have a linear integer affine
+     * representation.
+     */
+    public fun extractIntAffine(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): IntAffineForm? = null
+
+    /**
+     * Refines [environment] assuming boolean expression [key] evaluates to [holds], or returns
+     * `null` to fall back to generic variable refinement.
+     */
+    public fun refineBoolean(
+        key: RemoteOperationCacheKey,
+        holds: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? = null
+
+    /**
+     * Refines [environment] assuming `key <comparison> otherKey` holds (in the integer domain when
+     * [asInt] is `true`, or the float domain otherwise), or returns `null` if this operation has no
+     * additional relational refinement.
+     */
+    public fun refineComparison(
+        key: RemoteOperationCacheKey,
+        comparison: IntervalComparison,
+        otherKey: RemoteStateCacheKey,
+        asInt: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? = null
+
+    /**
+     * Unwraps transparent wrapper operations (such as references or resolved selects) to the
+     * underlying operand key during condition refinement, or returns `null` if not transparent.
+     */
+    public fun unwrapAliasKey(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): RemoteStateCacheKey? = null
+
+    /**
+     * Propagates a float narrowing [interval] applied to [key] back to child operand keys in
+     * [environment] (e.g., exact integer back-propagation through `RemoteInt.toRemoteFloat()`).
+     */
+    public fun propagateFloatNarrowing(
+        key: RemoteOperationCacheKey,
+        interval: FloatInterval,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment = environment
 }
 
 /**
@@ -168,6 +236,47 @@ internal interface RemoteOperationIntervalSemantics {
         key: RemoteOperationCacheKey,
         evaluator: RemoteValueIntervalEvaluator,
     ): ColorInterval = ColorInterval.UNKNOWN
+
+    fun extractFloatAffine(
+        key: RemoteOperationCacheKey,
+        range: FloatInterval,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): FloatAffineForm? = null
+
+    fun extractIntAffine(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): IntAffineForm? = null
+
+    fun refineBoolean(
+        key: RemoteOperationCacheKey,
+        holds: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? = null
+
+    fun refineComparison(
+        key: RemoteOperationCacheKey,
+        comparison: IntervalComparison,
+        otherKey: RemoteStateCacheKey,
+        asInt: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? = null
+
+    fun unwrapAliasKey(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): RemoteStateCacheKey? = null
+
+    fun propagateFloatNarrowing(
+        key: RemoteOperationCacheKey,
+        interval: FloatInterval,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment = environment
 }
 
 internal fun intervalSemanticsFor(op: Any): RemoteOperationIntervalSemantics? =
@@ -224,4 +333,61 @@ private object CustomRemoteIntervalOperationSemantics : RemoteOperationIntervalS
         key: RemoteOperationCacheKey,
         evaluator: RemoteValueIntervalEvaluator,
     ): ColorInterval = (key.op as RemoteIntervalOperation).evaluateColorInterval(key, evaluator)
+
+    override fun extractFloatAffine(
+        key: RemoteOperationCacheKey,
+        range: FloatInterval,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): FloatAffineForm? =
+        (key.op as RemoteIntervalOperation).extractFloatAffine(key, range, evaluator, depth)
+
+    override fun extractIntAffine(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): IntAffineForm? = (key.op as RemoteIntervalOperation).extractIntAffine(key, evaluator, depth)
+
+    override fun refineBoolean(
+        key: RemoteOperationCacheKey,
+        holds: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? =
+        (key.op as RemoteIntervalOperation).refineBoolean(key, holds, environment, evaluator)
+
+    override fun refineComparison(
+        key: RemoteOperationCacheKey,
+        comparison: IntervalComparison,
+        otherKey: RemoteStateCacheKey,
+        asInt: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? =
+        (key.op as RemoteIntervalOperation).refineComparison(
+            key,
+            comparison,
+            otherKey,
+            asInt,
+            environment,
+            evaluator,
+        )
+
+    override fun unwrapAliasKey(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): RemoteStateCacheKey? = (key.op as RemoteIntervalOperation).unwrapAliasKey(key, evaluator)
+
+    override fun propagateFloatNarrowing(
+        key: RemoteOperationCacheKey,
+        interval: FloatInterval,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment =
+        (key.op as RemoteIntervalOperation).propagateFloatNarrowing(
+            key,
+            interval,
+            environment,
+            evaluator,
+        )
 }

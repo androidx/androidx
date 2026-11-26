@@ -614,4 +614,185 @@ internal object RemoteFloatIntervalSemantics : RemoteOperationIntervalSemantics 
             Float.POSITIVE_INFINITY -> Float.POSITIVE_INFINITY
             else -> mathExp(v)
         }
+
+    override fun extractFloatAffine(
+        key: RemoteOperationCacheKey,
+        range: FloatInterval,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): FloatAffineForm? {
+        val args = key.args
+        return when (key.op as RemoteFloatOperationKey) {
+            RemoteFloatOperationKey.Reference ->
+                args.firstOrNull()?.let { evaluator.extractFloatAffineForm(it, depth + 1) }
+            RemoteFloatOperationKey.UnaryMinus ->
+                args.firstOrNull()?.let {
+                    evaluator.extractFloatAffineForm(it, depth + 1)?.negate()
+                }
+            RemoteFloatOperationKey.Plus ->
+                addFloatAffineArgs(args, range, negateRhs = false, evaluator, depth)
+            RemoteFloatOperationKey.Minus ->
+                addFloatAffineArgs(args, range, negateRhs = true, evaluator, depth)
+            RemoteFloatOperationKey.Times -> scaleFloatAffineTimes(args, range, evaluator, depth)
+            RemoteFloatOperationKey.Div -> {
+                if (args.size < 2) return null
+                val r1 = evaluator.evalFloatKey(args[1])
+                if (!r1.isPoint || r1.min == 0f) return null
+                val raw =
+                    evaluator
+                        .extractFloatAffineForm(args[0], depth + 1)
+                        ?.scale(1.0 / r1.min.toDouble(), 0.0) ?: return null
+                val tightRange = raw.evaluate(evaluator) ?: range
+                raw.withExtraError(maxUlp(tightRange))
+            }
+            RemoteFloatOperationKey.Mad -> {
+                if (args.size < 3) return null
+                val prodRange = evaluator.evalFloatKey(args[0]) * evaluator.evalFloatKey(args[1])
+                if (prodRange.isEmpty || prodRange.isUnbounded) return null
+                val prod = scaleFloatAffineTimes(args, prodRange, evaluator, depth) ?: return null
+                val addend = evaluator.extractFloatAffineForm(args[2], depth + 1) ?: return null
+                evaluator.combineFloatAffineAdd(prod, addend, range, negateRhs = false)
+            }
+            RemoteFloatOperationKey.Lerp -> {
+                if (args.size < 3) return null
+                val tRange = evaluator.evalFloatKey(args[2])
+                if (!tRange.isPoint || !tRange.min.isFinite()) return null
+                val a = evaluator.extractFloatAffineForm(args[0], depth + 1) ?: return null
+                val b = evaluator.extractFloatAffineForm(args[1], depth + 1) ?: return null
+                val diffRange = evaluator.evalFloatKey(args[1]) - evaluator.evalFloatKey(args[0])
+                if (diffRange.isEmpty || diffRange.isUnbounded) return null
+                val diff = evaluator.combineFloatAffineAdd(b, a, diffRange, negateRhs = true)
+                val scaledRaw = diff.scale(tRange.min.toDouble(), roundingUlp = 0.0)
+                val scaledRange = scaledRaw.evaluate(evaluator) ?: (diffRange * tRange)
+                val scaled = scaledRaw.withExtraError(maxUlp(scaledRange))
+                evaluator.combineFloatAffineAdd(a, scaled, range, negateRhs = false)
+            }
+            else -> null
+        }
+    }
+
+    override fun refineBoolean(
+        key: RemoteOperationCacheKey,
+        holds: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? {
+        val rawCond = comparisonCondition(key.op) ?: return null
+        if (key.args.size < 2) return null
+        val effCond = if (holds) rawCond else rawCond.negate()
+        return environment.narrowComparison(effCond, key.args[0], key.args[1])
+    }
+
+    override fun refineComparison(
+        key: RemoteOperationCacheKey,
+        comparison: IntervalComparison,
+        otherKey: RemoteStateCacheKey,
+        asInt: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? {
+        if (asInt) return null
+        val otherRange = evaluator.evalFloatKey(otherKey)
+        if (!otherRange.isPoint || otherRange.min != 0f) return null
+        val args = key.args
+        return when (key.op as RemoteFloatOperationKey) {
+            RemoteFloatOperationKey.Minus -> {
+                if (args.size < 2) return null
+                val lhsR = evaluator.evalFloatKey(args[0])
+                val rhsR = evaluator.evalFloatKey(args[1])
+                if (lhsR.isEmpty || rhsR.isEmpty || lhsR.isUnbounded || rhsR.isUnbounded) {
+                    return null
+                }
+                environment.narrowComparison(comparison, args[0], args[1])
+            }
+            RemoteFloatOperationKey.Plus -> {
+                if (args.size < 2) return null
+                val lhsR = evaluator.evalFloatKey(args[0])
+                val rhsR = evaluator.evalFloatKey(args[1])
+                if (lhsR.isEmpty || rhsR.isEmpty || lhsR.isUnbounded || rhsR.isUnbounded) {
+                    return null
+                }
+                val negLhs = unwrapNegatedFloatKey(args[0])
+                val negRhs = unwrapNegatedFloatKey(args[1])
+                when {
+                    negLhs != null -> environment.narrowComparison(comparison, args[1], negLhs)
+                    negRhs != null -> environment.narrowComparison(comparison, args[0], negRhs)
+                    else -> null
+                }
+            }
+            RemoteFloatOperationKey.Abs -> {
+                if (args.isEmpty()) return null
+                val innerR = evaluator.evalFloatKey(args[0])
+                if (innerR.isEmpty || innerR.isUnbounded) return null
+                when (comparison) {
+                    IntervalComparison.EQ,
+                    IntervalComparison.LTE ->
+                        environment.narrowComparison(IntervalComparison.EQ, args[0], otherKey)
+                    IntervalComparison.GT ->
+                        environment.narrowComparison(IntervalComparison.NEQ, args[0], otherKey)
+                    else -> null
+                }
+            }
+            else -> null
+        }
+    }
+
+    override fun unwrapAliasKey(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): RemoteStateCacheKey? =
+        if (key.op == RemoteFloatOperationKey.Reference) key.args.firstOrNull() else null
+
+    private fun addFloatAffineArgs(
+        args: List<RemoteStateCacheKey>,
+        range: FloatInterval,
+        negateRhs: Boolean,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): FloatAffineForm? {
+        if (args.size < 2) return null
+        val a = evaluator.extractFloatAffineForm(args[0], depth + 1) ?: return null
+        val b = evaluator.extractFloatAffineForm(args[1], depth + 1) ?: return null
+        return evaluator.combineFloatAffineAdd(a, b, range, negateRhs)
+    }
+
+    private fun scaleFloatAffineTimes(
+        args: List<RemoteStateCacheKey>,
+        range: FloatInterval,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): FloatAffineForm? {
+        if (args.size < 2) return null
+        val r0 = evaluator.evalFloatKey(args[0])
+        val r1 = evaluator.evalFloatKey(args[1])
+        val raw =
+            when {
+                r0.isPoint ->
+                    evaluator.extractFloatAffineForm(args[1], depth + 1)?.scale(r0.min.toDouble())
+                r1.isPoint ->
+                    evaluator.extractFloatAffineForm(args[0], depth + 1)?.scale(r1.min.toDouble())
+                else -> null
+            } ?: return null
+        val tightRange = raw.evaluate(evaluator) ?: range
+        return raw.withExtraError(maxUlp(tightRange))
+    }
+
+    private fun unwrapNegatedFloatKey(key: RemoteStateCacheKey): RemoteStateCacheKey? {
+        val opKey = key as? RemoteOperationCacheKey ?: return null
+        val args = opKey.args
+        return when (opKey.op) {
+            RemoteFloatOperationKey.UnaryMinus -> args.firstOrNull()
+            RemoteFloatOperationKey.Times -> {
+                if (args.size < 2) return null
+                val c0 = ((args[0] as? RemoteConstantCacheKey)?.value as? Number)?.toFloat()
+                val c1 = ((args[1] as? RemoteConstantCacheKey)?.value as? Number)?.toFloat()
+                when {
+                    c1 == -1f -> args[0]
+                    c0 == -1f -> args[1]
+                    else -> null
+                }
+            }
+            else -> null
+        }
+    }
 }

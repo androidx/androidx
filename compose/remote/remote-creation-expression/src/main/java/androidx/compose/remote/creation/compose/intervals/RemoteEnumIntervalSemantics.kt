@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.intervals
 
 import androidx.compose.remote.creation.compose.state.EnumOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.StringArrayOperationKey
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.IntInterval
@@ -64,4 +65,26 @@ internal object RemoteEnumIntervalSemantics : RemoteOperationIntervalSemantics {
         }
         return StringSummary.UNKNOWN
     }
+
+    override fun extractIntAffine(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): IntAffineForm? =
+        when (key.op as EnumOperationKey) {
+            EnumOperationKey.Ordinal,
+            EnumOperationKey.RemoteEnum ->
+                key.args.firstOrNull()?.let { evaluator.extractIntAffineForm(it, depth + 1) }
+            EnumOperationKey.ToString -> null
+        }
+
+    override fun unwrapAliasKey(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): RemoteStateCacheKey? =
+        when (key.op as EnumOperationKey) {
+            EnumOperationKey.Ordinal,
+            EnumOperationKey.RemoteEnum -> key.args.firstOrNull()
+            EnumOperationKey.ToString -> null
+        }
 }

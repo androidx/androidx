@@ -69,6 +69,9 @@ internal constructor(
     private val boolMemo = HashMap<RemoteStateCacheKey, TriState>()
     private val stringMemo = HashMap<RemoteStateCacheKey, StringSummary>()
     private val colorMemo = HashMap<RemoteStateCacheKey, ColorInterval>()
+    internal val boundedFloatOperandsMemo = HashMap<RemoteStateCacheKey, Boolean>()
+    internal val floatAffineMemo = HashMap<RemoteStateCacheKey, Pair<Int, FloatAffineForm?>>()
+    internal val intAffineMemo = HashMap<RemoteStateCacheKey, Pair<Int, IntAffineForm?>>()
 
     private val visitingFloat = HashSet<RemoteStateCacheKey>()
     private val visitingInt = HashSet<RemoteStateCacheKey>()
@@ -191,8 +194,8 @@ internal constructor(
     }
 
     /**
-     * Evaluates `keyA <comparison> keyB` as floats using interval bounds and deterministic
-     * self-comparison checks.
+     * Evaluates `keyA <comparison> keyB` as floats using interval bounds, deterministic
+     * self-comparison checks, and ULP-aware linear affine differences.
      */
     public fun compareFloatKeys(
         comparison: IntervalComparison,
@@ -208,12 +211,12 @@ internal constructor(
         ) {
             return comparison.selfComparisonResult()
         }
-        return TriState.UNKNOWN
+        return compareFloatAffineDiff(comparison, keyA, keyB)
     }
 
     /**
-     * Evaluates `keyA <comparison> keyB` as integers using interval bounds and deterministic
-     * self-comparison checks.
+     * Evaluates `keyA <comparison> keyB` as integers using interval bounds, deterministic
+     * self-comparison checks, and overflow-verified linear affine differences.
      */
     public fun compareIntKeys(
         comparison: IntervalComparison,
@@ -227,7 +230,89 @@ internal constructor(
         if (keyA == keyB && !intervalA.isEmpty && keyA.isDeterministic()) {
             return comparison.selfComparisonResult()
         }
-        return TriState.UNKNOWN
+        return compareIntAffineDiff(comparison, keyA, keyB)
+    }
+
+    internal fun hasBoundedFloatOperands(key: RemoteStateCacheKey): Boolean {
+        boundedFloatOperandsMemo[key]?.let {
+            return it
+        }
+        if (key !is RemoteOperationCacheKey) return true
+        val visiting = HashSet<RemoteStateCacheKey>()
+        val expanded = HashSet<RemoteStateCacheKey>()
+        val stack = ArrayList<RemoteStateCacheKey>()
+        stack.add(key)
+        while (stack.isNotEmpty()) {
+            val node = stack[stack.size - 1]
+            if (boundedFloatOperandsMemo.containsKey(node)) {
+                stack.removeAt(stack.size - 1)
+                continue
+            }
+            if (node !is RemoteOperationCacheKey) {
+                boundedFloatOperandsMemo[node] = true
+                stack.removeAt(stack.size - 1)
+                continue
+            }
+            if (expanded.add(node)) {
+                visiting.add(node)
+                val sem = intervalSemanticsFor(node.op)
+                if (sem?.requiresBoundedFloatOperands(node.op) == true) {
+                    var operandUnbounded = false
+                    for (i in 0 until node.args.size) {
+                        if (evalFloatKey(node.args[i]).isUnbounded) {
+                            operandUnbounded = true
+                            break
+                        }
+                    }
+                    if (operandUnbounded) {
+                        boundedFloatOperandsMemo[node] = false
+                        visiting.remove(node)
+                        stack.removeAt(stack.size - 1)
+                        continue
+                    }
+                }
+                var hasCycle = false
+                for (i in 0 until node.args.size) {
+                    if (node.args[i] in visiting) {
+                        hasCycle = true
+                        break
+                    }
+                }
+                if (hasCycle) {
+                    boundedFloatOperandsMemo[node] = false
+                    visiting.remove(node)
+                    stack.removeAt(stack.size - 1)
+                    continue
+                }
+                for (i in 0 until node.args.size) {
+                    val child = node.args[i]
+                    if (
+                        child is RemoteOperationCacheKey &&
+                            !boundedFloatOperandsMemo.containsKey(child)
+                    ) {
+                        stack.add(child)
+                    }
+                }
+            } else {
+                stack.removeAt(stack.size - 1)
+                visiting.remove(node)
+                if (!boundedFloatOperandsMemo.containsKey(node)) {
+                    var allOk = true
+                    for (i in 0 until node.args.size) {
+                        val child = node.args[i]
+                        if (
+                            child is RemoteOperationCacheKey &&
+                                boundedFloatOperandsMemo[child] == false
+                        ) {
+                            allOk = false
+                            break
+                        }
+                    }
+                    boundedFloatOperandsMemo[node] = allOk
+                }
+            }
+        }
+        return boundedFloatOperandsMemo[key] ?: false
     }
 
     internal fun evalUnaryFloatExactOrUnbounded(x: FloatInterval, op: Float): FloatInterval {
@@ -368,20 +453,27 @@ internal constructor(
     }
 
     internal fun refineEnvironmentForBooleanBranch(
-        @Suppress("UNUSED_PARAMETER") condKey: RemoteStateCacheKey,
-        @Suppress("UNUSED_PARAMETER") holds: Boolean,
-    ): IntervalEnvironment = environment
+        condKey: RemoteStateCacheKey,
+        holds: Boolean,
+    ): IntervalEnvironment {
+        if (selectDepth >= MAX_SELECT_REFINE_DEPTH) return environment
+        return environment.refine(condKey, holds)
+    }
 
     internal fun refineEnvironmentForComparisonBranch(
-        @Suppress("UNUSED_PARAMETER") isInt: Boolean,
-        @Suppress("UNUSED_PARAMETER") comparison: IntervalComparison,
-        @Suppress("UNUSED_PARAMETER") keyA: RemoteStateCacheKey,
-        @Suppress("UNUSED_PARAMETER") keyB: RemoteStateCacheKey,
-        @Suppress("UNUSED_PARAMETER") holds: Boolean,
-    ): IntervalEnvironment = environment
+        isInt: Boolean,
+        comparison: IntervalComparison,
+        keyA: RemoteStateCacheKey,
+        keyB: RemoteStateCacheKey,
+        holds: Boolean,
+    ): IntervalEnvironment {
+        if (selectDepth >= MAX_SELECT_REFINE_DEPTH) return environment
+        val effComparison = if (holds) comparison else comparison.negate()
+        return environment.narrowComparison(effComparison, keyA, keyB, asInt = isInt)
+    }
 
-    private fun computeFloatKey(key: RemoteStateCacheKey): FloatInterval =
-        when (key) {
+    private fun computeFloatKey(key: RemoteStateCacheKey): FloatInterval {
+        return when (key) {
             is RemoteConstantCacheKey ->
                 when (val v = key.value) {
                     is Number -> FloatInterval.point(v.toFloat())
@@ -390,9 +482,19 @@ internal constructor(
                 }
             is RemoteStateIdKey -> environment.floatForStateId(key.id)
             is RemoteNamedCacheKey -> environment.floatForNamed(key)
-            is RemoteOperationCacheKey ->
-                intervalSemanticsFor(key.op)?.evaluateFloatInterval(key, this)
-                    ?: FloatInterval.UNBOUNDED
+            is RemoteOperationCacheKey -> {
+                val sem = intervalSemanticsFor(key.op) ?: return FloatInterval.UNBOUNDED
+                val standard = sem.evaluateFloatInterval(key, this)
+                if (!standard.isEmpty && !standard.isPoint && !standard.isUnbounded) {
+                    val affine =
+                        sem.extractFloatAffine(key, standard, this, depth = 0)?.evaluate(this)
+                    if (affine != null && !affine.isEmpty) {
+                        val tightened = standard.intersect(affine)
+                        if (!tightened.isEmpty) return tightened
+                    }
+                }
+                standard
+            }
             else -> {
                 val constVal = (key as? BaseRemoteStateCacheKey)?.getState()?.constantValueOrNull
                 if (constVal is Number) {
@@ -402,9 +504,10 @@ internal constructor(
                 }
             }
         }
+    }
 
-    private fun computeIntKey(key: RemoteStateCacheKey): IntInterval =
-        when (key) {
+    private fun computeIntKey(key: RemoteStateCacheKey): IntInterval {
+        return when (key) {
             is RemoteConstantCacheKey ->
                 when (val v = key.value) {
                     is Number -> IntInterval.point(v.toInt())
@@ -414,9 +517,19 @@ internal constructor(
                 }
             is RemoteStateIdKey -> environment.intForStateId(key.id)
             is RemoteNamedCacheKey -> environment.intForNamed(key)
-            is RemoteOperationCacheKey ->
-                intervalSemanticsFor(key.op)?.evaluateIntInterval(key, this)
-                    ?: IntInterval.UNBOUNDED
+            is RemoteOperationCacheKey -> {
+                val sem = intervalSemanticsFor(key.op) ?: return IntInterval.UNBOUNDED
+                val standard = sem.evaluateIntInterval(key, this)
+                if (!standard.isEmpty && !standard.isPoint) {
+                    val affine =
+                        sem.extractIntAffine(key, this, depth = 0)?.evaluateIntInterval(this)
+                    if (affine != null && !affine.isEmpty) {
+                        val tightened = standard.intersect(affine)
+                        if (!tightened.isEmpty) return tightened
+                    }
+                }
+                standard
+            }
             else -> {
                 when (
                     val constVal =
@@ -429,6 +542,7 @@ internal constructor(
                 }
             }
         }
+    }
 
     private fun computeBoolKey(key: RemoteStateCacheKey): TriState {
         if (key is RemoteConstantCacheKey) {
@@ -482,4 +596,8 @@ internal constructor(
                 if (constVal is Int) ColorInterval.constant(constVal) else ColorInterval.UNKNOWN
             }
         }
+
+    private companion object {
+        private const val MAX_SELECT_REFINE_DEPTH = 4
+    }
 }

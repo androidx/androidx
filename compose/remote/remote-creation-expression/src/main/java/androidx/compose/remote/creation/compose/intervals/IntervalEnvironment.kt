@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.document.intervals.ColorInterval
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.IntInterval
+import androidx.compose.remote.document.intervals.IntervalComparison
 import androidx.compose.remote.document.intervals.SlotInterval
 import androidx.compose.remote.document.intervals.StringSummary
 
@@ -90,7 +91,7 @@ public interface IntervalEnvironment {
     ): IntervalEnvironment {
         val existing = existingFloatBoundOrNull(key)
         val narrowed = if (existing != null) existing.intersect(interval) else interval
-        if (narrowed.isEmpty) return this
+        if (narrowed.isEmpty || narrowed == existing) return this
         return OverlaidIntervalEnvironment(this, key, floatInterval = narrowed)
     }
 
@@ -104,9 +105,32 @@ public interface IntervalEnvironment {
     ): IntervalEnvironment {
         val existing = existingIntBoundOrNull(key)
         val narrowed = if (existing != null) existing.intersect(interval) else interval
-        if (narrowed.isEmpty) return this
+        if (narrowed.isEmpty || narrowed == existing) return this
         return OverlaidIntervalEnvironment(this, key, intInterval = narrowed)
     }
+
+    /**
+     * Returns a derived [IntervalEnvironment] refined by assuming the boolean expression [key]
+     * evaluates to [holds].
+     */
+    public fun refine(key: RemoteStateCacheKey, holds: Boolean): IntervalEnvironment =
+        refineEnvironmentByBooleanKey(this, key, holds)
+
+    /**
+     * Returns a derived [IntervalEnvironment] refined by assuming `lhs <comparison> rhs` holds in
+     * either the integer ([asInt] = `true`) or float ([asInt] = `false`) domain.
+     */
+    public fun narrowComparison(
+        comparison: IntervalComparison,
+        lhs: RemoteStateCacheKey,
+        rhs: RemoteStateCacheKey,
+        asInt: Boolean = false,
+    ): IntervalEnvironment =
+        if (asInt) {
+            narrowIntOperands(this, comparison, lhs, rhs)
+        } else {
+            narrowFloatOperands(this, comparison, lhs, rhs)
+        }
 }
 
 internal fun IntervalEnvironment.existingFloatBoundOrNull(
@@ -200,7 +224,7 @@ constructor(
     ): MapIntervalEnvironment {
         val existing = existingFloatBoundOrNull(key)
         val narrowed = if (existing != null) existing.intersect(interval) else interval
-        if (narrowed.isEmpty) return this
+        if (narrowed.isEmpty || narrowed == existing) return this
         val updated = LinkedHashMap(keyFloatOverrides)
         updated[key] = narrowed
         return copy(keyFloatOverrides = updated)
@@ -212,7 +236,7 @@ constructor(
     ): MapIntervalEnvironment {
         val existing = existingIntBoundOrNull(key)
         val narrowed = if (existing != null) existing.intersect(interval) else interval
-        if (narrowed.isEmpty) return this
+        if (narrowed.isEmpty || narrowed == existing) return this
         val updated = LinkedHashMap(keyIntOverrides)
         updated[key] = narrowed
         return copy(keyIntOverrides = updated)
@@ -327,7 +351,28 @@ private class OverlaidIntervalEnvironment(
     private val key: RemoteStateCacheKey,
     private val floatInterval: FloatInterval? = null,
     private val intInterval: IntInterval? = null,
-) : IntervalEnvironment by base {
+) : IntervalEnvironment {
+    override fun floatForStateId(id: Int): FloatInterval = base.floatForStateId(id)
+
+    override fun intForStateId(id: Int): IntInterval = base.intForStateId(id)
+
+    override fun stringForStateId(id: Int): StringSummary = base.stringForStateId(id)
+
+    override fun colorForStateId(id: Int): ColorInterval = base.colorForStateId(id)
+
+    override fun floatForNamed(key: RemoteNamedCacheKey): FloatInterval = base.floatForNamed(key)
+
+    override fun intForNamed(key: RemoteNamedCacheKey): IntInterval = base.intForNamed(key)
+
+    override fun stringForNamed(key: RemoteNamedCacheKey): StringSummary = base.stringForNamed(key)
+
+    override fun colorForNamed(key: RemoteNamedCacheKey): ColorInterval = base.colorForNamed(key)
+
+    override fun floatArrayElement(arrayId: Int, index: FloatInterval): FloatInterval =
+        base.floatArrayElement(arrayId, index)
+
+    override fun canFoldStateId(id: Int): Boolean = base.canFoldStateId(id)
+
     override fun floatOverride(key: RemoteStateCacheKey): FloatInterval? {
         if (key != this.key || floatInterval == null) return base.floatOverride(key)
         val baseBound = base.existingFloatBoundOrNull(key)
@@ -346,25 +391,5 @@ private class OverlaidIntervalEnvironment(
         } else {
             intInterval
         }
-    }
-
-    override fun withFloatNarrowing(
-        key: RemoteStateCacheKey,
-        interval: FloatInterval,
-    ): IntervalEnvironment {
-        val existing = existingFloatBoundOrNull(key)
-        val narrowed = if (existing != null) existing.intersect(interval) else interval
-        if (narrowed.isEmpty) return this
-        return OverlaidIntervalEnvironment(this, key, floatInterval = narrowed)
-    }
-
-    override fun withIntNarrowing(
-        key: RemoteStateCacheKey,
-        interval: IntInterval,
-    ): IntervalEnvironment {
-        val existing = existingIntBoundOrNull(key)
-        val narrowed = if (existing != null) existing.intersect(interval) else interval
-        if (narrowed.isEmpty) return this
-        return OverlaidIntervalEnvironment(this, key, intInterval = narrowed)
     }
 }

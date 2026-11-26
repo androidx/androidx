@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.intervals
 
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
+import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteIntOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
@@ -28,6 +29,7 @@ import androidx.compose.remote.document.intervals.IntervalComparison
 import androidx.compose.remote.document.intervals.StringAndColorIntervalOps
 import androidx.compose.remote.document.intervals.StringSummary
 import androidx.compose.remote.document.intervals.TriState
+import java.util.HashMap
 import kotlin.math.min as mathMin
 
 /** External interval semantics for [RemoteIntOperationKey]. */
@@ -367,5 +369,205 @@ internal object RemoteIntIntervalSemantics : RemoteOperationIntervalSemantics {
             return IntInterval(0, 1)
         }
         return IntInterval.UNBOUNDED
+    }
+
+    override fun extractFloatAffine(
+        key: RemoteOperationCacheKey,
+        range: FloatInterval,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): FloatAffineForm? {
+        if (key.op != RemoteIntOperationKey.ToFloat || key.args.isEmpty()) return null
+        val intKey = key.args[0]
+        val intRange = evaluator.evalIntKey(intKey)
+        val intForm = evaluator.extractIntAffineForm(intKey, depth + 1) ?: return null
+        if (!intRange.hasFiniteMin || !intRange.hasFiniteMax) return null
+        val ulp =
+            if (
+                intRange.min >= -EXACT_FLOAT32_INT_LIMIT && intRange.max <= EXACT_FLOAT32_INT_LIMIT
+            ) {
+                0.0
+            } else {
+                maxUlp(range)
+            }
+        if (intForm.constant < -(1L shl 53) || intForm.constant > (1L shl 53)) return null
+        val floatTerms = HashMap<AffineTerm, Double>(intForm.terms.size)
+        for ((k, w) in intForm.terms) {
+            if (w < -MAX_EXACT_INT_AFFINE_WEIGHT || w > MAX_EXACT_INT_AFFINE_WEIGHT) return null
+            floatTerms[AffineTerm(k, isInt = true)] = w.toDouble()
+        }
+        return FloatAffineForm(floatTerms, intForm.constant.toDouble(), ulp)
+    }
+
+    override fun extractIntAffine(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): IntAffineForm? {
+        val args = key.args
+        return when (key.op as RemoteIntOperationKey) {
+            RemoteIntOperationKey.Reference,
+            RemoteIntOperationKey.Id ->
+                args.firstOrNull()?.let { evaluator.extractIntAffineForm(it, depth + 1) }
+            RemoteIntOperationKey.Neg -> {
+                val arg = args.firstOrNull() ?: return null
+                val r0 = evaluator.evalIntKey(arg)
+                if (!r0.hasFiniteMin || !r0.hasFiniteMax) return null
+                evaluator.extractIntAffineForm(arg, depth + 1)?.negate()
+            }
+            RemoteIntOperationKey.Add -> addIntAffineArgs(args, negateRhs = false, evaluator, depth)
+            RemoteIntOperationKey.Sub -> addIntAffineArgs(args, negateRhs = true, evaluator, depth)
+            RemoteIntOperationKey.Mul -> mulIntAffineArgs(args, evaluator, depth)
+            else -> null
+        }
+    }
+
+    override fun refineBoolean(
+        key: RemoteOperationCacheKey,
+        holds: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? {
+        val op = key.op as RemoteIntOperationKey
+        val args = key.args
+        if (args.size < 2) return null
+        comparisonCondition(op)?.let { rawCond ->
+            val effCond = if (holds) rawCond else rawCond.negate()
+            return environment.narrowComparison(effCond, args[0], args[1], asInt = true)
+        }
+        return when (op) {
+            RemoteIntOperationKey.Xor -> {
+                val c0 = ((args[0] as? RemoteConstantCacheKey)?.value as? Number)?.toInt()
+                val c1 = ((args[1] as? RemoteConstantCacheKey)?.value as? Number)?.toInt()
+                val target =
+                    when {
+                        c1 == 1 -> args[0]
+                        c0 == 1 -> args[1]
+                        else -> null
+                    } ?: return null
+                val r = evaluator.evalIntKey(target)
+                when {
+                    !r.isEmpty && r.min >= 0 && r.max <= 1 -> environment.refine(target, !holds)
+                    !holds && !r.isEmpty && r.min >= 0 ->
+                        applyIntKeyNarrowing(environment, target, IntInterval.point(1))
+                    else -> null
+                }
+            }
+            RemoteIntOperationKey.And ->
+                if (holds) {
+                    val r0 = evaluator.evalIntKey(args[0])
+                    val r1 = evaluator.evalIntKey(args[1])
+                    if (!r0.isEmpty && r0.min >= 0 && !r1.isEmpty && r1.min >= 0) {
+                        environment.refine(args[0], true).refine(args[1], true)
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            RemoteIntOperationKey.Or ->
+                if (!holds) {
+                    val r0 = evaluator.evalIntKey(args[0])
+                    val r1 = evaluator.evalIntKey(args[1])
+                    if (!r0.isEmpty && r0.min >= 0 && !r1.isEmpty && r1.min >= 0) {
+                        environment.refine(args[0], false).refine(args[1], false)
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            else -> null
+        }
+    }
+
+    override fun refineComparison(
+        key: RemoteOperationCacheKey,
+        comparison: IntervalComparison,
+        otherKey: RemoteStateCacheKey,
+        asInt: Boolean,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment? {
+        if (!asInt || key.op != RemoteIntOperationKey.Sub || key.args.size < 2) return null
+        val otherR = evaluator.evalIntKey(otherKey)
+        if (!otherR.isPoint || otherR.min != 0) return null
+        val lhsR = evaluator.evalIntKey(key.args[0])
+        val rhsR = evaluator.evalIntKey(key.args[1])
+        if (!lhsR.hasFiniteMin || !lhsR.hasFiniteMax || !rhsR.hasFiniteMin || !rhsR.hasFiniteMax) {
+            return null
+        }
+        val minDiff = lhsR.min.toLong() - rhsR.max.toLong()
+        val maxDiff = lhsR.max.toLong() - rhsR.min.toLong()
+        if (minDiff < Int.MIN_VALUE.toLong() || maxDiff > Int.MAX_VALUE.toLong()) return null
+        return environment.narrowComparison(comparison, key.args[0], key.args[1], asInt = true)
+    }
+
+    override fun propagateFloatNarrowing(
+        key: RemoteOperationCacheKey,
+        interval: FloatInterval,
+        environment: IntervalEnvironment,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntervalEnvironment {
+        if (key.op != RemoteIntOperationKey.ToFloat || key.args.isEmpty()) return environment
+        val intKey = key.args[0]
+        val existingInt = evaluator.evalIntKey(intKey)
+        val narrowedInt = existingInt.intersect(exactIntBoundsWithinFloatInterval(interval))
+        return if (!narrowedInt.isEmpty && narrowedInt != existingInt) {
+            applyIntKeyNarrowing(environment, intKey, narrowedInt)
+        } else {
+            environment
+        }
+    }
+
+    private fun addIntAffineArgs(
+        args: List<RemoteStateCacheKey>,
+        negateRhs: Boolean,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): IntAffineForm? {
+        if (args.size < 2) return null
+        val r0 = evaluator.evalIntKey(args[0])
+        val r1 = evaluator.evalIntKey(args[1])
+        if (!r0.hasFiniteMin || !r0.hasFiniteMax || !r1.hasFiniteMin || !r1.hasFiniteMax) {
+            return null
+        }
+        val lo =
+            if (negateRhs) r0.min.toLong() - r1.max.toLong() else r0.min.toLong() + r1.min.toLong()
+        val hi =
+            if (negateRhs) r0.max.toLong() - r1.min.toLong() else r0.max.toLong() + r1.max.toLong()
+        if (lo < Int.MIN_VALUE.toLong() || hi > Int.MAX_VALUE.toLong()) return null
+        val a = evaluator.extractIntAffineForm(args[0], depth + 1) ?: return null
+        val b = evaluator.extractIntAffineForm(args[1], depth + 1) ?: return null
+        val rhs = if (negateRhs) b.negate() ?: return null else b
+        return a.add(rhs)
+    }
+
+    private fun mulIntAffineArgs(
+        args: List<RemoteStateCacheKey>,
+        evaluator: RemoteValueIntervalEvaluator,
+        depth: Int,
+    ): IntAffineForm? {
+        if (args.size < 2) return null
+        val r0 = evaluator.evalIntKey(args[0])
+        val r1 = evaluator.evalIntKey(args[1])
+        if (!r0.hasFiniteMin || !r0.hasFiniteMax || !r1.hasFiniteMin || !r1.hasFiniteMax) {
+            return null
+        }
+        val p1 = r0.min.toLong() * r1.min.toLong()
+        val p2 = r0.min.toLong() * r1.max.toLong()
+        val p3 = r0.max.toLong() * r1.min.toLong()
+        val p4 = r0.max.toLong() * r1.max.toLong()
+        if (
+            minOf(p1, p2, p3, p4) < Int.MIN_VALUE.toLong() ||
+                maxOf(p1, p2, p3, p4) > Int.MAX_VALUE.toLong()
+        ) {
+            return null
+        }
+        return when {
+            r0.isPoint -> evaluator.extractIntAffineForm(args[1], depth + 1)?.scale(r0.min.toLong())
+            r1.isPoint -> evaluator.extractIntAffineForm(args[0], depth + 1)?.scale(r1.min.toLong())
+            else -> null
+        }
     }
 }
