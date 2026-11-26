@@ -29,6 +29,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -110,6 +111,9 @@ class DownloadHandlerTest {
         assertEquals("text/plain", download.mimeType)
         assertEquals(CONTENT.length.toLong(), download.contentLength)
         assertEquals("hello.txt", download.suggestedFilename)
+        assertTrue(download.isExplicitDownload)
+        assertTrue(download.isForMainFrame)
+        assertFalse(download.hasGesture())
         WebkitUtils.onMainThreadSync { download.cancel() }
     }
 
