@@ -377,9 +377,14 @@ internal fun DelegatableNode.requireOwner(): Owner =
 /**
  * Requests autofill for the LayoutNode that this [DelegatableNode] is attached to. If the node does
  * not have any autofill semantic properties set, then the request still may be sent to the Autofill
- * service, but no response is expected.
+ * service, but no response is expected. Does nothing if the node is not
+ * [attached][Modifier.Node.isAttached].
  */
-public fun DelegatableNode.requestAutofill(): Unit = requireLayoutNode().requestAutofill()
+public fun DelegatableNode.requestAutofill() {
+    if (node.isAttached) {
+        requireLayoutNode().requestAutofill()
+    }
+}
 
 /**
  * Returns the current [Density] of the LayoutNode that this [DelegatableNode] is attached to. If
