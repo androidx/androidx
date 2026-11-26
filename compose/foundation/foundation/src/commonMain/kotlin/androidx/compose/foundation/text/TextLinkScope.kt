@@ -180,16 +180,37 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
      */
     private fun getSingleLineBounds(range: LinkRange, layoutResult: TextLayoutResult): IntRect {
         val line = layoutResult.getLineForOffset(range.start)
-        val firstCharBox = layoutResult.getBoundingBox(range.start)
-        var left = firstCharBox.left
-        var right = firstCharBox.right
-        val lastOffset = range.end - 1
-        var offset = if (isSingleBidiDirection(range, layoutResult)) lastOffset else range.start + 1
-        while (offset <= lastOffset) {
-            val charBox = layoutResult.getBoundingBox(offset)
-            left = min(left, charBox.left)
-            right = max(right, charBox.right)
-            offset++
+        val isSingleBidiDirection = isSingleBidiDirection(range, layoutResult)
+        var left: Float
+        var right: Float
+        if (
+            isSingleBidiDirection &&
+                range.end < layoutResult.getLineEnd(line) &&
+                !layoutResult.isLineEllipsized(line)
+        ) {
+            // A single visual run ending before the line end has bounds at its start and end
+            // offsets (2 measurements instead of 4 from two character bounding boxes). Ranges
+            // ending at a line end (whose end offset can resolve to the next line) or on an
+            // ellipsized line fall back to bounding boxes below.
+            val usePrimaryDirection =
+                layoutResult.getBidiRunDirection(range.start) ==
+                    layoutResult.getParagraphDirection(range.start)
+            val startX = layoutResult.getHorizontalPosition(range.start, usePrimaryDirection)
+            val endX = layoutResult.getHorizontalPosition(range.end, usePrimaryDirection)
+            left = min(startX, endX)
+            right = max(startX, endX)
+        } else {
+            val firstCharBox = layoutResult.getBoundingBox(range.start)
+            left = firstCharBox.left
+            right = firstCharBox.right
+            val lastOffset = range.end - 1
+            var offset = if (isSingleBidiDirection) lastOffset else range.start + 1
+            while (offset <= lastOffset) {
+                val charBox = layoutResult.getBoundingBox(offset)
+                left = min(left, charBox.left)
+                right = max(right, charBox.right)
+                offset++
+            }
         }
         return IntRect(
             left = left.fastRoundToInt(),
