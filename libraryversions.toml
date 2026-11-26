@@ -1,7 +1,7 @@
 # Note: the blank lines between each library help to avoid merge conflicts.
 
 [versions]
-A2UI = "1.0.0-alpha02"
+A2UI = "1.0.0-alpha03"
 
 ACTIVITY = "1.14.0-alpha03"
 
@@ -59,7 +59,7 @@ COMPOSE_MARKUPTEXT = "1.0.0-alpha01"
 
 COMPOSE_MATERIAL3 = "1.6.0-alpha02"
 
-COMPOSE_MATERIAL3_A2UI_QUARANTINE = "1.0.0-alpha02"
+COMPOSE_MATERIAL3_A2UI_QUARANTINE = "1.0.0-alpha03"
 
 COMPOSE_MATERIAL3_ADAPTIVE = "1.4.0-alpha03"
 
