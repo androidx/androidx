@@ -336,6 +336,118 @@ class GlanceAdaptiveAppWidgetManagerTest {
     }
 
     @Test
+    fun unregisterRenderer_restoresDefaultOnlyForTargetWidgetAndSurface() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val defaultViews = RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
+        val customViews = RemoteViews(context.packageName, android.R.layout.simple_list_item_2)
+        AppWidgetTemplateRegistry.registerDefault(
+            TestTemplate::class.java,
+            TemplateRenderer { _, _ -> RemoteViewsRenderOutput(defaultViews) },
+        )
+        val manager = GlanceAdaptiveWidgetManager(FakeAppWidgetDelegate())
+        val customRenderer =
+            TemplateRenderer<TestTemplate, AppWidgetSurface, RemoteViewsRenderOutput> { _, _ ->
+                RemoteViewsRenderOutput(customViews)
+            }
+        manager.registerRenderer(
+            "track_widget",
+            AppWidgetSurface.MOBILE_LOCK_SCREEN,
+            customRenderer,
+        )
+        manager.registerRenderer(
+            "track_widget",
+            AppWidgetSurface.MOBILE_HOME_SCREEN,
+            customRenderer,
+        )
+        manager.registerRenderer(
+            "other_widget",
+            AppWidgetSurface.MOBILE_LOCK_SCREEN,
+            customRenderer,
+        )
+
+        manager.unregisterRenderer<TestTemplate>(
+            widgetName = "track_widget",
+            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
+        )
+
+        val restoredLock =
+            AppWidgetTemplateRegistry.render(
+                TestTemplate(),
+                AppWidgetSurface.MOBILE_LOCK_SCREEN,
+                widgetName = "track_widget",
+            ) as RemoteViewsRenderOutput
+        val keptHome =
+            AppWidgetTemplateRegistry.render(
+                TestTemplate(),
+                AppWidgetSurface.MOBILE_HOME_SCREEN,
+                widgetName = "track_widget",
+            ) as RemoteViewsRenderOutput
+        val keptOtherWidget =
+            AppWidgetTemplateRegistry.render(
+                TestTemplate(),
+                AppWidgetSurface.MOBILE_LOCK_SCREEN,
+                widgetName = "other_widget",
+            ) as RemoteViewsRenderOutput
+        assertThat(restoredLock.provider(context)).isSameInstanceAs(defaultViews)
+        assertThat(keptHome.provider(context)).isSameInstanceAs(customViews)
+        assertThat(keptOtherWidget.provider(context)).isSameInstanceAs(customViews)
+    }
+
+    @Test
+    fun unregisterRenderer_whenNotRegistered_isNoOp() {
+        val manager = GlanceAdaptiveWidgetManager(FakeAppWidgetDelegate())
+
+        manager.unregisterRenderer<TestTemplate>(
+            widgetName = "track_widget",
+            surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+        )
+    }
+
+    @Test
+    fun unregisterRenderer_withNonAppWidgetDelegate_throwsIllegalStateException() {
+        val delegate = OtherSurfaceDelegate()
+        val manager = GlanceAdaptiveWidgetManager(delegate)
+
+        assertThrows(IllegalStateException::class.java) {
+            manager.unregisterRenderer<TestTemplate>(
+                widgetName = "track_widget",
+                surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+            )
+        }
+        assertThat(delegate.callCount).isEqualTo(0)
+    }
+
+    @Test
+    fun unregisterRenderer_withAbstractTemplateType_throwsIllegalArgumentException() {
+        val manager = GlanceAdaptiveWidgetManager(FakeAppWidgetDelegate())
+
+        assertThrows(IllegalArgumentException::class.java) {
+            manager.unregisterRenderer<GlanceAdaptiveTemplate>(
+                widgetName = "track_widget",
+                surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+            )
+        }
+    }
+
+    @Test
+    fun unregisterRenderer_withBlankWidgetName_throwsIllegalArgumentException() {
+        val manager = GlanceAdaptiveWidgetManager(FakeAppWidgetDelegate())
+
+        assertThrows(IllegalArgumentException::class.java) {
+            manager.unregisterRenderer<TestTemplate>(
+                widgetName = "",
+                surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            manager.unregisterRenderer<TestTemplate>(
+                widgetName = "   ",
+                surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+            )
+        }
+    }
+
+    @Test
     fun glanceAdaptiveWidgetManager_doesNotDeclareAppWidgetOnlyMembers() {
         // A member would always win over the extension of the same name, silently shadowing it
         // and making the operation callable without depending on adaptive-appwidget.
@@ -347,6 +459,7 @@ class GlanceAdaptiveAppWidgetManagerTest {
                 "requestPin",
                 "setConfigurationResult",
                 "registerRenderer",
+                "unregisterRenderer",
             )
     }
 }

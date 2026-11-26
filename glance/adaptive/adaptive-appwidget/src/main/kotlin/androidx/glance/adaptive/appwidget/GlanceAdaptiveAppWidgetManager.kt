@@ -234,12 +234,56 @@ internal fun <T : GlanceAdaptiveTemplate> GlanceAdaptiveWidgetManager.registerRe
     // A local copy, as Kotlin can't smart cast a property declared in another module.
     val delegate = delegate
     check(delegate is GlanceAdaptiveAppWidgetDelegate) {
-        "registerRenderer requires a GlanceAdaptiveWidgetManager backed by an AppWidget delegate"
+        "registerRenderer requires a GlanceAdaptiveWidgetManager created for AppWidget hosts"
     }
     AppWidgetTemplateRegistry.register(
         widgetName = widgetName,
         templateClass = templateClass,
         renderer = renderer,
+        surface = surface,
+    )
+}
+
+/**
+ * Removes the custom renderer registered for [widgetName], [T], and [surface], restoring the
+ * default renderer on subsequent updates.
+ *
+ * Applies process-wide. Does nothing if no custom renderer is registered for [widgetName], [T], and
+ * [surface]. Does not check whether [widgetName] matches a declared receiver in the manifest.
+ *
+ * Intended mainly for test cleanup or disabling a custom renderer at runtime; apps that register a
+ * renderer in [android.app.Application.onCreate] do not need to unregister it.
+ *
+ * @param T concrete [GlanceAdaptiveTemplate] type matched by exact runtime class
+ * @param widgetName non-blank widget identifier matching [GlanceAdaptiveWidgetReceiver.widgetName]
+ * @param surface target [AppWidgetSurface]
+ * @throws IllegalStateException if this manager was not created for AppWidget hosts
+ * @throws IllegalArgumentException if [widgetName] is blank or [T] is an interface or abstract
+ *   class
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public inline fun <reified T : GlanceAdaptiveTemplate> GlanceAdaptiveWidgetManager
+    .unregisterRenderer(
+    widgetName: String,
+    surface: AppWidgetSurface,
+): Unit = unregisterRendererForClass(widgetName, surface, T::class.java)
+
+/** Non-inline implementation of [unregisterRenderer], taking the erased [templateClass]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@PublishedApi
+internal fun <T : GlanceAdaptiveTemplate> GlanceAdaptiveWidgetManager.unregisterRendererForClass(
+    widgetName: String,
+    surface: AppWidgetSurface,
+    templateClass: Class<T>,
+) {
+    // A local copy, as Kotlin can't smart cast a property declared in another module.
+    val delegate = delegate
+    check(delegate is GlanceAdaptiveAppWidgetDelegate) {
+        "unregisterRenderer requires a GlanceAdaptiveWidgetManager created for AppWidget hosts"
+    }
+    AppWidgetTemplateRegistry.unregister(
+        widgetName = widgetName,
+        templateClass = templateClass,
         surface = surface,
     )
 }

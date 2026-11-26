@@ -186,6 +186,24 @@ public class TemplateRegistry<S : GlanceSurface, R>(
     }
 
     /**
+     * Removes the override for [widgetName] and [templateClass] on [surface], or on every surface
+     * when [surface] is `null`. Does nothing if none is registered.
+     *
+     * @throws IllegalArgumentException if [widgetName] is blank or [templateClass] is abstract.
+     */
+    public fun <T : GlanceAdaptiveTemplate> removeOverride(
+        widgetName: String,
+        templateClass: Class<T>,
+        surface: S? = null,
+    ) {
+        require(widgetName.isNotBlank()) { "widgetName must not be blank" }
+        requireConcreteTemplateClass(templateClass)
+        synchronized(lock) {
+            forEachKey(templateClass, surface) { overrideMap.remove(widgetName to it) }
+        }
+    }
+
+    /**
      * Resolves the override for [widgetName] (if any) or the default for the runtime class of
      * [data] on [surface] and renders [data] with it.
      *
