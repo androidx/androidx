@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
+import androidx.compose.foundation.lazy.layout.LazyLayoutViewportInsets
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -52,7 +53,7 @@ constructor(
     /** Constraints used to measure children. */
     val childConstraints: Constraints,
     /** Main axis size of sticking header items. */
-    val stickingItemsCombinedSize: Int,
+    override val stickingItemsCombinedSize: Int,
     /** Prefetch state used by the lazy layout. */
     val prefetchState: LazyLayoutPrefetchState?,
     /** Prefetch strategy used in our layout */
@@ -74,7 +75,7 @@ constructor(
     override val afterContentPadding: Int,
     /** see [LazyListLayoutInfo.mainAxisItemSpacing] */
     override val mainAxisItemSpacing: Int,
-) : LazyListLayoutInfo, MeasureResult by measureResult {
+) : LazyListLayoutInfo, LazyLayoutViewportInsets, MeasureResult by measureResult {
 
     val canScrollBackward
         get() = (firstVisibleItem?.index ?: 0) != 0 || firstVisibleItemScrollOffset != 0
