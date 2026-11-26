@@ -909,6 +909,7 @@ package androidx.wear.compose.foundation.lazy {
     method @InaccessibleFromKotlin public int getMeasuredHeight();
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getOffset();
     method @BytecodeOnly @androidx.compose.runtime.annotation.FrequentlyChangingValue public long getScrollProgress-xlmz8Ag();
+    method @InaccessibleFromKotlin public int getSnapSegmentThreshold();
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getTransformedHeight();
     property public abstract Object? contentType;
     property public abstract int index;
@@ -916,6 +917,7 @@ package androidx.wear.compose.foundation.lazy {
     property public abstract int measuredHeight;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract int offset;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress scrollProgress;
+    property public abstract int snapSegmentThreshold;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract int transformedHeight;
   }
 

@@ -71,9 +71,10 @@ public object WearComposeFoundationFlags {
      * into equal snap segments and track snap targets across item transformations.
      *
      * When false, snapping reverts to item-based snapping (one snap point per item at its center),
-     * and
      * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.snapSegmentThreshold]
-     * has no effect.
+     * has no effect, and
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold]
+     * is `0`.
      */
     // TODO: b/588340334 - Remove this flag once segment snapping has soaked.
     @field:Suppress("MutableBareField")

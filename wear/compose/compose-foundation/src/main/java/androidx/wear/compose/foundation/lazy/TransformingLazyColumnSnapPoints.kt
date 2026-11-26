@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.wear.compose.foundation.isRoundDevice
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -358,27 +357,72 @@ internal class TransformingLazyColumnSnapPointsProvider(
 ) {
     private var cachedLayout: TransformingLazyColumnMeasureResult? = null
     private var cachedPoints: TransformingLazyColumnSnapPoints? = null
+    private var cachedHasThresholdProvider: Boolean = false
+    private var cachedThresholds: IntArray = IntArray(0)
 
-    /** The snap points of the current layout, computed once per layout. */
+    /**
+     * The snap points of the current layout. Reuses the cached result while the layout and each
+     * visible item's [TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold] are unchanged.
+     */
     fun current(): TransformingLazyColumnSnapPoints {
         val layout = state.layoutInfoState.value
-        cachedPoints?.let { if (layout === cachedLayout) return it }
-        return snapPointsOf(layout).also {
+        val existingPoints = cachedPoints
+        if (existingPoints != null && layout === cachedLayout) {
+            if (!cachedHasThresholdProvider) return existingPoints
+            val visibleItems = layout.visibleItems
+            var unchanged = true
+            for (i in visibleItems.indices) {
+                val item = visibleItems[i]
+                val threshold = if (item.measuredHeight > 0) item.snapSegmentThreshold else 0
+                if (threshold != cachedThresholds[i]) {
+                    cachedThresholds[i] = threshold
+                    unchanged = false
+                }
+            }
+            if (unchanged) return existingPoints
+            return snapPointsOf(layout, cachedThresholds).also { cachedPoints = it }
+        }
+        val visibleItems = layout.visibleItems
+        // No snap points needed when the list cannot scroll.
+        if (visibleItems.isEmpty() || (!layout.canScrollBackward && !layout.canScrollForward)) {
+            val snapLine = layout.viewportSize.height / 2f - snapOffsetPx
+            return TransformingLazyColumnSnapPoints(emptyList(), snapLine).also {
+                cachedLayout = layout
+                cachedPoints = it
+                cachedHasThresholdProvider = false
+            }
+        }
+        var hasProvider = false
+        val thresholds =
+            if (cachedThresholds.size == visibleItems.size) {
+                cachedThresholds
+            } else {
+                IntArray(visibleItems.size)
+            }
+        for (i in visibleItems.indices) {
+            val item = visibleItems[i]
+            if (
+                (item as? TransformingLazyColumnMeasuredItem)?.snapSegmentThresholdProvider != null
+            ) {
+                hasProvider = true
+            }
+            thresholds[i] = if (item.measuredHeight > 0) item.snapSegmentThreshold else 0
+        }
+        return snapPointsOf(layout, thresholds).also {
             cachedLayout = layout
             cachedPoints = it
+            cachedHasThresholdProvider = hasProvider
+            cachedThresholds = thresholds
         }
     }
 
     private fun snapPointsOf(
-        layout: TransformingLazyColumnMeasureResult
+        layout: TransformingLazyColumnMeasureResult,
+        requestedThresholds: IntArray,
     ): TransformingLazyColumnSnapPoints {
         val viewportHeight = layout.viewportSize.height
         val snapLine = viewportHeight / 2f - snapOffsetPx
         val visibleItems = layout.visibleItems
-        // No snap points needed when the list cannot scroll.
-        if (visibleItems.isEmpty() || (!layout.canScrollBackward && !layout.canScrollForward)) {
-            return TransformingLazyColumnSnapPoints(emptyList(), snapLine)
-        }
         val points = ArrayList<TransformingLazyColumnSnapPoint>(visibleItems.size)
         var totalHeight = 0
         // Geometry of the items once scrolled to the center: scrolling moves the anchor item
@@ -400,7 +444,8 @@ internal class TransformingLazyColumnSnapPointsProvider(
         if (!anchorFound) top = visibleItems.first().offset.toFloat()
         // Items with a size, for the fallback step size.
         var sizedItems = 0
-        visibleItems.fastForEach { item ->
+        for (i in visibleItems.indices) {
+            val item = visibleItems[i]
             // An empty item, for example collapsed or not shown, is not a snap point: the list
             // would rest on nothing, and snap points of consecutive empty items would coincide.
             if (item.measuredHeight <= 0) {
@@ -408,7 +453,7 @@ internal class TransformingLazyColumnSnapPointsProvider(
                 val emptyHeight =
                     if (item.index == layout.anchorItemIndex) item.transformedHeight else 0
                 top += emptyHeight + layout.itemSpacing
-                return@fastForEach
+                continue
             }
             sizedItems++
             totalHeight += item.measuredHeight
@@ -430,7 +475,7 @@ internal class TransformingLazyColumnSnapPointsProvider(
             val count =
                 snapSegmentCount(
                     measuredHeightPx = item.measuredHeight,
-                    requestedThresholdPx = measuredItem?.snapSegmentThresholdPx,
+                    requestedThresholdPx = requestedThresholds[i],
                     defaultThresholdPx = defaultThreshold,
                     viewportHeightPx = viewportHeight,
                 )
@@ -564,21 +609,20 @@ internal class TransformingLazyColumnSnapPointsProvider(
 
         /**
          * Number of segments of an item. A [requestedThresholdPx] at least [measuredHeightPx] keeps
-         * it whole; 0 or less, or null, uses [defaultThresholdPx]; other values are coerced to
-         * between [MinThresholdFraction] of [viewportHeightPx] and [viewportHeightPx].
+         * it whole; 0 or less uses [defaultThresholdPx]; other values are coerced to between
+         * [MinThresholdFraction] of [viewportHeightPx] and [viewportHeightPx].
          */
         fun snapSegmentCount(
             measuredHeightPx: Int,
-            requestedThresholdPx: Int?,
+            requestedThresholdPx: Int,
             defaultThresholdPx: Int,
             viewportHeightPx: Int,
         ): Int {
             if (viewportHeightPx <= 0) return 1
-            val requested = requestedThresholdPx?.takeIf { it > 0 }
-            if (requested != null && requested >= measuredHeightPx) return 1
+            if (requestedThresholdPx > 0 && requestedThresholdPx >= measuredHeightPx) return 1
             val minThreshold = ceil(viewportHeightPx * MinThresholdFraction).toInt()
             val threshold =
-                (requested ?: defaultThresholdPx)
+                (if (requestedThresholdPx > 0) requestedThresholdPx else defaultThresholdPx)
                     .coerceIn(minThreshold, viewportHeightPx.coerceAtLeast(minThreshold))
                     .coerceAtLeast(1)
             return max(1, (measuredHeightPx + threshold - 1) / threshold)

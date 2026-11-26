@@ -468,6 +468,11 @@ public object TransformingLazyColumnDefaults {
      * [TransformingLazyColumnItemScope.snapSegmentThreshold] to customize or disable splitting for
      * an item.
      *
+     * Positive thresholds below an item's measured height (read from
+     * [TransformingLazyColumnVisibleItemInfo.snapSegmentThreshold]) are coerced to between 20% and
+     * 100% of the viewport height; values at least the measured height keep the item whole with a
+     * single snap point at its center, and `0` uses the default threshold.
+     *
      * @param state the state of the [TransformingLazyColumn]
      * @param snapOffset an optional offset to be applied when snapping. Defines the distance from
      *   the center of the scrollable to the center of the snapped item or segment.
