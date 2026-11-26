@@ -675,29 +675,12 @@ public fun RemoteFloat.arrayForCreationState(
 internal fun RemoteFloat.hasBeenWrittenToDoc(creationState: RemoteComposeCreationState): Boolean =
     creationState.remoteVariableToId.contains(cacheKey)
 
-/**
- * Boilerplate for implementing an unary operation.
- *
- * @param opCode The opcode to insert in the generated [FloatArray] if the source isn't a const int.
- * @param directEval When the source is a const int, this lambda will be called to evaluate the
- *   result directly.
- */
-internal fun RemoteFloat.unaryOp(
+/** Simplifies and constructs a unary [RemoteFloat] operation via [FloatPeepholeOptimizer]. */
+internal fun unaryOp(
+    a: RemoteFloat,
     op: RemoteFloatOperationKey,
-    opCode: Float = op.opCode,
     directEval: (Float) -> Float,
-): RemoteFloat {
-    constantValueOrNull?.let {
-        return RemoteFloat(directEval(it))
-    }
-
-    return RemoteFloat(
-        constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(op, this),
-    ) { creationState ->
-        combineToFloatArray(creationState, arrayOf(this), opCode)
-    }
-}
+): RemoteFloat = FloatPeepholeOptimizer.simplifyUnaryOp(op, a, directEval)
 
 internal abstract class BaseRemoteFloat(cacheKey: RemoteStateCacheKey) :
     BaseRemoteValue<Float>(cacheKey), RemoteFloat {
@@ -819,18 +802,8 @@ internal abstract class BaseRemoteFloat(cacheKey: RemoteStateCacheKey) :
         )
     }
 
-    override fun unaryMinus(): RemoteFloat {
-        constantValueOrNull?.let {
-            return RemoteFloat(-it)
-        }
-
-        return binaryOp(
-            this,
-            -1f,
-            RemoteFloatOperationKey.UnaryMinus,
-            directEval = { a, b -> a * b },
-        )
-    }
+    override fun unaryMinus(): RemoteFloat =
+        unaryOp(this, RemoteFloatOperationKey.UnaryMinus) { v -> -v }
 
     override fun rem(other: Float): RemoteFloat =
         binaryOp(this, other, RemoteFloatOperationKey.Rem) { a, b -> a % b }
@@ -839,94 +812,34 @@ internal abstract class BaseRemoteFloat(cacheKey: RemoteStateCacheKey) :
         binaryOp(this, other, RemoteFloatOperationKey.Rem) { a, b -> a % b }
 
     override fun min(other: Float): RemoteFloat =
-        binaryOp(
-            this,
-            other,
-            RemoteFloatOperationKey.Min,
-            directEval = { a, b -> kotlin.math.min(a, b) },
-        )
+        binaryOp(this, other, RemoteFloatOperationKey.Min) { a, b -> kotlin.math.min(a, b) }
 
     override fun min(other: RemoteFloat): RemoteFloat =
         binaryOp(this, other, RemoteFloatOperationKey.Min) { a, b -> kotlin.math.min(a, b) }
 
-    override fun plus(other: Float): RemoteFloat {
-        if (other == 0f) {
-            return this
-        }
-        return binaryOp(this, other, RemoteFloatOperationKey.Plus, directEval = { a, b -> a + b })
-    }
+    override fun plus(other: Float): RemoteFloat =
+        binaryOp(this, other, RemoteFloatOperationKey.Plus) { a, b -> a + b }
 
-    override fun plus(other: RemoteFloat): RemoteFloat {
-        other.constantValueOrNull?.let {
-            return plus(it)
-        }
-        constantValueOrNull?.let {
-            return other.plus(it)
-        }
-        return binaryOp(this, other, RemoteFloatOperationKey.Plus) { a, b -> a + b }
-    }
+    override fun plus(other: RemoteFloat): RemoteFloat =
+        binaryOp(this, other, RemoteFloatOperationKey.Plus) { a, b -> a + b }
 
-    override fun minus(other: Float): RemoteFloat {
-        if (other == 0f) {
-            return this
-        }
-        return binaryOp(this, other, RemoteFloatOperationKey.Minus, directEval = { a, b -> a - b })
-    }
+    override fun minus(other: Float): RemoteFloat =
+        binaryOp(this, other, RemoteFloatOperationKey.Minus) { a, b -> a - b }
 
-    override fun minus(other: RemoteFloat): RemoteFloat {
-        other.constantValueOrNull?.let {
-            return minus(it)
-        }
-        constantValueOrNull?.let {
-            return (-other).plus(it)
-        }
-        return binaryOp(this, other, RemoteFloatOperationKey.Minus) { a, b -> a - b }
-    }
+    override fun minus(other: RemoteFloat): RemoteFloat =
+        binaryOp(this, other, RemoteFloatOperationKey.Minus) { a, b -> a - b }
 
-    override fun times(other: Float): RemoteFloat {
-        if (other == 0f) {
-            return RemoteFloat(0f)
-        }
-        if (other == 1f) {
-            return this
-        }
-        if (constantValueOrNull != null && constantValueOrNull == 1f) {
-            return RemoteFloat(other)
-        }
-        return binaryOp(this, other, RemoteFloatOperationKey.Times, directEval = { a, b -> a * b })
-    }
+    override fun times(other: Float): RemoteFloat =
+        binaryOp(this, other, RemoteFloatOperationKey.Times) { a, b -> a * b }
 
-    override fun times(other: RemoteFloat): RemoteFloat {
-        other.constantValueOrNull?.let {
-            return times(it)
-        }
-        constantValueOrNull?.let {
-            return other.times(it)
-        }
-        return binaryOp(this, other, RemoteFloatOperationKey.Times) { a, b -> a * b }
-    }
+    override fun times(other: RemoteFloat): RemoteFloat =
+        binaryOp(this, other, RemoteFloatOperationKey.Times) { a, b -> a * b }
 
-    override fun div(other: Float): RemoteFloat {
-        if (constantValueOrNull != null && constantValueOrNull == 0f) {
-            return RemoteFloat(0f)
-        }
-        if (other == 1f) {
-            return this
-        }
-        return binaryOp(this, other, RemoteFloatOperationKey.Div, directEval = { a, b -> a / b })
-    }
+    override fun div(other: Float): RemoteFloat =
+        binaryOp(this, other, RemoteFloatOperationKey.Div) { a, b -> a / b }
 
-    override fun div(other: RemoteFloat): RemoteFloat {
-        if (constantValueOrNull != null && constantValueOrNull == 0f) {
-            return RemoteFloat(0f)
-        }
-        other.constantValueOrNull?.let {
-            return div(it)
-        }
-        return binaryOp(this, other, RemoteFloatOperationKey.Div) { aVal: Float, bVal: Float ->
-            aVal / bVal
-        }
-    }
+    override fun div(other: RemoteFloat): RemoteFloat =
+        binaryOp(this, other, RemoteFloatOperationKey.Div) { a, b -> a / b }
 
     override fun createReference(forceRemote: Boolean): RemoteFloat {
         return RemoteFloat(
@@ -1083,187 +996,39 @@ private class RemoteFloatImpl(
     }
 }
 
-/**
- * Boilerplate for implementing a binary arithmetic operation.
- *
- * @param a The left hand side value of the binary operation
- * @param b The right hand side value of the binary operation
- * @param opCode The opcode to insert in the generated [FloatArray] if both sources aren\'t a const
- *   float.
- * @param directEval When the source is a const float, this lambda will be called to evaluate the
- *   result directly.
- */
+/** Simplifies and constructs a binary [RemoteFloat] operation with a literal left-hand operand. */
 internal fun binaryOp(
     a: Float,
     b: RemoteFloat,
     op: RemoteFloatOperationKey,
-    opCode: Float = op.opCode,
     directEval: (Float, Float) -> Float,
-): RemoteFloat {
-    val bConst = b.constantValueOrNull
-    if (!a.isNaN() && bConst != null) {
-        return RemoteFloat(directEval(a, bConst))
+): RemoteFloat =
+    if (a.isNaN()) {
+        FloatPeepholeOptimizer.simplifyBinaryOp(op, RemoteFloat(a), b, directEval)
+    } else {
+        FloatPeepholeOptimizer.simplifyBinaryOpLeftConst(op, a, b, directEval)
     }
 
-    return RemoteFloat(
-        constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(op, a, b),
-    ) { creationState ->
-        combineToFloatArray(creationState, arrayOf(RemoteFloat(a), b), opCode)
-    }
-}
-
-/**
- * Boilerplate for implementing a binary arithmetic operation. Supports peephole optmizations
- * potentially folding this operation into the previous one (e.g. folding several additions into
- * one).
- *
- * @param a The left hand side value of the binary operation
- * @param b The right hand side value of the binary operation
- * @param opCode The opcode to insert in the generated [FloatArray] if both sources aren\'t a const
- *   float.
- * @param directEval When the source is a const float, this lambda will be called to evaluate the
- *   result directly.
- */
+/** Simplifies and constructs a binary [RemoteFloat] operation with a literal right-hand operand. */
 internal fun binaryOp(
     a: RemoteFloat,
     b: Float,
     op: RemoteFloatOperationKey,
-    opCode: Float = op.opCode,
     directEval: (Float, Float) -> Float,
-): RemoteFloat {
-    val aConst = a.constantValueOrNull
-    if (aConst != null && !b.isNaN()) {
-        return RemoteFloat(directEval(aConst, b))
-    }
-
-    // 1. Principled Ternary Peephole: operate directly on the RemoteFloat AST
-    if (a is RemoteFloatSelect && a.hasConstantBranches) {
-        val newTrue = directEval(a.ifTrue.constantValueOrNull!!, b)
-        val newFalse = directEval(a.ifFalse.constantValueOrNull!!, b)
-        if (!newTrue.isNaN() && !newFalse.isNaN()) {
-            return a.condition.createSelect(RemoteFloat(newTrue), RemoteFloat(newFalse))
-        }
-    }
-
-    return RemoteFloat(
-        constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(op, a, b),
-    ) { creationState ->
-        // 2. Trailing Constant Peephole (associativity): only evaluate aArray when needed
-        val aArray = a.arrayForCreationState(creationState)
-        val last = aArray.last()
-        if (aArray.size > 2 && last.isNaN()) {
-            foldTrailingConstantForOp(aArray, Utils.idFromNan(last), op, b)
-                ?: combineToFloatArray(creationState, arrayOf(a), b, opCode)
-        } else {
-            combineToFloatArray(creationState, arrayOf(a), b, opCode)
-        }
-    }
-}
-
-private fun foldTrailingConstantForOp(
-    array: FloatArray,
-    lastOp: Int,
-    op: RemoteFloatOperationKey,
-    v: Float,
-): FloatArray? {
-    val addId = Utils.idFromNan(AnimatedFloatExpression.ADD)
-    val subId = Utils.idFromNan(AnimatedFloatExpression.SUB)
-    val mulId = Utils.idFromNan(AnimatedFloatExpression.MUL)
-    val divId = Utils.idFromNan(AnimatedFloatExpression.DIV)
-    return when (op) {
-        RemoteFloatOperationKey.Plus ->
-            when (lastOp) {
-                addId -> array.foldTrailingConstant({ it + v }, ::maybeTrimIfZero)
-                subId -> array.foldTrailingConstant({ it - v }, ::maybeTrimIfZero)
-                else -> null
-            }
-        RemoteFloatOperationKey.Minus ->
-            when (lastOp) {
-                addId -> array.foldTrailingConstant({ it - v }, ::maybeTrimIfZero)
-                subId -> array.foldTrailingConstant({ it + v }, ::maybeTrimIfZero)
-                else -> null
-            }
-        RemoteFloatOperationKey.Times ->
-            when (lastOp) {
-                mulId -> array.foldTrailingConstant({ it * v }, ::maybeTrimIfOne)
-                divId -> array.foldTrailingConstant({ it / v }, ::maybeTrimIfOne)
-                else -> null
-            }
-        RemoteFloatOperationKey.Div ->
-            when (lastOp) {
-                mulId -> array.foldTrailingConstant({ it / v }, ::maybeTrimIfOne)
-                divId -> array.foldTrailingConstant({ it * v }, ::maybeTrimIfOne)
-                else -> null
-            }
-        RemoteFloatOperationKey.UnaryMinus ->
-            when (lastOp) {
-                mulId,
-                divId -> array.foldTrailingConstant({ -it }, ::maybeTrimIfOne)
-                else -> null
-            }
-        else -> null
-    }
-}
-
-private inline fun FloatArray.foldTrailingConstant(
-    update: (Float) -> Float,
-    trim: (FloatArray) -> FloatArray = { it },
-): FloatArray? {
-    val idx = size - 2
-    if (idx < 0 || get(idx).isNaN()) return null
-    val copy = clone()
-    val updatedValue = update(copy[idx])
-    if (updatedValue.isNaN()) return null
-    copy[idx] = updatedValue
-    return trim(copy)
-}
-
-private fun maybeTrimIfZero(array: FloatArray) =
-    if (array[array.size - 2] == 0f) {
-        array.copyOfRange(0, array.size - 2)
+): RemoteFloat =
+    if (b.isNaN()) {
+        FloatPeepholeOptimizer.simplifyBinaryOp(op, a, RemoteFloat(b), directEval)
     } else {
-        array
+        FloatPeepholeOptimizer.simplifyBinaryOpRightConst(op, a, b, directEval)
     }
 
-private fun maybeTrimIfOne(array: FloatArray) =
-    if (array[array.size - 2] == 1f) {
-        array.copyOfRange(0, array.size - 2)
-    } else {
-        array
-    }
-
-/**
- * Boilerplate for implementing a binary arithmetic operation.
- *
- * @param a The left hand side value of the binary operation
- * @param b The right hand side value of the binary operation
- * @param opCode The opcode to insert in the generated [FloatArray] if both sources aren\'t a const
- *   float.
- * @param directEval When the sources are const float, this lambda will be called to evaluate the
- *   result directly.
- */
+/** Simplifies and constructs a binary [RemoteFloat] operation via [FloatPeepholeOptimizer]. */
 internal fun binaryOp(
     a: RemoteFloat,
     b: RemoteFloat,
     op: RemoteFloatOperationKey,
-    opCode: Float = op.opCode,
     directEval: (Float, Float) -> Float,
-): RemoteFloat {
-    val aConst = a.constantValueOrNull
-    val bConst = b.constantValueOrNull
-    if (aConst != null && bConst != null) {
-        return RemoteFloat(directEval(aConst, bConst))
-    }
-
-    return RemoteFloat(
-        constantValueOrNull = null,
-        cacheKey = RemoteOperationCacheKey.create(op, a, b),
-    ) { creationState ->
-        combineToFloatArray(creationState, arrayOf(a, b), opCode)
-    }
-}
+): RemoteFloat = FloatPeepholeOptimizer.simplifyBinaryOp(op, a, b, directEval)
 
 /**
  * Boilerplate for implementing a binary comparison operation.

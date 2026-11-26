@@ -1668,6 +1668,40 @@ class RemoteFloatTest {
         assertThat(creationState.getId(expr)).isEqualTo(creationState.getId(time))
     }
 
+    @Test
+    fun peepholeOptimization_zeroIdentities_precedeNonFiniteConstantEval() {
+        assertThat((0f.rf / 0f).constantValueOrNull).isEqualTo(0f)
+        assertThat((0f.rf / 0f.rf).constantValueOrNull).isEqualTo(0f)
+        assertThat((Float.POSITIVE_INFINITY.rf * 0f).constantValueOrNull).isEqualTo(0f)
+        assertThat((0f.rf * Float.POSITIVE_INFINITY.rf).constantValueOrNull).isEqualTo(0f)
+    }
+
+    @Test
+    fun peepholeOptimization_mulDivTrailingConstant_nonFiniteOverflowUnderflow_doesNotMisFold() {
+        val xMax = createNamedRemoteFloat("xMax", Float.MAX_VALUE)
+        val divInf = (xMax * 2f) / Float.POSITIVE_INFINITY
+        assertThat(divInf.constantValueOrNull).isNull()
+        val divInfId = creationState.getId(divInf)
+
+        val xHuge = createNamedRemoteFloat("xHuge", 1e30f)
+        val underflowMul = (xHuge * 1e-25f) * 1e-25f
+        assertThat(underflowMul.constantValueOrNull).isNull()
+        val underflowMulId = creationState.getId(underflowMul)
+
+        val xQuarter = createNamedRemoteFloat("xQuarter", 0.25f)
+        val overflowMul = (xQuarter * Float.MAX_VALUE) * 2f
+        val overflowMulId = creationState.getId(overflowMul)
+
+        val overflowDiv = (xMax / Float.MAX_VALUE) / 2f
+        val overflowDivId = creationState.getId(overflowDiv)
+
+        makeAndPaintCoreDocument()
+        assertThat(context.getFloat(divInfId)).isNaN()
+        assertThat(context.getFloat(underflowMulId)).isWithin(1e-25f).of(1e-20f)
+        assertThat(context.getFloat(overflowMulId)).isEqualTo((0.25f * Float.MAX_VALUE) * 2f)
+        assertThat(context.getFloat(overflowDivId)).isEqualTo(0.5f)
+    }
+
     private fun getOperationsStrings(expr: RemoteFloat): List<String> =
         CoreDocument().run {
             creationState.getId(expr)

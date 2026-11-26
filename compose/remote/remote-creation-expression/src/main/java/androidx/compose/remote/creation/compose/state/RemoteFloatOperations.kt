@@ -169,7 +169,7 @@ public fun pow(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the positive square root of [a].
  */
 public fun sqrt(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Sqrt) { a -> sqrt(a) }
+    unaryOp(a, RemoteFloatOperationKey.Sqrt) { a -> sqrt(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the absolute value of [a].
@@ -177,7 +177,8 @@ public fun sqrt(a: RemoteFloat): RemoteFloat =
  * @param a The [RemoteFloat] whose absolute value is computed.
  * @return A [RemoteFloat] representing the absolute value of [a].
  */
-public fun abs(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Abs) { a -> abs(a) }
+public fun abs(a: RemoteFloat): RemoteFloat =
+    unaryOp(a, RemoteFloatOperationKey.Abs) { a -> abs(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the sign of [a].
@@ -187,7 +188,7 @@ public fun abs(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.
  *   zero.
  */
 public fun sign(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Sign) { a -> sign(a) }
+    unaryOp(a, RemoteFloatOperationKey.Sign) { a -> sign(a) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(a: RemoteFloat, b: Float): RemoteFloat =
@@ -213,7 +214,8 @@ public fun copySign(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
  * @param a The exponent to raise `e` to.
  * @return A [RemoteFloat] representing `exp(a)`.
  */
-public fun exp(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Exp) { a -> exp(a) }
+public fun exp(a: RemoteFloat): RemoteFloat =
+    unaryOp(a, RemoteFloatOperationKey.Exp) { a -> exp(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the smallest mathematical integer greater than or equal
@@ -223,7 +225,7 @@ public fun exp(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.
  * @return A [RemoteFloat] representing `ceil(a)`.
  */
 public fun ceil(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Ceil) { a -> ceil(a) }
+    unaryOp(a, RemoteFloatOperationKey.Ceil) { a -> ceil(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the largest mathematical integer less than or equal to
@@ -233,7 +235,7 @@ public fun ceil(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing `floor(a)`.
  */
 public fun floor(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Floor) { a -> floor(a) }
+    unaryOp(a, RemoteFloatOperationKey.Floor) { a -> floor(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the base-10 logarithm of [a].
@@ -242,7 +244,7 @@ public fun floor(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing `log10(a)`.
  */
 public fun log(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Log) { a -> log10(a) }
+    unaryOp(a, RemoteFloatOperationKey.Log) { a -> log10(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the natural logarithm (base `e`) of [a].
@@ -250,7 +252,7 @@ public fun log(a: RemoteFloat): RemoteFloat =
  * @param a The value whose natural logarithm is computed.
  * @return A [RemoteFloat] representing `ln(a)`.
  */
-public fun ln(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Ln) { a -> ln(a) }
+public fun ln(a: RemoteFloat): RemoteFloat = unaryOp(a, RemoteFloatOperationKey.Ln) { a -> ln(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to [a] rounded to the nearest integer (rounding half up).
@@ -263,7 +265,7 @@ public fun round(a: RemoteFloat): RemoteFloat =
     // round-half-up)
     // rather than kotlin.math.round (round-half-to-even), keeping constant folding in sync with
     // wire evaluation while remaining platform-agnostic for KMP.
-    a.unaryOp(RemoteFloatOperationKey.Round) { a -> floor(a + 0.5f) }
+    unaryOp(a, RemoteFloatOperationKey.Round) { a -> floor(a + 0.5f) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the sine of [a].
@@ -271,7 +273,8 @@ public fun round(a: RemoteFloat): RemoteFloat =
  * @param a The angle in radians.
  * @return A [RemoteFloat] representing `sin(a)`.
  */
-public fun sin(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Sin) { a -> sin(a) }
+public fun sin(a: RemoteFloat): RemoteFloat =
+    unaryOp(a, RemoteFloatOperationKey.Sin) { a -> sin(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the cosine of [a].
@@ -279,7 +282,8 @@ public fun sin(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.
  * @param a The angle in radians.
  * @return A [RemoteFloat] representing `cos(a)`.
  */
-public fun cos(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Cos) { a -> cos(a) }
+public fun cos(a: RemoteFloat): RemoteFloat =
+    unaryOp(a, RemoteFloatOperationKey.Cos) { a -> cos(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the trigonometric tangent of [a].
@@ -287,7 +291,8 @@ public fun cos(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.
  * @param a The angle in radians.
  * @return A [RemoteFloat] representing `tan(a)`.
  */
-public fun tan(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.Tan) { a -> tan(a) }
+public fun tan(a: RemoteFloat): RemoteFloat =
+    unaryOp(a, RemoteFloatOperationKey.Tan) { a -> tan(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the arc sine of [a].
@@ -296,7 +301,7 @@ public fun tan(a: RemoteFloat): RemoteFloat = a.unaryOp(RemoteFloatOperationKey.
  * @return A [RemoteFloat] representing the arc sine of [a] in radians.
  */
 public fun asin(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Asin) { a -> asin(a) }
+    unaryOp(a, RemoteFloatOperationKey.Asin) { a -> asin(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the arc cosine of [a].
@@ -305,7 +310,7 @@ public fun asin(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the arc cosine of [a] in radians.
  */
 public fun acos(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Acos) { a -> acos(a) }
+    unaryOp(a, RemoteFloatOperationKey.Acos) { a -> acos(a) }
 
 /**
  * Returns a [RemoteFloat] that evaluates to the arc tangent of [a].
@@ -314,7 +319,7 @@ public fun acos(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing the arc tangent of [a] in radians, in `[-pi/2, pi/2]`.
  */
 public fun atan(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Atan) { a -> atan(a) }
+    unaryOp(a, RemoteFloatOperationKey.Atan) { a -> atan(a) }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun atan2(a: RemoteFloat, b: Float): RemoteFloat =
@@ -342,7 +347,7 @@ public fun atan2(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing `cbrt(a)`.
  */
 public fun cbrt(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.Cbrt) { a -> cbrt(a) }
+    unaryOp(a, RemoteFloatOperationKey.Cbrt) { a -> cbrt(a) }
 
 /**
  * Returns a [RemoteFloat] that converts [a] from radians to degrees.
@@ -351,7 +356,7 @@ public fun cbrt(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing [a] in degrees.
  */
 public fun toDeg(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.ToDeg) { a -> a * FP_TO_RAD }
+    unaryOp(a, RemoteFloatOperationKey.ToDeg) { a -> a * FP_TO_RAD }
 
 /**
  * Returns a [RemoteFloat] that converts [a] from degrees to radians.
@@ -360,7 +365,7 @@ public fun toDeg(a: RemoteFloat): RemoteFloat =
  * @return A [RemoteFloat] representing [a] in radians.
  */
 public fun toRad(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(RemoteFloatOperationKey.ToRad) { a -> a * FP_TO_DEG }
+    unaryOp(a, RemoteFloatOperationKey.ToRad) { a -> a * FP_TO_DEG }
 
 /**
  * Returns a [RemoteFloat] that linearly interpolates between [from] and [to] by [tween] (`from +

@@ -87,19 +87,14 @@ public fun <S : RemoteValue<*>> S.transform(
                         }
                 val custom = if (node != null) transform(node) else null
                 if (custom != null) {
-                    when (custom) {
-                        is RemoteBoolean -> custom.intValue
-                        is RemoteDp -> custom.value
-                        is RemoteEnum<*> -> custom.intValue
-                        else -> custom
-                    }
+                    unwrapWrapper(custom)
                 } else {
                     when (key) {
                         is RemoteOperationCacheKey -> {
                             if (node != null && !hasArgsChanged(key.args, visitedArgs)) {
                                 node
                             } else {
-                                (key.op as RemoteOperation).reconstruct(visitedArgs)
+                                unwrapWrapper((key.op as RemoteOperation).reconstruct(visitedArgs))
                             }
                         }
                         is RemoteConstantCacheKey -> node ?: resolveConstantState(key)
@@ -123,6 +118,14 @@ public fun <S : RemoteValue<*>> S.transform(
     })
         as S
 }
+
+private fun unwrapWrapper(value: RemoteValue<*>): RemoteValue<*> =
+    when (value) {
+        is RemoteBoolean -> value.intValue
+        is RemoteDp -> value.value
+        is RemoteEnum<*> -> value.intValue
+        else -> value
+    }
 
 private fun hasArgsChanged(
     original: List<RemoteStateCacheKey>,

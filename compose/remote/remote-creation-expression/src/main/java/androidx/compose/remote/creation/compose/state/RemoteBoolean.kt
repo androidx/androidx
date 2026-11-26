@@ -333,8 +333,7 @@ private abstract class BaseRemoteBoolean :
             return ifTrue
         }
 
-        val condition =
-            floatComparison?.withBooleanSource(this) ?: SelectFloatCondition.BooleanCondition(this)
+        val condition = floatComparison ?: SelectFloatCondition.BooleanCondition(this)
         return condition.createSelect(ifTrue, ifFalse)
     }
 
@@ -351,8 +350,7 @@ private abstract class BaseRemoteBoolean :
             return ifTrue
         }
 
-        val condition =
-            intComparison?.withBooleanSource(this) ?: SelectIntCondition.BooleanCondition(this)
+        val condition = intComparison ?: SelectIntCondition.BooleanCondition(this)
         return condition.createSelect(ifTrue, ifFalse)
     }
 
@@ -506,25 +504,18 @@ internal enum class BooleanOperationKey : RemoteOperation {
     }
 
     override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
+        val cond = asRemoteBoolean(args[0])
         return when (this) {
-            SelectString ->
-                RemoteBoolean(args[0] as RemoteInt)
-                    .select(args[1] as RemoteString, args[2] as RemoteString)
-            SelectFloat ->
-                RemoteBoolean(args[0] as RemoteInt)
-                    .select(args[1] as RemoteFloat, args[2] as RemoteFloat)
-            SelectInt ->
-                RemoteBoolean(args[0] as RemoteInt)
-                    .select(args[1] as RemoteInt, args[2] as RemoteInt)
+            SelectString -> cond.select(args[1] as RemoteString, args[2] as RemoteString)
+            SelectFloat -> cond.select(args[1] as RemoteFloat, args[2] as RemoteFloat)
+            SelectInt -> cond.select(args[1] as RemoteInt, args[2] as RemoteInt)
             SelectBoolean ->
-                RemoteBoolean(args[0] as RemoteInt)
-                    .select(
-                        RemoteBoolean(args[1] as RemoteInt),
-                        RemoteBoolean(args[2] as RemoteInt),
-                    )
-                    .intValue
+                cond.select(asRemoteBoolean(args[1]), asRemoteBoolean(args[2])).intValue
         }
     }
+
+    private fun asRemoteBoolean(value: RemoteValue<*>): RemoteBoolean =
+        value as? RemoteBoolean ?: RemoteBoolean(value as RemoteInt)
 }
 
 /**
