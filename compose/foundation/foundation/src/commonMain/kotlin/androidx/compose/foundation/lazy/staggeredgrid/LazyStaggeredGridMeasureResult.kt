@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.lazy.layout.LazyLayoutViewportInsets
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
@@ -147,7 +148,7 @@ internal class LazyStaggeredGridMeasureResult(
     override val mainAxisItemSpacing: Int,
     val coroutineScope: CoroutineScope,
     override val reverseLayout: Boolean,
-) : LazyStaggeredGridLayoutInfo, MeasureResult by measureResult {
+) : LazyStaggeredGridLayoutInfo, LazyLayoutViewportInsets, MeasureResult by measureResult {
 
     val laneCount: Int
         get() = slots.sizes.size

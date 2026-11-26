@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.offsetOnMainAxis
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
+import androidx.compose.foundation.lazy.layout.LazyLayoutViewportInsets
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -57,7 +58,7 @@ constructor(
     /** Finds the line for a given item. */
     val lineIndexProvider: (itemIndex: Int) -> Int,
     /** Main axis size of sticking header items. */
-    val stickingItemsCombinedSize: Int,
+    override val stickingItemsCombinedSize: Int,
     /** Prefetch state used by the lazy layout. */
     val prefetchState: LazyLayoutPrefetchState?,
     /** Prefetch strategy used in our layout */
@@ -79,7 +80,7 @@ constructor(
     override val afterContentPadding: Int,
     /** see [LazyGridLayoutInfo.mainAxisItemSpacing] */
     override val mainAxisItemSpacing: Int,
-) : LazyGridLayoutInfo, MeasureResult by measureResult {
+) : LazyGridLayoutInfo, LazyLayoutViewportInsets, MeasureResult by measureResult {
 
     val canScrollBackward
         get() = (firstVisibleLine?.index ?: 0) != 0 || firstVisibleLineScrollOffset != 0
