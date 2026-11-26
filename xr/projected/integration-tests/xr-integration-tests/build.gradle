@@ -44,6 +44,7 @@ androidx {
     description =
         "Automated instrumented integration tests for JXR Projected to run in CI and on " +
             "paired emulators/devices."
+    addGoldenImageAssets()
     deviceTests {
         maxShardCount = 1
     }
@@ -54,6 +55,14 @@ dependencies {
 
     implementation("androidx.activity:activity:1.12.1")
 
+    // TODO: b/590840667 - Remove emoji2 and lifecycle-process exclusions once :xr:testutils
+    // decouples transitive Compose UI deps or AGP resolves the .test startup-runtime DEX/manifest
+    // deduplication mismatch (note: tools:node="remove" in src/androidTest/AndroidManifest.xml
+    // emits a mergeDebugAndroidTestManifest warning that fails build_log_simplifier.py).
+    androidTestImplementation(project(":xr:testutils")) {
+        exclude group: "androidx.emoji2", module: "emoji2"
+        exclude group: "androidx.lifecycle", module: "lifecycle-process"
+    }
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
