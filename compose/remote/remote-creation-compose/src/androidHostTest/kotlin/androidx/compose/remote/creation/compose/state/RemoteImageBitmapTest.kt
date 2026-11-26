@@ -84,5 +84,20 @@ class RemoteImageBitmapTest {
         assertThat(bitmap).isNotNull()
         assertThat(bitmap.cacheKey)
             .isEqualTo(RemoteNamedCacheKey(RemoteValue.Domain.User, "avatar"))
+        assertThat(bitmap.urlOrNull).isEqualTo(url)
+        assertThat(bitmap.declaredWidth).isEqualTo(300)
+        assertThat(bitmap.declaredHeight).isEqualTo(200)
+        assertThat(bitmap.hasIntrinsicDimensions).isFalse()
+    }
+
+    @Test
+    fun remoteBitmap_encodedImageBitmap_exposesDeclaredDimensions() {
+        val bitmap = Bitmap.createBitmap(24, 16, Bitmap.Config.ARGB_8888).asImageBitmap()
+        val remoteBitmap = RemoteImageBitmap(bitmap)
+
+        assertThat(remoteBitmap.urlOrNull).isNull()
+        assertThat(remoteBitmap.declaredWidth).isEqualTo(24)
+        assertThat(remoteBitmap.declaredHeight).isEqualTo(16)
+        assertThat(remoteBitmap.hasIntrinsicDimensions).isFalse()
     }
 }

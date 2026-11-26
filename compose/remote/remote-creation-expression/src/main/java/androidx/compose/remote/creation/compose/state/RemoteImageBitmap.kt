@@ -51,6 +51,41 @@ public sealed interface RemoteImageBitmap : RemoteValue<Any> {
     /** The height of the bitmap as represented in the remote document. */
     public val height: RemoteFloat
 
+    /**
+     * The backing image URL if this bitmap was created from a URL (via [RemoteImageBitmap] or
+     * [createNamedRemoteImageBitmap]), or `null` otherwise.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val urlOrNull: String?
+        get() = null
+
+    /**
+     * The explicitly declared width in pixels for this bitmap (such as from a URL factory,
+     * offscreen bitmap, or encoded bitmap), or `null` when unknown (such as [createForId]) or when
+     * the bitmap uses intrinsic dimensions (see [hasIntrinsicDimensions]).
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val declaredWidth: Int?
+        get() = null
+
+    /**
+     * The explicitly declared height in pixels for this bitmap (such as from a URL factory,
+     * offscreen bitmap, or encoded bitmap), or `null` when unknown (such as [createForId]) or when
+     * the bitmap uses intrinsic dimensions (see [hasIntrinsicDimensions]).
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val declaredHeight: Int?
+        get() = null
+
+    /**
+     * Returns `true` if this bitmap was configured to use the loaded image's intrinsic dimensions
+     * (such as a URL bitmap created with `0x0` dimensions), in which case [declaredWidth] and
+     * [declaredHeight] are `null`.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val hasIntrinsicDimensions: Boolean
+        get() = false
+
     public companion object {
         /**
          * Creates a [RemoteImageBitmap] referencing a remote ID.
@@ -110,6 +145,10 @@ public sealed interface RemoteImageBitmap : RemoteValue<Any> {
             RemoteImageBitmapImpl(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
+                urlOrNull = url,
+                declaredWidth = width.takeIf { it > 0 },
+                declaredHeight = height.takeIf { it > 0 },
+                hasIntrinsicDimensions = width == 0 && height == 0,
                 idProvider = { creationState ->
                     val bitmapId = creationState.document.addBitmapUrl(url, width, height)
                     creationState.document.setNamedVariable(
@@ -133,6 +172,8 @@ public sealed interface RemoteImageBitmap : RemoteValue<Any> {
             RemoteImageBitmapImpl(
                 constantValueOrNull = null,
                 cacheKey = RemoteStateInstanceKey(),
+                declaredWidth = width,
+                declaredHeight = height,
                 idProvider = { creationState ->
                     creationState.document.createBitmap(width, height)
                 },
@@ -142,28 +183,54 @@ public sealed interface RemoteImageBitmap : RemoteValue<Any> {
 
 private enum class ImageBitmapOperationKey : RemoteOperation {
     Width,
-    Height;
+    Height,
+    Url;
 
     override fun toDebugString(args: List<RemoteStateCacheKey>): String =
         when (this) {
             Width -> "${args[0].toOperandString(100)}.width"
             Height -> "${args[0].toOperandString(100)}.height"
+            Url ->
+                "url(${args[0].toOperandString(100)}, " +
+                    "${args[1].toOperandString(100)}, " +
+                    "${args[2].toOperandString(100)})"
         }
 
     override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
         when (this) {
             Width -> (args[0] as RemoteImageBitmap).width
             Height -> (args[0] as RemoteImageBitmap).height
+            Url ->
+                RemoteImageBitmap(
+                    url = (args[0] as RemoteString).constantValue,
+                    width = (args[1] as RemoteInt).constantValue,
+                    height = (args[2] as RemoteInt).constantValue,
+                )
         }
 
     override val resultKind: RemoteValueKind
-        get() = RemoteValueKind.FLOAT
+        get() =
+            when (this) {
+                Width,
+                Height -> RemoteValueKind.FLOAT
+                Url -> RemoteValueKind.IMAGE_BITMAP
+            }
 
-    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = true
+    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
+        this == Width || this == Height
 }
 
-private abstract class BaseRemoteImageBitmap(cacheKey: RemoteStateCacheKey) :
-    BaseRemoteValue<Any>(cacheKey), RemoteImageBitmap {
+private abstract class BaseRemoteImageBitmap(
+    cacheKey: RemoteStateCacheKey,
+    override val urlOrNull: String? = null,
+    declaredWidth: Int? = null,
+    declaredHeight: Int? = null,
+    override val hasIntrinsicDimensions: Boolean = false,
+) : BaseRemoteValue<Any>(cacheKey), RemoteImageBitmap {
+    override val declaredWidth: Int? = declaredWidth?.takeIf { it > 0 }
+
+    override val declaredHeight: Int? = declaredHeight?.takeIf { it > 0 }
+
     override val equalityType: KClass<*>
         get() = RemoteImageBitmap::class
 
@@ -204,8 +271,19 @@ private abstract class BaseRemoteImageBitmap(cacheKey: RemoteStateCacheKey) :
 private class RemoteImageBitmapImpl(
     override val constantValueOrNull: Any?,
     cacheKey: RemoteStateCacheKey,
+    urlOrNull: String? = null,
+    declaredWidth: Int? = null,
+    declaredHeight: Int? = null,
+    hasIntrinsicDimensions: Boolean = false,
     private val idProvider: BitmapIdProvider,
-) : BaseRemoteImageBitmap(cacheKey) {
+) :
+    BaseRemoteImageBitmap(
+        cacheKey = cacheKey,
+        urlOrNull = urlOrNull,
+        declaredWidth = declaredWidth,
+        declaredHeight = declaredHeight,
+        hasIntrinsicDimensions = hasIntrinsicDimensions,
+    ) {
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider.provide(creationState).id
 }
@@ -240,8 +318,16 @@ public sealed interface MutableRemoteImageBitmap : RemoteImageBitmap, MutableRem
 private class MutableRemoteImageBitmapImpl(
     cacheKey: RemoteStateCacheKey,
     override val constantValueOrNull: Any?,
+    declaredWidth: Int? = null,
+    declaredHeight: Int? = null,
     private val idProvider: BitmapIdProvider,
-) : BaseRemoteImageBitmap(cacheKey), MutableRemoteImageBitmap {
+) :
+    BaseRemoteImageBitmap(
+        cacheKey = cacheKey,
+        declaredWidth = declaredWidth,
+        declaredHeight = declaredHeight,
+    ),
+    MutableRemoteImageBitmap {
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider.provide(creationState).id
 
@@ -250,19 +336,23 @@ private class MutableRemoteImageBitmapImpl(
 }
 
 /**
- * Creates a [MutableRemoteImageBitmap] with the given [constantValueOrNull], [cacheKey], and
- * [idProvider].
+ * Creates a [MutableRemoteImageBitmap] with the given [constantValueOrNull], [cacheKey], optional
+ * [declaredWidth] and [declaredHeight], and [idProvider].
  */
 @RememberInComposition
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun MutableRemoteImageBitmap(
     constantValueOrNull: Any?,
     cacheKey: RemoteStateCacheKey? = null,
+    declaredWidth: Int? = null,
+    declaredHeight: Int? = null,
     idProvider: BitmapIdProvider,
 ): MutableRemoteImageBitmap =
     MutableRemoteImageBitmapImpl(
         cacheKey = cacheKey ?: RemoteStateInstanceKey(),
         constantValueOrNull = constantValueOrNull,
+        declaredWidth = declaredWidth,
+        declaredHeight = declaredHeight,
         idProvider = idProvider,
     )
 
@@ -273,8 +363,30 @@ public fun MutableRemoteImageBitmap(
  * @return A [RemoteImageBitmap] representing the image from the URL.
  */
 public fun RemoteImageBitmap(url: String): RemoteImageBitmap =
+    RemoteImageBitmap(url = url, width = 1, height = 1)
+
+/**
+ * Creates a [RemoteImageBitmap] from a [url] with explicit [width] and [height].
+ *
+ * @param url The URL of the image.
+ * @param width Expected width of the bitmap in pixels, or `0` to use the loaded image's dimensions.
+ * @param height Expected height of the bitmap in pixels, or `0` to use the loaded image's
+ *   dimensions.
+ * @return A [RemoteImageBitmap] representing the image from the URL.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteImageBitmap(url: String, width: Int, height: Int): RemoteImageBitmap =
     RemoteImageBitmapImpl(
         constantValueOrNull = null,
-        cacheKey = RemoteConstantCacheKey(url),
-        idProvider = { creationState -> creationState.document.addBitmapUrl(url) },
+        cacheKey =
+            if (width == 1 && height == 1) {
+                RemoteConstantCacheKey(url)
+            } else {
+                RemoteOperationCacheKey.create(ImageBitmapOperationKey.Url, url, width, height)
+            },
+        urlOrNull = url,
+        declaredWidth = width.takeIf { it > 0 },
+        declaredHeight = height.takeIf { it > 0 },
+        hasIntrinsicDimensions = width == 0 && height == 0,
+        idProvider = { creationState -> creationState.document.addBitmapUrl(url, width, height) },
     )
