@@ -2768,7 +2768,20 @@ public class RemoteComposeWriter {
      */
     public int definePattern(@NonNull String name, int @NonNull [] paramIds) {
         int id = addText(name);
-        return mBuffer.definePattern(id, paramIds);
+        return definePattern(id, paramIds);
+    }
+
+    /**
+     * Define a pattern with a pre-allocated id
+     *
+     * @param id       the id of the pattern
+     * @param paramIds the ids of the parameters
+     * @return the id of the pattern
+     */
+    public int definePattern(int id, int @NonNull [] paramIds) {
+        int result = mBuffer.definePattern(id, paramIds);
+        mState.pushDataScope();
+        return result;
     }
 
     /** Helper to cache raw any data values into state and return unique ID. */
@@ -2847,6 +2860,7 @@ public class RemoteComposeWriter {
      */
     public void endPatternDefine() {
         mBuffer.endPatternDefine();
+        mState.popDataScope();
     }
 
     /**
@@ -5821,6 +5835,7 @@ public class RemoteComposeWriter {
      */
     public void startReferencedOperations(int id) {
         mBuffer.addReferencedOperations(id);
+        mState.pushDataScope();
     }
 
     /**
@@ -5828,6 +5843,7 @@ public class RemoteComposeWriter {
      */
     public void endReferencedOperations() {
         mBuffer.addContainerEnd();
+        mState.popDataScope();
     }
 
     /**

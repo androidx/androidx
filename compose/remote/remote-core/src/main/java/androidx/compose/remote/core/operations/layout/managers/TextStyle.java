@@ -597,7 +597,7 @@ public class TextStyle extends Operation implements ComponentData, VariableProvi
                                         intAttributes[0] =
                                                 ((LoomWireBuffer) buffer)
                                                         .getRemapContext()
-                                                        .resolveId(value);
+                                                        .declareId(value);
                                     } else {
                                         intAttributes[0] = value;
                                     }
@@ -720,6 +720,12 @@ public class TextStyle extends Operation implements ComponentData, VariableProvi
                         public void value(int id, int @NonNull [] value) {
                             if (id == P_FONT_AXIS) {
                                 for (int axis : value) {
+                                    if (buffer instanceof LoomWireBuffer) {
+                                        axis =
+                                                ((LoomWireBuffer) buffer)
+                                                        .getRemapContext()
+                                                        .resolveId(axis);
+                                    }
                                     fontAxisList.add(axis);
                                 }
                             }

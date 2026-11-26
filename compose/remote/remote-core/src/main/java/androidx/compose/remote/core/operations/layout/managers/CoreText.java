@@ -1060,7 +1060,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                                         intAttributes[0] =
                                                 ((LoomWireBuffer) buffer)
                                                         .getRemapContext()
-                                                        .resolveId(value);
+                                                        .declareId(value);
                                     } else {
                                         intAttributes[0] = value;
                                     }
@@ -1070,7 +1070,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                                         intAttributes[1] =
                                                 ((LoomWireBuffer) buffer)
                                                         .getRemapContext()
-                                                        .resolveId(value);
+                                                        .declareId(value);
                                     } else {
                                         intAttributes[1] = value;
                                     }
@@ -1191,6 +1191,12 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                             switch (id) {
                                 case TextStyle.P_FONT_AXIS:
                                     for (int axis : value) {
+                                        if (buffer instanceof LoomWireBuffer) {
+                                            axis =
+                                                    ((LoomWireBuffer) buffer)
+                                                            .getRemapContext()
+                                                            .resolveId(axis);
+                                        }
                                         fontAxisList.add(axis);
                                     }
                                     break;
