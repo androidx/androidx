@@ -34,9 +34,12 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":compose:ui:ui-util"))
-    implementation("androidx.core:core:1.19.0")
+    implementation("androidx.core:core:1.20.0-alpha01")
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.mockitoKotlin)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

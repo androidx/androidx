@@ -131,7 +131,8 @@ public fun Font(
  *
  * This overload function simplifies the setup by automatically configuring the
  * [GoogleFont.Provider] with the default font certificates required to fetch fonts from Google Play
- * Services.
+ * Services (production certificates are trusted unconditionally, while development certificates are
+ * only trusted when Google Play Services is installed as a system application).
  *
  * @sample androidx.compose.ui.text.googlefonts.samples.GoogleFontWithoutVariationSettingsSample
  * @sample androidx.compose.ui.text.googlefonts.samples.GoogleFontWithVariationSettingsSample
@@ -148,16 +149,9 @@ public fun Font(
     style: FontStyle = FontStyle.Normal,
     variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
 ): Font {
-    val fontProvider =
-        GoogleFont.Provider(
-            providerAuthority = "com.google.android.gms.fonts",
-            providerPackage = "com.google.android.gms",
-            certificates = R.array.com_google_android_gms_fonts_certs,
-        )
-
     return GoogleFontImpl(
         name = googleFont.name,
-        fontProvider = fontProvider,
+        fontProvider = DefaultGmsFontProvider,
         weight = weight,
         style = style,
         // Sorting ensures that containing the same variation axes result in identical cache
@@ -166,6 +160,14 @@ public fun Font(
         bestEffort = googleFont.bestEffort,
     )
 }
+
+private val DefaultGmsFontProvider =
+    GoogleFont.Provider(
+        providerAuthority = "com.google.android.gms.fonts",
+        providerPackage = "com.google.android.gms",
+        certificates = R.array.com_google_android_gms_fonts_certs_prod,
+        systemCertificates = R.array.com_google_android_gms_fonts_certs_dev,
+    )
 
 /**
  * A downloadable font from fonts.google.com
@@ -202,6 +204,7 @@ public class GoogleFont(public val name: String, public val bestEffort: Boolean 
         internal val providerPackage: String,
         internal val certificates: List<List<ByteArray>>?,
         @ArrayRes internal val certificatesRes: Int,
+        @ArrayRes internal val systemCertificatesRes: Int,
     ) {
 
         /**
@@ -227,7 +230,7 @@ public class GoogleFont(public val name: String, public val bestEffort: Boolean 
             providerAuthority: String,
             providerPackage: String,
             certificates: List<List<ByteArray>>,
-        ) : this(providerAuthority, providerPackage, certificates, 0)
+        ) : this(providerAuthority, providerPackage, certificates, 0, 0)
 
         /**
          * Describe a downloadable fonts provider using a resource array for certificates.
@@ -252,16 +255,62 @@ public class GoogleFont(public val name: String, public val bestEffort: Boolean 
             providerAuthority: String,
             providerPackage: String,
             @ArrayRes certificates: Int,
-        ) : this(providerAuthority, providerPackage, null, certificates)
+        ) : this(providerAuthority, providerPackage, null, certificates, 0)
+
+        /**
+         * Describe a downloadable fonts provider using resource arrays for certificates and system
+         * certificates.
+         *
+         * The font provider is matched by `providerAuthority` and `providerPackage`, then the
+         * resulting provider has its certificates validated against `certificates` first, or
+         * against `systemCertificates` if the provider is installed on the system image
+         * (`ApplicationInfo.FLAG_SYSTEM` or `ApplicationInfo.FLAG_UPDATED_SYSTEM_APP`).
+         *
+         * If the certificates check succeeds, the provider is used for downloadable fonts. If the
+         * certificates check fails, the provider will not be used and any downloadable fonts
+         * requests configured with it will fail.
+         *
+         * At least one of `certificates` or `systemCertificates` must be a non-zero resource ID
+         * (pass `0` for `certificates` to only trust system providers matching
+         * `systemCertificates`, or pass `0` for `systemCertificates` to only trust `certificates`).
+         *
+         * @sample androidx.compose.ui.text.googlefonts.samples.GoogleFontSystemCertificatesSample
+         * @param providerAuthority The authority of the Font Provider to be used for the request.
+         * @param providerPackage The package for the Font Provider to be used for the request. This
+         *   is used to verify the identity of the provider.
+         * @param certificates A resource array with the list of sets of hashes for the certificates
+         *   the provider should be signed with. This is used to verify the identity of the
+         *   provider, and each set in the list represents one collection of signature hashes. Refer
+         *   to your font provider's documentation for these values. Matching certificates are
+         *   trusted regardless of whether the provider is installed as a system application. Pass
+         *   `0` to only trust system providers matching `systemCertificates`.
+         * @param systemCertificates A resource array with the list of sets of hashes for the
+         *   certificates the provider should be signed with when installed as a system application
+         *   (`ApplicationInfo.FLAG_SYSTEM` or `ApplicationInfo.FLAG_UPDATED_SYSTEM_APP`). Each set
+         *   in the list represents one collection of signature hashes. Pass `0` if no system-only
+         *   certificates are needed.
+         * @throws IllegalArgumentException if both `certificates` and `systemCertificates` are `0`.
+         */
+        public constructor(
+            providerAuthority: String,
+            providerPackage: String,
+            @ArrayRes certificates: Int,
+            @ArrayRes systemCertificates: Int,
+        ) : this(providerAuthority, providerPackage, null, certificates, systemCertificates) {
+            require(certificates != 0 || systemCertificates != 0) {
+                "At least one of certificates or systemCertificates must not be 0"
+            }
+        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Provider) return false
 
+            if (certificatesRes != other.certificatesRes) return false
+            if (systemCertificatesRes != other.systemCertificatesRes) return false
             if (providerAuthority != other.providerAuthority) return false
             if (providerPackage != other.providerPackage) return false
             if (certificates != other.certificates) return false
-            if (certificatesRes != other.certificatesRes) return false
 
             return true
         }
@@ -271,6 +320,7 @@ public class GoogleFont(public val name: String, public val bestEffort: Boolean 
             result = 31 * result + providerPackage.hashCode()
             result = 31 * result + (certificates?.hashCode() ?: 0)
             result = 31 * result + certificatesRes
+            result = 31 * result + systemCertificatesRes
             return result
         }
     }
@@ -284,7 +334,8 @@ public class GoogleFont(public val name: String, public val bestEffort: Boolean 
  *
  * @param context for looking up font provider in
  * @return true if the provider is usable for downloadable fonts, false if it's not found
- * @throws IllegalStateException if the provider is on device, but certificates don't match
+ * @throws IllegalStateException if the provider is on device, but certificates don't match (note
+ *   that `systemCertificates` only match when the provider is installed as a system application)
  */
 @WorkerThread
 public fun GoogleFont.Provider.isAvailableOnDevice(
@@ -305,24 +356,38 @@ internal data class GoogleFontImpl(
             "name=$name&weight=${weight.weight}" +
                 "&italic=${style.toQueryParam()}&besteffort=${bestEffortQueryParam()}"
 
+        val variationSettingsStr = variationSettings.toAndroidString(context)
         val certs = fontProvider.certificates
-        return if (certs != null) {
-            FontRequest(
+        if (certs != null) {
+            return FontRequest(
                 /* providerAuthority = */ fontProvider.providerAuthority,
                 /* providerPackage = */ fontProvider.providerPackage,
                 /* query = */ query,
                 /* certificates = */ certs,
-                /* variationSettings = */ variationSettings.toAndroidString(context),
-            )
-        } else {
-            FontRequest(
-                /* providerAuthority = */ fontProvider.providerAuthority,
-                /* providerPackage = */ fontProvider.providerPackage,
-                /* query = */ query,
-                /* certificates = */ fontProvider.certificatesRes,
-                /* variationSettings = */ variationSettings.toAndroidString(context),
+                /* variationSettings = */ variationSettingsStr,
             )
         }
+        if (fontProvider.systemCertificatesRes != 0) {
+            val builder =
+                FontRequest.Builder(
+                        fontProvider.providerAuthority,
+                        fontProvider.providerPackage,
+                        query,
+                        fontProvider.systemCertificatesRes,
+                    )
+                    .setVariationSettings(variationSettingsStr)
+            if (fontProvider.certificatesRes != 0) {
+                builder.setDebugFallbackCertificates(fontProvider.certificatesRes)
+            }
+            return builder.build()
+        }
+        return FontRequest(
+            /* providerAuthority = */ fontProvider.providerAuthority,
+            /* providerPackage = */ fontProvider.providerPackage,
+            /* query = */ query,
+            /* certificates = */ fontProvider.certificatesRes,
+            /* variationSettings = */ variationSettingsStr,
+        )
     }
 
     private fun bestEffortQueryParam() = if (bestEffort) "true" else "false"

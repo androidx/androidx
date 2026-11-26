@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.AssetManager
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.os.Handler
 import androidx.annotation.WorkerThread
@@ -35,6 +36,7 @@ import androidx.core.provider.FontRequest
 import androidx.core.provider.FontsContractCompat
 import androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -43,6 +45,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -548,7 +551,160 @@ class GoogleFontTest {
     fun GoogleFont_Provider_withResId() {
         val provider = GoogleFont.Provider("provider", "package", 17)
         assertThat(provider.certificatesRes).isEqualTo(17)
+        assertThat(provider.systemCertificatesRes).isEqualTo(0)
         assertThat(provider.certificates).isNull()
+    }
+
+    @Test
+    fun GoogleFont_Provider_withCertsAndSystemCertsResId() {
+        val provider = GoogleFont.Provider("provider", "package", 17, 23)
+        assertThat(provider.certificatesRes).isEqualTo(17)
+        assertThat(provider.systemCertificatesRes).isEqualTo(23)
+        assertThat(provider.certificates).isNull()
+    }
+
+    @Test
+    fun GoogleFont_Provider_withSystemCertsResIdOnly() {
+        val provider = GoogleFont.Provider("provider", "package", 0, 23)
+        assertThat(provider.certificatesRes).isEqualTo(0)
+        assertThat(provider.systemCertificatesRes).isEqualTo(23)
+        assertThat(provider.certificates).isNull()
+    }
+
+    @Test
+    fun GoogleFont_Provider_bothZeroCertsAndSystemCerts_throws() {
+        val ex =
+            assertThrows(IllegalArgumentException::class.java) {
+                GoogleFont.Provider("provider", "package", 0, 0)
+            }
+        assertThat(ex).hasMessageThat().contains("systemCertificates")
+    }
+
+    @Test
+    fun GoogleFont_Provider_equalsAndHashCode_includesSystemCertificates() {
+        val p1 = GoogleFont.Provider("provider", "package", 17, 23)
+        val p2 = GoogleFont.Provider("provider", "package", 17, 23)
+        val p3 = GoogleFont.Provider("provider", "package", 17, 29)
+        val p4 = GoogleFont.Provider("provider", "package", 17, 0)
+        val p5 = GoogleFont.Provider("provider", "package", 17)
+
+        assertThat(p1).isEqualTo(p2)
+        assertThat(p1.hashCode()).isEqualTo(p2.hashCode())
+        assertThat(p1).isNotEqualTo(p3)
+        assertThat(p4).isEqualTo(p5)
+        assertThat(p4.hashCode()).isEqualTo(p5.hashCode())
+
+        val f1 = Font(GoogleFont("Roboto"), p1)
+        val f2 = Font(GoogleFont("Roboto"), p2)
+        val f3 = Font(GoogleFont("Roboto"), p3)
+        val f4 = Font(GoogleFont("Roboto"), p4)
+        val f5 = Font(GoogleFont("Roboto"), p5)
+        assertThat(f1).isEqualTo(f2)
+        assertThat(f1.hashCode()).isEqualTo(f2.hashCode())
+        assertThat(f1).isNotEqualTo(f3)
+        assertThat(f4).isEqualTo(f5)
+        assertThat(f4.hashCode()).isEqualTo(f5.hashCode())
+    }
+
+    @Test
+    fun GoogleFontImpl_embeddedCert_usesProdCertsAndDevSystemCerts() {
+        val font = Font(GoogleFont("Test")) as GoogleFontImpl
+        val fontRequest = font.toFontRequest(context)
+        assertThat(fontRequest.certificatesArrayResId)
+            .isEqualTo(
+                androidx.compose.ui.text.googlefonts.R.array.com_google_android_gms_fonts_certs_prod
+            )
+        assertThat(fontRequest.systemCertificatesArrayResId)
+            .isEqualTo(
+                androidx.compose.ui.text.googlefonts.R.array.com_google_android_gms_fonts_certs_dev
+            )
+    }
+
+    @Test
+    fun GoogleFontImpl_providerCertsAndSystemCerts_passedDown() {
+        val provider = GoogleFont.Provider("a", "b", 17, 23)
+        val font =
+            Font(
+                GoogleFont("a"),
+                provider,
+                variationSettings = FontVariation.Settings(FontVariation.weight(500)),
+            )
+                as GoogleFontImpl
+        val request = font.toFontRequest(context)
+        assertThat(request.providerAuthority).isEqualTo("a")
+        assertThat(request.providerPackage).isEqualTo("b")
+        assertThat(request.certificatesArrayResId).isEqualTo(17)
+        assertThat(request.systemCertificatesArrayResId).isEqualTo(23)
+        assertThat(request.variationSettings).contains("'wght'")
+    }
+
+    @Test
+    fun GoogleFontImpl_providerSystemCertsOnly_passedDown() {
+        val provider = GoogleFont.Provider("a", "b", 0, 23)
+        val font = Font(GoogleFont("a"), provider) as GoogleFontImpl
+        val request = font.toFontRequest(context)
+        assertThat(request.certificatesArrayResId).isEqualTo(0)
+        assertThat(request.systemCertificatesArrayResId).isEqualTo(23)
+    }
+
+    @Test
+    fun GoogleFontImpl_emptyVariationSettings_matchesLegacyRequest() {
+        val legacyProvider =
+            GoogleFont.Provider(
+                providerAuthority = "com.google.android.gms.fonts",
+                providerPackage = "com.google.android.gms",
+                certificates = R.array.com_google_android_gms_fonts_certs_prod,
+            )
+        val systemCertsProvider =
+            GoogleFont.Provider(
+                providerAuthority = "com.google.android.gms.fonts",
+                providerPackage = "com.google.android.gms",
+                certificates = R.array.com_google_android_gms_fonts_certs_prod,
+                systemCertificates = R.array.com_google_android_gms_fonts_certs_dev,
+            )
+
+        val legacyFont =
+            Font(GoogleFont("Roboto"), legacyProvider, variationSettings = FontVariation.Settings())
+                as GoogleFontImpl
+        val systemFont =
+            Font(
+                GoogleFont("Roboto"),
+                systemCertsProvider,
+                variationSettings = FontVariation.Settings(),
+            )
+                as GoogleFontImpl
+
+        val legacyRequest = legacyFont.toFontRequest(context)
+        val systemRequest = systemFont.toFontRequest(context)
+        assertThat(systemRequest.variationSettings).isEmpty()
+        assertThat(systemRequest.variationSettings).isEqualTo(legacyRequest.variationSettings)
+        assertThat(systemRequest.query).isEqualTo(legacyRequest.query)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun GoogleFontImpl_accessibilityFontWeightAdjustment_propagatesThroughBuilder() {
+        val boldConfig =
+            Configuration(context.resources.configuration).apply { fontWeightAdjustment = 300 }
+        val boldContext = context.createConfigurationContext(boldConfig)
+        val provider =
+            GoogleFont.Provider(
+                providerAuthority = "com.google.android.gms.fonts",
+                providerPackage = "com.google.android.gms",
+                certificates = R.array.com_google_android_gms_fonts_certs_prod,
+                systemCertificates = R.array.com_google_android_gms_fonts_certs_dev,
+            )
+        val font =
+            Font(
+                googleFont = GoogleFont("Roboto"),
+                fontProvider = provider,
+                weight = FontWeight.W600,
+                variationSettings = FontVariation.Settings(FontVariation.weight(600)),
+            )
+                as GoogleFontImpl
+
+        val request = font.toFontRequest(boldContext)
+        assertThat(request.variationSettings).isEqualTo("'wght' 900.0")
     }
 
     @Test
@@ -560,6 +716,7 @@ class GoogleFontTest {
                 listOf(listOf(ByteArray(100) { it.toByte() })),
             )
         assertThat(provider.certificatesRes).isEqualTo(0)
+        assertThat(provider.systemCertificatesRes).isEqualTo(0)
         assertThat(provider.certificates).isNotNull()
     }
 
@@ -632,9 +789,10 @@ class GoogleFontTest {
 
         val provider =
             GoogleFont.Provider(
-                fontRequest.providerPackage,
+                fontRequest.providerAuthority,
                 fontRequest.providerPackage,
                 fontRequest.certificatesArrayResId,
+                fontRequest.systemCertificatesArrayResId,
             )
 
         assertThat(provider.isAvailableOnDevice(context)).isTrue()
