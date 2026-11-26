@@ -54,6 +54,13 @@ public class DisplayInfoManager private constructor(private val context: Context
     @Volatile private var displays: Array<Display>? = null
 
     /**
+     * A cache of display sizes keyed by display id. Retrieving the display size on API 31+ creates
+     * a new WindowContext and makes a binder call to WindowManager, which is expensive when done on
+     * every use case binding. It is invalidated (cleared) by the [displayListener].
+     */
+    private val displaySizes = HashMap<Int, Size>()
+
+    /**
      * A listener to detect display changes.
      *
      * This listener invalidates the cached display information (by setting it to null) whenever the
@@ -66,6 +73,7 @@ public class DisplayInfoManager private constructor(private val context: Context
                 synchronized(lock) {
                     displays = null
                     previewSize = null
+                    displaySizes.clear()
                 }
             }
 
@@ -73,6 +81,7 @@ public class DisplayInfoManager private constructor(private val context: Context
                 synchronized(lock) {
                     displays = null
                     previewSize = null
+                    displaySizes.clear()
                 }
             }
 
@@ -80,6 +89,7 @@ public class DisplayInfoManager private constructor(private val context: Context
                 synchronized(lock) {
                     displays = null
                     previewSize = null
+                    displaySizes.clear()
                 }
             }
         }
@@ -178,7 +188,7 @@ public class DisplayInfoManager private constructor(private val context: Context
         var maxDisplaySize = -1
 
         for (display: Display in displays) {
-            val displaySize = getDisplaySize(context, display)
+            val displaySize = getCachedDisplaySize(display)
             val area = displaySize.width * displaySize.height
 
             if (area > maxDisplaySize) {
@@ -203,6 +213,13 @@ public class DisplayInfoManager private constructor(private val context: Context
         return checkNotNull(result) { "No displays found from ${displays.contentToString()}!" }
     }
 
+    /** Gets the size of the given display, using a cache invalidated by [displayListener]. */
+    private fun getCachedDisplaySize(display: Display): Size {
+        synchronized(lock) {
+            return displaySizes.getOrPut(display.displayId) { getDisplaySize(context, display) }
+        }
+    }
+
     /** Calculates the device's screen resolution, or MAX_PREVIEW_SIZE, whichever is smaller. */
     private fun calculatePreviewSize(): Size {
         var displayViewSize = getCorrectedDisplaySize()
@@ -213,7 +230,7 @@ public class DisplayInfoManager private constructor(private val context: Context
     }
 
     private fun getCorrectedDisplaySize(): Size {
-        var displayViewSize = getDisplaySize(context, getMaxSizeDisplay(false))
+        var displayViewSize = getCachedDisplaySize(getMaxSizeDisplay(false))
 
         // Checks whether the display size is abnormally small.
         if (SizeUtil.isSmallerByArea(displayViewSize, ABNORMAL_DISPLAY_SIZE_THRESHOLD)) {
