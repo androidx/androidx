@@ -32,7 +32,7 @@ import androidx.camera.core.impl.Quirk
  *   lenses. We need to disable zero-shutter lag and return false for
  *   [androidx.camera.core.CameraInfo.isZslSupported].
  * - Device(s): Samsung Fold4, Flip4, Flip5, SM-F971, Samsung S6/S22/S24/A05 series, Xiaomi Mi 8,
- *   Redmi Note 11, Redmi Note 12 (tapas), Redmi Note 13, Motorola Razr+ 2024, Honor 90
+ *   Redmi Note 11, Redmi Note 12 (tapas/topaz), Redmi Note 13, Motorola Razr+ 2024, Honor 90
  */
 @SuppressLint("CameraXQuirksClassDetector")
 // TODO(b/270421716): enable when kotlin is supported.
@@ -55,9 +55,10 @@ public class ZslDisablerQuirk : Quirk {
 
         private val AFFECTED_XIAOMI_MODEL = listOf("MI 8", "2201117", "23028RA60", "23129RA5F")
 
-        // Redmi Note 12 4G regional SKUs (e.g. 23021RAAEG, 23028RA60L) share Build.DEVICE "tapas",
-        // where Qualcomm CamX/CHI ZSL sessions swap ImageAnalysis U/V chroma planes.
-        private val AFFECTED_XIAOMI_DEVICE = listOf("tapas")
+        // Redmi Note 12 4G SKUs use Build.DEVICE "tapas" (non-NFC, e.g. 23021RAAEG, 23028RA60L),
+        // where Qualcomm CamX/CHI ZSL sessions swap ImageAnalysis U/V chroma planes, or "topaz"
+        // (NFC, e.g. 23021RAA2Y), included preemptively since it shares the same SM6225 HAL.
+        private val AFFECTED_XIAOMI_DEVICE = listOf("tapas", "topaz")
 
         private val AFFECTED_MOTOROLA_MODEL = listOf("MOTOROLA RAZR PLUS 2024")
 
