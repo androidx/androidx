@@ -21,25 +21,23 @@ import android.util.Log
 import androidx.appfunctions.internal.AppFunctionLibraryConfiguration.isLoggingEnabled
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 
-// TODO(b/586898710): Update KDoc to link ExecuteAppFunctionRequest.inputResponses and
-// AppFunctionInputResponse once response APIs are added.
 /**
  * Thrown by an app function when it requires input from the caller before it can proceed.
  *
  * To proceed, the caller resolves each request in [inputRequests] and calls the same function again
- * with the responses.
+ * with the matching [AppFunctionInputResponse] entries in
+ * [ExecuteAppFunctionRequest.inputResponses].
  */
 public class AppFunctionInputRequiredException
 internal constructor(errorMessage: String? = null, extras: Bundle) :
     AppFunctionAppException(ERROR_INPUT_REQUIRED, errorMessage, extras) {
 
-    // TODO(b/586898710): Update KDoc to link ExecuteAppFunctionRequest.inputResponses once response
-    // APIs are added.
     /**
      * The input requests that the caller must resolve before calling the function again.
      *
      * Each request is keyed by a key that the app function assigns and that is unique within the
-     * exception. The caller returns the response to a request under the same key.
+     * exception. The caller returns the matching [AppFunctionInputResponse] under the same key in
+     * [ExecuteAppFunctionRequest.inputResponses].
      */
     public val inputRequests: Map<String, AppFunctionInputRequest> = readInputRequests(extras)
 

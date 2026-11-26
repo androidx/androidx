@@ -82,6 +82,7 @@ package androidx.appfunctions {
   }
 
   public static final class AppFunctionData.Builder {
+    ctor public AppFunctionData.Builder(androidx.appfunctions.AppFunctionElicitationRequest.Form elicitationRequest);
     ctor public AppFunctionData.Builder(androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata allOfTypeMetadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata);
     ctor public AppFunctionData.Builder(androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata objectTypeMetadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata);
     ctor public AppFunctionData.Builder(androidx.appfunctions.metadata.AppFunctionResponseMetadata responseMetadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata);
@@ -162,6 +163,25 @@ package androidx.appfunctions {
     property public android.app.PendingIntent pendingIntent;
   }
 
+  public abstract sealed nonexhaustive class AppFunctionElicitationResponse extends androidx.appfunctions.AppFunctionInputResponse {
+  }
+
+  public static final class AppFunctionElicitationResponse.ActionFinished extends androidx.appfunctions.AppFunctionElicitationResponse {
+    ctor public AppFunctionElicitationResponse.ActionFinished();
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class AppFunctionElicitationResponse.FormData extends androidx.appfunctions.AppFunctionElicitationResponse {
+    ctor public AppFunctionElicitationResponse.FormData(androidx.appfunctions.AppFunctionData data);
+    method @InaccessibleFromKotlin public androidx.appfunctions.AppFunctionData getData();
+    property public androidx.appfunctions.AppFunctionData data;
+    field public static final androidx.appfunctions.AppFunctionElicitationResponse.FormData.Companion Companion;
+    field public static final String PROPERTY_ELICITATION_VALUE = "androidAppfunctionsElicitationValue";
+  }
+
+  public static final class AppFunctionElicitationResponse.FormData.Companion {
+    property public static String PROPERTY_ELICITATION_VALUE;
+  }
+
   public abstract class AppFunctionException extends java.lang.Exception {
     method @InaccessibleFromKotlin public final String? getErrorMessage();
     property public final String? errorMessage;
@@ -184,6 +204,9 @@ package androidx.appfunctions {
     ctor public AppFunctionInputRequiredException(java.util.Map<java.lang.String,? extends androidx.appfunctions.AppFunctionInputRequest> inputRequests, optional String? errorMessage);
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,androidx.appfunctions.AppFunctionInputRequest> getInputRequests();
     property public java.util.Map<java.lang.String,androidx.appfunctions.AppFunctionInputRequest> inputRequests;
+  }
+
+  public abstract sealed nonexhaustive class AppFunctionInputResponse {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.CLASS}) public @interface AppFunctionInstruction {
@@ -413,6 +436,7 @@ package androidx.appfunctions {
     method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public android.app.AppInteractionAttribution? getAttribution();
     method @InaccessibleFromKotlin public String getFunctionIdentifier();
     method @InaccessibleFromKotlin public androidx.appfunctions.AppFunctionData getFunctionParameters();
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,androidx.appfunctions.AppFunctionInputResponse> getInputResponses();
     method @InaccessibleFromKotlin public String getTargetPackageName();
     method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public static androidx.appfunctions.ExecuteAppFunctionRequest toCompatExecuteAppFunctionRequest(android.app.appfunctions.ExecuteAppFunctionRequest, androidx.appfunctions.metadata.AppFunctionMetadata functionMetadata);
     method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public android.app.appfunctions.ExecuteAppFunctionRequest toPlatformExecuteAppFunctionRequest();
@@ -420,8 +444,17 @@ package androidx.appfunctions {
     property @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public android.app.AppInteractionAttribution? attribution;
     property public String functionIdentifier;
     property public androidx.appfunctions.AppFunctionData functionParameters;
+    property public java.util.Map<java.lang.String,androidx.appfunctions.AppFunctionInputResponse> inputResponses;
     property public String targetPackageName;
     field public static final androidx.appfunctions.ExecuteAppFunctionRequest.Companion Companion;
+  }
+
+  public static final class ExecuteAppFunctionRequest.Builder {
+    ctor public ExecuteAppFunctionRequest.Builder(String targetPackageName, String functionIdentifier, androidx.appfunctions.AppFunctionData functionParameters);
+    method public androidx.appfunctions.ExecuteAppFunctionRequest build();
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public androidx.appfunctions.ExecuteAppFunctionRequest.Builder setActivityId(android.app.appfunctions.AppFunctionActivityId? activityId);
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public androidx.appfunctions.ExecuteAppFunctionRequest.Builder setAttribution(android.app.AppInteractionAttribution? attribution);
+    method public androidx.appfunctions.ExecuteAppFunctionRequest.Builder setInputResponses(java.util.Map<java.lang.String,? extends androidx.appfunctions.AppFunctionInputResponse> inputResponses);
   }
 
   public static final class ExecuteAppFunctionRequest.Companion {
