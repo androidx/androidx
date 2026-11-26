@@ -16,14 +16,16 @@
 
 package androidx.compose.remote.generator
 
-import androidx.compose.remote.generator.codegen.KotlinGenerator
 import java.nio.file.Files
 import java.nio.file.Paths
 import org.json.JSONObject
 
 /**
  * Internal entry point invoked by `:compose:remote:remote-generator:updateGeneratedCode` to
- * regenerate checked-in AndroidX Kotlin and Java sources from `operations.json`.
+ * validate `operations.json`.
+ *
+ * Kotlin protocol, AST, and writer sources are generated at build time by
+ * [RemoteKotlinCodegenMain].
  */
 internal object AndroidXCodegenUpdater {
     @JvmStatic
@@ -47,32 +49,6 @@ internal object AndroidXCodegenUpdater {
         check(errors.isEmpty()) {
             "operations.json failed validation:\n${errors.joinToString("\n")}"
         }
-
-        val schema = JsonSchemaParser.parseString(schemaText)
-        val kotlinGenerator = KotlinGenerator(schema)
-
-        val remoteDocDir =
-            remoteDir.resolve("remote-document/src/main/java/androidx/compose/remote/document")
-        if (Files.isDirectory(remoteDocDir)) {
-            val astFile = remoteDocDir.resolve("RemoteOperations.kt")
-            Files.writeString(astFile, kotlinGenerator.generateAstNodes())
-            println("Updated $astFile")
-            val protocolFile = remoteDocDir.resolve("RemoteProtocol.kt")
-            Files.writeString(protocolFile, kotlinGenerator.generateProtocolConstants())
-            println("Updated $protocolFile")
-        }
-
-        val remoteWriterDir =
-            remoteDir.resolve(
-                "remote-document-writer/src/main/java/androidx/compose/remote/document"
-            )
-        if (Files.isDirectory(remoteWriterDir)) {
-            val writerFile = remoteWriterDir.resolve("RemoteOperationsWriter.kt")
-            Files.writeString(writerFile, kotlinGenerator.generateWriterNodes())
-            println("Updated $writerFile")
-            val sinkFile = remoteWriterDir.resolve("RemoteOperationSink.kt")
-            Files.writeString(sinkFile, kotlinGenerator.generateOperationSink())
-            println("Updated $sinkFile")
-        }
+        println("Validated operations.json ($remoteDir)")
     }
 }

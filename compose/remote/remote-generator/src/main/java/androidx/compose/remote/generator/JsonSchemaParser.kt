@@ -102,8 +102,16 @@ public object JsonSchemaParser {
                         fields.add(parseField(fArray.getJSONObject(idx)))
                     }
                 }
+                val wireFormat =
+                    if (cmdObj.has("wireFormat")) cmdObj.getString("wireFormat") else null
                 paintCommands[id] =
-                    SchemaPaintCommand(id = id, name = key, description = desc, fields = fields)
+                    SchemaPaintCommand(
+                        id = id,
+                        name = key,
+                        description = desc,
+                        fields = fields,
+                        wireFormat = wireFormat,
+                    )
             }
         }
 
@@ -128,6 +136,7 @@ public object JsonSchemaParser {
                         name = svObj.getString("name"),
                         type = svObj.getString("type"),
                         description = svObj.optString("description", ""),
+                        isTime = svObj.optBoolean("isTime", false),
                     )
                 )
             }
@@ -140,6 +149,7 @@ public object JsonSchemaParser {
                 val cmdObj = pcObj.getJSONObject(key)
                 val id = cmdObj.getInt("id")
                 val desc = cmdObj.optString("description", "")
+                val leadingPaddingFloats = cmdObj.optInt("leadingPaddingFloats", 0)
                 val fields = mutableListOf<SchemaField>()
                 if (cmdObj.has("fields")) {
                     val fArray = cmdObj.getJSONArray("fields")
@@ -148,9 +158,110 @@ public object JsonSchemaParser {
                     }
                 }
                 pathCommands[id] =
-                    SchemaPathCommand(id = id, name = key, description = desc, fields = fields)
+                    SchemaPathCommand(
+                        id = id,
+                        name = key,
+                        description = desc,
+                        fields = fields,
+                        leadingPaddingFloats = leadingPaddingFloats,
+                    )
             }
         }
+
+        val headerConstants = mutableMapOf<String, Map<String, Int>>()
+        if (root.has("headerConstants")) {
+            val hcObj = root.getJSONObject("headerConstants")
+            for (groupKey in hcObj.keys()) {
+                val groupObj = hcObj.getJSONObject(groupKey)
+                val entries = linkedMapOf<String, Int>()
+                for (constKey in groupObj.keys()) {
+                    entries[constKey] = groupObj.getInt(constKey)
+                }
+                headerConstants[groupKey] = entries
+            }
+        }
+
+        val idEncoding =
+            if (root.has("idEncoding")) {
+                val obj = root.getJSONObject("idEncoding")
+                SchemaIdEncoding(
+                    nanPrefix = obj.getInt("nanPrefix"),
+                    payloadMask = obj.getInt("payloadMask"),
+                    startId = obj.getInt("startId"),
+                    regionMask = obj.getInt("regionMask"),
+                    regionSubIdMask = obj.getInt("regionSubIdMask"),
+                    regionSystem = obj.getInt("regionSystem"),
+                    regionVariable = obj.getInt("regionVariable"),
+                    regionArray = obj.getInt("regionArray"),
+                    regionOperation = obj.getInt("regionOperation"),
+                    longIdOffset = obj.getLong("longIdOffset"),
+                    ptrDereference = obj.getInt("ptrDereference"),
+                    valueMask = obj.getInt("valueMask"),
+                    macroLocalStartId = obj.getInt("macroLocalStartId"),
+                    macroLocalEndId = obj.getInt("macroLocalEndId"),
+                )
+            } else null
+
+        val animationSpec =
+            if (root.has("animationSpec")) {
+                val obj = root.getJSONObject("animationSpec")
+                val easingsArr = obj.getJSONArray("easings")
+                val easings =
+                    (0 until easingsArr.length()).map { idx ->
+                        val eObj = easingsArr.getJSONObject(idx)
+                        val aliases =
+                            if (eObj.has("aliases")) {
+                                val aArr = eObj.getJSONArray("aliases")
+                                (0 until aArr.length()).map { aArr.getString(it) }
+                            } else emptyList()
+                        val pts =
+                            if (eObj.has("cubicControlPoints")) {
+                                val pArr = eObj.getJSONArray("cubicControlPoints")
+                                FloatArray(pArr.length()) { pArr.getDouble(it).toFloat() }
+                            } else null
+                        SchemaAnimationEasing(
+                            id = eObj.getInt("id"),
+                            name = eObj.getString("name"),
+                            aliases = aliases,
+                            cubicControlPoints = pts,
+                        )
+                    }
+                val bitsArr = obj.getJSONArray("flagsBits")
+                val flagsBits =
+                    (0 until bitsArr.length()).map { idx ->
+                        val bObj = bitsArr.getJSONObject(idx)
+                        SchemaBitField(
+                            name = bObj.getString("name"),
+                            range = bObj.getString("range"),
+                            description = bObj.optString("description", ""),
+                        )
+                    }
+                SchemaAnimationSpec(easings = easings, flagsBits = flagsBits)
+            } else null
+
+        val pathEffects =
+            if (root.has("pathEffects")) {
+                val obj = root.getJSONObject("pathEffects")
+                val typesArr = obj.getJSONArray("types")
+                val effectTypes =
+                    (0 until typesArr.length()).map { idx ->
+                        val tObj = typesArr.getJSONObject(idx)
+                        val fArr = tObj.getJSONArray("fields")
+                        val fields =
+                            (0 until fArr.length()).map { parseField(fArr.getJSONObject(it)) }
+                        SchemaPathEffectType(
+                            id = tObj.getInt("id"),
+                            name = tObj.getString("name"),
+                            constName = tObj.getString("constName"),
+                            fields = fields,
+                        )
+                    }
+                SchemaPathEffects(
+                    maxDashIntervals = obj.getInt("maxDashIntervals"),
+                    maxNestingDepth = obj.getInt("maxNestingDepth"),
+                    types = effectTypes,
+                )
+            } else null
 
         val operations = mutableListOf<SchemaOperation>()
         if (root.has("operations")) {
@@ -312,6 +423,10 @@ public object JsonSchemaParser {
             intRpnOperators = intRpnOperators,
             pathCommands = pathCommands,
             systemVariables = systemVariables,
+            headerConstants = headerConstants,
+            idEncoding = idEncoding,
+            animationSpec = animationSpec,
+            pathEffects = pathEffects,
         )
     }
 
@@ -578,6 +693,42 @@ public object JsonSchemaParser {
                 }
                 if (!svNames.add(svName)) {
                     errors.add("Duplicate system variable name: $svName")
+                }
+            }
+        }
+
+        // 9. Animation spec & path effects validation
+        if (root.has("animationSpec")) {
+            val animObj = root.getJSONObject("animationSpec")
+            val easingsArr = animObj.getJSONArray("easings")
+            val easingIds = mutableSetOf<Int>()
+            for (i in 0 until easingsArr.length()) {
+                val eObj = easingsArr.getJSONObject(i)
+                val eId = eObj.getInt("id")
+                val eName = eObj.getString("name")
+                if (!easingIds.add(eId)) {
+                    errors.add("Duplicate animationSpec easing ID: $eId ($eName)")
+                }
+            }
+            val bitsArr = animObj.getJSONArray("flagsBits")
+            for (i in 0 until bitsArr.length()) {
+                val bObj = bitsArr.getJSONObject(i)
+                val range = bObj.getString("range")
+                if (!isValidBitRange(range)) {
+                    errors.add("Invalid animationSpec.flagsBits range '$range'")
+                }
+            }
+        }
+        if (root.has("pathEffects")) {
+            val peObj = root.getJSONObject("pathEffects")
+            val typesArr = peObj.getJSONArray("types")
+            val peIds = mutableSetOf<Int>()
+            for (i in 0 until typesArr.length()) {
+                val tObj = typesArr.getJSONObject(i)
+                val tId = tObj.getInt("id")
+                val tName = tObj.getString("name")
+                if (!peIds.add(tId)) {
+                    errors.add("Duplicate pathEffects type ID: $tId ($tName)")
                 }
             }
         }

@@ -531,7 +531,16 @@
               "name": "regionOp",
               "range": "24..31",
               "signed": true,
-              "description": "Region clip mode"
+              "description": "Region clip mode",
+              "enum": {
+                "REPLACE": 0,
+                "DIFFERENCE": 1,
+                "INTERSECT": 2,
+                "UNION": 3,
+                "XOR": 4,
+                "REVERSE_DIFFERENCE": 5,
+                "UNDEFINED": 6
+              }
             }
           ]
         }
@@ -1796,7 +1805,8 @@
           "name": "animationSpec",
           "type": "float_or_id[]",
           "countFrom": "animationLength",
-          "description": "Optional spring/tween animation specification floats"
+          "description": "Optional spring/tween animation specification floats",
+          "encoding": "float_animation_spec"
         }
       ],
       "profiles": [
@@ -1963,7 +1973,14 @@
             {
               "name": "imageType",
               "range": "16..30",
-              "description": "Bitmap image format"
+              "description": "Bitmap image format",
+              "enum": {
+                "TYPE_PNG_8888": 0,
+                "TYPE_PNG": 1,
+                "TYPE_RAW8": 2,
+                "TYPE_RAW8888": 3,
+                "TYPE_PNG_ALPHA_8": 4
+              }
             }
           ]
         },
@@ -1982,7 +1999,14 @@
             {
               "name": "bitmapEncoding",
               "range": "16..30",
-              "description": "Payload encoding (0=INLINE, 1=URL, 2=FILE, 3=EMPTY, 4=COMPONENT_OFFSCREEN_BUFFER)"
+              "description": "Payload encoding (0=INLINE, 1=URL, 2=FILE, 3=EMPTY, 4=COMPONENT_OFFSCREEN_BUFFER)",
+              "enum": {
+                "ENCODING_INLINE": 0,
+                "ENCODING_URL": 1,
+                "ENCODING_FILE": 2,
+                "ENCODING_EMPTY": 3,
+                "ENCODING_COMPONENT_OFFSCREEN_BUFFER": 4
+              }
             }
           ]
         },
@@ -2605,7 +2629,13 @@
               "name": "winding",
               "range": "24..31",
               "signed": true,
-              "description": "Path fill winding rule"
+              "description": "Path fill winding rule",
+              "enum": {
+                "WINDING": 0,
+                "EVEN_ODD": 1,
+                "INVERSE_WINDING": 2,
+                "INVERSE_EVEN_ODD": 3
+              }
             }
           ]
         },
@@ -2998,7 +3028,71 @@
         {
           "name": "flags",
           "type": "int",
-          "description": "Formatting and padding flags"
+          "description": "Formatting and padding flags",
+          "unpackBits": false,
+          "enum": {
+            "PAD_AFTER_SPACE": 0,
+            "PAD_AFTER_NONE": 1,
+            "PAD_AFTER_ZERO": 3,
+            "PAD_PRE_SPACE": 0,
+            "PAD_PRE_NONE": 4,
+            "PAD_PRE_ZERO": 12,
+            "GROUPING_NONE": 0,
+            "GROUPING_BY3": 16,
+            "GROUPING_BY4": 32,
+            "GROUPING_BY32": 48,
+            "SEPARATOR_COMMA_PERIOD": 0,
+            "SEPARATOR_PERIOD_COMMA": 64,
+            "SEPARATOR_SPACE_COMMA": 128,
+            "SEPARATOR_UNDER_PERIOD": 192,
+            "OPTIONS_NONE": 0,
+            "OPTIONS_NEGATIVE_PARENTHESES": 256,
+            "OPTIONS_ROUNDING": 512,
+            "LEGACY_MODE": 1024,
+            "FULL_FORMAT": 4096
+          },
+          "bits": [
+            {
+              "name": "padAfter",
+              "range": "0..1",
+              "description": "Trailing padding mode (0=space, 1=none, 3=zero)"
+            },
+            {
+              "name": "padPre",
+              "range": "2..3",
+              "description": "Leading padding mode (0=space, 1=none, 3=zero)"
+            },
+            {
+              "name": "grouping",
+              "range": "4..5",
+              "description": "Digit grouping mode (0=none, 1=by3, 2=by4, 3=by32)"
+            },
+            {
+              "name": "separator",
+              "range": "6..7",
+              "description": "Decimal/grouping separator style (0=comma/period, 1=period/comma, 2=space/comma, 3=underscore/period)"
+            },
+            {
+              "name": "negativeParentheses",
+              "range": "8",
+              "description": "Wrap negative numbers in parentheses when 1"
+            },
+            {
+              "name": "rounding",
+              "range": "9",
+              "description": "Apply half-up rounding when 1"
+            },
+            {
+              "name": "legacyMode",
+              "range": "10",
+              "description": "Use legacy StringUtils formatting when 1"
+            },
+            {
+              "name": "fullFormat",
+              "range": "12",
+              "description": "Use raw Float.toString formatting when 1"
+            }
+          ]
         }
       ],
       "profiles": [
@@ -5609,7 +5703,14 @@
         {
           "name": "overflow",
           "type": "int",
-          "description": "The overflow strategy"
+          "description": "The overflow strategy",
+          "enum": {
+            "OVERFLOW_CLIP": 1,
+            "OVERFLOW_VISIBLE": 2,
+            "OVERFLOW_ELLIPSIS": 3,
+            "OVERFLOW_START_ELLIPSIS": 4,
+            "OVERFLOW_MIDDLE_ELLIPSIS": 5
+          }
         },
         {
           "name": "maxLines",
@@ -5659,7 +5760,14 @@
         {
           "name": "type",
           "type": "int",
-          "description": "Action value type"
+          "description": "Action value type",
+          "enum": {
+            "NONE_TYPE": -1,
+            "FLOAT_TYPE": 0,
+            "INT_TYPE": 1,
+            "STRING_TYPE": 2,
+            "FLOAT_ARRAY_TYPE": 3
+          }
         },
         {
           "name": "valueId",
@@ -6971,7 +7079,13 @@
         {
           "name": "type",
           "type": "byte",
-          "description": "The type of constraint (Horizontal, Vertical, Required Horizontal, Required Vertical)"
+          "description": "The type of constraint (Horizontal, Vertical, Required Horizontal, Required Vertical)",
+          "enum": {
+            "HORIZONTAL": 0,
+            "VERTICAL": 1,
+            "REQUIRED_HORIZONTAL": 2,
+            "REQUIRED_VERTICAL": 3
+          }
         },
         {
           "name": "min",
@@ -7164,7 +7278,20 @@
         {
           "name": "role",
           "type": "byte",
-          "description": "The accessibility role (BUTTON, CHECKBOX, etc.)"
+          "description": "The accessibility role (BUTTON, CHECKBOX, etc.)",
+          "enum": {
+            "ROLE_NONE": -1,
+            "ROLE_BUTTON": 0,
+            "ROLE_CHECKBOX": 1,
+            "ROLE_SWITCH": 2,
+            "ROLE_RADIO_BUTTON": 3,
+            "ROLE_TAB": 4,
+            "ROLE_IMAGE": 5,
+            "ROLE_DROPDOWN_LIST": 6,
+            "ROLE_PICKER": 7,
+            "ROLE_CAROUSEL": 8,
+            "ROLE_UNKNOWN": 9
+          }
         },
         {
           "name": "textId",
@@ -7179,7 +7306,12 @@
         {
           "name": "mode",
           "type": "byte",
-          "description": "Semantics merge mode (SET, MERGE)"
+          "description": "Semantics merge mode (SET, MERGE)",
+          "enum": {
+            "MODE_SET": 0,
+            "MODE_CLEAR_AND_SET": 1,
+            "MODE_MERGE": 2
+          }
         },
         {
           "name": "enabled",
@@ -7533,7 +7665,37 @@
             {
               "name": "key",
               "range": "0..5",
-              "description": "Property tag key (0..63)"
+              "description": "Property tag key (0..63)",
+              "enum": {
+                "DOC_WIDTH": 5,
+                "DOC_HEIGHT": 6,
+                "DOC_DENSITY_AT_GENERATION": 7,
+                "DOC_DESIRED_FPS": 8,
+                "DOC_CONTENT_DESCRIPTION": 9,
+                "DOC_SOURCE": 11,
+                "DOC_DATA_UPDATE": 12,
+                "HOST_EXCEPTION_HANDLER": 13,
+                "DOC_PROFILES": 14,
+                "FEATURE_PAINT_MEASURE": 15,
+                "DEBUG": 16,
+                "FEATURE_MEASURE_VERSION": 17,
+                "FEATURE_TOUCH_VERSION": 18,
+                "TEST_TIME": 19,
+                "TEST_AFTER": 20,
+                "TEST_COLOR_THEME": 21,
+                "TEST_ACTIONS": 22,
+                "FEATURE_PRIORITY_FIX": 23,
+                "FEATURE_LT_RESIZE": 24,
+                "FEATURE_ARRAY_LISTENERS": 25,
+                "FEATURE_CLICK_VERSION": 26,
+                "DOC_DENSITY_BEHAVIOR": 27,
+                "FEATURE_OPTIMIZATION_LEVEL": 28,
+                "FEATURE_DISALLOW_INTERCEPT_TOUCH": 29,
+                "FEATURE_DATA_PASS_CANVAS_OPS": 30,
+                "COMPRESS": 31,
+                "DOC_SCROLL": 32,
+                "FEATURE_UNIFIED_POINTER_INPUT": 33
+              }
             },
             {
               "name": "dataType",
@@ -7587,7 +7749,8 @@
           "name": "size",
           "type": "float_or_id"
         }
-      ]
+      ],
+      "wireFormat": "trailing_float_or_id"
     },
     "Color": {
       "id": 4,
@@ -7597,7 +7760,8 @@
           "name": "color",
           "type": "color"
         }
-      ]
+      ],
+      "wireFormat": "trailing_int"
     },
     "StrokeWidth": {
       "id": 5,
@@ -7607,7 +7771,8 @@
           "name": "width",
           "type": "float_or_id"
         }
-      ]
+      ],
+      "wireFormat": "trailing_float_or_id"
     },
     "StrokeMiter": {
       "id": 6,
@@ -7617,7 +7782,8 @@
           "name": "miter",
           "type": "float"
         }
-      ]
+      ],
+      "wireFormat": "trailing_float_or_id"
     },
     "StrokeCap": {
       "id": 7,
@@ -7632,7 +7798,8 @@
             "SQUARE": 2
           }
         }
-      ]
+      ],
+      "wireFormat": "inline_high16"
     },
     "Style": {
       "id": 8,
@@ -7647,7 +7814,8 @@
             "FILL_AND_STROKE": 2
           }
         }
-      ]
+      ],
+      "wireFormat": "inline_high16"
     },
     "Shader": {
       "id": 9,
@@ -7659,7 +7827,8 @@
           "role": "idRef",
           "idKind": "shader"
         }
-      ]
+      ],
+      "wireFormat": "trailing_int"
     },
     "ImageFilterQuality": {
       "id": 10,
@@ -7669,7 +7838,8 @@
           "name": "quality",
           "type": "int"
         }
-      ]
+      ],
+      "wireFormat": "inline_high16"
     },
     "Gradient": {
       "id": 11,
@@ -7677,9 +7847,26 @@
       "fields": [
         {
           "name": "type",
-          "type": "int"
+          "type": "int",
+          "enum": {
+            "LINEAR": 0,
+            "RADIAL": 1,
+            "SWEEP": 2,
+            "RADIAL2": 3
+          }
+        },
+        {
+          "name": "tileMode",
+          "type": "int",
+          "enum": {
+            "CLAMP": 0,
+            "REPEAT": 1,
+            "MIRROR": 2,
+            "DECAL": 3
+          }
         }
-      ]
+      ],
+      "wireFormat": "gradient"
     },
     "Alpha": {
       "id": 12,
@@ -7689,7 +7876,8 @@
           "name": "alpha",
           "type": "float_or_id"
         }
-      ]
+      ],
+      "wireFormat": "trailing_float_or_id"
     },
     "ColorFilter": {
       "id": 13,
@@ -7703,7 +7891,8 @@
           "name": "mode",
           "type": "int"
         }
-      ]
+      ],
+      "wireFormat": "high16_and_trailing_int"
     },
     "AntiAlias": {
       "id": 14,
@@ -7713,7 +7902,8 @@
           "name": "enabled",
           "type": "boolean"
         }
-      ]
+      ],
+      "wireFormat": "inline_high16_bool"
     },
     "StrokeJoin": {
       "id": 15,
@@ -7728,7 +7918,8 @@
             "BEVEL": 2
           }
         }
-      ]
+      ],
+      "wireFormat": "inline_high16"
     },
     "Typeface": {
       "id": 16,
@@ -7738,9 +7929,16 @@
           "name": "fontId",
           "type": "int",
           "role": "idRef",
-          "idKind": "font"
+          "idKind": "font",
+          "enum": {
+            "DEFAULT": 0,
+            "SANS_SERIF": 1,
+            "SERIF": 2,
+            "MONOSPACE": 3
+          }
         }
-      ]
+      ],
+      "wireFormat": "typeface"
     },
     "FilterBitmap": {
       "id": 17,
@@ -7750,7 +7948,8 @@
           "name": "enabled",
           "type": "boolean"
         }
-      ]
+      ],
+      "wireFormat": "inline_high16_bool"
     },
     "BlendMode": {
       "id": 18,
@@ -7758,9 +7957,43 @@
       "fields": [
         {
           "name": "mode",
-          "type": "int"
+          "type": "int",
+          "enum": {
+            "CLEAR": 0,
+            "SRC": 1,
+            "DST": 2,
+            "SRC_OVER": 3,
+            "DST_OVER": 4,
+            "SRC_IN": 5,
+            "DST_IN": 6,
+            "SRC_OUT": 7,
+            "DST_OUT": 8,
+            "SRC_ATOP": 9,
+            "DST_ATOP": 10,
+            "XOR": 11,
+            "PLUS": 12,
+            "MODULATE": 13,
+            "SCREEN": 14,
+            "OVERLAY": 15,
+            "DARKEN": 16,
+            "LIGHTEN": 17,
+            "COLOR_DODGE": 18,
+            "COLOR_BURN": 19,
+            "HARD_LIGHT": 20,
+            "SOFT_LIGHT": 21,
+            "DIFFERENCE": 22,
+            "EXCLUSION": 23,
+            "MULTIPLY": 24,
+            "HUE": 25,
+            "SATURATION": 26,
+            "COLOR": 27,
+            "LUMINOSITY": 28,
+            "NULL": 29,
+            "PORTER_MODE_ADD": 30
+          }
         }
-      ]
+      ],
+      "wireFormat": "inline_high16"
     },
     "ColorId": {
       "id": 19,
@@ -7772,7 +8005,8 @@
           "role": "idRef",
           "idKind": "color"
         }
-      ]
+      ],
+      "wireFormat": "trailing_int"
     },
     "ColorFilterId": {
       "id": 20,
@@ -7784,12 +8018,14 @@
           "role": "idRef",
           "idKind": "colorFilter"
         }
-      ]
+      ],
+      "wireFormat": "high16_and_trailing_int"
     },
     "ClearColorFilter": {
       "id": 21,
       "description": "Clear color filter",
-      "fields": []
+      "fields": [],
+      "wireFormat": "tag_only"
     },
     "ShaderMatrix": {
       "id": 22,
@@ -7801,7 +8037,8 @@
           "role": "idRef",
           "idKind": "matrix"
         }
-      ]
+      ],
+      "wireFormat": "trailing_float_or_id"
     },
     "FontAxis": {
       "id": 23,
@@ -7811,7 +8048,8 @@
           "name": "axes",
           "type": "bytes"
         }
-      ]
+      ],
+      "wireFormat": "font_axes"
     },
     "Texture": {
       "id": 24,
@@ -7823,7 +8061,8 @@
           "role": "idRef",
           "idKind": "bitmap"
         }
-      ]
+      ],
+      "wireFormat": "texture"
     },
     "PathEffect": {
       "id": 25,
@@ -7833,7 +8072,8 @@
           "name": "intervals",
           "type": "bytes"
         }
-      ]
+      ],
+      "wireFormat": "path_effect"
     },
     "FallbackTypeface": {
       "id": 26,
@@ -7845,7 +8085,8 @@
           "role": "idRef",
           "idKind": "font"
         }
-      ]
+      ],
+      "wireFormat": "fallback_typeface"
     }
   },
   "rpnOperators": {
@@ -8484,7 +8725,8 @@
           "type": "float",
           "description": "Y coordinate"
         }
-      ]
+      ],
+      "leadingPaddingFloats": 0
     },
     "Line": {
       "id": 11,
@@ -8500,7 +8742,8 @@
           "type": "float",
           "description": "Y coordinate"
         }
-      ]
+      ],
+      "leadingPaddingFloats": 2
     },
     "Quadratic": {
       "id": 12,
@@ -8526,7 +8769,8 @@
           "type": "float",
           "description": "End point Y"
         }
-      ]
+      ],
+      "leadingPaddingFloats": 2
     },
     "Conic": {
       "id": 13,
@@ -8557,7 +8801,8 @@
           "type": "float",
           "description": "Conic weight"
         }
-      ]
+      ],
+      "leadingPaddingFloats": 2
     },
     "Cubic": {
       "id": 14,
@@ -8593,17 +8838,26 @@
           "type": "float",
           "description": "End point Y"
         }
-      ]
+      ],
+      "leadingPaddingFloats": 2
     },
     "Close": {
       "id": 15,
       "description": "Close the current path contour",
-      "fields": []
+      "fields": [],
+      "leadingPaddingFloats": 0
     },
     "Done": {
       "id": 16,
       "description": "Marks completion of path buffer",
-      "fields": []
+      "fields": [],
+      "leadingPaddingFloats": 0
+    },
+    "Reset": {
+      "id": 17,
+      "description": "Reset the current path",
+      "fields": [],
+      "leadingPaddingFloats": 0
     }
   },
   "intRpnOperators": {
@@ -8816,73 +9070,85 @@
       "id": 1,
       "name": "CONTINUOUS_SEC",
       "type": "float",
-      "description": "Continuous seconds looping each hour (0..3600)"
+      "description": "Continuous seconds looping each hour (0..3600)",
+      "isTime": true
     },
     {
       "id": 2,
       "name": "TIME_IN_SEC",
       "type": "float",
-      "description": "Quantized seconds from midnight looping each hour (0..3599)"
+      "description": "Quantized seconds from midnight looping each hour (0..3599)",
+      "isTime": true
     },
     {
       "id": 3,
       "name": "TIME_IN_MIN",
       "type": "float",
-      "description": "Quantized minutes from midnight (0..1439)"
+      "description": "Quantized minutes from midnight (0..1439)",
+      "isTime": true
     },
     {
       "id": 4,
       "name": "TIME_IN_HR",
       "type": "float",
-      "description": "Quantized hours from midnight (0..23)"
+      "description": "Quantized hours from midnight (0..23)",
+      "isTime": true
     },
     {
       "id": 5,
       "name": "WINDOW_WIDTH",
       "type": "float",
-      "description": "Player window width in pixels"
+      "description": "Player window width in pixels",
+      "isTime": true
     },
     {
       "id": 6,
       "name": "WINDOW_HEIGHT",
       "type": "float",
-      "description": "Player window height in pixels"
+      "description": "Player window height in pixels",
+      "isTime": true
     },
     {
       "id": 7,
       "name": "COMPONENT_WIDTH",
       "type": "float",
-      "description": "Enclosing component width in pixels"
+      "description": "Enclosing component width in pixels",
+      "isTime": true
     },
     {
       "id": 8,
       "name": "COMPONENT_HEIGHT",
       "type": "float",
-      "description": "Enclosing component height in pixels"
+      "description": "Enclosing component height in pixels",
+      "isTime": true
     },
     {
       "id": 9,
       "name": "CALENDAR_MONTH",
       "type": "float",
-      "description": "Month of year (1..12, 1 = January)"
+      "description": "Month of year (1..12, 1 = January)",
+      "isTime": true
     },
     {
       "id": 10,
       "name": "OFFSET_TO_UTC",
       "type": "float",
-      "description": "Timezone offset from UTC in seconds"
+      "description": "Timezone offset from UTC in seconds",
+      "isTime": true
     },
     {
       "id": 11,
       "name": "WEEK_DAY",
       "type": "float",
-      "description": "Day of week (1..7, 1 = Monday)"
+      "description": "Day of week (1..7, 1 = Monday)",
+      "isTime": true
     },
     {
       "id": 12,
       "name": "DAY_OF_MONTH",
       "type": "float",
-      "description": "Day of month (1..31)"
+      "description": "Day of month (1..31)",
+      "isTime": true
     },
     {
       "id": 13,
@@ -9022,5 +9288,244 @@
       "type": "float",
       "description": "Calendar year (e.g. 2026)"
     }
-  ]
+  ],
+  "headerConstants": {
+    "densityBehavior": {
+      "DENSITY_BEHAVIOR_LEGACY": 0,
+      "DENSITY_BEHAVIOR_PIXELS": 1,
+      "DENSITY_BEHAVIOR_DP": 2
+    },
+    "scroll": {
+      "SCROLL_NONE": 0,
+      "SCROLL_HORIZONTAL": 1,
+      "SCROLL_VERTICAL": 2
+    },
+    "compression": {
+      "COMPRESSION_NONE": 0,
+      "COMPRESSION_DEFLATE": 1
+    }
+  },
+  "idEncoding": {
+    "nanPrefix": -8388608,
+    "payloadMask": 4194303,
+    "startId": 42,
+    "regionMask": 3145728,
+    "regionSubIdMask": 1048575,
+    "regionSystem": 0,
+    "regionVariable": 1048576,
+    "regionArray": 2097152,
+    "regionOperation": 3145728,
+    "longIdOffset": 4294967296,
+    "ptrDereference": 1073741824,
+    "valueMask": 65535,
+    "macroLocalStartId": 16384,
+    "macroLocalEndId": 20479
+  },
+  "animationSpec": {
+    "easings": [
+      {
+        "id": 1,
+        "name": "CUBIC_STANDARD",
+        "cubicControlPoints": [
+          0.4,
+          0.0,
+          0.2,
+          1.0
+        ]
+      },
+      {
+        "id": 2,
+        "name": "CUBIC_ACCELERATE",
+        "cubicControlPoints": [
+          0.4,
+          0.05,
+          0.8,
+          0.7
+        ]
+      },
+      {
+        "id": 3,
+        "name": "CUBIC_DECELERATE",
+        "cubicControlPoints": [
+          0.0,
+          0.0,
+          0.2,
+          0.95
+        ]
+      },
+      {
+        "id": 4,
+        "name": "CUBIC_LINEAR",
+        "cubicControlPoints": [
+          1.0,
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "id": 5,
+        "name": "CUBIC_ANTICIPATE",
+        "cubicControlPoints": [
+          0.36,
+          0.0,
+          0.66,
+          -0.56
+        ]
+      },
+      {
+        "id": 6,
+        "name": "CUBIC_OVERSHOOT",
+        "cubicControlPoints": [
+          0.34,
+          1.56,
+          0.64,
+          1.0
+        ]
+      },
+      {
+        "id": 11,
+        "name": "CUBIC_CUSTOM"
+      },
+      {
+        "id": 12,
+        "name": "SPLINE_CUSTOM"
+      },
+      {
+        "id": 13,
+        "name": "EASE_OUT_BOUNCE",
+        "aliases": [
+          "BOUNCE"
+        ]
+      },
+      {
+        "id": 14,
+        "name": "EASE_OUT_ELASTIC",
+        "aliases": [
+          "ELASTIC"
+        ]
+      }
+    ],
+    "flagsBits": [
+      {
+        "name": "type",
+        "range": "0..7",
+        "description": "Easing curve type ID"
+      },
+      {
+        "name": "hasWrap",
+        "range": "8",
+        "description": "Trailing wrap modulus float present when 1"
+      },
+      {
+        "name": "hasInit",
+        "range": "9",
+        "description": "Trailing initialValue float present when 1"
+      },
+      {
+        "name": "directionalSnap",
+        "range": "10..11",
+        "description": "Directional snap mode (0=none, 1=decrease, 2=increase)"
+      },
+      {
+        "name": "isPropagate",
+        "range": "12",
+        "description": "Propagate updates across ticks when 1"
+      },
+      {
+        "name": "paramLen",
+        "range": "16..31",
+        "description": "Number of custom curve parameter floats"
+      }
+    ]
+  },
+  "pathEffects": {
+    "maxDashIntervals": 1000,
+    "maxNestingDepth": 64,
+    "types": [
+      {
+        "id": 1,
+        "name": "Dash",
+        "constName": "TYPE_DASH",
+        "fields": [
+          {
+            "name": "phase",
+            "type": "float_or_id"
+          },
+          {
+            "name": "intervals",
+            "type": "float_or_id[]"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Discrete",
+        "constName": "TYPE_DISCRETE",
+        "fields": [
+          {
+            "name": "segmentLength",
+            "type": "float_or_id"
+          },
+          {
+            "name": "deviation",
+            "type": "float_or_id"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "PathDash",
+        "constName": "TYPE_PATH_DASH",
+        "fields": [
+          {
+            "name": "shapeId",
+            "type": "int"
+          },
+          {
+            "name": "advance",
+            "type": "float_or_id"
+          },
+          {
+            "name": "phase",
+            "type": "float_or_id"
+          },
+          {
+            "name": "style",
+            "type": "int"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Sum",
+        "constName": "TYPE_SUM",
+        "fields": [
+          {
+            "name": "first",
+            "type": "path_effect"
+          },
+          {
+            "name": "second",
+            "type": "path_effect"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Compose",
+        "constName": "TYPE_COMPOSE",
+        "fields": [
+          {
+            "name": "outer",
+            "type": "path_effect"
+          },
+          {
+            "name": "inner",
+            "type": "path_effect"
+          }
+        ]
+      }
+    ]
+  }
 }

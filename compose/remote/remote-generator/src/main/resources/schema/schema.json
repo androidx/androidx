@@ -64,6 +64,7 @@
         "properties": {
           "id": { "type": "integer", "minimum": 1 },
           "description": { "type": "string" },
+          "wireFormat": { "type": "string" },
           "fields": {
             "type": "array",
             "items": { "$ref": "#/definitions/field" }
@@ -124,6 +125,7 @@
           "id": { "type": "integer", "minimum": 1 },
           "name": { "type": "string" },
           "type": { "type": "string", "enum": ["float", "long"] },
+          "isTime": { "type": "boolean" },
           "description": { "type": "string" }
         }
       }
@@ -136,9 +138,112 @@
         "properties": {
           "id": { "type": "integer", "minimum": 1 },
           "description": { "type": "string" },
+          "leadingPaddingFloats": { "type": "integer", "minimum": 0 },
           "fields": {
             "type": "array",
             "items": { "$ref": "#/definitions/field" }
+          }
+        }
+      }
+    },
+    "headerConstants": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "type": "integer" }
+      }
+    },
+    "idEncoding": {
+      "type": "object",
+      "required": [
+        "nanPrefix",
+        "payloadMask",
+        "startId",
+        "regionMask",
+        "regionSubIdMask",
+        "regionSystem",
+        "regionVariable",
+        "regionArray",
+        "regionOperation",
+        "longIdOffset",
+        "ptrDereference",
+        "valueMask",
+        "macroLocalStartId",
+        "macroLocalEndId"
+      ],
+      "properties": {
+        "nanPrefix": { "type": "integer" },
+        "payloadMask": { "type": "integer" },
+        "startId": { "type": "integer" },
+        "regionMask": { "type": "integer" },
+        "regionSubIdMask": { "type": "integer" },
+        "regionSystem": { "type": "integer" },
+        "regionVariable": { "type": "integer" },
+        "regionArray": { "type": "integer" },
+        "regionOperation": { "type": "integer" },
+        "longIdOffset": { "type": "integer" },
+        "ptrDereference": { "type": "integer" },
+        "valueMask": { "type": "integer" },
+        "macroLocalStartId": { "type": "integer" },
+        "macroLocalEndId": { "type": "integer" }
+      }
+    },
+    "animationSpec": {
+      "type": "object",
+      "required": ["easings", "flagsBits"],
+      "properties": {
+        "easings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": { "type": "integer" },
+              "name": { "type": "string" },
+              "aliases": { "type": "array", "items": { "type": "string" } },
+              "cubicControlPoints": {
+                "type": "array",
+                "items": { "type": "number" },
+                "minItems": 4,
+                "maxItems": 4
+              }
+            }
+          }
+        },
+        "flagsBits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "range"],
+            "properties": {
+              "name": { "type": "string" },
+              "range": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "pathEffects": {
+      "type": "object",
+      "required": ["maxDashIntervals", "maxNestingDepth", "types"],
+      "properties": {
+        "maxDashIntervals": { "type": "integer", "minimum": 1 },
+        "maxNestingDepth": { "type": "integer", "minimum": 1 },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "constName", "fields"],
+            "properties": {
+              "id": { "type": "integer", "minimum": 0 },
+              "name": { "type": "string" },
+              "constName": { "type": "string" },
+              "fields": {
+                "type": "array",
+                "items": { "$ref": "#/definitions/field" }
+              }
+            }
           }
         }
       }

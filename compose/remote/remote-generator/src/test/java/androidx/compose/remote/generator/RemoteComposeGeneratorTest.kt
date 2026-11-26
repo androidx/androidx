@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.generator
 
+import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
@@ -41,8 +42,10 @@ import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.core.operations.matrix.MatrixExpression
 import androidx.compose.remote.core.operations.matrix.MatrixVectorMath
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
+import androidx.compose.remote.core.operations.utilities.easing.Easing
 import androidx.compose.remote.generator.ast.BitmapDataNode
 import androidx.compose.remote.generator.ast.BoxLayoutNode
 import androidx.compose.remote.generator.ast.ContainerEndNode
@@ -242,6 +245,7 @@ class RemoteComposeGeneratorTest {
                 PathData.CUBIC to "Cubic",
                 PathData.CLOSE to "Close",
                 PathData.DONE to "Done",
+                PathAppend.RESET to "Reset",
             )
 
         for ((id, name) in expectedCommands) {
@@ -1445,7 +1449,22 @@ class RemoteComposeGeneratorTest {
         assertTrue(protocolCode.contains("public object RcProfiles"))
         assertTrue(protocolCode.contains("public object FloatRpn"))
         assertTrue(protocolCode.contains("public object IntRpn"))
+        assertTrue(protocolCode.contains("public object PaintConstants"))
         assertTrue(protocolCode.contains("public object RemoteContextIds"))
+        assertTrue(protocolCode.contains("public fun isTime("))
+        assertTrue(protocolCode.contains("public class FloatAnimationSpec"))
+        assertTrue(protocolCode.contains("public object BitmapFormat"))
+        assertTrue(protocolCode.contains("imageType and TYPE_AND_ENCODING_MASK"))
+        assertTrue(protocolCode.contains("encoding and TYPE_AND_ENCODING_MASK"))
+        assertTrue(protocolCode.contains("FEATURE_UNIFIED_POINTER_INPUT: Short = 33"))
+        assertTrue(protocolCode.contains("REQUIRED_HORIZONTAL: Byte = 2"))
+        assertTrue(protocolCode.contains("REQUIRED_VERTICAL: Byte = 3"))
+
+        val astCode = generator.generateAstNodes()
+        assertTrue(astCode.contains("public sealed class RemotePathEffect"))
+        assertTrue(astCode.contains("public sealed class RemotePathCommand"))
+        assertTrue(astCode.contains("public val uncompressedByteSize: Long"))
+        assertTrue(astCode.contains("public val alphaPayload: Int"))
 
         val sinkCode = generator.generateOperationSink()
         assertTrue(sinkCode.contains("public interface RemoteOperationSink"))
@@ -4977,5 +4996,599 @@ class RemoteComposeGeneratorTest {
                 tmpDir.deleteRecursively()
             }
         }
+    }
+
+    @Test
+    fun testMultiLanguageSchemaProtocolAndSubWireCodecs() {
+        val schema = loadSchema()
+
+        // Verify schema pathEffects & animationSpec constants align with remote-core
+        val peSchema = requireNotNull(schema.pathEffects)
+        assertEquals(Limits.MAX_DASH_INTERVALS, peSchema.maxDashIntervals)
+        val peByConst = peSchema.types.associate { it.constName to it.id }
+        assertEquals(PaintPathEffects.DASH, peByConst["TYPE_DASH"])
+        assertEquals(PaintPathEffects.DISCRETE_PATH, peByConst["TYPE_DISCRETE"])
+        assertEquals(PaintPathEffects.PATH_DASH, peByConst["TYPE_PATH_DASH"])
+        assertEquals(PaintPathEffects.SUM, peByConst["TYPE_SUM"])
+        assertEquals(PaintPathEffects.COMPOSE, peByConst["TYPE_COMPOSE"])
+
+        val animSchema = requireNotNull(schema.animationSpec)
+        val easingByName = animSchema.easings.associate { it.name to it.id }
+        assertEquals(Easing.CUBIC_STANDARD, easingByName["CUBIC_STANDARD"])
+        assertEquals(Easing.CUBIC_ACCELERATE, easingByName["CUBIC_ACCELERATE"])
+        assertEquals(Easing.CUBIC_DECELERATE, easingByName["CUBIC_DECELERATE"])
+        assertEquals(Easing.CUBIC_LINEAR, easingByName["CUBIC_LINEAR"])
+        assertEquals(Easing.CUBIC_ANTICIPATE, easingByName["CUBIC_ANTICIPATE"])
+        assertEquals(Easing.CUBIC_OVERSHOOT, easingByName["CUBIC_OVERSHOOT"])
+        assertEquals(Easing.CUBIC_CUSTOM, easingByName["CUBIC_CUSTOM"])
+        assertEquals(Easing.SPLINE_CUSTOM, easingByName["SPLINE_CUSTOM"])
+        assertEquals(Easing.EASE_OUT_BOUNCE, easingByName["EASE_OUT_BOUNCE"])
+        assertEquals(Easing.EASE_OUT_ELASTIC, easingByName["EASE_OUT_ELASTIC"])
+
+        // Verify Swift and TypeScript emit all schema-driven protocol constants and sub-wire codecs
+        val swiftCode = SwiftGenerator(schema).generate()
+        for (marker in
+            listOf(
+                "public enum IdEncoding",
+                "public enum HeaderConstants",
+                "public enum PaintCommandTags",
+                "public enum PaintConstants",
+                "public enum PathCommandTags",
+                "public enum RemoteContextIds",
+                "public enum AnimationEasing",
+                "public struct FloatAnimationSpec: Equatable",
+                "public static func == (lhs: FloatAnimationSpec, rhs: FloatAnimationSpec) -> Bool",
+                "public indirect enum PathEffect: Equatable",
+                "public enum PathCommand: Equatable",
+                "public var isSpringAnimation: Bool",
+                "public func unpackAnimationSpec() throws -> FloatAnimationSpec",
+                "public func encode() throws -> [Float]",
+                "public var uncompressedByteSize: Int64",
+                "multipliedReportingOverflow",
+                "public func decodePathCommands() -> [PathCommand]",
+                "public var alphaPayload: Int32",
+            )) {
+            assertTrue("Swift output missing: $marker", swiftCode.contains(marker))
+        }
+        assertFalse(
+            "Swift output must not reference undefined WireError",
+            swiftCode.contains("WireError"),
+        )
+
+        // Standalone Rust generateStruct output must not reference module-level protocol helpers
+        val standaloneFloatExpr =
+            RustGenerator(schema)
+                .generateStruct(schema.operationsByName.getValue("FloatExpression"))
+        assertFalse(standaloneFloatExpr.contains("unpack_animation_spec"))
+        val standalonePathData =
+            RustGenerator(schema).generateStruct(schema.operationsByName.getValue("PathData"))
+        assertFalse(standalonePathData.contains("decode_path_commands"))
+
+        val tsCode = TypeScriptGenerator(schema).generate()
+        for (marker in
+            listOf(
+                "export const IdEncoding =",
+                "export const HeaderConstants =",
+                "export const PaintCommandTags =",
+                "export const PaintConstants =",
+                "export const PathCommandTags =",
+                "export const RemoteContextIds =",
+                "export const AnimationEasing =",
+                "export interface FloatAnimationSpec",
+                "export function isSpringAnimationSpec(data: ArrayLike<number>): boolean",
+                "export function unpackAnimationSpec(data: ArrayLike<number>): FloatAnimationSpec",
+                "export function packAnimationSpec(",
+                "export type PathEffect =",
+                "export function encodePathEffect(",
+                "export function decodePathEffect(data: ArrayLike<number>): PathEffect | null",
+                "export type PathCommand =",
+                "export function decodePathCommands(pathData: ArrayLike<number>): PathCommand[]",
+                "function rawInt32View(data: ArrayLike<number>): Int32Array | null",
+                "getUncompressedByteSize(): number",
+                "getAlphaPayload(): number",
+            )) {
+            assertTrue("TypeScript output missing: $marker", tsCode.contains(marker))
+        }
+
+        // 1. C++ native compilation & execution of protocol constants + sub-wire codecs
+        val compilerCandidates =
+            listOfNotNull(
+                findExecutableOnPath("clang++"),
+                findExecutableOnPath("g++"),
+                File(
+                    "../../../../../prebuilts/fullsdk-linux/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+                ),
+                File(
+                    "../../../../prebuilts/fullsdk-linux/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+                ),
+                File(
+                    "../../../prebuilts/fullsdk-linux/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+                ),
+                File(
+                    "../../prebuilts/fullsdk-linux/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+                ),
+            )
+        val cppCompiler = compilerCandidates.firstOrNull {
+            it.exists() && it.canExecute() && canCompileCpp(it)
+        }
+        if (cppCompiler != null) {
+            val tmpDir = Files.createTempDirectory("rc_multilang_codecs_cpp").toFile()
+            try {
+                val cppGen = CppGenerator(schema)
+                File(tmpDir, "WireBuffer.h").writeText(cppGen.generateWireBufferHeader())
+                File(tmpDir, "WireBuffer.cpp").writeText(cppGen.generateWireBufferSource())
+                File(tmpDir, "RemoteComposeOps.h").writeText(cppGen.generateHeader())
+                File(tmpDir, "RemoteComposeOps.cpp").writeText(cppGen.generateSource())
+                File(tmpDir, "main.cpp")
+                    .writeText(
+                        """
+                        #include <cassert>
+                        #include <cmath>
+                        #include <iostream>
+                        #include "RemoteComposeOps.h"
+                        using namespace androidx::compose::remote;
+                        int main() {
+                            // IdEncoding & RemoteContextIds
+                            int32_t nanBits = IdEncoding::asNanBits(42);
+                            assert(IdEncoding::isNanBits(nanBits));
+                            assert(IdEncoding::idFromNanBits(nanBits) == 42);
+                            assert(!IdEncoding::isNanBits(static_cast<int32_t>(0xFF800000u)));
+                            assert(IdEncoding::idFromNanBits(static_cast<int32_t>(0xFF800000u)) == -1);
+                            assert(!IdEncoding::isNanBits(static_cast<int32_t>(0xFFC00000u)));
+                            assert(IdEncoding::idFromNanBits(static_cast<int32_t>(0xFFC00000u)) == -1);
+                            assert(!IdEncoding::isDereferenced(42));
+                            assert(IdEncoding::directId(42) == 42);
+                            assert(IdEncoding::pointerId(IdEncoding::PTR_DEREFERENCE | 7) == 7);
+                            assert(RemoteContextIds::isTime(RemoteContextIds::ID_CONTINUOUS_SEC));
+                            assert(RemoteContextIds::isTime(RemoteContextIds::ID_DAY_OF_MONTH));
+                            assert(!RemoteContextIds::isTime(RemoteContextIds::ID_DENSITY));
+
+                            // FloatAnimationSpec pack/unpack + FloatExpression extras
+                            auto stdPts = AnimationEasing::cubicControlPoints(AnimationEasing::CUBIC_STANDARD);
+                            assert(stdPts.has_value() && std::abs((*stdPts)[0] - 0.4f) < 1e-6f);
+                            std::vector<float> customPts = {0.1f, 0.2f, 0.3f, 0.4f};
+                            auto packed = packAnimationSpec(0.5f, AnimationEasing::CUBIC_CUSTOM, &customPts, 10.0f, 360.0f);
+                            FloatExpression fe;
+                            fe.animationSpec = packed;
+                            assert(!fe.isSpringAnimation());
+                            auto unpacked = fe.unpackAnimationSpec();
+                            assert(std::abs(unpacked.duration - 0.5f) < 1e-6f);
+                            assert(unpacked.type == AnimationEasing::CUBIC_CUSTOM);
+                            assert(unpacked.params.size() == 4);
+                            assert(std::abs(unpacked.initialValue - 10.0f) < 1e-6f);
+                            assert(std::abs(unpacked.wrap - 360.0f) < 1e-6f);
+                            fe.animationSpec = {0.0f, 1.0f, 100.0f, 10.0f, 0.01f};
+                            assert(fe.isSpringAnimation());
+
+                            // PathEffect encode/decode
+                            PathEffect dash{PathEffect::Dash{2.5f, {4.0f, 6.0f}}};
+                            PathEffect disc{PathEffect::Discrete{8.0f, 1.5f}};
+                            PathEffect sum{PathEffect::Sum{std::make_shared<PathEffect>(dash), std::make_shared<PathEffect>(disc)}};
+                            auto encodedPe = sum.encode();
+                            auto decodedPe = PathEffect::decode(encodedPe);
+                            assert(decodedPe.has_value());
+                            auto* sumOut = std::get_if<PathEffect::Sum>(&decodedPe->value);
+                            assert(sumOut != nullptr);
+                            auto* dashOut = std::get_if<PathEffect::Dash>(&sumOut->first->value);
+                            assert(dashOut != nullptr && dashOut->phase == 2.5f && dashOut->intervals.size() == 2);
+                            assert(!PathEffect::decode({}).has_value());
+
+                            // PathData decodePathCommands (Move + Line with 2 padding floats + Close + Done)
+                            PathData pd;
+                            pd.pathData = {
+                                bitsToFloat(IdEncoding::asNanBits(PathCommandTags::MOVE)), 1.0f, 2.0f,
+                                bitsToFloat(IdEncoding::asNanBits(PathCommandTags::LINE)), 0.0f, 0.0f, 3.0f, 4.0f,
+                                bitsToFloat(IdEncoding::asNanBits(PathCommandTags::CLOSE)),
+                                bitsToFloat(IdEncoding::asNanBits(PathCommandTags::DONE)),
+                            };
+                            auto cmds = pd.decodePathCommands();
+                            assert(cmds.size() == 4);
+                            auto* mv = std::get_if<PathCommand::MoveTo>(&cmds[0].value);
+                            assert(mv != nullptr && mv->x == 1.0f && mv->y == 2.0f);
+                            auto* ln = std::get_if<PathCommand::LineTo>(&cmds[1].value);
+                            assert(ln != nullptr && ln->x == 3.0f && ln->y == 4.0f);
+                            assert(std::holds_alternative<PathCommand::Close>(cmds[2].value));
+                            assert(std::holds_alternative<PathCommand::Done>(cmds[3].value));
+
+                            // BitmapData uncompressedByteSize + enum constants
+                            BitmapData bmp;
+                            bmp.widthAndType = (BitmapData::TYPE_PNG_ALPHA_8 << 16) | 10;
+                            bmp.heightAndEncoding = (BitmapData::ENCODING_INLINE << 16) | 20;
+                            assert(bmp.uncompressedByteSize() == 200);
+                            bmp.widthAndType = (BitmapData::TYPE_PNG_8888 << 16) | 10;
+                            assert(bmp.uncompressedByteSize() == 800);
+
+                            // ColorExpression alphaPayload + TextFromFloat bitfields
+                            ColorExpression ce;
+                            ce.flagsAndMode = (0x80 << 16) | ColorExpression::HSV_MODE;
+                            assert(ce.alphaPayload() == 0x80);
+                            TextFromFloat tff;
+                            tff.flags = TextFromFloat::PAD_AFTER_ZERO | TextFromFloat::GROUPING_BY3 | TextFromFloat::FULL_FORMAT;
+                            assert(tff.getPadAfter() == 3);
+                            assert(tff.getGrouping() == 1);
+                            assert(tff.getFullFormat() == 1);
+
+                            std::cout << "C++ codecs OK" << std::endl;
+                            return 0;
+                        }
+                        """
+                            .trimIndent()
+                    )
+                val bin = File(tmpDir, "test_cpp_codecs")
+                runCheckedProcess(
+                    "C++ codecs compile",
+                    listOf(
+                        cppCompiler.absolutePath,
+                        "-std=c++17",
+                        "-O2",
+                        "-Wall",
+                        File(tmpDir, "WireBuffer.cpp").absolutePath,
+                        File(tmpDir, "RemoteComposeOps.cpp").absolutePath,
+                        File(tmpDir, "main.cpp").absolutePath,
+                        "-o",
+                        bin.absolutePath,
+                    ),
+                    tmpDir,
+                )
+                runCheckedProcess("C++ codecs run", listOf(bin.absolutePath), tmpDir)
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        // 2. Rust native compilation & execution of protocol constants + sub-wire codecs
+        val rustcCandidates =
+            listOfNotNull(
+                File("../../../../../prebuilts/rust/linux-x86/1.85.1/bin/rustc"),
+                File("../../../../prebuilts/rust/linux-x86/1.85.1/bin/rustc"),
+                File("../../../prebuilts/rust/linux-x86/1.85.1/bin/rustc"),
+                File("../../prebuilts/rust/linux-x86/1.85.1/bin/rustc"),
+                File(System.getProperty("user.home"), ".cargo/bin/rustc"),
+                findExecutableOnPath("rustc"),
+            )
+        val rustc = rustcCandidates.firstOrNull { it.exists() && it.canExecute() }
+        if (rustc != null) {
+            val tmpDir = Files.createTempDirectory("rc_multilang_codecs_rust").toFile()
+            try {
+                val rustCode = RustGenerator(schema).generate()
+                val mainRs = File(tmpDir, "main.rs")
+                mainRs.writeText(
+                    """
+                    $rustCode
+
+                    fn main() {
+                        let nan_bits = id_encoding::as_nan_bits(42);
+                        assert!(id_encoding::is_nan_bits(nan_bits));
+                        assert_eq!(id_encoding::id_from_nan_bits(nan_bits), 42);
+                        assert!(!id_encoding::is_nan_bits(0xFF800000u32 as i32));
+                        assert_eq!(id_encoding::id_from_nan_bits(0xFF800000u32 as i32), -1);
+                        assert!(!id_encoding::is_nan_bits(0xFFC00000u32 as i32));
+                        assert_eq!(id_encoding::id_from_nan_bits(0xFFC00000u32 as i32), -1);
+                        assert_eq!(id_encoding::direct_id(42), Some(42));
+                        assert_eq!(id_encoding::pointer_id(id_encoding::PTR_DEREFERENCE | 7), Some(7));
+                        assert!(remote_context_ids::is_time(remote_context_ids::ID_CONTINUOUS_SEC));
+                        assert!(remote_context_ids::is_time(remote_context_ids::ID_DAY_OF_MONTH));
+                        assert!(!remote_context_ids::is_time(remote_context_ids::ID_DENSITY));
+
+                        let pts = animation_easing::cubic_control_points(animation_easing::CUBIC_STANDARD).unwrap();
+                        assert!((pts[0] - 0.4).abs() < 1e-6);
+                        assert_eq!(unpack_animation_spec(&[]).unwrap(), unpack_animation_spec(&[]).unwrap());
+                        let packed = pack_animation_spec(0.5, animation_easing::CUBIC_CUSTOM, Some(&[0.1, 0.2, 0.3, 0.4]), 10.0, 360.0);
+                        let fe = FloatExpression { id: 1, expression: vec![], animation_spec: packed };
+                        assert!(!fe.is_spring_animation());
+                        let unpacked = fe.unpack_animation_spec().unwrap();
+                        assert!((unpacked.duration - 0.5).abs() < 1e-6);
+                        assert_eq!(unpacked.easing_type, animation_easing::CUBIC_CUSTOM);
+                        assert_eq!(unpacked.params.len(), 4);
+                        assert!((unpacked.initial_value - 10.0).abs() < 1e-6);
+                        assert!((unpacked.wrap - 360.0).abs() < 1e-6);
+
+                        let pe = PathEffect::Compose(
+                            Box::new(PathEffect::Dash { phase: 2.5, intervals: vec![4.0, 6.0] }),
+                            Box::new(PathEffect::Discrete { segment_length: 8.0, deviation: 1.5 }),
+                        );
+                        let decoded_pe = PathEffect::decode(&pe.encode().unwrap()).unwrap();
+                        assert_eq!(decoded_pe, pe);
+                        assert!(PathEffect::decode(&[]).is_none());
+                        let huge_dash = PathEffect::Dash { phase: 0.0, intervals: vec![1.0; PathEffect::MAX_DASH_INTERVALS + 1] };
+                        assert!(huge_dash.encode().is_err());
+
+                        let pd = PathData {
+                            id_and_winding: 1,
+                            path_data: vec![
+                                f32::from_bits(id_encoding::as_nan_bits(path_command_tags::MOVE) as u32), 1.0, 2.0,
+                                f32::from_bits(id_encoding::as_nan_bits(path_command_tags::LINE) as u32), 0.0, 0.0, 3.0, 4.0,
+                                f32::from_bits(id_encoding::as_nan_bits(path_command_tags::CLOSE) as u32),
+                                f32::from_bits(id_encoding::as_nan_bits(path_command_tags::DONE) as u32),
+                            ],
+                        };
+                        let cmds = pd.decode_path_commands();
+                        assert_eq!(cmds, vec![
+                            PathCommand::MoveTo { x: 1.0, y: 2.0 },
+                            PathCommand::LineTo { x: 3.0, y: 4.0 },
+                            PathCommand::Close,
+                            PathCommand::Done,
+                        ]);
+
+                        let bmp = BitmapData {
+                            image_id: 1,
+                            width_and_type: (BitmapData::TYPE_PNG_ALPHA_8 << 16) | 10,
+                            height_and_encoding: (BitmapData::ENCODING_INLINE << 16) | 20,
+                            bitmap: vec![],
+                        };
+                        assert_eq!(bmp.uncompressed_byte_size(), 200);
+
+                        let ce = ColorExpression {
+                            id: 1,
+                            flags_and_mode: (0x80 << 16) | ColorExpression::HSV_MODE,
+                            arg1: 0,
+                            arg2: 0,
+                            arg3: 0,
+                        };
+                        assert_eq!(ce.alpha_payload(), 0x80);
+
+                        let tff = TextFromFloat {
+                            text_id: 1,
+                            value: 0.0,
+                            digits_before: 2,
+                            digits_after: 2,
+                            flags: TextFromFloat::PAD_AFTER_ZERO | TextFromFloat::GROUPING_BY3 | TextFromFloat::FULL_FORMAT,
+                        };
+                        assert_eq!(tff.pad_after(), 3);
+                        assert_eq!(tff.grouping(), 1);
+                        assert_eq!(tff.full_format(), 1);
+                        println!("Rust codecs OK");
+                    }
+                    """
+                        .trimIndent()
+                )
+                val bin = File(tmpDir, "test_rust_codecs")
+                runCheckedProcess(
+                    "Rust codecs compile",
+                    listOf(rustc.absolutePath, mainRs.absolutePath, "-O", "-o", bin.absolutePath),
+                    tmpDir,
+                )
+                runCheckedProcess("Rust codecs run", listOf(bin.absolutePath), tmpDir)
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        // 3. Python native execution of protocol constants + sub-wire codecs
+        val python3 = findExecutableOnPath("python3")
+        if (python3 != null) {
+            val tmpDir = Files.createTempDirectory("rc_multilang_codecs_py").toFile()
+            try {
+                File(tmpDir, "remote_compose.py").writeText(PythonGenerator(schema).generate())
+                val testPy = File(tmpDir, "test_codecs.py")
+                testPy.writeText(
+                    """
+                    from remote_compose import (
+                        AnimationEasing, BitmapData, ColorExpression, ComposePathEffect,
+                        DashPathEffect, DiscretePathEffect, FloatExpression, IdEncoding,
+                        LineToPathCommand, MoveToPathCommand, ClosePathCommand, DonePathCommand,
+                        PathCommandTags, PathData, PathEffect, RemoteContextIds, TextFromFloat,
+                        _bits_to_float, pack_animation_spec, unpack_animation_spec,
+                    )
+
+                    nan_bits = IdEncoding.as_nan_bits(42)
+                    assert IdEncoding.is_nan_bits(nan_bits)
+                    assert IdEncoding.id_from_nan_bits(nan_bits) == 42
+                    assert not IdEncoding.is_nan_bits(-0x800000)
+                    assert IdEncoding.id_from_nan_bits(-0x800000) == -1
+                    assert not IdEncoding.is_nan_bits(-0x400000)
+                    assert IdEncoding.id_from_nan_bits(-0x400000) == -1
+                    assert IdEncoding.direct_id(42) == 42
+                    assert IdEncoding.pointer_id(IdEncoding.PTR_DEREFERENCE | 7) == 7
+                    assert RemoteContextIds.is_time(RemoteContextIds.ID_CONTINUOUS_SEC)
+                    assert RemoteContextIds.is_time(RemoteContextIds.ID_DAY_OF_MONTH)
+                    assert not RemoteContextIds.is_time(RemoteContextIds.ID_DENSITY)
+
+                    pts = AnimationEasing.cubic_control_points(AnimationEasing.CUBIC_STANDARD)
+                    assert pts == (0.4, 0.0, 0.2, 1.0)
+                    assert unpack_animation_spec([]) == unpack_animation_spec([])
+                    packed = pack_animation_spec(0.5, AnimationEasing.CUBIC_CUSTOM, [0.1, 0.2, 0.3, 0.4], 10.0, 360.0)
+                    fe = FloatExpression(id=1, expression=[], animation_spec=packed)
+                    assert not fe.is_spring_animation
+                    unpacked = fe.unpack_animation_spec()
+                    assert abs(unpacked.duration - 0.5) < 1e-6
+                    assert unpacked.easing_type == AnimationEasing.CUBIC_CUSTOM
+                    assert len(unpacked.params) == 4
+                    assert abs(unpacked.initial_value - 10.0) < 1e-6
+                    assert abs(unpacked.wrap - 360.0) < 1e-6
+
+                    pe = ComposePathEffect(
+                        outer=DashPathEffect(phase=2.5, intervals=[4.0, 6.0]),
+                        inner=DiscretePathEffect(segment_length=8.0, deviation=1.5),
+                    )
+                    assert PathEffect.decode(pe.encode()) == pe
+                    assert PathEffect.decode([]) is None
+
+                    pd = PathData(
+                        id_and_winding=1,
+                        path_data=[
+                            _bits_to_float(IdEncoding.as_nan_bits(PathCommandTags.MOVE)), 1.0, 2.0,
+                            _bits_to_float(IdEncoding.as_nan_bits(PathCommandTags.LINE)), 0.0, 0.0, 3.0, 4.0,
+                            _bits_to_float(IdEncoding.as_nan_bits(PathCommandTags.CLOSE)),
+                            _bits_to_float(IdEncoding.as_nan_bits(PathCommandTags.DONE)),
+                        ],
+                    )
+                    assert pd.decode_path_commands() == [
+                        MoveToPathCommand(x=1.0, y=2.0),
+                        LineToPathCommand(x=3.0, y=4.0),
+                        ClosePathCommand(),
+                        DonePathCommand(),
+                    ]
+
+                    bmp = BitmapData(
+                        image_id=1,
+                        width_and_type=(BitmapData.TYPE_PNG_ALPHA_8 << 16) | 10,
+                        height_and_encoding=(BitmapData.ENCODING_INLINE << 16) | 20,
+                        bitmap=b"",
+                    )
+                    assert bmp.uncompressed_byte_size == 200
+
+                    ce = ColorExpression(id=1, flags_and_mode=(0x80 << 16) | ColorExpression.HSV_MODE)
+                    assert ce.alpha_payload == 0x80
+
+                    tff = TextFromFloat(
+                        text_id=1,
+                        flags=TextFromFloat.PAD_AFTER_ZERO | TextFromFloat.GROUPING_BY3 | TextFromFloat.FULL_FORMAT,
+                    )
+                    assert tff.pad_after == 3 and tff.grouping == 1 and tff.full_format == 1
+                    print("Python codecs OK")
+                    """
+                        .trimIndent()
+                )
+                runCheckedProcess(
+                    "Python codecs run",
+                    listOf(python3.absolutePath, testPy.absolutePath),
+                    tmpDir,
+                )
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+
+        // 4. TypeScript native execution via Node.js (--experimental-transform-types, when enabled)
+        val node = findExecutableOnPath("node")
+        if (node != null) {
+            val probeProc =
+                ProcessBuilder(
+                        node.absolutePath,
+                        "--experimental-transform-types",
+                        "-e",
+                        "const x: number = 1;",
+                    )
+                    .redirectErrorStream(true)
+                    .start()
+            val probeFinished = probeProc.waitFor(10, TimeUnit.SECONDS)
+            if (!probeFinished) probeProc.destroyForcibly()
+            val supportsTs = probeFinished && probeProc.exitValue() == 0
+            if (supportsTs) {
+                val tmpDir = Files.createTempDirectory("rc_multilang_codecs_ts").toFile()
+                try {
+                    File(tmpDir, "remoteComposeOperations.ts").writeText(tsCode)
+                    val testTs = File(tmpDir, "test_codecs.ts")
+                    testTs.writeText(
+                        """
+                        import assert from "node:assert/strict";
+                        import {
+                          AnimationEasing, BitmapData, ColorExpression, FloatExpression,
+                          IdEncoding, PathCommandTags, PathData, PathEffectConstants,
+                          RemoteContextIds, TextFromFloat,
+                          decodePathEffect, encodePathEffect, packAnimationSpec,
+                        } from "./remoteComposeOperations.ts";
+
+                        const nanBits = IdEncoding.asNanBits(42);
+                        assert.equal(IdEncoding.isNanBits(nanBits), true);
+                        assert.equal(IdEncoding.idFromNanBits(nanBits), 42);
+                        assert.equal(IdEncoding.isNanBits(0xFF800000 | 0), false);
+                        assert.equal(IdEncoding.idFromNanBits(0xFF800000 | 0), -1);
+                        assert.equal(IdEncoding.isNanBits(0xFFC00000 | 0), false);
+                        assert.equal(IdEncoding.idFromNanBits(0xFFC00000 | 0), -1);
+                        assert.equal(IdEncoding.directId(42), 42);
+                        assert.equal(IdEncoding.pointerId(IdEncoding.PTR_DEREFERENCE | 7), 7);
+                        assert.equal(RemoteContextIds.isTime(RemoteContextIds.ID_CONTINUOUS_SEC), true);
+                        assert.equal(RemoteContextIds.isTime(RemoteContextIds.ID_DAY_OF_MONTH), true);
+                        assert.equal(RemoteContextIds.isTime(RemoteContextIds.ID_DENSITY), false);
+
+                        const pts = AnimationEasing.cubicControlPoints(AnimationEasing.CUBIC_STANDARD);
+                        assert.deepEqual(pts, [0.4, 0.0, 0.2, 1.0]);
+                        const packed = packAnimationSpec(0.5, AnimationEasing.CUBIC_CUSTOM, [0.1, 0.2, 0.3, 0.4], 10.0, 360.0);
+                        const fe = new FloatExpression(1, new Float32Array(), new Float32Array(packed));
+                        assert.equal(fe.isSpringAnimation(), false);
+                        const unpacked = fe.unpackAnimationSpec();
+                        assert.ok(Array.isArray(unpacked.params));
+                        assert.ok(Math.abs(unpacked.duration - 0.5) < 1e-6);
+                        assert.equal(unpacked.type, AnimationEasing.CUBIC_CUSTOM);
+                        assert.equal(unpacked.params.length, 4);
+                        assert.ok(Math.abs(unpacked.initialValue - 10.0) < 1e-6);
+                        assert.ok(Math.abs(unpacked.wrap - 360.0) < 1e-6);
+
+                        const pe = {
+                          kind: "compose" as const,
+                          outer: { kind: "dash" as const, phase: 2.5, intervals: [4.0, 6.0] },
+                          inner: { kind: "discrete" as const, segmentLength: 8.0, deviation: 1.5 },
+                        };
+                        assert.deepEqual(decodePathEffect(new Float32Array(encodePathEffect(pe))), pe);
+                        assert.equal(decodePathEffect([]), null);
+                        assert.throws(
+                          () => encodePathEffect({
+                            kind: "dash" as const,
+                            phase: 0,
+                            intervals: new Array(PathEffectConstants.MAX_DASH_INTERVALS + 1).fill(1),
+                          }),
+                          RangeError,
+                        );
+
+                        // Build PathData Float32Array via Int32Array so NaN command payloads never pass through float64.
+                        const pathBuf = new ArrayBuffer(10 * 4);
+                        const pathF32 = new Float32Array(pathBuf);
+                        const pathI32 = new Int32Array(pathBuf);
+                        pathI32[0] = IdEncoding.asNanBits(PathCommandTags.MOVE);
+                        pathF32[1] = 1.0;
+                        pathF32[2] = 2.0;
+                        pathI32[3] = IdEncoding.asNanBits(PathCommandTags.LINE);
+                        pathF32[4] = 0.0;
+                        pathF32[5] = 0.0;
+                        pathF32[6] = 3.0;
+                        pathF32[7] = 4.0;
+                        pathI32[8] = IdEncoding.asNanBits(PathCommandTags.CLOSE);
+                        pathI32[9] = IdEncoding.asNanBits(PathCommandTags.DONE);
+                        const pd = new PathData(1, pathF32);
+                        assert.deepEqual(pd.decodePathCommands(), [
+                          { kind: "MoveTo", x: 1.0, y: 2.0 },
+                          { kind: "LineTo", x: 3.0, y: 4.0 },
+                          { kind: "Close" },
+                          { kind: "Done" },
+                        ]);
+
+                        const bmp = new BitmapData(1, (BitmapData.TYPE_PNG_ALPHA_8 << 16) | 10, (BitmapData.ENCODING_INLINE << 16) | 20, new Uint8Array());
+                        assert.equal(bmp.getUncompressedByteSize(), 200);
+
+                        const ce = new ColorExpression(1, (0x80 << 16) | ColorExpression.HSV_MODE, 0, 0, 0);
+                        assert.equal(ce.getAlphaPayload(), 0x80);
+
+                        const tff = new TextFromFloat(1, 0, 2, 2, TextFromFloat.PAD_AFTER_ZERO | TextFromFloat.GROUPING_BY3 | TextFromFloat.FULL_FORMAT);
+                        assert.equal(tff.getPadAfter(), 3);
+                        assert.equal(tff.getGrouping(), 1);
+                        assert.equal(tff.getFullFormat(), 1);
+                        console.log("TypeScript codecs OK");
+                        """
+                            .trimIndent()
+                    )
+                    runCheckedProcess(
+                        "TypeScript codecs run",
+                        listOf(
+                            node.absolutePath,
+                            "--experimental-transform-types",
+                            testTs.absolutePath,
+                        ),
+                        tmpDir,
+                    )
+                } finally {
+                    tmpDir.deleteRecursively()
+                }
+            }
+        }
+    }
+
+    private fun runCheckedProcess(
+        label: String,
+        command: List<String>,
+        workDir: File,
+        timeoutSeconds: Long = 60L,
+    ) {
+        val logFile = File.createTempFile("rc_proc_", ".log", workDir)
+        val proc = ProcessBuilder(command).redirectErrorStream(true).redirectOutput(logFile).start()
+        val finished = proc.waitFor(timeoutSeconds, TimeUnit.SECONDS)
+        if (!finished) {
+            proc.destroyForcibly()
+            val out = logFile.readText()
+            assertTrue("$label timed out after ${timeoutSeconds}s:\n$out", false)
+        }
+        val out = logFile.readText()
+        assertEquals("$label failed:\n$out", 0, proc.exitValue())
     }
 }

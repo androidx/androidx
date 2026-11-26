@@ -56,7 +56,7 @@ def remoteRootDirPath = project.projectDir.parentFile.absolutePath
 
 tasks.register("updateGeneratedCode", JavaExec) { task ->
     task.group = "codegen"
-    task.description = "Regenerates checked-in RemoteCompose Kotlin and Java sources from operations.json"
+    task.description = "Validates operations.json (Kotlin sources are generated at build time)"
     task.classpath = sourceSets.main.runtimeClasspath + ktfmtRuntime
     task.mainClass.set("androidx.compose.remote.generator.AndroidXCodegenUpdater")
     task.args(remoteRootDirPath)
