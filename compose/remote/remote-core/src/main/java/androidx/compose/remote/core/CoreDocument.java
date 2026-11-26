@@ -2487,6 +2487,7 @@ public class CoreDocument implements Serializable {
                 }
             }
         }
+        context.getPaintContext().endFrame();
         if (context.getPaintContext().doesNeedsRepaint()
                 || (mRootLayoutComponent != null
                 && (mRootLayoutComponent.doesNeedsRepaint()

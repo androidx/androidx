@@ -280,25 +280,129 @@
           }
         },
         "bitmaps": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "data": {
-                "type": "string",
-                "description": "Base64 encoded PNG/JPEG image data"
+          "description": "PNG images for texture3D. Only PNG is accepted, each dimension at most 65535; each image is written inline as TYPE_PNG_8888.",
+          "oneOf": [
+            {
+              "type": "object",
+              "description": "Map of name to source",
+              "additionalProperties": {
+                "$ref": "#/$defs/BitmapSource"
               }
             },
-            "required": [
-              "name"
-            ]
-          }
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "description": "Named entry: the source is value, or file, base64 or data next to the name",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "$ref": "#/$defs/BitmapSource"
+                      },
+                      "file": {
+                        "type": "string"
+                      },
+                      "base64": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ],
+                    "anyOf": [
+                      {
+                        "required": [
+                          "value"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "file"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "base64"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "data"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "description": "Shorthand {name: source}",
+                    "not": {
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    "minProperties": 1,
+                    "maxProperties": 1,
+                    "additionalProperties": {
+                      "$ref": "#/$defs/BitmapSource"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
         }
       },
       "additionalProperties": true
+    },
+    "BitmapSource": {
+      "description": "A PNG image: a file path, or an object with file, base64 or data",
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "PNG file path; a relative path resolves against the parser's base directory"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string",
+              "description": "PNG file path"
+            },
+            "base64": {
+              "type": "string",
+              "description": "Base64 PNG bytes"
+            },
+            "data": {
+              "type": "string",
+              "description": "Alias of base64; may be a base64 data: URI"
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "file"
+              ]
+            },
+            {
+              "required": [
+                "base64"
+              ]
+            },
+            {
+              "required": [
+                "data"
+              ]
+            }
+          ]
+        }
+      ]
     },
     "FloatOrExpr": {
       "oneOf": [
@@ -320,6 +424,33 @@
         {
           "type": "string",
           "description": "Hex string (#AARRGGBB), or color ref ($colors.name, @colors.name)"
+        }
+      ]
+    },
+    "Vec2": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FloatOrExpr"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "Vec3": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FloatOrExpr"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "MeshExpr": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "description": "Expression over the grid coordinates u and v (e.g. '0.2 * sin(u * 6)')"
         }
       ]
     },
@@ -1652,6 +1783,810 @@
             "count",
             "commands"
           ]
+        },
+        "clearDepth3D": {
+          "type": [
+            "boolean",
+            "object"
+          ],
+          "description": "Clear the depth buffer. Needed before the first 3D draw of each frame."
+        },
+        "material3D": {
+          "type": "object",
+          "properties": {
+            "specular": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Specular strength (default 0)"
+            },
+            "shininess": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Specular exponent (default 32)"
+            }
+          }
+        },
+        "depthBias3D": {
+          "type": "object",
+          "description": "Depth bias in window-depth units",
+          "properties": {
+            "constant": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Default 0"
+            },
+            "slope": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Default 0"
+            }
+          }
+        },
+        "camera3D": {
+          "type": "object",
+          "properties": {
+            "projection": {
+              "type": "string",
+              "enum": [
+                "perspective",
+                "ortho",
+                "orthographic"
+              ],
+              "description": "Default perspective; any case"
+            },
+            "fovY": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Perspective vertical field of view in radians (default 0.9)"
+            },
+            "aspect": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Perspective width / height (default 1)"
+            },
+            "near": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Default 0.1"
+            },
+            "far": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Default 100"
+            },
+            "left": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Required for ortho"
+            },
+            "right": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Required for ortho"
+            },
+            "bottom": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Required for ortho"
+            },
+            "top": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Required for ortho"
+            },
+            "eye": {
+              "$ref": "#/$defs/Vec3",
+              "description": "Default [0, 0, 4]"
+            },
+            "center": {
+              "$ref": "#/$defs/Vec3",
+              "description": "Default [0, 0, 0]"
+            },
+            "up": {
+              "$ref": "#/$defs/Vec3",
+              "description": "Default [0, 1, 0]"
+            }
+          }
+        },
+        "lights3D": {
+          "type": "object",
+          "description": "Replaces the whole light set. No lights leaves the default ambient light only.",
+          "properties": {
+            "lights": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "directional",
+                      "dir",
+                      "point",
+                      "ambient"
+                    ],
+                    "description": "Default directional; any case. ambient takes neither dir nor pos."
+                  },
+                  "color": {
+                    "$ref": "#/$defs/ColorOrRef",
+                    "description": "Default #FFFFFFFF"
+                  },
+                  "intensity": {
+                    "$ref": "#/$defs/FloatOrExpr",
+                    "description": "Default 1"
+                  },
+                  "dir": {
+                    "$ref": "#/$defs/Vec3",
+                    "description": "Required for directional: the direction the light travels, in world space"
+                  },
+                  "pos": {
+                    "$ref": "#/$defs/Vec3",
+                    "description": "Required for point: the light position"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "matrix3D": {
+          "type": "object",
+          "description": "Post-multiply the model matrix, or save and restore it (push and pop)",
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "identity",
+                "translate",
+                "scale",
+                "rotate",
+                "multiply",
+                "push",
+                "pop"
+              ],
+              "description": "Default identity; any case. Required when other keys are present."
+            },
+            "x": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "translate, scale (default 0)"
+            },
+            "y": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "translate, scale (default 0)"
+            },
+            "z": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "translate, scale (default 0)"
+            },
+            "angle": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "rotate: required, in radians"
+            },
+            "axis": {
+              "$ref": "#/$defs/Vec3",
+              "description": "rotate (default [0, 1, 0])"
+            },
+            "m": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FloatOrExpr"
+              },
+              "minItems": 16,
+              "maxItems": 16,
+              "description": "multiply: 16 column-major values"
+            }
+          }
+        },
+        "defineMesh3D": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "verts": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "x, y, z per vertex"
+            },
+            "indices": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "description": "3 per triangle, counter-clockwise for the front face"
+            },
+            "normals": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "Optional: x, y, z per vertex"
+            },
+            "uv": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "Optional: u, v per vertex"
+            }
+          },
+          "required": [
+            "id",
+            "verts",
+            "indices"
+          ]
+        },
+        "meshPrimitive3D": {
+          "type": "object",
+          "description": "A mesh the player generates. Each primitive takes its own named keys (see json-parser.md) unless params is given.",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "primitive": {
+              "type": "string",
+              "enum": [
+                "sphere",
+                "cylinder",
+                "cone",
+                "cube",
+                "roundedCube",
+                "sphericalSector",
+                "sphericalDome",
+                "tube",
+                "capTube",
+                "profileTube",
+                "torus",
+                "plane",
+                "extrudeCircle",
+                "extrudeSector",
+                "extrudeSegment",
+                "extrudeArc",
+                "extrudeRoundedRect",
+                "extrudeSquircle",
+                "extrudePath",
+                "lathe",
+                "sweep",
+                "helix",
+                "icosphere",
+                "infinitePlane"
+              ],
+              "description": "Case, _ and - are ignored."
+            },
+            "segments": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Slice or side count, the subdivision level for icosphere; 0 = the primitive's default"
+            },
+            "uv": {
+              "type": "string",
+              "enum": [
+                "none",
+                "uv",
+                "uv2",
+                "uv3"
+              ],
+              "description": "Texture coordinate mode (default none; any case)"
+            },
+            "axis": {
+              "description": "The axis the primitive's built-in axis turns onto (default native)",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "native",
+                    "x",
+                    "y",
+                    "z"
+                  ],
+                  "description": "Any case"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3
+                }
+              ]
+            },
+            "curvatureDensity": {
+              "type": "boolean",
+              "description": "Place tube rings by curvature; tube, capTube and profileTube only"
+            },
+            "flags": {
+              "type": "integer",
+              "description": "Raw flag bits, OR-ed with the named options. The writer rejects bits 9-31."
+            },
+            "params": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FloatOrExpr"
+              },
+              "description": "Positional channel 0; replaces the named keys"
+            },
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/FloatOrExpr"
+                }
+              },
+              "description": "Extra channels, appended in order"
+            },
+            "radius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "height": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "width": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "depth": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "dimX": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "dimY": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "dimZ": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "cornerRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "majorRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "minorRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "innerRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "outerRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "exponent": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "coilRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "tubeRadius": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "pitch": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "turns": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "ringsPerSpan": {
+              "$ref": "#/$defs/FloatOrExpr"
+            },
+            "bevel": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "extrudePath (default 0)"
+            },
+            "angle": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Radians"
+            },
+            "startAngle": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Radians"
+            },
+            "sweepAngle": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Radians"
+            },
+            "center": {
+              "$ref": "#/$defs/Vec3",
+              "description": "Default [0, 0, 0]"
+            },
+            "from": {
+              "$ref": "#/$defs/Vec3",
+              "description": "Default [0, 0, 0]"
+            },
+            "to": {
+              "$ref": "#/$defs/Vec3",
+              "description": "Default [0, 0, 0]"
+            },
+            "points": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Vec3"
+              },
+              "description": "tube, capTube, profileTube: the path"
+            },
+            "radii": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FloatOrExpr"
+              },
+              "description": "profileTube"
+            },
+            "legacy": {
+              "type": "boolean",
+              "description": "tube, capTube"
+            },
+            "spline": {
+              "type": "boolean",
+              "description": "tube, capTube"
+            },
+            "capped": {
+              "type": "boolean",
+              "description": "profileTube (default true)"
+            },
+            "closed": {
+              "type": "boolean",
+              "description": "sweep (default true)"
+            },
+            "capStart": {
+              "type": "boolean",
+              "description": "sweep (default true)"
+            },
+            "capEnd": {
+              "type": "boolean",
+              "description": "sweep (default true)"
+            },
+            "section": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Vec2"
+              },
+              "description": "sweep: [x, y] points"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Vec3"
+              },
+              "description": "sweep: [x, y, z] points"
+            },
+            "scales": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FloatOrExpr"
+              },
+              "description": "sweep: per-station scales"
+            },
+            "twists": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FloatOrExpr"
+              },
+              "description": "sweep: per-station twists in radians; requires scales"
+            },
+            "contours": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Vec2"
+                }
+              },
+              "description": "extrudePath: rings of [x, y] points"
+            },
+            "profile": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Vec2"
+              },
+              "description": "lathe: [radius, y] points"
+            },
+            "spacing": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "infinitePlane grid spacing (default 0: no grid)"
+            },
+            "lineWidth": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "infinitePlane grid line width in pixels (default 1)"
+            },
+            "lineColor": {
+              "description": "infinitePlane grid line color (default #FF808080). Named and theme colors are not accepted.",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$"
+                },
+                {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 4294967295,
+                  "description": "ARGB integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "description": "[a, r, g, b]: numbers in 0..1 or expressions"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "primitive"
+          ]
+        },
+        "meshExpression3D": {
+          "type": "object",
+          "description": "A mesh the player evaluates over a (u, v) grid",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "surface": {
+              "type": "string",
+              "enum": [
+                "general",
+                "heightField",
+                "sphere",
+                "cylinder"
+              ],
+              "description": "Default general; case and _ are ignored"
+            },
+            "uRange": {
+              "$ref": "#/$defs/Vec2",
+              "description": "general: [min, max]"
+            },
+            "vRange": {
+              "$ref": "#/$defs/Vec2",
+              "description": "general: [min, max]"
+            },
+            "xRange": {
+              "$ref": "#/$defs/Vec2",
+              "description": "heightField: [min, max]"
+            },
+            "zRange": {
+              "$ref": "#/$defs/Vec2",
+              "description": "heightField: [min, max]"
+            },
+            "yRange": {
+              "$ref": "#/$defs/Vec2",
+              "description": "heightField: clamps the height (default [-1e6, 1e6])"
+            },
+            "uCount": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Grid count along u"
+            },
+            "vCount": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Grid count along v"
+            },
+            "radius": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "sphere, cylinder"
+            },
+            "height": {
+              "$ref": "#/$defs/MeshExpr",
+              "description": "heightField: the height expression; cylinder: the height"
+            },
+            "x": {
+              "$ref": "#/$defs/MeshExpr",
+              "description": "general"
+            },
+            "y": {
+              "$ref": "#/$defs/MeshExpr",
+              "description": "general"
+            },
+            "z": {
+              "$ref": "#/$defs/MeshExpr",
+              "description": "general"
+            },
+            "displacement": {
+              "$ref": "#/$defs/MeshExpr",
+              "description": "sphere, cylinder: radial displacement (default 0)"
+            },
+            "normal": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/MeshExpr"
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "description": "nx, ny, nz: replaces the generated normals"
+            },
+            "uv": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/MeshExpr"
+              },
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "u, v: replaces the generated texture coordinates"
+            },
+            "flipWinding": {
+              "type": "boolean",
+              "description": "Reverse the triangles and the generated normals"
+            },
+            "flipNormals": {
+              "type": "boolean",
+              "description": "Reverse every normal and keep the winding"
+            },
+            "flags": {
+              "type": "integer",
+              "description": "Raw flag bits: 1 = flip winding, 2 = flip normals. The writer rejects bits 2-31."
+            }
+          },
+          "required": [
+            "id"
+          ]
+        },
+        "texture3D": {
+          "type": "object",
+          "description": "Texture for later draws; only meshes with texture coordinates show it",
+          "properties": {
+            "bitmap": {
+              "description": "Absent, null or 0 clears the texture",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "description": "resources.bitmaps name: @name, $name or name"
+                },
+                {
+                  "type": "integer",
+                  "description": "Bitmap id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "drawMesh3D": {
+          "type": "object",
+          "properties": {
+            "mesh": {
+              "type": "integer"
+            },
+            "mode": {
+              "description": "Engine and shading (default software-flat). An engine a player lacks falls back to software.",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "software-flat",
+                    "software-smooth",
+                    "canvas-flat",
+                    "canvas-smooth",
+                    "drawmesh-flat",
+                    "drawmesh-smooth",
+                    "gl-flat",
+                    "gl-smooth",
+                    "drawmesh-zbuf-flat",
+                    "drawmesh-zbuf-smooth",
+                    "canvas-zbuf-flat",
+                    "canvas-zbuf-smooth",
+                    "flat",
+                    "smooth"
+                  ],
+                  "description": "Any case"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "wireframe": {
+              "type": "boolean",
+              "description": "Hidden-line edges in the paint color; forces the software engine"
+            },
+            "edges": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2
+              },
+              "description": "With wireframe: the edges to draw: 0 (v0-v1), 1 (v1-v2), 2 (v2-v0)"
+            },
+            "transparent": {
+              "type": "boolean",
+              "description": "Blend over the scene without writing depth"
+            },
+            "gpu": {
+              "type": "boolean",
+              "description": "GPU engine hint"
+            },
+            "pbr": {
+              "type": "boolean",
+              "description": "PBR material hint"
+            },
+            "doubleSided": {
+              "type": "boolean",
+              "description": "No back-face culling"
+            },
+            "frontFace": {
+              "type": "string",
+              "enum": [
+                "ccw",
+                "cw"
+              ],
+              "description": "Default ccw; any case. cw makes clockwise triangles front-facing."
+            }
+          },
+          "required": [
+            "mesh"
+          ]
+        },
+        "touchExpression": {
+          "type": "object",
+          "description": "A float that accumulates touch movement",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Variable name for @name references"
+            },
+            "expression": {
+              "description": "Maps the raw touch to the value (default touchX())",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/FloatOrExpr"
+                  }
+                }
+              ]
+            },
+            "defaultValue": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Initial value (default 0)"
+            },
+            "min": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Absent: the value wraps around max instead of clamping"
+            },
+            "max": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Default 1"
+            },
+            "stopMode": {
+              "type": [
+                "integer",
+                "string"
+              ],
+              "description": "A number, a numeric string, or gently, instantly, ends, notchesEven, notchesPercents, notchesAbsolute, absolutePos or notchesSingleEven (case and _ ignored). Default 0."
+            },
+            "touchMode": {
+              "type": [
+                "integer",
+                "string"
+              ],
+              "description": "Alias of stopMode"
+            },
+            "velocityId": {
+              "$ref": "#/$defs/FloatOrExpr",
+              "description": "Variable that receives the velocity"
+            },
+            "touchEffects": {
+              "type": "integer",
+              "description": "Haptic effects"
+            },
+            "touchSpec": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "easingSpec": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
         }
       }
     },

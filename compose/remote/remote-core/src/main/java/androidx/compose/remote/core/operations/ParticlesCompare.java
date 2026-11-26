@@ -33,6 +33,8 @@ import androidx.compose.remote.core.operations.loom.LoomWireBuffer;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
 import androidx.compose.remote.core.operations.utilities.NanMap;
+import androidx.compose.remote.core.operations.utilities.VectorOpCodes;
+import androidx.compose.remote.core.operations.utilities.VectorRpn;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
@@ -69,26 +71,35 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
     private static final int MAX_EQU_LENGTH = 46;
     ParticlesCreate mParticlesSource;
 
+    /** Dimensionality per result equation (1 = scalar, >1 = vector spanning d slots). */
+    private final int[] mEquDim1;
+    private final int[] mEquDim2;
+
+    @NonNull
+    private final VectorRpn mVecRpn = new VectorRpn();
+    private final float[] mVecOut = new float[VectorRpn.MAX_DIM];
+
     @NonNull
     @Override
     public ArrayList<Operation> getList() {
         return mList;
     }
 
-    @NonNull private final ArrayList<Operation> mList = new ArrayList<>();
+    @NonNull
+    private final ArrayList<Operation> mList = new ArrayList<>();
 
     @NonNull AnimatedFloatExpression mExp = new AnimatedFloatExpression();
 
     /**
      * Create a new ParticlesLoop operation
      *
-     * @param id of the createParticles
-     * @param flags configuration flags
-     * @param min the min index to process
-     * @param max the max index to process
+     * @param id         of the createParticles
+     * @param flags      configuration flags
+     * @param min        the min index to process
+     * @param max        the max index to process
      * @param expression the first expression
-     * @param result1 the first result
-     * @param result2 the second result
+     * @param result1    the first result
+     * @param result2    the second result
      */
     public ParticlesCompare(
             int id,
@@ -98,6 +109,23 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
             float @Nullable [] expression,
             float @Nullable [][] result1,
             float @Nullable [][] result2) {
+        this(id, flags, min, max, expression, result1, result2, null, null);
+    }
+
+    /**
+     * @param dims1 dimensionality per result1 equation (1 = scalar); null ⇒ all scalar
+     * @param dims2 dimensionality per result2 equation (1 = scalar); null ⇒ all scalar
+     */
+    public ParticlesCompare(
+            int id,
+            short flags,
+            float min,
+            float max,
+            float @Nullable [] expression,
+            float @Nullable [][] result1,
+            float @Nullable [][] result2,
+            int @Nullable [] dims1,
+            int @Nullable [] dims2) {
         mId = id;
         mFlags = flags;
         mOutMin = mMin = min;
@@ -111,6 +139,18 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
 
         mEquations2 = result2;
         mOutEquations2 = copy(result2);
+
+        mEquDim1 = expandDims(dims1, result1);
+        mEquDim2 = expandDims(dims2, result2);
+    }
+
+    private static int[] expandDims(int @Nullable [] dims, float @Nullable [][] equations) {
+        int n = (equations == null) ? 0 : equations.length;
+        int[] out = new int[n];
+        for (int i = 0; i < n; i++) {
+            out[i] = (dims != null && i < dims.length && dims[i] > 1) ? dims[i] : 1;
+        }
+        return out;
     }
 
     private float[] copy(float[] expression) {
@@ -140,8 +180,9 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
                 float v = expression[i];
                 outExpression[i] =
                         (Float.isNaN(v)
-                                        && !AnimatedFloatExpression.isMathOperator(v)
-                                        && !NanMap.isDataVariable(v))
+                                && !AnimatedFloatExpression.isMathOperator(v)
+                                && !VectorOpCodes.isVectorOp(v)
+                                && !NanMap.isDataVariable(v))
                                 ? context.getFloat(Utils.idFromNan(v))
                                 : v;
             }
@@ -159,8 +200,9 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
                 float v = equation[j];
                 outEquations[i][j] =
                         (Float.isNaN(v)
-                                        && !AnimatedFloatExpression.isMathOperator(v)
-                                        && !NanMap.isDataVariable(v))
+                                && !AnimatedFloatExpression.isMathOperator(v)
+                                && !VectorOpCodes.isVectorOp(v)
+                                && !NanMap.isDataVariable(v))
                                 ? context.getFloat(Utils.idFromNan(v))
                                 : v;
             }
@@ -185,7 +227,7 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
         for (int i = 0; i < values.length; i++) {
             float v = values[i];
             if (Float.isNaN(v)
-                    && !AnimatedFloatExpression.isMathOperator(v)
+                    && !AnimatedFloatExpression.isMathOperator(v) && !VectorOpCodes.isVectorOp(v)
                     && !NanMap.isDataVariable(v)) {
                 context.listensTo(Utils.idFromNan(v), this);
             }
@@ -214,7 +256,9 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mId, mFlags, mMin, mMax, mExpression, mEquations1, mEquations2);
+        apply(
+                buffer, mId, mFlags, mMin, mMax, mExpression, mEquations1, mEquations2, mEquDim1,
+                mEquDim2);
     }
 
     @NonNull
@@ -226,12 +270,12 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
     /**
      * Write the operation on the buffer
      *
-     * @param buffer the buffer to write to
-     * @param id the id of the particle system
-     * @param flags configuration flags
-     * @param min the min index to process
-     * @param max the max index to process
-     * @param compare the first compare
+     * @param buffer     the buffer to write to
+     * @param id         the id of the particle system
+     * @param flags      configuration flags
+     * @param min        the min index to process
+     * @param max        the max index to process
+     * @param compare    the first compare
      * @param equations1 the first equations
      * @param equations2 the second equations
      */
@@ -244,6 +288,31 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
             float @Nullable [] compare,
             float @Nullable [][] equations1,
             float @Nullable [][] equations2) {
+        apply(buffer, id, flags, min, max, compare, equations1, equations2, null, null);
+    }
+
+    /**
+     * Write the operation. The condition ({@code compare}) is always scalar. Each result equation's
+     * length is written with its <b>high short</b> as a 0=scalar/1=vector flag (a vector
+     * equation then
+     * writes {@code byte dim | byte flags}); since lengths are ≤ {@link #MAX_EQU_LENGTH} the
+     * high short
+     * is 0 for every legacy document, which decodes identically.
+     *
+     * @param dims1 dimensionality per equations1 entry (1 = scalar); null ⇒ all scalar
+     * @param dims2 dimensionality per equations2 entry (1 = scalar); null ⇒ all scalar
+     */
+    public static void apply(
+            @NonNull WireBuffer buffer,
+            int id,
+            short flags,
+            float min,
+            float max,
+            float @Nullable [] compare,
+            float @Nullable [][] equations1,
+            float @Nullable [][] equations2,
+            int @Nullable [] dims1,
+            int @Nullable [] dims2) {
         buffer.start(OP_CODE);
         buffer.writeInt(id);
         buffer.writeShort(flags);
@@ -260,7 +329,7 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
             }
             buffer.writeInt(equations1.length);
             for (int i = 0; i < equations1.length; i++) {
-                writeFloats(buffer, equations1[i]);
+                writeEqu(buffer, equations1[i], (dims1 != null && i < dims1.length) ? dims1[i] : 1);
             }
         }
         if (equations2 == null) {
@@ -268,8 +337,30 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
         } else {
             buffer.writeInt(equations2.length);
             for (int i = 0; i < equations2.length; i++) {
-                writeFloats(buffer, equations2[i]);
+                writeEqu(buffer, equations2[i], (dims2 != null && i < dims2.length) ? dims2[i] : 1);
             }
+        }
+    }
+
+    /** Write a result equation, self-tagging vectors (dim &gt; 1) in the length's high short. */
+    private static void writeEqu(@NonNull WireBuffer buffer, float @Nullable [] values, int dim) {
+        if (values == null) {
+            buffer.writeInt(0);
+            return;
+        }
+        if (MAX_EQU_LENGTH < values.length) {
+            throw new RuntimeException(
+                    values.length + " map entries more than max = " + MAX_EQU_LENGTH);
+        }
+        if (dim > 1) {
+            buffer.writeInt((1 << 16) | values.length);
+            buffer.writeByte(dim);
+            buffer.writeByte(0); // flags (reserved)
+        } else {
+            buffer.writeInt(values.length);
+        }
+        for (float v : values) {
+            buffer.writeFloat(v);
         }
     }
 
@@ -291,7 +382,7 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -308,22 +399,58 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
         }
 
         float[][] equations1 = (result1Len == 0) ? null : new float[result1Len][];
+        int[] dims1 = new int[result1Len];
         for (int i = 0; i < result1Len; i++) {
-            equations1[i] = readFloats(buffer);
+            equations1[i] = readEqu(buffer, dims1, i);
         }
 
         int result2Len = buffer.readInt();
-        if (result2Len > MAX_FLOAT_ARRAY) {  // Same check as result1Len
-            throw new RuntimeException(
-                    result2Len + " map entries more than max = " + MAX_FLOAT_ARRAY);
-        }
+
         float[][] equations2 = (result2Len == 0) ? null : new float[result2Len][];
+        int[] dims2 = new int[result2Len];
         for (int i = 0; i < result2Len; i++) {
-            equations2[i] = readFloats(buffer);
+            equations2[i] = readEqu(buffer, dims2, i);
         }
         ParticlesCompare data =
-                new ParticlesCompare(id, flags, min, max, exp, equations1, equations2);
+                new ParticlesCompare(
+                        id, flags, min, max, exp, equations1, equations2, dims1, dims2);
         operations.add(data);
+    }
+
+    /** Read one result equation, decoding the high-short vector flag into {@code dims[i]}. */
+    static float[] readEqu(@NonNull WireBuffer buffer, int @NonNull [] dims, int i) {
+        int len32 = buffer.readInt();
+        int len = len32 & 0xFFFF;
+        int vectorFlag = (len32 >> 16) & 0xFFFF;
+        int dim = 1;
+        if (vectorFlag != 0) {
+            dim = buffer.readByte();
+            buffer.readByte(); // flags (reserved)
+        }
+        dims[i] = dim;
+        if (len > MAX_EQU_LENGTH) {
+            throw new RuntimeException(len + " map entries more than max = " + MAX_EQU_LENGTH);
+        }
+        if (len == 0) {
+            return null;
+        }
+        float[] ret = new float[len];
+        for (int j = 0; j < len; j++) {
+            float v = buffer.readFloat();
+            if (Float.isNaN(v)
+                    && !AnimatedFloatExpression.isMathOperator(v) && !VectorOpCodes.isVectorOp(v)
+                    && !VectorOpCodes.isVectorOp(v)
+                    && !NanMap.isDataVariable(v)) {
+                if (buffer instanceof LoomWireBuffer) {
+                    ret[j] = ((LoomWireBuffer) buffer).getRemapContext().resolveNanId(v);
+                } else {
+                    ret[j] = v;
+                }
+            } else {
+                ret[j] = v;
+            }
+        }
+        return ret;
     }
 
     static float[] readFloats(@NonNull WireBuffer buffer) {
@@ -338,7 +465,7 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
         for (int i = 0; i < len; i++) {
             float v = buffer.readFloat();
             if (Float.isNaN(v)
-                    && !AnimatedFloatExpression.isMathOperator(v)
+                    && !AnimatedFloatExpression.isMathOperator(v) && !VectorOpCodes.isVectorOp(v)
                     && !NanMap.isDataVariable(v)) {
                 // Manual remapping
                 if (buffer instanceof LoomWireBuffer) {
@@ -392,8 +519,9 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
                 float v = expression[i]; // normal lookup first
                 outExpression[i] =
                         (Float.isNaN(v)
-                                        && !AnimatedFloatExpression.isMathOperator(v)
-                                        && !NanMap.isDataVariable(v))
+                                && !AnimatedFloatExpression.isMathOperator(v)
+                                && !VectorOpCodes.isVectorOp(v)
+                                && !NanMap.isDataVariable(v))
                                 ? context.getFloat(Utils.idFromNan(v))
                                 : v;
 
@@ -440,8 +568,9 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
                 float v = equation[j];
                 outEquations[i][j] =
                         (Float.isNaN(v)
-                                        && !AnimatedFloatExpression.isMathOperator(v)
-                                        && !NanMap.isDataVariable(v))
+                                && !AnimatedFloatExpression.isMathOperator(v)
+                                && !VectorOpCodes.isVectorOp(v)
+                                && !NanMap.isDataVariable(v))
                                 ? context.getFloat(Utils.idFromNan(v))
                                 : v;
                 if (j == equation.length - 1) {
@@ -470,6 +599,81 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
                 }
             }
         }
+    }
+
+    /**
+     * Evaluate one particle-value equation, healing a non-finite result the same way
+     * {@link ParticlesLoop} does: exact eval, then a soft-domain retry, then throw-or-sanitize per
+     * {@link ParticlesCreate#sThrowOnNonFinite}. Keeps a divide-by-zero (e.g. two coincident
+     * particles) from storing a {@code NaN} that would be re-read as an opcode next frame.
+     */
+    private float healEval(
+            @NonNull CollectionsAccess ca, float @NonNull [] eqn, int varIndex, int particleIndex) {
+        float r = mExp.eval(ca, eqn, eqn.length);
+        if (!ParticlesCreate.isFiniteValue(r)) {
+            r = mExp.softDomEval(ca, eqn, eqn.length);
+            if (!ParticlesCreate.isFiniteValue(r)) {
+                r =
+                        ParticlesCreate.onNonFiniteParticleValue(
+                                "ParticlesCompare[" + Utils.idString(mId) + "]",
+                                varIndex,
+                                particleIndex,
+                                eqn);
+            }
+        }
+        return r;
+    }
+
+    /**
+     * Evaluate a result-equation list into a particle's slots, dispatching scalar vs vector. A
+     * vector
+     * equation (dim d) runs one {@link VectorRpn} program and fills d consecutive slots.
+     */
+    private void evalIntoSlots(
+            @NonNull CollectionsAccess ca,
+            @NonNull RemoteContext ctx,
+            float[][] outEqns,
+            int[] dims,
+            float[] particle,
+            int particleIndex) {
+        int slot = 0;
+        for (int g = 0; g < outEqns.length; g++) {
+            int d = dims[g];
+            if (d == 1) {
+                float r = healEval(ca, outEqns[g], g, particleIndex);
+                particle[slot] = r;
+                ctx.loadFloat(mVarId[slot], r);
+                slot++;
+            } else {
+                int lanes = mVecRpn.apply(outEqns[g], outEqns[g].length, mVecOut);
+                if (!allFinite(mVecOut, lanes)) {
+                    mVecRpn.mSoftDomain = true;
+                    try {
+                        lanes = mVecRpn.apply(outEqns[g], outEqns[g].length, mVecOut);
+                    } finally {
+                        mVecRpn.mSoftDomain = false;
+                    }
+                }
+                for (int c = 0; c < d; c++) {
+                    float val = (c < lanes) ? mVecOut[c] : 0f;
+                    if (Float.isNaN(val) || Float.isInfinite(val)) {
+                        val = 0f;
+                    }
+                    particle[slot + c] = val;
+                    ctx.loadFloat(mVarId[slot + c], val);
+                }
+                slot += d;
+            }
+        }
+    }
+
+    private static boolean allFinite(float[] a, int n) {
+        for (int k = 0; k < n; k++) {
+            if (Float.isNaN(a[k]) || Float.isInfinite(a[k])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void condition2Body(@NonNull PaintContext context) {
@@ -505,21 +709,11 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
                     update2Body(
                             remoteContext, mEquations2, mOutEquations2, particle1, particle2, true);
 
-                    // Evaluate the update function
-
-                    for (int j = 0; j < particle1.length; j++) {
-                        float tmp = mExp.eval(ca, mOutEquations1[j], mOutEquations1[j].length);
-                        particle1[j] = tmp;
-                        remoteContext.loadFloat(mVarId[j], particle1[j]);
-                    }
-
+                    // Evaluate the update functions (scalar or vector per equation).
+                    evalIntoSlots(ca, remoteContext, mOutEquations1, mEquDim1, particle1, i);
                     runChildren(context, remoteContext);
 
-                    for (int j = 0; j < particle2.length; j++) {
-                        float tmp = mExp.eval(ca, mOutEquations2[j], mOutEquations2[j].length);
-                        particle2[j] = tmp;
-                        remoteContext.loadFloat(mVarId[j], particle2[j]);
-                    }
+                    evalIntoSlots(ca, remoteContext, mOutEquations2, mEquDim2, particle2, k);
                     runChildren(context, remoteContext);
 
                     needsRepaint = true;
@@ -547,12 +741,8 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
 
             if (0 < value1) {
                 update(remoteContext, mEquations1, mOutEquations1);
-                // Evaluate the update function
-                for (int j = 0; j < particle.length; j++) {
-                    float tmp = mExp.eval(ca, mOutEquations1[j], mOutEquations1[j].length);
-                    particle[j] = tmp;
-                    remoteContext.loadFloat(mVarId[j], particle[j]);
-                }
+                // Evaluate the update functions (scalar or vector per equation).
+                evalIntoSlots(ca, remoteContext, mOutEquations1, mEquDim1, particle, i);
                 runChildren(context, remoteContext);
 
                 needsRepaint = true;
@@ -616,7 +806,7 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
      * that represent particle i
      *
      * @param remoteContext the remote context
-     * @param particle the particle index
+     * @param particle      the particle index
      */
     private void setupForParticle(RemoteContext remoteContext, float[] particle) {
         for (int j = 0; j < particle.length; j++) {

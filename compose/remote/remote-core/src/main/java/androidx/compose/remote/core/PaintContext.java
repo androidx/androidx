@@ -739,6 +739,9 @@ public abstract class PaintContext {
         androidx.compose.remote.core.operations.BitmapData.releaseOffscreenBitmaps(mContext);
     }
 
+    /** Called at the end of a frame after all operations have been painted. */
+    public void endFrame() {}
+
     /**
      * Pushes an offscreen target component, bitmap ID, and clip flag onto the offscreen rendering
      * stack.

@@ -53,9 +53,10 @@ This is not authoritative but is provided to give a feel for the protocol.
 ## Compression
 
 A document with a properties header (API level 7+) can set the `COMPRESS`
-property (key 31, Int). With the value `1`, every byte after the header is a
-single zlib stream (DEFLATE, RFC 1950) holding the operations. Other non-zero
-values are reserved and rejected.
+property (key 31, Int). With the value `1`, the header is followed by the
+marker byte `0x77` (reserved opcode 119) and then a single zlib stream
+(DEFLATE, RFC 1950) holding the operations. Other non-zero values are
+reserved and rejected.
 
 - The header itself is never compressed, so tools can peek at it (version,
   size, profiles, compression) without inflating anything.
@@ -103,3 +104,8 @@ off (the default) and `1` is on.
   take `"unifiedPointerInput": 1`.
 
 See [POINTER_INPUT.md](POINTER_INPUT.md) for the full guide.
+
+## 3D
+
+The 3D operations (opcodes 110–118 and 120, in the experimental profiles) are specified in
+[PROTOCOL_3D.md](PROTOCOL_3D.md).

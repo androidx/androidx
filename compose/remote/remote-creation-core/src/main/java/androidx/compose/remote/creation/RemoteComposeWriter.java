@@ -120,6 +120,7 @@ public class RemoteComposeWriter {
     public static final int FONT_TYPE_MONOSPACE = PaintBundle.FONT_TYPE_MONOSPACE;
 
     protected final @NonNull RcPaint mPainter = new RcPaint(this);
+    protected final @NonNull RemoteComposeWriter3D mRc3DWriter = new RemoteComposeWriter3D(this);
 
     private @Nullable Object mWriterCallback = null;
     private int mInsertPoint = -1;
@@ -132,6 +133,15 @@ public class RemoteComposeWriter {
      */
     public @NonNull RcPaint getRcPaint() {
         return mPainter;
+    }
+
+    /**
+     * Returns the 3D writer extension object
+     *
+     * @return the 3D writer object
+     */
+    public @NonNull RemoteComposeWriter3D getRc3DWriter() {
+        return mRc3DWriter;
     }
 
     public @Nullable Object getWriterCallback() {
@@ -2102,6 +2112,7 @@ public class RemoteComposeWriter {
     public void drawTweenPath(int path1Id, int path2Id, float tween, float start, float stop) {
         mBuffer.addDrawTweenPath(path1Id, path2Id, tween, start, stop);
     }
+
     /**
      * Add an android Path object. (It is converted to internal path)
      *
@@ -3014,6 +3025,34 @@ public class RemoteComposeWriter {
         int id = mState.cacheData(value);
         mBuffer.addAnimatedFloat(id, value, animation);
         return Utils.asNan(id);
+    }
+
+    /**
+     * Add a float expression that may exceed the 32-token limit by automatically spilling
+     * sub-expressions into hidden intermediate variables via {@link FloatExpressionOptimizer}.
+     */
+    public float floatBigExpression(float @NonNull [] value, float @Nullable [] animation) {
+        return FloatExpressionOptimizer.optimizeAndAdd(this, value, animation);
+    }
+
+    /**
+     * Add a vector expression: evaluates {@code values} (a vector RPN) and scatters its
+     * {@code dimension} components to consecutive variable ids {@code base..base+dim-1}.
+     *
+     * @return the base variable ID (encoded as a NaN float)
+     */
+    public float vectorExpression(int dimension, int flags, float @NonNull [] values) {
+        return Utils.asNan(vectorExpressionInt(dimension, flags, values));
+    }
+
+    /** Overload returning the raw integer variable ID (for low-level scattering). */
+    public int vectorExpressionInt(int dimension, int flags, float @NonNull [] values) {
+        int base = createID(0);
+        for (int i = 1; i < dimension; i++) {
+            createID(0); // consecutive: base+1 .. base+dimension-1
+        }
+        mBuffer.addVectorExpression(base, dimension, flags, values);
+        return base;
     }
 
     /**
@@ -4786,8 +4825,8 @@ public class RemoteComposeWriter {
     /**
      * Ensures the bitmap is stored.
      *
-     * @param url the bitmap to store
-     * @param width the bitmap width
+     * @param url    the bitmap to store
+     * @param width  the bitmap width
      * @param height the bitmap height
      * @return the id of the bitmap
      */
@@ -4959,6 +4998,24 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Add a particle loop where each update expression may be scalar or a vector (dim &gt; 1). A
+     * vector expression writes its components to that many consecutive particle variable slots.
+     *
+     * @param id   id of the particle system (encoded as NaN)
+     * @param dims dimensionality per expression (1 = scalar)
+     */
+    public void particlesLoop(
+            float id,
+            float @Nullable [] restart,
+            float @NonNull [] @NonNull [] expressions,
+            int @NonNull [] dims,
+            @NonNull Runnable r) {
+        mBuffer.addParticlesLoop(Utils.idFromNan(id), restart, expressions, dims);
+        r.run();
+        mBuffer.addParticleLoopEnd();
+    }
+
+    /**
      * Add a particle - particle comparison.
      * such as 2 particles collision detection
      *
@@ -4982,6 +5039,29 @@ public class RemoteComposeWriter {
             @Nullable Runnable r) {
         mBuffer.addParticlesComparison(Utils.idFromNan(id),
                 flags, min, max, condition, then1, then2);
+        if (r != null) r.run();
+        mBuffer.addParticleLoopEnd();
+    }
+
+    /**
+     * Two-body particle comparison where each then-equation may be scalar or vector.
+     *
+     * @param dims1 dimensionality per then1 equation (1 = scalar)
+     * @param dims2 dimensionality per then2 equation (1 = scalar)
+     */
+    public void particlesComparison(
+            float id,
+            short flags,
+            float min,
+            float max,
+            float @Nullable [] condition,
+            float @Nullable [][] then1,
+            float @Nullable [][] then2,
+            int @Nullable [] dims1,
+            int @Nullable [] dims2,
+            @Nullable Runnable r) {
+        mBuffer.addParticlesComparison(Utils.idFromNan(id),
+                flags, min, max, condition, then1, then2, dims1, dims2);
         if (r != null) r.run();
         mBuffer.addParticleLoopEnd();
     }

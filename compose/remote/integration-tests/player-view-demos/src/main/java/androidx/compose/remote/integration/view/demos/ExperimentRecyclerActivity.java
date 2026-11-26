@@ -17,7 +17,6 @@ package androidx.compose.remote.integration.view.demos;
 
 import static android.widget.LinearLayout.VERTICAL;
 
-import static androidx.compose.remote.integration.view.demos.DemosComposeKt.getRemoteComposable;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -55,6 +54,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,7 +80,6 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -90,11 +89,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -128,21 +131,79 @@ public class ExperimentRecyclerActivity extends Activity {
         paletteChange();
     }
 
+    /** Preference that remembers the category shown last time. */
+    private static final String PREF_CATEGORY = "experiment_recycler_category";
+
+    /** The demos by category, from {@link DemosCreation#getCatalog}. */
+    LinkedHashMap<String, ArrayList<RCDoc>> mCatalog;
+    /** The category on screen. */
+    String mCategory;
+    Button mCategoryButton;
+
     /**
-     * Get the list of demos
+     * Get the list of demos of a category, sorted by name.
      *
-     * @param context The context
+     * @param category a key of {@link #mCatalog}
      * @return The list of demos
      */
-    public @NonNull List<RCDoc> getDocs(@NonNull Context context) {
-
-        sPersonImage3 = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.mostly_cloudy);
-        ArrayList<RCDoc> list = new ArrayList<>(DemosCreation.getDemos(this, 4 + 2));
-        ArrayList<@NotNull RCDoc> cDocs = getRemoteComposable(context, "#/");
-        list.addAll(cDocs);
-
+    public @NonNull List<RCDoc> getDocs(@NonNull String category) {
+        ArrayList<RCDoc> list = new ArrayList<>(Objects.requireNonNull(mCatalog.get(category)));
+        list.sort(Comparator.comparing(RCDoc::toString));
         return list;
+    }
+
+    /** The category to show first: the one shown last time, if it still exists. */
+    private @NonNull String initialCategory() {
+        String saved = getPreferences(MODE_PRIVATE).getString(PREF_CATEGORY, null);
+        if (saved != null && mCatalog.containsKey(saved)) {
+            return saved;
+        }
+        return mCatalog.keySet().iterator().next();
+    }
+
+    /**
+     * Shows the demos of {@code category}: swaps the list, scrolls to its first demo, and
+     * remembers the choice.
+     */
+    void selectCategory(@NonNull String category) {
+        if (!mCatalog.containsKey(category)) {
+            return;
+        }
+        mCategory = category;
+        getPreferences(MODE_PRIVATE).edit().putString(PREF_CATEGORY, category).apply();
+        if (mCategoryButton != null) {
+            mCategoryButton.setText(category);
+        }
+        mStepTarget = RecyclerView.NO_POSITION;
+        mRecyclerView.suppressLayout(false);
+        setLockToggle(false);
+        mDocList = getDocs(category);
+        mRecyclerView.setAdapter(new MyAdapter(mDocList));
+        mRecyclerView.scrollToPosition(0);
+        mTextView.setText("0");
+        if (!mDocList.isEmpty()) {
+            byte[] firstBytes = docToBytes(mDocList.get(0));
+            if (firstBytes != null) {
+                sCurrentDoc = firstBytes;
+            }
+        }
+    }
+
+    /** Pops the category menu under {@code anchor}. */
+    private void showCategoryMenu(@NonNull View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+        int order = 0;
+        for (String name : mCatalog.keySet()) {
+            int count = Objects.requireNonNull(mCatalog.get(name)).size();
+            menu.getMenu().add(0, order, order, name + "  (" + count + ")");
+            order++;
+        }
+        List<String> names = new ArrayList<>(mCatalog.keySet());
+        menu.setOnMenuItemClickListener(item -> {
+            selectCategory(names.get(item.getItemId()));
+            return true;
+        });
+        menu.show();
     }
 
     RecyclerView mRecyclerView;
@@ -156,6 +217,7 @@ public class ExperimentRecyclerActivity extends Activity {
     List<RCDoc> mDocList;
     TextView mTextView;
     TextView mStatsView;
+    ToggleButton mLock;
     private static final boolean DEBUG = false;
 
     @Override
@@ -177,13 +239,11 @@ public class ExperimentRecyclerActivity extends Activity {
 
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         // Sample data
-        mDocList = getDocs(getBaseContext());
-        mDocList.sort(new Comparator<RCDoc>() {
-            @Override
-            public int compare(RCDoc d1, RCDoc d2) {
-                return d1.toString().compareTo(d2.toString());
-            }
-        });
+        sPersonImage3 = BitmapFactory.decodeResource(getBaseContext().getResources(),
+                R.drawable.mostly_cloudy);
+        mCatalog = DemosCreation.getCatalog(this);
+        mCategory = initialCategory();
+        mDocList = getDocs(mCategory);
         byte[] firstBytes = docToBytes(mDocList.get(0));
         if (firstBytes != null) {
             sCurrentDoc = firstBytes;
@@ -199,12 +259,13 @@ public class ExperimentRecyclerActivity extends Activity {
         docControl.setOrientation(LinearLayout.HORIZONTAL);
         ToggleButton lock = new ToggleButton(this);
         mLockButton = lock;
-        //        lock.setSwitchMinWidth(200);
-        lock.setOnCheckedChangeListener(this::lock);
-        lock.setText("lock Off");
-        lock.setTextOff("lock Off");
-        lock.setTextOn("lock On");
-        lock.setTextSize(24);
+        mLock = lock;
+         //        lock.setSwitchMinWidth(200);
+        mLock.setOnCheckedChangeListener(this::lock);
+        mLock.setText("lock Off");
+        mLock.setTextOff("lock Off");
+        mLock.setTextOn("lock On");
+        mLock.setTextSize(24);
         mStatsView = new TextView(this);
         mStatsView.setTextSize(24);
         mStatsView.setPadding(20, 20, 20, 20);
@@ -235,8 +296,8 @@ public class ExperimentRecyclerActivity extends Activity {
             }
         });
         docControl.addView(mTextView);
-        lock.setBackgroundColor(0xFFAAFFAA);
-        docControl.addView(lock);
+        mLock.setBackgroundColor(0xFFAAFFAA);
+        docControl.addView(mLock);
         docControl.addView(mStatsView);
         // ===================== Next section button ================
         TextView next = new TextView(this);
@@ -283,6 +344,19 @@ public class ExperimentRecyclerActivity extends Activity {
         prevDemo.setText("Prev");
         prevDemo.setOnClickListener(v -> stepDemo(-1));
         stepRow.addView(prevDemo);
+
+        // ============ Category picker: a popup menu of the catalog's categories ============
+        mCategoryButton = new Button(this);
+        LinearLayout.LayoutParams categoryParams = new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        categoryParams.weight = 2;
+        mCategoryButton.setLayoutParams(categoryParams);
+        mCategoryButton.setTextSize(textSize);
+        mCategoryButton.setAllCaps(false);
+        mCategoryButton.setSingleLine(true);
+        mCategoryButton.setText(mCategory);
+        mCategoryButton.setOnClickListener(this::showCategoryMenu);
+        stepRow.addView(mCategoryButton);
 
         Button nextDemo = new Button(this);
         LinearLayout.LayoutParams nextParams = new LinearLayout.LayoutParams(0,
@@ -843,6 +917,15 @@ public class ExperimentRecyclerActivity extends Activity {
         }
     }
 
+    /**
+     * Toggle the lock
+     */
+    public void toggleLock() {
+        if (mLock != null) {
+            mLock.setChecked(!mLock.isChecked());
+        }
+    }
+
     @SuppressLint("RestrictedApiAndroidX")
     static class Card extends LinearLayout {
         RemoteComposePlayer mPlayer;
@@ -894,6 +977,23 @@ public class ExperimentRecyclerActivity extends Activity {
             addView(mPlayer, params);
             addView(mTitle);
             addView(mStats);
+
+            if (context instanceof ExperimentRecyclerActivity) {
+                ExperimentRecyclerActivity activity = (ExperimentRecyclerActivity) context;
+                OnClickListener doubleClickListener = new OnClickListener() {
+                    long mLastClickTime = 0;
+                    @Override
+                    public void onClick(View v) {
+                        long clickTime = System.currentTimeMillis();
+                        if (clickTime - mLastClickTime < 400) {
+                            activity.toggleLock();
+                        }
+                        mLastClickTime = clickTime;
+                    }
+                };
+                mTitle.setOnClickListener(doubleClickListener);
+                mStats.setOnClickListener(doubleClickListener);
+            }
 
             setPadding(10, 10, 10, 10);
         }
@@ -1094,12 +1194,15 @@ public class ExperimentRecyclerActivity extends Activity {
             float build = mItem.getBuildTime();
             String stats = "  Load: " + mTimeStr + " bld: " + mDf2.format(build) + "ms\n   cmd: "
                     + ops + " / " + mDocOps
-                    + "\n  Size: " + mDf2.format(mSize) + "/" + mDf2.format(mZipSize)
-                    + " B" + "\n Frame: "
+                    + "\n  Size: " + formatBytes(mSize) + " / " + formatBytes(mZipSize)
+                    + " " + "\n Frame: "
                     + mDf2.format(evalTime) + " ms";
             mUi.mStats.setText(stats);
         }
 
+        /**
+         * Called when the checked state of a compound button has changed.
+         */
         public void updateItem() {
             int ops = mUi.mPlayer.getOpsPerFrame();
             float time = mUi.mPlayer.getEvalTime();
@@ -1107,6 +1210,30 @@ public class ExperimentRecyclerActivity extends Activity {
         }
     }
 
+
+    private static String formatBytes(int bytes) {
+        final int kb = 1024;
+        final int mb = kb * kb;
+
+        // Standard Java formatter for commas/periods
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setGroupingUsed(true);
+
+        // Set this high so NumberFormat doesn't clip the precision
+        // we are manually calculating via MathContext
+        nf.setMaximumFractionDigits(4);
+
+        if (bytes < kb) {
+            return nf.format(bytes) + "B";
+        } else if (bytes < mb) {
+            // MathContext(4) enforces exactly 4 significant digits total
+            BigDecimal bd = new BigDecimal((double) bytes / kb, new MathContext(4));
+            return nf.format(bd) + "KB";
+        } else {
+            BigDecimal bd = new BigDecimal((double) bytes / mb, new MathContext(4));
+            return nf.format(bd) + "MB";
+        }
+    }
     /**
      * Creates a document with a name and a writer supplier
      *

@@ -190,6 +190,16 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
     public static final int COMPRESSION_DEFLATE = 1;
 
     /**
+     * The byte that starts the data of a {@link #COMPRESSION_DEFLATE} document: it sits right
+     * after the header, before the zlib stream. It is {@code 0x77} (119), an opcode reserved in
+     * {@link androidx.compose.remote.core.Operations}, so players that predate compression stop
+     * on an unknown operation instead of misreading the stream. A zlib stream can't start with
+     * this byte (its low nibble would be an invalid compression method), so there is no
+     * ambiguity; readers also accept streams written before the marker existed.
+     */
+    public static final int COMPRESSED_STREAM_MARKER = 0x77;
+
+    /**
      * Directions in which the document scrolls: {@link #SCROLL_HORIZONTAL}, {@link
      * #SCROLL_VERTICAL}, or both combined. {@link CoreDocument#hasHorizontalScroll()} and {@link
      * CoreDocument#hasVerticalScroll()} report these directions on top of the scroll containers
@@ -890,8 +900,9 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
     }
 
     /**
-     * Compresses a document: everything after the header becomes a zlib stream, and a {@link
-     * #COMPRESS} property is appended to the header. The rest of the header is copied as is, which
+     * Compresses a document: everything after the header becomes a {@link
+     * #COMPRESSED_STREAM_MARKER} byte followed by a zlib stream, and a {@link #COMPRESS} property
+     * is appended to the header. The rest of the header is copied as is, which
      * keeps the document's version, and stays uncompressed so {@link #readDirect(InputStream)} can
      * still peek at it. Players decompress transparently while inflating the document.
      *
@@ -922,6 +933,7 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
                     .putInt(COMPRESSION_DEFLATE);
             ByteArrayOutputStream out = new ByteArrayOutputStream(size / 2 + INT_PROPERTY_SIZE);
             out.write(head, 0, headSize + INT_PROPERTY_SIZE);
+            out.write(COMPRESSED_STREAM_MARKER);
             Deflater deflater = new Deflater();
             try {
                 deflater.setInput(document, headerSize, size - headerSize);
@@ -968,9 +980,13 @@ public class Header extends Operation implements RemoteComposeOperation, Variabl
         ByteArrayOutputStream out =
                 new ByteArrayOutputStream((int) Math.min(4L * size, Limits.BUFFER_SIZE));
         out.write(head, 0, headSize);
+        int dataStart = headerSize;
+        if (dataStart < size && (document[dataStart] & 0xFF) == COMPRESSED_STREAM_MARKER) {
+            dataStart++;
+        }
         Inflater inflater = new Inflater();
         try {
-            inflater.setInput(document, headerSize, size - headerSize);
+            inflater.setInput(document, dataStart, size - dataStart);
             byte[] chunk = new byte[CHUNK_SIZE];
             long inflated = 0;
             while (!inflater.finished()) {

@@ -60,6 +60,49 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport, 
     private static final int MAX_EQU_LENGTH = 32;
     @NonNull AnimatedFloatExpression mExp = new AnimatedFloatExpression();
 
+    /**
+     * Policy for a particle value that is still non-finite (NaN/Inf) after the soft-domain retry
+     * (see {@link AnimatedFloatExpression#softDomEval}). When true the offending expression throws
+     * (loud failure, surfaces author bugs like {@code sqrt} of a negative); when false the value is
+     * sanitized to 0 (the document keeps running with a glitched particle).
+     *
+     * <p>This is a temporary global toggle shared by {@link ParticlesCreate} and
+     * {@link ParticlesLoop}; it is expected to be replaced by a product-vs-debug policy once the
+     * team agrees on how that is wired.
+     */
+    public static boolean sThrowOnNonFinite = true;
+
+    /** True iff {@code v} is neither {@code NaN} nor {@code ±Inf} (API-level safe). */
+    static boolean isFiniteValue(float v) {
+        return !Float.isNaN(v) && !Float.isInfinite(v);
+    }
+
+    /**
+     * Handle a particle value that survived the soft-domain retry still non-finite: log a
+     * diagnosis naming the variable, particle, and decoded equation, then either throw or sanitize
+     * to 0 per {@link #sThrowOnNonFinite}.
+     */
+    static float onNonFiniteParticleValue(
+            @NonNull String opTag,
+            int varIndex,
+            int particleIndex,
+            float @NonNull [] resolvedEquation) {
+        String msg =
+                opTag
+                        + " non-finite particle value (NaN/Inf) survived soft-domain eval:"
+                        + " var#"
+                        + varIndex
+                        + " particle#"
+                        + particleIndex
+                        + " eqn="
+                        + AnimatedFloatExpression.toString(resolvedEquation, null);
+        System.out.println(msg);
+        if (sThrowOnNonFinite) {
+            throw new RuntimeException(msg);
+        }
+        return 0f;
+    }
+
     @Override
     public int getId() {
         return mId;
@@ -261,7 +304,20 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport, 
                 int kIndex = pos % mOutEquations.length;
                 mOutEquations[jIndex][kIndex] = pNo;
             }
-            mParticles[pNo][j] = mExp.eval(mOutEquations[j], mOutEquations[j].length);
+            float r = mExp.eval(mOutEquations[j], mOutEquations[j].length);
+            if (!isFiniteValue(r)) {
+                // Optimistic exact eval failed: retry softening divide/modulo by (near-)zero.
+                r = mExp.softDomEval(mOutEquations[j], mOutEquations[j].length);
+                if (!isFiniteValue(r)) {
+                    r =
+                            onNonFiniteParticleValue(
+                                    "ParticlesCreate[" + Utils.idString(mId) + "]",
+                                    j,
+                                    pNo,
+                                    mOutEquations[j]);
+                }
+            }
+            mParticles[pNo][j] = r;
         }
     }
 

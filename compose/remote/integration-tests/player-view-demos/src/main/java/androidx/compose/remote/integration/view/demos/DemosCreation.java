@@ -61,12 +61,14 @@ import androidx.compose.remote.integration.view.demos.dsl.DslExampleTimerKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslFontAxisDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslHostileActorKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslLayoutComputeDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslMagneticFieldKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslMetronomeKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslModernShowcaseDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslNestedInteractionDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPressureGaugeKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslPrimitiveGalleryKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslRadialGradientFocusDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslRcSimpleSwitchKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslRcStateLayout3StatesKt;
@@ -79,12 +81,54 @@ import androidx.compose.remote.integration.view.demos.dsl.DslStopwatchKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSysVarKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslTextDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslTextInputDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslTexturedPrimitives3DKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslTouchDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslClockKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslEnumsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslTickerKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslBallBox3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslBallBoxCollide3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslBallBoxVec3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslBarChart3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslBoids3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslBubbleChart3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslCalendar3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslClock3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslCubeWave3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslCylinder3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslDonutChart3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslEarthGlobe3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslExtrudedShapes3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslExtrudedText3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslFeatures3D2Kt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslGrowingTree3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslHeightField3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslHydrogenOrbitals3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslLathe3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslNewtonsCradle3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslParticles3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslPieChart3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslPrimitiveSolids3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslProfileTube3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslReactive3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslRotatingCube3DCanvasKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslRotatingCube3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslRubiksCube3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslSeasonalBarChart3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslShowcase3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslSmoothSphere3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslSockPuppet3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslSolarSystem3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslSurfacePlot3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslTexture3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslTorus3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslVectorParticles3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslVoxelTerrain3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslWireframe3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslWireframeModes3DKt;
+import androidx.compose.remote.integration.view.demos.dsl.d3.DslZFight3DKt;
 import androidx.compose.remote.integration.view.demos.dsl.embedded.DemoEmbeddedRcControlKt;
 import androidx.compose.remote.integration.view.demos.dsl.embedded.DemoEmbeddedRcDocsKt;
 import androidx.compose.remote.integration.view.demos.dsl.games.DslGameAstroDodgerKt;
@@ -230,105 +274,205 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public abstract class DemosCreation {
     /**
-     * get the demos written at the creational or procedural level
+     * The demos, by category. Each category is a list of lazily built documents, in the order the
+     * catalog shows them. Categories stay under about 60 demos so the picker's lists stay usable.
      *
-     * @return a list of RCDoc
+     * @param activity the activity, for demos that need a context
+     * @return the catalog, in display order
      */
-    public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity, int types) {
+    public static @NonNull LinkedHashMap<String, ArrayList<RCDoc>> getCatalog(
+            @NonNull Activity activity) {
         Bitmap bitmap = simpleBitmap(100);
-        ArrayList<RCDoc> demos = new ArrayList<>();
-        boolean dsl = true;
-        boolean graph2d = true;
-        boolean customCompose = (types & 1) != 0;
-        boolean customViews; // = (types & 2) != 0;
-        boolean dsl1 = (types & 4) != 0;
-        boolean dsl2 = (types & 8) != 0;
-        customViews = false;
-//        demos.add(get("-0/030/conditional", DslConditionalKt::dslConditionalDemo));
-        boolean embedded_demo = true;
-        if (embedded_demo) {
-            demos.addAll(Arrays.asList(
-                    getp("#/000/EmbeddedRcDocs",
-                            DemoEmbeddedRcDocsKt::demoEmbeddedRcDocs),
-                    getp("#/001/EmbeddedParentToChild",
-                            DemoEmbeddedRcControlKt::demoEmbeddedParentControlsChild),
-                    getp("#/002/EmbeddedChildSlider",
-                            DemoEmbeddedRcControlKt::demoEmbeddedChildSliderToParent),
-                    getp("#/003/EmbeddedChildButtons",
-                            DemoEmbeddedRcControlKt::demoEmbeddedChildButtonsToParent),
-                    getp("#/004/EmbeddedSharedSlider",
-                            DemoEmbeddedRcControlKt::demoEmbeddedSharedSlider),
-                    getp("#/005/EmbeddedChildToChild",
-                            DemoEmbeddedRcControlKt::demoEmbeddedChildToChild),
-                    getp("#/006/EmbeddedSwitchChild",
-                            DemoEmbeddedRcControlKt::demoEmbeddedSwitchChild),
-                    getp("#/007/EmbeddedThreeLevels",
-                            DemoEmbeddedRcControlKt::demoEmbeddedThreeLevels),
-                    getp("#/008/EmbeddedInline",
-                            DemoEmbeddedRcControlKt::demoEmbeddedInlineDocuments),
-                    getp("#/009/ControlledScroll", DslControlledScrollKt::demoControlledScroll),
-                    getp("#/010/ControlledHorizontalScroll",
-                            DslControlledHorizontalScrollKt::demoControlledHorizontalScroll)
-
-                    ));
-            return demos;
-        }
-
-        if (dsl) {
-            demos.addAll(Arrays.asList(
-                    getp("#0/000/EmbeddedRcDocs",
-                            DemoEmbeddedRcDocsKt::demoEmbeddedRcDocs),
-                    getp("#0/001/EmbeddedParentToChild",
-                            DemoEmbeddedRcControlKt::demoEmbeddedParentControlsChild),
-                    getp("#0/002/EmbeddedChildSlider",
-                            DemoEmbeddedRcControlKt::demoEmbeddedChildSliderToParent),
-                    getp("#0/003/EmbeddedChildButtons",
-                            DemoEmbeddedRcControlKt::demoEmbeddedChildButtonsToParent),
-                    getp("#0/004/EmbeddedSharedSlider",
-                            DemoEmbeddedRcControlKt::demoEmbeddedSharedSlider),
-                    getp("#0/005/EmbeddedChildToChild",
-                            DemoEmbeddedRcControlKt::demoEmbeddedChildToChild),
-                    getp("#0/006/EmbeddedSwitchChild",
-                            DemoEmbeddedRcControlKt::demoEmbeddedSwitchChild),
-                    getp("#0/007/EmbeddedThreeLevels",
-                            DemoEmbeddedRcControlKt::demoEmbeddedThreeLevels),
-                    getp("#0/008/EmbeddedInline",
-                            DemoEmbeddedRcControlKt::demoEmbeddedInlineDocuments),
-                    get("0/031/ModernShowcaseDemo",
-                            DslModernShowcaseDemoKt::dslModernShowcaseDemo),
-                    get("0/034/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
-                    get("0/034b/rcJsonStopwatch", RcJsonStopwatchKt::rcJsonStopwatch),
-                    get("0/035/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
-                    get("0/036/ClickTouchShowcase",
-                            DslClickTouchDemoKt::dslClickTouchDemo),
-                    get("0/037/NestedInteractionShowcase",
-                            DslNestedInteractionDemoKt::dslNestedInteractionDemo),
-                    get("0/033/Demo3", RcDslDemoKt::dslDemo),
-                    get("0/021/gameAstroDodger", DslGameAstroDodgerKt::dslGameAstroDodger),
-                    get("0/022/gameMarbleTilt", DslGameMarbleTiltKt::dslGameMarbleTilt),
-                    get("0/020/gamePaddleBattle", DslGamePaddleBattleKt::dslGamePaddleBattle),
-                    get("0/019/gameFlappyDroid", DslGameFlappyDroidKt::dslGameFlappyDroid),
-                    get("0/025/gameCannonShoot", DslGameCannonShootKt::dslGameCannonShoot),
-                    get("0/026/gameSideScroller", DslGameSideScrollerKt::dslGameSideScroller)));
-
-
-        }
-
-
-        if (graph2d) {
-            demos.addAll(Arrays.asList(
-                    // Annotation Demos
+        LinkedHashMap<String, ArrayList<RCDoc>> catalog = new LinkedHashMap<>();
+        catalog.put("3D / Engines & Primitives", new ArrayList<>(Arrays.asList(
+                    get("4/0000a/Torus3D software flat",
+                            DslTorus3DKt::torus3DSoftwareFlat),
+                    get("4/0000b/Torus3D software smooth",
+                            DslTorus3DKt::torus3DSoftware),
+                    get("4/0000c/Torus3D software Wire1",
+                            DslTorus3DKt::torus3WireFrame1),
+                    get("4/0000d/Torus3D software Wire2",
+                            DslTorus3DKt::torus3WireFrame2),
+                    get("4/0000e/Torus3D software Wire3",
+                            DslTorus3DKt::torus3WireFrame3),
+                    get("4/0000f/Torus3D drawVert flat",
+                            DslTorus3DKt::torus3DCanvasFlat),
+                    get("4/0000g/Torus3D drawVert smooth",
+                            DslTorus3DKt::torus3DCanvasSmooth),
+                    get("4/0000i/Torus3D DrawMesh Flat",
+                            DslTorus3DKt::torus3DMeshFlat),
+                    get("4/0000h/Torus3D drawMesh smooth",
+                            DslTorus3DKt::torus3DMeshSmooth),
+                    get("4/0000j/Torus3D DrawMesh Z Flat",
+                            DslTorus3DKt::torus3DMeshZFlat),
+                    get("4/0000j/Torus3D DrawMesh Z Smooth",
+                            DslTorus3DKt::torus3DMeshZSmooth),
+                    get("4/0001/texture3DCanvas",
+                            DslTexture3DKt::texture3DCanvas),
+                    get("4/0002/texture3DSoftware",
+                            DslTexture3DKt::texture3DSoftware),
+                    get("4/0003/textureGlobe3DSoftware",
+                            DslTexture3DKt::textureGlobe3DSoftware),
+                    get("4/0004/textureGlobe3DCanvas",
+                            DslTexture3DKt::textureGlobe3DCanvas),
+                    get("4/0005/RotatingCube3D",
+                            DslRotatingCube3DKt::rotatingCube3D),
+                    get("4/0006/RotatingCube3DCanvas",
+                            DslRotatingCube3DCanvasKt::rotatingCube3DCanvas),
+                    get("4/0007/SmoothSphere3DSoftware",
+                            DslSmoothSphere3DKt::smoothSphere3DSoftware),
+                    get("4/0008/SmoothSphere3DCanvas",
+                            DslSmoothSphere3DKt::smoothSphere3DCanvas),
+                    get("4/0011/Cylinder3DSoftware",
+                            DslCylinder3DKt::cylinder3DSoftware),
+                    get("4/0012/Cylinder3DCanvas",
+                            DslCylinder3DKt::cylinder3DCanvas),
+                    get("4/0013/Cone3D", DslPrimitiveGalleryKt::cone3DSoftware),
+                    get("4/0014/Capsule3D", DslPrimitiveGalleryKt::capsule3DSoftware),
+                    get("4/0015/Ellipsoid3D", DslPrimitiveGalleryKt::ellipsoid3DSoftware),
+                    get("4/0016/RoundedBox3D", DslPrimitiveGalleryKt::roundedBox3DSoftware),
+                    get("4/0017/Wedge3D", DslPrimitiveGalleryKt::wedge3DSoftware),
+                    get("4/0018/Plane3D", DslPrimitiveGalleryKt::plane3DSoftware),
+                    get("4/0019/Quad3D", DslPrimitiveGalleryKt::quad3DSoftware),
+                    get("4/0010/HeightField3D", DslHeightField3DKt::heightField3DSoftware),
+                    get("4/0032/PrimitiveSolidsSoft",
+                            DslPrimitiveSolids3DKt::primitiveSolids3DSoftware),
+                    get("4/0033/PrimitiveSolidsCanv",
+                            DslPrimitiveSolids3DKt::primitiveSolidsCanvas),
+                    get("4/0036/ZFight3D", DslZFight3DKt::zFight3DSoftware),
+                    get("4/0037/ProfileTube3D", DslProfileTube3DKt::profileTube3DSoftware),
+                    get("4/0038/TexturedPrimitives3D",
+                            DslTexturedPrimitives3DKt::texturedPrimitives3DSoftware),
+                    get("4/0040/Wireframe3D", DslWireframe3DKt::wireframe3DSoftware),
+                    get("4/0041/ExtrudedShapes3D",
+                            DslExtrudedShapes3DKt::extrudedShapes3DSoftware),
+                    get("4/0044/ExtrudedText3D", DslExtrudedText3DKt::extrudedText3DSoftware),
+                    get("4/0046/Lathe3D", DslLathe3DKt::lathe3DSoftware),
+                    get("4/0047/WireframeModesHeightField",
+                            DslWireframeModes3DKt::wireframeModesHeightField3D),
+                    get("4/0048/WireframeModesSphere",
+                            DslWireframeModes3DKt::wireframeModesSphere3D),
+                    get("4/0049/WireframeModesTube",
+                            DslWireframeModes3DKt::wireframeModesTube3D),
+                    get("4/0050/WireframeModesTorus",
+                            DslWireframeModes3DKt::wireframeModesTorus3D),
+                    get("4/0051/WireframeModesCylinder",
+                            DslWireframeModes3DKt::wireframeModesCylinder3D),
+                    get("4/0052/WireframeModesLathe",
+                            DslWireframeModes3DKt::wireframeModesLathe3D),
+                    get("4/0053/WireframeModesRoundCube",
+                            DslWireframeModes3DKt::wireframeModesRoundedCube3D),
+                    get("4/0054/WireframeModesHelix",
+                            DslWireframeModes3DKt::wireframeModesHelix3D),
+                    get("4/0103/Features3D2", DslFeatures3D2Kt::features3D2)
+        )));
+        catalog.put("3D / Scenes", new ArrayList<>(Arrays.asList(
+                    get("4/0045/SockPuppet3D", DslSockPuppet3DKt::sockPuppet3DSoftware),
+                    get("4/0055/SpinningGlobeSoftware",
+                            DslEarthGlobe3DKt::spinningGlobe3DSoftware),
+                    get("4/0056/SpinningGlobeCanvas",
+                            DslEarthGlobe3DKt::spinningGlobe3DCanvas),
+                    get("4/0057/SolarSystemSoftware",
+                            DslSolarSystem3DKt::solarSystem3DSoftware),
+                    get("4/0058/SolarSystemCanvas",
+                            DslSolarSystem3DKt::solarSystem3DCanvas),
+                    get("4/0059/Calendar3D",
+                            DslCalendar3DKt::calendar3DSoftware),
+                    get("4/0060/Calendar3DCanvas",
+                            DslCalendar3DKt::calendar3DCanvas),
+                    get("4/0061/Clock3D", DslClock3DKt::clock3DSoftware),
+                    get("4/0062/Clock3DCanvas", DslClock3DKt::clock3DCanvas),
+                    get("4/0063/CubeWave3D", DslCubeWave3DKt::cubeWave3DSoftware),
+                    get("4/0064/CubeWave3DCanvas", DslCubeWave3DKt::cubeWave3DCanvas),
+                    get("4/0065/VoxelTerrain3D",
+                            DslVoxelTerrain3DKt::voxelTerrain3DSoftware),
+                    get("4/0066/VoxelTerrain3DCanvas",
+                            DslVoxelTerrain3DKt::voxelTerrain3DCanvas),
+                    get("4/0067/NewtonsCradle3D",
+                            DslNewtonsCradle3DKt::newtonsCradle3DSoftware),
+                    get("4/0068/NewtonsCradle3DCanvas",
+                            DslNewtonsCradle3DKt::newtonsCradle3DCanvas),
+                    get("4/0069/GrowingTree3D",
+                            DslGrowingTree3DKt::growingTree3DSoftware),
+                    get("4/0070/GrowingTree3DCanvas",
+                            DslGrowingTree3DKt::growingTree3DCanvas),
+                    get("4/0071/HydrogenOrbitals3D",
+                            DslHydrogenOrbitals3DKt::hydrogenOrbitals3DSoftware),
+                    get("4/0072/HydrogenOrbitals3DCanvas",
+                            DslHydrogenOrbitals3DKt::hydrogenOrbitals3DCanvas),
+                    get("4/0073/RubiksCube3D",
+                            DslRubiksCube3DKt::rubiksCube3DSoftware),
+                    get("4/0074/RubiksCube3DCanvas",
+                            DslRubiksCube3DKt::rubiksCube3DCanvas),
+                    get("4/0075/Boids3D", DslBoids3DKt::boids3DSoftware),
+                    get("4/0076/Boids3DCanvas", DslBoids3DKt::boids3DCanvas),
+                    get("4/0077/ReactiveMaterial3D",
+                            DslReactive3DKt::reactiveMaterial3DSoftware),
+                    get("4/0078/ReactiveGeometry3D",
+                            DslReactive3DKt::reactiveGeometry3DSoftware),
+                    get("4/0079/ReactiveCamera3D",
+                            DslReactive3DKt::reactiveCamera3DSoftware),
+                    get("4/0080/ReactiveLight3D",
+                            DslReactive3DKt::reactiveLight3DSoftware),
+                    get("4/0081/TorusKnot3D", DslShowcase3DKt::torusKnot3DSoftware),
+                    get("4/0082/DnaHelix3D", DslShowcase3DKt::dnaHelix3DSoftware),
+                    get("4/0083/Gimbals3D", DslShowcase3DKt::gimbals3DSoftware),
+                    get("4/0084/Galaxy3D", DslShowcase3DKt::galaxy3DSoftware),
+                    get("4/0085/LavaLamp3D", DslShowcase3DKt::lavaLamp3DSoftware),
+                    get("4/0086/AudioRing3D", DslShowcase3DKt::audioRing3DSoftware),
+                    get("4/0087/Mobius3D", DslShowcase3DKt::mobius3DSoftware),
+                    get("4/0088/Mushrooms3D", DslShowcase3DKt::mushrooms3DSoftware),
+                    get("4/0089/Crystal3D", DslShowcase3DKt::crystal3DSoftware),
+                    get("4/0090/City3D", DslShowcase3DKt::city3DSoftware)
+        )));
+        catalog.put("3D / Charts", new ArrayList<>(Arrays.asList(
+                    get("4/0025/BubbleChart3D", DslBubbleChart3DKt::bubbleChart3DSoftware),
+                    get("4/00026/BubbleChart3DLoop",
+                            DslBubbleChart3DKt::bubbleChart3DLoopSoftware),
+                    get("4/0027/GlossyBubbleChart3D",
+                            DslBubbleChart3DKt::glossyBubbleChart3DSoftware),
+                    get("4/0028/BarChart3D", DslBarChart3DKt::barChart3DSoftware),
+                    get("4/0029/BarChart3DCanvas", DslBarChart3DKt::barChart3DCanvas),
+                    get("4/0030/GlossyBarChart3D", DslBarChart3DKt::glossyBarChart3DSoftware),
+                    get("4/0031/SeasonalBarChart3D",
+                            DslSeasonalBarChart3DKt::seasonalBarChart3DSoftware),
+                    get("4/0039/SurfacePlot3D", DslSurfacePlot3DKt::surfacePlot3DSoftware),
+                    get("4/0042/PieChart3D", DslPieChart3DKt::pieChart3DSoftware),
+                    get("4/0043/DonutChart3D", DslDonutChart3DKt::donutChart3DSoftware)
+        )));
+        catalog.put("3D / Particles", new ArrayList<>(Arrays.asList(
+                    get("4/0091/ParticleFountain2D",
+                            DslParticles3DKt::particleFountain2D),
+                    get("4/0092/ParticleFountain3D",
+                            DslParticles3DKt::particleFountain3DSoftware),
+                    get("4/0093/ParticleFountain3DCanvas",
+                            DslParticles3DKt::particleFountain3DCanvas),
+                    get("4/0094/BallBox3D", DslBallBox3DKt::ballBox3DSoftware),
+                    get("4/0095/BallBox3DCanvas", DslBallBox3DKt::ballBox3DCanvas),
+                    get("4/0096/MagneticField", DslMagneticFieldKt::magneticField2D),
+                    get("4/0097/BallBoxCollide3D",
+                            DslBallBoxCollide3DKt::ballBoxCollide3DSoftware),
+                    get("4/0098/BallBoxCollide3DCanvas",
+                            DslBallBoxCollide3DKt::ballBoxCollide3DCanvas),
+                    get("4/0099/VectorFountain3D",
+                            DslVectorParticles3DKt::vectorFountain3DSoftware),
+                    get("4/0100/VectorFountain3DCanvas",
+                            DslVectorParticles3DKt::vectorFountain3DCanvas),
+                    get("4/0101/BallBoxVec3D", DslBallBoxVec3DKt::ballBoxVec3DSoftware),
+                    get("4/0102/BallBoxVec3DCanvas", DslBallBoxVec3DKt::ballBoxVec3DCanvas)
+        )));
+        catalog.put("Graphs / Bar, Line & Annotations", new ArrayList<>(Arrays.asList(
                     get("1/000/annotations/basic", Graph2dAnnotationDemosKt::graph2dAnnotations),
                     get("1/001/annotations/dualAxis", Graph2dAnnotationDemosKt::graph2dDualAxis),
                     get("1/002/annotations/logScale", Graph2dAnnotationDemosKt::graph2dLogScale),
                     get("1/003/annotations/timeAxis", Graph2dAnnotationDemosKt::graph2dTimeAxis),
                     get("1/004/annotations/styleExtras",
                             Graph2dAnnotationDemosKt::graph2dStyleExtras),
-
-                    // Bar Demos
                     get("1/005/bar/basic", Graph2dBarDemosKt::graph2dBarBasic),
                     get("1/006/bar/horizontal", Graph2dBarDemosKt::graph2dBarHorizontal),
                     get("1/007/bar/grouped", Graph2dBarDemosKt::graph2dBarGrouped),
@@ -341,38 +485,6 @@ public abstract class DemosCreation {
                     get("1/014/bar/themeCustom", Graph2dBarDemosKt::graph2dThemeCustom),
                     get("1/015/bar/combo", Graph2dBarDemosKt::graph2dCombo),
                     get("1/016/bar/showcase", Graph2dBarDemosKt::graph2dBarShowcase),
-
-                    // Distribution Demos
-                    get("1/017/distribution/histogram",
-                            Graph2dDistributionDemosKt::graph2dHistogram),
-                    get("1/018/distribution/density", Graph2dDistributionDemosKt::graph2dDensity),
-                    get("1/019/distribution/ecdf", Graph2dDistributionDemosKt::graph2dEcdf),
-                    get("1/020/distribution/boxPlot", Graph2dDistributionDemosKt::graph2dBoxPlot),
-                    get("1/021/distribution/violin", Graph2dDistributionDemosKt::graph2dViolin),
-                    get("1/022/distribution/strip", Graph2dDistributionDemosKt::graph2dStrip),
-                    // Extra Demos
-                    get("1/023/extra/heatmap", Graph2dExtraDemosKt::graph2dHeatmap),
-                    get("1/024/extra/waffle", Graph2dExtraDemosKt::graph2dWaffle),
-                    get("1/025/extra/dotPlot", Graph2dExtraDemosKt::graph2dDotPlot),
-                    get("1/026/extra/dumbbell", Graph2dExtraDemosKt::graph2dDumbbell),
-                    get("1/027/extra/slope", Graph2dExtraDemosKt::graph2dSlope),
-                    get("1/028/extra/pyramid", Graph2dExtraDemosKt::graph2dPyramid),
-                    get("1/029/extra/candlestick", Graph2dExtraDemosKt::graph2dCandlestick),
-                    get("1/030/extra/regression", Graph2dExtraDemosKt::graph2dRegression),
-                    get("1/031/extra/roc", Graph2dExtraDemosKt::graph2dRoc),
-
-                    // Financial Demos
-                    get("1/032/financial/waterfall", Graph2dFinancialDemosKt::graph2dWaterfall),
-                    get("1/033/financial/funnel", Graph2dFinancialDemosKt::graph2dFunnel),
-                    get("1/034/financial/bullet", Graph2dFinancialDemosKt::graph2dBullet),
-                    get("1/035/financial/pareto", Graph2dFinancialDemosKt::graph2dPareto),
-                    // Interval Demos
-                    get("1/036/interval/band", Graph2dIntervalDemosKt::graph2dBand),
-                    get("1/037/interval/fan", Graph2dIntervalDemosKt::graph2dFan),
-                    get("1/038/interval/errorBar", Graph2dIntervalDemosKt::graph2dErrorBar),
-                    get("1/039/interval/forest", Graph2dIntervalDemosKt::graph2dForest),
-
-                    // Line Demos
                     get("1/030/line/basic", Graph2dLineDemosKt::graph2dLineBasic),
                     get("1/031/line/multi", Graph2dLineDemosKt::graph2dLineMulti),
                     get("1/032/line/spline", Graph2dLineDemosKt::graph2dLineSpline),
@@ -382,9 +494,33 @@ public abstract class DemosCreation {
                     get("1/036/line/areaPercent", Graph2dLineDemosKt::graph2dAreaPercent),
                     get("1/037/line/dark", Graph2dLineDemosKt::graph2dLineDark),
                     get("1/038/line/animated", Graph2dLineDemosKt::graph2dLineAnimated),
-                    get("1/039/line/interactive", Graph2dLineDemosKt::graph2dLineInteractive),
-
-                    // More Demos
+                    get("1/039/line/interactive", Graph2dLineDemosKt::graph2dLineInteractive)
+        )));
+        catalog.put("Graphs / Distribution & Relation", new ArrayList<>(Arrays.asList(
+                    get("1/017/distribution/histogram",
+                            Graph2dDistributionDemosKt::graph2dHistogram),
+                    get("1/018/distribution/density", Graph2dDistributionDemosKt::graph2dDensity),
+                    get("1/019/distribution/ecdf", Graph2dDistributionDemosKt::graph2dEcdf),
+                    get("1/020/distribution/boxPlot", Graph2dDistributionDemosKt::graph2dBoxPlot),
+                    get("1/021/distribution/violin", Graph2dDistributionDemosKt::graph2dViolin),
+                    get("1/022/distribution/strip", Graph2dDistributionDemosKt::graph2dStrip),
+                    get("1/023/extra/heatmap", Graph2dExtraDemosKt::graph2dHeatmap),
+                    get("1/024/extra/waffle", Graph2dExtraDemosKt::graph2dWaffle),
+                    get("1/025/extra/dotPlot", Graph2dExtraDemosKt::graph2dDotPlot),
+                    get("1/026/extra/dumbbell", Graph2dExtraDemosKt::graph2dDumbbell),
+                    get("1/027/extra/slope", Graph2dExtraDemosKt::graph2dSlope),
+                    get("1/028/extra/pyramid", Graph2dExtraDemosKt::graph2dPyramid),
+                    get("1/029/extra/candlestick", Graph2dExtraDemosKt::graph2dCandlestick),
+                    get("1/030/extra/regression", Graph2dExtraDemosKt::graph2dRegression),
+                    get("1/031/extra/roc", Graph2dExtraDemosKt::graph2dRoc),
+                    get("1/032/financial/waterfall", Graph2dFinancialDemosKt::graph2dWaterfall),
+                    get("1/033/financial/funnel", Graph2dFinancialDemosKt::graph2dFunnel),
+                    get("1/034/financial/bullet", Graph2dFinancialDemosKt::graph2dBullet),
+                    get("1/035/financial/pareto", Graph2dFinancialDemosKt::graph2dPareto),
+                    get("1/036/interval/band", Graph2dIntervalDemosKt::graph2dBand),
+                    get("1/037/interval/fan", Graph2dIntervalDemosKt::graph2dFan),
+                    get("1/038/interval/errorBar", Graph2dIntervalDemosKt::graph2dErrorBar),
+                    get("1/039/interval/forest", Graph2dIntervalDemosKt::graph2dForest),
                     get("1/040/more/treemap", Graph2dMoreDemosKt::graph2dTreemap),
                     get("1/041/more/confusion", Graph2dMoreDemosKt::graph2dConfusion),
                     get("1/042/more/quadrant", Graph2dMoreDemosKt::graph2dQuadrant),
@@ -393,21 +529,19 @@ public abstract class DemosCreation {
                     get("1/045/more/gantt", Graph2dMoreDemosKt::graph2dGantt),
                     get("1/046/more/ridgeline", Graph2dMoreDemosKt::graph2dRidgeline),
                     get("1/047/more/likert", Graph2dMoreDemosKt::graph2dLikert),
-
-                    // Polar Demos
                     get("1/048/polar/gauge", Graph2dPolarDemosKt::graph2dGauge),
                     get("1/049/polar/radialBar", Graph2dPolarDemosKt::graph2dRadialBar),
                     get("1/050/polar/rose", Graph2dPolarDemosKt::graph2dRose),
                     get("1/051/polar/bar", Graph2dPolarDemosKt::graph2dPolarBar),
-
-                    // Relation Demos
                     get("1/052/relation/pie", Graph2dRelationDemosKt::graph2dPie),
                     get("1/053/relation/donut", Graph2dRelationDemosKt::graph2dDonut),
                     get("1/054/relation/radar", Graph2dRelationDemosKt::graph2dRadar),
                     get("1/055/relation/scatter", Graph2dRelationDemosKt::graph2dScatter),
                     get("1/056/relation/bubble", Graph2dRelationDemosKt::graph2dBubble),
                     get("1/057/relation/connectedScatter",
-                            Graph2dRelationDemosKt::graph2dConnectedScatter),
+                            Graph2dRelationDemosKt::graph2dConnectedScatter)
+        )));
+        catalog.put("Mesh 2D", new ArrayList<>(Arrays.asList(
                     get("1/64/dslMesh2DWavingFlag",
                             DslMesh2DDemosKt::dslMesh2DWavingFlag),
                     get("1/65/dslMesh2DRoseField",
@@ -452,33 +586,47 @@ public abstract class DemosCreation {
                             DslMesh2DAntialiasDemosKt::dslMesh2DAntialiasZoom),
                     get("#1/85/dslMesh2DAntialiasTextured",
                             DslMesh2DAntialiasDemosKt::dslMesh2DAntialiasTextured)
-            ));
-        }
-
-        if (customCompose) {
-            demos.addAll(Arrays.asList(
-                    get("0/001/DslCustomComposeDemo",
-                            DslCustomComposeDemoKt::dslCustomComposeDemo),
-                    get("0/002/TextInput", DslTextInputDemoKt::dslTextInputDemo)
-            ));
-        }
-
-        if (customViews) {
-            demos.addAll(Arrays.asList(
-                    get("-0/000a/DslCustomViewstDemo",
-                            DslCustomComponentDemoKt::dslCustomComponentDemo),
-                    get("-0/000b/DslCustomViewsDemo",
-                            DslCustomViewsDemo2Kt::dslCustomViewsDemo)
-            ));
-        }
-
-
-        if (dsl1) {
-            demos.addAll(Arrays.asList(
-                    get("0/000/ModernShowcaseDemo",
+        )));
+        catalog.put("Embedded", new ArrayList<>(Arrays.asList(
+                    getp("#/000/EmbeddedRcDocs",
+                            DemoEmbeddedRcDocsKt::demoEmbeddedRcDocs),
+                    getp("#/001/EmbeddedParentToChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedParentControlsChild),
+                    getp("#/002/EmbeddedChildSlider",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildSliderToParent),
+                    getp("#/003/EmbeddedChildButtons",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildButtonsToParent),
+                    getp("#/004/EmbeddedSharedSlider",
+                            DemoEmbeddedRcControlKt::demoEmbeddedSharedSlider),
+                    getp("#/005/EmbeddedChildToChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildToChild),
+                    getp("#/006/EmbeddedSwitchChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedSwitchChild),
+                    getp("#/007/EmbeddedThreeLevels",
+                            DemoEmbeddedRcControlKt::demoEmbeddedThreeLevels),
+                    getp("#/008/EmbeddedInline",
+                            DemoEmbeddedRcControlKt::demoEmbeddedInlineDocuments),
+                    getp("#/009/ControlledScroll", DslControlledScrollKt::demoControlledScroll),
+                    getp("#/010/ControlledHorizontalScroll",
+                            DslControlledHorizontalScrollKt::demoControlledHorizontalScroll)
+        )));
+        catalog.put("DSL / Showcase & Games", new ArrayList<>(Arrays.asList(
+                    get("0/031/ModernShowcaseDemo",
                             DslModernShowcaseDemoKt::dslModernShowcaseDemo),
-                    get("1/0001/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
-
+                    get("0/034/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
+                    get("0/034b/rcJsonStopwatch", RcJsonStopwatchKt::rcJsonStopwatch),
+                    get("0/035/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
+                    get("0/036/ClickTouchShowcase",
+                            DslClickTouchDemoKt::dslClickTouchDemo),
+                    get("0/037/NestedInteractionShowcase",
+                            DslNestedInteractionDemoKt::dslNestedInteractionDemo),
+                    get("0/033/Demo3", RcDslDemoKt::dslDemo),
+                    get("0/021/gameAstroDodger", DslGameAstroDodgerKt::dslGameAstroDodger),
+                    get("0/022/gameMarbleTilt", DslGameMarbleTiltKt::dslGameMarbleTilt),
+                    get("0/020/gamePaddleBattle", DslGamePaddleBattleKt::dslGamePaddleBattle),
+                    get("0/019/gameFlappyDroid", DslGameFlappyDroidKt::dslGameFlappyDroid),
+                    get("0/025/gameCannonShoot", DslGameCannonShootKt::dslGameCannonShoot),
+                    get("0/026/gameSideScroller", DslGameSideScrollerKt::dslGameSideScroller),
                     getpc("1/002/CubeSphereTransitionShader",
                             CubeSphereTransitionShader2Kt::createCubeSphereTransitionShader2),
                     getpc("1/003/CubeSphereTransitionShader",
@@ -495,59 +643,83 @@ public abstract class DemosCreation {
                     get("1/009/Ticker", RcDslTickerKt::dslTicker),
                     get("1/010/DslTouchDemo", DslTouchDemoKt::dslTouchDemo),
                     getpc("1/011/particleSphere", ParticleSphereKt::particleSphere),
-
-                    get("1/02/DataVizActivityRings",
+                    get("0/002/TextInput", DslTextInputDemoKt::dslTextInputDemo),
+                    get("-0/000a/DslCustomViewstDemo",
+                            DslCustomComponentDemoKt::dslCustomComponentDemo),
+                    get("-0/000b/DslCustomViewsDemo",
+                            DslCustomViewsDemo2Kt::dslCustomViewsDemo)
+        )));
+        catalog.put("DSL / Widgets & DataViz", new ArrayList<>(Arrays.asList(
+                    get("0/032/DataVizActivityRings",
                             DslDataVizActivityRingsKt::dslDemoActivityRings),
-                    get("1/03/DataVizBatteryRadialGauge",
+                    get("0/033/DataVizBatteryRadialGauge",
                             DslDataVizBatteryRadialGaugeKt::dslDemoBatteryRadialGauge),
-                    getp("1/03/DataVizBatteryRadialGauge_og",
+                    getp("0/033/DataVizBatteryRadialGauge_og",
                             DataVizDemosKt::demoBatteryRadialGauge),
-
-                    get("1/04/DataVizCalendarHeatmap",
+                    get("0/034/DataVizCalendarHeatmap",
                             DslDataVizCalendarHeatmapKt::dslDemoCalendarHeatmap),
-                    getp("1/04/DataVizCalendarHeatmap_og", DataVizDemosKt::demoCalendarHeatmapGrid),
-
-                    get("1/05/DataVizHeartRate", DslDataVizHeartRateKt::dslDemoHeartRateTimeline),
-                    get("1/06/DataVizHydrationWave",
+                    getp("0/034/DataVizCalendarHeatmap_og",
+                            DataVizDemosKt::demoCalendarHeatmapGrid),
+                    get("0/035/DataVizHeartRate",
+                            DslDataVizHeartRateKt::dslDemoHeartRateTimeline),
+                    get("0/036/DataVizHydrationWave",
                             DslDataVizHydrationWaveKt::dslDemoHydrationWave),
-                    get("1/07/DataVizMoonPhaseDial",
+                    get("0/037/DataVizMoonPhaseDial",
                             DslDataVizMoonPhaseDialKt::dslDemoMoonPhaseDial),
-                    get("1/08/DataVizSleepQualityRings",
+                    get("0/038/DataVizSleepQualityRings",
                             DslDataVizSleepQualityRingsKt::dslDemoSleepQualityRings),
-                    get("1/09/DataVizStepProgressArc",
+                    get("0/039/DataVizStepProgressArc",
                             DslDataVizStepProgressArcKt::dslDemoStepProgressArc),
-                    get("1/10/DataVizStockSparkline",
+                    get("0/040/DataVizStockSparkline",
                             DslDataVizStockSparklineKt::dslDemoStockSparkline),
-                    get("1/11/DataVizWeatherForecast",
+                    get("0/041/DataVizWeatherForecast",
                             DslDataVizWeatherForecastKt::dslDemoWeatherForecast),
-                    get("1/12/DemoAnchorText", DslDemoAnchorTextKt::demoAnchorText),
-                    get("1/13/DemoAttributedString",
+                    get("0/042/DemoAnchorText", DslDemoAnchorTextKt::demoAnchorText),
+                    get("0/043/DemoAttributedString",
                             DslDemoAttributedStringKt::demoAttributedString),
-                    getp("1/15/DemoGraphs_og", DemoGraphsKt::demoGraphs),
-                    getp("1/16/DemoGraphs2_og", DemoGraphsKt::demoGraphs2),
-//                    get("1/17/SimpleJavaAnim", DslDemoTouchKt::dslSimpleJavaAnim),
-                    getp("1/17/simpleJavaAnim_og", DemoTouchKt::simpleJavaAnim),
-//
-//                    get("1/18/DemoTouch1", DslDemoTouchKt::dslDemoTouch1),
-//                    get("1/19/DemoTouch2", DslDemoTouchKt::dslDemoTouch2),
-//                    get("1/20/TouchStopGently", DslDemoTouchKt::dslTouchStopGently),
-//                    get("1/21/TouchStopEnds", DslDemoTouchKt::dslTouchStopEnds),
-//                    get("1/22/TouchStopInstantly", DslDemoTouchKt::dslTouchStopInstantly),
-//                    get("1/23/TouchStopNotchesEven", DslDemoTouchKt::dslTouchStopNotchesEven),
-//                    get("1/24/TouchStopNotchesPercents",
-//                    DslDemoTouchKt::dslTouchStopNotchesPercents),
-//                    get("1/25/TouchStopNotchesAbsolute",
-//                    DslDemoTouchKt::dslTouchStopNotchesAbsolute),
-//                    get("1/26/TouchStopAbsolutePos", DslDemoTouchKt::dslTouchStopAbsolutePos),
-                    get("1/27/BasicTimer", DslExampleTimerKt::dslBasicTimer),
-                    getpc("1/28/LinearRegression3", LinearRegressionKt::demoLinearRegression),
-
-                    get("1/29/PieChart", DslPieChartKt::dslPieChart),
-                    getpc("1/29/PieChart_og", PieChartKt::demoPieChart),
-
-                    get("1/30/Plot3", DslPlotDemosKt::dslPlot3),
-                    get("1/31/Plot4", DslPlotDemosKt::dslPlot4),
-                    get("1/32/PressureGauge", DslPressureGaugeKt::dslDemoPressureGauge),
+                    getp("0/045/DemoGraphs_og", DemoGraphsKt::demoGraphs),
+                    getp("0/046/DemoGraphs2_og", DemoGraphsKt::demoGraphs2),
+                    getp("0/047/simpleJavaAnim_og", DemoTouchKt::simpleJavaAnim),
+                    get("0/057/BasicTimer", DslExampleTimerKt::dslBasicTimer),
+                    getpc("0/058/LinearRegression3", LinearRegressionKt::demoLinearRegression),
+                    get("0/069/PieChart", DslPieChartKt::dslPieChart),
+                    getpc("0/069/PieChart_og", PieChartKt::demoPieChart),
+                    get("0/060/Plot3", DslPlotDemosKt::dslPlot3),
+                    get("0/061/Plot4", DslPlotDemosKt::dslPlot4),
+                    get("0/062/PressureGauge", DslPressureGaugeKt::dslDemoPressureGauge),
+                    get("0/067/RcSimpleSwitch", DslRcSimpleSwitchKt::dslRcSimpleSwitchDemo),
+                    get("0/068/ServerClock", DslServerSideKt::dslServerClock),
+                    get("0/070/SmallAnimated", DslSmallAnimatedKt::smallAnimated),
+                    get("0/071/SpreadSheet", DslSpreadSheetKt::dslSpreadSheet),
+                    getp("0/071/SpreadSheet_og", ExampleNumbersKt::spreadSheet),
+                    get("0/072/SysVar", DslSysVarKt::dslSysVar),
+                    getp("0/072/SysVar_og", DemotSystemVarKt::sysVar),
+                    get("0/073/RcTextDemo", DslTextDemoKt::dslRcTextDemo),
+                    getpc("0/073/RcTextDemo_og", TextKt::RcTextDemo),
+                    get("0/074/Clock", RcDslClockKt::dslClock),
+                    get("0/075/Countdown", RcDslCountdownKt::dslCountdown),
+                    get("0/077/Theme1", RcDslDemoKt::dslTheme1),
+                    get("0/078/Theme2", RcDslDemoKt::dslTheme2),
+                    get("0/079/SimpleDemo", RcDslDemoKt::dslSimpleDemo),
+                    get("0/080/SimpleClock", RcDslDemoKt::dslSimpleClock),
+                    get("0/081/EnumsDemo", RcDslEnumsDemoKt::enumsDemo)
+        )));
+        catalog.put("DSL / Blog, Shaders & State", new ArrayList<>(Arrays.asList(
+                    getp("0/091/AttributeString", DemoAttributedString::demo),
+                    get("0/093/demoImageColor", DslHostileActorKt::demoImageColor),
+                    get("0/094/demoImage", DslHostileActorKt::demoImage),
+                    getpc("0/099/00dslCountdown2", CountdownKt::countDown),
+                    getp("1/10/skip", DemoMemorySkipKt::skip1),
+                    getp("8/10/DemoTheme", DemoThemeKt::theme1),
+                    getpc("1/10/0Shade1", SimpleShaderKt::createShaderDoc1),
+                    getpc("1/10/0Shade2", () -> SimpleShaderKt.createShaderDoc2(bitmap)),
+                    getpc("1/10/0Shade3", () -> SimpleShader2Kt.createShaderDoc3(bitmap)),
+                    getpc("1/10/0Shade4", () -> SimpleShader2Kt.createShaderDoc4(bitmap)),
+                    getp("1/10/colorCheck1", ColorCheckKt::colorCheck1),
+                    getp("1/10/colorCheck2", ColorCheckKt::colorCheck2),
+                    getp("1/10/colorCheck3", ColorCheckKt::colorCheck3),
+                    getp("1/10/colorCheck4", ColorCheckKt::colorCheck4),
+                    getp("1/10/colorTable", ColorCheckKt::colorTable),
                     get("1/33/RadialGradientFocus",
                         DslRadialGradientFocusDemoKt::dslRadialGradientFocusDemo),
                     get("1/33b/AnimatedRadius", DslAnimatedRadiusKt::dslAnimatedRadius),
@@ -561,9 +733,6 @@ public abstract class DemosCreation {
                     get("1/40b/FlappyDroid", DslFlappyDroidKt::dslFlappyDroid),
                     get("#/041b/CanvasOperations", DslCanvasOperationsKt::dslCanvasOperations),
                     get("#1/42b/AnimatedChanges", DslAnimatedChangesKt::dslAnimatedChanges),
-
-//                    get("1/0/RcScrollview", DslRcScrollviewKt::dslRcScrollview),
-                    get("1/37/RcSimpleSwitch", DslRcSimpleSwitchKt::dslRcSimpleSwitchDemo),
                     get(
                         "1/37/RcStateLayoutToggle",
                         DslRcStateLayoutToggleKt::dslRcStateLayoutToggleDemo),
@@ -573,75 +742,10 @@ public abstract class DemosCreation {
                     get(
                         "1/37/RcStateLayout3States",
                         DslRcStateLayout3StatesKt::dslRcStateLayout3StatesDemo),
-                    get("1/38/ServerClock", DslServerSideKt::dslServerClock),
-//                    getpc("1/0/SimpleShader2", () -> DslSimpleShader2Kt.dslSimpleShader2(bitmap)),
-//                    get("1/0/SlantedButton", DslSlantedButtonKt::dslSlantedButtonDemo),
-                    get("1/40/SmallAnimated", DslSmallAnimatedKt::smallAnimated),
-                    get("1/41/SpreadSheet", DslSpreadSheetKt::dslSpreadSheet),
-                    getp("1/41/SpreadSheet_og", ExampleNumbersKt::spreadSheet),
-
-                    get("1/42/SysVar", DslSysVarKt::dslSysVar),
-                    getp("1/42/SysVar_og", DemotSystemVarKt::sysVar),
-
-                    get("1/43/RcTextDemo", DslTextDemoKt::dslRcTextDemo),
-                    getpc("1/43/RcTextDemo_og", TextKt::RcTextDemo),
-
-                    get("1/44/Clock", RcDslClockKt::dslClock),
-                    get("1/45/Countdown", RcDslCountdownKt::dslCountdown),
-                    get("1/46/Demo", RcDslDemoKt::dslDemo),
-                    get("1/47/Theme1", RcDslDemoKt::dslTheme1),
-                    get("1/48/Theme2", RcDslDemoKt::dslTheme2),
-                    get("1/49/SimpleDemo", RcDslDemoKt::dslSimpleDemo),
-                    get("1/50/SimpleClock", RcDslDemoKt::dslSimpleClock),
-                    get("1/51/EnumsDemo", RcDslEnumsDemoKt::enumsDemo),
-                    get("1/53/Ticker", RcDslTickerKt::dslTicker),
-                    get("1/54/DslTouchDemo", DslTouchDemoKt::dslTouchDemo),
-                    get("1/55/DslFontAxisDemo", DslFontAxisDemoKt::dslFontAxisDemo),
-                    get("1/56/dslAttributeString", DslDemoAttributedStringKt::demoAttributedString),
-                    get("1/57/00enumsDemo", RcDslEnumsDemoKt::enumsDemo),
-                    get("1/58/01dslClock", RcDslClockKt::dslClock),
-                    get("1/59/02dslDemo", RcDslDemoKt::dslDemo),
-                    get("1/60/03dslTickerPreview", RcDslTickerKt::dslTicker),
-
-                    get("1/61/dslTheme1", RcDslDemoKt::dslTheme1),
-                    get("1/62/dslTheme2", RcDslDemoKt::dslTheme2),
                     get("1/63/Buttons", DslButtonsDemoKt::dslButtonsDemo),
-                    get("1/64/TextInput", DslTextInputDemoKt::dslTextInputDemo),
                     get("1/65/ClipPath", DslClipPathDemoKt::dslClipPathDemo)
-            ));
-        }
-        if (dsl2) {
-            demos.addAll(Arrays.asList(
-                    getp("2/01/AttributeString", DemoAttributedString::demo),
-                    get("2/02/demoAnchorText", DslDemoAnchorTextKt::demoAnchorText),
-                    get("2/03/demoImageColor", DslHostileActorKt::demoImageColor),
-                    get("2/04/demoImage", DslHostileActorKt::demoImage),
-                    get("2/05/smallAnimated", DslSmallAnimatedKt::smallAnimated),
-
-                    get("2/08/00dslCountdown1", RcDslCountdownKt::dslCountdown),
-                    getpc("2/09/00dslCountdown2", CountdownKt::countDown),
-                    get("2/10/00dslTheme1", RcDslDemoKt::dslTheme1),
-                    get("2/11/00dslTheme2", RcDslDemoKt::dslTheme2),
-                    get("2/12/dslSimpleClock", RcDslDemoKt::dslSimpleClock),
-                    get("2/13/dslSimpleDemo", RcDslDemoKt::dslSimpleDemo),
-
-                    //get("2/0/00dslCalenda", RcDslCalendarDemoKt::dslCalendarDayAgenda),
-                    //get("2/0/00dslDemoGraphs2", DslDemoGraphsKt::dslDemoGraphs2),
-                    // get("2/0/00dslDemoGraphs", DslDemoGraphsKt::dslDemoGraphs),
-                    // get("2/0/00dslLinearRegression", DslLinearRegressionKt::dslLinearRegression),
-
-                    getp("1/1/04DemotSystemVarKt", DemotSystemVarKt::sysVar),
-                    getp("1/1/skip", DemoMemorySkipKt::skip1),
-                    getp("8/1/DemoTheme", DemoThemeKt::theme1),
-                    getpc("1/1/0Shade1", SimpleShaderKt::createShaderDoc1),
-                    getpc("1/1/0Shade2", () -> SimpleShaderKt.createShaderDoc2(bitmap)),
-                    getpc("1/1/0Shade3", () -> SimpleShader2Kt.createShaderDoc3(bitmap)),
-                    getpc("1/1/0Shade4", () -> SimpleShader2Kt.createShaderDoc4(bitmap)),
-                    getp("1/1/colorCheck1", ColorCheckKt::colorCheck1),
-                    getp("1/1/colorCheck2", ColorCheckKt::colorCheck2),
-                    getp("1/1/colorCheck3", ColorCheckKt::colorCheck3),
-                    getp("1/1/colorCheck4", ColorCheckKt::colorCheck4),
-                    getp("1/1/colorTable", ColorCheckKt::colorTable),
+        )));
+        catalog.put("Particles 2D", new ArrayList<>(Arrays.asList(
                     getp("8/particles/ball", DemoParticlesKt::ball),
                     getp("8/particles/confettiDemo", ImpulseDemo::confettiDemo),
                     getp("8/particles/heartsDemo", ImpulseDemo::heartsDemo),
@@ -652,11 +756,11 @@ public abstract class DemosCreation {
                     getpc("8/particles/ParticleDots2", ParticleDotsKt::particleDots2),
                     getpc("8/particles/fireworks", Particles3Kt::fireworks),
                     getpc("8/particles/fireworks2", Particles3Kt::fireworks2),
-                    getpc("8/particles/particleSphere", ParticleSphereKt::particleSphere),
                     getpc("8/particles/rain1", Particles3Kt::rain1),
                     getpc("8/particles/warp", Particles3Kt::warp),
-                    getp("8/particles/maze2", DemoParticlesKt::pmaze2),
-
+                    getp("8/particles/maze2", DemoParticlesKt::pmaze2)
+        )));
+        catalog.put("Legacy / Procedural", new ArrayList<>(Arrays.asList(
                     getp("2/4/BitmapFontWatch", () -> BitmapFontWatch.watch1(activity)),
                     getp("2/4/Procedure__Version", BasicProceduralDemos::version),
                     getp("2/4/Procedure_centerText1", BasicProceduralDemos::centerText1),
@@ -674,7 +778,6 @@ public abstract class DemosCreation {
                     getp("2/4/Procedure_simpleClockFast", BasicProceduralDemos::simpleClockFast),
                     getp("2/4/Procedure_simpleClockSlow", BasicProceduralDemos::simpleClockSlow),
                     getp("2/4/Procedure_textPathEffects", BasicProceduralDemos::textPathEffects),
-
                     getp("2/4/DemoBitmapDrawing_bitDraw1", DemoBitmapDrawing::bitDraw1),
                     getp("2/4/DemoBitmapDrawing_bitDraw2", DemoBitmapDrawing::bitDraw2),
                     getp("2/4/DemoFlick_flickTest", DemoFlick::flickTest),
@@ -682,7 +785,6 @@ public abstract class DemosCreation {
                     getp("2/4/DemoPathExpression_pathTest2", DemoPathExpression::pathTest2),
                     getp("2/4/DemoPathExpression_pathTest3", DemoPathExpression::pathTest3),
                     getp("2/4/DemoWindingRule_pathWinding", DemoWindingRule::pathWinding),
-
                     getp("2/4/flowControlChecks1", FlowControlChecks::flowControlChecks1),
                     getp("2/4/flowControlChecks2", FlowControlChecks::flowControlChecks2),
                     getp("2/4/testConditional", FlowControlChecks::testConditional),
@@ -695,11 +797,6 @@ public abstract class DemosCreation {
                     getp("2/4/PathDemo_remoteConstruction", PathDemo::remoteConstruction),
                     getp("2/4/PathProceduralChecks_allPath", PathProceduralChecks::allPath),
                     getp("2/4/PathProceduralChecks_basicPath", PathProceduralChecks::basicPath),
-                    getp("2/4/SensorDemo_Compass", SensorDemo::compass),
-                    getp("2/4/SensorDemo_accSensor1", SensorDemo::accSensor1),
-                    getp("2/4/SensorDemo_gyroSensor1", SensorDemo::gyroSensor1),
-                    getp("2/4/SensorDemo_lightSensor1", SensorDemo::lightSensor1),
-                    getp("2/4/SensorDemo_magSensor1", SensorDemo::magSensor1),
                     getp("2/4/SplineDemo_splineDemo1", SplineDemo::splineDemo1),
                     getp("2/4/TextureDemo_basicTexture", TextureDemo::basicTexture),
                     getp("2/4/TextureDemo_textureClock", TextureDemo::textureClock),
@@ -709,80 +806,36 @@ public abstract class DemosCreation {
                     getp("2/A/PlayerInfo", RCPlayerInfoKt::info),
                     getp("2/A/PressureGauge", PressureGaugeKt::demoPressureGauge),
                     getp("2/og/serverClock", ServerSideKt::serverClock),
-                    getp("2/A/demoGraphs1", DemoGraphsKt::demoGraphs),
-                    getp("2/A/demoGraphs0", DemoGraphsKt::demoGraphs2),
-                    getpc("2/A/pieChart", PieChartKt::demoPieChart),
                     getpc("2/A/goodPieChart", PieChartKt::demoPieChart_good),
                     getpc("2/A/PieChart2", PieChartKt::demoPieChart2),
-                    getpc("2/A/LinearRegression", LinearRegressionKt::demoLinearRegression),
                     getpc("2/A/MoonPhases", MoonPhasesKt::demoMoonPhases),
-                    getp("2/v/badMemory", MemoryKt::fillMemory),
-                    getp("3/DataViz/ActivityRings", DataVizDemosKt::demoActivityRings),
-                    getp("3/DataViz/HeartRateTimeline", DataVizDemosKt::demoHeartRateTimeline),
-                    getp("3/DataViz/StepProgressArc", DataVizDemosKt::demoStepProgressArc),
-                    getp("3/DataViz/WeatherForecastBars", DataVizDemosKt::demoWeatherForecastBars),
-                    getp("3/DataViz/SleepQualityRings", DataVizDemosKt::demoSleepQualityRings),
-                    getp("3/DataViz/BatteryRadialGauge", DataVizDemosKt::demoBatteryRadialGauge),
-                    getp("3/DataViz/CalendarHeatmapGrid", DataVizDemosKt::demoCalendarHeatmapGrid),
-                    getp("3/DataViz/StockSparkline", DataVizDemosKt::demoStockSparkline),
-                    getp("3/DataViz/MoonPhaseDial", DataVizDemosKt::demoMoonPhaseDial),
-                    getp("3/DataViz/HydrationWave", DataVizDemosKt::demoHydrationWave),
-
-                    getp("5/Server/serverClock", ServerSideKt::serverClock),
-                    getp("2/Example/spreadSheet", ExampleNumbersKt::spreadSheet),
-                    getp("1/Example/color", DemoColorKt::colorButtons),
-//                getp("1/Example/FooDemo", FooDemoKt::FooDemo),
-                    getp("0/Color/colorTable", ColorCheckKt::colorTable),
-                    getp("0/Alt/ColorTheme", ColorThemeCheckKt::themeList),
-                    getpc("0/alt/stock", () -> {
-                        return RcTicker(activity.getApplicationContext());
-                    }),
-
-                    getp("0/font/base", FontCheckKt::fontList),
-                    getp("1/font/colorTable", ColorCheckKt::colorTable),
-                    getp("1/font/colorList", ColorCheckKt::colorList),
-
-                    getp("1/Example/spreadSheet", ExampleNumbersKt::spreadSheet),
-                    getp("1/Example/demoUseOfGlobal", DemoGlobalKt::demoUseOfGlobal),
-                    getp("1/Example/demoTextTransform", DemoTextTransformKt::demoTextTransform),
-                    getp("1/Example/HostileActor1", HostileActor::demoImage),
-                    getp("1/Example/HostileActor1", HostileActor::demoImageColor),
-
-                    getp("1/ThemedPlot1", DemoKt::plot1), getp("1/plot2", DemoKt::plot2),
-                    getp("1/plot3", DemoKt::plot3),
-                    getp("1/plot4", DemoKt::plot4),
+                    getp("2/v/badMemory", MemoryKt::fillMemory)
+        )));
+        catalog.put("Legacy / Touch, Sensors & Clocks", new ArrayList<>(Arrays.asList(
+                    getp("2/4/SensorDemo_Compass", SensorDemo::compass),
+                    getp("2/4/SensorDemo_accSensor1", SensorDemo::accSensor1),
+                    getp("2/4/SensorDemo_gyroSensor1", SensorDemo::gyroSensor1),
+                    getp("2/4/SensorDemo_lightSensor1", SensorDemo::lightSensor1),
+                    getp("2/4/SensorDemo_magSensor1", SensorDemo::magSensor1),
                     getp("2/touch/00Touch1", DemoTouchKt::demoTouch1),
                     getp("2/touch/01Touch2", DemoTouchKt::demoTouch2),
                     getp("2/touch/02TouchWrap", DemoTouchKt::demoTouchWrap),
-
                     getp("2/touch/03StopGently", DemoTouchKt::touchStopGently),
                     getp("2/touch/04StopEnds", DemoTouchKt::touchStopEnds),
                     getp("2/touch/05StopInstantly", DemoTouchKt::touchStopInstantly),
-
                     getp("2/touch/06StopNotchesEven", DemoTouchKt::touchStopNotchesEven),
                     getp("2/touch/07StopNotchesPercents", DemoTouchKt::touchStopNotchesPercents),
                     getp("2/touch/08StopNotchesAbsolute", DemoTouchKt::touchStopNotchesAbsolute),
                     getp("2/touch/09StopAbsolutePos", DemoTouchKt::touchStopAbsolutePos),
-                    getp("2/touch/10simpleJavaAnim", DemoTouchKt::simpleJavaAnim),
-
                     getp("2/touch/11ThumbWheel1", DemoTouchKt::demoTouchThumbWheel1),
                     getp("2/touch/12ThumbWheel2", DemoTouchKt::demoTouchThumbWheel2),
-
-                    getp("5/Server/serverClock", ServerSideKt::serverClock),
-
                     getp("6/Procedural/plotWave", PlotWaveKt::basicPlot),
                     getp("6/Procedural/plotWave", PlotWaveKt::plotWave),
-                    getpc("6/Procedural/CountDown", CountdownKt::countDown),
                     getpc("6/Procedural/Cube3D", Cube3DKt::cube3d),
                     getpc("6/Procedural/ShaderCalendar", ShaderCalendarKt::ShaderCalendar),
                     getp("6/Procedural/countdown", ExampleTimerKt::basicTimer),
-                    getpc("6/Procedural/TextBaseline", TextKt::RcTextDemo),
-
-                    getp("7/Java/AttributeString", DemoAttributedString::demo),
                     getp("7/Java/anchoredText", DemoAnchorText::anchoredText),
                     getp("7/Java/pathsDemos", DemoPaths::pathTest),
-
-
                     getp("0/clock/fancyClock1", FancyClocks::fancyClock1),
                     getp("0/clock/fancyClock2", FancyClocks::fancyClock2),
                     getp("0/clock/fancyClock3", FancyClocks::fancyClock3),
@@ -790,8 +843,34 @@ public abstract class DemosCreation {
                     getp("8/clock/clock2", ClockDemo2::clock2),
                     getp("8/clock/fancyClock2", ClockDemo2::fancyClock2),
                     getp("8/clock/fancyClock2", DemoMetalClockKt::fancyClock2),
-                    getp("8/clock/mclock", MClockKt::MClock),
-                    // Group 1: Foundation & Sizing
+                    getp("8/clock/mclock", MClockKt::MClock)
+        )));
+        catalog.put("Legacy / DataViz & Misc", new ArrayList<>(Arrays.asList(
+                    getp("3/DataViz/ActivityRings", DataVizDemosKt::demoActivityRings),
+                    getp("3/DataViz/HeartRateTimeline", DataVizDemosKt::demoHeartRateTimeline),
+                    getp("3/DataViz/StepProgressArc", DataVizDemosKt::demoStepProgressArc),
+                    getp("3/DataViz/WeatherForecastBars", DataVizDemosKt::demoWeatherForecastBars),
+                    getp("3/DataViz/SleepQualityRings", DataVizDemosKt::demoSleepQualityRings),
+                    getp("3/DataViz/StockSparkline", DataVizDemosKt::demoStockSparkline),
+                    getp("3/DataViz/MoonPhaseDial", DataVizDemosKt::demoMoonPhaseDial),
+                    getp("3/DataViz/HydrationWave", DataVizDemosKt::demoHydrationWave),
+                    getp("1/Example/color", DemoColorKt::colorButtons),
+                    getp("0/Alt/ColorTheme", ColorThemeCheckKt::themeList),
+                    getpc("0/alt/stock", () -> {
+                        return RcTicker(activity.getApplicationContext());
+                    }),
+                    getp("0/font/base", FontCheckKt::fontList),
+                    getp("1/font/colorList", ColorCheckKt::colorList),
+                    getp("1/Example/demoUseOfGlobal", DemoGlobalKt::demoUseOfGlobal),
+                    getp("1/Example/demoTextTransform", DemoTextTransformKt::demoTextTransform),
+                    getp("1/Example/HostileActor1", HostileActor::demoImage),
+                    getp("1/Example/HostileActor1", HostileActor::demoImageColor),
+                    getp("1/ThemedPlot1", DemoKt::plot1),
+                    getp("1/plot2", DemoKt::plot2),
+                    getp("1/plot3", DemoKt::plot3),
+                    getp("1/plot4", DemoKt::plot4)
+        )));
+        catalog.put("Components", new ArrayList<>(Arrays.asList(
                     getp("9/Comp/C_Box", DemoBoxKt::DemoBox),
                     getp("9/Comp/C_Row", DemoRowKt::DemoRow),
                     getp("9/Comp/C_Column", DemoColumnKt::DemoColumn),
@@ -812,7 +891,6 @@ public abstract class DemosCreation {
                             DemoModifierWrapContentHeightKt::DemoModifierWrapContentHeight),
                     getp("9/Comp/C_ModifierWrapContentSize",
                             DemoModifierWrapContentSizeKt::DemoModifierWrapContentSize),
-                    // Group 2: Parent-Relative & Layout Logic
                     getp("9/Comp/C_ModifierFillParentMaxWidth",
                             DemoModifierFillParentMaxWidthKt::DemoModifierFillParentMaxWidth),
                     getp("9/Comp/C_ModifierFillParentMaxHeight",
@@ -833,8 +911,6 @@ public abstract class DemosCreation {
                             DemoModifierZIndexKt::DemoModifierZIndex),
                     getp("9/Comp/C_ModifierComponentId",
                             DemoModifierComponentIdKt::DemoModifierComponentId),
-
-                    // Group 3: Visual & Clipping
                     getp("9/Comp/C_ModifierBackground",
                             DemoModifierBackgroundKt::DemoModifierBackground),
                     getp("9/Comp/C_ModifierBackgroundId",
@@ -855,8 +931,6 @@ public abstract class DemosCreation {
                             DemoModifierComputeMeasureKt::DemoModifierComputeMeasure),
                     getp("9/Comp/C_ModifierComputePosition",
                             DemoModifierComputePositionKt::DemoModifierComputePosition),
-
-                    // Group 4: Specialized Layouts & Content
                     getp("9/Comp/C_Flow",
                             DemoFlowKt::DemoFlow),
                     getp("9/Comp/C_FitBox",
@@ -879,8 +953,6 @@ public abstract class DemosCreation {
                             DemoTextAutoSizeKt::DemoTextAutoSize),
                     getp("9/Comp/C_Image",
                             DemoImageKt::DemoImage),
-
-                    // Group 5: Interactive & Scrolling
                     getp("9/Comp/C_ModifierVerticalScroll",
                             DemoModifierVerticalScrollKt::DemoModifierVerticalScroll),
                     getp("9/Comp/C_ModifierHorizontalScroll",
@@ -893,8 +965,30 @@ public abstract class DemosCreation {
                             DemoModifierOnTouchUpKt::DemoModifierOnTouchUp),
                     getp("9/Comp/C_ModifierOnTouchCancel",
                             DemoModifierOnTouchCancelKt::DemoModifierOnTouchCancel)
+        )));
+        catalog.put("Compose", DemosComposeKt.getRemoteComposable(activity, "#/"));
+        return catalog;
+    }
 
-            ));
+    /** The names of the categories of {@link #getCatalog}, in display order. */
+    public static @NonNull ArrayList<String> getCategories(@NonNull Activity activity) {
+        return new ArrayList<>(getCatalog(activity).keySet());
+    }
+
+    /**
+     * get the demos written at the creational or procedural level
+     *
+     * <p>Legacy entry point: returns the 3D categories of {@link #getCatalog}, which is what it
+     * returned before the catalog existed. {@code types} is ignored.
+     *
+     * @return a list of RCDoc
+     */
+    public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity, int types) {
+        ArrayList<RCDoc> demos = new ArrayList<>();
+        for (Map.Entry<String, ArrayList<RCDoc>> e : getCatalog(activity).entrySet()) {
+            if (e.getKey().startsWith("3D")) {
+                demos.addAll(e.getValue());
+            }
         }
         return demos;
     }

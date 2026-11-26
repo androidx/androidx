@@ -89,7 +89,7 @@ fun dslTicker(): ByteArray {
                 Text(
                     "Watchlist",
                     modifier = Modifier.padding(24f),
-                    fontSize = fontSizes.head1.value.rsp,
+                    fontSize = fontSizes.head1,
                     color = colors.textColor,
                 )
                 Spacer(Modifier.weight(1f))

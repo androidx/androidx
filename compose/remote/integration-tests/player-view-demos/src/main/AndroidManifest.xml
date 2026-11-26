@@ -40,6 +40,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="Remote Compose Experiments"
         android:supportsRtl="true"
+        android:largeHeap="true"
         android:theme="@style/Theme.RemoteComposeDemos"
         >
 <!--        <activity-->

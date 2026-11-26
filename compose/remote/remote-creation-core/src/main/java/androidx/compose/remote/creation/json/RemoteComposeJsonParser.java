@@ -25,6 +25,7 @@ import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.MatrixFromMesh2D;
 import androidx.compose.remote.core.operations.NamedVariable;
+import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.TextInputLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
@@ -47,6 +48,7 @@ import org.json.JSONObject;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +57,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeSet;
 
 /**
  * Parser for RemoteCompose JSON format.
@@ -62,6 +65,24 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeJsonParser {
     private static final boolean DEBUG = false;
+
+    /**
+     * {@code touchExpression} stop modes by name, lower-cased with {@code _} removed. The names
+     * mirror the {@code STOP_*} constants of {@link TouchExpression}.
+     */
+    private static final Map<String, Integer> TOUCH_STOP_MODES = new HashMap<>();
+
+    static {
+        TOUCH_STOP_MODES.put("gently", TouchExpression.STOP_GENTLY);
+        TOUCH_STOP_MODES.put("instantly", TouchExpression.STOP_INSTANTLY);
+        TOUCH_STOP_MODES.put("ends", TouchExpression.STOP_ENDS);
+        TOUCH_STOP_MODES.put("notcheseven", TouchExpression.STOP_NOTCHES_EVEN);
+        TOUCH_STOP_MODES.put("notchespercents", TouchExpression.STOP_NOTCHES_PERCENTS);
+        TOUCH_STOP_MODES.put("notchesabsolute", TouchExpression.STOP_NOTCHES_ABSOLUTE);
+        TOUCH_STOP_MODES.put("absolutepos", TouchExpression.STOP_ABSOLUTE_POS);
+        TOUCH_STOP_MODES.put("notchessingleeven", TouchExpression.STOP_NOTCHES_SINGLE_EVEN);
+    }
+
     private final RemoteComposeWriter mWriter;
     public boolean mRemVars = false;
     final Map<Integer, String> mRecordedVariables = new LinkedHashMap<>();
@@ -69,6 +90,8 @@ public class RemoteComposeJsonParser {
     final Map<String, Integer> mColors = new HashMap<>();
     final Map<String, Integer> mPaths = new HashMap<>();
     final Map<String, Object> mBitmaps = new HashMap<>();
+    /** The image ids of the {@code resources.bitmaps} entries, by name. */
+    final Map<String, Integer> mBitmapIds = new HashMap<>();
     final Map<String, Float> mVariables = new HashMap<>();
     final Map<String, Long> mIntegerVariables = new HashMap<>();
     final Map<String, Float> mMatrices = new HashMap<>();
@@ -76,12 +99,15 @@ public class RemoteComposeJsonParser {
     final Map<String, Float> mEmittedVariables = new HashMap<>();
     boolean mOrderedResources = false;
     int mGlobalNesting = 0;
+    /** The directory relative {@code resources.bitmaps} files resolve against, if not the CWD. */
+    @Nullable File mBaseDirectory;
     private boolean mInFirstPass = false;
     private final List<String> mContextPath = new ArrayList<>();
     private final Map<String, JsonComponentParser> mComponentParsers = new HashMap<>();
     private final Map<String, JsonModifierParser> mModifierParsers = new HashMap<>();
     private final ExpressionParser mExpressionParser;
     private final ResourceParser mResourceParser;
+    private final Command3DParser mCommand3DParser;
 
     /**
      * Set whether the parser is currently in the first traversal pass.
@@ -202,8 +228,19 @@ public class RemoteComposeJsonParser {
         mWriter = writer;
         mExpressionParser = new ExpressionParser(this);
         mResourceParser = new ResourceParser(this);
+        mCommand3DParser = new Command3DParser(this);
         DefaultComponentParsers.register(this);
         DefaultModifierParsers.register(this);
+    }
+
+    /**
+     * Set the directory that relative {@code resources.bitmaps} file names resolve against.
+     *
+     * @param directory the directory, usually the one holding the document, or null to resolve
+     *     against the working directory
+     */
+    public void setBaseDirectory(@Nullable File directory) {
+        mBaseDirectory = directory;
     }
 
     /**
@@ -378,6 +415,24 @@ public class RemoteComposeJsonParser {
             @NonNull String json,
             @Nullable RcPlatformServices platform)
             throws JSONException {
+        return parse(json, platform, null);
+    }
+
+    /**
+     * Parse a JSON RemoteCompose document directly into a ByteBuffer binary representation.
+     *
+     * @param json          the JSON description of the RemoteCompose document
+     * @param platform      platform services or null to use DEFAULT_PLATFORM
+     * @param baseDirectory the directory relative {@code resources.bitmaps} file names resolve
+     *                      against, or null for the working directory
+     * @return a ByteBuffer containing the binary encoded RemoteCompose document
+     * @throws JSONException if JSON parsing fails
+     */
+    public static @NonNull ByteBuffer parse(
+            @NonNull String json,
+            @Nullable RcPlatformServices platform,
+            @Nullable File baseDirectory)
+            throws JSONException {
         if (platform == null) {
             platform = DEFAULT_PLATFORM;
         }
@@ -386,6 +441,7 @@ public class RemoteComposeJsonParser {
         java.util.Arrays.sort(tags, (a, b) -> Short.compare(a.getTag(), b.getTag()));
         RemoteComposeWriter writer = new RemoteComposeWriter(platform, apiLevel, tags);
         RemoteComposeJsonParser parser = new RemoteComposeJsonParser(writer);
+        parser.setBaseDirectory(baseDirectory);
         parser.parse(json);
         byte[] bytes = writer.encodeToByteArray();
         return ByteBuffer.wrap(bytes);
@@ -1761,6 +1817,19 @@ public class RemoteComposeJsonParser {
                 mWriter.matrixFromMesh2D(meshId, u, v, flags);
                 break;
             }
+            case "cleardepth3d":
+            case "material3d":
+            case "depthbias3d":
+            case "camera3d":
+            case "lights3d":
+            case "matrix3d":
+            case "definemesh3d":
+            case "meshprimitive3d":
+            case "meshexpression3d":
+            case "texture3d":
+            case "drawmesh3d":
+                mCommand3DParser.parse(type, command);
+                break;
             case "matrixconstant": {
                 JSONArray valArr = command.getJSONArray("values");
                 float[] values = new float[valArr.length()];
@@ -1876,30 +1945,9 @@ public class RemoteComposeJsonParser {
                 mWriter.setArrayValue(listId, index, value);
                 break;
             }
-            case "touchexpression": {
-                float defVal = command.has("defaultValue")
-                        ? parseFloat(command.get("defaultValue")) : 0f;
-                float min = command.has("min") ? parseFloat(command.get("min")) : Float.NaN;
-                float max = command.has("max") ? parseFloat(command.get("max")) : 1f;
-                int touchMode = command.optInt("touchMode", 0);
-                float velocityId = command.has("velocityId")
-                        ? parseFloat(command.get("velocityId")) : Float.NaN;
-                int touchEffects = command.optInt("touchEffects", 0);
-                JSONArray expArr = command.optJSONArray("expression");
-                float[] exp = new float[expArr != null ? expArr.length() : 0];
-                if (expArr != null) {
-                    for (int i = 0; i < expArr.length(); i++) {
-                        exp[i] = parseFloat(expArr.get(i));
-                    }
-                }
-                String name = command.optString("name", null);
-                float idVal = mWriter.addTouch(
-                        defVal, min, max, touchMode, velocityId, touchEffects, null, null, exp);
-                if (name != null) {
-                    mVariables.put(name, idVal);
-                }
+            case "touchexpression":
+                parseTouchExpression(command);
                 break;
-            }
             case "colorattribute": {
                 int baseColor = command.optInt("color", 0);
                 int typeOpt = command.optInt("colorType", command.optInt("type", 0));
@@ -3572,5 +3620,149 @@ public class RemoteComposeJsonParser {
         if (idStr != null) {
             mMeshes.put(idStr, meshId);
         }
+    }
+
+    /**
+     * Parse a {@code touchExpression}: a value that accumulates touch movement.
+     *
+     * <p>{@code expression} maps the raw touch to the value's rate of change. It is an infix string
+     * such as {@code "touchX() * 0.012"}, a number, or an RPN array whose entries each go through
+     * {@link #parseFloat}, and defaults to {@code touchX()}. {@code stopMode} (or {@code
+     * touchMode}) is a number, a numeric string or the name of a {@code STOP_*} constant of {@link
+     * TouchExpression}, such as {@code "notchesEven"} or {@code "NOTCHES_EVEN"}. An absent {@code
+     * min} is NaN, which wraps the value around {@code max} instead of clamping it at 0.
+     *
+     * <p>Values are parsed in the order the reference converters use, because an expression emits
+     * its own ops as it is parsed.
+     */
+    private void parseTouchExpression(@NonNull JSONObject command) throws JSONException {
+        Object mode = command.has("stopMode")
+                ? command.get("stopMode")
+                : command.has("touchMode") ? command.get("touchMode") : 0;
+        int stopMode;
+        if (mode instanceof String) {
+            String key = ((String) mode).toLowerCase(Locale.ROOT).replace("_", "");
+            Integer named = TOUCH_STOP_MODES.get(key);
+            if (named == null) {
+                // A numeric string such as "2" is a mode number too.
+                try {
+                    named = toInt(mode);
+                } catch (JSONException e) {
+                    throw new JSONException("touchExpression stopMode '" + mode
+                            + "' (expected a number or one of "
+                            + new TreeSet<>(TOUCH_STOP_MODES.keySet()) + ")");
+                }
+            }
+            stopMode = named;
+        } else {
+            stopMode = toInt(mode);
+        }
+        float min = command.has("min") ? parseFloat(command.get("min")) : Float.NaN;
+        float velocityId =
+                command.has("velocityId") ? parseFloat(command.get("velocityId")) : Float.NaN;
+        Object expression = command.has("expression") ? command.get("expression") : "touchX()";
+        float[] exp;
+        if (expression instanceof JSONArray) {
+            JSONArray array = (JSONArray) expression;
+            exp = new float[array.length()];
+            for (int i = 0; i < exp.length; i++) {
+                exp[i] = parseFloat(array.get(i));
+            }
+        } else if (expression instanceof Number) {
+            exp = new float[] {parseFloat(expression)};
+        } else {
+            exp = parseFloatExpression(String.valueOf(expression));
+        }
+        float defaultValue =
+                command.has("defaultValue") ? parseFloat(command.get("defaultValue")) : 0f;
+        float max = command.has("max") ? parseFloat(command.get("max")) : 1f;
+        int touchEffects = command.has("touchEffects") ? toInt(command.get("touchEffects")) : 0;
+        float[] touchSpec = plainFloats(command, "touchSpec");
+        float[] easingSpec = plainFloats(command, "easingSpec");
+        float id = mWriter.addTouch(defaultValue, min, max, stopMode, velocityId, touchEffects,
+                touchSpec, easingSpec, exp);
+        String name = command.optString("name", "");
+        if (!name.isEmpty()) {
+            mVariables.put(name, id);
+        }
+    }
+
+    /** The literal numbers under {@code key}, or null when it is absent. */
+    private static float @Nullable [] plainFloats(@NonNull JSONObject command, @NonNull String key)
+            throws JSONException {
+        if (!command.has(key)) {
+            return null;
+        }
+        JSONArray array = command.getJSONArray(key);
+        float[] values = new float[array.length()];
+        for (int i = 0; i < values.length; i++) {
+            Object value = array.get(i);
+            if (value instanceof Number) {
+                values[i] = ((Number) value).floatValue();
+            } else if (value instanceof Boolean) {
+                values[i] = (Boolean) value ? 1f : 0f;
+            } else {
+                try {
+                    values[i] = Float.parseFloat(String.valueOf(value));
+                } catch (NumberFormatException e) {
+                    throw new JSONException(key + " entries must be numbers, got '" + value + "'");
+                }
+            }
+        }
+        return values;
+    }
+
+    /**
+     * Convert a JSON value to an int the way the reference converters do: a number is truncated
+     * toward zero, a boolean is 1 or 0, and a string must spell an integer.
+     *
+     * @param value the JSON value
+     * @return the int value
+     * @throws JSONException if the value is not a number, boolean or integer string
+     */
+    static int toInt(@Nullable Object value) throws JSONException {
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value ? 1 : 0;
+        }
+        if (value instanceof String) {
+            try {
+                return Integer.parseInt(((String) value).trim());
+            } catch (NumberFormatException e) {
+                throw new JSONException("expected an integer, got '" + value + "'");
+            }
+        }
+        throw new JSONException("expected an integer, got " + value);
+    }
+
+    /**
+     * Whether a JSON value counts as true for a flag the way the reference converters treat it:
+     * null, false, 0, an empty string and an empty array or object are false, anything else true.
+     *
+     * @param value the JSON value, or null when the key is absent
+     * @return true if the value is truthy
+     */
+    static boolean isTruthy(@Nullable Object value) {
+        if (value == null || JSONObject.NULL.equals(value)) {
+            return false;
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue() != 0;
+        }
+        if (value instanceof String) {
+            return !((String) value).isEmpty();
+        }
+        if (value instanceof JSONArray) {
+            return ((JSONArray) value).length() > 0;
+        }
+        if (value instanceof JSONObject) {
+            return ((JSONObject) value).length() > 0;
+        }
+        return true;
     }
 }

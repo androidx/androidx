@@ -271,15 +271,33 @@ class DocumentCompressionTest {
 
     @Test
     fun compressedOperations_startWithAnOpcodeNoPlayerKnows() {
-        // Players that can't decompress read the zlib stream as operations. It starts with 0x78
-        // (DEFLATE, 32 KB window), which no API level uses as an opcode, so those players stop on
-        // an unknown operation instead of misreading the document.
+        // Players that can't decompress read the compressed data as operations. It starts with
+        // the 0x77 marker, which no API level uses as an opcode, so those players stop on an
+        // unknown operation instead of misreading the document.
         val firstByte = compressed[headerSize(compressed)].toInt() and 0xFF
 
-        assertThat(firstByte).isEqualTo(0x78)
+        assertThat(firstByte).isEqualTo(Header.COMPRESSED_STREAM_MARKER)
         for (apiLevel in 6..CoreDocument.DOCUMENT_API_LEVEL + 1) {
             assertThat(Operations.getOperation(apiLevel, firstByte)).isNull()
         }
+    }
+
+    @Test
+    fun compressedOperations_markerIsFollowedByZlibStream() {
+        // The zlib stream (DEFLATE, 32 KB window) follows the marker, so an encoder outside this
+        // library only needs to prepend the marker byte to a plain zlib stream.
+        val start = headerSize(compressed) + 1
+        assertThat(compressed[start].toInt() and 0xFF).isEqualTo(0x78)
+    }
+
+    @Test
+    fun decompressDocument_acceptsStreamWithoutMarker() {
+        // Documents written before the marker existed start the zlib stream right after the
+        // header. They still inflate.
+        val start = headerSize(compressed)
+        val legacy =
+            compressed.copyOfRange(0, start) + compressed.copyOfRange(start + 1, compressed.size)
+        assertThat(Header.decompressDocument(legacy, legacy.size)).isEqualTo(plain)
     }
 
     /** A column of texts: repetitive, like real layouts, so it compresses well. */
