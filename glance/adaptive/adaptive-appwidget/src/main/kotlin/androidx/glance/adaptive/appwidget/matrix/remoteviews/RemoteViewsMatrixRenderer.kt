@@ -262,7 +262,7 @@ private fun header(taps: RemoteViewsActions, card: ResolvedMatrixCard): RemoteVi
         val trailing = card.trailing
         views.setSlot(
             R.id.glance_adaptive_appwidget_remoteviews_slot_trailing,
-            trailing?.toRemoteViews(taps, card.trailingSize),
+            trailing?.toRemoteViews(taps, card.trailingSize, card.tiers),
             tappable = trailing?.isTappable(taps) == true,
         )
     }
@@ -316,7 +316,11 @@ private fun SecondaryComponent.text(): CharSequence =
         is TemplateText -> value
     }
 
-private fun TrailingComponent.toRemoteViews(taps: RemoteViewsActions, size: Dp): RemoteViews =
+private fun TrailingComponent.toRemoteViews(
+    taps: RemoteViewsActions,
+    size: Dp,
+    tiers: SizeTiers,
+): RemoteViews =
     when (this) {
         is IconButton ->
             if (contained) {
@@ -330,8 +334,8 @@ private fun TrailingComponent.toRemoteViews(taps: RemoteViewsActions, size: Dp):
                 buildRemoteViews(
                     taps,
                     diameter = size,
-                    glyphSize = MatrixDefaults.UncontainedTrailingGlyphSize,
-                    width = MatrixDefaults.UncontainedTrailingWidth,
+                    glyphSize = MatrixDefaults.uncontainedTrailingGlyphSize(tiers),
+                    width = MatrixDefaults.uncontainedTrailingWidth(tiers),
                 )
             }
     }
