@@ -18,10 +18,14 @@ package androidx.compose.remote.creation.compose.intervals
 
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.RemoteValueKind
+import androidx.compose.remote.creation.compose.state.max
+import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.IntInterval
 import androidx.compose.remote.document.intervals.IntervalComparison
@@ -742,6 +746,155 @@ internal object RemoteFloatIntervalSemantics : RemoteOperationIntervalSemantics 
         evaluator: RemoteValueIntervalEvaluator,
     ): RemoteStateCacheKey? =
         if (key.op == RemoteFloatOperationKey.Reference) key.args.firstOrNull() else null
+
+    override fun simplifyWithIntervals(
+        value: RemoteValue<*>,
+        key: RemoteOperationCacheKey,
+        context: IntervalOptimizationContext,
+    ): RemoteValue<*>? {
+        if (!context.config.simplifyRangeMath) return null
+        val args = key.args
+        val evaluator = context.evaluator
+        return when (key.op as RemoteFloatOperationKey) {
+            RemoteFloatOperationKey.Abs -> {
+                if (args.isEmpty() || !context.hasBoundedFloatOperands(args[0])) return null
+                val r = evaluator.evalFloatKey(args[0])
+                if (r.isEmpty || r.isUnbounded) return null
+                when {
+                    r.min >= 0f -> args[0].getOrCreateValueOrNull()
+                    r.max <= 0f -> (args[0].getOrCreateValueOrNull() as? RemoteFloat)?.let { -it }
+                    else -> null
+                }
+            }
+            RemoteFloatOperationKey.Min -> {
+                if (
+                    args.size < 2 ||
+                        !context.hasBoundedFloatOperands(args[0]) ||
+                        !context.hasBoundedFloatOperands(args[1])
+                ) {
+                    return null
+                }
+                val r0 = evaluator.evalFloatKey(args[0])
+                val r1 = evaluator.evalFloatKey(args[1])
+                if (r0.isEmpty || r1.isEmpty || r0.isUnbounded || r1.isUnbounded) return null
+                when {
+                    evaluator.compareFloatKeys(IntervalComparison.LTE, args[0], args[1]) ==
+                        TriState.TRUE -> args[0].getOrCreateValueOrNull()
+                    evaluator.compareFloatKeys(IntervalComparison.GTE, args[0], args[1]) ==
+                        TriState.TRUE -> args[1].getOrCreateValueOrNull()
+                    else -> null
+                }
+            }
+            RemoteFloatOperationKey.Max -> {
+                if (
+                    args.size < 2 ||
+                        !context.hasBoundedFloatOperands(args[0]) ||
+                        !context.hasBoundedFloatOperands(args[1])
+                ) {
+                    return null
+                }
+                val r0 = evaluator.evalFloatKey(args[0])
+                val r1 = evaluator.evalFloatKey(args[1])
+                if (r0.isEmpty || r1.isEmpty || r0.isUnbounded || r1.isUnbounded) return null
+                when {
+                    evaluator.compareFloatKeys(IntervalComparison.GTE, args[0], args[1]) ==
+                        TriState.TRUE -> args[0].getOrCreateValueOrNull()
+                    evaluator.compareFloatKeys(IntervalComparison.LTE, args[0], args[1]) ==
+                        TriState.TRUE -> args[1].getOrCreateValueOrNull()
+                    else -> null
+                }
+            }
+            RemoteFloatOperationKey.Clamp -> {
+                // Clamp args are stored in (min, max, value) order.
+                if (
+                    args.size < 3 ||
+                        !context.hasBoundedFloatOperands(args[0]) ||
+                        !context.hasBoundedFloatOperands(args[1]) ||
+                        !context.hasBoundedFloatOperands(args[2])
+                ) {
+                    return null
+                }
+                val rMin = evaluator.evalFloatKey(args[0])
+                val rMax = evaluator.evalFloatKey(args[1])
+                val rVal = evaluator.evalFloatKey(args[2])
+                if (
+                    rMin.isEmpty ||
+                        rMax.isEmpty ||
+                        rVal.isEmpty ||
+                        rMin.isUnbounded ||
+                        rMax.isUnbounded ||
+                        rVal.isUnbounded
+                ) {
+                    return null
+                }
+                if (
+                    evaluator.compareFloatKeys(IntervalComparison.LTE, args[0], args[1]) !=
+                        TriState.TRUE
+                ) {
+                    return null
+                }
+                val geMin =
+                    evaluator.compareFloatKeys(IntervalComparison.GTE, args[2], args[0]) ==
+                        TriState.TRUE
+                val leMax =
+                    evaluator.compareFloatKeys(IntervalComparison.LTE, args[2], args[1]) ==
+                        TriState.TRUE
+                when {
+                    geMin && leMax -> args[2].getOrCreateValueOrNull()
+                    evaluator.compareFloatKeys(IntervalComparison.LTE, args[2], args[0]) ==
+                        TriState.TRUE -> args[0].getOrCreateValueOrNull()
+                    evaluator.compareFloatKeys(IntervalComparison.GTE, args[2], args[1]) ==
+                        TriState.TRUE -> args[1].getOrCreateValueOrNull()
+                    geMin -> {
+                        val valState = args[2].getOrCreateValueOrNull() as? RemoteFloat
+                        val maxState = args[1].getOrCreateValueOrNull() as? RemoteFloat
+                        if (valState != null && maxState != null) min(valState, maxState) else null
+                    }
+                    leMax -> {
+                        val valState = args[2].getOrCreateValueOrNull() as? RemoteFloat
+                        val minState = args[0].getOrCreateValueOrNull() as? RemoteFloat
+                        if (valState != null && minState != null) max(valState, minState) else null
+                    }
+                    else -> null
+                }
+            }
+            RemoteFloatOperationKey.Floor,
+            RemoteFloatOperationKey.Ceil -> {
+                if (
+                    args.isEmpty() ||
+                        !args[0].isResultWholeNumber ||
+                        !context.hasBoundedFloatOperands(args[0])
+                ) {
+                    return null
+                }
+                val r = evaluator.evalFloatKey(args[0])
+                if (r.isEmpty || r.isUnbounded) null else args[0].getOrCreateValueOrNull()
+            }
+            RemoteFloatOperationKey.Round -> {
+                if (
+                    args.isEmpty() ||
+                        !args[0].isResultWholeNumber ||
+                        !context.hasBoundedFloatOperands(args[0])
+                ) {
+                    return null
+                }
+                val r = evaluator.evalFloatKey(args[0])
+                // OP_ROUND delegates to (float) Math.round(x), which clamps values outside 32-bit
+                // Int range to Int.MIN_VALUE / Int.MAX_VALUE even when integer-valued.
+                if (
+                    r.isEmpty ||
+                        r.isUnbounded ||
+                        r.min < Int.MIN_VALUE.toFloat() ||
+                        r.max >= Int.MAX_VALUE.toFloat()
+                ) {
+                    null
+                } else {
+                    args[0].getOrCreateValueOrNull()
+                }
+            }
+            else -> null
+        }
+    }
 
     private fun addFloatAffineArgs(
         args: List<RemoteStateCacheKey>,

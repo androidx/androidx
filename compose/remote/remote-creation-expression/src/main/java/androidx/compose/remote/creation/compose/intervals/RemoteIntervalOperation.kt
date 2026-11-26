@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.RemoteIntOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteOperation
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.RemoteValueKind
 import androidx.compose.remote.creation.compose.state.StringArrayOperationKey
 import androidx.compose.remote.creation.compose.state.StringOperationKey
@@ -194,6 +195,18 @@ public interface RemoteIntervalOperation : RemoteOperation {
         environment: IntervalEnvironment,
         evaluator: RemoteValueIntervalEvaluator,
     ): IntervalEnvironment = environment
+
+    /**
+     * Attempts to simplify an invocation of this operation ([value] with cache key [key]) after its
+     * children have been optimized, using the interval bounds and settings in [context].
+     *
+     * Returns a simplified replacement [RemoteValue], or `null` to keep [value] unchanged.
+     */
+    public fun simplifyWithIntervals(
+        value: RemoteValue<*>,
+        key: RemoteOperationCacheKey,
+        context: IntervalOptimizationContext,
+    ): RemoteValue<*>? = null
 }
 
 /**
@@ -277,6 +290,12 @@ internal interface RemoteOperationIntervalSemantics {
         environment: IntervalEnvironment,
         evaluator: RemoteValueIntervalEvaluator,
     ): IntervalEnvironment = environment
+
+    fun simplifyWithIntervals(
+        value: RemoteValue<*>,
+        key: RemoteOperationCacheKey,
+        context: IntervalOptimizationContext,
+    ): RemoteValue<*>? = null
 }
 
 internal fun intervalSemanticsFor(op: Any): RemoteOperationIntervalSemantics? =
@@ -390,4 +409,11 @@ private object CustomRemoteIntervalOperationSemantics : RemoteOperationIntervalS
             environment,
             evaluator,
         )
+
+    override fun simplifyWithIntervals(
+        value: RemoteValue<*>,
+        key: RemoteOperationCacheKey,
+        context: IntervalOptimizationContext,
+    ): RemoteValue<*>? =
+        (key.op as RemoteIntervalOperation).simplifyWithIntervals(value, key, context)
 }

@@ -18,10 +18,14 @@ package androidx.compose.remote.creation.compose.intervals
 
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteIntOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.RemoteValueKind
+import androidx.compose.remote.creation.compose.state.max
+import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.document.TextFromFloatFlags
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.IntInterval
@@ -517,6 +521,103 @@ internal object RemoteIntIntervalSemantics : RemoteOperationIntervalSemantics {
             applyIntKeyNarrowing(environment, intKey, narrowedInt)
         } else {
             environment
+        }
+    }
+
+    override fun simplifyWithIntervals(
+        value: RemoteValue<*>,
+        key: RemoteOperationCacheKey,
+        context: IntervalOptimizationContext,
+    ): RemoteValue<*>? {
+        if (!context.config.simplifyRangeMath) return null
+        val args = key.args
+        val evaluator = context.evaluator
+        return when (key.op as RemoteIntOperationKey) {
+            RemoteIntOperationKey.Abs -> {
+                if (args.isEmpty() || !context.hasBoundedFloatOperands(args[0])) return null
+                val r = evaluator.evalIntKey(args[0])
+                if (r.isEmpty) return null
+                when {
+                    r.hasFiniteMin && r.min >= 0 -> args[0].getOrCreateValueOrNull()
+                    r.hasFiniteMin && r.hasFiniteMax && r.max <= 0 && r.min > Int.MIN_VALUE ->
+                        (args[0].getOrCreateValueOrNull() as? RemoteInt)?.let { -it }
+                    else -> null
+                }
+            }
+            RemoteIntOperationKey.Min -> {
+                if (
+                    args.size < 2 ||
+                        !context.hasBoundedFloatOperands(args[0]) ||
+                        !context.hasBoundedFloatOperands(args[1])
+                ) {
+                    return null
+                }
+                when {
+                    evaluator.compareIntKeys(IntervalComparison.LTE, args[0], args[1]) ==
+                        TriState.TRUE -> args[0].getOrCreateValueOrNull()
+                    evaluator.compareIntKeys(IntervalComparison.GTE, args[0], args[1]) ==
+                        TriState.TRUE -> args[1].getOrCreateValueOrNull()
+                    else -> null
+                }
+            }
+            RemoteIntOperationKey.Max -> {
+                if (
+                    args.size < 2 ||
+                        !context.hasBoundedFloatOperands(args[0]) ||
+                        !context.hasBoundedFloatOperands(args[1])
+                ) {
+                    return null
+                }
+                when {
+                    evaluator.compareIntKeys(IntervalComparison.GTE, args[0], args[1]) ==
+                        TriState.TRUE -> args[0].getOrCreateValueOrNull()
+                    evaluator.compareIntKeys(IntervalComparison.LTE, args[0], args[1]) ==
+                        TriState.TRUE -> args[1].getOrCreateValueOrNull()
+                    else -> null
+                }
+            }
+            RemoteIntOperationKey.Clamp -> {
+                // Clamp args are stored in (min, max, value) order.
+                if (
+                    args.size < 3 ||
+                        !context.hasBoundedFloatOperands(args[0]) ||
+                        !context.hasBoundedFloatOperands(args[1]) ||
+                        !context.hasBoundedFloatOperands(args[2])
+                ) {
+                    return null
+                }
+                if (
+                    evaluator.compareIntKeys(IntervalComparison.LTE, args[0], args[1]) !=
+                        TriState.TRUE
+                ) {
+                    return null
+                }
+                val geMin =
+                    evaluator.compareIntKeys(IntervalComparison.GTE, args[2], args[0]) ==
+                        TriState.TRUE
+                val leMax =
+                    evaluator.compareIntKeys(IntervalComparison.LTE, args[2], args[1]) ==
+                        TriState.TRUE
+                when {
+                    geMin && leMax -> args[2].getOrCreateValueOrNull()
+                    evaluator.compareIntKeys(IntervalComparison.LTE, args[2], args[0]) ==
+                        TriState.TRUE -> args[0].getOrCreateValueOrNull()
+                    evaluator.compareIntKeys(IntervalComparison.GTE, args[2], args[1]) ==
+                        TriState.TRUE -> args[1].getOrCreateValueOrNull()
+                    geMin -> {
+                        val valState = args[2].getOrCreateValueOrNull() as? RemoteInt
+                        val maxState = args[1].getOrCreateValueOrNull() as? RemoteInt
+                        if (valState != null && maxState != null) min(valState, maxState) else null
+                    }
+                    leMax -> {
+                        val valState = args[2].getOrCreateValueOrNull() as? RemoteInt
+                        val minState = args[0].getOrCreateValueOrNull() as? RemoteInt
+                        if (valState != null && minState != null) max(valState, minState) else null
+                    }
+                    else -> null
+                }
+            }
+            else -> null
         }
     }
 

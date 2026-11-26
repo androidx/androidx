@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.intervals
 import androidx.compose.remote.creation.compose.state.EnumOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.StringArrayOperationKey
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.IntInterval
@@ -87,4 +88,45 @@ internal object RemoteEnumIntervalSemantics : RemoteOperationIntervalSemantics {
             EnumOperationKey.RemoteEnum -> key.args.firstOrNull()
             EnumOperationKey.ToString -> null
         }
+
+    override fun simplifyWithIntervals(
+        value: RemoteValue<*>,
+        key: RemoteOperationCacheKey,
+        context: IntervalOptimizationContext,
+    ): RemoteValue<*>? {
+        val args = key.args
+        return when (key.op as EnumOperationKey) {
+            EnumOperationKey.Ordinal -> {
+                if (!context.config.simplifyRangeMath) return null
+                val wrapped = args.firstOrNull() as? RemoteOperationCacheKey
+                if (
+                    wrapped != null &&
+                        wrapped.op == EnumOperationKey.RemoteEnum &&
+                        wrapped.args.isNotEmpty()
+                ) {
+                    wrapped.args[0].getOrCreateValueOrNull()
+                } else {
+                    null
+                }
+            }
+            EnumOperationKey.ToString -> {
+                if (
+                    !context.config.foldArrayGets ||
+                        args.size < 2 ||
+                        !context.hasBoundedFloatOperands(args[0])
+                ) {
+                    return null
+                }
+                val arrayKey = args[1] as? RemoteOperationCacheKey ?: return null
+                if (arrayKey.op != StringArrayOperationKey.Create) return null
+                val idxRange = context.evaluator.evalIntKey(args[0])
+                if (idxRange.isPoint && idxRange.min in arrayKey.args.indices) {
+                    arrayKey.args[idxRange.min].getOrCreateValueOrNull()
+                } else {
+                    null
+                }
+            }
+            EnumOperationKey.RemoteEnum -> null
+        }
+    }
 }

@@ -17,8 +17,12 @@
 package androidx.compose.remote.creation.compose.intervals
 
 import androidx.compose.remote.creation.compose.state.ColorOperationKey
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.document.intervals.ColorInterval
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.StringAndColorIntervalOps
@@ -116,6 +120,38 @@ internal object RemoteColorIntervalSemantics : RemoteOperationIntervalSemantics 
                     ColorInterval.UNKNOWN
                 }
             ColorOperationKey.Component -> ColorInterval.UNKNOWN
+        }
+    }
+
+    override fun simplifyWithIntervals(
+        value: RemoteValue<*>,
+        key: RemoteOperationCacheKey,
+        context: IntervalOptimizationContext,
+    ): RemoteValue<*>? {
+        if (
+            (key.op != ColorOperationKey.Tween && key.op != ColorOperationKey.TweenInt) ||
+                key.args.size < 3
+        ) {
+            return null
+        }
+        if (!context.config.pruneTernaries && !context.config.simplifyRangeMath) return null
+        val args = key.args
+        if (!context.hasBoundedFloatOperands(args[2])) return null
+        val tRange = context.evaluator.evalFloatKey(args[2])
+        fun resolveColorEndpoint(argKey: RemoteStateCacheKey): RemoteColor? =
+            when (val resolved = argKey.getOrCreateValueOrNull()) {
+                is RemoteColor -> resolved
+                is RemoteInt -> resolved.constantValueOrNull?.let { RemoteColor(it) }
+                else -> null
+            }
+        if (args[0] == args[1] && !tRange.isEmpty && !tRange.isUnbounded) {
+            return resolveColorEndpoint(args[0])
+        }
+        if (!tRange.isPoint) return null
+        return when (tRange.min) {
+            0f -> resolveColorEndpoint(args[0])
+            1f -> resolveColorEndpoint(args[1])
+            else -> null
         }
     }
 }

@@ -17,9 +17,12 @@
 package androidx.compose.remote.creation.compose.intervals
 
 import androidx.compose.remote.creation.compose.state.BooleanOperationKey
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteConstantCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteNamedCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteValue
 import androidx.compose.remote.creation.compose.state.RemoteValueKind
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.IntInterval
@@ -501,4 +504,103 @@ internal object RemoteBooleanIntervalSemantics : RemoteOperationIntervalSemantic
                 bKey.op == BooleanOperationKey.Not &&
                 bKey.args.size == 1 &&
                 bKey.args[0] == aKey)
+
+    override fun simplifyWithIntervals(
+        value: RemoteValue<*>,
+        key: RemoteOperationCacheKey,
+        context: IntervalOptimizationContext,
+    ): RemoteValue<*>? {
+        if (!context.config.simplifyRangeMath) return null
+        val args = key.args
+        val evaluator = context.evaluator
+        return when (key.op as BooleanOperationKey) {
+            BooleanOperationKey.ToRemoteInt -> {
+                val wrapped = args.firstOrNull() as? RemoteOperationCacheKey
+                if (
+                    wrapped != null &&
+                        wrapped.op == BooleanOperationKey.RemoteBoolean &&
+                        wrapped.args.isNotEmpty()
+                ) {
+                    wrapped.args[0].getOrCreateValueOrNull()
+                } else {
+                    null
+                }
+            }
+            BooleanOperationKey.And ->
+                simplifyBinaryBooleanIdentity(
+                    args,
+                    evaluator,
+                    identityValue = true,
+                    negateOnIdentity = false,
+                )
+            BooleanOperationKey.Or ->
+                simplifyBinaryBooleanIdentity(
+                    args,
+                    evaluator,
+                    identityValue = false,
+                    negateOnIdentity = false,
+                )
+            BooleanOperationKey.Xor ->
+                simplifyBinaryBooleanIdentity(
+                    args,
+                    evaluator,
+                    identityValue = false,
+                    negateOnIdentity = false,
+                )
+                    ?: simplifyBinaryBooleanIdentity(
+                        args,
+                        evaluator,
+                        identityValue = true,
+                        negateOnIdentity = true,
+                    )
+            BooleanOperationKey.Equal ->
+                simplifyBinaryBooleanIdentity(
+                    args,
+                    evaluator,
+                    identityValue = true,
+                    negateOnIdentity = false,
+                )
+                    ?: simplifyBinaryBooleanIdentity(
+                        args,
+                        evaluator,
+                        identityValue = false,
+                        negateOnIdentity = true,
+                    )
+            BooleanOperationKey.NotEqual ->
+                simplifyBinaryBooleanIdentity(
+                    args,
+                    evaluator,
+                    identityValue = false,
+                    negateOnIdentity = false,
+                )
+                    ?: simplifyBinaryBooleanIdentity(
+                        args,
+                        evaluator,
+                        identityValue = true,
+                        negateOnIdentity = true,
+                    )
+            else -> null
+        }
+    }
+
+    private fun simplifyBinaryBooleanIdentity(
+        args: List<RemoteStateCacheKey>,
+        evaluator: RemoteValueIntervalEvaluator,
+        identityValue: Boolean,
+        negateOnIdentity: Boolean,
+    ): RemoteValue<*>? {
+        if (args.size < 2) return null
+        val c0 = (args[0] as? RemoteConstantCacheKey)?.value as? Boolean
+        val c1 = (args[1] as? RemoteConstantCacheKey)?.value as? Boolean
+        val survivingKey =
+            when {
+                c0 == identityValue -> args[1]
+                c1 == identityValue -> args[0]
+                else -> return null
+            }
+        val survivingRange = evaluator.evalIntKey(survivingKey)
+        if (survivingRange.isEmpty || survivingRange.min < 0 || survivingRange.max > 1) return null
+        val surviving = survivingKey.getOrCreateValueOrNull() as? RemoteBoolean ?: return null
+        return if (negateOnIdentity) !surviving else surviving
+    }
 }

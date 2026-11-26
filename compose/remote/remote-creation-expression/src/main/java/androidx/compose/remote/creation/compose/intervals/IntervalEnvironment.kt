@@ -31,11 +31,11 @@ import androidx.compose.remote.document.intervals.StringSummary
 /**
  * Abstraction supplying static domain bounds for leaf [RemoteStateCacheKey]s (wire IDs, named
  * variables, array dereferences, and path-sensitive key overrides) to
- * [RemoteValueIntervalEvaluator].
+ * [RemoteValueIntervalEvaluator] and [IntervalOptimizer].
  *
  * Standalone callers can use [MapIntervalEnvironment]; document-level analyzers can implement this
- * interface directly over their document slot tables without duplicating expression evaluation
- * logic.
+ * interface directly over their document slot tables without duplicating expression evaluation or
+ * optimization logic.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface IntervalEnvironment {
