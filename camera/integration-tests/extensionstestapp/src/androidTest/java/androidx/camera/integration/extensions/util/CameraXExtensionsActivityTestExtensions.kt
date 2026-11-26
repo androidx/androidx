@@ -63,7 +63,17 @@ internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewViewStream
 
 /** Waits until the PreviewView has become IDLE state and its idling resource has become idle. */
 internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewViewIdle() {
-    val idlingResource = withActivity { previewViewIdleStateIdlingResource }
+    val idlingResource = withActivity {
+        // If PreviewView never left IDLE before the activity stopped, PreviewStreamStateObserver
+        // deduplicates IDLE -> IDLE without re-emitting; release the idling resource directly.
+        if (
+            currentStreamState == PreviewView.StreamState.IDLE &&
+                !previewViewIdleStateIdlingResource.isIdleNow
+        ) {
+            previewViewIdleStateIdlingResource.decrement()
+        }
+        previewViewIdleStateIdlingResource
+    }
     try {
         IdlingRegistry.getInstance().register(idlingResource)
         // Waits for the previewViewIdleStateIdlingResource becoming idle
@@ -82,26 +92,34 @@ internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewViewIdle()
 /**
  * Waits until captured image has been saved and its idling resource has become idle.
  *
- * <p>If postview is supported, this method will also wait for the postview image.
+ * @param waitForPostview Whether to also wait for the postview idling resource when postview is
+ *   supported. Defaults to `false` because vendor extensions may omit `onPostviewBitmapAvailable`
+ *   under rapid lifecycle or camera/mode-switch stress.
  */
-internal fun ActivityScenario<CameraExtensionsActivity>.takePictureAndWaitForImageSavedIdle() {
-    val takePictureIdlingResource = withActivity { takePictureIdlingResource }
-    val postviewIdlingResource = withActivity { postviewIdlingResource }
+internal fun ActivityScenario<CameraExtensionsActivity>.takePictureAndWaitForImageSavedIdle(
+    waitForPostview: Boolean = false
+) {
+    val idlingResources = withActivity {
+        if (waitForPostview) {
+            arrayOf(takePictureIdlingResource, postviewIdlingResource)
+        } else {
+            arrayOf(takePictureIdlingResource)
+        }
+    }
     try {
-        IdlingRegistry.getInstance().register(takePictureIdlingResource, postviewIdlingResource)
-        // Performs click action and waits for the takePictureIdlingResource becoming idle
+        IdlingRegistry.getInstance().register(*idlingResources)
+        // Performs click action and waits for the registered idling resources becoming idle
         Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(ViewActions.click())
-    } finally { // Always releases the idling resource, in case of timeout exceptions.
-        if (!postviewIdlingResource.isIdleNow || !takePictureIdlingResource.isIdleNow) {
+    } finally { // Always releases the idling resources, in case of timeout exceptions.
+        val nonIdleResources = idlingResources.filterNot { it.isIdleNow }
+        if (nonIdleResources.isNotEmpty()) {
             Log.e(
                 "CameraExtensionsActivity",
-                "Failed to wait the takePictureIdlingResource or postviewIdlingResource to" +
-                    " become idle. postviewIdlingResource.isIdleNow =" +
-                    " ${postviewIdlingResource.isIdleNow}, takePictureIdlingResource.isIdleNow =" +
-                    " ${takePictureIdlingResource.isIdleNow}",
+                "Failed to wait for idling resources to become idle: " +
+                    nonIdleResources.joinToString { "${it.name} (isIdleNow=false)" },
             )
         }
-        IdlingRegistry.getInstance().unregister(takePictureIdlingResource, postviewIdlingResource)
+        IdlingRegistry.getInstance().unregister(*idlingResources)
 
         withActivity {
             // Idling resource will also become idle when an error occurs. Checks the last error

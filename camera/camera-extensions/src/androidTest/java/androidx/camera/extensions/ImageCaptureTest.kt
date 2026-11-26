@@ -109,17 +109,24 @@ class ImageCaptureTest(
     }
 
     @After
-    fun teardown(): Unit = runBlocking {
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
-        }
-
-        if (::extensionsManager.isInitialized) {
-            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+    fun teardown() {
+        try {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider
+                    .shutdownAsync()[
+                        CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS,
+                        TimeUnit.SECONDS,
+                    ]
+            }
+        } finally {
+            if (::extensionsManager.isInitialized) {
+                extensionsManager.shutdown()[10, TimeUnit.SECONDS]
+            }
         }
     }
 
     companion object {
+        private const val CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS = 30L
         val TAG = "ImageCaptureTest"
         val context: Context = ApplicationProvider.getApplicationContext()
 
@@ -307,23 +314,12 @@ class ImageCaptureTest(
             .onError(ArgumentMatchers.any(ImageCaptureException::class.java))
     }
 
-    private fun isCaptureProcessProgressSupported(): Boolean = runBlocking {
-        val preview = Preview.Builder().build()
-        val imageCapture = ImageCapture.Builder().build()
-        val extensionSessionConfig =
-            ExtensionSessionConfig(extensionMode, extensionsManager, preview, imageCapture)
-
-        val camera =
-            withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(
-                    fakeLifecycleOwner,
-                    baseCameraSelector,
-                    extensionSessionConfig,
-                )
-            }
-
-        val capabilities = ImageCapture.getImageCaptureCapabilities(camera.cameraInfo)
-        capabilities.isCaptureProcessProgressSupported
+    private fun isCaptureProcessProgressSupported(): Boolean {
+        val config = ExtensionSessionConfig(extensionMode, extensionsManager)
+        return ImageCapture.getImageCaptureCapabilities(
+                cameraProvider.getCameraInfo(baseCameraSelector, config)
+            )
+            .isCaptureProcessProgressSupported
     }
 
     private fun isPostviewSupported(): Boolean {

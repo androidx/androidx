@@ -114,6 +114,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.Observer;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.common.base.Preconditions;
@@ -202,6 +203,17 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private @Nullable String mLastTakePictureErrorMessage = null;
 
     private PreviewView.StreamState mCurrentStreamState = null;
+
+    private final Observer<PreviewView.StreamState> mStreamStateObserver = streamState -> {
+        mCurrentStreamState = streamState;
+        if (streamState == PreviewView.StreamState.STREAMING
+                && !mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
+            mPreviewViewStreamingStateIdlingResource.decrement();
+        } else if (streamState == PreviewView.StreamState.IDLE
+                && !mPreviewViewIdleStateIdlingResource.isIdleNow()) {
+            mPreviewViewIdleStateIdlingResource.decrement();
+        }
+    };
 
     private @ImageCapture.OutputFormat int mImageOutputFormat = OUTPUT_FORMAT_JPEG;
     private Button mButtonImageOutputFormat;
@@ -318,21 +330,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                     }
                 });
         mPreview = previewBuilder.build();
-        mCurrentStreamState = null;
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-
-        // Observes the stream state for the unit tests to know the preview status.
-        mPreviewView.getPreviewStreamState().removeObservers(this);
-        mPreviewView.getPreviewStreamState().observeForever(streamState -> {
-            mCurrentStreamState = streamState;
-            if (streamState == PreviewView.StreamState.STREAMING
-                    && !mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
-                mPreviewViewStreamingStateIdlingResource.decrement();
-            } else if (streamState == PreviewView.StreamState.IDLE
-                    && !mPreviewViewIdleStateIdlingResource.isIdleNow()) {
-                mPreviewViewIdleStateIdlingResource.decrement();
-            }
-        });
 
         FpsRecorder fpsRecorder = new FpsRecorder(10 /* sample count */);
         // Calls internal API PreviewView#setFrameUpdateListener to calculate the frame latency.
@@ -467,6 +465,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
                             mLastTakePictureErrorMessage = getImageCaptureErrorMessage(exception);
                             if (!mTakePictureIdlingResource.isIdleNow()) {
                                 mTakePictureIdlingResource.decrement();
+                            }
+                            if (!mPostviewIdlingResource.isIdleNow()) {
+                                mPostviewIdlingResource.decrement();
                             }
                         }
 
@@ -639,6 +640,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         viewFinderStub.setLayoutResource(R.layout.full_previewview);
         mPreviewView = (PreviewView) viewFinderStub.inflate();
+        mPreviewView.getPreviewStreamState().observeForever(mStreamStateObserver);
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         setupPinchToZoomAndTapToFocus(mPreviewView);
         Pair<ListenableFuture<Boolean>, CallbackToFutureAdapter.Completer<Boolean>>
@@ -680,6 +682,14 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 throw new RuntimeException("Failed to get permissions", t);
             }
         }, ContextCompat.getMainExecutor(this));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mPreviewView != null) {
+            mPreviewView.getPreviewStreamState().removeObserver(mStreamStateObserver);
+        }
     }
 
     @Override

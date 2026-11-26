@@ -67,6 +67,7 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
         )
 
     companion object {
+        private const val CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS = 30L
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
@@ -84,12 +85,18 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         requireForegroundRule.deferCleanup {
-            if (::cameraProvider.isInitialized) {
-                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-            }
-
-            if (::extensionsManager.isInitialized) {
-                extensionsManager.shutdown()
+            try {
+                if (::cameraProvider.isInitialized) {
+                    cameraProvider
+                        .shutdownAsync()[
+                            CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS,
+                            TimeUnit.SECONDS,
+                        ]
+                }
+            } finally {
+                if (::extensionsManager.isInitialized) {
+                    extensionsManager.shutdown()[10, TimeUnit.SECONDS]
+                }
             }
         }
 
@@ -154,6 +161,8 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
                 videoCaptureEnabled = videoCaptureEnabled,
             )
 
-        with(activityScenario) { use { takePictureAndWaitForImageSavedIdle() } }
+        with(activityScenario) {
+            use { takePictureAndWaitForImageSavedIdle(waitForPostview = true) }
+        }
     }
 }

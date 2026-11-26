@@ -22,11 +22,12 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
@@ -44,9 +45,10 @@ import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -73,7 +75,6 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
-    private lateinit var camera: Camera
     private lateinit var baseCameraSelector: CameraSelector
     private lateinit var preview: Preview
     private lateinit var imageCapture: ImageCapture
@@ -88,37 +89,33 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
-        camera =
-            withContext(Dispatchers.Main) {
-                lifecycleOwner = FakeLifecycleOwner()
-                lifecycleOwner.startAndResume()
-                val extensionSessionConfig =
-                    ExtensionSessionConfig(extensionMode, extensionsManager)
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    baseCameraSelector,
-                    extensionSessionConfig,
-                )
-            }
+        withContext(Dispatchers.Main) {
+            lifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
+        }
 
         preview = Preview.Builder().build()
         imageCapture = ImageCapture.Builder().build()
     }
 
     @After
-    fun cleanUp(): Unit = runBlocking {
-        if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+    fun cleanUp() {
+        try {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider
+                    .shutdownAsync()[
+                        CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS,
+                        TimeUnit.SECONDS,
+                    ]
             }
-        }
-
-        if (::extensionsManager.isInitialized) {
-            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        } finally {
+            if (::extensionsManager.isInitialized) {
+                extensionsManager.shutdown()[10, TimeUnit.SECONDS]
+            }
         }
     }
 
     companion object {
+        private const val CAMERA_PROVIDER_SHUTDOWN_TIMEOUT_SECONDS = 30L
         @ClassRule @JvmField val stressTest = StressTestRule()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -190,7 +187,7 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
             if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_CAPTURE) != 0) {
                 val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
                 imageCapture.takePicture(
-                    Executors.newSingleThreadExecutor(),
+                    CameraXExecutors.directExecutor(),
                     imageCaptureCaptureSuccessMonitor.createCaptureCallback(),
                 )
 
@@ -274,7 +271,7 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
         if (verificationTarget.and(VERIFICATION_TARGET_IMAGE_CAPTURE) != 0) {
             val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
             imageCapture.takePicture(
-                Executors.newSingleThreadExecutor(),
+                CameraXExecutors.directExecutor(),
                 imageCaptureCaptureSuccessMonitor.createCaptureCallback(),
             )
 
@@ -365,6 +362,7 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
 
     private class ImageCaptureCaptureSuccessMonitor {
         private val captureSuccessCountDownLatch = CountDownLatch(1)
+        private val captureError = AtomicReference<ImageCaptureException?>(null)
 
         fun createCaptureCallback() =
             object : ImageCapture.OnImageCapturedCallback() {
@@ -372,11 +370,20 @@ class BindUnbindUseCasesStressTest(private val cameraId: String, private val ext
                     image.close()
                     captureSuccessCountDownLatch.countDown()
                 }
+
+                override fun onError(exception: ImageCaptureException) {
+                    captureError.set(exception)
+                    captureSuccessCountDownLatch.countDown()
+                }
             }
 
         fun awaitCaptureSuccessAndAssert(timeoutDurationMs: Long = 10000) {
-            assertThat(captureSuccessCountDownLatch.await(timeoutDurationMs, TimeUnit.MILLISECONDS))
+            assertWithMessage("Timed out waiting for ImageCapture callback")
+                .that(captureSuccessCountDownLatch.await(timeoutDurationMs, TimeUnit.MILLISECONDS))
                 .isTrue()
+            assertWithMessage("ImageCapture failed with error: ${captureError.get()}")
+                .that(captureError.get())
+                .isNull()
         }
     }
 }
