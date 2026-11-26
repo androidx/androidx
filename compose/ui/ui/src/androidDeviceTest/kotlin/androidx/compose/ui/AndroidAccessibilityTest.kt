@@ -318,6 +318,7 @@ class AndroidAccessibilityTest {
                 ViewCompat.getAccessibilityDelegate(androidComposeView)
                     as AndroidComposeViewAccessibilityDelegateCompat
             delegate.accessibilityForceEnabledForTesting = true
+            delegate.SendRecurringAccessibilityEventsIntervalMillis = 0L
             provider = delegate.getAccessibilityNodeProvider(androidComposeView)
         }
     }

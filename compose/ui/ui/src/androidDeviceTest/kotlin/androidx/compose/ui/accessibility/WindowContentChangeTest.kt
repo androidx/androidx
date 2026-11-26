@@ -283,6 +283,7 @@ class WindowContentChangeTest {
             androidComposeView = LocalView.current as AndroidComposeView
             with(androidComposeView.composeAccessibilityDelegate) {
                 accessibilityForceEnabledForTesting = true
+                SendRecurringAccessibilityEventsIntervalMillis = 0L
                 onSendAccessibilityEvent = {
                     dispatchedAccessibilityEvents += it
                     false

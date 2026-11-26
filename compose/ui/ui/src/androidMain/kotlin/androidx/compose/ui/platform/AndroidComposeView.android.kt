@@ -2598,10 +2598,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    suspend fun boundsUpdatesAccessibilityEventLoop() {
-        composeAccessibilityDelegate.boundsUpdatesEventLoop()
-    }
-
     suspend fun boundsUpdatesContentCaptureEventLoop() {
         contentCaptureManager.boundsUpdatesEventLoop()
     }

@@ -20,6 +20,7 @@ import android.graphics.Rect
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.P
 import android.os.Build.VERSION_CODES.R
+import android.os.SystemClock
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE
@@ -84,6 +85,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.abs
 import org.junit.After
 import org.junit.Rule
@@ -97,8 +100,7 @@ class ScrollingTest {
 
     private val tag = "tag"
     private lateinit var androidComposeView: AndroidComposeView
-    private val dispatchedAccessibilityEvents = mutableListOf<AccessibilityEvent>()
-    private val accessibilityEventLoopIntervalMs = 100L
+    private val dispatchedAccessibilityEvents = CopyOnWriteArrayList<AccessibilityEvent>()
 
     @After
     fun teardown() {
@@ -130,7 +132,6 @@ class ScrollingTest {
                 Text("bar", Modifier.size(10.toDp()).testTag(tag))
             }
         }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         rule.runOnIdle { dispatchedAccessibilityEvents.clear() }
 
@@ -150,7 +151,8 @@ class ScrollingTest {
         } finally {
             androidComposeView.snapshotObserver.stopObserving()
         }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         rule.runOnIdle {
@@ -195,16 +197,9 @@ class ScrollingTest {
             )
         }
 
-        // TODO(b/272068594): We receive an extra TYPE_WINDOW_CONTENT_CHANGED event 100ms after
-        //  setup. So we wait an extra 100ms here so that this test is not affected by that extra
-        //  event.
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-        dispatchedAccessibilityEvents.clear()
-
         // Act.
         try {
             androidComposeView.snapshotObserver.startObserving()
-            rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
             rule.runOnIdle {
                 Snapshot.notifyObjectsInitialized()
                 scrollValue = 2f
@@ -213,7 +208,8 @@ class ScrollingTest {
         } finally {
             androidComposeView.snapshotObserver.stopObserving()
         }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         rule.runOnIdle {
@@ -254,14 +250,11 @@ class ScrollingTest {
             )
         }
 
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-        dispatchedAccessibilityEvents.clear()
         val scrollerId = rule.onNodeWithTag(tag).semanticsId()
 
         // Act: Trigger a semantics pass and simultaneous 2D scroll state change.
         try {
             androidComposeView.snapshotObserver.startObserving()
-            rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
             rule.runOnIdle {
                 Snapshot.notifyObjectsInitialized()
                 scrollXValue = 4f
@@ -271,7 +264,8 @@ class ScrollingTest {
         } finally {
             androidComposeView.snapshotObserver.stopObserving()
         }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert: Single coalesced 2D scroll event with both axes AND exactly one scope registered.
         rule.runOnIdle {
@@ -308,6 +302,67 @@ class ScrollingTest {
                         }
                     },
                 )
+        }
+    }
+
+    @Test
+    fun sendScrollEvent_respectsBatchIntervalDelay() {
+        // Arrange.
+        var scrollValue by mutableStateOf(0f, structuralEqualityPolicy())
+        val scrollMaxValue = 100f
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = false) {
+                    verticalScrollAxisRange = ScrollAxisRange({ scrollValue }, { scrollMaxValue })
+                }
+            )
+        }
+
+        val batchIntervalMs = 200L
+        val lastScrollEventTime = AtomicLong(0L)
+        rule.runOnIdle {
+            with(androidComposeView.composeAccessibilityDelegate) {
+                SendRecurringAccessibilityEventsIntervalMillis = batchIntervalMs
+                onSendAccessibilityEvent = { event ->
+                    if (event.eventType == TYPE_VIEW_SCROLLED) {
+                        lastScrollEventTime.set(SystemClock.uptimeMillis())
+                    }
+                    dispatchedAccessibilityEvents += event
+                    false
+                }
+            }
+        }
+
+        // Act & Assert.
+        try {
+            androidComposeView.snapshotObserver.startObserving()
+            rule.runOnIdle {
+                Snapshot.notifyObjectsInitialized()
+                scrollValue = 1f
+                Snapshot.sendApplyNotifications()
+            }
+            rule.waitUntil(timeoutMillis = 2_000) { dispatchedScrollEvents().isNotEmpty() }
+            val firstEventTime = lastScrollEventTime.get()
+
+            rule.runOnIdle {
+                dispatchedAccessibilityEvents.clear()
+                scrollValue = 2f
+                Snapshot.sendApplyNotifications()
+            }
+            rule.waitForIdle()
+            assertThat(dispatchedScrollEvents()).isEmpty()
+
+            rule.waitUntil(timeoutMillis = 2_000) { dispatchedScrollEvents().isNotEmpty() }
+            val secondEventTime = lastScrollEventTime.get()
+
+            rule.runOnIdle {
+                val scrollEvents = dispatchedScrollEvents()
+                assertThat(scrollEvents).hasSize(1)
+                assertThat(scrollEvents.single().scrollY).isEqualTo(2)
+                assertThat(secondEventTime - firstEventTime).isAtLeast(100L)
+            }
+        } finally {
+            androidComposeView.snapshotObserver.stopObserving()
         }
     }
 
@@ -440,7 +495,8 @@ class ScrollingTest {
 
         // Act: remove the focused node from the composition.
         rule.runOnIdle { showBox = false }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         assertAccessibilityFocusCleared()
@@ -462,7 +518,8 @@ class ScrollingTest {
 
         // Act: deactivate the focused node in place without moving sibling bounds.
         rule.runOnIdle { active = false }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         assertAccessibilityFocusCleared()
@@ -482,7 +539,8 @@ class ScrollingTest {
 
         // Act: reuse the LayoutNode under a new key and semanticsId.
         rule.runOnIdle { key = 1 }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         assertAccessibilityFocusCleared()
@@ -507,7 +565,8 @@ class ScrollingTest {
 
         // Act: drop the fake Role node while keeping its parent LayoutNode attached.
         rule.runOnIdle { hasRole = false }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         assertAccessibilityFocusCleared()
@@ -533,7 +592,8 @@ class ScrollingTest {
 
         // Act: prune the focused child via clearAndSetSemantics without detaching it.
         rule.runOnIdle { clearDescendants = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         assertAccessibilityFocusCleared()
@@ -555,7 +615,8 @@ class ScrollingTest {
 
         // Act: hide the focused node from accessibility while keeping it attached.
         rule.runOnIdle { hidden = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         assertAccessibilityFocusCleared()
@@ -1039,6 +1100,7 @@ class ScrollingTest {
             androidComposeView = LocalView.current as AndroidComposeView
             with(androidComposeView.composeAccessibilityDelegate) {
                 accessibilityForceEnabledForTesting = true
+                SendRecurringAccessibilityEventsIntervalMillis = 0L
                 onSendAccessibilityEvent = {
                     dispatchedAccessibilityEvents += it
                     false
@@ -1047,9 +1109,10 @@ class ScrollingTest {
             content()
         }
 
-        // Advance the clock past the first accessibility event loop, and clear the initial
-        // events as we are want the assertions to check the events that were generated later.
-        runOnIdle { mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs) }
+        // Drain the initial accessibility event loop and clear initial events so assertions only
+        // see events generated later.
+        mainClock.advanceTimeByFrame()
+        waitForIdle()
         runOnIdle { dispatchedAccessibilityEvents.clear() }
     }
 

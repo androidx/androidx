@@ -62,6 +62,7 @@ androidXMultiplatform {
         }
 
         androidDeviceTest.dependencies {
+            implementation(project(":compose:ui:ui"))
             implementation(libs.truth)
             implementation("androidx.compose.material:material:1.12.0")
         }
