@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,7 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -956,6 +958,184 @@ class ScrollInfoProviderTest {
         rule.runOnIdle {
             assertThat(provider.lastItemOffset).isWithin(0.0001f).of(finalExpectedPx)
         }
+    }
+
+    @Test
+    fun transformingLazyColumn_deleteLastItem_withTransformedHeight_lastItemOffsetDoesNotOvershoot() {
+        lateinit var provider: ScrollInfoProvider
+        lateinit var state: TransformingLazyColumnState
+        lateinit var scope: CoroutineScope
+        val bottomPadding = 30.dp
+        val itemSize = 40.dp
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        var recordReactiveOffsets = false
+        val reactiveOffsets = mutableListOf<Float>()
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            provider = remember(state) { ScrollInfoProvider(state) }
+            val derivedLastItemOffset by
+                remember(provider) {
+                    derivedStateOf { provider.lastItemOffset }
+                }
+            LaunchedEffect(provider) {
+                snapshotFlow { derivedLastItemOffset }
+                    .collect {
+                        if (recordReactiveOffsets) {
+                            reactiveOffsets += it
+                        }
+                    }
+            }
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = PaddingValues(bottom = bottomPadding),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+                modifier = Modifier.requiredSize(100.dp),
+            ) {
+                items(list, key = { it }) {
+                    Box(
+                        Modifier.requiredSize(itemSize)
+                            // Items shrink as they approach the top edge.
+                            .transformedHeight { height, progress ->
+                                val scale =
+                                    0.5f +
+                                        0.5f * (progress.topOffsetFraction / 0.3f).coerceIn(0f, 1f)
+                                (height * scale).roundToInt()
+                            }
+                            .animateItem()
+                    )
+                }
+            }
+        }
+
+        // Scroll to the end so that the new last item will slide down from the shrinking top area.
+        rule.runOnIdle { scope.launch { state.scrollBy(10_000f) } }
+        rule.waitForIdle()
+
+        val expectedOffsetPx = with(rule.density) { bottomPadding.roundToPx() }.toFloat()
+        val itemHeightPx = with(rule.density) { itemSize.roundToPx() }
+
+        // Read once so that previousLastItemKey points at the current last item, and verify that
+        // key=3 starts shrunk in the top transition area.
+        rule.runOnIdle {
+            assertThat(provider.lastItemOffset).isWithin(1f).of(expectedOffsetPx)
+            val newLastItemBeforeDelete = state.layoutInfo.visibleItems.first { it.key == 3 }
+            assertThat(newLastItemBeforeDelete.transformedHeight).isLessThan(itemHeightPx)
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle {
+            recordReactiveOffsets = true
+            list = listOf(0, 1, 2, 3)
+        }
+
+        val offsetsDuringAnimation = mutableListOf<Float>()
+        repeat(20) {
+            rule.mainClock.advanceTimeByFrame()
+            offsetsDuringAnimation += rule.runOnIdle { provider.lastItemOffset }
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        val finalOffset = rule.runOnIdle { provider.lastItemOffset }
+        assertThat(finalOffset).isWithin(1f).of(expectedOffsetPx)
+
+        // Before the fix, the measured offset was mixed with the shrunk animated height, which
+        // inflated lastItemOffset until the placement animation finished.
+        offsetsDuringAnimation.forEach { assertThat(it).isWithin(1f).of(expectedOffsetPx) }
+        reactiveOffsets.forEach { assertThat(it).isWithin(1f).of(expectedOffsetPx) }
+    }
+
+    @Test
+    fun transformingLazyColumn_deleteNonLastItem_withTransformedHeight_lastItemOffsetIsMonotonic() {
+        lateinit var provider: ScrollInfoProvider
+        var list by mutableStateOf(listOf(0, 1, 2))
+        var recordReactiveOffsets = false
+        val reactiveOffsets = mutableListOf<Float>()
+
+        rule.setContent {
+            val state = rememberTransformingLazyColumnState()
+            provider = remember(state) { ScrollInfoProvider(state) }
+            val derivedLastItemOffset by
+                remember(provider) {
+                    derivedStateOf { provider.lastItemOffset }
+                }
+            LaunchedEffect(provider) {
+                snapshotFlow { derivedLastItemOffset }
+                    .collect {
+                        if (recordReactiveOffsets) {
+                            reactiveOffsets += it
+                        }
+                    }
+            }
+            TransformingLazyColumn(
+                state = state,
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+                modifier = Modifier.requiredSize(100.dp),
+            ) {
+                items(list, key = { it }) {
+                    Box(
+                        Modifier.requiredSize(30.dp)
+                            // Items shrink as they approach the bottom edge.
+                            .transformedHeight { height, progress ->
+                                val scale =
+                                    0.5f +
+                                        0.5f *
+                                            ((1f - progress.bottomOffsetFraction) / 0.3f).coerceIn(
+                                                0f,
+                                                1f,
+                                            )
+                                (height * scale).roundToInt()
+                            }
+                            .animateItem()
+                    )
+                }
+            }
+        }
+
+        val initialOffset = rule.runOnIdle { provider.lastItemOffset }
+
+        rule.mainClock.autoAdvance = false
+        // The last item keeps its key and moves up out of the shrinking bottom area.
+        rule.runOnIdle {
+            recordReactiveOffsets = true
+            list = listOf(1, 2)
+        }
+
+        val offsetsDuringAnimation = mutableListOf<Float>()
+        repeat(20) {
+            rule.mainClock.advanceTimeByFrame()
+            offsetsDuringAnimation += rule.runOnIdle { provider.lastItemOffset }
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        val finalOffset = rule.runOnIdle { provider.lastItemOffset }
+        assertThat(finalOffset).isGreaterThan(initialOffset)
+
+        // Verify the animation branch actually interpolated instead of jumping straight to final.
+        assertThat(offsetsDuringAnimation.any { it > initialOffset + 1f && it < finalOffset - 1f })
+            .isTrue()
+        assertThat(reactiveOffsets.any { it > initialOffset + 1f && it < finalOffset - 1f })
+            .isTrue()
+
+        // Mixing the animated offset with the measured (final, larger) height would dip below the
+        // initial value at the start of the animation.
+        fun assertMonotonic(samples: List<Float>) {
+            var previous = initialOffset
+            samples.forEach {
+                assertThat(it).isAtLeast(initialOffset - 0.5f)
+                assertThat(it).isAtMost(finalOffset + 0.5f)
+                assertThat(it).isAtLeast(previous - 1f)
+                previous = it
+            }
+        }
+
+        assertMonotonic(offsetsDuringAnimation)
+        assertMonotonic(reactiveOffsets)
     }
 
     @Test
