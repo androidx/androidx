@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
@@ -124,6 +125,46 @@ class GlanceWidgetActionPendingIntentsTest {
         assertThat(savedIntent.action).isEqualTo(Intent.ACTION_VIEW)
         assertThat(savedIntent.data).isEqualTo(Uri.parse("companion://doses/42/skip"))
         assertThat(savedIntent.flags and Intent.FLAG_ACTIVITY_NEW_TASK).isNotEqualTo(0)
+    }
+
+    @Test
+    fun launchDeeplink_handledByTheApp_isLimitedToTheApp() {
+        // A non-exported deep link activity of the widget's own app.
+        val component = ComponentName(context, "com.example.WidgetDeepLink")
+        shadowOf(context.packageManager).apply {
+            addActivityIfNotPresent(component)
+            addIntentFilterForActivity(
+                component,
+                IntentFilter(Intent.ACTION_VIEW).apply {
+                    addCategory(Intent.CATEGORY_DEFAULT)
+                    addDataScheme("companion")
+                },
+            )
+        }
+
+        val savedIntent =
+            shadowOf(
+                    GlanceAdaptiveAction.DeeplinkAction(Uri.parse("companion://doses/42/skip"))
+                        .toPendingIntent(context, widgetName = "widget")
+                )
+                .savedIntent
+
+        assertThat(savedIntent.`package`).isEqualTo(context.packageName)
+        assertThat(savedIntent.action).isEqualTo(Intent.ACTION_VIEW)
+        assertThat(savedIntent.data).isEqualTo(Uri.parse("companion://doses/42/skip"))
+    }
+
+    @Test
+    fun launchDeeplink_notHandledByTheApp_staysImplicit() {
+        val savedIntent =
+            shadowOf(
+                    GlanceAdaptiveAction.DeeplinkAction(Uri.parse("https://example.com/doses"))
+                        .toPendingIntent(context, widgetName = "widget")
+                )
+                .savedIntent
+
+        assertThat(savedIntent.`package`).isNull()
+        assertThat(savedIntent.component).isNull()
     }
 
     private fun callback(item: String) =

@@ -19,6 +19,7 @@ package androidx.glance.adaptive.core.action
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.annotation.RestrictTo
 
 /**
@@ -30,7 +31,8 @@ import androidx.annotation.RestrictTo
  *   [GlanceAdaptiveAction.LaunchAction.targetActivityClass] with
  *   [GlanceAdaptiveAction.LaunchAction.parameters] as extras.
  * - [GlanceAdaptiveAction.DeeplinkAction]: starts an [Intent.ACTION_VIEW] activity for
- *   [GlanceAdaptiveAction.DeeplinkAction.uri].
+ *   [GlanceAdaptiveAction.DeeplinkAction.uri], in the widget's own app when one of its activities
+ *   handles it (see [deeplinkIntent]).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun GlanceAdaptiveAction.toPendingIntent(
@@ -63,11 +65,31 @@ public fun GlanceAdaptiveAction.toPendingIntent(
             PendingIntent.getActivity(
                 context,
                 /* requestCode= */ 0,
-                Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                deeplinkIntent(context, uri),
                 flags,
             )
         // GlanceAdaptiveAction is not sealed, so new action types can be added without breaking
         // callers; this is only reachable if one is added without being handled here.
         else -> throw IllegalArgumentException("Unsupported GlanceAdaptiveAction: $this")
     }
+}
+
+/**
+ * The [Intent.ACTION_VIEW] intent for [uri], limited to the app of [context] when one of its
+ * activities handles [uri], or left implicit otherwise, so a URI only another app (such as a
+ * browser) handles still opens there.
+ *
+ * Limiting it to the app lets it reach the app's own non-exported deep link activities: from
+ * Android 14 (API 34), an implicit intent, with neither a component nor a package, is only
+ * delivered to exported activities, even within the app that sends it.
+ */
+private fun deeplinkIntent(context: Context, uri: Uri): Intent {
+    val intent = Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    // Resolves as startActivity does: with the app's own package set, its non-exported activities
+    // are included.
+    intent.setPackage(context.packageName)
+    if (intent.resolveActivity(context.packageManager) == null) {
+        intent.setPackage(null)
+    }
+    return intent
 }
