@@ -188,6 +188,11 @@ internal fun waitForSettledSoftwareScreenshot(
     pollInterval: Duration,
     timeSource: TimeSource = TimeSource.Monotonic,
     sleepMillis: (Long) -> Unit = SystemClock::sleep,
+    failureMessage: () -> String = {
+        "Timed out after $timeout waiting for UiAutomation.takeScreenshot() to " +
+            "return a non-null Bitmap"
+    },
+    failureCause: () -> Throwable? = { null },
 ): Bitmap {
     val start = timeSource.markNow()
     val stabilityMatcher = MSSIMMatcher(threshold = FRAME_STABILITY_MSSIM_THRESHOLD)
@@ -275,10 +280,7 @@ internal fun waitForSettledSoftwareScreenshot(
                     previousBitmap = null
                     return it
                 }
-                throw AssertionError(
-                    "Timed out after $timeout waiting for UiAutomation.takeScreenshot() to " +
-                        "return a non-null Bitmap"
-                )
+                throw AssertionError(failureMessage(), failureCause())
             }
             sleepMillis(pollInterval.inWholeMilliseconds)
         }
@@ -291,4 +293,44 @@ internal fun waitForSettledSoftwareScreenshot(
         }
         throw t
     }
+}
+
+/**
+ * Applies optional [cropBounds] or [autoCrop] to [settledBitmap], recycling [settledBitmap] if a
+ * distinct cropped [Bitmap] is produced or if cropping throws.
+ */
+internal fun applyScreenshotCrop(
+    settledBitmap: Bitmap,
+    cropBounds: Rect?,
+    padding: Int,
+    autoCrop: Boolean,
+): Bitmap {
+    if (cropBounds != null) {
+        val cropped =
+            try {
+                crop(settledBitmap, cropBounds)
+            } catch (t: Throwable) {
+                settledBitmap.recycle()
+                throw t
+            }
+        // createBitmap returns the source itself when the crop covers the whole bitmap.
+        if (cropped !== settledBitmap) {
+            settledBitmap.recycle()
+        }
+        return cropped
+    }
+    if (autoCrop) {
+        val cropped =
+            try {
+                cropForeground(settledBitmap, padding = padding)
+            } catch (t: Throwable) {
+                settledBitmap.recycle()
+                throw t
+            }
+        if (cropped !== settledBitmap) {
+            settledBitmap.recycle()
+        }
+        return cropped
+    }
+    return settledBitmap
 }
