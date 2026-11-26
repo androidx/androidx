@@ -105,7 +105,7 @@ internal class BaseWidgetDelegate(
                         error = e,
                     )
                 }
-            telemetry.ensureTelemetryOptions(instances.targetToInstances, currentData)
+            telemetry.ensureTelemetryOptions(instances.targetToInstances, currentData, widgetName)
 
             for ((target, targetAppWidgetIds) in instances.targetToInstances) {
                 // Composing and delivering never suspends, so cancellation is checked here.

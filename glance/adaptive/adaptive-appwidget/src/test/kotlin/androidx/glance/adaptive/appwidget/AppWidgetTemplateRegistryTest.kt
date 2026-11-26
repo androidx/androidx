@@ -403,4 +403,42 @@ class AppWidgetTemplateRegistryTest {
             )
             .isFalse()
     }
+
+    @Test
+    fun hasDroppedSlots_returnsFalseWhenCustomRendererOverrideIsActive() {
+        val track =
+            TrackTemplate(
+                leading = Ring(0.55f),
+                primary = TemplateText("7,922"),
+                secondary = TemplateText("steps"),
+                supporting = listOf(TemplateText("Goal: 10,000")),
+            )
+        val compactLock = AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(168, 28))
+        val compactHome = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(88, 88))
+        AppWidgetTemplateRegistry.register(
+            widgetName = "custom_widget",
+            templateClass = TrackTemplate::class.java,
+            renderer =
+                remoteViewsRenderer { ctx, _, _ ->
+                    RemoteViews(ctx.packageName, android.R.layout.simple_list_item_1)
+                },
+            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
+        )
+
+        assertThat(AppWidgetTemplateRegistry.hasDroppedSlots(track, compactLock, "custom_widget"))
+            .isFalse()
+        assertThat(AppWidgetTemplateRegistry.hasDroppedSlots(track, compactLock, "other_widget"))
+            .isTrue()
+        assertThat(AppWidgetTemplateRegistry.hasDroppedSlots(track, compactHome, "custom_widget"))
+            .isTrue()
+
+        AppWidgetTemplateRegistry.unregister(
+            widgetName = "custom_widget",
+            templateClass = TrackTemplate::class.java,
+            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
+        )
+
+        assertThat(AppWidgetTemplateRegistry.hasDroppedSlots(track, compactLock, "custom_widget"))
+            .isTrue()
+    }
 }
