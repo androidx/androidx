@@ -201,34 +201,7 @@ public fun captureSceneToBitmap(
         maxWaitMs = max(MIN_SCREENSHOT_SCENE_SETTLE_WAIT_MS, timeout.inWholeMilliseconds),
     )
     val settledBitmap = waitForSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
-    if (cropBounds != null) {
-        val cropped =
-            try {
-                crop(settledBitmap, cropBounds)
-            } catch (t: Throwable) {
-                settledBitmap.recycle()
-                throw t
-            }
-        // createBitmap returns the source itself when the crop covers the whole bitmap.
-        if (cropped !== settledBitmap) {
-            settledBitmap.recycle()
-        }
-        return cropped
-    }
-    if (autoCrop) {
-        val cropped =
-            try {
-                cropForeground(settledBitmap, padding = padding)
-            } catch (t: Throwable) {
-                settledBitmap.recycle()
-                throw t
-            }
-        if (cropped !== settledBitmap) {
-            settledBitmap.recycle()
-        }
-        return cropped
-    }
-    return settledBitmap
+    return applyScreenshotCrop(settledBitmap, cropBounds, padding, autoCrop)
 }
 
 /**

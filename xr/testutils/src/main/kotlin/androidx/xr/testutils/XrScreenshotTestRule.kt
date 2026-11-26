@@ -67,14 +67,16 @@ private val TOAST_WINDOW_MODE_REGEX =
     Regex("(?:TOAST_WINDOW|Uid mode):\\s*(allow|ignore|deny|default)\\b")
 
 /**
- * [ScreenshotTestRule] for AndroidX tests running on XR devices.
+ * [ScreenshotTestRule] for AndroidX tests running on standalone spatial XR headsets.
  *
  * Uses the same golden repository root and [moduleDirectory] layout as
  * `AndroidXScreenshotTestRule`, but runs on any device with the XR spatial feature instead of only
- * on API 35 emulators. Use it with [assertAgainstGolden] or [assertBitmapAgainstGolden]
- * (`androidx.xr.testutils`). While a test is executing on an XR device, `com.android.systemui`
- * `TOAST_WINDOW` overlays (such as the post-wake input-recovery toast) are temporarily suppressed
- * via AppOps so transient system toasts cannot pollute compositor captures or auto-cropped bounds.
+ * on API 35 emulators. For paired Companion Phone + Glasses Projected setups, use
+ * [ProjectedScreenshotTestRule] instead. Use either rule with [assertAgainstGolden] or
+ * [assertBitmapAgainstGolden] (`androidx.xr.testutils`). While a test is executing on a spatial XR
+ * device, `com.android.systemui` `TOAST_WINDOW` overlays (such as the post-wake input-recovery
+ * toast) are temporarily suppressed via AppOps so transient system toasts cannot pollute compositor
+ * captures or auto-cropped bounds.
  *
  * When a golden is missing or mismatched, the captured bitmap is staged under
  * [stagedGoldensDirectory] using its repository-relative path so that it can be pulled directly
@@ -108,7 +110,7 @@ private val TOAST_WINDOW_MODE_REGEX =
  *   explicit matcher or calling the two-argument [assertBitmapAgainstGolden] overload. Defaults to
  *   [XrSsimMatcher].
  */
-public class XrScreenshotTestRule
+public open class XrScreenshotTestRule
 internal constructor(
     moduleDirectory: String,
     private val updateGoldens: Boolean,
@@ -146,10 +148,21 @@ internal constructor(
     public val stagedGoldensDirectory: File
         get() = File(deviceOutputDirectory, GOLDENS_SUBDIRECTORY)
 
+    /**
+     * Returns whether `com.android.systemui` `TOAST_WINDOW` overlays should be suppressed via
+     * AppOps around each test. Enabled on spatial XR headsets to block wake-up input-recovery
+     * toasts from polluting compositor captures.
+     */
+    protected open fun shouldSuppressSystemUiToasts(): Boolean = isXrDevice()
+
     override fun apply(base: Statement, description: Description?): Statement {
         val toastSuppressedStatement =
             object : Statement() {
                 override fun evaluate() {
+                    if (!shouldSuppressSystemUiToasts()) {
+                        base.evaluate()
+                        return
+                    }
                     val previousMode = querySystemUiToastWindowMode()
                     shellCommandExecutor(IGNORE_SYSTEMUI_TOAST_APPOP_CMD)
                     try {
@@ -317,7 +330,7 @@ public fun Bitmap.assertAgainstGolden(
     rule.assertBitmapAgainstGolden(this, goldenIdentifier, matcher)
 }
 
-private fun isUpdateGoldensArgumentEnabled(): Boolean = runCatching {
+internal fun isUpdateGoldensArgumentEnabled(): Boolean = runCatching {
     InstrumentationRegistry.getArguments().getString(UPDATE_GOLDENS_ARG)?.toBoolean() == true
 }
     .getOrDefault(false)
