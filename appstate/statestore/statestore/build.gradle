@@ -55,13 +55,13 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(libs.kotlinSerializationCore)
             api("androidx.compose.runtime:runtime:1.11.1")
-            implementation(project(":appstate:transform:transform"))
         }
 
         commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
             implementation(project(":kruth:kruth"))
+            implementation(project(":appstate:transform:transform"))
         }
 
         androidDeviceTest.dependencies {

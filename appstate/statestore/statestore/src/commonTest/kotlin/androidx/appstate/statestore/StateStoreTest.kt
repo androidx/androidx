@@ -54,4 +54,16 @@ class StateStoreTest {
         val state = stateStore.getState(IntKey)
         assertThat(state.value).isEqualTo(10)
     }
+
+    @Test
+    fun testResetToDefaultValueUpdatesExistingState() {
+        val stateStore = StateStore()
+        val state = stateStore.getState(StringKey)
+
+        stateStore.setState(StringKey, "updated")
+        assertThat(state.value).isEqualTo("updated")
+
+        stateStore.setState(StringKey, StringKey.defaultValue)
+        assertThat(state.value).isEqualTo("default")
+    }
 }
