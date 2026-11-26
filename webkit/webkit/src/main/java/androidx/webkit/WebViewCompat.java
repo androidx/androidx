@@ -73,7 +73,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
@@ -147,6 +146,20 @@ public class WebViewCompat {
     @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface ExperimentalGoogleAccountsCallback {}
+
+    /**
+     * Denotes that the WebView-managed download API surface is experimental. This covers
+     * {@link #setDownloadHandler(WebView, DownloadHandler)},
+     * {@link #setDownloadHandler(WebView, Executor, DownloadHandler)},
+     * {@link #clearDownloadHandler(WebView)}, {@link DownloadHandler}, {@link WebDownload} and
+     * {@link DownloadException}.
+     * It may change or be removed without warning.
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface ExperimentalDownloadHandler {}
 
     /**
      * This listener receives messages sent on the JavaScript object which was injected by {@link
@@ -2129,6 +2142,108 @@ public class WebViewCompat {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.HEADER_INTERCEPTOR;
         if (feature.isSupportedByWebView()) {
             return getProvider(webView).addHeaderInterceptor(matcher, interceptor);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Sets the handler that receives the downloads started in {@code webView}, replacing any
+     * previously set handler.
+     *
+     * <p>Setting a handler opts {@code webView} into the WebView-managed download API: WebView
+     * carries out each download itself, and the handler decides where the file is saved. The
+     * handler takes precedence over the {@link android.webkit.DownloadListener} set with
+     * {@link WebView#setDownloadListener(android.webkit.DownloadListener)}, which is not called
+     * while a handler is set. Other {@link WebView} instances are not affected.
+     *
+     * <p>For each download, {@code handler} is called once, on {@code executor}, with the
+     * {@link WebView} that started the download and a {@link WebDownload} that describes it. The
+     * handler must eventually call either {@link WebDownload#saveTo} or
+     * {@link WebDownload#cancel()}. It may return before deciding, and keep the
+     * {@link WebDownload} to decide later, for example after showing a file picker.
+     *
+     * @param webView  the {@link WebView} to set the handler on.
+     * @param executor the {@link Executor} on which {@code handler} is called.
+     * @param handler  the {@link DownloadHandler} that receives each new download.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#DOWNLOAD_HANDLER_EXPERIMENTAL_V1} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     * @see #setDownloadHandler(WebView, DownloadHandler)
+     * @see #clearDownloadHandler(WebView)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.DOWNLOAD_HANDLER_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalDownloadHandler
+    @UiThread
+    public static void setDownloadHandler(
+            @NonNull WebView webView,
+            @NonNull Executor executor,
+            @NonNull DownloadHandler handler) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.DOWNLOAD_HANDLER;
+        if (feature.isSupportedByWebView()) {
+            checkThread(webView);
+            getProvider(webView).setDownloadHandler(executor, handler);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Sets the handler that receives the downloads started in {@code webView}, replacing any
+     * previously set handler.
+     *
+     * <p>{@code handler} is called on the UI thread. To call it on another thread, use
+     * {@link #setDownloadHandler(WebView, Executor, DownloadHandler)}, which describes the
+     * behavior in detail.
+     *
+     * @param webView the {@link WebView} to set the handler on.
+     * @param handler the {@link DownloadHandler} that receives each new download.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#DOWNLOAD_HANDLER_EXPERIMENTAL_V1} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     * @see #setDownloadHandler(WebView, Executor, DownloadHandler)
+     * @see #clearDownloadHandler(WebView)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.DOWNLOAD_HANDLER_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalDownloadHandler
+    @UiThread
+    public static void setDownloadHandler(
+            @NonNull WebView webView,
+            @NonNull DownloadHandler handler) {
+        setDownloadHandler(webView, Runnable::run, handler);
+    }
+
+    /**
+     * Clears the handler set on {@code webView} with {@link #setDownloadHandler}.
+     *
+     * <p>Downloads that {@code webView} starts afterwards go to the
+     * {@link android.webkit.DownloadListener} set with
+     * {@link WebView#setDownloadListener(android.webkit.DownloadListener)}, if any. Downloads
+     * that were already passed to the handler are not affected.
+     *
+     * @param webView the {@link WebView} to clear the handler from.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#DOWNLOAD_HANDLER_EXPERIMENTAL_V1} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     * @see #setDownloadHandler(WebView, Executor, DownloadHandler)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.DOWNLOAD_HANDLER_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalDownloadHandler
+    @UiThread
+    public static void clearDownloadHandler(@NonNull WebView webView) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.DOWNLOAD_HANDLER;
+        if (feature.isSupportedByWebView()) {
+            checkThread(webView);
+            getProvider(webView).clearDownloadHandler();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

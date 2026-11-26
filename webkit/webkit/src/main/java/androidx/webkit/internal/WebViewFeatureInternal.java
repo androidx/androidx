@@ -33,6 +33,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.pm.PackageInfoCompat;
 import androidx.webkit.BackForwardCacheSettings;
+import androidx.webkit.DownloadException;
+import androidx.webkit.DownloadHandler;
 import androidx.webkit.GoogleAccountsEvent;
 import androidx.webkit.HeaderInterceptor;
 import androidx.webkit.JavaScriptExecutionWorld;
@@ -58,6 +60,7 @@ import androidx.webkit.SharedArrayBuffer;
 import androidx.webkit.SpeculativeLoadingConfig;
 import androidx.webkit.TracingConfig;
 import androidx.webkit.TracingController;
+import androidx.webkit.WebDownload;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebResourceErrorCompat;
@@ -1226,6 +1229,19 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(
                     WebViewFeature.HEADER_INTERCEPTOR,
                     Features.HEADER_INTERCEPTOR);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewCompat#setDownloadHandler(WebView, DownloadHandler)},
+     * {@link WebViewCompat#setDownloadHandler(WebView, Executor, DownloadHandler)},
+     * {@link WebViewCompat#clearDownloadHandler(WebView)}, {@link DownloadHandler},
+     * {@link WebDownload} and {@link DownloadException}.
+     */
+    public static final ApiFeature.NoFramework DOWNLOAD_HANDLER =
+            new ApiFeature.NoFramework(WebViewFeature.DOWNLOAD_HANDLER_EXPERIMENTAL_V1,
+                    Features.DOWNLOAD_HANDLER);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
