@@ -283,4 +283,28 @@ class TemplateRegistryTest {
             }
         assertThat(error).hasMessageThat().contains(AbstractTestTemplate::class.java.name)
     }
+
+    @Test
+    fun hasOverride_reflectsRegisteredAndRemovedOverrides() {
+        assertThat(registry.hasOverride("custom", TestTemplate::class.java, lock)).isFalse()
+
+        registry.registerOverride("custom", TestTemplate::class.java, renderer("custom"), lock)
+
+        assertThat(registry.hasOverride("custom", TestTemplate::class.java, lock)).isTrue()
+        assertThat(
+                registry.hasOverride(
+                    "custom",
+                    TestTemplate::class.java,
+                    TestSurface("lock", Dimensions(200, 100)),
+                )
+            )
+            .isTrue()
+        assertThat(registry.hasOverride("custom", TestTemplate::class.java, home)).isFalse()
+        assertThat(registry.hasOverride("other", TestTemplate::class.java, lock)).isFalse()
+        assertThat(registry.hasOverride("custom", OtherTemplate::class.java, lock)).isFalse()
+
+        registry.removeOverride("custom", TestTemplate::class.java, lock)
+
+        assertThat(registry.hasOverride("custom", TestTemplate::class.java, lock)).isFalse()
+    }
 }

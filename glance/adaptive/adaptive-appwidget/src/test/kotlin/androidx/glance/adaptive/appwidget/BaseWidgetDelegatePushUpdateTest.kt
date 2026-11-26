@@ -25,12 +25,16 @@ import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.OtherReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestReceiver
 import androidx.glance.adaptive.appwidget.BaseWidgetDelegateTestRule.TestTemplate
+import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.GlanceAdaptiveUpdateException
 import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.ArchetypeSelector
+import androidx.glance.adaptive.core.slots.Ring
+import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.track.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -589,5 +593,53 @@ class BaseWidgetDelegatePushUpdateTest {
             .isTrue()
         assertThat(WidgetOptionsCache.getCachedWidgetId(613))
             .isEqualTo(storedOptions.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
+    }
+
+    @Test
+    fun pushUpdate_whenCustomRendererOverrideIsActive_skipsDroppedSlotTelemetry() = runTest {
+        rule.setupBoundWidget(
+            appWidgetId = 614,
+            receiverName = TestReceiver::class.java.name,
+            hostCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+            extraOptions =
+                Bundle().apply {
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 168)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 28)
+                },
+        )
+        rule.registerReceiverInManifest(
+            TestReceiver::class.java.name,
+            widgetCategory = AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
+        )
+        val template =
+            TrackTemplate(
+                leading = Ring(0.8f),
+                primary = TemplateText("7,922"),
+                secondary = TemplateText("steps"),
+                supporting = listOf(TemplateText("Goal: 10,000")),
+            )
+        AppWidgetTemplateRegistry.register(
+            widgetName = "test_widget",
+            templateClass = TrackTemplate::class.java,
+            renderer =
+                TemplateRenderer { _, _ ->
+                    RemoteViewsRenderOutput(
+                        RemoteViews(rule.context.packageName, android.R.layout.simple_list_item_1)
+                    )
+                },
+            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
+        )
+
+        rule.delegate().pushUpdate(widgetName = "test_widget", currentData = template)
+
+        val options = rule.appWidgetManager.getAppWidgetOptions(614)
+        assertThat(
+                options.containsKey(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isTrue()
+        assertThat(
+                options.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isFalse()
     }
 }

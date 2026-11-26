@@ -17,7 +17,6 @@
 package androidx.glance.adaptive.appwidget
 
 import androidx.annotation.VisibleForTesting
-import androidx.glance.adaptive.appwidget.matrix.MatrixContent
 import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.templates.AppWidgetTemplateRegistration
@@ -110,17 +109,22 @@ internal object AppWidgetTemplateRegistry {
     ): AppWidgetRenderOutput = registry.render(data, surface, widgetName)
 
     /**
-     * Returns `true` when [surface]'s container size causes at least one non-blank optional slot in
-     * [data] to be omitted from the built-in template's [MatrixContent], or `false` if no built-in
-     * selector is registered for [data]'s class.
+     * Returns `true` if the built-in template omits a non-blank optional slot of [data] on
+     * [surface], or `false` if no built-in selector exists for [data]. When a custom renderer
+     * override is active for [widgetName], `false` means dropped slots are not reported.
      */
     fun hasDroppedSlots(
         data: GlanceAdaptiveTemplate,
         surface: AppWidgetSurface,
-    ): Boolean =
-        try {
+        widgetName: String? = null,
+    ): Boolean {
+        if (widgetName != null && registry.hasOverride(widgetName, data.javaClass, surface)) {
+            return false
+        }
+        return try {
             selectorRegistry.render(data, surface).hasDroppedSlots
         } catch (_: IllegalStateException) {
             false
         }
+    }
 }

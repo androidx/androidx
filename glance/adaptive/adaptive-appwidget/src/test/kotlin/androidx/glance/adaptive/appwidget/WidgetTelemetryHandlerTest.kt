@@ -21,7 +21,10 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import android.widget.RemoteViews
+import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.renderer.TemplateRenderer
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
@@ -29,6 +32,7 @@ import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.templates.track.TrackTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,9 +68,15 @@ class WidgetTelemetryHandlerTest {
 
     @Before
     fun setUp() {
+        AppWidgetTemplateRegistry.resetForTesting()
         appWidgetManager = spy(AppWidgetManager.getInstance(context))
         handler = WidgetTelemetryHandler(appWidgetManager)
         WidgetOptionsCache.clear()
+    }
+
+    @After
+    fun tearDown() {
+        AppWidgetTemplateRegistry.resetForTesting()
     }
 
     @Test
@@ -243,6 +253,62 @@ class WidgetTelemetryHandlerTest {
         assertThat(
                 appWidgetManager
                     .getAppWidgetOptions(712)
+                    .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun ensureTelemetryOptions_whenCustomRendererOverrideIsActive_skipsDroppedSlotTelemetry() {
+        bindWidget(713)
+        bindWidget(714)
+        val compactTarget = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(168, 28))
+        val template =
+            TrackTemplate(
+                leading = Ring(0.8f),
+                primary = TemplateText("7,922"),
+                secondary = TemplateText("steps"),
+                supporting = listOf(TemplateText("Goal: 10,000")),
+            )
+        AppWidgetTemplateRegistry.register(
+            widgetName = "custom_widget",
+            templateClass = TrackTemplate::class.java,
+            renderer =
+                TemplateRenderer { _, _ ->
+                    RemoteViewsRenderOutput(
+                        RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
+                    )
+                },
+            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
+        )
+
+        handler.ensureTelemetryOptions(
+            mapOf(compactTarget to listOf(713)),
+            template,
+            widgetName = "custom_widget",
+        )
+        handler.ensureTelemetryOptions(
+            mapOf(compactTarget to listOf(714)),
+            template,
+            widgetName = "default_widget",
+        )
+
+        val customOptions = appWidgetManager.getAppWidgetOptions(713)
+        assertThat(
+                customOptions.containsKey(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS
+                )
+            )
+            .isTrue()
+        assertThat(
+                customOptions.getBoolean(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS
+                )
+            )
+            .isFalse()
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(714)
                     .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
             )
             .isTrue()

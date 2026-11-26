@@ -204,6 +204,18 @@ public class TemplateRegistry<S : GlanceSurface, R>(
     }
 
     /**
+     * Returns `true` if an override is registered for [widgetName], [templateClass], and [surface].
+     */
+    public fun hasOverride(
+        widgetName: String,
+        templateClass: Class<out GlanceAdaptiveTemplate>,
+        surface: S,
+    ): Boolean {
+        val key = TemplateSurfaceKey(templateClass, surface)
+        return synchronized(lock) { (widgetName to key) in overrideMap }
+    }
+
+    /**
      * Resolves the override for [widgetName] (if any) or the default for the runtime class of
      * [data] on [surface] and renders [data] with it.
      *

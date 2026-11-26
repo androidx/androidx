@@ -44,14 +44,17 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
      * @param targetToInstances appWidgetIds as grouped by
      *   [GlanceRemoteViewsComposer.groupInstancesByRenderTarget].
      * @param data Template payload being pushed.
+     * @param widgetName Optional widget identifier; skips built-in dropped-slot telemetry when a
+     *   custom override is active.
      */
     fun ensureTelemetryOptions(
         targetToInstances: Map<RenderTarget, List<Int>>,
         data: GlanceAdaptiveTemplate,
+        widgetName: String? = null,
     ) {
         val templateId = data.templateId
         for ((target, appWidgetIds) in targetToInstances) {
-            val hasDroppedSlots = hasDroppedSlots(data, target)
+            val hasDroppedSlots = hasDroppedSlots(data, target, widgetName)
             for (i in appWidgetIds.indices) {
                 val appWidgetId = appWidgetIds[i]
                 try {
@@ -135,10 +138,15 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
      * Returns `true` when [target]'s container size causes at least one non-blank optional slot in
      * [data] to be omitted from the rendered layout.
      */
-    private fun hasDroppedSlots(data: GlanceAdaptiveTemplate, target: RenderTarget): Boolean =
+    private fun hasDroppedSlots(
+        data: GlanceAdaptiveTemplate,
+        target: RenderTarget,
+        widgetName: String?,
+    ): Boolean =
         AppWidgetTemplateRegistry.hasDroppedSlots(
             data,
             target.surface.withDimensions(target.dimensions),
+            widgetName,
         )
 
     companion object {
