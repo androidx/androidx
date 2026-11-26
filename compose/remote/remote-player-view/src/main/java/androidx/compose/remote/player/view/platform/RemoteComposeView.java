@@ -95,6 +95,7 @@ public class RemoteComposeView extends FrameLayout
     long mDoubleTapTimeout;
 
     AndroidCustomContext mAndroidCustomContext = null;
+    private @Nullable AndroidTextInputSupport mTextInputSupport = null;
     @Nullable RcResolver mRcResolver = null;
     AndroidRemoteContext mARContext;
     Map<Integer, Object> mResolvedData = null;
@@ -288,6 +289,9 @@ public class RemoteComposeView extends FrameLayout
             mARContext.setClock(mClock);
         }
 
+        if (mTextInputSupport != null && mTextInputSupport.isEditing()) {
+            mTextInputSupport.stopTextInput();
+        }
         mDocument = value;
         mARContext.setPaintContext(null);
         if (mPatternCallback != null) {
@@ -807,6 +811,17 @@ public class RemoteComposeView extends FrameLayout
     }
 
     /**
+     * Returns the text input support used to edit strings declared editable by a text input
+     * modifier, creating it on first use.
+     */
+    public @NonNull AndroidTextInputSupport getTextInputSupport() {
+        if (mTextInputSupport == null) {
+            mTextInputSupport = new AndroidTextInputSupport(this);
+        }
+        return mTextInputSupport;
+    }
+
+    /**
      * Set the host {@link RcResolver} plugin used to resolve embedded RemoteCompose document URLs
      * into serialized {@code byte[]} buffers.
      *
@@ -936,6 +951,9 @@ public class RemoteComposeView extends FrameLayout
 
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
+                    if (mTextInputSupport != null) {
+                        mTextInputSupport.onTouchDown(x, y);
+                    }
                     mLimiter.touchBoost();
                     mDownTime = time;
                     mDownX = x;
@@ -1335,6 +1353,9 @@ public class RemoteComposeView extends FrameLayout
             mARContext.useCanvas(canvas);
             if (mARContext.getPaintContext() != null && mAndroidCustomContext != null) {
                 mARContext.getPaintContext().setCustomSupport(mAndroidCustomContext);
+            }
+            if (mARContext.getPaintContext() != null) {
+                mARContext.getPaintContext().setTextInputSupport(getTextInputSupport());
             }
             mARContext.mWidth = getWidth();
             mARContext.mHeight = getHeight();

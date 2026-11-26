@@ -30,6 +30,7 @@ import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.context.ComposePaintContext
 import androidx.compose.remote.player.compose.context.ComposeRemoteContext
 import androidx.compose.remote.player.compose.custom.ComposeCustomSupport
+import androidx.compose.remote.player.compose.textinput.ComposeTextInputSupport
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.action.NamedActionHandler
 import androidx.compose.remote.player.core.action.StateUpdaterActionCallback
@@ -88,6 +89,7 @@ public fun RemoteComposePlayer(
 
     var disable by remember(document) { mutableStateOf(false) }
     var errorMessage by remember(document) { mutableStateOf("") }
+    val textInputSupport = remember(document) { ComposeTextInputSupport() }
 
     val remoteContext by
         remember(document) {
@@ -166,6 +168,7 @@ public fun RemoteComposePlayer(
                                         if (change.changedToDown()) {
                                             val x = change.position.x
                                             val y = change.position.y
+                                            textInputSupport.onTouchDown(x, y)
                                             val time = remoteContext.animationTime
                                             remoteContext.loadFloat(
                                                 RemoteContext.ID_TOUCH_EVENT_TIME,
@@ -240,6 +243,7 @@ public fun RemoteComposePlayer(
                         if (customSupport != null) {
                             composePaintCtx.setCustomSupport(customSupport)
                         }
+                        composePaintCtx.setTextInputSupport(textInputSupport)
                         remoteContext.paintContext = composePaintCtx
                         document.paint(remoteContext, theme)
                     } catch (e: Exception) {
@@ -257,6 +261,7 @@ public fun RemoteComposePlayer(
                 }
             }
             customSupport?.RenderComponents()
+            textInputSupport.Editor()
         }
     }
 }

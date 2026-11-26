@@ -122,6 +122,7 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
             intSetOf(
                 Operations.LAYOUT_FLOW,
                 Operations.LAYOUT_CUSTOM,
+                Operations.LAYOUT_TEXT_INPUT,
                 Operations.MODIFIER_MULTI_CLICK,
                 Operations.MODIFIER_DIMENSION_CONSTRAINTS,
             )

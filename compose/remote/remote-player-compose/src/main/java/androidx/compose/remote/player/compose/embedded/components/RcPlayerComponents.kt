@@ -37,6 +37,7 @@ import androidx.compose.remote.core.operations.layout.managers.FlowLayout
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
@@ -59,6 +60,7 @@ import androidx.compose.remote.player.compose.embedded.layout.RcPlayerFlowRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerImageLayout
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerStateLayout
+import androidx.compose.remote.player.compose.embedded.layout.RcPlayerTextInputLayout
 import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
 import androidx.compose.remote.player.compose.embedded.modifier.toModifier
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
@@ -405,6 +407,7 @@ private fun RcPlayerLayoutComponent(
                 RcPlayerFitBoxLayout(component, modifier)
             }
         is StateLayout -> RcPlayerStateLayout(component, modifier)
+        is TextInputLayout -> RcPlayerTextInputLayout(component, modifier)
         is ImageLayout -> RcPlayerImageLayout(component, modifier)
         is Custom -> RcPlayerCustom(component, modifier, customClickHandlers)
         // Last as others are often BoxLayout subclasses

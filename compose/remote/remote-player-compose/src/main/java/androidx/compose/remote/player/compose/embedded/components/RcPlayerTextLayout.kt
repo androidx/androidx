@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.managers.CoreText
+import androidx.compose.remote.core.operations.layout.managers.TextInputLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
@@ -30,17 +31,21 @@ import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.doc.rawDimensionPx
 import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
 import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
+import androidx.compose.remote.player.compose.embedded.layout.LocalTextInputLayout
 import androidx.compose.remote.player.compose.embedded.resources.buildFontFeatureSettings
 import androidx.compose.remote.player.compose.embedded.resources.resolveFontFamily
 import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
+import androidx.compose.remote.player.compose.embedded.state.rememberMutableRemoteStringAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
+import androidx.compose.remote.player.compose.textinput.RcTextInputField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -169,35 +174,64 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             else -> TextOverflow.Clip
         }
 
-    BasicText(
-        text = text,
+    val style =
+        TextStyle(
+            color = color,
+            fontSize = fontSizeSp,
+            fontWeight = fontWeight,
+            fontFamily = fontFamily,
+            fontStyle = fontStyle,
+            fontFeatureSettings = fontFeatureSettings,
+            textAlign = textAlign,
+            textDirection = TextDirection.ContentOrLtr,
+            lineBreak = lineBreak,
+            hyphens = hyphens,
+            letterSpacing = letterSpacing.em,
+            lineHeight =
+                resolveCoreTextLineHeight(
+                    fontSize = fontSize,
+                    lineHeightMultiplier = lineHeightMultiplier,
+                    lineHeightAdd = lineHeightAdd,
+                    autosize = layout.autosize,
+                    density = density,
+                ),
+            textDecoration = textDecoration,
+        )
+    val textInput = LocalTextInputLayout.current
+    if (textInput?.textId == textId) {
+        RcEditableText(textId, textInput, style, modifier)
+    } else {
+        BasicText(
+            text = text,
+            modifier = modifier,
+            autoSize = autoSize,
+            style = style,
+            overflow = overflow,
+            maxLines = resolveEffectiveMaxLines(layout.maxLines, layout.overflow),
+        )
+    }
+}
+
+/**
+ * Renders an editable text component as a text field bound to its string: the embedded player is a
+ * real Compose tree, so no host overlay is needed.
+ */
+@Composable
+private fun RcEditableText(
+    textId: Int,
+    op: TextInputLayout,
+    style: TextStyle,
+    modifier: Modifier,
+) {
+    var value by rememberMutableRemoteStringAsState(textId)
+    val hint = if (op.hintId != 0) rememberRemoteStringAsState(op.hintId).value else null
+    RcTextInputField(
+        text = value,
+        op = op,
+        textStyle = style,
         modifier = modifier,
-        autoSize = autoSize,
-        style =
-            TextStyle(
-                color = color,
-                fontSize = fontSizeSp,
-                fontWeight = fontWeight,
-                fontFamily = fontFamily,
-                fontStyle = fontStyle,
-                fontFeatureSettings = fontFeatureSettings,
-                textAlign = textAlign,
-                textDirection = TextDirection.ContentOrLtr,
-                lineBreak = lineBreak,
-                hyphens = hyphens,
-                letterSpacing = letterSpacing.em,
-                lineHeight =
-                    resolveCoreTextLineHeight(
-                        fontSize = fontSize,
-                        lineHeightMultiplier = lineHeightMultiplier,
-                        lineHeightAdd = lineHeightAdd,
-                        autosize = layout.autosize,
-                        density = density,
-                    ),
-                textDecoration = textDecoration,
-            ),
-        overflow = overflow,
-        maxLines = resolveEffectiveMaxLines(layout.maxLines, layout.overflow),
+        hint = hint,
+        onValueChange = { value = it },
     )
 }
 
