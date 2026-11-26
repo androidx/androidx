@@ -3143,9 +3143,8 @@ public class ExifInterface {
     private static final byte[] WEBP_CHUNK_TYPE_VP8 = "VP8 ".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_ANIM = "ANIM".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_ANMF = "ANMF".getBytes(Charset.defaultCharset());
-    private static final int WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH = 10;
+    private static final int WEBP_VP8X_CHUNK_BYTE_LENGTH = 10;
     private static final int WEBP_CHUNK_TYPE_BYTE_LENGTH = 4;
-    private static final int WEBP_CHUNK_SIZE_BYTE_LENGTH = 4;
 
     private static final ThreadLocal<SimpleDateFormat> sFormatterPrimary =
             new ThreadLocal<SimpleDateFormat>() {
@@ -6558,17 +6557,20 @@ public class ExifInterface {
         // See Section "Terminology & Basics"
         in.setByteOrder(LITTLE_ENDIAN);
 
+        int startPosition = in.position();
+
         in.skipFully(WEBP_SIGNATURE_1.length);
         // File size corresponds to the size of the entire file from offset 8.
         // See Section "WebP File Header"
         int fileSize = in.readInt() + 8;
-        int bytesRead = 8;
 
         in.skipFully(WEBP_SIGNATURE_2.length);
-        bytesRead += WEBP_SIGNATURE_2.length;
+        if (fileSize < in.position() - startPosition) {
+            throw new IOException("Encountered WebP file with invalid chunk size");
+        }
 
         try {
-            while (true) {
+            while (in.position() - startPosition < fileSize) {
                 // TODO: Check the first Chunk Type, and if it is VP8X, check if the chunks are
                 // ordered properly.
 
@@ -6581,12 +6583,16 @@ public class ExifInterface {
                 // See Section "RIFF File Format"
                 byte[] code = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
                 in.readFully(code);
-                bytesRead += WEBP_CHUNK_TYPE_BYTE_LENGTH;
 
                 int chunkSize = in.readInt();
-                bytesRead += 4;
+                int paddedChunkSize =
+                        getPaddedWebpChunkSize(chunkSize, in.position() - startPosition, fileSize);
+                int chunkPayloadStart = in.position();
 
                 if (Arrays.equals(WEBP_CHUNK_TYPE_EXIF, code)) {
+                    // Save offset to Exif data for handling thumbnail and attribute offsets.
+                    mOffsetToExifData = in.position() - startPosition;
+
                     // TODO: Need to handle potential OutOfMemoryError
                     byte[] payload = new byte[chunkSize];
                     in.readFully(payload);
@@ -6598,30 +6604,17 @@ public class ExifInterface {
                         payload =
                                 Arrays.copyOfRange(
                                         payload, IDENTIFIER_EXIF_APP1.length, payload.length);
+                        mOffsetToExifData += IDENTIFIER_EXIF_APP1.length;
                     }
 
-                    // Save offset to EXIF data for handling thumbnail and attribute offsets.
-                    mOffsetToExifData = bytesRead;
                     readExifSegment(payload, IFD_TYPE_PRIMARY);
 
                     setThumbnailData(new ByteOrderedDataInputStream(payload));
                     break;
-                } else {
-                    // Add a single padding byte at end if chunk size is odd
-                    chunkSize = (chunkSize % 2 == 1) ? chunkSize + 1 : chunkSize;
-
-                    // Check if skipping to next chunk is necessary
-                    if (bytesRead + chunkSize == fileSize) {
-                        // Reached end of file
-                        break;
-                    } else if (bytesRead + chunkSize > fileSize) {
-                        throw new IOException("Encountered WebP file with invalid chunk size");
-                    }
-
-                    // Skip to next chunk
-                    in.skipFully(chunkSize);
-                    bytesRead += chunkSize;
                 }
+
+                // Skip to next chunk
+                in.skipFully(paddedChunkSize - (in.position() - chunkPayloadStart));
             }
         } catch (EOFException e) {
             // Should not reach here. Will only reach here if the file is corrupted or
@@ -6871,15 +6864,14 @@ public class ExifInterface {
     //   2) flag for EXIF inside "VP8X" chunk set to 1, and
     //   3) contain the "EXIF" chunk in the correct order amongst other chunks.
     //
-    // Based on these rules, this API will support three different cases depending on the contents
-    // of the original file:
-    //   1) "EXIF" chunk already exists
-    //     -> replace it with the new "EXIF" chunk
-    //   2) "EXIF" chunk does not exist and the first chunk is "VP8" or "VP8L"
-    //     -> add "VP8X" before the "VP8"/"VP8L" chunk (with EXIF flag set to 1), and add new
-    //     "EXIF" chunk after the "VP8"/"VP8L" chunk.
-    //   3) "EXIF" chunk does not exist and the first chunk is "VP8X"
-    //     -> set EXIF flag in "VP8X" chunk to 1, and add new "EXIF" chunk at the proper location.
+    // Based on these rules, this method supports two cases depending on the first chunk of the
+    // original file:
+    //   1) First chunk is "VP8X"
+    //     -> set Exif flag in "VP8X" chunk to 1, write the new "EXIF" chunk after the
+    //     image/animation data, and skip any old "EXIF" chunk.
+    //   2) First chunk is "VP8 " or "VP8L"
+    //     -> add "VP8X" before the "VP8 "/"VP8L" chunk (with Exif flag set to 1), and add new
+    //     "EXIF" chunk after the "VP8 "/"VP8L" chunk.
     //
     // See https://developers.google.com/speed/webp/docs/riff_container for more details.
     private void saveWebpAttributes(InputStream inputStream, OutputStream outputStream)
@@ -6895,193 +6887,184 @@ public class ExifInterface {
 
         // WebP signature
         copy(totalInputStream, totalOutputStream, WEBP_SIGNATURE_1.length);
-        int riffLength = totalInputStream.readInt();
+        int fileSize = totalInputStream.readInt() + 8;
         totalInputStream.skipFully(WEBP_SIGNATURE_2.length);
+        if (fileSize < totalInputStream.position()) {
+            throw new IOException("Encountered WebP file with invalid chunk size");
+        }
 
         // Create a separate byte array to calculate file length
         ByteArrayOutputStream nonHeaderByteArrayOutputStream = null;
-        int exifOffset = -1;
         try {
             nonHeaderByteArrayOutputStream = new ByteArrayOutputStream();
             ByteOrderedDataOutputStream nonHeaderOutputStream =
                     new ByteOrderedDataOutputStream(nonHeaderByteArrayOutputStream, LITTLE_ENDIAN);
 
-            if (mOffsetToExifData != 0) {
-                // EXIF chunk exists in the original file
-                // Tested by webp_with_exif.webp
-                int bytesRead = WEBP_SIGNATURE_1.length + WEBP_FILE_SIZE_BYTE_LENGTH
-                        + WEBP_SIGNATURE_2.length;
-                copy(totalInputStream, nonHeaderOutputStream,
-                        mOffsetToExifData - bytesRead - WEBP_CHUNK_TYPE_BYTE_LENGTH
-                                - WEBP_CHUNK_SIZE_BYTE_LENGTH);
+            byte[] firstChunkType = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
+            totalInputStream.readFully(firstChunkType);
+            // Non-null if the ANMF loop below had to read the next chunk's 4-byte type to detect
+            // the end of the animation frames.
+            byte[] firstChunkAfterAnim = null;
 
-                // Skip input stream to the end of the EXIF chunk
-                totalInputStream.skipFully(WEBP_CHUNK_TYPE_BYTE_LENGTH);
-                int exifChunkLength = totalInputStream.readInt();
-                // RIFF chunks have a single padding byte at the end if the declared chunk size is
-                // odd.
-                if (exifChunkLength % 2 != 0) {
-                    exifChunkLength++;
+            if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8X)) {
+                // Original file already includes a VP8X chunk
+                int size = totalInputStream.readInt();
+                if (size != WEBP_VP8X_CHUNK_BYTE_LENGTH) {
+                    throw new IOException("Invalid VP8X chunk size");
                 }
-                totalInputStream.skipFully(exifChunkLength);
+                int paddedSize =
+                        getPaddedWebpChunkSize(size, totalInputStream.position(), fileSize);
+                byte[] data = new byte[paddedSize];
+                totalInputStream.readFully(data);
 
-                // Write new EXIF chunk to output stream
-                exifOffset = writeExifSegment(nonHeaderOutputStream);
-            } else {
-                // EXIF chunk does not exist in the original file
-                byte[] firstChunkType = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
-                totalInputStream.readFully(firstChunkType);
+                // Set the EXIF flag to 1
+                data[0] = (byte) (data[0] | (1 << 3));
 
-                if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8X)) {
-                    // Original file already includes other extra data
-                    int size = totalInputStream.readInt();
-                    // WebP files have a single padding byte at the end if the chunk size is odd.
-                    byte[] data = new byte[(size % 2) == 1 ? size + 1 : size];
-                    totalInputStream.readFully(data);
+                // Write the updated VP8X chunk
+                nonHeaderOutputStream.write(WEBP_CHUNK_TYPE_VP8X);
+                nonHeaderOutputStream.writeInt(size);
+                nonHeaderOutputStream.write(data);
 
-                    // Set the EXIF flag to 1
-                    data[0] = (byte) (data[0] | (1 << 3));
+                // Check Animation flag to determine where Exif data should start.
+                // Animation control data is composed of 1 ANIM chunk and multiple ANMF
+                // chunks and since the image data (VP8/VP8L) chunks are included in the ANMF
+                // chunks, EXIF data should come after the last ANMF chunk.
+                if (((data[0] >> 1) & 1) == 1) {
+                    copyChunksUpToGivenChunkType(
+                            totalInputStream,
+                            nonHeaderOutputStream,
+                            fileSize,
+                            WEBP_CHUNK_TYPE_ANIM,
+                            null);
 
-                    // Retrieve Animation flag--in order to check where EXIF data should start
-                    boolean containsAnimation = ((data[0] >> 1) & 1) == 1;
-
-                    // Write the original VP8X chunk
-                    nonHeaderOutputStream.write(WEBP_CHUNK_TYPE_VP8X);
-                    nonHeaderOutputStream.writeInt(size);
-                    nonHeaderOutputStream.write(data);
-
-                    // Animation control data is composed of 1 ANIM chunk and multiple ANMF
-                    // chunks and since the image data (VP8/VP8L) chunks are included in the ANMF
-                    // chunks, EXIF data should come after the last ANMF chunk.
-                    // Also, because there is no value indicating the amount of ANMF chunks, we need
-                    // to keep iterating through chunks until we either reach the end of the file or
-                    // the XMP chunk (if it exists).
-                    // Tested by webp_with_anim_without_exif.webp
-                    if (containsAnimation) {
-                        copyChunksUpToGivenChunkType(totalInputStream, nonHeaderOutputStream,
-                                WEBP_CHUNK_TYPE_ANIM, null);
-
-                        while (true) {
-                            byte[] type = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
-                            boolean animationFinished = false;
-                            try {
-                                totalInputStream.readFully(type);
-                                animationFinished = !Arrays.equals(type, WEBP_CHUNK_TYPE_ANMF);
-                            } catch (EOFException e) {
-                                animationFinished = true;
-                            }
-                            if (animationFinished) {
-                                exifOffset = writeExifSegment(nonHeaderOutputStream);
-                                break;
-                            }
-                            copyWebPChunk(totalInputStream, nonHeaderOutputStream, type);
+                    while (totalInputStream.position() < fileSize) {
+                        byte[] type = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
+                        totalInputStream.readFully(type);
+                        if (Arrays.equals(type, WEBP_CHUNK_TYPE_ANMF)) {
+                            copyWebPChunk(totalInputStream, nonHeaderOutputStream, type, fileSize);
+                        } else {
+                            firstChunkAfterAnim = type;
+                            break;
                         }
-                    } else {
-                        // Skip until we find the VP8 or VP8L chunk
-                        copyChunksUpToGivenChunkType(totalInputStream, nonHeaderOutputStream,
-                                WEBP_CHUNK_TYPE_VP8, WEBP_CHUNK_TYPE_VP8L);
-                        exifOffset = writeExifSegment(nonHeaderOutputStream);
                     }
-                } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)
-                        || Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
-                    int size = totalInputStream.readInt();
-                    int bytesToRead = size;
-                    // WebP files have a single padding byte at the end if the chunk size is odd.
-                    if (size % 2 == 1) {
-                        bytesToRead += 1;
+                } else {
+                    // Copy until we find the VP8 or VP8L chunk
+                    copyChunksUpToGivenChunkType(
+                            totalInputStream,
+                            nonHeaderOutputStream,
+                            fileSize,
+                            WEBP_CHUNK_TYPE_VP8,
+                            WEBP_CHUNK_TYPE_VP8L);
+                }
+            } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)
+                    || Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
+                int size = totalInputStream.readInt();
+                int bytesToRead =
+                        getPaddedWebpChunkSize(size, totalInputStream.position(), fileSize);
+
+                // Retrieve image width/height
+                int widthAndHeight = 0;
+                int width = 0;
+                int height = 0;
+                boolean alpha = false;
+                // Save VP8 frame data for later
+                byte[] vp8Frame = new byte[3];
+
+                if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)) {
+                    if (size < vp8Frame.length + WEBP_VP8_SIGNATURE.length + 4) {
+                        throw new IOException("Invalid VP8 chunk size");
+                    }
+                    totalInputStream.readFully(vp8Frame);
+
+                    // Check signature
+                    byte[] vp8Signature = new byte[3];
+                    totalInputStream.readFully(vp8Signature);
+                    if (!Arrays.equals(WEBP_VP8_SIGNATURE, vp8Signature)) {
+                        throw new IOException("Error checking VP8 signature");
                     }
 
                     // Retrieve image width/height
-                    int widthAndHeight = 0;
-                    int width = 0;
-                    int height = 0;
-                    boolean alpha = false;
-                    // Save VP8 frame data for later
-                    byte[] vp8Frame = new byte[3];
-
-                    if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)) {
-                        totalInputStream.readFully(vp8Frame);
-
-                        // Check signature
-                        byte[] vp8Signature = new byte[3];
-                        totalInputStream.readFully(vp8Signature);
-                        if (!Arrays.equals(WEBP_VP8_SIGNATURE, vp8Signature)) {
-                            throw new IOException("Error checking VP8 signature");
-                        }
-
-                        // Retrieve image width/height
-                        widthAndHeight = totalInputStream.readInt();
-                        width = widthAndHeight & 0x3FFF;
-                        height = (widthAndHeight >> 16) & 0x3FFF;
-                        bytesToRead -= (vp8Frame.length + vp8Signature.length + 4);
-                    } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
-                        // Check signature
-                        byte vp8lSignature = totalInputStream.readByte();
-                        if (vp8lSignature != WEBP_VP8L_SIGNATURE) {
-                            throw new IOException("Error checking VP8L signature");
-                        }
-
-                        // Retrieve image width/height
-                        widthAndHeight = totalInputStream.readInt();
-                        // VP8L stores 14-bit 'width - 1' and 'height - 1' values. See "RIFF Header"
-                        // of "WebP Lossless Bitstream Specification".
-                        width = (widthAndHeight & 0x3FFF) + 1;  // Read bits 0 - 13
-                        height = ((widthAndHeight & 0xFFFC000) >>> 14) + 1;  // Read bits 14 - 27
-                        // Retrieve alpha bit 28
-                        alpha = (widthAndHeight & 1 << 28) != 0;
-                        bytesToRead -= (1 /* VP8L signature */ + 4);
+                    widthAndHeight = totalInputStream.readInt();
+                    width = widthAndHeight & 0x3FFF;
+                    height = (widthAndHeight >> 16) & 0x3FFF;
+                    bytesToRead -= (vp8Frame.length + vp8Signature.length + 4);
+                } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
+                    if (size < 1 /* VP8L signature */ + 4) {
+                        throw new IOException("Invalid VP8L chunk size");
+                    }
+                    // Check signature
+                    byte vp8lSignature = totalInputStream.readByte();
+                    if (vp8lSignature != WEBP_VP8L_SIGNATURE) {
+                        throw new IOException("Error checking VP8L signature");
                     }
 
-                    // Create VP8X with Exif flag set to 1
-                    nonHeaderOutputStream.write(WEBP_CHUNK_TYPE_VP8X);
-                    nonHeaderOutputStream.writeInt(WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH);
-                    byte[] data = new byte[WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH];
-                    // ALPHA flag
-                    if (alpha) {
-                        data[0] = (byte) (data[0] | (1 << 4));
-                    }
-                    // EXIF flag
-                    data[0] = (byte) (data[0] | (1 << 3));
-                    // VP8X stores Width - 1 and Height - 1 values
-                    width -= 1;
-                    height -= 1;
-                    data[4] = (byte) width;
-                    data[5] = (byte) (width >> 8);
-                    data[6] = (byte) (width >> 16);
-                    data[7] = (byte) height;
-                    data[8] = (byte) (height >> 8);
-                    data[9] = (byte) (height >> 16);
-                    nonHeaderOutputStream.write(data);
-
-                    // Write VP8 or VP8L data
-                    nonHeaderOutputStream.write(firstChunkType);
-                    nonHeaderOutputStream.writeInt(size);
-                    if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)) {
-                        nonHeaderOutputStream.write(vp8Frame);
-                        nonHeaderOutputStream.write(WEBP_VP8_SIGNATURE);
-                        nonHeaderOutputStream.writeInt(widthAndHeight);
-                    } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
-                        nonHeaderOutputStream.write(WEBP_VP8L_SIGNATURE);
-                        nonHeaderOutputStream.writeInt(widthAndHeight);
-                    }
-                    copy(totalInputStream, nonHeaderOutputStream, bytesToRead);
-
-                    // Write EXIF chunk
-                    exifOffset = writeExifSegment(nonHeaderOutputStream);
+                    // Retrieve image width/height
+                    widthAndHeight = totalInputStream.readInt();
+                    // VP8L stores 14-bit 'width - 1' and 'height - 1' values. See "RIFF Header"
+                    // of "WebP Lossless Bitstream Specification".
+                    width = (widthAndHeight & 0x3FFF) + 1;  // Read bits 0 - 13
+                    height = ((widthAndHeight & 0xFFFC000) >>> 14) + 1;  // Read bits 14 - 27
+                    // Retrieve alpha bit 28
+                    alpha = (widthAndHeight & 1 << 28) != 0;
+                    bytesToRead -= (1 /* VP8L signature */ + 4);
                 }
+
+                // Create VP8X with Exif flag set to 1
+                nonHeaderOutputStream.write(WEBP_CHUNK_TYPE_VP8X);
+                nonHeaderOutputStream.writeInt(WEBP_VP8X_CHUNK_BYTE_LENGTH);
+                byte[] data = new byte[WEBP_VP8X_CHUNK_BYTE_LENGTH];
+                // ALPHA flag
+                if (alpha) {
+                    data[0] = (byte) (data[0] | (1 << 4));
+                }
+                // EXIF flag
+                data[0] = (byte) (data[0] | (1 << 3));
+                // VP8X stores Width - 1 and Height - 1 values
+                width -= 1;
+                height -= 1;
+                data[4] = (byte) width;
+                data[5] = (byte) (width >> 8);
+                data[6] = (byte) (width >> 16);
+                data[7] = (byte) height;
+                data[8] = (byte) (height >> 8);
+                data[9] = (byte) (height >> 16);
+                nonHeaderOutputStream.write(data);
+
+                // Write VP8 or VP8L data
+                nonHeaderOutputStream.write(firstChunkType);
+                nonHeaderOutputStream.writeInt(size);
+                if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)) {
+                    nonHeaderOutputStream.write(vp8Frame);
+                    nonHeaderOutputStream.write(WEBP_VP8_SIGNATURE);
+                    nonHeaderOutputStream.writeInt(widthAndHeight);
+                } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
+                    nonHeaderOutputStream.writeByte(WEBP_VP8L_SIGNATURE);
+                    nonHeaderOutputStream.writeInt(widthAndHeight);
+                }
+                copy(totalInputStream, nonHeaderOutputStream, bytesToRead);
+            } else {
+                throw new IOException("Unexpected first WebP chunk type");
             }
 
-            // Copy the rest of the RIFF part of the file
-            int remainingRiffBytes = riffLength + 8 - totalInputStream.position();
-            copy(totalInputStream, nonHeaderOutputStream, remainingRiffBytes);
+            // Write Exif chunk immediately after the image/animation data
+            int exifOffset = writeExifSegment(nonHeaderOutputStream);
+
+            // Copy the rest of the RIFF part of the file, skipping any old Exif chunks
+            if (firstChunkAfterAnim != null) {
+                copyOrSkipWebpChunk(
+                        totalInputStream, nonHeaderOutputStream, firstChunkAfterAnim, fileSize);
+            }
+            while (totalInputStream.position() < fileSize) {
+                byte[] type = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
+                totalInputStream.readFully(type);
+                copyOrSkipWebpChunk(totalInputStream, nonHeaderOutputStream, type, fileSize);
+            }
 
             // Write file length + second signature
             totalOutputStream.writeInt(nonHeaderByteArrayOutputStream.size()
                     + WEBP_SIGNATURE_2.length);
             totalOutputStream.write(WEBP_SIGNATURE_2);
-            if (exifOffset != -1) {
-                mOffsetToExifData = totalOutputStream.mOutputStream.size() + exifOffset;
-            }
+            mOffsetToExifData = totalOutputStream.mOutputStream.size() + exifOffset;
             nonHeaderByteArrayOutputStream.writeTo(totalOutputStream);
             // Copy any non-RIFF trailing data
             copy(totalInputStream, totalOutputStream);
@@ -7092,27 +7075,64 @@ public class ExifInterface {
         }
     }
 
-    private void copyChunksUpToGivenChunkType(ByteOrderedDataInputStream inputStream,
-            ByteOrderedDataOutputStream outputStream, byte[] firstGivenType,
-            byte[] secondGivenType) throws IOException {
-        while (true) {
+    private void copyChunksUpToGivenChunkType(
+            ByteOrderedDataInputStream inputStream,
+            ByteOrderedDataOutputStream outputStream,
+            int fileSize,
+            byte[] firstGivenType,
+            byte[] secondGivenType)
+            throws IOException {
+        while (inputStream.position() < fileSize) {
             byte[] type = new byte[WEBP_CHUNK_TYPE_BYTE_LENGTH];
             inputStream.readFully(type);
-            copyWebPChunk(inputStream, outputStream, type);
+            copyOrSkipWebpChunk(inputStream, outputStream, type, fileSize);
             if (Arrays.equals(type, firstGivenType)
                     || (secondGivenType != null && Arrays.equals(type, secondGivenType))) {
-                break;
+                return;
             }
+        }
+        throw new IOException("Encountered WebP file missing expected image or animation chunk");
+    }
+
+    private void copyOrSkipWebpChunk(
+            ByteOrderedDataInputStream inputStream,
+            ByteOrderedDataOutputStream outputStream,
+            byte[] type,
+            int fileSize)
+            throws IOException {
+        if (Arrays.equals(type, WEBP_CHUNK_TYPE_EXIF)) {
+            int size = inputStream.readInt();
+            int paddedSize = getPaddedWebpChunkSize(size, inputStream.position(), fileSize);
+            inputStream.skipFully(paddedSize);
+        } else {
+            copyWebPChunk(inputStream, outputStream, type, fileSize);
         }
     }
 
-    private void copyWebPChunk(ByteOrderedDataInputStream inputStream,
-            ByteOrderedDataOutputStream outputStream, byte[] type) throws IOException {
+    private void copyWebPChunk(
+            ByteOrderedDataInputStream inputStream,
+            ByteOrderedDataOutputStream outputStream,
+            byte[] type,
+            int fileSize)
+            throws IOException {
         int size = inputStream.readInt();
+        int paddedSize = getPaddedWebpChunkSize(size, inputStream.position(), fileSize);
         outputStream.write(type);
         outputStream.writeInt(size);
+        copy(inputStream, outputStream, paddedSize);
+    }
+
+    private static int getPaddedWebpChunkSize(int chunkSize, int currentOffset, int fileSize)
+            throws IOException {
+        if (chunkSize < 0 || chunkSize == Integer.MAX_VALUE) {
+            throw new IOException("Encountered WebP file with invalid chunk size");
+        }
         // WebP files have a single padding byte at the end if the chunk size is odd.
-        copy(inputStream, outputStream, (size % 2) == 1 ? size + 1 : size);
+        int paddedChunkSize = (chunkSize % 2 == 1) ? chunkSize + 1 : chunkSize;
+        if (currentOffset < 0 || (long) currentOffset + paddedChunkSize > fileSize) {
+            throw new IOException("Encountered WebP file with invalid chunk size");
+        }
+        return paddedChunkSize;
     }
 
     // Reads the given EXIF byte area and save its tag data into attributes.
@@ -7945,6 +7965,8 @@ public class ExifInterface {
 
         int offsetToExifData = dataOutputStream.mOutputStream.size();
 
+        ByteOrder previousByteOrder = dataOutputStream.mByteOrder;
+
         // Write TIFF Headers. See JEITA CP-3451C Section 4.5.2. Table 1.
         dataOutputStream.writeShort(mExifByteOrder == BIG_ENDIAN ? BYTE_ALIGN_MM : BYTE_ALIGN_II);
         dataOutputStream.setByteOrder(mExifByteOrder);
@@ -8028,8 +8050,9 @@ public class ExifInterface {
             dataOutputStream.writeByte(0);
         }
 
-        // Reset the byte order to big endian in order to write remaining parts of the JPEG file.
-        dataOutputStream.setByteOrder(BIG_ENDIAN);
+        // Reset the byte order to the previous byte order in order to write remaining parts of
+        // the image file.
+        dataOutputStream.setByteOrder(previousByteOrder);
 
         return offsetToExifData;
     }
