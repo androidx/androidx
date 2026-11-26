@@ -20,7 +20,7 @@ Provides selection, routing, and sizing tiers (WidthTier, HeightTier, SizeTiers)
 
 # Package androidx.glance.adaptive.core.templates
 
-Provides template interfaces and contracts for standard templates.
+Provides adaptive widget templates and Kotlin DSL builders for defining semantic widget content.
 
 # Package androidx.glance.adaptive.core.templates.quickactions
 

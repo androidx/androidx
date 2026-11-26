@@ -18,6 +18,7 @@ package androidx.glance.adaptive.core.templates
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.annotation.Size
 import androidx.collection.MutableFloatList
 import androidx.glance.adaptive.core.slots.ActionComponent
 import androidx.glance.adaptive.core.slots.Badge
@@ -30,59 +31,12 @@ import androidx.glance.adaptive.core.slots.PrimaryComponent
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.SecondaryComponent
 
-/**
- * Builds a [TrackTemplate] using scoped slot blocks.
- *
- * Populates [TrackTemplateScope.primary] and at least one tracking visual
- * ([TrackTemplateScope.leading] or [TrackTemplateScope.hero]), with optional
- * [TrackTemplateScope.secondary] and [TrackTemplateScope.supporting] slots:
- * ```kotlin
- * val weeklySteps = listOf(
- *     ChartBar(0.65f, "M"), ChartBar(1.0f, "T"), ChartBar(0.80f, "W"),
- *     ChartBar(1.0f, "T"), ChartBar(0.45f, "F"), ChartBar(1.0f, "S"), ChartBar(0.55f, "S"),
- * )
- *
- * val template = trackTemplate {
- *     leading {
- *         progressRing(
- *             progress = 0.55f,
- *             icon = TemplateIcon.fromResource(R.drawable.ic_steps),
- *         )
- *     }
- *     primary {
- *         text("11,056") { sensitive("--") }
- *     }
- *     secondary {
- *         text("Steps")
- *     }
- *     hero {
- *         barChart(bars = weeklySteps) {
- *             startLabel("7 Day Avg")
- *             endLabel("13,843", icon = TemplateIcon.fromResource(R.drawable.ic_arrow_up))
- *         }
- *     }
- *     supporting {
- *         text("55%")
- *         text("3,118 to go")
- *         badge("Z2")
- *     }
- * }
- * ```
- *
- * @param content DSL block configuring the slots of the [TrackTemplate]
- * @return validated [TrackTemplate] instance
- * @throws IllegalArgumentException if a component argument is invalid, required slots are missing,
- *   or [TrackTemplateScope.supporting] exceeds 3 items
- * @throws IllegalStateException if a slot block is empty or configured more than once
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun trackTemplate(content: TrackTemplateScope.() -> Unit): TrackTemplate =
-    TrackTemplateScope().apply(content).build()
-
 /** Configures the semantic slots of a [TrackTemplate]. */
 @GlanceAdaptiveTemplateDsl
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TrackTemplateScope internal constructor() {
+    internal var isClosed: Boolean = false
+
     private var leading: LeadingComponent? = null
     private var primary: PrimaryComponent? = null
     private var secondary: SecondaryComponent? = null
@@ -93,11 +47,18 @@ public class TrackTemplateScope internal constructor() {
      * Configures the header's leading visual slot.
      *
      * @param content block adding a single component in [LeadingScope]
-     * @throws IllegalStateException if [leading] was already called or [content] adds no component
+     * @throws IllegalStateException if the leading slot was already configured, [content] adds no
+     *   component, or this scope has already completed
      */
     public fun leading(content: LeadingScope.() -> Unit) {
+        check(!isClosed) { "TrackTemplateScope cannot be modified after trackTemplate completes." }
         check(leading == null) { "The leading slot was already configured." }
-        val scope = LeadingScope().apply(content)
+        val scope = LeadingScope()
+        try {
+            scope.apply(content)
+        } finally {
+            scope.isClosed = true
+        }
         leading =
             checkNotNull(scope.component) {
                 "The leading block must contain a component (for example, progressRing(...))."
@@ -108,11 +69,18 @@ public class TrackTemplateScope internal constructor() {
      * Configures the required primary headline metric slot.
      *
      * @param content block adding a single component in [PrimaryScope]
-     * @throws IllegalStateException if [primary] was already called or [content] adds no component
+     * @throws IllegalStateException if the primary slot was already configured, [content] adds no
+     *   component, or this scope has already completed
      */
     public fun primary(content: PrimaryScope.() -> Unit) {
+        check(!isClosed) { "TrackTemplateScope cannot be modified after trackTemplate completes." }
         check(primary == null) { "The primary slot was already configured." }
-        val scope = PrimaryScope().apply(content)
+        val scope = PrimaryScope()
+        try {
+            scope.apply(content)
+        } finally {
+            scope.isClosed = true
+        }
         primary =
             checkNotNull(scope.component) {
                 "The primary block must contain a component (for example, text(...))."
@@ -123,12 +91,18 @@ public class TrackTemplateScope internal constructor() {
      * Configures the optional secondary unit or subtitle slot paired with [primary].
      *
      * @param content block adding a single component in [SecondaryScope]
-     * @throws IllegalStateException if [secondary] was already called or [content] adds no
-     *   component
+     * @throws IllegalStateException if the secondary slot was already configured, [content] adds no
+     *   component, or this scope has already completed
      */
     public fun secondary(content: SecondaryScope.() -> Unit) {
+        check(!isClosed) { "TrackTemplateScope cannot be modified after trackTemplate completes." }
         check(secondary == null) { "The secondary slot was already configured." }
-        val scope = SecondaryScope().apply(content)
+        val scope = SecondaryScope()
+        try {
+            scope.apply(content)
+        } finally {
+            scope.isClosed = true
+        }
         secondary =
             checkNotNull(scope.component) {
                 "The secondary block must contain a component (for example, text(...))."
@@ -139,11 +113,18 @@ public class TrackTemplateScope internal constructor() {
      * Configures the optional hero chart slot.
      *
      * @param content block adding a single component in [HeroScope]
-     * @throws IllegalStateException if [hero] was already called or [content] adds no component
+     * @throws IllegalStateException if the hero slot was already configured, [content] adds no
+     *   component, or this scope has already completed
      */
     public fun hero(content: HeroScope.() -> Unit) {
+        check(!isClosed) { "TrackTemplateScope cannot be modified after trackTemplate completes." }
         check(hero == null) { "The hero slot was already configured." }
-        val scope = HeroScope().apply(content)
+        val scope = HeroScope()
+        try {
+            scope.apply(content)
+        } finally {
+            scope.isClosed = true
+        }
         hero =
             checkNotNull(scope.component) {
                 "The hero block must contain a component (for example, barChart(...))."
@@ -157,18 +138,25 @@ public class TrackTemplateScope internal constructor() {
      * constrained.
      *
      * @param content block adding 1 to 3 items in [SupportingScope]
-     * @throws IllegalStateException if [supporting] was already called or [content] adds no items
+     * @throws IllegalStateException if the supporting slot was already configured, [content] adds
+     *   no items, or this scope has already completed
      */
     public fun supporting(content: SupportingScope.() -> Unit) {
         // TODO(b/584617288): Confirm supporting-slot ordering, combinations, and compaction with
         // UX.
+        check(!isClosed) { "TrackTemplateScope cannot be modified after trackTemplate completes." }
         check(supporting.isEmpty()) { "The supporting slot was already configured." }
-        val scope = SupportingScope().apply(content)
+        val scope = SupportingScope()
+        try {
+            scope.apply(content)
+        } finally {
+            scope.isClosed = true
+        }
         check(scope.components.isNotEmpty()) {
             "The supporting block must contain at least one component " +
                 "(for example, text(...) or badge(...))."
         }
-        supporting = scope.components
+        supporting = scope.components.toList()
     }
 
     internal fun build(): TrackTemplate =
@@ -184,21 +172,24 @@ public class TrackTemplateScope internal constructor() {
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class LeadingScope internal constructor() {
+        internal var isClosed: Boolean = false
         internal var component: LeadingComponent? = null
 
         /**
          * Places a determinate progress ring in the leading slot.
          *
          * @param progress normalized progress in `[0.0f, 1.0f]`
-         * @param icon optional centered [TemplateIcon] tinted with the active surface's accent
-         *   color
-         * @throws IllegalArgumentException if [progress] is outside `[0.0f, 1.0f]`
-         * @throws IllegalStateException if a component was already added to this slot
+         * @param icon optional centered decorative [TemplateIcon] tinted with the active surface's
+         *   accent color
+         * @throws IllegalArgumentException if [progress] is not finite or outside `[0.0f, 1.0f]`
+         * @throws IllegalStateException if a component was already added to this slot or this scope
+         *   has already completed
          */
         public fun progressRing(
             @FloatRange(from = 0.0, to = 1.0) progress: Float,
             icon: TemplateIcon? = null,
         ) {
+            check(!isClosed) { "LeadingScope cannot be modified after its block completes." }
             check(component == null) { "The leading slot accepts only one component." }
             component = Ring(progress = progress, icon = icon?.resId)
         }
@@ -208,6 +199,7 @@ public class TrackTemplateScope internal constructor() {
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class PrimaryScope internal constructor() {
+        internal var isClosed: Boolean = false
         internal var component: PrimaryComponent? = null
 
         /**
@@ -217,9 +209,11 @@ public class TrackTemplateScope internal constructor() {
          * @param options optional block configuring [TextScope] settings such as
          *   [TextScope.sensitive]
          * @throws IllegalArgumentException if [value] is blank
-         * @throws IllegalStateException if a component was already added to this slot
+         * @throws IllegalStateException if a component was already added to this slot or this scope
+         *   has already completed
          */
         public fun text(value: String, options: TextScope.() -> Unit = {}) {
+            check(!isClosed) { "PrimaryScope cannot be modified after its block completes." }
             check(component == null) { "The primary slot accepts only one component." }
             component = buildTemplateText(value, options)
         }
@@ -229,6 +223,7 @@ public class TrackTemplateScope internal constructor() {
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class SecondaryScope internal constructor() {
+        internal var isClosed: Boolean = false
         internal var component: SecondaryComponent? = null
 
         /**
@@ -238,9 +233,11 @@ public class TrackTemplateScope internal constructor() {
          * @param options optional block configuring [TextScope] settings such as
          *   [TextScope.sensitive]
          * @throws IllegalArgumentException if [value] is blank
-         * @throws IllegalStateException if a component was already added to this slot
+         * @throws IllegalStateException if a component was already added to this slot or this scope
+         *   has already completed
          */
         public fun text(value: String, options: TextScope.() -> Unit = {}) {
+            check(!isClosed) { "SecondaryScope cannot be modified after its block completes." }
             check(component == null) { "The secondary slot accepts only one component." }
             component = buildTemplateText(value, options)
         }
@@ -250,24 +247,38 @@ public class TrackTemplateScope internal constructor() {
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class HeroScope internal constructor() {
+        internal var isClosed: Boolean = false
         internal var component: HeroComponent? = null
 
         /**
          * Places a proportional bar chart in the hero slot.
          *
+         * Axis labels on [ChartBar] entries are optional; when only some bars define
+         * [ChartBar.label], unlabeled columns keep empty label space so labels stay aligned.
+         *
          * @param bars ordered list of at least 2 [ChartBar] columns, from leading to trailing
          * @param options optional block configuring [BarChartScope.startLabel] and
          *   [BarChartScope.endLabel]
          * @throws IllegalArgumentException if [bars] contains fewer than 2 entries
-         * @throws IllegalStateException if a component was already added to this slot
+         * @throws IllegalStateException if a component was already added to this slot or this scope
+         *   has already completed
          */
-        public fun barChart(bars: List<ChartBar>, options: BarChartScope.() -> Unit = {}) {
+        public fun barChart(
+            @Size(min = MIN_GRAPH_VALUES.toLong()) bars: List<ChartBar>,
+            options: BarChartScope.() -> Unit = {},
+        ) {
+            check(!isClosed) { "HeroScope cannot be modified after its block completes." }
             check(component == null) { "The hero slot accepts only one component." }
             // Validate before running options so invalid bar counts fail prior to nested calls.
             require(bars.size >= MIN_GRAPH_VALUES) {
                 "A bar chart needs at least $MIN_GRAPH_VALUES bars, had ${bars.size}."
             }
-            val scope = BarChartScope().apply(options)
+            val scope = BarChartScope()
+            try {
+                scope.apply(options)
+            } finally {
+                scope.isClosed = true
+            }
             val values = MutableFloatList(bars.size).apply { bars.forEach { add(it.value) } }
             val labels =
                 if (bars.any { it.label != null }) {
@@ -296,6 +307,7 @@ public class TrackTemplateScope internal constructor() {
     @GlanceAdaptiveTemplateDsl
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class SupportingScope internal constructor() {
+        internal var isClosed: Boolean = false
         internal val components: MutableList<ActionComponent> = mutableListOf()
 
         /**
@@ -305,8 +317,10 @@ public class TrackTemplateScope internal constructor() {
          * @param options optional block configuring [TextScope] settings such as
          *   [TextScope.sensitive]
          * @throws IllegalArgumentException if [value] is blank
+         * @throws IllegalStateException if this scope has already completed
          */
         public fun text(value: String, options: TextScope.() -> Unit = {}) {
+            check(!isClosed) { "SupportingScope cannot be modified after its block completes." }
             components.add(buildTemplateText(value, options))
         }
 
@@ -315,8 +329,10 @@ public class TrackTemplateScope internal constructor() {
          *
          * @param label non-blank short label inside the pill (for example, `"Z2"`)
          * @throws IllegalArgumentException if [label] is blank
+         * @throws IllegalStateException if this scope has already completed
          */
         public fun badge(label: String) {
+            check(!isClosed) { "SupportingScope cannot be modified after its block completes." }
             components.add(Badge(label = label))
         }
     }

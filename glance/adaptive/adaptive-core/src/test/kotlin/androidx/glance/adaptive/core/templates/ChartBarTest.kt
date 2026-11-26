@@ -70,4 +70,13 @@ class ChartBarTest {
         assertThat(a.hashCode()).isEqualTo(b.hashCode())
         assertThat(a).isNotEqualTo(c)
     }
+
+    @Test
+    fun bar_normalizesNegativeZeroForEquality() {
+        val positiveZero = ChartBar(0.0f, "M")
+        val negativeZero = ChartBar(-0.0f, "M")
+
+        assertThat(negativeZero).isEqualTo(positiveZero)
+        assertThat(negativeZero.hashCode()).isEqualTo(positiveZero.hashCode())
+    }
 }

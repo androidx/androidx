@@ -396,4 +396,217 @@ class TrackTemplateScopeTest {
             }
         }
     }
+
+    @Test
+    fun trackTemplate_equalDslBlocks_haveValueEqualityAndReadableToString() {
+        val stepsIcon = TemplateIcon.fromResource(101)
+        val arrowUpIcon = TemplateIcon.fromResource(102)
+        val bars = listOf(ChartBar(0.65f, "M"), ChartBar(1.0f, "T", isEmphasized = true))
+
+        fun buildSample(primaryText: String = "11,056"): TrackTemplate = trackTemplate {
+            leading { progressRing(progress = 0.55f, icon = stepsIcon) }
+            primary { text(primaryText) { sensitive("--") } }
+            secondary { text("Steps") }
+            hero {
+                barChart(bars = bars) {
+                    startLabel("7 Day Avg")
+                    endLabel("13,843", icon = arrowUpIcon)
+                }
+            }
+            supporting {
+                text("55%")
+                badge("Z2")
+            }
+        }
+
+        val first = buildSample()
+        val second = buildSample()
+        val different = buildSample(primaryText = "12,000")
+
+        assertThat(first).isEqualTo(second)
+        assertThat(first.hashCode()).isEqualTo(second.hashCode())
+        assertThat(first).isNotEqualTo(different)
+        assertThat(first.toString()).startsWith("TrackTemplate(")
+    }
+
+    @Test
+    fun progressRing_acceptsBoundsAndRejectsNegativeOrNonFinite() {
+        val zero = trackTemplate {
+            leading { progressRing(0.0f) }
+            primary { text("0") }
+        }
+        val negativeZero = trackTemplate {
+            leading { progressRing(-0.0f) }
+            primary { text("0") }
+        }
+        val full = trackTemplate {
+            leading { progressRing(1.0f) }
+            primary { text("100") }
+        }
+
+        assertThat(negativeZero).isEqualTo(zero)
+        assertThat(negativeZero.hashCode()).isEqualTo(zero.hashCode())
+        assertThat((full.leading as Ring).progress).isEqualTo(1.0f)
+
+        for (invalid in listOf(-0.1f, 1.1f, Float.NaN, Float.POSITIVE_INFINITY)) {
+            assertFailsWith<IllegalArgumentException> {
+                trackTemplate {
+                    leading { progressRing(invalid) }
+                    primary { text("100") }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun barChart_mutatingInputListAfterBuild_doesNotAffectTemplate() {
+        val mutableBars = mutableListOf(ChartBar(0.4f, "M"), ChartBar(0.8f, "T"))
+        val template = trackTemplate {
+            primary { text("72 bpm") }
+            hero { barChart(bars = mutableBars) }
+        }
+
+        mutableBars.add(ChartBar(1.0f, "W"))
+        mutableBars[0] = ChartBar(0.1f, "X")
+
+        val hero = template.hero as Graph
+        assertThat(hero.values.size).isEqualTo(2)
+        assertThat(hero.fractionAt(0)).isWithin(1e-6f).of(0.4f)
+        assertThat(hero.labelAt(0)).isEqualTo("M")
+    }
+
+    @Test
+    fun leakedScopes_throwIllegalStateExceptionAfterBlockCompletes() {
+        lateinit var leakedTemplateScope: TrackTemplateScope
+        lateinit var leakedSupportingScope: TrackTemplateScope.SupportingScope
+        lateinit var leakedTextScope: TextScope
+        lateinit var leakedBarChartScope: BarChartScope
+
+        val template = trackTemplate {
+            leakedTemplateScope = this
+            leading { progressRing(0.5f) }
+            primary { text("100") { leakedTextScope = this } }
+            hero { barChart(listOf(ChartBar(0.3f), ChartBar(0.7f))) { leakedBarChartScope = this } }
+            supporting {
+                leakedSupportingScope = this
+                text("50%")
+            }
+            val supportingError =
+                assertFailsWith<IllegalStateException> { leakedSupportingScope.text("late") }
+            assertThat(supportingError.message).contains("after")
+        }
+
+        assertThat(template.supporting).hasSize(1)
+        // secondary was left unset, so calling it can only fail via the closed-scope guard.
+        val templateError =
+            assertFailsWith<IllegalStateException> {
+                leakedTemplateScope.secondary { text("late") }
+            }
+        assertThat(templateError.message).contains("after")
+        val badgeError =
+            assertFailsWith<IllegalStateException> { leakedSupportingScope.badge("Z2") }
+        assertThat(badgeError.message).contains("after")
+        val textError = assertFailsWith<IllegalStateException> { leakedTextScope.sensitive("--") }
+        assertThat(textError.message).contains("after")
+        val startLabelError =
+            assertFailsWith<IllegalStateException> { leakedBarChartScope.startLabel("late") }
+        assertThat(startLabelError.message).contains("after")
+        val endLabelError =
+            assertFailsWith<IllegalStateException> { leakedBarChartScope.endLabel("late") }
+        assertThat(endLabelError.message).contains("after")
+    }
+
+    @Test
+    fun leakedScopes_fromEmptyOrFailingBlocks_throwClosedScopeError() {
+        lateinit var leakedTemplateScope: TrackTemplateScope
+        assertFailsWith<IllegalArgumentException> { trackTemplate { leakedTemplateScope = this } }
+        assertThat(
+                assertFailsWith<IllegalStateException> {
+                        leakedTemplateScope.primary { text("100") }
+                    }
+                    .message
+            )
+            .contains("after")
+
+        lateinit var leakedLeadingScope: TrackTemplateScope.LeadingScope
+        assertFailsWith<IllegalStateException> {
+            trackTemplate { leading { leakedLeadingScope = this } }
+        }
+        assertThat(
+                assertFailsWith<IllegalStateException> { leakedLeadingScope.progressRing(0.2f) }
+                    .message
+            )
+            .contains("after")
+
+        lateinit var leakedPrimaryScope: TrackTemplateScope.PrimaryScope
+        assertFailsWith<IllegalStateException> {
+            trackTemplate { primary { leakedPrimaryScope = this } }
+        }
+        assertThat(
+                assertFailsWith<IllegalStateException> { leakedPrimaryScope.text("late") }.message
+            )
+            .contains("after")
+
+        lateinit var leakedSecondaryScope: TrackTemplateScope.SecondaryScope
+        assertFailsWith<IllegalStateException> {
+            trackTemplate { secondary { leakedSecondaryScope = this } }
+        }
+        assertThat(
+                assertFailsWith<IllegalStateException> { leakedSecondaryScope.text("late") }.message
+            )
+            .contains("after")
+
+        lateinit var leakedHeroScope: TrackTemplateScope.HeroScope
+        assertFailsWith<IllegalStateException> { trackTemplate { hero { leakedHeroScope = this } } }
+        assertThat(
+                assertFailsWith<IllegalStateException> {
+                        leakedHeroScope.barChart(listOf(ChartBar(0.1f), ChartBar(0.2f)))
+                    }
+                    .message
+            )
+            .contains("after")
+
+        lateinit var leakedSupportingScope: TrackTemplateScope.SupportingScope
+        assertFailsWith<IllegalStateException> {
+            trackTemplate { supporting { leakedSupportingScope = this } }
+        }
+        assertThat(
+                assertFailsWith<IllegalStateException> { leakedSupportingScope.text("late") }
+                    .message
+            )
+            .contains("after")
+
+        lateinit var leakedTextScope: TextScope
+        assertFailsWith<IllegalArgumentException> {
+            trackTemplate {
+                primary {
+                    text("100") {
+                        leakedTextScope = this
+                        sensitive(" ")
+                    }
+                }
+            }
+        }
+        assertThat(
+                assertFailsWith<IllegalStateException> { leakedTextScope.sensitive("--") }.message
+            )
+            .contains("after")
+
+        lateinit var leakedBarChartScope: BarChartScope
+        assertFailsWith<IllegalArgumentException> {
+            trackTemplate {
+                hero {
+                    barChart(listOf(ChartBar(0.3f), ChartBar(0.7f))) {
+                        leakedBarChartScope = this
+                        startLabel(" ")
+                    }
+                }
+            }
+        }
+        assertThat(
+                assertFailsWith<IllegalStateException> { leakedBarChartScope.startLabel("late") }
+                    .message
+            )
+            .contains("after")
+    }
 }

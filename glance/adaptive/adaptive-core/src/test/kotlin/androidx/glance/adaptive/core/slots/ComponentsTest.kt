@@ -20,6 +20,7 @@ import android.app.Activity
 import android.graphics.Color
 import androidx.collection.floatListOf
 import androidx.collection.intListOf
+import androidx.collection.mutableFloatListOf
 import androidx.glance.adaptive.core.action.GlanceAdaptiveAction
 import androidx.glance.adaptive.core.templates.list.ListItemStyle
 import com.google.common.truth.Truth.assertThat
@@ -150,6 +151,22 @@ class ComponentsTest {
 
         val withGoal = Graph(floatListOf(2f, 3f), goal = 2f, dotted = true)
         assertThat(withGoal.isDotFilledAt(0)).isTrue()
+    }
+
+    @Test
+    fun graph_normalizesNegativeZeroAndDefensivelyCopiesValues() {
+        val negativeZero = Graph(floatListOf(-0.0f, 1f))
+        val positiveZero = Graph(floatListOf(0.0f, 1f))
+        assertThat(negativeZero).isEqualTo(positiveZero)
+        assertThat(negativeZero.hashCode()).isEqualTo(positiveZero.hashCode())
+
+        val source = mutableFloatListOf(0.25f, 0.75f)
+        val graph = Graph(source)
+        source[0] = 0.9f
+        source.add(1.0f)
+
+        assertThat(graph.values.size).isEqualTo(2)
+        assertThat(graph.values[0]).isEqualTo(0.25f)
     }
 
     @Test

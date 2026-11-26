@@ -20,7 +20,10 @@ import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 
 /**
- * Defines a single column in a template bar chart.
+ * Single column in a bar chart configured by [TrackTemplateScope.HeroScope.barChart].
+ *
+ * A bar uses the emphasized accent color only when [isEmphasized] is `true`, regardless of its
+ * [value].
  *
  * ```kotlin
  * val weeklySteps = listOf(
@@ -30,22 +33,22 @@ import androidx.annotation.RestrictTo
  * )
  * ```
  *
- * @property value normalized bar fill height in `[0.0f, 1.0f]`, where `1.0f` fills the chart's
- *   available bar height
- * @property label optional short axis label displayed beneath the bar (for example, `"M"`), or
- *   `null` when unlabeled
- * @property isEmphasized whether this bar uses the emphasized accent color; defaults to `false`, so
- *   a bar is only emphasized when the caller asks for it, regardless of its [value]
- * @throws IllegalArgumentException if [value] is outside `[0.0f, 1.0f]` or [label] is blank
+ * @property value normalized bar fill height in `[0.0f, 1.0f]`, where `1.0f` fills the available
+ *   bar height
+ * @property label optional short axis label shown beneath the bar (for example, `"M"`), or `null`
+ *   when unlabeled
+ * @property isEmphasized whether this bar uses the emphasized accent color
+ * @throws IllegalArgumentException if [value] is not finite or outside `[0.0f, 1.0f]`, or if
+ *   [label] is blank
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ChartBar(
-    @param:FloatRange(from = 0.0, to = 1.0)
-    @get:FloatRange(from = 0.0, to = 1.0)
-    public val value: Float,
+    @FloatRange(from = 0.0, to = 1.0) value: Float,
     public val label: String? = null,
     public val isEmphasized: Boolean = false,
 ) {
+    @get:FloatRange(from = 0.0, to = 1.0) public val value: Float = if (value == 0f) 0f else value
+
     init {
         require(value.isFinite() && value in 0f..1f) {
             "Bar value must be in [0, 1], was $value."

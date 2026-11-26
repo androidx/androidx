@@ -16,6 +16,7 @@
 
 package androidx.glance.adaptive.core.templates
 
+import androidx.annotation.CheckResult
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.slots.ActionComponent
 import androidx.glance.adaptive.core.slots.Capability
@@ -32,19 +33,63 @@ import androidx.glance.adaptive.core.slots.TemplateText
 private const val MAX_SUPPORTING_ITEMS = 3
 
 /**
- * Displays progress tracking, fitness metrics, and historical activity summaries across adaptive
- * surfaces.
+ * Builds a [TrackTemplate] using [TrackTemplateScope]:
+ * ```kotlin
+ * val weeklySteps = listOf(
+ *     ChartBar(0.65f, "M"), ChartBar(1.0f, "T"), ChartBar(0.80f, "W"),
+ *     ChartBar(1.0f, "T"), ChartBar(0.45f, "F"), ChartBar(1.0f, "S"), ChartBar(0.55f, "S"),
+ * )
  *
- * Host renderers adapt the populated slots across
- * [androidx.glance.adaptive.core.selection.GlanceSurface] breakpoints:
- * - primary (required): headline metric value.
- * - leading or hero (at least one required): progress ring or historical bar chart.
- * - secondary (optional): unit label paired with the headline metric.
- * - supporting (optional): up to 3 supporting text values or status badges.
+ * val template = trackTemplate {
+ *     leading {
+ *         progressRing(
+ *             progress = 0.55f,
+ *             icon = TemplateIcon.fromResource(R.drawable.ic_steps),
+ *         )
+ *     }
+ *     primary {
+ *         text("11,056") { sensitive("--") }
+ *     }
+ *     secondary {
+ *         text("Steps")
+ *     }
+ *     hero {
+ *         barChart(bars = weeklySteps) {
+ *             startLabel("7 Day Avg")
+ *             endLabel("13,843", icon = TemplateIcon.fromResource(R.drawable.ic_arrow_up))
+ *         }
+ *     }
+ *     supporting {
+ *         text("55%")
+ *         text("3,118 to go")
+ *         badge("Z2")
+ *     }
+ * }
+ * ```
  *
- * Build an instance with [trackTemplate].
+ * @param content DSL block configuring the slots of the [TrackTemplate]
+ * @return validated [TrackTemplate] instance
+ * @throws IllegalArgumentException if arguments are invalid or required slots are missing
+ * @throws IllegalStateException if a slot block is empty, configured more than once, or modified
+ *   after its block completes
+ */
+@CheckResult
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun trackTemplate(content: TrackTemplateScope.() -> Unit): TrackTemplate {
+    val scope = TrackTemplateScope()
+    try {
+        scope.apply(content)
+    } finally {
+        scope.isClosed = true
+    }
+    return scope.build()
+}
+
+/**
+ * Adaptive [GlanceAdaptiveTemplate] for tracking progress, metrics, and historical bar charts.
  *
- * @throws IllegalArgumentException if the populated slots do not satisfy these requirements
+ * Build an instance with [trackTemplate]. Host renderers adapt the populated slots across
+ * [androidx.glance.adaptive.core.selection.GlanceSurface] breakpoints.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TrackTemplate
@@ -78,9 +123,32 @@ constructor(
         return supporting.any { capability in it.capabilities }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TrackTemplate) return false
+        return leading == other.leading &&
+            primary == other.primary &&
+            secondary == other.secondary &&
+            hero == other.hero &&
+            supporting == other.supporting
+    }
+
+    override fun hashCode(): Int {
+        var result = leading?.hashCode() ?: 0
+        result = 31 * result + (primary?.hashCode() ?: 0)
+        result = 31 * result + (secondary?.hashCode() ?: 0)
+        result = 31 * result + (hero?.hashCode() ?: 0)
+        result = 31 * result + supporting.hashCode()
+        return result
+    }
+
+    override fun toString(): String =
+        "TrackTemplate(leading=$leading, primary=$primary, secondary=$secondary, " +
+            "hero=$hero, supporting=$supporting)"
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
-        /** Stable integer telemetry identifier for [TrackTemplate]. */
+        /** Stable integer telemetry identifier for TrackTemplate. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val TEMPLATE_ID: Int = 1
 
         internal val Rule: TemplateRule<TrackTemplate> =
