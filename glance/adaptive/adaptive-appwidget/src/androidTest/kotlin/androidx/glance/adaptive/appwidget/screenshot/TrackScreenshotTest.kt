@@ -27,7 +27,7 @@ import androidx.glance.adaptive.core.slots.ChartLabel
 import androidx.glance.adaptive.core.slots.Graph
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
-import androidx.glance.adaptive.core.templates.TrackTemplate
+import androidx.glance.adaptive.core.templates.track.TrackTemplate
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule

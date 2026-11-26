@@ -25,3 +25,7 @@ Provides adaptive widget templates and Kotlin DSL builders for defining semantic
 # Package androidx.glance.adaptive.core.templates.quickactions
 
 Provides the Quick Actions template payload and its Kotlin DSL.
+
+# Package androidx.glance.adaptive.core.templates.track
+
+Provides the Track template payload and its Kotlin DSL.

@@ -66,8 +66,8 @@ import androidx.glance.adaptive.appwidget.templates.quickactions.QuickActionsMat
 import androidx.glance.adaptive.appwidget.templates.track.TrackMatrixSelector
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
-import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
+import androidx.glance.adaptive.core.templates.track.TrackTemplate
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers

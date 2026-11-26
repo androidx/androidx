@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.templates
+package androidx.glance.adaptive.core.templates.track
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
@@ -30,6 +30,12 @@ import androidx.glance.adaptive.core.slots.MIN_GRAPH_VALUES
 import androidx.glance.adaptive.core.slots.PrimaryComponent
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.SecondaryComponent
+import androidx.glance.adaptive.core.templates.BarChartScope
+import androidx.glance.adaptive.core.templates.ChartBar
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplateDsl
+import androidx.glance.adaptive.core.templates.TemplateIcon
+import androidx.glance.adaptive.core.templates.TextScope
+import androidx.glance.adaptive.core.templates.buildTemplateText
 
 /** Configures the semantic slots of a [TrackTemplate]. */
 @GlanceAdaptiveTemplateDsl

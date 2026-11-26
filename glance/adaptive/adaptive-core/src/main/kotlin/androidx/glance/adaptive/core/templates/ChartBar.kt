@@ -20,7 +20,8 @@ import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 
 /**
- * Single column in a bar chart configured by [TrackTemplateScope.HeroScope.barChart].
+ * Single column in a bar chart configured by
+ * [androidx.glance.adaptive.core.templates.track.TrackTemplateScope.HeroScope.barChart].
  *
  * A bar uses the emphasized accent color only when [isEmphasized] is `true`, regardless of its
  * [value].

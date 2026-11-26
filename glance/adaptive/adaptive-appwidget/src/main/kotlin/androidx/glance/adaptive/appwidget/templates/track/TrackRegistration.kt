@@ -18,7 +18,7 @@ package androidx.glance.adaptive.appwidget.templates.track
 
 import androidx.glance.adaptive.appwidget.templates.AppWidgetTemplateRegistration
 import androidx.glance.adaptive.appwidget.templates.matrixTemplateRegistration
-import androidx.glance.adaptive.core.templates.TrackTemplate
+import androidx.glance.adaptive.core.templates.track.TrackTemplate
 
 /** Creates the built-in [AppWidgetTemplateRegistration] for [TrackTemplate]. */
 internal fun trackRegistration(): AppWidgetTemplateRegistration<TrackTemplate> =

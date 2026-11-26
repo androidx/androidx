@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.templates
+package androidx.glance.adaptive.core.templates.track
 
 import androidx.collection.floatListOf
 import androidx.glance.adaptive.core.slots.Badge
@@ -22,6 +22,7 @@ import androidx.glance.adaptive.core.slots.ChartLabel
 import androidx.glance.adaptive.core.slots.Graph
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
