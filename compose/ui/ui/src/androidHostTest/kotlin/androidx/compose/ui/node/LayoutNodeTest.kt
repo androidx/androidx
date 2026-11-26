@@ -3017,6 +3017,107 @@ class LayoutNodeTest {
         assertFalse(delegate.hasPendingMeasureOrLayout)
     }
 
+    @Test
+    fun requestAutofill_modifierNode_attachedAndDetached() {
+        val owner = MockOwner()
+        val node = LayoutNode()
+        val modifierNode = object : Modifier.Node() {}
+
+        assertFalse(modifierNode.isAttached)
+        modifierNode.requestAutofill()
+        assertThat(owner.requestAutofillParams).isEmpty()
+
+        node.attach(owner)
+        node.modifier = NodeElement(modifierNode)
+        assertTrue(modifierNode.isAttached)
+        modifierNode.requestAutofill()
+        assertThat(owner.requestAutofillParams).containsExactly(node)
+
+        node.modifier = Modifier
+        assertFalse(modifierNode.isAttached)
+        modifierNode.requestAutofill()
+        assertThat(owner.requestAutofillParams).containsExactly(node)
+
+        node.modifier = NodeElement(modifierNode)
+        assertTrue(modifierNode.isAttached)
+        node.detach()
+        assertFalse(modifierNode.isAttached)
+        modifierNode.requestAutofill()
+        assertThat(owner.requestAutofillParams).containsExactly(node)
+    }
+
+    @Test
+    fun requestAutofill_delegatingNode() {
+        val owner = MockOwner()
+        val node = LayoutNode()
+        val parent = object : DelegatingNode() {}
+        val child = parent.delegateUnprotected(object : Modifier.Node() {})
+
+        child.requestAutofill()
+        assertThat(owner.requestAutofillParams).isEmpty()
+
+        node.attach(owner)
+        node.modifier = NodeElement(parent)
+        assertTrue(child.isAttached)
+        child.requestAutofill()
+        assertThat(owner.requestAutofillParams).containsExactly(node)
+
+        parent.undelegateUnprotected(child)
+        assertFalse(child.isAttached)
+        assertTrue(parent.isAttached)
+        child.requestAutofill()
+        assertThat(owner.requestAutofillParams).containsExactly(node)
+
+        parent.requestAutofill()
+        assertThat(owner.requestAutofillParams).containsExactly(node, node)
+
+        parent.delegateUnprotected(child)
+        assertTrue(child.isAttached)
+        node.detach()
+        assertFalse(parent.isAttached)
+        assertFalse(child.isAttached)
+        child.requestAutofill()
+        assertThat(owner.requestAutofillParams).containsExactly(node, node)
+    }
+
+    @Test
+    fun requestAutofill_deactivatedAndReused() {
+        val owner = MockOwner()
+        val node = LayoutNode()
+        var resetCalled = false
+        var detachCalled = false
+        val modifierNode =
+            object : Modifier.Node() {
+                override fun onReset() {
+                    resetCalled = true
+                    assertTrue(isAttached)
+                    requestAutofill()
+                }
+
+                override fun onDetach() {
+                    detachCalled = true
+                    assertTrue(isAttached)
+                    requestAutofill()
+                }
+            }
+        node.attach(owner)
+        node.modifier = NodeElement(modifierNode)
+
+        node.onDeactivate()
+        assertTrue(resetCalled)
+        assertTrue(detachCalled)
+        assertFalse(modifierNode.isAttached)
+        assertThat(owner.requestAutofillParams).isEmpty()
+
+        modifierNode.requestAutofill()
+        assertThat(owner.requestAutofillParams).isEmpty()
+
+        node.onReuse()
+        assertTrue(modifierNode.isAttached)
+        modifierNode.requestAutofill()
+        assertThat(owner.requestAutofillParams).containsExactly(node)
+    }
+
     private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
         PointerInputModifier
 }
@@ -3042,6 +3143,7 @@ internal open class MockOwner(
     val onRequestMeasureParams = mutableListOf<LayoutNode>()
     val onAttachParams = mutableListOf<LayoutNode>()
     val onDetachParams = mutableListOf<LayoutNode>()
+    val requestAutofillParams = mutableListOf<LayoutNode>()
     var layoutChangeCount = 0
 
     override val rootForTest: RootForTest
@@ -3172,7 +3274,7 @@ internal open class MockOwner(
         positionInWindow - position.toOffset()
 
     override fun requestAutofill(node: LayoutNode) {
-        TODO("Not yet implemented")
+        requestAutofillParams += node
     }
 
     override fun measureAndLayout(sendPointerUpdate: Boolean) {}

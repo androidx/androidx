@@ -431,11 +431,10 @@ internal class LayoutNode(
     internal var isSemanticsInvalidated = false
 
     internal fun requestAutofill() {
-        // Ignore calls while semantics are being applied (b/378114177).
-        if (isCurrentlyCalculatingSemanticsConfiguration) return
+        // Ignore calls while semantics are being applied (b/378114177) or when deactivated.
+        if (isCurrentlyCalculatingSemanticsConfiguration || isDeactivated) return
 
-        val owner = requireOwner()
-        owner.requestAutofill(this)
+        requireOwner().requestAutofill(this)
     }
 
     internal fun invalidateSemantics() {
