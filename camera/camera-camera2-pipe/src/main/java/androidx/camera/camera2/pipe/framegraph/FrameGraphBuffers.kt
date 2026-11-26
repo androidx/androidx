@@ -132,22 +132,33 @@ internal constructor(
     }
 
     fun flush(session: CameraGraph.Session) {
+        synchronized(lock) { flushLocked(session) }
+    }
+
+    internal fun flushIfDirty(session: CameraGraph.Session) {
         synchronized(lock) {
-            dirty = false
-            if (buffers.isEmpty()) {
-                session.stopRepeating()
-                frameGraphResourceTrimmer.onRepeatingRequestUpdated(null)
-                return
+            if (dirty) {
+                flushLocked(session)
             }
-            val request =
-                Request(
-                    streams = streams.toList(),
-                    parameters = parameters.filterToCaptureRequestParameters(),
-                    extras = parameters.filterToMetadataParameters(),
-                )
-            session.startRepeating(request)
-            frameGraphResourceTrimmer.onRepeatingRequestUpdated(request)
         }
+    }
+
+    @GuardedBy("lock")
+    private fun flushLocked(session: CameraGraph.Session) {
+        dirty = false
+        if (buffers.isEmpty()) {
+            session.stopRepeating()
+            frameGraphResourceTrimmer.onRepeatingRequestUpdated(null)
+            return
+        }
+        val request =
+            Request(
+                streams = streams.toList(),
+                parameters = parameters.filterToCaptureRequestParameters(),
+                extras = parameters.filterToMetadataParameters(),
+            )
+        session.startRepeating(request)
+        frameGraphResourceTrimmer.onRepeatingRequestUpdated(request)
     }
 
     fun trimAll(streamId: StreamId) {
@@ -158,13 +169,7 @@ internal constructor(
     }
 
     fun invalidate() {
-        cameraGraph.useSessionIn(frameGraphCoroutineScope) { session ->
-            synchronized(lock) {
-                if (dirty) {
-                    flush(session)
-                }
-            }
-        }
+        cameraGraph.useSessionIn(frameGraphCoroutineScope) { session -> flushIfDirty(session) }
     }
 
     override fun onFrameStarted(frameReference: FrameReference) {
