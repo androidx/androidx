@@ -18,6 +18,7 @@ package androidx.appfunctions.internal
 
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 
 /**
  * Returns the [String] value associated with [key].
@@ -26,6 +27,14 @@ import android.os.Bundle
  */
 internal fun Bundle.requireString(key: String): String =
     requireNotNull(getString(key)) { "Missing $key" }
+
+/**
+ * Returns the [CharSequence] value associated with [key].
+ *
+ * @throws IllegalArgumentException if [key] is missing or its value is not a [CharSequence].
+ */
+internal fun Bundle.requireCharSequence(key: String): CharSequence =
+    requireNotNull(getCharSequence(key)) { "Missing $key" }
 
 /**
  * Returns the [List] of non-null [String]s associated with [key], or `null` if [key] is missing or
@@ -54,6 +63,25 @@ internal fun Bundle.requireNonNullStringList(key: String): List<String> =
  */
 internal fun Bundle.requireBundle(key: String): Bundle =
     requireNotNull(getBundle(key)) { "Missing $key" }
+
+/**
+ * Returns the [Parcelable] of type [T] associated with [key].
+ *
+ * @throws IllegalArgumentException if [key] is missing or its value is not of type [T].
+ */
+internal inline fun <reified T : Parcelable> Bundle.requireParcelable(key: String): T {
+    // Even though the typed overload was introduced in API 33, gate on API 34 to avoid Android 13
+    // platform bugs in Parcel/Bundle typed unparceling (b/232589966, b/240585930), matching
+    // BundleCompat.getParcelable.
+    val value: T? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            getParcelable(key, T::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            getParcelable(key) as? T
+        }
+    return requireNotNull(value) { "Missing $key" }
+}
 
 /**
  * Returns the [List] of [Bundle]s associated with [key], stored as a parcelable array list.

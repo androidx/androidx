@@ -321,7 +321,13 @@ class AppFunctionServiceEntryPointProcessor(
                 }
                 add("this.%N(\n", function.simpleName.asString())
                 indent()
-                for (param in function.parameters) {
+                if (appFunction.hasExecuteAppFunctionRequestParameter) {
+                    addStatement(
+                        "%L,",
+                        AppFunctionServiceClass.ExecuteFunctionMethod.REQUEST_PARAM_NAME,
+                    )
+                }
+                for (param in appFunction.appFunctionParameters) {
                     val paramName = param.name!!.asString()
                     if (param.type.isOfType(LIST) || param.type.isParametrized()) {
                         addStatement(

@@ -143,6 +143,25 @@ package androidx.appfunctions {
     ctor @BytecodeOnly public AppFunctionElementNotFoundException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
+  public abstract sealed nonexhaustive class AppFunctionElicitationRequest extends androidx.appfunctions.AppFunctionInputRequest {
+  }
+
+  public static final class AppFunctionElicitationRequest.Form extends androidx.appfunctions.AppFunctionElicitationRequest {
+    ctor public AppFunctionElicitationRequest.Form(String instruction, androidx.appfunctions.metadata.AppFunctionDataTypeMetadata responseDataTypeMetadata);
+    method @InaccessibleFromKotlin public String getInstruction();
+    method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionDataTypeMetadata getResponseDataTypeMetadata();
+    property public String instruction;
+    property public androidx.appfunctions.metadata.AppFunctionDataTypeMetadata responseDataTypeMetadata;
+  }
+
+  public static final class AppFunctionElicitationRequest.PendingAction extends androidx.appfunctions.AppFunctionElicitationRequest {
+    ctor public AppFunctionElicitationRequest.PendingAction(CharSequence displayMessage, android.app.PendingIntent pendingIntent);
+    method @InaccessibleFromKotlin public CharSequence getDisplayMessage();
+    method @InaccessibleFromKotlin public android.app.PendingIntent getPendingIntent();
+    property public CharSequence displayMessage;
+    property public android.app.PendingIntent pendingIntent;
+  }
+
   public abstract class AppFunctionException extends java.lang.Exception {
     method @InaccessibleFromKotlin public final String? getErrorMessage();
     property public final String? errorMessage;
@@ -155,6 +174,16 @@ package androidx.appfunctions {
   public final class AppFunctionFunctionNotFoundException extends androidx.appfunctions.AppFunctionRequestException {
     ctor public AppFunctionFunctionNotFoundException(optional String? errorMessage);
     ctor @BytecodeOnly public AppFunctionFunctionNotFoundException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+  public abstract sealed nonexhaustive class AppFunctionInputRequest {
+  }
+
+  public final class AppFunctionInputRequiredException extends androidx.appfunctions.AppFunctionAppException {
+    ctor @BytecodeOnly public AppFunctionInputRequiredException(java.util.Map!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public AppFunctionInputRequiredException(java.util.Map<java.lang.String,? extends androidx.appfunctions.AppFunctionInputRequest> inputRequests, optional String? errorMessage);
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,androidx.appfunctions.AppFunctionInputRequest> getInputRequests();
+    property public java.util.Map<java.lang.String,androidx.appfunctions.AppFunctionInputRequest> inputRequests;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.CLASS}) public @interface AppFunctionInstruction {

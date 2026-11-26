@@ -423,7 +423,7 @@ class SearchAppFunctionsIntegrationTest {
 
     private suspend fun getTotalFunctionCountInPackage(): Int {
         return if (isDynamicIndexerAvailable(targetContext)) {
-            val baseFunctionCount = 25
+            val baseFunctionCount = 27
             val multiServiceFunctionCount = 6
             val dynamicFunctionsCount = 10
             if (Build.VERSION.SDK_INT >= 37) {

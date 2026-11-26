@@ -19,7 +19,7 @@ package androidx.appfunctions
 import android.os.Bundle
 
 /**
- * Thrown when an error is caused by the app providing the function.
+ * Thrown when an error is returned by the app providing the function.
  *
  * For example, the app crashed when the system is executing the request.
  */
