@@ -100,11 +100,21 @@ class ZslDisablerQuirkTest {
     }
 
     @Test
-    fun xiaomiRedmiNote12TopazUnaffectedDevice_doesNotLoadQuirk() {
+    fun xiaomiRedmiNote12TopazNfc_loadsQuirk() {
         ShadowBuild.setManufacturer("Xiaomi")
         ShadowBuild.setBrand("Redmi")
         ShadowBuild.setDevice("topaz")
         ShadowBuild.setModel("23021RAA2Y")
+
+        assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNotNull()
+    }
+
+    @Test
+    fun xiaomiUnaffectedDevice_doesNotLoadQuirk() {
+        ShadowBuild.setManufacturer("Xiaomi")
+        ShadowBuild.setBrand("Redmi")
+        ShadowBuild.setDevice("other")
+        ShadowBuild.setModel("OtherModel")
 
         assertThat(DeviceQuirks[ZslDisablerQuirk::class.java]).isNull()
     }
