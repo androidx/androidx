@@ -19,15 +19,26 @@ package androidx.camera.camera2.compat
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Callable
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
@@ -167,5 +178,87 @@ class StreamConfigurationMapCompatTest {
         assertThat(mapCompat.getOutputFormats()?.toList()).contains(ImageFormat.RAW_SENSOR)
         assertThat(mapCompat.getOutputSizes(ImageFormat.RAW_SENSOR)?.toList())
             .containsExactly(Size(3264, 2448))
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun getHighResolutionOutputSizes_cachesNullAndDefensivelyClonesNonNull() {
+        val highResSize = Size(4000, 3000)
+        val mockMap = mock(StreamConfigurationMap::class.java)
+        whenever(mockMap.getHighResolutionOutputSizes(ImageFormat.JPEG))
+            .thenReturn(arrayOf(highResSize))
+        whenever(mockMap.getHighResolutionOutputSizes(ImageFormat.YUV_420_888)).thenReturn(null)
+        val metadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
+        val compat = StreamConfigurationMapCompat(mockMap, metadata)
+
+        val firstJpegSizes = checkNotNull(compat.getHighResolutionOutputSizes(ImageFormat.JPEG))
+        assertThat(firstJpegSizes.toList()).containsExactly(highResSize)
+        firstJpegSizes[0] = Size(1, 1)
+
+        val secondJpegSizes = checkNotNull(compat.getHighResolutionOutputSizes(ImageFormat.JPEG))
+        assertThat(secondJpegSizes.toList()).containsExactly(highResSize)
+        verify(mockMap, times(1)).getHighResolutionOutputSizes(ImageFormat.JPEG)
+
+        assertThat(compat.getHighResolutionOutputSizes(ImageFormat.YUV_420_888)).isNull()
+        assertThat(compat.getHighResolutionOutputSizes(ImageFormat.YUV_420_888)).isNull()
+        verify(mockMap, times(1)).getHighResolutionOutputSizes(ImageFormat.YUV_420_888)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK])
+    fun concurrentColdMiss_publishesFirstWriterConsistentlyAndClonesResult() {
+        val mockMap = mock(StreamConfigurationMap::class.java)
+        val bothMissedLatch = CountDownLatch(2)
+        val firstWriterPublishedLatch = CountDownLatch(1)
+        val callIndex = AtomicInteger(0)
+        val firstWriterThread = AtomicReference<Thread>()
+
+        whenever(mockMap.getOutputSizes(ImageFormat.YUV_420_888)).thenAnswer {
+            val index = callIndex.getAndIncrement()
+            if (index == 0) {
+                firstWriterThread.set(Thread.currentThread())
+            }
+            bothMissedLatch.countDown()
+            assertThat(bothMissedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+            if (index == 0) {
+                arrayOf(SIZE_1080P, SIZE_720P)
+            } else {
+                assertThat(firstWriterPublishedLatch.await(5, TimeUnit.SECONDS)).isTrue()
+                arrayOf(SIZE_480P)
+            }
+        }
+        val metadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
+        val compat = StreamConfigurationMapCompat(mockMap, metadata)
+
+        val executor = Executors.newFixedThreadPool(2)
+        try {
+            val queryTask = Callable {
+                try {
+                    compat.getOutputSizes(ImageFormat.YUV_420_888)
+                } finally {
+                    if (Thread.currentThread() === firstWriterThread.get()) {
+                        firstWriterPublishedLatch.countDown()
+                    }
+                }
+            }
+            val firstFuture = executor.submit(queryTask)
+            val secondFuture = executor.submit(queryTask)
+
+            val firstResult = checkNotNull(firstFuture.get(10, TimeUnit.SECONDS))
+            val secondResult = checkNotNull(secondFuture.get(10, TimeUnit.SECONDS))
+            val cachedResult = checkNotNull(compat.getOutputSizes(ImageFormat.YUV_420_888))
+
+            // First writer wins deterministically across concurrent cold misses, and each caller
+            // receives an independent defensive clone.
+            assertThat(firstResult.toList()).containsExactly(SIZE_1080P, SIZE_720P).inOrder()
+            assertThat(secondResult.toList()).containsExactly(SIZE_1080P, SIZE_720P).inOrder()
+            assertThat(cachedResult.toList()).containsExactly(SIZE_1080P, SIZE_720P).inOrder()
+            assertThat(firstResult).isNotSameInstanceAs(secondResult)
+            assertThat(cachedResult).isNotSameInstanceAs(firstResult)
+            verify(mockMap, times(2)).getOutputSizes(ImageFormat.YUV_420_888)
+        } finally {
+            firstWriterPublishedLatch.countDown()
+            executor.shutdownNow()
+        }
     }
 }
