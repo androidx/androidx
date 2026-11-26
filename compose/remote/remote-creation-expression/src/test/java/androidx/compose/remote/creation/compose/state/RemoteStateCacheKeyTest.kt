@@ -325,4 +325,154 @@ class RemoteStateCacheKeyTest {
             }
         assertThat(key.hashCode()).isEqualTo(expectedHash)
     }
+
+    private enum class PlainNonRemoteOperationEnum {
+        Alpha,
+        Beta,
+    }
+
+    private class CustomTestCacheKey(
+        private val deterministic: Boolean,
+        private val finiteFloats: Boolean = true,
+    ) : RemoteStateCacheKey {
+        override fun toDebugString(): String = "custom($deterministic, $finiteFloats)"
+
+        override fun isDeterministic(requireFiniteFloats: Boolean): Boolean =
+            deterministic && (!requireFiniteFloats || finiteFloats)
+    }
+
+    @Test
+    fun computeExpressionFlags_synthesizesDeterminismAndNonFiniteFlags() {
+        val finiteConst = RemoteConstantCacheKey(4f)
+        val zeroConst = RemoteConstantCacheKey(0f)
+        val infConst = RemoteConstantCacheKey(Float.POSITIVE_INFINITY)
+        val nanIdKey = RemoteStateIdKey(0)
+        val nanEncodingInvalidIdKey = RemoteStateIdKey(-1)
+        val varIdKey = RemoteStateIdKey(42)
+
+        // Standard deterministic, finite arithmetic op
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(varIdKey, finiteConst),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC)
+
+        // Non-deterministic op clears FLAG_DETERMINISTIC
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Rand,
+                    emptyList(),
+                )
+            )
+            .isEqualTo(0)
+
+        // Plain Enum not implementing RemoteOperation defaults to deterministic & finite
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    PlainNonRemoteOperationEnum.Alpha,
+                    listOf(varIdKey, finiteConst),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC)
+
+        // mayProduceNonFiniteFloatForArgs sets FLAG_HAS_NON_FINITE_FLOAT for Div by 0f, dynamic
+        // Div, and Ln
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Div,
+                    listOf(varIdKey, finiteConst),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Div,
+                    listOf(varIdKey, zeroConst),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Div,
+                    listOf(varIdKey, varIdKey),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Ln,
+                    listOf(varIdKey),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Cbrt,
+                    listOf(varIdKey),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
+
+        // Propagates FLAG_HAS_NON_FINITE_FLOAT from Infinity constant and literal NaN ID (id == 0)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(varIdKey, infConst),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(varIdKey, nanIdKey),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(varIdKey, nanEncodingInvalidIdKey),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
+
+        // Both non-deterministic AND non-finite combines to FLAG_HAS_NON_FINITE_FLOAT (det == 0)
+        val randKey = RemoteOperationCacheKey.create(RemoteFloatOperationKey.Rand)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(randKey, infConst),
+                )
+            )
+            .isEqualTo(FLAG_HAS_NON_FINITE_FLOAT)
+
+        // Custom RemoteStateCacheKey not extending BaseRemoteStateCacheKey falls back to
+        // isDeterministic(requireFiniteFloats = false/true)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(CustomTestCacheKey(deterministic = true), finiteConst),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(
+                        CustomTestCacheKey(deterministic = true, finiteFloats = false),
+                        finiteConst,
+                    ),
+                )
+            )
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(CustomTestCacheKey(deterministic = false), finiteConst),
+                )
+            )
+            .isEqualTo(0)
+    }
 }

@@ -151,6 +151,18 @@ internal sealed class SelectFloatCondition {
     ): FloatArray
 
     /**
+     * Checks whether this condition always selects the same branch within a frame.
+     *
+     * Returns `false` when an operand contains a non-deterministic expression such as [rand] or
+     * [randRange]—for example, `selectIfLt(rand(), 0.5f.rf, ...)` or
+     * `(rand().isLessThan(0.5f.rf)).select(...)`, where merging two selects would collapse two
+     * independent random draws into one.
+     *
+     * @return `true` if all operand cache keys are deterministic
+     */
+    abstract fun isDeterministic(): Boolean
+
+    /**
      * Constructs a canonical [RemoteFloat] selecting between [ifTrue] and [ifFalse] under this
      * condition.
      */
@@ -168,6 +180,9 @@ internal sealed class SelectFloatCondition {
         val b: RemoteFloat,
         val op: FloatComparisonOp,
     ) : SelectFloatCondition() {
+        override fun isDeterministic(): Boolean =
+            a.cacheKey.isDeterministic() && b.cacheKey.isDeterministic()
+
         override fun createSelect(ifTrue: RemoteFloat, ifFalse: RemoteFloat): RemoteFloat {
             if (ifTrue.cacheKey == ifFalse.cacheKey) {
                 return ifTrue
@@ -288,6 +303,8 @@ internal sealed class SelectFloatCondition {
      * @property bool boolean expression driving the branch selection
      */
     data class BooleanCondition(val bool: RemoteBoolean) : SelectFloatCondition() {
+        override fun isDeterministic(): Boolean = bool.cacheKey.isDeterministic()
+
         override fun createSelect(ifTrue: RemoteFloat, ifFalse: RemoteFloat): RemoteFloat {
             if (ifTrue.cacheKey == ifFalse.cacheKey) {
                 return ifTrue
@@ -344,6 +361,11 @@ internal class RemoteFloatSelect(
 
     val hasConstantBranches: Boolean
         get() = ifTrue.constantValueOrNull != null && ifFalse.constantValueOrNull != null
+
+    val hasNonFiniteConstantBranch: Boolean
+        get() =
+            ifTrue.constantValueOrNull?.isFinite() == false ||
+                ifFalse.constantValueOrNull?.isFinite() == false
 }
 
 internal fun RemoteFloat.writeFloatToDocument(creationState: RemoteComposeCreationState): Int {

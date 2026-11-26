@@ -1669,6 +1669,165 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun peepholeOptimization_additiveCancellation_constantMinusVar() {
+        val yTop = createNamedRemoteFloat("yTop", 12f)
+
+        val expr1 = yTop + (44f.rf - yTop)
+        assertThat(expr1.constantValueOrNull).isEqualTo(44f)
+        assertThat(getOperationsStrings(expr1))
+            .containsExactly("FloatExpression[43] = (44.0 )")
+            .inOrder()
+
+        assertThat(((44f.rf - yTop) + yTop).constantValueOrNull).isEqualTo(44f)
+        assertThat(((yTop + 8f.rf) + (44f.rf - yTop)).constantValueOrNull).isEqualTo(52f)
+        assertThat((yTop + ((44f.rf - yTop) - 8f.rf)).constantValueOrNull).isEqualTo(36f)
+    }
+
+    @Test
+    fun peepholeOptimization_additiveCancellation_varMinusVar() {
+        val yTop = createNamedRemoteFloat("yTop", 12f)
+        val yBottom = createNamedRemoteFloat("yBottom", 44f)
+        val padding = createNamedRemoteFloat("padding", 6f)
+
+        val cancelled = yTop + (yBottom - yTop)
+        assertThat(cancelled).isEqualTo(yBottom)
+        assertThat(getOperationsStrings(cancelled))
+            .containsExactly(
+                "VariableName[43] = \"USER:yBottom\" type=1",
+                "FloatConstant[43] = 44.0",
+            )
+            .inOrder()
+
+        assertThat((yBottom - yTop) + yTop).isEqualTo(yBottom)
+        assertThat((yTop + 4f.rf) + (yBottom - 4f.rf)).isEqualTo(yTop + yBottom)
+        assertThat((yTop + padding) + (yBottom - padding)).isEqualTo(yTop + yBottom)
+        assertThat((yTop - yBottom) + (yBottom - padding)).isEqualTo(yTop - padding)
+        assertThat((yTop + yBottom) - yTop).isEqualTo(yBottom)
+        assertThat((yTop + yBottom) - yBottom).isEqualTo(yTop)
+        assertThat(yTop - (yTop - yBottom)).isEqualTo(yBottom)
+        assertThat(yTop - (yTop + yBottom)).isEqualTo(-yBottom)
+        assertThat((yTop - padding) + (yBottom - yTop)).isEqualTo(yBottom - padding)
+        assertThat((yTop - yTop).constantValueOrNull).isEqualTo(0f)
+        assertThat((yTop + (-yTop)).constantValueOrNull).isEqualTo(0f)
+        assertThat(((-yTop) + yTop).constantValueOrNull).isEqualTo(0f)
+        assertThat((yTop + yTop) - yTop).isEqualTo(yTop)
+
+        val combined = (yTop - padding) + (yBottom - yTop)
+        val combinedId = creationState.getId(combined)
+        makeAndUpdateCoreDocument {
+            context.setNamedFloatOverride("USER:yTop", 5f)
+            context.setNamedFloatOverride("USER:yBottom", 50f)
+            context.setNamedFloatOverride("USER:padding", 8f)
+        }
+        assertThat(context.getFloat(combinedId)).isEqualTo(42f)
+    }
+
+    @Test
+    fun peepholeOptimization_doubleNegation() {
+        val x = createNamedRemoteFloat("x", 10f)
+        assertThat(-(-x)).isEqualTo(x)
+        assertThat(44f.rf - (-x)).isEqualTo(x + 44f)
+    }
+
+    @Test
+    fun peepholeOptimization_additiveCancellation_mutableRemoteFloat() {
+        val m1 = MutableRemoteFloat(10f)
+        val m2 = MutableRemoteFloat(10f)
+
+        assertThat((m1 + (44f.rf - m1)).constantValueOrNull).isEqualTo(44f)
+        assertThat((m1 - m1).constantValueOrNull).isEqualTo(0f)
+
+        val diff = m1 - m2
+        assertThat(diff.constantValueOrNull).isNull()
+        val diffId = creationState.getId(diff)
+        makeAndPaintCoreDocument()
+        assertThat(context.getFloat(diffId)).isEqualTo(0f)
+    }
+
+    @Test
+    fun peepholeOptimization_additiveCancellation_nonDeterministicRand_doesNotCancel() {
+        val randDiff = rand() - rand()
+        assertThat(randDiff.constantValueOrNull).isNull()
+        assertThat(getOperationsStrings(randDiff))
+            .containsExactly("FloatExpression[43] = (RAND RAND - )")
+            .inOrder()
+
+        assertThat((rand() + (10f.rf - rand())).constantValueOrNull).isNull()
+        assertThat((randRange(0f.rf, 1f.rf) - randRange(0f.rf, 1f.rf)).constantValueOrNull).isNull()
+        assertThat(((rand() * 2f) - (rand() * 2f)).constantValueOrNull).isNull()
+    }
+
+    @Test
+    fun peepholeOptimization_additiveCancellation_nonFiniteConstants_doesNotFold() {
+        val x = createNamedRemoteFloat("x", 5f)
+        val inf = Float.POSITIVE_INFINITY
+        val expr = (x + inf) - (x + inf)
+
+        assertThat(expr.constantValueOrNull).isNull()
+        val ops = getOperationsStrings(expr)
+        assertThat(ops)
+            .containsExactly(
+                "VariableName[43] = \"USER:x\" type=1",
+                "FloatConstant[43] = 5.0",
+                "FloatExpression[44] = ([43] Infinity + [43] Infinity + - )",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun peepholeOptimization_additiveCancellation_andSelectFolding() {
+        val myBool = RemoteBoolean.createNamedRemoteBoolean("myBool", true)
+        val sel = myBool.select(10f.rf, 20f.rf)
+
+        assertThat((sel + (44f.rf - sel)).constantValueOrNull).isEqualTo(44f)
+        assertThat(((sel + 5f) - 5f)).isEqualTo(sel)
+        assertThat(-(-sel)).isEqualTo(sel)
+
+        val y = createNamedRemoteFloat("y", 3f)
+        val combinedSelect = myBool.select(4f.rf, 8f.rf) + myBool.select(2f.rf, 6f.rf)
+        assertThat(combinedSelect).isInstanceOf(RemoteFloatSelect::class.java)
+        assertThat((combinedSelect as RemoteFloatSelect).ifTrue.constantValueOrNull).isEqualTo(6f)
+        assertThat(combinedSelect.ifFalse.constantValueOrNull).isEqualTo(14f)
+
+        val constantSelect = myBool.select(4f.rf, 8f.rf) + myBool.select(6f.rf, 2f.rf)
+        assertThat(constantSelect.constantValueOrNull).isEqualTo(10f)
+
+        val rhsMaxSelect = max(0f, myBool.select((-5f).rf, 10f.rf))
+        assertThat(rhsMaxSelect).isInstanceOf(RemoteFloatSelect::class.java)
+        assertThat((rhsMaxSelect as RemoteFloatSelect).ifTrue.constantValueOrNull).isEqualTo(0f)
+        assertThat(rhsMaxSelect.ifFalse.constantValueOrNull).isEqualTo(10f)
+
+        assertThat(max(25f, myBool.select(10f.rf, 20f.rf)).constantValueOrNull).isEqualTo(25f)
+
+        val x = createNamedRemoteFloat("x", 1f)
+        val collapsedWithExtraVar =
+            (x + myBool.select(4f.rf, 8f.rf)) + (myBool.select(6f.rf, 2f.rf) - x) + y
+        assertThat(collapsedWithExtraVar).isEqualTo(y + 10f)
+
+        val infSelect = myBool.select(Float.POSITIVE_INFINITY.rf, 10f.rf)
+        assertThat((infSelect - infSelect).constantValueOrNull).isNull()
+
+        val overflowSelect = myBool.select(Float.MAX_VALUE.rf, 10f.rf) + Float.MAX_VALUE
+        val wrappedOverflowDiff = (overflowSelect + x) - (overflowSelect + x)
+        assertThat(wrappedOverflowDiff.constantValueOrNull).isNull()
+        val wrappedOverflowDiffId = creationState.getId(wrappedOverflowDiff)
+        makeAndPaintCoreDocument()
+        assertThat(context.getFloat(wrappedOverflowDiffId)).isNaN()
+    }
+
+    @Test
+    fun peepholeOptimization_idempotentMinMax() {
+        val x = createNamedRemoteFloat("x", 10f)
+        assertThat(min(x, x)).isEqualTo(x)
+        assertThat(max(x, x)).isEqualTo(x)
+
+        val randMin = min(rand(), rand())
+        assertThat(getOperationsStrings(randMin))
+            .containsExactly("FloatExpression[43] = (RAND RAND min )")
+            .inOrder()
+    }
+
+    @Test
     fun peepholeOptimization_zeroIdentities_precedeNonFiniteConstantEval() {
         assertThat((0f.rf / 0f).constantValueOrNull).isEqualTo(0f)
         assertThat((0f.rf / 0f.rf).constantValueOrNull).isEqualTo(0f)
@@ -1858,9 +2017,10 @@ class RemoteFloatTest {
     @Test
     fun toString_arithmetic_associativityWrapping() {
         val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val c = RemoteFloat(45.5f)
-        val assocExpr = x - (c + x)
-        assertThat(assocExpr.toString()).isEqualTo("user:x - (user:x + 45.5)")
+        val assocExpr = x - (c + y)
+        assertThat(assocExpr.toString()).isEqualTo("user:x - (user:y + 45.5)")
     }
 
     @Test
