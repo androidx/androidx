@@ -98,9 +98,11 @@ import androidx.camera.video.internal.utils.FakeMediaContentProvider.Companion.A
 import androidx.camera.video.internal.utils.FakeMediaContentProvider.Companion.COLLECTION_URI
 import androidx.camera.video.internal.utils.FakeMediaContentProvider.Companion.ENTRY_URI
 import androidx.camera.video.internal.utils.StorageUtil.NO_SPACE_LEFT_MESSAGE
+import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -2313,6 +2315,182 @@ class RecorderTest {
         } finally {
             sRetrySetupVideoMaxCount = originalRetrySetupVideoMaxCount
             sRetrySetupVideoDelayMs = originalRetrySetupVideoDelayMs
+        }
+    }
+
+    @Config(sdk = [Config.TARGET_SDK])
+    @Test
+    fun surfaceRequestedBeforePreviousSurfaceReleased_retriesVideoEncoderSetup() {
+        var failVideoEncoderCreation = false
+        var createAttemptsAfterNewRequest = 0
+        val originalRetrySetupVideoMaxCount = sRetrySetupVideoMaxCount
+        val originalRetrySetupVideoDelayMs = sRetrySetupVideoDelayMs
+        try {
+            val recorder =
+                createRecorder(
+                    videoEncoderFactory =
+                        createVideoEncoderFactory(
+                            shouldFail = {
+                                if (failVideoEncoderCreation) {
+                                    createAttemptsAfterNewRequest++
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                        ),
+                    retrySetupVideoMaxCount = 1,
+                    retrySetupVideoDelayMs = RETRY_SETUP_VIDEO_DELAY_MS,
+                )
+            val previousSurfaceRequest = checkNotNull(latestSurfaceRequest)
+
+            // Request a new surface before the previous one is released while codec creation fails.
+            val newSurfaceRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
+            latestSurfaceRequest = newSurfaceRequest
+            surfaceRequestsToClose.add(newSurfaceRequest)
+            failVideoEncoderCreation = true
+            recorder.onSurfaceRequested(newSurfaceRequest)
+            idleMainLooper()
+
+            // Release the previous surface, which resets the video encoder and triggers setup.
+            previousSurfaceRequest.deferrableSurface.close()
+            idleMainLooper()
+
+            // Exactly one initial attempt ran and scheduled a retry instead of entering ERROR.
+            assertThat(createAttemptsAfterNewRequest).isEqualTo(1)
+            assertThat(requireNotNull(recorder.streamInfo.fetchData().get()).id)
+                .isNotEqualTo(StreamInfo.STREAM_ID_ERROR)
+
+            // Allow the scheduled retry to succeed.
+            failVideoEncoderCreation = false
+            shadowOf(Looper.getMainLooper())
+                .idleFor(RETRY_SETUP_VIDEO_DELAY_MS, TimeUnit.MILLISECONDS)
+            idle(recorder)
+
+            assertThat(newSurfaceRequest.deferrableSurface.surface.isDone).isTrue()
+            assertThat(requireNotNull(recorder.streamInfo.fetchData().get()).id)
+                .isEqualTo(newSurfaceRequest.deferrableSurface.surface.get().hashCode())
+            createRecording(recorder = recorder, withAudio = false)
+                .startAndVerify()
+                .sendFrames(3)
+                .stopAndVerify()
+        } finally {
+            sRetrySetupVideoMaxCount = originalRetrySetupVideoMaxCount
+            sRetrySetupVideoDelayMs = originalRetrySetupVideoDelayMs
+        }
+    }
+
+    @Config(sdk = [Config.TARGET_SDK])
+    @Test
+    fun setupFailureAfterTaskCanceled_isIgnored() {
+        var recorder: Recorder? = null
+        var failFirstEncoderAndReplaceRequest = true
+        val originalRetrySetupVideoMaxCount = sRetrySetupVideoMaxCount
+        try {
+            recorder =
+                createRecorder(
+                    sendSurfaceRequest = false,
+                    videoEncoderFactory =
+                        createVideoEncoderFactory(
+                            shouldFail = {
+                                if (failFirstEncoderAndReplaceRequest) {
+                                    failFirstEncoderAndReplaceRequest = false
+                                    // Replace the request before the setup failure callback runs.
+                                    val replacementRequest =
+                                        SurfaceRequest(Size(640, 480), fakeCamera) {}
+                                    latestSurfaceRequest = replacementRequest
+                                    surfaceRequestsToClose.add(replacementRequest)
+                                    checkNotNull(recorder).onSurfaceRequested(replacementRequest)
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                        ),
+                    retrySetupVideoMaxCount = 0,
+                )
+            val initialRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
+            surfaceRequestsToClose.add(initialRequest)
+            recorder.onSurfaceRequested(initialRequest)
+            idleMainLooper()
+
+            assertThat(requireNotNull(recorder.streamInfo.fetchData().get()).id)
+                .isNotEqualTo(StreamInfo.STREAM_ID_ERROR)
+            createRecording(recorder = recorder, withAudio = false)
+                .startAndVerify()
+                .sendFrames(3)
+                .stopAndVerify()
+        } finally {
+            sRetrySetupVideoMaxCount = originalRetrySetupVideoMaxCount
+        }
+    }
+
+    @Config(sdk = [Config.TARGET_SDK])
+    @Test
+    fun setupCanceledBySourceInactiveWhileAwaitingEncoderRelease_doesNotConfigureTwice() {
+        val firstEncoderReleasedFuture = ResolvableFuture.create<Void?>()
+        var encoderCreationCount = 0
+        var failNewEncoderCreation = false
+        val originalRetrySetupVideoMaxCount = sRetrySetupVideoMaxCount
+        try {
+            val recorder =
+                createRecorder(
+                    videoEncoderFactory =
+                        FakeVideoEncoderFactory { _, config ->
+                            encoderCreationCount++
+                            if (failNewEncoderCreation) {
+                                throw InvalidConfigException("Fail on purpose.")
+                            }
+                            val fakeEncoder =
+                                FakeEncoder(
+                                        encoderInfo =
+                                            FakeVideoEncoderInfo(
+                                                supportedBitrateRange = Range(1, 100_000_000)
+                                            ),
+                                        encoderConfig = config,
+                                    )
+                                    .also { latestVideoEncoder = it }
+                            if (encoderCreationCount == 1) {
+                                object : Encoder by fakeEncoder {
+                                    override fun getReleasedFuture(): ListenableFuture<Void?> =
+                                        firstEncoderReleasedFuture
+                                }
+                            } else {
+                                fakeEncoder
+                            }
+                        },
+                    retrySetupVideoMaxCount = 1,
+                )
+            val firstSurfaceRequest = checkNotNull(latestSurfaceRequest)
+
+            // Close the first surface: mActiveSurface becomes null and terminateNow() starts
+            // releasing the first encoder, whose releasedFuture is still pending.
+            firstSurfaceRequest.deferrableSurface.close()
+            idleMainLooper()
+
+            // Request a new surface (task 1, waiting on firstEncoderReleasedFuture), then mark
+            // source INACTIVE, which cancels task 1 and starts the reset task (task 2).
+            val secondSurfaceRequest = SurfaceRequest(Size(640, 480), fakeCamera) {}
+            latestSurfaceRequest = secondSurfaceRequest
+            surfaceRequestsToClose.add(secondSurfaceRequest)
+            recorder.onSurfaceRequested(secondSurfaceRequest)
+            idleMainLooper()
+            recorder.onSourceStateChanged(INACTIVE)
+            idleMainLooper()
+
+            // Complete the first encoder's release while encoder creation fails: the canceled
+            // task 1 must skip setup so only task 2 attempts encoder creation once.
+            encoderCreationCount = 0
+            failNewEncoderCreation = true
+            firstEncoderReleasedFuture.set(null)
+            idleMainLooper()
+
+            assertThat(encoderCreationCount).isEqualTo(1)
+            assertThat(requireNotNull(recorder.streamInfo.fetchData().get()).id)
+                .isEqualTo(StreamInfo.STREAM_ID_ERROR)
+        } finally {
+            firstEncoderReleasedFuture.set(null)
+            sRetrySetupVideoMaxCount = originalRetrySetupVideoMaxCount
         }
     }
 
