@@ -1082,6 +1082,20 @@ internal constructor(
             componentMetadata: AppFunctionComponentsMetadata,
         ) : this(AppFunctionDataSpec.create(responseMetadata, componentMetadata))
 
+        /**
+         * Constructs a [Builder] to create [AppFunctionData] for an
+         * [AppFunctionElicitationResponse.FormData] answering [elicitationRequest].
+         *
+         * Set the elicited value under
+         * [AppFunctionElicitationResponse.FormData.PROPERTY_ELICITATION_VALUE].
+         *
+         * @param elicitationRequest the [AppFunctionElicitationRequest.Form] defining the expected
+         *   response data type
+         */
+        public constructor(
+            elicitationRequest: AppFunctionElicitationRequest.Form
+        ) : this(AppFunctionDataSpec.create(elicitationRequest))
+
         // This constructor cannot be internal because the generated factory that does not live
         // in the same module need to use it for data serialization/deserialization.
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

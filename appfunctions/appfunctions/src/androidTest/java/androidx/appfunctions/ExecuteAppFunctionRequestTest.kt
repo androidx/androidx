@@ -227,6 +227,78 @@ class ExecuteAppFunctionRequestTest {
             .isTrue()
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    fun builder_defaults() {
+        val request =
+            ExecuteAppFunctionRequest.Builder("pkg", "method", TEST_APP_FUNCTION_DATA).build()
+
+        assertThat(request.targetPackageName).isEqualTo("pkg")
+        assertThat(request.functionIdentifier).isEqualTo("method")
+        assertThat(request.functionParameters).isEqualTo(TEST_APP_FUNCTION_DATA)
+        assertThat(request.inputResponses).isEmpty()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    fun builder_setInputResponses_copiesMap() {
+        val responses =
+            mutableMapOf<String, AppFunctionInputResponse>(
+                "action" to AppFunctionElicitationResponse.ActionFinished()
+            )
+
+        val request =
+            ExecuteAppFunctionRequest.Builder("pkg", "method", TEST_APP_FUNCTION_DATA)
+                .setInputResponses(responses)
+                .build()
+        responses.clear()
+
+        assertThat(request.inputResponses.keys).containsExactly("action")
+        assertThat(request.inputResponses["action"])
+            .isInstanceOf(AppFunctionElicitationResponse.ActionFinished::class.java)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    fun builder_inputResponses_roundTripThroughPlatformRequest() {
+        val request =
+            ExecuteAppFunctionRequest.Builder("pkg", "method", TEST_APP_FUNCTION_DATA)
+                .setInputResponses(
+                    mapOf("action" to AppFunctionElicitationResponse.ActionFinished())
+                )
+                .build()
+
+        val roundTripped =
+            request
+                .toPlatformExecuteAppFunctionRequest()
+                .toCompatExecuteAppFunctionRequest(TEST_APP_FUNCTION_METADATA)
+
+        assertThat(roundTripped.inputResponses.keys).containsExactly("action")
+        assertThat(roundTripped.inputResponses["action"])
+            .isInstanceOf(AppFunctionElicitationResponse.ActionFinished::class.java)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    fun builder_setAttributionAndActivityId() {
+        val attribution =
+            AppInteractionAttribution.Builder(AppInteractionAttribution.INTERACTION_TYPE_USER_QUERY)
+                .build()
+        val activityId = Api37Impl.createAppFunctionActivityId(android.os.Binder())
+
+        val request =
+            ExecuteAppFunctionRequest.Builder("pkg", "method", TEST_APP_FUNCTION_DATA)
+                .setAttribution(attribution)
+                .setActivityId(activityId)
+                .build()
+        val platformRequest = request.toPlatformExecuteAppFunctionRequest()
+
+        assertThat(request.attribution).isEqualTo(attribution)
+        assertThat(request.activityId).isEqualTo(activityId)
+        assertThat(platformRequest.attribution).isEqualTo(attribution)
+        assertThat(platformRequest.activityId).isEqualTo(activityId)
+    }
+
     private fun assumeAppFunctionExtensionLibraryAvailable() {
         try {
             Class.forName("com.android.extensions.appfunctions.ExecuteAppFunctionRequest")

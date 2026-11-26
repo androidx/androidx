@@ -49,14 +49,12 @@ public sealed class AppFunctionElicitationRequest : AppFunctionInputRequest() {
     /** Writes [KEY_ELICITATION_TYPE] and subclass-specific properties into [bundle]. */
     internal abstract fun writeElicitationToBundle(bundle: Bundle)
 
-    // TODO(b/586898710): Update KDoc to link AppFunctionElicitationResponse.Data once response
-    // APIs are added.
     /**
      * Asks the caller for structured input matching [responseDataTypeMetadata].
      *
      * Use [Form] for non-sensitive input (such as disambiguation or preferences) that the caller
-     * collects in-band and returns on the next call. For sensitive interactions, use
-     * [PendingAction].
+     * collects in-band and returns as an [AppFunctionElicitationResponse.FormData] on the next
+     * call. For sensitive interactions, use [PendingAction].
      *
      * Example:
      * ```kotlin
@@ -147,12 +145,12 @@ public sealed class AppFunctionElicitationRequest : AppFunctionInputRequest() {
         }
     }
 
-    // TODO(b/586898710): Update KDoc to link AppFunctionElicitationResponse.ActionFinished once
-    // response APIs are added.
     /**
      * Asks the caller to launch [pendingIntent] for out-of-band user input in the app's own UI.
      *
-     * Use [PendingAction] for sensitive interactions such as authentication, payment authorization.
+     * Once the interaction finishes, the caller retries the function with
+     * [AppFunctionElicitationResponse.ActionFinished]. Use [PendingAction] for sensitive
+     * interactions such as authentication, payment authorization.
      *
      * Example:
      * ```kotlin

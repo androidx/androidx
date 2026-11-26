@@ -42,6 +42,7 @@ import androidx.appfunctions.AppFunctionAccessLevel
 import androidx.appfunctions.AppFunctionBehaviorHints
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionElicitationRequest
+import androidx.appfunctions.AppFunctionElicitationResponse
 import androidx.appfunctions.AppFunctionInputRequiredException
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
@@ -52,6 +53,7 @@ import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
 import androidx.appfunctions.AppFunctionUriValueConstraint
+import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
@@ -84,7 +86,17 @@ abstract class BaseTestAppFunctionService :
     }
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    internal fun requestFormElicitation() {
+    internal fun requestFormElicitation(request: ExecuteAppFunctionRequest): String {
+        val response = request.inputResponses["form"] as? AppFunctionElicitationResponse.FormData
+        if (response != null) {
+            val selectedNote =
+                response.data.getString(
+                    AppFunctionElicitationResponse.FormData.PROPERTY_ELICITATION_VALUE
+                )
+            if (selectedNote != null) {
+                return "Deleted: $selectedNote"
+            }
+        }
         throw AppFunctionInputRequiredException(
             inputRequests =
                 mapOf(
@@ -103,7 +115,13 @@ abstract class BaseTestAppFunctionService :
     }
 
     @AppFunctionDeclaration(isDescribedByKDoc = false)
-    internal fun requestPendingActionElicitation() {
+    internal fun requestPendingActionElicitation(request: ExecuteAppFunctionRequest): String {
+        if (
+            request.inputResponses["pending_action"]
+                is AppFunctionElicitationResponse.ActionFinished
+        ) {
+            return "Action finished"
+        }
         throw AppFunctionInputRequiredException(
             inputRequests =
                 mapOf(

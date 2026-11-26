@@ -463,5 +463,25 @@ public abstract class AppFunctionDataSpec {
                 componentMetadata,
             )
         }
+
+        public fun create(
+            elicitationRequest: AppFunctionElicitationRequest.Form,
+            componentMetadata: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
+        ): AppFunctionDataSpec {
+            return ObjectSpec(
+                AppFunctionObjectTypeMetadata(
+                    properties =
+                        mapOf(
+                            AppFunctionElicitationResponse.FormData.PROPERTY_ELICITATION_VALUE to
+                                elicitationRequest.responseDataTypeMetadata
+                        ),
+                    required =
+                        listOf(AppFunctionElicitationResponse.FormData.PROPERTY_ELICITATION_VALUE),
+                    qualifiedName = null,
+                    isNullable = false,
+                ),
+                componentMetadata,
+            )
+        }
     }
 }
