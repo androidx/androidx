@@ -63,10 +63,11 @@ stages:
   audit against the **Code Review Guidelines** (`camerax-code-review/SKILL.md`),
   including the **Universal Clean-Context Multi-Model Verification Loop** in
   Step 5 & Step 6:
-  1. *Wide Structural Design, Object Job & Intentionality:* Read surrounding
-     CameraX classes widely (not just changed lines) to verify structural
-     design, object responsibility, code placement elegance, and preservation of
-     intentional code.
+  1. *Wide Structural Design, Object Job, Intentionality & Inline Invariants:*
+     Read surrounding CameraX classes widely (not just changed lines) to verify
+     structural design, object responsibility, code placement elegance,
+     preservation of intentional code, and concise inline code comments on any
+     non-obvious cross-layer, lock-order, or platform *"why"* invariants.
   2. *Concurrency & Latches:* Latches guaranteed release in `finally`, no Main
      thread blocking.
   3. *Resource Leaks:* `imageProxy.use { ... }`, bitmap recycling,
@@ -119,11 +120,25 @@ stages:
      ./gradlew :camera:camera-core:runErrorProneRelease \
        :camera:camera-camera2:runErrorProneRelease
      ```
-  4. **Compilation, Non-Tautological Tests & Post-Amend Re-Runs**: Run
-     host/device tests to confirm zero regressions, verify added bug-fix
-     regression tests fail when the production fix is reverted, and always
-     re-run the **exact original failing test** after any post-review or rebase
-     semantic edit.
+  4. **Compilation, Current-Patchset Device Re-Test (`PSn+1` Invalidation),
+     Paired A/B & Downstream Integration Check**:
+     - Run host/device tests to confirm zero regressions, and verify added
+       bug-fix regression tests fail when the production fix is reverted.
+     - *Current-Patchset Tested-Rate (`PSn+1` Invalidation)*: Prior patchset
+       (`PSn`) device or lab passes do **not** carry over after any production
+       logic rewrite, concurrency/lock refactor, or scope-widening edit in
+       `PSn+1`—re-run the **exact original failing test** and affected device
+       suites on the current `PSn+1` diff (comment/KDoc-only, commit-message, or
+       mechanical `ktfmt` amends exempt; see `AGENTS_INTERNAL.md` when internal
+       lab tools are configured).
+     - *Paired Before/After (`A/B`) & Downstream Consumer Check*: For
+       intermittent races, timeouts, or hardware workarounds, pair `Before`
+       (`base`) and `After` (`HEAD`) runs on the same device model(s) and
+       repetition count (`5x–10x`); when modifying core CameraX
+       initialization/shutdown, executor/scheduler contracts (`CameraXConfig`),
+       lifecycle binding, or `@RestrictTo` `impl/` SPIs, also verify downstream
+       `camera/integration-tests/*` suites (and downstream consumer targets per
+       `AGENTS_INTERNAL.md` when configured).
   5. **Non-Interactive Pre-Upload Repohook & Gerrit Upload Verification**:
      Always pass `--verify -y --cbr . </dev/null` with a `timeout` wrapper so
      `repo upload` never hangs waiting on interactive hook/branch prompts or
