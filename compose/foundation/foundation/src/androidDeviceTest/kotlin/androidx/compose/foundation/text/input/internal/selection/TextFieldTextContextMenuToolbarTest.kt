@@ -35,9 +35,15 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItem
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSession
 import androidx.compose.foundation.text.contextmenu.internal.ProvidePlatformTextContextMenuToolbar
+import androidx.compose.foundation.text.contextmenu.provider.LocalTextContextMenuToolbarProvider
+import androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
+import androidx.compose.foundation.text.contextmenu.test.FakeTextContextMenuProvider
 import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallback
 import androidx.compose.foundation.text.contextmenu.test.assertNotNull
 import androidx.compose.foundation.text.contextmenu.test.assertShown
@@ -53,6 +59,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -346,6 +353,73 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
             clickOffset(2)
             Handle.Cursor.click()
             assertTextToolbarHasItem(AUTOFILL)
+        }
+
+    // Regression test for b/481087608
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun autofillItemClick_afterTextFieldRemoved_doesNotCrash() =
+        runTest(readOnly = false) {
+            clickOffset(2)
+            Handle.Cursor.click()
+            assertTextToolbarHasItem(AUTOFILL)
+            val autofillItem = rule.runOnIdle {
+                assertNotNull(latestDataProvider)
+                    .data()
+                    .components
+                    .filterIsInstance<TextContextMenuItem>()
+                    .single { it.key == TextContextMenuKeys.AutofillKey }
+            }
+
+            showTextField = false
+            assertTextToolbarNotShown()
+
+            var sessionClosed = false
+            val session =
+                object : TextContextMenuSession {
+                    override fun close() {
+                        sessionClosed = true
+                    }
+                }
+            // Invoke the pre-detach item directly (matching a queued FloatingToolbar button click)
+            // because onPrepareActionMode may have already cleared MenuBuilder by id.
+            rule.runOnUiThread { autofillItem.onClick(session) }
+            assertThat(sessionClosed).isTrue()
+        }
+
+    // Regression test for b/481087608
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun autofillItemClick_afterTextFieldStateSwappedAndRemoved_doesNotCrash() =
+        runTest(readOnly = false) {
+            clickOffset(2)
+            Handle.Cursor.click()
+            assertTextToolbarHasItem(AUTOFILL)
+            val autofillItem = rule.runOnIdle {
+                assertNotNull(latestDataProvider)
+                    .data()
+                    .components
+                    .filterIsInstance<TextContextMenuItem>()
+                    .single { it.key == TextContextMenuKeys.AutofillKey }
+            }
+
+            textFieldState = TextFieldState("World")
+            assertTextToolbarNotShown()
+
+            showTextField = false
+            assertTextToolbarNotShown()
+
+            var sessionClosed = false
+            val session =
+                object : TextContextMenuSession {
+                    override fun close() {
+                        sessionClosed = true
+                    }
+                }
+            // Invoke the pre-swap item directly (matching a queued FloatingToolbar button click)
+            // because onPrepareActionMode may have already cleared MenuBuilder by id.
+            rule.runOnUiThread { autofillItem.onClick(session) }
+            assertThat(sessionClosed).isTrue()
         }
 
     @Test
@@ -728,6 +802,7 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
 
         private lateinit var view: View
         val spyTextActionModeCallback = SpyTextActionModeCallback()
+        var latestDataProvider: TextContextMenuDataProvider? = null
 
         init {
             rule.setTextFieldTestContent {
@@ -736,7 +811,20 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
                     ProvidePlatformTextContextMenuToolbar(
                         callbackInjector = { spyTextActionModeCallback.apply { delegate = it } }
                     ) {
+                        val platformToolbarProvider =
+                            checkNotNull(LocalTextContextMenuToolbarProvider.current)
+                        val recordingToolbarProvider =
+                            remember(platformToolbarProvider) {
+                                FakeTextContextMenuProvider { dataProvider ->
+                                    latestDataProvider = dataProvider
+                                    platformToolbarProvider.showTextContextMenu(dataProvider)
+                                }
+                            }
                         val providedValues = buildList {
+                            add(
+                                LocalTextContextMenuToolbarProvider provides
+                                    recordingToolbarProvider
+                            )
                             add(LocalClipboard provides clipboard)
                             inputMode?.let { targetInputMode ->
                                 add(

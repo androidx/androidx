@@ -215,10 +215,6 @@ internal class TextFieldDecoratorModifierNode(
     LayoutAwareModifierNode,
     FocusPropertiesModifierNode {
 
-    init {
-        textFieldSelectionState.requestAutofillAction = { requestAutofill() }
-    }
-
     private val focusableNode =
         FocusableNode(
             interactionSource = interactionSource,
@@ -415,6 +411,8 @@ internal class TextFieldDecoratorModifierNode(
         getReceiveContentConfiguration()
     }
 
+    private val requestAutofillAction: () -> Unit = { requestAutofill() }
+
     // Mutable state to hold the autofillHighlightOn value
     private var autofillHighlightOn by mutableStateOf(false)
 
@@ -511,9 +509,13 @@ internal class TextFieldDecoratorModifierNode(
 
         if (textFieldSelectionState != previousTextFieldSelectionState) {
             pointerInputNode.resetPointerInputHandler()
+            if (previousTextFieldSelectionState.requestAutofillAction === requestAutofillAction) {
+                previousTextFieldSelectionState.requestAutofillAction = null
+            }
             if (isAttached) {
                 textFieldSelectionState.receiveContentConfiguration =
                     receiveContentConfigurationProvider
+                textFieldSelectionState.requestAutofillAction = requestAutofillAction
 
                 if (isFocused && toolbarAndHandlesVisibilityObserverJob != null) {
                     toolbarAndHandlesVisibilityObserverJob?.cancel()
@@ -522,7 +524,6 @@ internal class TextFieldDecoratorModifierNode(
                     }
                 }
             }
-            textFieldSelectionState.requestAutofillAction = { requestAutofill() }
         }
 
         if (interactionSource != previousInteractionSource) {
@@ -757,6 +758,7 @@ internal class TextFieldDecoratorModifierNode(
     override fun onAttach() {
         onObservedReadsChanged()
         textFieldSelectionState.receiveContentConfiguration = receiveContentConfigurationProvider
+        textFieldSelectionState.requestAutofillAction = requestAutofillAction
 
         if (enabled) {
             delegate(focusableNode)
@@ -766,6 +768,9 @@ internal class TextFieldDecoratorModifierNode(
     override fun onDetach() {
         disposeInputSession()
         textFieldSelectionState.receiveContentConfiguration = null
+        if (textFieldSelectionState.requestAutofillAction === requestAutofillAction) {
+            textFieldSelectionState.requestAutofillAction = null
+        }
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
