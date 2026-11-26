@@ -17,7 +17,11 @@
 package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,8 +33,11 @@ import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
+import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -43,6 +50,8 @@ class TopAppBarBenchmark {
 
     // Picking the LargeTopAppBar to benchmark a two-row variation.
     private val largeTopAppBarTestCaseFactory = { LargeTopAppBarTestCase() }
+
+    private val topAppBarLongTextTestCaseFactory = { TopAppBarLongTextTestCase() }
 
     @Ignore
     @Test
@@ -77,6 +86,16 @@ class TopAppBarBenchmark {
     fun largeTopAppBar_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel(largeTopAppBarTestCaseFactory)
     }
+
+    @Test
+    fun topAppBar_longText_firstPixel() {
+        benchmarkRule.benchmarkToFirstPixel(topAppBarLongTextTestCaseFactory)
+    }
+
+    @Test
+    fun topAppBar_longText_layout() {
+        benchmarkRule.benchmarkLayoutPerf(topAppBarLongTextTestCaseFactory)
+    }
 }
 
 internal class TopAppBarTestCase : LayeredComposeTestCase() {
@@ -101,6 +120,38 @@ internal class LargeTopAppBarTestCase : LayeredComposeTestCase() {
     override fun MeasuredContent() {
         // Keeping it to the minimum, with just the necessary title.
         LargeTopAppBar(title = { Text("Hello") }, modifier = Modifier.fillMaxWidth())
+    }
+
+    @Composable
+    override fun ContentWrappers(content: @Composable () -> Unit) {
+        MaterialTheme { content() }
+    }
+}
+
+internal class TopAppBarLongTextTestCase : LayeredComposeTestCase() {
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    override fun MeasuredContent() {
+        // Same title setup as the Jetsnack top bar: a long, centered title on one line that
+        // ends in an ellipsis. titleMedium adds letter spacing.
+        TopAppBar(
+            title = {
+                Text(
+                    text = "A long top app bar title that does not fit on a single line",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            },
+            actions = {
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 
     @Composable
