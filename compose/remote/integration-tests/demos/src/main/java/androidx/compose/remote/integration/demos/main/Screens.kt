@@ -33,6 +33,7 @@ import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSimpleD
 import androidx.compose.remote.integration.demos.modifier.AlphaDemo
 import androidx.compose.remote.integration.demos.modifier.ClickableDemo
 import androidx.compose.remote.integration.demos.modifier.CombinedClickableDemo
+import androidx.compose.remote.integration.demos.modifier.ComponentIdDemo
 import androidx.compose.remote.integration.demos.modifier.PaddingDemo
 import androidx.compose.remote.integration.demos.modifier.RotateDemo
 import androidx.compose.remote.integration.demos.modifier.ScaleDemo
@@ -70,6 +71,7 @@ private object ScreenKeys {
     const val CONTROLLED_SCROLL = "CONTROLLED_SCROLL"
     const val NESTED_SNAP_SCROLL = "NESTED_SNAP_SCROLL"
     const val TOUCH_ACTION = "TOUCH_ACTION"
+    const val COMPONENT_ID = "COMPONENT_ID"
     const val BITMAP_LOADER = "BITMAP_LOADER"
     const val REMOTE_ANNOTATED_STRING = "REMOTE_ANNOTATED_STRING"
     const val GESTURE_PROPAGATION = "GESTURE_PROPAGATION"
@@ -110,6 +112,7 @@ internal fun ComposableScreenNavigation(
         ScreenKeys.CLICKABLE -> ClickableDemo(onDocument)
         ScreenKeys.COMBINED_CLICKABLE -> CombinedClickableDemo(onDocument)
         ScreenKeys.TOUCH_ACTION -> TouchActionDemo(onDocument)
+        ScreenKeys.COMPONENT_ID -> ComponentIdDemo(onDocument)
         ScreenKeys.BITMAP_LOADER -> BitmapLoaderDemo(onDocument)
         ScreenKeys.REMOTE_ANNOTATED_STRING -> RemoteAnnotatedStringDemo(onDocument)
         ScreenKeys.GESTURE_PROPAGATION -> GesturePropagationDemo(onDocument)
@@ -202,6 +205,7 @@ val Screens =
                                 title = "CombinedClickable",
                             ),
                             ComposableScreen(key = ScreenKeys.TOUCH_ACTION, title = "TouchAction"),
+                            ComposableScreen(key = ScreenKeys.COMPONENT_ID, title = "ComponentId"),
                         ),
                 ),
                 Category(
