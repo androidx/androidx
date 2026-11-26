@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -80,5 +82,62 @@ public class RemoteComposeStateTest {
         // Test clearDataOverride out of bounds (should not throw)
         state.clearDataOverride(Limits.MAX_STATE_DATA);
         state.clearDataOverride(-1);
+    }
+
+    @Test
+    public void testDataScopes() {
+        RemoteComposeState state = new RemoteComposeState();
+
+        // Pop on empty stack is a safe no-op
+        state.popDataScope();
+
+        int outerId = state.cacheData("outer");
+        assertThat(state.dataGetId("outer")).isEqualTo(outerId);
+        assertThat(state.getFromId(outerId)).isEqualTo("outer");
+
+        state.pushDataScope();
+        // Outer entries remain visible inside a pushed scope
+        assertThat(state.dataGetId("outer")).isEqualTo(outerId);
+
+        int innerId = state.cacheData("inner");
+        assertThat(state.dataGetId("inner")).isEqualTo(innerId);
+        assertThat(state.getFromId(innerId)).isEqualTo("inner");
+
+        // Nested scope sees outer + inner, and only discards its own entries on pop
+        state.pushDataScope();
+        assertThat(state.dataGetId("outer")).isEqualTo(outerId);
+        assertThat(state.dataGetId("inner")).isEqualTo(innerId);
+        int nestedId = state.cacheData("nested");
+        assertThat(state.dataGetId("nested")).isEqualTo(nestedId);
+        // Overwriting an existing ID inside a scope is restored when popped
+        state.cacheData(outerId, "shadowed");
+        assertThat(state.getFromId(outerId)).isEqualTo("shadowed");
+        assertThat(state.dataGetId("shadowed")).isEqualTo(outerId);
+
+        state.popDataScope();
+        assertThat(state.dataGetId("nested")).isEqualTo(-1);
+        assertThat(state.getFromId(nestedId)).isNull();
+        assertThat(state.dataGetId("shadowed")).isEqualTo(-1);
+        assertThat(state.getFromId(outerId)).isEqualTo("outer");
+        assertThat(state.dataGetId("inner")).isEqualTo(innerId);
+
+        state.popDataScope();
+        // Inner entry is forgotten after pop; outer entry stays intact
+        assertThat(state.dataGetId("inner")).isEqualTo(-1);
+        assertThat(state.getFromId(innerId)).isNull();
+        assertThat(state.dataGetId("outer")).isEqualTo(outerId);
+        assertThat(state.getFromId(outerId)).isEqualTo("outer");
+
+        // Re-caching after pop allocates a fresh monotonic ID
+        int afterPopId = state.cacheData("inner");
+        assertThat(afterPopId).isGreaterThan(nestedId);
+        assertThat(state.dataGetId("inner")).isEqualTo(afterPopId);
+
+        // reset() clears active scopes as well
+        state.pushDataScope();
+        state.cacheData("transient");
+        state.reset();
+        assertThat(state.dataGetId("transient")).isEqualTo(-1);
+        assertThat(state.dataGetId("outer")).isEqualTo(-1);
     }
 }

@@ -839,11 +839,11 @@ public class RemoteComposeWriterAdapter(public val delegate: RemoteComposeWriter
     }
 
     override fun definePattern(patternId: Int, paramIds: IntArray) {
-        delegate.buffer.definePattern(patternId, paramIds)
+        delegate.definePattern(patternId, paramIds)
     }
 
     override fun endPatternDefine() {
-        delegate.buffer.endPatternDefine()
+        delegate.endPatternDefine()
     }
 
     override fun inflatePattern(patternId: Int, argIds: IntArray) {

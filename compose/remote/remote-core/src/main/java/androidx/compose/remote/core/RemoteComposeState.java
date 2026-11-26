@@ -31,6 +31,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents runtime state for a RemoteCompose document State includes things like the value of
@@ -43,9 +44,15 @@ public class RemoteComposeState implements CollectionsAccess {
     /** Offset added to bitmap to cache bitmap textures */
     public static final int BITMAP_TEXTURE_ID_OFFSET = 2000;
 
+    private static final class DataScope {
+        final HashMap<Object, Integer> mDataToId = new HashMap<>();
+        final HashMap<Integer, Object> mPreviousIntData = new HashMap<>();
+    }
+
     private final IntMap<Object> mIntDataMap = new IntMap<>();
     private final IntMap<Boolean> mIntWrittenMap = new IntMap<>();
     private final HashMap<Object, Integer> mDataIntMap = new HashMap<>();
+    private final ArrayList<DataScope> mDataScopeStack = new ArrayList<>();
     private final IntFloatMap mFloatMap = new IntFloatMap(); // efficient cache
     private final IntIntMap mIntegerMap = new IntIntMap(); // efficient cache
     private final IntIntMap mColorMap = new IntIntMap(); // efficient cache
@@ -92,8 +99,54 @@ public class RemoteComposeState implements CollectionsAccess {
         return mIntDataMap.get(id) != null;
     }
 
+    /**
+     * Push a new scoped layer for cached data lookups. Entries cached while a scope is active are
+     * visible within that scope and any nested scopes, and forgotten on {@link #popDataScope()}.
+     */
+    public void pushDataScope() {
+        mDataScopeStack.add(new DataScope());
+    }
+
+    /**
+     * Pop the innermost scoped data cache pushed by {@link #pushDataScope()}, forgetting any
+     * entries cached within that scope.
+     */
+    public void popDataScope() {
+        if (mDataScopeStack.isEmpty()) {
+            return;
+        }
+        DataScope scope = mDataScopeStack.remove(mDataScopeStack.size() - 1);
+        for (Map.Entry<Integer, Object> entry : scope.mPreviousIntData.entrySet()) {
+            if (entry.getValue() == null) {
+                mIntDataMap.remove(entry.getKey());
+            } else {
+                mIntDataMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    private void putData(int id, @NonNull Object item) {
+        if (mDataScopeStack.isEmpty()) {
+            mDataIntMap.put(item, id);
+            mIntDataMap.put(id, item);
+            return;
+        }
+        DataScope scope = mDataScopeStack.get(mDataScopeStack.size() - 1);
+        scope.mDataToId.put(item, id);
+        Object previous = mIntDataMap.put(id, item);
+        if (!scope.mPreviousIntData.containsKey(id)) {
+            scope.mPreviousIntData.put(id, previous);
+        }
+    }
+
     /** Return the id of an item from the cache. */
     public int dataGetId(@NonNull Object data) {
+        for (int i = mDataScopeStack.size() - 1; i >= 0; i--) {
+            Integer res = mDataScopeStack.get(i).mDataToId.get(data);
+            if (res != null) {
+                return res;
+            }
+        }
         Integer res = mDataIntMap.get(data);
         if (res == null) {
             return -1;
@@ -107,8 +160,7 @@ public class RemoteComposeState implements CollectionsAccess {
      */
     public int cacheData(@NonNull Object item) {
         int id = createNextAvailableId();
-        mDataIntMap.put(item, id);
-        mIntDataMap.put(id, item);
+        putData(id, item);
         return id;
     }
 
@@ -118,15 +170,13 @@ public class RemoteComposeState implements CollectionsAccess {
      */
     public int cacheData(@NonNull Object item, int type) {
         int id = createNextAvailableId(type);
-        mDataIntMap.put(item, id);
-        mIntDataMap.put(id, item);
+        putData(id, item);
         return id;
     }
 
     /** Insert an item in the cache */
     public void cacheData(int id, @NonNull Object item) {
-        mDataIntMap.put(item, id);
-        mIntDataMap.put(id, item);
+        putData(id, item);
     }
 
     /** Insert an item in the cache */
@@ -467,6 +517,7 @@ public class RemoteComposeState implements CollectionsAccess {
     public void reset() {
         mIntWrittenMap.clear();
         mDataIntMap.clear();
+        mDataScopeStack.clear();
         mIntDataMap.clear();
         mFloatMap.clear();
         mIntegerMap.clear();
