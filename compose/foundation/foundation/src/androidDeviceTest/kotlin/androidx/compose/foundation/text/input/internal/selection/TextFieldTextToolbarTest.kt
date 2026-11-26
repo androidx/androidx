@@ -37,6 +37,7 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
+import androidx.compose.foundation.text.contextmenu.test.assertNotNull
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -120,6 +121,8 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     private val TAG = "BasicTextField"
 
     private var enabled by mutableStateOf(true)
+
+    private var showTextField by mutableStateOf(true)
 
     private lateinit var view: View
 
@@ -493,6 +496,34 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
         rule.runOnIdle { assertThat(autofillOptionAvailable).isTrue() }
+    }
+
+    // Regression test for b/481087608
+    @Test
+    fun autofillItemClick_afterTextFieldRemoved_doesNotCrash() {
+        var autofillOption: (() -> Unit)? = null
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, _, _, _, onAutofillRequested ->
+                    autofillOption = onAutofillRequested
+                },
+                onHideMenu = {},
+            )
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar, readOnly = false)
+
+        rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
+
+        val action = rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+            assertNotNull(autofillOption)
+        }
+
+        showTextField = false
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
+
+        rule.runOnUiThread { action.invoke() }
     }
 
     @Test
@@ -1075,15 +1106,17 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             }
                 .toTypedArray()
             CompositionLocalProvider(*providedValues) {
-                BasicTextField(
-                    state = state,
-                    modifier = modifier.width(100.dp).testTag(TAG),
-                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize),
-                    enabled = enabled,
-                    lineLimits = lineLimits,
-                    inputTransformation = filter,
-                    readOnly = readOnly,
-                )
+                if (showTextField) {
+                    BasicTextField(
+                        state = state,
+                        modifier = modifier.width(100.dp).testTag(TAG),
+                        textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize),
+                        enabled = enabled,
+                        lineLimits = lineLimits,
+                        inputTransformation = filter,
+                        readOnly = readOnly,
+                    )
+                }
             }
         }
     }

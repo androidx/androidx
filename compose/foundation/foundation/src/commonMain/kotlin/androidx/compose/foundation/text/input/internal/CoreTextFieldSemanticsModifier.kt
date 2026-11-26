@@ -122,8 +122,16 @@ internal class CoreTextFieldSemanticsModifierNode(
     var imeOptions: ImeOptions,
     var focusRequester: FocusRequester,
 ) : DelegatingNode(), SemanticsModifierNode {
-    init {
-        manager.requestAutofillAction = { requestAutofill() }
+    private val requestAutofillAction: () -> Unit = { requestAutofill() }
+
+    override fun onAttach() {
+        manager.requestAutofillAction = requestAutofillAction
+    }
+
+    override fun onDetach() {
+        if (manager.requestAutofillAction === requestAutofillAction) {
+            manager.requestAutofillAction = null
+        }
     }
 
     override val shouldMergeDescendantSemantics: Boolean
@@ -333,7 +341,12 @@ internal class CoreTextFieldSemanticsModifierNode(
         }
 
         if (manager != previousManager) {
-            manager.requestAutofillAction = { requestAutofill() }
+            if (previousManager.requestAutofillAction === requestAutofillAction) {
+                previousManager.requestAutofillAction = null
+            }
+            if (isAttached) {
+                manager.requestAutofillAction = requestAutofillAction
+            }
         }
     }
 
