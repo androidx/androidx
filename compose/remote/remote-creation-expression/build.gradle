@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,17 @@
  */
 
 import androidx.build.SoftwareType
+import javax.inject.Inject
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
 
 plugins {
     id("AndroidXPlugin")
@@ -22,7 +33,51 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
 }
 
+@CacheableTask
+abstract class GenerateRemoteProtocolSourcesTask extends DefaultTask {
+    @Input
+    abstract Property<String> getTarget()
+
+    @Classpath
+    abstract ConfigurableFileCollection getCodegenClasspath()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDirectory()
+
+    @Inject
+    abstract ExecOperations getExecOperations()
+
+    @Inject
+    GenerateRemoteProtocolSourcesTask() {
+        group = "codegen"
+        description = "Generates RemoteProtocol.kt from operations.json"
+    }
+
+    @TaskAction
+    void generate() {
+        File outputDirectoryFile = getOutputDirectory().asFile.get()
+        outputDirectoryFile.deleteDir()
+        execOperations.javaexec {
+            mainClass.set("androidx.compose.remote.generator.RemoteKotlinCodegenMain")
+            classpath = getCodegenClasspath()
+            args(
+                "--target=${getTarget().get()}",
+                "--output-dir=${outputDirectoryFile.absolutePath}",
+            )
+        }
+    }
+}
+
+configurations {
+    remoteCodegen {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
 dependencies {
+    remoteCodegen(project(":compose:remote:remote-generator"))
+
     api("androidx.annotation:annotation:1.9.1")
     api("androidx.compose.runtime:runtime-annotation:1.11.0")
 
@@ -35,6 +90,21 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
     testImplementation(project(":compose:remote:remote-creation-core"))
+}
+
+def generateRemoteProtocolSources =
+    tasks.register("generateRemoteProtocolSources", GenerateRemoteProtocolSourcesTask) { task ->
+        task.codegenClasspath.from(configurations.remoteCodegen)
+        task.target.set("protocol")
+        task.outputDirectory.set(
+            layout.buildDirectory.dir("generated/sources/remoteCodegen/main/kotlin")
+        )
+    }
+
+sourceSets {
+    main {
+        kotlin.srcDir(generateRemoteProtocolSources.flatMap { it.outputDirectory })
+    }
 }
 
 androidx {
