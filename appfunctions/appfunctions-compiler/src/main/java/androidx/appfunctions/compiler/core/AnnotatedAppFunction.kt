@@ -24,6 +24,7 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAccess
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionBehaviorHintsAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionRequestClass
 import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionDeprecationMetadata
@@ -33,6 +34,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.validate
 
 /** Represents an individual function that is annotated as an app function. */
@@ -51,6 +53,31 @@ data class AnnotatedAppFunction(
 
     /** Returns true if the function is deprecated. */
     val isDeprecated: Boolean by lazy { appFunctionDeclaration.getDeprecationMetadata() != null }
+
+    /**
+     * Returns true if the first parameter of the function is `ExecuteAppFunctionRequest`.
+     *
+     * Such a parameter is injected by the generated service from `onExecuteFunction` rather than
+     * exposed in the function's metadata parameters.
+     */
+    val hasExecuteAppFunctionRequestParameter: Boolean by lazy {
+        appFunctionDeclaration.parameters
+            .firstOrNull()
+            ?.type
+            ?.isOfType(ExecuteAppFunctionRequestClass.CLASS_NAME) == true
+    }
+
+    /**
+     * The function parameters that are exposed as AppFunction input parameters (excluding a leading
+     * `ExecuteAppFunctionRequest` parameter if present).
+     */
+    val appFunctionParameters: List<KSValueParameter> by lazy {
+        if (hasExecuteAppFunctionRequestParameter) {
+            appFunctionDeclaration.parameters.drop(1)
+        } else {
+            appFunctionDeclaration.parameters
+        }
+    }
 
     /**
      * Validates if the AppFunction implementation is valid.
@@ -107,7 +134,7 @@ data class AnnotatedAppFunction(
 
         val parameterTypeMetadataList =
             metadataCreatorHelper.buildParameterTypeMetadataList(
-                parameters = appFunctionDeclaration.parameters,
+                parameters = appFunctionParameters,
                 resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
                 sharedDataTypeMap = sharedDataTypeMap,
                 seenDataTypeQualifiers = seenDataTypeQualifiers,
@@ -160,7 +187,7 @@ data class AnnotatedAppFunction(
             findRootAppFunctionSchemaInterface(appFunctionDeclaration)
         rootAppFunctionSchemaInterface?.containingFile?.let { sourceFileSet.add(it) }
 
-        for (ksValueParameter in appFunctionDeclaration.parameters) {
+        for (ksValueParameter in appFunctionParameters) {
             val parameterTypeReference = AppFunctionTypeReference(ksValueParameter.type)
             if (parameterTypeReference.typeOrItemTypeIsAppFunctionSerializable()) {
                 sourceFileSet.addAll(
@@ -185,7 +212,28 @@ data class AnnotatedAppFunction(
     }
 
     private fun validateParameterTypes() {
-        for (ksValueParameter in appFunctionDeclaration.parameters) {
+        if (hasExecuteAppFunctionRequestParameter) {
+            val firstParameter = appFunctionDeclaration.parameters.first()
+            if (firstParameter.type.resolve().isMarkedNullable) {
+                throw ProcessingException(
+                    "ExecuteAppFunctionRequest parameter cannot be nullable",
+                    firstParameter,
+                )
+            }
+            if (firstParameter.hasDefault) {
+                throw ProcessingException(
+                    "ExecuteAppFunctionRequest parameter cannot have a default value",
+                    firstParameter,
+                )
+            }
+        }
+        for (ksValueParameter in appFunctionParameters) {
+            if (ksValueParameter.type.isOfType(ExecuteAppFunctionRequestClass.CLASS_NAME)) {
+                throw ProcessingException(
+                    "ExecuteAppFunctionRequest can only be the first parameter of an AppFunction",
+                    ksValueParameter,
+                )
+            }
             if (!isSupportedType(ksValueParameter.type)) {
                 throw ProcessingException(
                     "App function parameters must be a supported type, or a type " +

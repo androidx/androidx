@@ -67,6 +67,13 @@ package androidx.appfunctions
  * [androidx.appfunctions.AppFunctionInvalidArgumentException] with a detailed message explaining
  * why it is invalid.
  *
+ * ### Accessing Execution Request
+ *
+ * The first parameter of a function annotated with `@AppFunctionDeclaration` may optionally be an
+ * [ExecuteAppFunctionRequest] (non-nullable, without a default value). When present, the generated
+ * service passes the incoming [ExecuteAppFunctionRequest] directly to the function and excludes it
+ * from the function's exposed parameter metadata.
+ *
  * ### Supported Types
  *
  * For a detailed list of supported types and the rules governing their serialization, see

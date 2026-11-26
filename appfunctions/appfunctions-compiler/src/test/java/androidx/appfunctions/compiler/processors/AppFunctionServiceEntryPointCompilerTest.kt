@@ -351,4 +351,61 @@ class AppFunctionServiceEntryPointCompilerTest {
             goldenFileName = "entrypoints/my_behavior_hints_service.xml",
         )
     }
+
+    @Test
+    fun testExecuteAppFunctionRequestFirstParam_generatesServiceClass() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/ExecuteRequestParamEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "MyExecuteRequestParamService.kt",
+            goldenFileName = "entrypoints/MyExecuteRequestParamService.KT",
+        )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName =
+                "\$ExecuteRequestParamEntryPoint_AppFunctionInventory.kt",
+            goldenFileName = "inventory/\$ExecuteRequestParamEntryPoint_AppFunctionInventory.KT",
+        )
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "my_execute_request_param_service.xml",
+            goldenFileName = "entrypoints/my_execute_request_param_service.xml",
+        )
+    }
+
+    @Test
+    fun testExecuteAppFunctionRequestNotFirstParam_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames =
+                    listOf("entrypoints/invalid/ExecuteRequestNotFirstParamEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report = report,
+            expectedErrorMessage =
+                "ExecuteAppFunctionRequest can only be the first parameter of an AppFunction",
+        )
+    }
+
+    @Test
+    fun testNullableExecuteAppFunctionRequestParam_hasCompileError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames =
+                    listOf("entrypoints/invalid/NullableExecuteRequestParamEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report = report,
+            expectedErrorMessage = "ExecuteAppFunctionRequest parameter cannot be nullable",
+        )
+    }
 }

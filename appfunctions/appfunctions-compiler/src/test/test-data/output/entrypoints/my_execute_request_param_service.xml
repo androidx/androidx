@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.testdata.ExecuteRequestParamEntryPoint#requestOnly</id>
+        <enabledByDefault>true</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.ExecuteRequestParamEntryPoint#requestOnly</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.ExecuteRequestParamEntryPoint#requestWithParam</id>
+        <enabledByDefault>true</enabledByDefault>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>string</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>8</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.ExecuteRequestParamEntryPoint#requestWithParam</functionId>
+    </appfunction>
+</appfunctions>
