@@ -25,8 +25,8 @@ import androidx.glance.adaptive.core.slots.IconButton
 import androidx.glance.adaptive.core.slots.ListItem
 import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
-import androidx.glance.adaptive.core.templates.TrackTemplate
 import androidx.glance.adaptive.core.templates.quickactions.QuickActionsTemplate
+import androidx.glance.adaptive.core.templates.track.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test

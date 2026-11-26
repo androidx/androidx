@@ -29,7 +29,7 @@ import androidx.glance.adaptive.core.slots.ContainedRing
 import androidx.glance.adaptive.core.slots.Graph
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
-import androidx.glance.adaptive.core.templates.TrackTemplate
+import androidx.glance.adaptive.core.templates.track.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

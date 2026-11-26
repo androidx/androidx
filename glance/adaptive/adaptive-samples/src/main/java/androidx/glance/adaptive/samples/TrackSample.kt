@@ -18,7 +18,7 @@ package androidx.glance.adaptive.samples
 
 import androidx.glance.adaptive.core.templates.ChartBar
 import androidx.glance.adaptive.core.templates.TemplateIcon
-import androidx.glance.adaptive.core.templates.trackTemplate
+import androidx.glance.adaptive.core.templates.track.trackTemplate
 
 /**
  * Shared [trackTemplate] payload pushed by [TrackRemoteViewsWidgetReceiver] and

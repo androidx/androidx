@@ -55,7 +55,7 @@ import androidx.glance.adaptive.core.slots.IconTile
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
-import androidx.glance.adaptive.core.templates.TrackTemplate
+import androidx.glance.adaptive.core.templates.track.TrackTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

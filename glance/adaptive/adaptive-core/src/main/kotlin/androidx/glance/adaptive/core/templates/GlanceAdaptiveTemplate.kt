@@ -30,7 +30,8 @@ public abstract class GlanceAdaptiveTemplate
 constructor(
     /**
      * Stable integer identifier representing this template type for OS platform telemetry (e.g.,
-     * `1` for [TrackTemplate], or [TEMPLATE_ID_UNKNOWN] (`0`) when unspecified).
+     * `1` for [androidx.glance.adaptive.core.templates.track.TrackTemplate], or
+     * [TEMPLATE_ID_UNKNOWN] (`0`) when unspecified).
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val templateId: Int = TEMPLATE_ID_UNKNOWN
 ) {

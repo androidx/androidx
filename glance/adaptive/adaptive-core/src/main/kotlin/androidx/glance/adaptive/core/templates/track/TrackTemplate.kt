@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.templates
+package androidx.glance.adaptive.core.templates.track
 
 import androidx.annotation.CheckResult
 import androidx.annotation.RestrictTo
@@ -29,6 +29,7 @@ import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.SecondaryComponent
 import androidx.glance.adaptive.core.slots.TemplateRule
 import androidx.glance.adaptive.core.slots.TemplateText
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 
 private const val MAX_SUPPORTING_ITEMS = 3
 

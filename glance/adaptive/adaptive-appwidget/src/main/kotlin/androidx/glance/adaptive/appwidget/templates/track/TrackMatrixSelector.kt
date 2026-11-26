@@ -30,7 +30,7 @@ import androidx.glance.adaptive.core.slots.ContainedRing
 import androidx.glance.adaptive.core.slots.Graph
 import androidx.glance.adaptive.core.slots.Ring
 import androidx.glance.adaptive.core.slots.TemplateText
-import androidx.glance.adaptive.core.templates.TrackTemplate
+import androidx.glance.adaptive.core.templates.track.TrackTemplate
 
 /**
  * Maps a [TrackTemplate] onto the Information Matrix, for any backend's matrix renderer, such as
