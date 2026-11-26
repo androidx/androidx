@@ -805,7 +805,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     internal val isTouchExplorationEnabled: Boolean
         get() = composeAccessibilityDelegate.isTouchExplorationEnabled
 
-    internal var contentCaptureManager =
+    internal val contentCaptureManager =
         AndroidContentCaptureManager(
             view = this,
             onContentCaptureSession = ::getContentCaptureSessionCompat,
@@ -2596,10 +2596,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         } else {
             onReadyForComposition = callback
         }
-    }
-
-    suspend fun boundsUpdatesContentCaptureEventLoop() {
-        contentCaptureManager.boundsUpdatesEventLoop()
     }
 
     /** Walks the entire LayoutNode sub-hierarchy and marks all nodes as needing measurement. */

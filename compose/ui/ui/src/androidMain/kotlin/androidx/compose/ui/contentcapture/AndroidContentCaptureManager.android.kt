@@ -19,6 +19,7 @@ package androidx.compose.ui.contentcapture
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.LongSparseArray
 import android.view.View
 import android.view.ViewStructure
@@ -31,6 +32,7 @@ import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntObjectMapOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
@@ -55,8 +57,6 @@ import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import java.util.function.Consumer
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 
 // TODO(b/272068594): Fix the primitive usage after completing the semantics refactor.
 // TODO(b/318748747): Add an interface for ContentCaptureManager to the common module, and then this
@@ -69,19 +69,19 @@ import kotlinx.coroutines.delay
 internal class AndroidContentCaptureManager(
     val view: AndroidComposeView,
     var onContentCaptureSession: () -> ContentCaptureSessionWrapper?,
-) : DefaultLifecycleObserver, View.OnAttachStateChangeListener {
+) : DefaultLifecycleObserver, View.OnAttachStateChangeListener, Runnable {
 
     @VisibleForTesting internal var contentCaptureSession: ContentCaptureSessionWrapper? = null
 
     /** An ordered list of buffered content capture events. */
-    private val bufferedEvents = mutableListOf<ContentCaptureEvent>()
+    private val bufferedEvents = mutableObjectListOf<ContentCaptureEvent>()
 
     /**
      * Delay before dispatching a recurring accessibility event in milliseconds. This delay
      * guarantees that a recurring event will be send at most once during the
      * [SendRecurringContentCaptureEventsIntervalMillis] time frame.
      */
-    private var SendRecurringContentCaptureEventsIntervalMillis = 100L
+    @VisibleForTesting internal var SendRecurringContentCaptureEventsIntervalMillis = 100L
 
     /**
      * Indicates whether the translated information is show or hide in the [AndroidComposeView].
@@ -98,7 +98,7 @@ internal class AndroidContentCaptureManager(
     private var translateStatus = TranslateStatus.SHOW_ORIGINAL
 
     private var currentSemanticsNodesInvalidated = true
-    private val boundsUpdateChannel = Channel<Unit>(1)
+    private var lastUpdateTime = 0L
 
     // TODO remove with b/486998514
     private val legacyMainHandler = Handler(Looper.getMainLooper())
@@ -119,7 +119,7 @@ internal class AndroidContentCaptureManager(
             }
 
     /**
-     * Up to date semantics nodes in pruned semantics tree. It always reflects the current semantics
+     * Up-to-date semantics nodes in pruned semantics tree. It always reflects the current semantics
      * tree. They key is the virtual view id(the root node has a key of
      * AccessibilityNodeProviderCompat.HOST_VIEW_ID and other node has a key of its id).
      */
@@ -150,42 +150,12 @@ internal class AndroidContentCaptureManager(
         SemanticsNodeCopy(view.semanticsOwner.unmergedRootSemanticsNode, intObjectMapOf())
     private var checkingForSemanticsChanges = false
 
-    private val contentCaptureChangeChecker = Runnable {
-        if (!isEnabled || !view.isAttachedToWindow) {
-            checkingForSemanticsChanges = false
-            return@Runnable
-        }
-
-        trace("ContentCapture:changeChecker") {
-            // TODO(mnuzen): there might be a case where `view.measureAndLayout()` is called twice
-            // --
-            // once by the CC checker and once by the a11y checker.
-            view.measureAndLayout()
-
-            // Semantics structural change
-            // Always send disappear event first.
-            sendContentCaptureDisappearEvents()
-            trace("ContentCapture:sendAppearEvents") {
-                sendContentCaptureAppearEvents(
-                    view.semanticsOwner.unmergedRootSemanticsNode,
-                    previousSemanticsRoot,
-                )
-            }
-
-            // Property change
-            checkForContentCapturePropertyChanges(currentSemanticsNodes)
-            updateSemanticsCopy()
-
-            checkingForSemanticsChanges = false
-        }
-    }
-
     override fun onViewAttachedToWindow(v: View) {}
 
     override fun onViewDetachedFromWindow(v: View) {
         // TODO: b/498432814 - Handler shouldn't be null on detach; investigate re-entrant
         //  detachment to see if handler? can be removed.
-        handler?.removeCallbacks(contentCaptureChangeChecker)
+        handler?.removeCallbacks(this)
         checkingForSemanticsChanges = false
         contentCaptureSession = null
     }
@@ -204,25 +174,36 @@ internal class AndroidContentCaptureManager(
         updateBuffersOnDisappeared(view.semanticsOwner.unmergedRootSemanticsNode)
         notifyContentCaptureChanges()
         contentCaptureSession = null
+        handler?.removeCallbacks(this)
+        checkingForSemanticsChanges = false
     }
 
-    /**
-     * This suspend function loops for the entire lifetime of the Compose instance: it consumes
-     * recent layout changes and sends events to the accessibility and content capture framework in
-     * batches separated by a 100ms delay.
-     */
-    internal suspend fun boundsUpdatesEventLoop() {
-        for (notification in boundsUpdateChannel) {
-            if (isEnabled) {
-                notifyContentCaptureChanges()
-                val localHandler = handler
-                if (!checkingForSemanticsChanges && localHandler != null) {
-                    checkingForSemanticsChanges = true
-                    localHandler.post(contentCaptureChangeChecker)
-                }
-            }
+    /** This is debounced so that it is executed at least 100ms after the previous call. */
+    override fun run() {
+        lastUpdateTime = SystemClock.uptimeMillis()
+        checkingForSemanticsChanges = false
 
-            delay(SendRecurringContentCaptureEventsIntervalMillis)
+        if (isEnabled && view.isAttachedToWindow) {
+            notifyContentCaptureChanges()
+            trace("ContentCapture:changeChecker") {
+                // TODO(mnuzen): there might be a case where `view.measureAndLayout()` is called
+                // twice -- once by the CC checker and once by the a11y checker.
+                view.measureAndLayout()
+
+                // Semantics structural change
+                // Always send disappear event first.
+                sendContentCaptureDisappearEvents()
+                trace("ContentCapture:sendAppearEvents") {
+                    sendContentCaptureAppearEvents(
+                        view.semanticsOwner.unmergedRootSemanticsNode,
+                        previousSemanticsRoot,
+                    )
+                }
+
+                // Property change
+                checkForContentCapturePropertyChanges(currentSemanticsNodes)
+                updateSemanticsCopy()
+            }
         }
     }
 
@@ -240,7 +221,7 @@ internal class AndroidContentCaptureManager(
             val localHandler = handler
             if (!checkingForSemanticsChanges && localHandler != null) {
                 checkingForSemanticsChanges = true
-                localHandler.post(contentCaptureChangeChecker)
+                localHandler.post(this)
             }
         }
     }
@@ -253,7 +234,7 @@ internal class AndroidContentCaptureManager(
 
         // The layout change of a LayoutNode will also affect its children, so even if it doesn't
         // have semantics attached, we should process it.
-        if (isEnabled) notifySubtreeStateChangeIfNeeded()
+        notifySubtreeStateChangeIfNeeded()
     }
 
     private fun sendContentCaptureDisappearEvents() {
@@ -346,7 +327,17 @@ internal class AndroidContentCaptureManager(
     }
 
     private fun notifySubtreeStateChangeIfNeeded() {
-        boundsUpdateChannel.trySend(Unit)
+        val handler = handler ?: return
+        if (isEnabled && !checkingForSemanticsChanges) {
+            checkingForSemanticsChanges = true
+            val nextRunTime = lastUpdateTime + SendRecurringContentCaptureEventsIntervalMillis
+            val delay = nextRunTime - SystemClock.uptimeMillis()
+            if (delay <= 0) {
+                handler.post(this)
+            } else {
+                handler.postDelayed(this, delay)
+            }
+        }
     }
 
     private fun SemanticsNode.toViewStructure(index: Int): ViewStructure? {
@@ -470,7 +461,7 @@ internal class AndroidContentCaptureManager(
         }
 
         if (bufferedEvents.isNotEmpty()) {
-            bufferedEvents.fastForEach { event ->
+            bufferedEvents.forEach { event ->
                 when (event.type) {
                     ContentCaptureEventType.VIEW_APPEAR -> {
                         event.structureCompat?.let { node -> session.notifyViewAppeared(node) }
