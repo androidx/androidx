@@ -18,6 +18,8 @@ package androidx.camera.camera2.compat.quirk
 
 import android.os.Build
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import java.util.Locale
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -124,8 +126,20 @@ class CloseCameraDeviceOnCameraGraphCloseQuirkTest(
                 arrayOf<Any>("Samsung", "sm-s908b", "b0s", "s5e9925", "s5e9925", 36, T, F, T),
                 arrayOf<Any>("Samsung", "sm-s921b", "e1s", "s5e9945", "s5e9945", 36, T, F, T),
                 arrayOf<Any>("Samsung", "sm-f971u1", "h8q", "qcom", "canoe", 37, T, F, T),
-                // Samsung Galaxy S22-S24 Snapdragon on API 36+: unconditional (b/538140458).
+                // Samsung Extensions verified-clean allowlist (closed SDK range [36, 36],
+                // b/587302543): disabled on verified SDK 36, still Extensions-only on SDK 35 and
+                // future unverified SDK 37+.
+                arrayOf<Any>("Samsung", "sm-a546e", "a54x", "s5e8835", "s5e8835", 35, T, F, T),
+                arrayOf<Any>("Samsung", "sm-a546e", "a54x", "s5e8835", "s5e8835", 36, F, F, F),
+                arrayOf<Any>("Samsung", "SM-A546E", "A54X", "s5e8835", "s5e8835", 36, F, F, F),
+                arrayOf<Any>("Samsung", "sm-a546e", "a54x", "s5e8835", "s5e8835", 37, T, F, T),
+                arrayOf<Any>("Samsung", "sm-f731u1", "b5q", "qcom", "kalama", 35, T, F, T),
+                arrayOf<Any>("Samsung", "sm-f731u1", "b5q", "qcom", "kalama", 36, F, F, F),
+                arrayOf<Any>("Samsung", "sm-f731u1", "b5q", "qcom", "kalama", 37, T, F, T),
+                // Samsung Galaxy S22-S24 Snapdragon on API 36+: unconditional (b/538140458), even
+                // if Build.DEVICE ever collided with an Extensions allowlist key.
                 arrayOf<Any>("Samsung", "sm-s908u", "b0q", "qcom", "taro", 36, T, T, T),
+                arrayOf<Any>("Samsung", "sm-s908u", "b5q", "qcom", "taro", 36, T, T, T),
                 arrayOf<Any>("Samsung", "sm-s908u1", "b0q", "qcom", "taro", 36, T, T, T),
                 arrayOf<Any>("Samsung", "sm-s918u1", "dm3q", "qcom", "kalama", 36, T, T, T),
                 arrayOf<Any>("Samsung", "sm-s921u1", "e1q", "qcom", "pineapple", 36, T, T, T),
@@ -173,6 +187,28 @@ class CloseCameraDeviceOnCameraGraphCloseQuirkTest(
                 .isEqualTo(expectedCloseWithoutExtensions)
             assertThat(quirk.shouldCloseCameraDevice(isExtensions = true))
                 .isEqualTo(expectedCloseWithExtensions)
+        }
+    }
+
+    @Test
+    fun allowlistEntriesUseExactLowercaseDeviceKeysAndClosedSdkBounds() {
+        val allowlist =
+            CloseCameraDeviceOnCameraGraphCloseQuirk
+                .SAMSUNG_EXTENSIONS_VERIFIED_CLEAN_DEVICE_API_RANGES
+        assertThat(allowlist).isNotEmpty()
+        for ((deviceKey, sdkRange) in allowlist) {
+            assertWithMessage("Allowlist key '$deviceKey' must be non-empty trimmed lowercase")
+                .that(deviceKey)
+                .isEqualTo(deviceKey.trim().lowercase(Locale.ROOT))
+            assertThat(deviceKey).isNotEmpty()
+            assertWithMessage("Allowlist SDK lower bound for '$deviceKey' must be >= API 31")
+                .that(sdkRange.lower)
+                .isAtLeast(Build.VERSION_CODES.S)
+            assertWithMessage(
+                    "Allowlist SDK upper bound for '$deviceKey' must be closed (< Int.MAX_VALUE)"
+                )
+                .that(sdkRange.upper)
+                .isLessThan(Int.MAX_VALUE)
         }
     }
 }
