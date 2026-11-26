@@ -23,11 +23,12 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
@@ -40,6 +41,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -153,17 +155,18 @@ public class WebViewClientCompatTest {
                 + "<a href=\"" + testUrl + "\" id=\"link\">new page</a>"
                 + "</body></html>";
         mWebViewOnUiThread.loadDataAndWaitForCompletion(data, "text/html", null);
-        final ResolvableFuture<Void> pageFinishedFuture = ResolvableFuture.create();
+        CountDownLatch pageFinishedCounter = new CountDownLatch(1);
         final MockWebViewClient webViewClient = new MockWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                pageFinishedFuture.set(null);
+                pageFinishedCounter.countDown();
             }
         };
         mWebViewOnUiThread.setWebViewClient(webViewClient);
         mWebViewOnUiThread.getSettings().setJavaScriptEnabled(true);
         clickOnLinkUsingJs("link", mWebViewOnUiThread);
-        WebkitUtils.waitForFuture(pageFinishedFuture);
+        Assert.assertTrue(
+                pageFinishedCounter.await(WebkitUtils.TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         Assert.assertEquals(testUrl,
                 webViewClient.getLastShouldOverrideResourceRequest().getUrl().toString());
 
@@ -417,13 +420,13 @@ public class WebViewClientCompatTest {
     public void testOnPageCommitVisibleCalled() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
 
-        final ResolvableFuture<String> pageCommitVisibleFuture = ResolvableFuture.create();
-        mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
-            @Override
-            public void onPageCommitVisible(@NonNull WebView view, @NonNull String url) {
-                pageCommitVisibleFuture.set(url);
-            }
-        });
+        ListenableFuture<String> pageCommitVisibleFuture = WebkitUtils.callbackToFuture(
+                receiver -> mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
+                    @Override
+                    public void onPageCommitVisible(@NonNull WebView view, @NonNull String url) {
+                        receiver.onResult(url);
+                    }
+                }));
 
         mWebViewOnUiThread.loadUrl("about:blank");
         Assert.assertEquals("about:blank", WebkitUtils.waitForFuture(pageCommitVisibleFuture));
@@ -433,23 +436,26 @@ public class WebViewClientCompatTest {
     public void testResetClientToCompat() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
 
-        final ResolvableFuture<String> pageCommitVisibleFuture = ResolvableFuture.create();
-        WebViewClient nonCompatClient = new WebViewClient() {
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap bitmap) {
-                pageCommitVisibleFuture.setException(new IllegalStateException(
-                        "This client should not have callbacks invoked"));
-            }
-        };
-        mWebViewOnUiThread.setWebViewClient(nonCompatClient);
+        ListenableFuture<String> pageCommitVisibleFuture = WebkitUtils.callbackToFuture(
+                receiver -> {
+                    WebViewClient nonCompatClient = new WebViewClient() {
+                        @Override
+                        public void onPageStarted(WebView view, String url, Bitmap bitmap) {
+                            receiver.onError(new IllegalStateException(
+                                    "This client should not have callbacks invoked"));
+                        }
+                    };
+                    mWebViewOnUiThread.setWebViewClient(nonCompatClient);
+                    WebViewClientCompat compatClient = new WebViewClientCompat() {
+                        @Override
+                        public void onPageCommitVisible(@NonNull WebView view,
+                                @NonNull String url) {
+                            receiver.onResult(url);
+                        }
+                    };
+                    mWebViewOnUiThread.setWebViewClient(compatClient); // reset to the new client
+                });
 
-        WebViewClientCompat compatClient = new WebViewClientCompat() {
-            @Override
-            public void onPageCommitVisible(@NonNull WebView view, @NonNull String url) {
-                pageCommitVisibleFuture.set(url);
-            }
-        };
-        mWebViewOnUiThread.setWebViewClient(compatClient); // reset to the new client
         mWebViewOnUiThread.loadUrl("about:blank");
         Assert.assertEquals("about:blank", WebkitUtils.waitForFuture(pageCommitVisibleFuture));
     }
@@ -464,14 +470,15 @@ public class WebViewClientCompatTest {
         };
         mWebViewOnUiThread.setWebViewClient(compatClient);
 
-        final ResolvableFuture<String> pageFinishedFuture = ResolvableFuture.create();
-        WebViewClient nonCompatClient = new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                pageFinishedFuture.set(url);
-            }
-        };
-        mWebViewOnUiThread.setWebViewClient(nonCompatClient); // reset to the new client
+        ListenableFuture<String> pageFinishedFuture = WebkitUtils.callbackToFuture(receiver -> {
+            WebViewClient nonCompatClient = new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    receiver.onResult(url);
+                }
+            };
+            mWebViewOnUiThread.setWebViewClient(nonCompatClient); // reset to the new client
+        });
         mWebViewOnUiThread.loadUrl("about:blank");
         Assert.assertEquals("about:blank", WebkitUtils.waitForFuture(pageFinishedFuture));
     }

@@ -20,11 +20,12 @@ import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -36,6 +37,7 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,11 +63,11 @@ public class WebViewRenderProcessClientTest {
         // easier to support requiring variable numbers of releaseBlock() calls
         // to unblock.
         private final CountDownLatch mLatch;
-        private final ResolvableFuture<Void> mBecameBlocked;
+        private final CountDownLatch mBlockedLatch;
 
         JSBlocker(int requiredReleaseCount) {
             mLatch = new CountDownLatch(requiredReleaseCount);
-            mBecameBlocked = ResolvableFuture.create();
+            mBlockedLatch = new CountDownLatch(1);
         }
 
         JSBlocker() {
@@ -78,15 +80,21 @@ public class WebViewRenderProcessClientTest {
 
         @JavascriptInterface
         public void block() throws Exception {
+            mBlockedLatch.countDown();
             // This blocks indefinitely (until signalled) on a background thread.
             // The actual test timeout is not determined by this wait, but by other
             // code waiting for the onRenderProcessUnresponsive() call.
-            mBecameBlocked.set(null);
             mLatch.await();
         }
 
         public void waitForBlocked() {
-            WebkitUtils.waitForFuture(mBecameBlocked);
+            try {
+                if (!mBlockedLatch.await(WebkitUtils.TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                    Assert.fail("waitForBlocked timed out");
+                }
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            }
         }
     }
 
@@ -146,15 +154,15 @@ public class WebViewRenderProcessClientTest {
     private void testWebViewRenderProcessClientOnExecutor(Executor executor) throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
         final JSBlocker blocker = new JSBlocker();
-        final ResolvableFuture<Void> rendererUnblocked = ResolvableFuture.create();
-
-        WebViewRenderProcessClient client = makeWebViewRenderProcessClient(
-                blocker::releaseBlock, () -> rendererUnblocked.set(null));
-        if (executor == null) {
-            mWebViewOnUiThread.setWebViewRenderProcessClient(client);
-        } else {
-            mWebViewOnUiThread.setWebViewRenderProcessClient(executor, client);
-        }
+        ListenableFuture<Void> rendererUnblocked = WebkitUtils.callbackToFuture(receiver -> {
+            WebViewRenderProcessClient client = makeWebViewRenderProcessClient(
+                    blocker::releaseBlock, () -> receiver.onResult(null));
+            if (executor == null) {
+                mWebViewOnUiThread.setWebViewRenderProcessClient(client);
+            } else {
+                mWebViewOnUiThread.setWebViewRenderProcessClient(executor, client);
+            }
+        });
 
         addJsBlockerInterface(blocker);
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
@@ -197,7 +205,6 @@ public class WebViewRenderProcessClientTest {
                 mWebViewOnUiThread.getWebViewRenderProcessClient());
 
         final JSBlocker blocker = new JSBlocker();
-        final ResolvableFuture<Void> rendererUnblocked = ResolvableFuture.create();
 
         addJsBlockerInterface(blocker);
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
@@ -206,10 +213,11 @@ public class WebViewRenderProcessClientTest {
         // When no WebViewRenderProcessClient is set, we can't directly observe the triggering of
         // the unresponsive renderer message. Instead, wait for 6s, which should be long enough for
         // the message to have been triggered, and then unblock.
-        WebkitUtils.onMainThreadDelayed(6000, () -> {
-            blocker.releaseBlock();
-            rendererUnblocked.set(null);
-        });
+        ListenableFuture<Void> rendererUnblocked = WebkitUtils.callbackToFuture(
+                receiver -> WebkitUtils.onMainThreadDelayed(6000, () -> {
+                    blocker.releaseBlock();
+                    receiver.onResult(null);
+                }));
         WebkitUtils.waitForFuture(rendererUnblocked);
         Assert.assertFalse(clientCalled.get());
     }
