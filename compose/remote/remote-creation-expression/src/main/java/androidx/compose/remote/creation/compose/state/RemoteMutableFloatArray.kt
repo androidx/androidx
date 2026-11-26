@@ -54,6 +54,9 @@ public sealed interface RemoteMutableFloatArray : RemoteValue<List<RemoteFloat>>
 
 private enum class MutableFloatArrayOperationKey : RemoteOperation {
     Create {
+        override val resultKind: RemoteValueKind
+            get() = RemoteValueKind.FLOAT_ARRAY
+
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "mutableFloatArrayOf(${args.joinToDebugString()})"
 
@@ -64,11 +67,16 @@ private enum class MutableFloatArrayOperationKey : RemoteOperation {
         override val precedence: Int
             get() = 100
 
+        override val resultKind: RemoteValueKind
+            get() = RemoteValueKind.FLOAT
+
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             args.formatArrayAccess(precedence)
 
         override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
             (args[0] as RemoteMutableFloatArray)[args[1] as RemoteInt]
+
+        override fun canFailOnOperandIndex(operandIndex: Int): Boolean = operandIndex == 1
     },
 }
 
@@ -76,6 +84,9 @@ private class RemoteMutableFloatArrayImpl(override val size: Int) :
     BaseRemoteValue<List<RemoteFloat>>(RemoteStateArrayKey(size)), RemoteMutableFloatArray {
     override val equalityType: KClass<*>
         get() = RemoteMutableFloatArray::class
+
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.FLOAT_ARRAY
 
     override val constantValueOrNull: List<RemoteFloat>? = null
 

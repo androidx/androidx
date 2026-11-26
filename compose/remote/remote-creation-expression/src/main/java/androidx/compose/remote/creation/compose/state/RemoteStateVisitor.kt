@@ -43,10 +43,9 @@ internal fun interface RemoteStateVisitor<R> {
 /**
  * Transforms this [RemoteValue] expression DAG bottom-up.
  *
- * Wrappers ([RemoteBoolean], [RemoteDp], [RemoteEnum]) are automatically unwrapped and re-wrapped.
- * If [transform] returns `null` for a node, default transformation behavior is applied (preserving
- * unchanged nodes, reconstructing operations with transformed arguments, resolving constants,
- * etc.).
+ * Wrappers ([RemoteDp]) are automatically unwrapped and re-wrapped. If [transform] returns `null`
+ * for a node, default transformation behavior is applied (preserving unchanged nodes,
+ * reconstructing operations with transformed arguments, resolving constants, etc.).
  *
  * @param transform A lambda that inspects each [RemoteValue] node in the AST DAG and returns a
  *   replacement [RemoteValue], or `null` to preserve the node or use default reconstruction.
@@ -63,55 +62,45 @@ public fun <S : RemoteValue<*>> S.transform(
     }
 
     return (when (this) {
-        is RemoteBoolean -> {
-            val newInt = intValue.transform(transform)
-            if (newInt === intValue) this else RemoteBoolean(newInt)
-        }
         is RemoteDp -> {
             val newValue = value.transform(transform)
             if (newValue === value) this else RemoteDp(newValue)
         }
-        is RemoteEnum<*> -> {
-            val newInt = intValue.transform(transform)
-            if (newInt === intValue) this else RemoteEnum(newInt, enumEntries)
-        }
         else -> {
             accept<RemoteValue<*>> { key, state, visitedArgs ->
-                val node =
-                    state
-                        ?: when (key) {
-                            is RemoteConstantCacheKey -> resolveConstantState(key)
-                            is RemoteColorConstantCacheKey -> RemoteColor(key.color)
-                            is FloatArrayCacheKey -> FloatArrayRemoteValue(key.floatArray, key)
-                            else -> null
-                        }
-                val custom = if (node != null) transform(node) else null
+                val node = state ?: key.getOrCreateValueOrNull { null }
+                val custom =
+                    if (node != null) {
+                        transform(node)
+                            ?: if (key is RemoteNamedCacheKey && node is RemoteEnum<*>) {
+                                (transform(node.intValue) as? RemoteInt)?.let {
+                                    RemoteEnum(it, node.enumEntries)
+                                }
+                            } else {
+                                null
+                            }
+                    } else {
+                        null
+                    }
                 if (custom != null) {
                     unwrapWrapper(custom)
-                } else {
-                    when (key) {
-                        is RemoteOperationCacheKey -> {
-                            if (node != null && !hasArgsChanged(key.args, visitedArgs)) {
-                                node
-                            } else {
-                                unwrapWrapper((key.op as RemoteOperation).reconstruct(visitedArgs))
-                            }
-                        }
-                        is RemoteConstantCacheKey -> node ?: resolveConstantState(key)
-                        is RemoteColorConstantCacheKey -> node ?: RemoteColor(key.color)
-                        is FloatArrayCacheKey -> node ?: FloatArrayRemoteValue(key.floatArray, key)
-                        is RemoteNamedCacheKey ->
-                            node
-                                ?: throw IllegalStateException(
-                                    "Named cache key missing state: $key"
-                                )
-                        is RemoteStateIdKey,
-                        is RemoteStateInstanceKey,
-                        is RemoteStateArrayKey,
-                        is RemoteComponentCacheKey ->
-                            node ?: throw IllegalStateException("Cache key missing state: $key")
-                        else -> throw UnsupportedOperationException("Unknown cache key: $key")
+                } else if (key is RemoteOperationCacheKey) {
+                    if (node != null && !hasArgsChanged(key.args, visitedArgs)) {
+                        node
+                    } else if (key.op == EnumOperationKey.RemoteEnum && node is RemoteEnum<*>) {
+                        RemoteEnum(visitedArgs[0] as RemoteInt, node.enumEntries)
+                    } else {
+                        unwrapWrapper((key.op as RemoteOperation).reconstruct(visitedArgs))
                     }
+                } else {
+                    node
+                        ?: when (key) {
+                            is RemoteNamedCacheKey ->
+                                throw IllegalStateException("Named cache key missing state: $key")
+                            is BaseRemoteStateCacheKey ->
+                                throw IllegalStateException("Cache key missing state: $key")
+                            else -> throw UnsupportedOperationException("Unknown cache key: $key")
+                        }
                 }
             }
         }
@@ -121,9 +110,7 @@ public fun <S : RemoteValue<*>> S.transform(
 
 private fun unwrapWrapper(value: RemoteValue<*>): RemoteValue<*> =
     when (value) {
-        is RemoteBoolean -> value.intValue
         is RemoteDp -> value.value
-        is RemoteEnum<*> -> value.intValue
         else -> value
     }
 
@@ -142,6 +129,8 @@ internal fun resolveConstantState(key: RemoteConstantCacheKey): RemoteValue<*> {
     return when (val v = key.value) {
         is Float -> RemoteFloat(v)
         is Int -> RemoteInt(v)
+        is Short -> RemoteInt(v.toInt())
+        is Byte -> RemoteInt(v.toInt())
         is Boolean -> RemoteBoolean(v)
         is String -> RemoteString(v)
         is Double -> RemoteFloat(v.toFloat())

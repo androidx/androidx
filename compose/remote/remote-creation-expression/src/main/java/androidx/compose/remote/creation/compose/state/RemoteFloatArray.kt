@@ -108,6 +108,9 @@ private fun RemoteFloatArray.arrayForCreationState(
 
 private enum class FloatArrayOperationKey : RemoteOperation {
     Create {
+        override val resultKind: RemoteValueKind
+            get() = RemoteValueKind.FLOAT_ARRAY
+
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "arrayOf(${args.joinToDebugString()})"
 
@@ -117,6 +120,9 @@ private enum class FloatArrayOperationKey : RemoteOperation {
     Get {
         override val precedence: Int
             get() = 100
+
+        override val resultKind: RemoteValueKind
+            get() = RemoteValueKind.FLOAT
 
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             args.formatArrayAccess(precedence)
@@ -129,8 +135,13 @@ private enum class FloatArrayOperationKey : RemoteOperation {
                 else -> throw IllegalArgumentException("Unsupported index type: $index")
             }
         }
+
+        override fun canFailOnOperandIndex(operandIndex: Int): Boolean = operandIndex == 1
     },
     IdList {
+        override val resultKind: RemoteValueKind
+            get() = RemoteValueKind.FLOAT_ARRAY
+
         override fun toDebugString(args: List<RemoteStateCacheKey>): String =
             "${args[0].toDebugString()}.asIdList()"
 
@@ -145,6 +156,11 @@ private class RemoteFloatArrayImpl(
 ) : BaseRemoteValue<List<RemoteFloat>>(cacheKey), RemoteFloatArray {
     override val equalityType: KClass<*>
         get() = RemoteFloatArray::class
+
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.FLOAT_ARRAY
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteFloatArray.createForId(id)
 
     private val idListCacheKey: RemoteStateCacheKey =
         RemoteOperationCacheKey.create(FloatArrayOperationKey.IdList, this)

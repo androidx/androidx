@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.document.NanEncoding
 import androidx.compose.remote.document.RemoteIntId
 import androidx.compose.remote.document.addIdList
 import androidx.compose.runtime.Stable
@@ -203,7 +204,18 @@ public sealed interface RemoteBoolean : RemoteValue<Boolean> {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createForId(id: Int): RemoteBoolean =
-            RemoteBoolean(RemoteInt.createForId(0x100000000L + id))
+            RemoteBoolean(
+                intValue = RemoteInt.createForId(NanEncoding.encodeLongId(id)),
+                cacheKey = RemoteStateIdKey(id),
+            )
+
+        /**
+         * Wraps [intValue] (`0` = `false`, non-zero = `true`) as a [RemoteBoolean], folding
+         * immediately when [intValue] has a constant value.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun fromRemoteInt(intValue: RemoteInt): RemoteBoolean =
+            intValue.constantValueOrNull?.let { RemoteBoolean(it != 0) } ?: RemoteBoolean(intValue)
 
         /**
          * Creates a named [RemoteBoolean] with an initial value. Named remote booleans can be set
@@ -221,11 +233,13 @@ public sealed interface RemoteBoolean : RemoteValue<Boolean> {
             domain: RemoteValue.Domain = RemoteValue.Domain.User,
         ): RemoteBoolean {
             return RemoteBoolean(
-                createNamedRemoteInt(
-                    name = name,
-                    defaultValue = if (defaultValue) 1 else 0,
-                    domain = domain,
-                )
+                intValue =
+                    createNamedRemoteInt(
+                        name = name,
+                        defaultValue = if (defaultValue) 1 else 0,
+                        domain = domain,
+                    ),
+                cacheKey = RemoteNamedCacheKey(domain, name),
             )
         }
     }
@@ -239,23 +253,38 @@ internal val RemoteBoolean.intComparison: SelectIntCondition.IntComparison?
 
 internal fun RemoteBoolean(
     intValue: RemoteInt,
+    cacheKey: RemoteStateCacheKey =
+        intValue.constantValueOrNull?.let { RemoteConstantCacheKey(it != 0) }
+            ?: RemoteOperationCacheKey.create(BooleanOperationKey.RemoteBoolean, intValue),
     floatComparison: SelectFloatCondition.FloatComparison? = null,
     intComparison: SelectIntCondition.IntComparison? = null,
-): RemoteBoolean = RemoteBooleanImpl(intValue, floatComparison, intComparison)
+): RemoteBoolean = RemoteBooleanImpl(intValue, cacheKey, floatComparison, intComparison)
 
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val RemoteBoolean.intValue: RemoteInt
     get() = (this as BaseRemoteBoolean).intValue
 
-private abstract class BaseRemoteBoolean :
-    BaseRemoteValue<Boolean>(RemoteStateInstanceKey()), RemoteBoolean {
+private abstract class BaseRemoteBoolean(cacheKey: RemoteStateCacheKey) :
+    BaseRemoteValue<Boolean>(cacheKey), RemoteBoolean {
     override val equalityType: KClass<*>
         get() = RemoteBoolean::class
 
-    abstract val intValue: RemoteInt
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.BOOLEAN
 
-    override val cacheKey: RemoteStateCacheKey
-        get() = intValue.cacheKey
+    override fun createForIdOrNull(id: Int): RemoteValue<*> = RemoteBoolean.createForId(id)
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        when (candidate) {
+            is RemoteBoolean -> candidate
+            is RemoteInt -> RemoteBoolean.fromRemoteInt(candidate)
+            is RemoteFloat ->
+                candidate.constantValueOrNull?.let { RemoteBoolean(it.toInt() != 0) }
+                    ?: RemoteBoolean.fromRemoteInt(candidate.toRemoteInt())
+            else -> this
+        }
+
+    abstract val intValue: RemoteInt
 
     override val asEncoded: RemoteInt
         get() = intValue
@@ -263,9 +292,30 @@ private abstract class BaseRemoteBoolean :
     override val constantValueOrNull: Boolean?
         get() = intValue.constantValueOrNull?.let { it != 0 }
 
-    override fun not(): RemoteBoolean = RemoteBoolean(intValue xor RemoteInt(1))
+    override fun not(): RemoteBoolean {
+        constantValueOrNull?.let {
+            return RemoteBoolean(!it)
+        }
+        unwrapBooleanNegation(this)?.let {
+            return it
+        }
+        return RemoteBoolean(
+            intValue = intValue xor RemoteInt(1),
+            cacheKey = RemoteOperationCacheKey.create(BooleanOperationKey.Not, this),
+        )
+    }
 
-    override fun toRemoteInt(): RemoteInt = intValue
+    override fun toRemoteInt(): RemoteInt {
+        constantValueOrNull?.let {
+            return RemoteInt(if (it) 1 else 0)
+        }
+        return RemoteInt(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(BooleanOperationKey.ToRemoteInt, this),
+        ) { creationState ->
+            intValue.arrayForCreationState(creationState)
+        }
+    }
 
     override fun select(ifTrue: RemoteString, ifFalse: RemoteString): RemoteString {
         intValue.constantValueOrNull?.let {
@@ -395,24 +445,28 @@ private abstract class BaseRemoteBoolean :
             if (ifTrueConst == false) return ifTrue
         }
 
-        return RemoteBoolean(
-            RemoteInt(
-                constantValueOrNull = null,
-                cacheKey =
-                    RemoteOperationCacheKey.create(
-                        BooleanOperationKey.SelectBoolean,
-                        this,
-                        ifTrue,
-                        ifFalse,
-                    ),
-                arrayProvider = { creationState ->
-                    combineToLongArray(
-                        creationState,
-                        arrayOf(ifFalse.intValue, ifTrue.intValue, intValue),
-                        0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
-                    )
-                },
+        val boolKey =
+            RemoteOperationCacheKey.create(
+                BooleanOperationKey.SelectBoolean,
+                this,
+                ifTrue,
+                ifFalse,
             )
+        return RemoteBoolean(
+            intValue =
+                RemoteInt(
+                    constantValueOrNull = null,
+                    cacheKey =
+                        RemoteOperationCacheKey(BooleanOperationKey.ToRemoteInt, listOf(boolKey)),
+                    arrayProvider = { creationState ->
+                        combineToLongArray(
+                            creationState,
+                            arrayOf(ifFalse.intValue, ifTrue.intValue, intValue),
+                            0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
+                        )
+                    },
+                ),
+            cacheKey = boolKey,
         )
     }
 
@@ -429,7 +483,7 @@ private abstract class BaseRemoteBoolean :
             return RemoteColor(ifTrue)
         }
 
-        return lerp(ifFalse, ifTrue, intValue.toRemoteFloat())
+        return lerp(ifFalse, ifTrue, toRemoteInt().toRemoteFloat())
     }
 
     override fun select(ifTrue: RemoteColor, ifFalse: RemoteColor): RemoteColor {
@@ -445,86 +499,210 @@ private abstract class BaseRemoteBoolean :
             return ifTrue
         }
 
-        return lerp(ifFalse, ifTrue, intValue.toRemoteFloat())
+        return lerp(ifFalse, ifTrue, toRemoteInt().toRemoteFloat())
     }
 
     override fun select(ifTrue: RemoteDp, ifFalse: RemoteDp): RemoteDp {
         return select(ifTrue.value, ifFalse.value).asRemoteDp()
     }
 
-    override fun isEqualTo(other: RemoteBoolean): RemoteBoolean = intValue.isEqualTo(other.intValue)
+    override fun isEqualTo(other: RemoteBoolean): RemoteBoolean {
+        val aConst = constantValueOrNull
+        val bConst = other.constantValueOrNull
+        if (aConst != null && bConst != null) {
+            return RemoteBoolean(aConst == bConst)
+        }
+        if (cacheKey.isDeterministic()) {
+            if (cacheKey == other.cacheKey) return RemoteBoolean(true)
+            if (isBooleanComplement(this, other)) return RemoteBoolean(false)
+        }
+        return RemoteBoolean(
+            intValue = intValue.isEqualTo(other.intValue).intValue,
+            cacheKey = RemoteOperationCacheKey.create(BooleanOperationKey.Equal, this, other),
+        )
+    }
 
-    override fun isNotEqualTo(other: RemoteBoolean): RemoteBoolean =
-        intValue.isNotEqualTo(other.intValue)
+    override fun isNotEqualTo(other: RemoteBoolean): RemoteBoolean {
+        val aConst = constantValueOrNull
+        val bConst = other.constantValueOrNull
+        if (aConst != null && bConst != null) {
+            return RemoteBoolean(aConst != bConst)
+        }
+        if (cacheKey.isDeterministic()) {
+            if (cacheKey == other.cacheKey) return RemoteBoolean(false)
+            if (isBooleanComplement(this, other)) return RemoteBoolean(true)
+        }
+        return RemoteBoolean(
+            intValue = intValue.isNotEqualTo(other.intValue).intValue,
+            cacheKey = RemoteOperationCacheKey.create(BooleanOperationKey.NotEqual, this, other),
+        )
+    }
 
-    override fun or(other: RemoteBoolean): RemoteBoolean = RemoteBoolean(intValue or other.intValue)
+    override fun or(other: RemoteBoolean): RemoteBoolean {
+        val aConst = constantValueOrNull
+        val bConst = other.constantValueOrNull
+        if (aConst != null && bConst != null) {
+            return RemoteBoolean(aConst || bConst)
+        }
+        if (cacheKey.isDeterministic()) {
+            if (cacheKey == other.cacheKey) return this
+            if (isBooleanComplement(this, other)) return RemoteBoolean(true)
+        }
+        return RemoteBoolean(
+            intValue = intValue or other.intValue,
+            cacheKey = RemoteOperationCacheKey.create(BooleanOperationKey.Or, this, other),
+        )
+    }
 
-    override fun and(other: RemoteBoolean): RemoteBoolean =
-        RemoteBoolean(intValue and other.intValue)
+    override fun and(other: RemoteBoolean): RemoteBoolean {
+        val aConst = constantValueOrNull
+        val bConst = other.constantValueOrNull
+        if (aConst != null && bConst != null) {
+            return RemoteBoolean(aConst && bConst)
+        }
+        if (cacheKey.isDeterministic()) {
+            if (cacheKey == other.cacheKey) return this
+            if (isBooleanComplement(this, other)) return RemoteBoolean(false)
+        }
+        return RemoteBoolean(
+            intValue = intValue and other.intValue,
+            cacheKey = RemoteOperationCacheKey.create(BooleanOperationKey.And, this, other),
+        )
+    }
 
-    override fun xor(other: RemoteBoolean): RemoteBoolean =
-        RemoteBoolean(intValue xor other.intValue)
+    override fun xor(other: RemoteBoolean): RemoteBoolean {
+        val aConst = constantValueOrNull
+        val bConst = other.constantValueOrNull
+        if (aConst != null && bConst != null) {
+            return RemoteBoolean(aConst xor bConst)
+        }
+        if (cacheKey.isDeterministic()) {
+            if (cacheKey == other.cacheKey) return RemoteBoolean(false)
+            if (isBooleanComplement(this, other)) return RemoteBoolean(true)
+        }
+        return RemoteBoolean(
+            intValue = intValue xor other.intValue,
+            cacheKey = RemoteOperationCacheKey.create(BooleanOperationKey.Xor, this, other),
+        )
+    }
+
+    override fun getId(creationState: RemoteComposeCreationState): Int =
+        creationState.getId(intValue)
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
+}
 
-    override fun toString(): String {
-        val str = cacheKey.toDebugString()
-        return when (str) {
-            "1" -> "true"
-            "0" -> "false"
-            else -> str
-        }
+private fun unwrapBooleanNegation(value: RemoteBoolean): RemoteBoolean? {
+    val key = value.cacheKey
+    if (key is RemoteOperationCacheKey && key.op == BooleanOperationKey.Not && key.args.size == 1) {
+        return (key.args[0] as? BaseRemoteStateCacheKey)?.getState() as? RemoteBoolean
     }
+    return null
+}
+
+private fun isBooleanComplement(a: RemoteBoolean, b: RemoteBoolean): Boolean {
+    val aKey = a.cacheKey
+    val bKey = b.cacheKey
+    return (aKey is RemoteOperationCacheKey &&
+        aKey.op == BooleanOperationKey.Not &&
+        aKey.args.size == 1 &&
+        aKey.args[0] == bKey) ||
+        (bKey is RemoteOperationCacheKey &&
+            bKey.op == BooleanOperationKey.Not &&
+            bKey.args.size == 1 &&
+            bKey.args[0] == aKey)
 }
 
 private class RemoteBooleanImpl(
     override val intValue: RemoteInt,
+    cacheKey: RemoteStateCacheKey,
     val floatComparison: SelectFloatCondition.FloatComparison? = null,
     val intComparison: SelectIntCondition.IntComparison? = null,
-) : BaseRemoteBoolean()
+) : BaseRemoteBoolean(cacheKey)
 
-internal enum class BooleanOperationKey : RemoteOperation {
-    SelectString,
-    SelectFloat,
-    SelectInt,
-    SelectBoolean;
-
-    override val precedence: Int
-        get() = 0
+internal enum class BooleanOperationKey(override val precedence: Int = 100) : RemoteOperation {
+    Not(5),
+    Equal(2),
+    NotEqual(2),
+    And(1),
+    Or(1),
+    Xor(1),
+    ToRemoteInt,
+    RemoteBoolean,
+    SelectString(0),
+    SelectFloat(0),
+    SelectInt(0),
+    SelectBoolean(0);
 
     override fun toDebugString(args: List<RemoteStateCacheKey>): String {
-        val condStr =
-            when (val cond = args[0].toOperandString(1)) {
-                "1" -> "true"
-                "0" -> "false"
-                else -> cond
-            }
-        return "$condStr ? ${args[1].toOperandString(0)} : ${args[2].toOperandString(0)}"
+        return when (this) {
+            Not -> "!${args[0].toOperandString(precedence)}"
+            And -> args.formatOp("and", precedence)
+            Or -> args.formatOp("or", precedence)
+            Xor -> args.formatOp("xor", precedence)
+            Equal -> args.formatOp("==", precedence)
+            NotEqual -> args.formatOp("!=", precedence)
+            ToRemoteInt -> "${args[0].toOperandString(precedence)}.toRemoteInt()"
+            RemoteBoolean -> "RemoteBoolean(${args[0].toDebugString()})"
+            SelectString,
+            SelectFloat,
+            SelectInt,
+            SelectBoolean ->
+                "${args[0].toOperandString(1)} ? ${args[1].toOperandString(0)} : ${args[2].toOperandString(0)}"
+        }
     }
 
     override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> {
-        val cond = asRemoteBoolean(args[0])
         return when (this) {
-            SelectString -> cond.select(args[1] as RemoteString, args[2] as RemoteString)
-            SelectFloat -> cond.select(args[1] as RemoteFloat, args[2] as RemoteFloat)
-            SelectInt -> cond.select(args[1] as RemoteInt, args[2] as RemoteInt)
+            Not -> !(args[0] as RemoteBoolean)
+            And -> (args[0] as RemoteBoolean) and (args[1] as RemoteBoolean)
+            Or -> (args[0] as RemoteBoolean) or (args[1] as RemoteBoolean)
+            Xor -> (args[0] as RemoteBoolean) xor (args[1] as RemoteBoolean)
+            Equal -> (args[0] as RemoteBoolean).isEqualTo(args[1] as RemoteBoolean)
+            NotEqual -> (args[0] as RemoteBoolean).isNotEqualTo(args[1] as RemoteBoolean)
+            ToRemoteInt -> (args[0] as RemoteBoolean).toRemoteInt()
+            RemoteBoolean -> RemoteBoolean(args[0] as RemoteInt)
+            SelectString ->
+                (args[0] as RemoteBoolean).select(
+                    args[1] as RemoteString,
+                    args[2] as RemoteString,
+                )
+            SelectFloat ->
+                (args[0] as RemoteBoolean).select(args[1] as RemoteFloat, args[2] as RemoteFloat)
+            SelectInt ->
+                (args[0] as RemoteBoolean).select(args[1] as RemoteInt, args[2] as RemoteInt)
             SelectBoolean ->
-                cond.select(asRemoteBoolean(args[1]), asRemoteBoolean(args[2])).intValue
+                (args[0] as RemoteBoolean).select(
+                    args[1] as RemoteBoolean,
+                    args[2] as RemoteBoolean,
+                )
         }
     }
 
-    private fun asRemoteBoolean(value: RemoteValue<*>): RemoteBoolean =
-        value as? RemoteBoolean ?: RemoteBoolean(value as RemoteInt)
-
     override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
-        when (this) {
-            SelectFloat ->
-                args.size >= 3 && args[1].isResultWholeNumber && args[2].isResultWholeNumber
-            SelectInt,
-            SelectBoolean -> true
-            SelectString -> false
+        if (this == SelectFloat) {
+            args.size >= 3 && args[1].isResultWholeNumber && args[2].isResultWholeNumber
+        } else {
+            resultKind.isIntegral
         }
+
+    override val resultKind: RemoteValueKind
+        get() =
+            when (this) {
+                Not,
+                Equal,
+                NotEqual,
+                And,
+                Or,
+                Xor,
+                RemoteBoolean,
+                SelectBoolean -> RemoteValueKind.BOOLEAN
+                ToRemoteInt,
+                SelectInt -> RemoteValueKind.INT
+                SelectFloat -> RemoteValueKind.FLOAT
+                SelectString -> RemoteValueKind.STRING
+            }
 }
 
 /**
@@ -545,14 +723,22 @@ public sealed interface MutableRemoteBoolean : RemoteBoolean, MutableRemoteValue
          * @return A [MutableRemoteBoolean] instance.
          */
         internal fun createMutableForId(id: Long): MutableRemoteBoolean =
-            MutableRemoteBooleanImpl(MutableRemoteInt.createMutableForId(id))
+            MutableRemoteBooleanImpl(
+                intValue = MutableRemoteInt.createMutableForId(id),
+                cacheKey = RemoteStateIdKey(id.toInt()),
+            )
     }
 }
 
-private class MutableRemoteBooleanImpl(override val intValue: MutableRemoteInt) :
-    BaseRemoteBoolean(), MutableRemoteBoolean {
+private class MutableRemoteBooleanImpl(
+    override val intValue: MutableRemoteInt,
+    cacheKey: RemoteStateCacheKey,
+) : BaseRemoteBoolean(cacheKey), MutableRemoteBoolean {
     override val asEncodedMutable: MutableRemoteInt
         get() = intValue
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (candidate is MutableRemoteBoolean) candidate else this
 }
 
 /**
@@ -565,11 +751,13 @@ private class MutableRemoteBooleanImpl(override val intValue: MutableRemoteInt) 
  */
 public fun RemoteBoolean(value: Boolean): RemoteBoolean =
     RemoteBoolean(
-        if (value) {
-            RemoteInt(1)
-        } else {
-            RemoteInt(0)
-        }
+        intValue =
+            if (value) {
+                RemoteInt(1)
+            } else {
+                RemoteInt(0)
+            },
+        cacheKey = RemoteConstantCacheKey(value),
     )
 
 /**
@@ -580,7 +768,10 @@ public fun RemoteBoolean(value: Boolean): RemoteBoolean =
  */
 @RememberInComposition
 public fun MutableRemoteBoolean(initialValue: Boolean): MutableRemoteBoolean =
-    MutableRemoteBooleanImpl(MutableRemoteInt(if (initialValue) 1 else 0))
+    MutableRemoteBooleanImpl(
+        intValue = MutableRemoteInt(if (initialValue) 1 else 0),
+        cacheKey = RemoteStateInstanceKey(),
+    )
 
 /** Extension property to convert a [Boolean] to a [RemoteBoolean]. */
 public val Boolean.rb: RemoteBoolean

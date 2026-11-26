@@ -33,16 +33,12 @@ class RemoteStateVisitorTest {
         val unwrappedReplacements = replacements.map { (target, rep) ->
             val unwrappedTarget =
                 when (target) {
-                    is RemoteBoolean -> target.intValue
                     is RemoteDp -> target.value
-                    is RemoteEnum<*> -> target.ordinal
                     else -> target
                 }
             val unwrappedRep =
                 when (rep) {
-                    is RemoteBoolean -> rep.intValue
                     is RemoteDp -> rep.value
-                    is RemoteEnum<*> -> rep.ordinal
                     else -> rep
                 }
             unwrappedTarget to unwrappedRep
@@ -791,5 +787,126 @@ class RemoteStateVisitorTest {
         val intEqSelect = ia.isEqualTo(ib).select(10.ri, 20.ri)
         val transformedIntEq = intEqSelect.replaceNamedVariables(mapOf(ia to ic))
         assertThat(transformedIntEq).isEqualTo(ic.isEqualTo(ib).select(10.ri, 20.ri))
+    }
+
+    @Test
+    fun testRemoteIntComparison_combinedWithBooleanOps_transform() {
+        val a = RemoteInt.createNamedRemoteInt("a", 0)
+        val b = RemoteInt.createNamedRemoteInt("b", 0)
+
+        val orExpr = a.isEqualTo(1.ri) or b.isEqualTo(2.ri)
+        val orTrue = orExpr.replaceNamedVariables(mapOf(a to 1.ri, b to 0.ri))
+        assertThat(orTrue.hasConstantValue).isTrue()
+        assertThat(orTrue.constantValue).isTrue()
+
+        val orFalse = orExpr.replaceNamedVariables(mapOf(a to 0.ri, b to 0.ri))
+        assertThat(orFalse.hasConstantValue).isTrue()
+        assertThat(orFalse.constantValue).isFalse()
+
+        // Partial replacement: one side remains dynamic
+        val otherA = RemoteInt.createNamedRemoteInt("other_a", 0)
+        val orDynamic = orExpr.replaceNamedVariables(mapOf(a to otherA))
+        assertThat(orDynamic.hasConstantValue).isFalse()
+        assertThat(orDynamic).isEqualTo(otherA.isEqualTo(1.ri) or b.isEqualTo(2.ri))
+
+        // All six int comparison operators combined with boolean ops and select
+        val combined =
+            (a.isNotEqualTo(0.ri) and a.isLessThan(10.ri)) or
+                (a.isLessThanOrEqualTo(5.ri) xor a.isGreaterThan(3.ri)) or
+                !a.isGreaterThanOrEqualTo(20.ri)
+        val selected = combined.select("yes".rs, "no".rs)
+        val evaluated = selected.replaceNamedVariables(mapOf(a to 4.ri))
+        assertThat(evaluated.hasConstantValue).isTrue()
+        assertThat(evaluated.constantValue).isEqualTo("yes")
+    }
+
+    @Test
+    fun testRemoteFloatComparison_combinedWithBooleanOps_transform() {
+        val x = RemoteFloat.createNamedRemoteFloat("x", 0f)
+        val y = RemoteFloat.createNamedRemoteFloat("y", 0f)
+
+        val orExpr = x.isLessThan(5f.rf) or y.isGreaterThan(10f.rf)
+        val orTrue = orExpr.replaceNamedVariables(mapOf(x to 2f.rf, y to 0f.rf))
+        assertThat(orTrue.hasConstantValue).isTrue()
+        assertThat(orTrue.constantValue).isTrue()
+
+        val orFalse = orExpr.replaceNamedVariables(mapOf(x to 6f.rf, y to 5f.rf))
+        assertThat(orFalse.hasConstantValue).isTrue()
+        assertThat(orFalse.constantValue).isFalse()
+
+        val otherX = RemoteFloat.createNamedRemoteFloat("other_x", 0f)
+        val orDynamic = orExpr.replaceNamedVariables(mapOf(x to otherX))
+        assertThat(orDynamic.hasConstantValue).isFalse()
+        assertThat(orDynamic).isEqualTo(otherX.isLessThan(5f.rf) or y.isGreaterThan(10f.rf))
+
+        val allOps =
+            (x.isEqualTo(1f.rf) or x.isNotEqualTo(2f.rf)) and
+                (x.isLessThanOrEqualTo(5f.rf) and x.isGreaterThanOrEqualTo(0f.rf))
+        val evaluated = allOps.replaceNamedVariables(mapOf(x to 1f.rf))
+        assertThat(evaluated.hasConstantValue).isTrue()
+        assertThat(evaluated.constantValue).isTrue()
+    }
+
+    @Test
+    fun testRemoteStringIsEmptyAndIsNotEmpty_combinedWithBooleanOps_transform() {
+        val s1 = RemoteString.createNamedRemoteString("s1", "")
+        val s2 = RemoteString.createNamedRemoteString("s2", "abc")
+
+        val expr = s1.isEmpty or s2.isNotEmpty
+        val bothFalse = expr.replaceNamedVariables(mapOf(s1 to "nonempty".rs, s2 to "".rs))
+        assertThat(bothFalse.hasConstantValue).isTrue()
+        assertThat(bothFalse.constantValue).isFalse()
+
+        val oneTrue = expr.replaceNamedVariables(mapOf(s1 to "".rs, s2 to "".rs))
+        assertThat(oneTrue.hasConstantValue).isTrue()
+        assertThat(oneTrue.constantValue).isTrue()
+
+        val otherS1 = RemoteString.createNamedRemoteString("other_s1", "")
+        val dynamic = expr.replaceNamedVariables(mapOf(s1 to otherS1))
+        assertThat(dynamic.hasConstantValue).isFalse()
+        assertThat(dynamic).isEqualTo(otherS1.isEmpty or s2.isNotEmpty)
+    }
+
+    @Test
+    fun testRemoteBoolean_toRemoteInt_transform() {
+        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", false)
+        val expr = flag.toRemoteInt() * 10.ri + 5.ri
+
+        val whenTrue = expr.replaceNamedVariables(mapOf(flag to true.rb))
+        assertThat(whenTrue.hasConstantValue).isTrue()
+        assertThat(whenTrue.constantValue).isEqualTo(15)
+
+        val whenFalse = expr.replaceNamedVariables(mapOf(flag to false.rb))
+        assertThat(whenFalse.hasConstantValue).isTrue()
+        assertThat(whenFalse.constantValue).isEqualTo(5)
+    }
+
+    @Test
+    fun testRemoteEnum_namedAndBackingInt_transform() {
+        val namedEnum = RemoteEnum.createNamedRemoteEnum("mode", TestEnum.First)
+        val mappedInt = namedEnum.toRemoteInt { if (it == TestEnum.First) 10.ri else 20.ri }
+        val replacedInt =
+            mappedInt.replaceNamedVariables(mapOf(namedEnum to RemoteEnum(TestEnum.Second)))
+        assertThat(replacedInt.hasConstantValue).isTrue()
+        assertThat(replacedInt.constantValue).isEqualTo(20)
+
+        val ordinalExpr = namedEnum.ordinal + 5.ri
+        val replacedOrd =
+            ordinalExpr.replaceNamedVariables(mapOf(namedEnum to RemoteEnum(TestEnum.Second)))
+        assertThat(replacedOrd.hasConstantValue).isTrue()
+        assertThat(replacedOrd.constantValue).isEqualTo(6)
+
+        // Replacing a variable inside an expression-backed RemoteEnum
+        val backingInt = RemoteInt.createNamedRemoteInt("backing_ord", 0)
+        val wrappedEnum = RemoteEnum(backingInt + 1.ri, TestEnum.entries)
+        val replacedEnum = wrappedEnum.replaceNamedVariables(mapOf(backingInt to 0.ri))
+        assertThat(replacedEnum.hasConstantValue).isTrue()
+        assertThat(replacedEnum.constantValue).isEqualTo(TestEnum.Second)
+
+        // Replacing a named RemoteInt wrapped directly in RemoteEnum(namedInt, entries)
+        val directWrapped = RemoteEnum(backingInt, TestEnum.entries)
+        val replacedDirect = directWrapped.replaceNamedVariables(mapOf(backingInt to 1.ri))
+        assertThat(replacedDirect.hasConstantValue).isTrue()
+        assertThat(replacedDirect.constantValue).isEqualTo(TestEnum.Second)
     }
 }

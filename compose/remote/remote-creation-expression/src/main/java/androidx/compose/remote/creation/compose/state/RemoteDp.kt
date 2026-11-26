@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.document.NanEncoding
 import androidx.compose.runtime.Stable
 import kotlin.reflect.KClass
 
@@ -272,6 +273,19 @@ private class RemoteDpImpl(override val value: RemoteFloat, cacheKey: RemoteStat
     override val equalityType: KClass<*>
         get() = RemoteDp::class
 
+    override val valueKind: RemoteValueKind
+        get() = RemoteValueKind.DP
+
+    override fun createForIdOrNull(id: Int): RemoteValue<*> =
+        RemoteDp.createForId(RemoteFloat.createForId(NanEncoding.asNan(id)))
+
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        when (candidate) {
+            is RemoteDp -> candidate
+            is RemoteFloat -> RemoteDp(candidate)
+            else -> this
+        }
+
     override val constantValueOrNull: Float?
         get() = value.constantValueOrNull
 
@@ -362,6 +376,9 @@ private enum class DpOperationKey : RemoteOperation {
             ToDp -> (args[0] as RemoteFloat).toRemoteDp().value
         }
     }
+
+    override val resultKind: RemoteValueKind
+        get() = if (this == Dp) RemoteValueKind.DP else RemoteValueKind.FLOAT
 }
 
 /**

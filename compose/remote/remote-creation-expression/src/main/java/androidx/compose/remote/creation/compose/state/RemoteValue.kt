@@ -233,6 +233,9 @@ internal abstract class BaseRemoteValue<T : Any>(initialCacheKey: RemoteStateCac
     internal open val equalityType: KClass<*>
         get() = this::class
 
+    override fun adaptToType(candidate: RemoteValue<*>): RemoteValue<*> =
+        if (equalityType.isInstance(candidate)) candidate else this
+
     override fun equals(other: Any?): Boolean =
         this === other ||
             (other is BaseRemoteValue<*> &&

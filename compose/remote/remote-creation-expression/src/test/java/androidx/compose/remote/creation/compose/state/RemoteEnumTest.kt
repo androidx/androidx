@@ -115,16 +115,17 @@ class RemoteEnumTest {
         val constEnum = RemoteEnum(Checked.Off)
         val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
         val eq = namedEnum.ordinal.isEqualTo(constEnum.ordinal)
-        assertThat(eq.toString()).isEqualTo("user:chk == 0")
+        assertThat(eq.toString()).isEqualTo("user:chk.ordinal == 0")
         assertThat(namedEnum.ordinal.isEqualTo(Checked.Off.ordinal.ri).toString())
-            .isEqualTo("user:chk == 0")
+            .isEqualTo("user:chk.ordinal == 0")
     }
 
     @Test
     fun toString_mapping() {
         val namedEnum = createNamedRemoteEnum<Checked>("chk", Checked.Off)
         val mappedInt = namedEnum.toRemoteInt { if (it == Checked.Off) 10.ri else 20.ri }
-        assertThat(mappedInt.toString()).isEqualTo("user:chk == 1 ? 20 : (user:chk == 0 ? 10 : -1)")
+        assertThat(mappedInt.toString())
+            .isEqualTo("user:chk.ordinal == 1 ? 20 : (user:chk.ordinal == 0 ? 10 : -1)")
     }
 
     @Test

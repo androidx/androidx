@@ -748,14 +748,66 @@ class RemoteBooleanTest {
     @Test
     fun cacheKeys() {
         val constant = RemoteBoolean(true)
-        // implemented as RemoteInt
-        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(1))
+        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(true))
+        assertThat(RemoteBoolean(RemoteInt(1))).isEqualTo(RemoteBoolean(true))
+        assertThat(RemoteBoolean(RemoteInt(0))).isEqualTo(RemoteBoolean(false))
 
         val named = createNamedRemoteBoolean("test", false)
         val op = constant and named
         val key = op.cacheKey as RemoteOperationCacheKey
         assertThat(key.op.name).isEqualTo("And")
-        assertThat(key.args).isEqualTo(listOf(constant.intValue.cacheKey, named.intValue.cacheKey))
+        assertThat(key.args).isEqualTo(listOf(constant.cacheKey, named.cacheKey))
+
+        // Comparison, string-emptiness, and SelectBoolean inner intValues use a distinct
+        // ToRemoteInt cacheKey matching toRemoteInt() rather than colliding with the outer boolean.
+        val fa = RemoteFloat.createNamedRemoteFloat("fa", 1f)
+        val floatCmp = fa.isLessThan(5f.rf)
+        assertThat(floatCmp.cacheKey).isNotEqualTo(floatCmp.intValue.cacheKey)
+        assertThat(floatCmp.toRemoteInt().cacheKey).isEqualTo(floatCmp.intValue.cacheKey)
+
+        val ia = RemoteInt.createNamedRemoteInt("ia", 1)
+        val intCmp = ia.isEqualTo(2.ri)
+        assertThat(intCmp.cacheKey).isNotEqualTo(intCmp.intValue.cacheKey)
+        assertThat(intCmp.toRemoteInt().cacheKey).isEqualTo(intCmp.intValue.cacheKey)
+
+        val str = RemoteString.createNamedRemoteString("s", "")
+        val empty = str.isEmpty
+        assertThat(empty.cacheKey).isNotEqualTo(empty.intValue.cacheKey)
+        assertThat(empty.toRemoteInt().cacheKey).isEqualTo(empty.intValue.cacheKey)
+
+        val named2 = createNamedRemoteBoolean("test2", true)
+        val selBool = named.select(named2, !named2)
+        assertThat(selBool.cacheKey).isNotEqualTo(selBool.intValue.cacheKey)
+        assertThat(selBool.toRemoteInt().cacheKey).isEqualTo(selBool.intValue.cacheKey)
+    }
+
+    @Test
+    fun booleanPeepholes_preserveIdentitiesAndRespectDeterminism() {
+        val b = createNamedRemoteBoolean("b", true)
+        assertThat(!(!b)).isEqualTo(b)
+        assertThat(b and b).isEqualTo(b)
+        assertThat(b or b).isEqualTo(b)
+        assertThat(b xor b).isEqualTo(RemoteBoolean(false))
+        assertThat(b and !b).isEqualTo(RemoteBoolean(false))
+        assertThat(!b and b).isEqualTo(RemoteBoolean(false))
+        assertThat(b or !b).isEqualTo(RemoteBoolean(true))
+        assertThat(!b or b).isEqualTo(RemoteBoolean(true))
+        assertThat(b xor !b).isEqualTo(RemoteBoolean(true))
+        assertThat(b.isEqualTo(b)).isEqualTo(RemoteBoolean(true))
+        assertThat(b.isEqualTo(!b)).isEqualTo(RemoteBoolean(false))
+        assertThat(b.isNotEqualTo(b)).isEqualTo(RemoteBoolean(false))
+        assertThat(b.isNotEqualTo(!b)).isEqualTo(RemoteBoolean(true))
+
+        // Non-deterministic boolean expressions must not collapse x op x / x op !x
+        val r = rand().isLessThan(0.5f.rf)
+        assertThat((r and r).hasConstantValue).isFalse()
+        assertThat((r and r).cacheKey).isNotEqualTo(r.cacheKey)
+        assertThat((r or r).cacheKey).isNotEqualTo(r.cacheKey)
+        assertThat((r xor r).hasConstantValue).isFalse()
+        assertThat((r and !r).hasConstantValue).isFalse()
+        assertThat((r or !r).hasConstantValue).isFalse()
+        assertThat(r.isEqualTo(r).hasConstantValue).isFalse()
+        assertThat(r.isNotEqualTo(r).hasConstantValue).isFalse()
     }
 
     @Test
@@ -793,21 +845,21 @@ class RemoteBooleanTest {
     fun toString_logicalAnd() {
         val b = createNamedRemoteBoolean("b", true)
         val expr = b and RemoteBoolean(false)
-        assertThat(expr.toString()).isEqualTo("user:b and 0")
+        assertThat(expr.toString()).isEqualTo("user:b and false")
     }
 
     @Test
     fun toString_logicalOr() {
         val b = createNamedRemoteBoolean("b", true)
         val expr = b or RemoteBoolean(false)
-        assertThat(expr.toString()).isEqualTo("user:b or 0")
+        assertThat(expr.toString()).isEqualTo("user:b or false")
     }
 
     @Test
     fun toString_logicalXor() {
         val b = createNamedRemoteBoolean("b", true)
         val expr = b xor RemoteBoolean(false)
-        assertThat(expr.toString()).isEqualTo("user:b xor 0")
+        assertThat(expr.toString()).isEqualTo("user:b xor false")
     }
 
     @Test
@@ -823,8 +875,7 @@ class RemoteBooleanTest {
     @Test
     fun toString_not() {
         val b = createNamedRemoteBoolean("b", true)
-        // Note not() is implemented as xor 1.
-        assertThat((!b).toString()).isEqualTo("user:b xor 1")
+        assertThat((!b).toString()).isEqualTo("!user:b")
     }
 
     @Test

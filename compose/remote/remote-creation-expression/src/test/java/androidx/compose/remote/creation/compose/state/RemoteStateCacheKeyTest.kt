@@ -349,13 +349,14 @@ class RemoteStateCacheKeyTest {
         val nanIdKey = RemoteStateIdKey(0)
         val nanEncodingInvalidIdKey = RemoteStateIdKey(-1)
         val varIdKey = RemoteStateIdKey(42)
+        val detFiniteMask = FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT
 
         // Standard deterministic, finite arithmetic op
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Plus,
                     listOf(varIdKey, finiteConst),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC)
 
@@ -364,7 +365,7 @@ class RemoteStateCacheKeyTest {
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Rand,
                     emptyList(),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(0)
 
@@ -373,7 +374,7 @@ class RemoteStateCacheKeyTest {
                 RemoteOperationCacheKey.computeExpressionFlags(
                     PlainNonRemoteOperationEnum.Alpha,
                     listOf(varIdKey, finiteConst),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC)
 
@@ -383,35 +384,35 @@ class RemoteStateCacheKeyTest {
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Div,
                     listOf(varIdKey, finiteConst),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC)
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Div,
                     listOf(varIdKey, zeroConst),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Div,
                     listOf(varIdKey, varIdKey),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Ln,
                     listOf(varIdKey),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Cbrt,
                     listOf(varIdKey),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
 
@@ -420,21 +421,21 @@ class RemoteStateCacheKeyTest {
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Plus,
                     listOf(varIdKey, infConst),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Plus,
                     listOf(varIdKey, nanIdKey),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Plus,
                     listOf(varIdKey, nanEncodingInvalidIdKey),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
 
@@ -444,7 +445,7 @@ class RemoteStateCacheKeyTest {
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Plus,
                     listOf(randKey, infConst),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_HAS_NON_FINITE_FLOAT)
 
@@ -454,7 +455,7 @@ class RemoteStateCacheKeyTest {
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Plus,
                     listOf(CustomTestCacheKey(deterministic = true), finiteConst),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC)
         assertThat(
@@ -464,15 +465,91 @@ class RemoteStateCacheKeyTest {
                         CustomTestCacheKey(deterministic = true, finiteFloats = false),
                         finiteConst,
                     ),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(FLAG_DETERMINISTIC or FLAG_HAS_NON_FINITE_FLOAT)
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
                     RemoteFloatOperationKey.Plus,
                     listOf(CustomTestCacheKey(deterministic = false), finiteConst),
-                )
+                ) and detFiniteMask
             )
             .isEqualTo(0)
+    }
+
+    @Test
+    fun computeExpressionFlags_synthesizesConstantFoldAndStateIdFlags() {
+        val namedKey = RemoteNamedCacheKey(RemoteValue.Domain.User, "x")
+        val constKey = RemoteConstantCacheKey(4.5f)
+        val varIdKey = RemoteStateIdKey(42)
+        val instanceKey = RemoteStateInstanceKey()
+        val arrayKey = RemoteStateArrayKey(4)
+        val foldAndIdMask = FLAG_CAN_CONSTANT_FOLD or FLAG_HAS_STATE_ID
+
+        // Pure named/constant op is foldable with no state IDs
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(namedKey, constKey),
+                ) and foldAndIdMask
+            )
+            .isEqualTo(FLAG_CAN_CONSTANT_FOLD)
+
+        // State ID propagates FLAG_HAS_STATE_ID while remaining structurally foldable
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(varIdKey, constKey),
+                ) and foldAndIdMask
+            )
+            .isEqualTo(FLAG_CAN_CONSTANT_FOLD or FLAG_HAS_STATE_ID)
+
+        // Plain non-RemoteOperation enum is conservatively non-foldable
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    PlainNonRemoteOperationEnum.Alpha,
+                    listOf(namedKey, constKey),
+                ) and foldAndIdMask
+            )
+            .isEqualTo(0)
+
+        // forceRemote = true Reference, Anim, Rand, instance keys, and array keys cannot fold
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Reference,
+                    listOf(namedKey, RemoteConstantCacheKey(true)),
+                ) and foldAndIdMask
+            )
+            .isEqualTo(0)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Anim,
+                    listOf(namedKey, FloatArrayCacheKey(floatArrayOf(0.5f))),
+                ) and foldAndIdMask
+            )
+            .isEqualTo(0)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(instanceKey, constKey),
+                ) and foldAndIdMask
+            )
+            .isEqualTo(0)
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(arrayKey, constKey),
+                ) and foldAndIdMask
+            )
+            .isEqualTo(0)
+
+        // Custom non-Base key marks FLAG_HAS_STATE_ID so custom predicates are still consulted
+        assertThat(
+                RemoteOperationCacheKey.computeExpressionFlags(
+                    RemoteFloatOperationKey.Plus,
+                    listOf(CustomTestCacheKey(deterministic = true), constKey),
+                ) and foldAndIdMask
+            )
+            .isEqualTo(FLAG_CAN_CONSTANT_FOLD or FLAG_HAS_STATE_ID)
     }
 }

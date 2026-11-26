@@ -466,7 +466,12 @@ class RemoteFloatIntegerValuedTest {
                     listOf(varIdKey),
                 )
             )
-            .isEqualTo(FLAG_DETERMINISTIC or FLAG_RESULT_WHOLE_NUMBER)
+            .isEqualTo(
+                FLAG_DETERMINISTIC or
+                    FLAG_RESULT_WHOLE_NUMBER or
+                    FLAG_CAN_CONSTANT_FOLD or
+                    FLAG_HAS_STATE_ID
+            )
 
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
@@ -474,7 +479,7 @@ class RemoteFloatIntegerValuedTest {
                     listOf(intConst, intConst),
                 )
             )
-            .isEqualTo(FLAG_DETERMINISTIC or FLAG_RESULT_WHOLE_NUMBER)
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_RESULT_WHOLE_NUMBER or FLAG_CAN_CONSTANT_FOLD)
 
         assertThat(
                 RemoteOperationCacheKey.computeExpressionFlags(
@@ -482,7 +487,7 @@ class RemoteFloatIntegerValuedTest {
                     listOf(intConst, fracConst),
                 )
             )
-            .isEqualTo(FLAG_DETERMINISTIC)
+            .isEqualTo(FLAG_DETERMINISTIC or FLAG_CAN_CONSTANT_FOLD)
 
         // Deep chain (2000 nodes) synthesizes FLAG_RESULT_WHOLE_NUMBER bottom-up without recursion.
         var deep: RemoteStateCacheKey = intFloatA.cacheKey
