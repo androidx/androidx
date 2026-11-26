@@ -216,6 +216,54 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun textFromFloat_integerValuedDynamic_skipsRuntimeSelectAndFormatsWithoutTrailingZero() {
+        val formatOptional = DecimalFormat("0.######")
+        val formatPadded = DecimalFormat("00.######")
+        val namedFloat = createNamedRemoteFloat("f", 5.7f)
+        val namedZero = createNamedRemoteFloat("z", 0.4f)
+        val namedInt = RemoteInt.createNamedRemoteInt("i", -12)
+        val namedBool = RemoteBoolean.createNamedRemoteBoolean("b", true)
+
+        val floored = floor(namedFloat).toRemoteString(formatOptional)
+        val flooredZero = floor(namedZero).toRemoteString(formatOptional)
+        val padded = floor(namedFloat).toRemoteString(formatPadded)
+        val fromInt = namedInt.toRemoteFloat().toRemoteString(formatOptional)
+        val selected = namedBool.select(7f.rf, 9f.rf).toRemoteString(formatOptional)
+        val unknownFloat = namedFloat.toRemoteString(formatOptional)
+
+        // Statically integer-valued dynamic floats emit ToRemoteString directly instead of a
+        // runtime SelectString branch.
+        assertThat((floored.cacheKey as RemoteOperationCacheKey).op.name)
+            .isEqualTo("ToRemoteString")
+        assertThat((flooredZero.cacheKey as RemoteOperationCacheKey).op.name)
+            .isEqualTo("ToRemoteString")
+        // Padded format skips the runtime abs(v - round(v)) < eps fractional select
+        assertThat(padded.cacheKey.toDebugString()).doesNotContain("round(")
+        assertThat((fromInt.cacheKey as RemoteOperationCacheKey).op.name)
+            .isEqualTo("ToRemoteString")
+        assertThat((selected.cacheKey as RemoteOperationCacheKey).op.name)
+            .isEqualTo("ToRemoteString")
+        assertThat((unknownFloat.cacheKey as RemoteOperationCacheKey).op.name)
+            .isEqualTo("SelectString")
+
+        val flooredId = creationState.getId(floored)
+        val flooredZeroId = creationState.getId(flooredZero)
+        val paddedId = creationState.getId(padded)
+        val fromIntId = creationState.getId(fromInt)
+        val selectedId = creationState.getId(selected)
+        val unknownId = creationState.getId(unknownFloat)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getText(flooredId)).isEqualTo("5")
+        assertThat(context.getText(flooredZeroId)).isEqualTo("0")
+        assertThat(context.getText(paddedId)).isEqualTo("05")
+        assertThat(context.getText(fromIntId)).isEqualTo("-12")
+        assertThat(context.getText(selectedId)).isEqualTo("7")
+        assertThat(context.getText(unknownId)).isEqualTo("5.7")
+    }
+
+    @Test
     fun rememberNamedRemoteFloatConstant() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
         val document =

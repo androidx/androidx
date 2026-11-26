@@ -480,6 +480,9 @@ internal enum class RemoteIntOperationKey(
             Id -> args[0] as RemoteInt
         }
     }
+
+    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
+        this != ToRemoteString
 }
 
 internal fun RemoteInt(

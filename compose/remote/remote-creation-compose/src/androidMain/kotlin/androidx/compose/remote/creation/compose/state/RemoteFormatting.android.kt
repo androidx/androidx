@@ -136,6 +136,17 @@ internal fun formatRemoteFloat(value: RemoteFloat, format: IcuDecimalFormat): Re
             )
         }
 
+        if (value.cacheKey.isResultWholeNumber) {
+            return value.toRemoteStringWithPadding(
+                before,
+                0.toShort(),
+                flags,
+                format.minimumIntegerDigits,
+                format.formatWidth,
+                format.padCharacter,
+            )
+        }
+
         // Dynamic path: dynamically check if the value is close to an integer at playback time.
         // This is a workaround for float precision errors (e.g. 9.000001f should format as
         // "9").

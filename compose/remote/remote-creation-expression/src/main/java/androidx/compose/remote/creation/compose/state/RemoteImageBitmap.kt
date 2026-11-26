@@ -140,9 +140,23 @@ public sealed interface RemoteImageBitmap : RemoteValue<Any> {
     }
 }
 
-private enum class ImageBitmapOperationKey {
+private enum class ImageBitmapOperationKey : RemoteOperation {
     Width,
-    Height,
+    Height;
+
+    override fun toDebugString(args: List<RemoteStateCacheKey>): String =
+        when (this) {
+            Width -> "${args[0].toOperandString(100)}.width"
+            Height -> "${args[0].toOperandString(100)}.height"
+        }
+
+    override fun reconstruct(args: List<RemoteValue<*>>): RemoteValue<*> =
+        when (this) {
+            Width -> (args[0] as RemoteImageBitmap).width
+            Height -> (args[0] as RemoteImageBitmap).height
+        }
+
+    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean = true
 }
 
 private abstract class BaseRemoteImageBitmap(cacheKey: RemoteStateCacheKey) :

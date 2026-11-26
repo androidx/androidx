@@ -312,6 +312,9 @@ private enum class StringOperationKey(override val precedence: Int = 100) : Remo
             }
         }
     }
+
+    override fun isResultWholeNumber(args: List<RemoteStateCacheKey>): Boolean =
+        this == Length || this == IsEmpty || this == IsNotEmpty
 }
 
 internal fun RemoteString(
