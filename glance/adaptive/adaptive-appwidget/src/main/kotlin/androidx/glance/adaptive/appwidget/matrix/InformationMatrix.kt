@@ -63,8 +63,8 @@ private const val MATRIX_SECONDARY_MAX_WIDTH_FRACTION = 0.4f
 /** Line height of the matrix's text as a multiple of its type size, for height estimates. */
 private const val LINE_HEIGHT_RATIO = 1.25f
 
-/** Least padding a stacked card gives up to keep its leading component at its full size. */
-private const val MIN_STACKED_PADDING_DP = 8f
+/** Least padding a card gives up to keep its header slots at their full size. */
+private const val MIN_HEADER_PADDING_DP = 8f
 
 /**
  * Smallest diameter of the bulb's circle, so a newly pinned widget the host has not sized yet still
@@ -285,14 +285,17 @@ internal class MatrixBulbContent(
  * @property secondaryMaxWidth Widest [secondary] may be drawn before it is ellipsized, or `null`
  *   when it has the whole content width to itself.
  * @property trailing Component in the header's trailing slot, or `null` when hidden.
- * @property trailingSize Edge length [trailing] is drawn at: [MatrixDefaults.LeadingSize] when
- *   contained, or [MatrixDefaults.uncontainedTrailingHeight] when uncontained.
+ * @property trailingSize Edge length [trailing] is drawn at: [MatrixDefaults.LeadingSize] (clamped
+ *   to the content height) when contained, or [MatrixDefaults.uncontainedTrailingHeight] when
+ *   uncontained.
  * @property hero Component in the hero slot, or `null` when hidden.
  * @property heroHeight Height the hero is drawn in, estimated from the container and the slots
  *   around it, for a hero that lays itself out by it, such as an icon grid capping its rows; `null`
  *   when there is no hero or the container has no size.
  * @property actions The action positions of the bottom row; empty when hidden.
  * @property headerHorizontalPadding Extra horizontal inset applied to a row header.
+ * @property headerRowMinHeight Minimum height of a standard row header, clamped to the card's
+ *   content height so short containers do not overflow.
  */
 internal class ResolvedMatrixCard(
     val tiers: SizeTiers,
@@ -313,6 +316,7 @@ internal class ResolvedMatrixCard(
     val heroHeight: Dp?,
     val actions: List<ActionComponent?>,
     val headerHorizontalPadding: Dp = 0.dp,
+    val headerRowMinHeight: Dp = MatrixDefaults.HeaderRowMinHeight,
 )
 
 /**
@@ -326,12 +330,13 @@ internal class ResolvedMatrixBulb(val component: BulbComponent, val containerSiz
 /**
  * Lays [content] out for its placement on [surface].
  *
- * The tiers decide the defaults; the container's width decides the header's horizontal budget: a
- * stacked header's leading component is alone across the content width, so a column narrower than
- * it gives up padding first (down to 8 dp) and only then shrinks the leading component. In a row,
- * the primary text gets what the leading component, the secondary text and the gaps leave, and is
- * shortened to fit it; the secondary text takes at most 40% of the row, and is ellipsized past it.
- * A contained trailing component takes [MatrixDefaults.LeadingSize] plus
+ * The tiers decide the defaults; the container's size decides the header's budget: a stacked
+ * header's leading component is alone across the content width, and a row header spans the content
+ * height, so a container tighter than its header target along its binding axis gives up padding
+ * first (down to 8 dp) and only then shrinks the leading, contained trailing, and row min-height
+ * slots. In a row, the primary text gets what the leading component, the secondary text and the
+ * gaps leave, and is shortened to fit it; the secondary text takes at most 40% of the row, and is
+ * ellipsized past it. A contained trailing component takes its resolved size plus
  * [MatrixDefaults.TrailingExtraWidth] from the row, while an uncontained trailing button takes
  * [MatrixDefaults.UncontainedTrailingWidth]; a stacked header drops it. On the lock screen,
  * sensitive text is replaced first.
@@ -350,6 +355,7 @@ internal fun resolve(
     val dimensions = surface.dimensions
     val tiers = SizeTiers.from(dimensions, surface)
     val widthDp = dimensions.widthDp.toFloat()
+    val heightDp = dimensions.heightDp.toFloat()
     val stacked = MatrixDefaults.isStacked(tiers)
     val spacingDp = (content.slotSpacing ?: MatrixDefaults.slotSpacing(tiers)).value
     val leading = content.leading
@@ -358,26 +364,56 @@ internal fun resolve(
     //  replacement too, and fit it separately.
     val locked = surface == AppWidgetSurface.MOBILE_LOCK_SCREEN
     val leadingDefaultDp = (content.leadingSize ?: MatrixDefaults.LeadingSize).value
-
-    var paddingDp = (content.padding ?: MatrixDefaults.padding(tiers)).value
-    if (stacked && leading != null && widthDp > 0f && content.padding == null) {
-        paddingDp =
-            paddingDp.coerceAtMost(
-                ((widthDp - leadingDefaultDp) / 2f).coerceAtLeast(MIN_STACKED_PADDING_DP)
-            )
-    }
-    val contentWidthDp = widthDp - 2 * paddingDp
-    val leadingSizeDp =
-        when {
-            leading == null -> 0f
-            stacked && widthDp > 0f ->
-                leadingDefaultDp.coerceAtMost(contentWidthDp).coerceAtLeast(0f)
-            else -> leadingDefaultDp
-        }
-
     val secondary = content.secondary?.shownOn(locked)
     // A compact header runs the secondary text under the primary one rather than beside it.
     val compactHeader = content.compactHeader
+    // A stacked header has no room beside its slots for a trailing component.
+    val trailing = content.trailing?.takeUnless { stacked }?.shownOn(locked)
+    val uncontainedTrailing = (trailing as? IconButton)?.contained == false
+    val hasHeader =
+        leading != null || content.primary != null || secondary != null || trailing != null
+
+    var paddingDp = (content.padding ?: MatrixDefaults.padding(tiers)).value
+    if (content.padding == null) {
+        if (leading != null && stacked && widthDp > 0f) {
+            paddingDp =
+                paddingDp.coerceAtMost(
+                    ((widthDp - leadingDefaultDp) / 2f).coerceAtLeast(MIN_HEADER_PADDING_DP)
+                )
+        }
+        val headerTargetHeightDp =
+            maxOf(
+                if (leading != null) leadingDefaultDp else 0f,
+                if (trailing != null && !uncontainedTrailing) MatrixDefaults.LeadingSize.value
+                else 0f,
+                if (!stacked && !compactHeader && hasHeader) MatrixDefaults.HeaderRowMinHeight.value
+                else 0f,
+            )
+        if (headerTargetHeightDp > 0f && heightDp > 0f) {
+            paddingDp =
+                paddingDp.coerceAtMost(
+                    ((heightDp - headerTargetHeightDp) / 2f).coerceAtLeast(MIN_HEADER_PADDING_DP)
+                )
+        }
+    }
+    val contentWidthDp = widthDp - 2 * paddingDp
+    val contentHeightDp = heightDp - 2 * paddingDp
+    val leadingSizeDp =
+        if (leading == null) {
+            0f
+        } else {
+            var capped = leadingDefaultDp
+            if (stacked && widthDp > 0f) capped = capped.coerceAtMost(contentWidthDp)
+            if (heightDp > 0f) capped = capped.coerceAtMost(contentHeightDp)
+            capped.coerceAtLeast(0f)
+        }
+    val headerRowMinHeightDp =
+        if (heightDp > 0f) {
+            MatrixDefaults.HeaderRowMinHeight.value.coerceAtMost(contentHeightDp.coerceAtLeast(0f))
+        } else {
+            MatrixDefaults.HeaderRowMinHeight.value
+        }
+
     val headerHorizontalPadding = if (stacked) 0.dp else content.headerHorizontalPadding
     val rowHeaderWidthDp = (contentWidthDp - 2 * headerHorizontalPadding.value).coerceAtLeast(0f)
     val secondaryBeside = !stacked && !compactHeader
@@ -390,9 +426,15 @@ internal fun resolve(
             null
         }
     val primaryTextSize = content.primaryTextSize ?: MatrixDefaults.primaryTextSize(tiers)
-    // A stacked header has no room beside its slots for a trailing component.
-    val trailing = content.trailing?.takeUnless { stacked }?.shownOn(locked)
-    val uncontainedTrailing = (trailing as? IconButton)?.contained == false
+    val resolvedTrailingSizeDp =
+        when {
+            trailing == null -> 0f
+            uncontainedTrailing ->
+                MatrixDefaults.uncontainedTrailingHeight(tiers, compactHeader).value
+            heightDp > 0f ->
+                MatrixDefaults.LeadingSize.value.coerceAtMost(contentHeightDp.coerceAtLeast(0f))
+            else -> MatrixDefaults.LeadingSize.value
+        }
     var primaryMaxWidthDp = if (stacked) contentWidthDp else rowHeaderWidthDp
     if (!stacked) {
         if (leading != null) primaryMaxWidthDp -= leadingSizeDp + MatrixDefaults.HeaderSpacing.value
@@ -402,7 +444,7 @@ internal fun resolve(
                     MatrixDefaults.UncontainedTrailingWidth.value +
                         MatrixDefaults.HeaderSpacing.value
                 } else {
-                    MatrixDefaults.LeadingSize.value +
+                    resolvedTrailingSizeDp +
                         MatrixDefaults.TrailingExtraWidth.value +
                         MatrixDefaults.HeaderSpacing.value
                 }
@@ -426,25 +468,16 @@ internal fun resolve(
         }
 
     val actions = List(content.actions.size) { i -> content.actions[i]?.shownOn(locked) }
-    val heightDp = dimensions.heightDp.toFloat()
-    val resolvedTrailingSizeDp =
-        when {
-            trailing == null -> 0f
-            uncontainedTrailing ->
-                MatrixDefaults.uncontainedTrailingHeight(tiers, compactHeader).value
-            else -> MatrixDefaults.LeadingSize.value
-        }
     val heroHeightDp =
         if (content.hero != null && heightDp > 0f) {
             var available = heightDp - 2 * paddingDp
-            val hasHeader =
-                leading != null || content.primary != null || secondary != null || trailing != null
             if (hasHeader) {
                 available -=
                     spacingDp +
                         estimatedHeaderHeightDp(
                             stacked = stacked,
                             compact = compactHeader,
+                            headerRowMinHeightDp = headerRowMinHeightDp,
                             leadingSizeDp = if (leading != null) leadingSizeDp else 0f,
                             trailingSizeDp = resolvedTrailingSizeDp,
                             primaryTextSizeSp =
@@ -480,6 +513,7 @@ internal fun resolve(
         heroHeight = heroHeightDp?.dp,
         actions = actions,
         headerHorizontalPadding = headerHorizontalPadding,
+        headerRowMinHeight = headerRowMinHeightDp.dp,
     )
 }
 
@@ -695,6 +729,7 @@ private fun lineHeightDp(sizeSp: Float, fontScale: Float): Float =
 private fun estimatedHeaderHeightDp(
     stacked: Boolean,
     compact: Boolean,
+    headerRowMinHeightDp: Float,
     leadingSizeDp: Float,
     trailingSizeDp: Float,
     primaryTextSizeSp: Float,
@@ -713,7 +748,7 @@ private fun estimatedHeaderHeightDp(
         compact -> maxOf(leadingSizeDp, trailingSizeDp, primaryDp + secondaryDp)
         else ->
             maxOf(
-                MatrixDefaults.HeaderRowMinHeight.value,
+                headerRowMinHeightDp,
                 leadingSizeDp,
                 trailingSizeDp,
                 primaryDp,

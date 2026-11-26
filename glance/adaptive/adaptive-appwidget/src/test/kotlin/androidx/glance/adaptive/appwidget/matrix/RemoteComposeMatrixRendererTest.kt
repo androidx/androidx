@@ -447,6 +447,27 @@ class RemoteComposeMatrixRendererTest {
             .of(24.dpToPx(context))
     }
 
+    @Test
+    fun lockScreenTrackCard_shrinksRingAndHeaderMinHeightToFitContainer() = runTest {
+        val template =
+            TrackTemplate(
+                leading = Ring(progress = 0.78f, icon = TEST_VECTOR_GLYPH),
+                primary = TemplateText("11,056", sensitiveReplacement = "--"),
+            )
+        val dimensions = Dimensions(176, 56)
+        val sized = AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(dimensions)
+        val matrix = TrackMatrixSelector.select(template, sized)
+        val rendered = render(matrix, dimensions, surface = AppWidgetSurface.MOBILE_LOCK_SCREEN)
+
+        val headerRow = rendered.cardColumn().layoutChildren().single()
+        val ringBox = headerRow.layoutChildren().first()
+        val expectedRingPx = 40.dpToPx(context)
+        assertThat(headerRow.height).isWithin(1f).of(expectedRingPx)
+        assertThat(ringBox.width).isWithin(1f).of(expectedRingPx)
+        assertThat(ringBox.height).isWithin(1f).of(expectedRingPx)
+        assertThat(rendered.texts()).containsExactly("--")
+    }
+
     private suspend fun render(
         content: MatrixContent,
         dimensions: Dimensions,

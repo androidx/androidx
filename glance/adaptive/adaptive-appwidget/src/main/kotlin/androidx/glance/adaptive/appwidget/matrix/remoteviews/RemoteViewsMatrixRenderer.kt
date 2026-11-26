@@ -244,6 +244,13 @@ private fun header(taps: RemoteViewsActions, card: ResolvedMatrixCard): RemoteVi
     // and ellipsized rather than left to squeeze the primary text out.
     // Only a row has a trailing slot; resolve() drops the trailing component of a stacked header.
     if (!card.stacked) {
+        if (!card.compactHeader) {
+            views.setInt(
+                R.id.glance_adaptive_appwidget_remoteviews_header_row,
+                "setMinimumHeight",
+                card.headerRowMinHeight.toPx(context.density),
+            )
+        }
         val headerHorizontalPaddingPx = card.headerHorizontalPadding.toPx(context.density)
         views.setViewPadding(
             R.id.glance_adaptive_appwidget_remoteviews_header_row,

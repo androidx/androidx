@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.compose.state.max
+import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
@@ -145,17 +146,17 @@ private fun ProgressRingCanvas(
     val ringTrackColor = RemoteComposePalette.ringTrack
     val primaryColor = RemoteComposePalette.primary
     RemoteCanvas(modifier = RemoteModifier.size(size.asRdp())) {
-        val strokePx = max(width * RingDefaults.StrokeRatio.rf, 1f.rf)
-        val fillRadius = max(width / 2f.rf - strokePx, 0f.rf)
+        val diameter = min(width, height)
+        val strokePx = max(diameter * RingDefaults.StrokeRatio.rf, 1f.rf)
+        val fillRadius = max(diameter / 2f.rf - strokePx, 0f.rf)
         drawCircle(
             paint = RemotePaint { color = containerColor },
             radius = fillRadius,
             center = center,
         )
 
-        val halfStroke = strokePx / 2f.rf
-        val arcTopLeft = RemoteOffset(halfStroke, halfStroke)
-        val arcDiameter = max(width - strokePx, 0f.rf)
+        val arcDiameter = max(diameter - strokePx, 0f.rf)
+        val arcTopLeft = RemoteOffset((width - arcDiameter) / 2f.rf, (height - arcDiameter) / 2f.rf)
         val arcSize = RemoteSize(arcDiameter, arcDiameter)
         drawArc(
             paint =

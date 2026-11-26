@@ -1339,6 +1339,43 @@ class RemoteViewsMatrixRendererTest {
         assertThat(reappliedHeader.paddingRight).isEqualTo(0)
     }
 
+    @Test
+    fun lockScreenTrackCard_shrinksRingAndHeaderMinHeightAndResetsOnReapply() {
+        val track =
+            TrackTemplate(
+                leading = Ring(progress = 0.78f, icon = GLYPH),
+                primary = TemplateText("11,056", sensitiveReplacement = "--"),
+            )
+        val lockSurface = AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(176, 56))
+        val root =
+            render(
+                TrackMatrixSelector.select(track, lockSurface),
+                Dimensions(176, 56),
+                surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
+            )
+
+        val density = context.density
+        val header = root.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_header_row)
+        val ring = root.findViewById<ImageView>(R.id.glance_adaptive_appwidget_remoteviews_ring)
+        assertThat(header.minimumHeight).isEqualTo(40f.dpToPx(density))
+        assertThat(ring.maxWidth).isEqualTo(40f.dpToPx(density))
+        assertThat(ring.maxHeight).isEqualTo(40f.dpToPx(density))
+        assertThat(ring.bottom).isAtMost(header.height)
+
+        // Resizing back to a nominal 88 dp home screen card restores the 56 dp header minHeight.
+        val homeSurface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(176, 88))
+        RemoteViewsMatrixRenderer.renderRemoteViews(
+                context,
+                track,
+                TrackMatrixSelector.select(track, homeSurface),
+                homeSurface,
+            )
+            .reapply(context, root)
+        val reappliedHeader =
+            root.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_header_row)
+        assertThat(reappliedHeader.minimumHeight).isEqualTo(56f.dpToPx(density))
+    }
+
     private fun tileLabel(tile: View): TextView =
         tile.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_tile_label)
 
