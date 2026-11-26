@@ -34,7 +34,10 @@ import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
 import androidx.compose.remote.player.core.platform.AndroidPaintContext
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -687,6 +691,35 @@ class RcPlayerPaintTest {
         // Translated gradient [0..50] -> [50..100]: x=25 clamps to RED, x=99 reaches BLUE.
         assertRed(bitmap, 25, 50)
         assertThat(isBlue(bitmap.getPixel(99, 50))).isTrue()
+    }
+
+    @Test
+    fun fontDataWithoutItalic_doesNotForceItalicStyle_andTwoPointConicalStaysInSync() {
+        val bundle =
+            PaintBundle().apply {
+                setTextStyle(42, 600, /* italic= */ false, /* ttf= */ true)
+                setRadialGradient(
+                    intArrayOf(AndroidColor.RED, AndroidColor.BLUE),
+                    0,
+                    floatArrayOf(0f, 1f),
+                    25f,
+                    50f,
+                    5f,
+                    75f,
+                    50f,
+                    40f,
+                    TILE_MODE_CLAMP,
+                )
+                setAlpha(0.5f)
+            }
+        val paintState = ComposeLocalPaint()
+        val ctx = AndroidRemoteContext()
+        updatePaintFromBundle(bundle, paintState, ctx)
+        assertThat(paintState.fontFamily).isEqualTo(42)
+        assertThat(paintState.fontWeight).isEqualTo(600)
+        assertThat(paintState.fontStyle).isEqualTo(FontStyle.Normal)
+        assertThat(paintState.brush).isNotNull()
+        assertThat(paintState.alpha).isEqualTo(0.5f)
     }
 
     private companion object {
