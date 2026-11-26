@@ -18,13 +18,16 @@
 
 package androidx.compose.remote.player.compose.embedded.draw
 
+import android.graphics.Color as AndroidColor
 import android.graphics.DiscretePathEffect
 import android.graphics.Matrix
 import android.graphics.PathDashPathEffect
+import android.graphics.RadialGradient as AndroidRadialGradient
 import android.graphics.RuntimeShader
 import android.graphics.Shader
 import android.graphics.SumPathEffect
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.MatrixAccess
 import androidx.compose.remote.core.RemoteContext
@@ -170,6 +173,27 @@ private fun resolvePaintFloat(bits: Int, read: RemoteContext): Float {
 }
 
 /**
+ * Decodes the packed upper 16-bit style payload of a [PaintBundle.TYPEFACE] command word:
+ * - bits `0..9` (`0x3FF`): font weight
+ * - bit `11` (`2048`): italic flag (bit `10` is `isFontData`, not italic)
+ */
+@JvmInline
+private value class TypefaceStyleBits(private val packed: Int) {
+    val weight: Int
+        get() = packed and WEIGHT_MASK
+
+    val fontStyle: FontStyle
+        get() = if ((packed and ITALIC_BIT) != 0) FontStyle.Italic else FontStyle.Normal
+
+    companion object {
+        private const val WEIGHT_MASK = 0x3FF
+        private const val ITALIC_BIT = 1 shl 11
+
+        fun fromCommand(cmd: Int): TypefaceStyleBits = TypefaceStyleBits(cmd ushr 16)
+    }
+}
+
+/**
  * Immutable, constant-size snapshot of the subset of [PaintBundle] state read by
  * [ComposeLocalPaint.toNativeTextPaint] during `TextMeasure` and `TextAttribute` evaluation.
  *
@@ -235,10 +259,10 @@ internal class TextMeasurePaintSpec(
                 }
                 PaintBundle.TYPEFACE -> {
                     if (i >= end) break
-                    val style = cmd ushr 16
+                    val style = TypefaceStyleBits.fromCommand(cmd)
                     nextFontFamily = array[i++]
-                    nextFontWeight = style and 0x3ff
-                    nextFontStyle = if ((style shr 10) > 0) FontStyle.Italic else FontStyle.Normal
+                    nextFontWeight = style.weight
+                    nextFontStyle = style.fontStyle
                     nextIsTypefaceSet = true
                     changed = true
                 }
@@ -353,12 +377,10 @@ public fun updatePaintFromBundle(
                 paintState.isTextSizeSet = true
             }
             PaintBundle.TYPEFACE -> {
-                val style = (cmd shr 16)
-                val weight = style and 0x3ff
-                val italic = (style shr 10) > 0
+                val style = TypefaceStyleBits.fromCommand(cmd)
                 paintState.fontFamily = array[i++]
-                paintState.fontWeight = weight
-                paintState.fontStyle = if (italic) FontStyle.Italic else FontStyle.Normal
+                paintState.fontWeight = style.weight
+                paintState.fontStyle = style.fontStyle
                 paintState.isTypefaceSet = true
             }
             PaintBundle.COLOR -> {
@@ -687,6 +709,67 @@ public fun updatePaintFromBundle(
                             paintState.coreShaderSpec = null
                         }
                     }
+                    PaintBundle.RADIAL_GRADIENT2 -> {
+                        val startX = resolvePaintFloat(array[i++], remoteContext)
+                        val startY = resolvePaintFloat(array[i++], remoteContext)
+                        val startRadius = resolvePaintFloat(array[i++], remoteContext)
+                        val endX = resolvePaintFloat(array[i++], remoteContext)
+                        val endY = resolvePaintFloat(array[i++], remoteContext)
+                        val endRadius = resolvePaintFloat(array[i++], remoteContext)
+                        val tileMode = array[i++]
+                        if (
+                            colorsList.size >= 2 &&
+                                startX.isFinite() &&
+                                startY.isFinite() &&
+                                startRadius.isFinite() &&
+                                startRadius >= 0f &&
+                                endX.isFinite() &&
+                                endY.isFinite() &&
+                                endRadius.isFinite() &&
+                                endRadius > 0f
+                        ) {
+                            val shader =
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    Api31TwoPointConicalGradient.create(
+                                        startX = startX,
+                                        startY = startY,
+                                        startRadius = startRadius,
+                                        endX = endX,
+                                        endY = endY,
+                                        endRadius = endRadius,
+                                        colors = colors,
+                                        stops = stopsForCore,
+                                        tileMode = tileMode,
+                                    )
+                                } else {
+                                    RadialGradientShader(
+                                        center = Offset(endX, endY),
+                                        radius = endRadius,
+                                        colors = colorsList,
+                                        colorStops = colorStopsList,
+                                        tileMode = mapTileMode(tileMode),
+                                    )
+                                }
+                            paintState.nativeShader = shader
+                            paintState.brush = nativeShaderBrush(shader)
+                            paintState.coreShaderSpec =
+                                CoreShaderSpec.TwoPointConicalGradient(
+                                    colors = colors,
+                                    stops = stopsForCore,
+                                    startX = startX,
+                                    startY = startY,
+                                    startRadius = startRadius,
+                                    endX = endX,
+                                    endY = endY,
+                                    endRadius = endRadius,
+                                    tileMode = tileMode,
+                                )
+                        } else if (colorsList.isNotEmpty()) {
+                            paintState.nativeShader = null
+                            paintState.brush = SolidColor(colorsList[0])
+                            paintState.coreShaderSpec = null
+                        }
+                    }
                 }
             }
             else -> {
@@ -745,5 +828,40 @@ private fun buildComposePathEffect(
             }
         }
         else -> null
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object Api31TwoPointConicalGradient {
+    fun create(
+        startX: Float,
+        startY: Float,
+        startRadius: Float,
+        endX: Float,
+        endY: Float,
+        endRadius: Float,
+        colors: IntArray,
+        stops: FloatArray?,
+        tileMode: Int,
+    ): Shader {
+        val colorLongs = LongArray(colors.size) { AndroidColor.pack(colors[it]) }
+        val androidTileMode =
+            when (tileMode) {
+                1 -> Shader.TileMode.REPEAT
+                2 -> Shader.TileMode.MIRROR
+                3 -> Shader.TileMode.DECAL
+                else -> Shader.TileMode.CLAMP
+            }
+        return AndroidRadialGradient(
+            startX,
+            startY,
+            startRadius,
+            endX,
+            endY,
+            endRadius,
+            colorLongs,
+            stops,
+            androidTileMode,
+        )
     }
 }

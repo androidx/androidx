@@ -164,6 +164,13 @@ public interface RemotePaintWriter {
     public fun setColor(@ColorInt color: Int)
 
     /**
+     * Sets the active paint opacity multiplier.
+     *
+     * @param alpha opacity in `[0, 1]`, or a NaN-boxed float variable reference
+     */
+    public fun setAlpha(alpha: MaybeVariableFloat)
+
+    /**
      * Sets the active paint color from a dynamic color resource.
      *
      * @param colorId handle to a color constant, themed color, or color expression
@@ -222,6 +229,14 @@ public interface RemotePaintWriter {
     public fun setFilterBitmap(filter: Boolean)
 
     /**
+     * Sets the bitmap and image sampling filter quality.
+     *
+     * @param quality filter quality level (`0` = none, `1` = low, `2` = medium, `3` = high,
+     *   matching `RemoteFilterQuality`)
+     */
+    public fun setImageFilterQuality(quality: Int)
+
+    /**
      * Sets the compositing blend mode for subsequent drawing commands.
      *
      * @param blendMode wire blend mode constant matching `PaintBundle.BLEND_MODE_*`
@@ -236,14 +251,31 @@ public interface RemotePaintWriter {
     public fun setTextSize(size: MaybeVariableFloat)
 
     /**
-     * Sets the typeface family, font weight, and italic style.
+     * Sets the typeface family or embedded font, weight, and italic style.
      *
      * @param typefaceId built-in family (`0` = default, `1` = sans-serif, `2` = serif, `3` =
-     *   monospace) or string variable ID naming a custom font family
+     *   monospace), custom font family string ID, or embedded `FontDataNode` ID when [isFontData]
+     *   is `true`
+     * @param weight font weight in the `100..1000` range
+     * @param isItalic `true` for italic style, `false` for upright
+     * @param isFontData `true` if [typefaceId] references an embedded `FontDataNode`
+     */
+    public fun setTextStyle(
+        typefaceId: Int,
+        weight: Int,
+        isItalic: Boolean,
+        isFontData: Boolean = false,
+    )
+
+    /**
+     * Sets the fallback typeface family, font weight, and italic style.
+     *
+     * @param typefaceId built-in family (`0` = default, `1` = sans-serif, `2` = serif, `3` =
+     *   monospace)
      * @param weight font weight in the `100..1000` range
      * @param isItalic `true` for italic style, `false` for upright
      */
-    public fun setTextStyle(typefaceId: Int, weight: Int, isItalic: Boolean)
+    public fun setFallbackTypeFace(typefaceId: Int, weight: Int, isItalic: Boolean)
 
     /**
      * Sets OpenType variable font variation axes.
@@ -254,6 +286,14 @@ public interface RemotePaintWriter {
      * @param axisValues axis values matching [axisTagIds], each literal or a float variable
      */
     public fun setTextAxis(axisTagIds: IntArray, axisValues: List<MaybeVariableFloat>)
+
+    /**
+     * Installs a wire-encoded path effect, or clears the active path effect.
+     *
+     * @param pathEffect encoded path effect (such as from `RemotePathEffect.encode`), or `null` to
+     *   clear
+     */
+    public fun setPathEffect(pathEffect: FloatArray?)
 
     /**
      * Applies a literal tint color filter with the given blend mode.
@@ -339,6 +379,39 @@ public interface RemotePaintWriter {
         centerX: MaybeVariableFloat,
         centerY: MaybeVariableFloat,
         radius: MaybeVariableFloat,
+        tileMode: Int,
+    )
+
+    /**
+     * Sets a two-point conical radial gradient shader between two circles.
+     *
+     * Encodes a two-point conical radial gradient (`PaintBundle.RADIAL_GRADIENT2`). Each entry
+     * `colors[i]` (for `i in 0..15`) is treated as a color variable ID when bit `i` of
+     * [colorIdMask] is set, and as a literal ARGB int otherwise.
+     *
+     * @param colors ARGB colors or color variable IDs along the cone (at most 255 entries)
+     * @param colorIdMask 16-bit bitmask (`0x0000..0xFFFF`) whose bit `i` marks `colors[i]` (`i in
+     *   0..15`) as a color variable ID
+     * @param stops normalized stop positions in `[0, 1]` matching [colors], or `null` for even
+     *   spacing
+     * @param startX focal circle center X coordinate in pixels
+     * @param startY focal circle center Y coordinate in pixels
+     * @param startRadius non-negative focal circle radius in pixels
+     * @param endX end circle center X coordinate in pixels
+     * @param endY end circle center Y coordinate in pixels
+     * @param endRadius positive end circle radius in pixels
+     * @param tileMode edge tiling mode (`0` = clamp, `1` = repeat, `2` = mirror)
+     */
+    public fun setTwoPointConicalGradient(
+        colors: IntArray,
+        colorIdMask: Int,
+        stops: List<MaybeVariableFloat>?,
+        startX: MaybeVariableFloat,
+        startY: MaybeVariableFloat,
+        startRadius: MaybeVariableFloat,
+        endX: MaybeVariableFloat,
+        endY: MaybeVariableFloat,
+        endRadius: MaybeVariableFloat,
         tileMode: Int,
     )
 

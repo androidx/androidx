@@ -17,6 +17,8 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
+import androidx.collection.MutableIntList
+import androidx.compose.remote.core.WireBuffer as CoreWireBuffer
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.DrawTextOnCircle
@@ -418,6 +420,7 @@ public class RemoteComposeWriterAdapter(public val delegate: RemoteComposeWriter
         val paintWriter = PaintBundleWriter(paintBundle)
         block(paintWriter)
         if (paintWriter.hasChanges) {
+            paintWriter.flush()
             delegate.buffer.addPaint(paintBundle)
         }
     }
@@ -1287,99 +1290,112 @@ public class RemoteComposeWriterAdapter(public val delegate: RemoteComposeWriter
     }
 }
 
-internal class PaintBundleWriter(private val bundle: PaintBundle) : RemotePaintWriter {
+internal class PaintBundleWriter(private val target: PaintBundle) : RemotePaintWriter {
+    private var activeBundle: PaintBundle = target
+    private var hasActiveBundleChanges: Boolean = false
+    private var rawWords: MutableIntList? = null
+
     var hasChanges: Boolean = false
         private set
 
-    override fun setColor(color: Int) {
-        bundle.setColor(color)
+    fun flush() {
+        val words = rawWords ?: return
+        drainActiveBundleInto(words)
+        val wb = CoreWireBuffer((words.size + 1) * 4)
+        wb.writeInt(words.size)
+        words.forEach { wb.writeInt(it) }
+        wb.index = 0
+        target.readBundle(wb)
+        rawWords = null
+        activeBundle = target
+    }
+
+    private inline fun record(block: (PaintBundle) -> Unit) {
+        block(activeBundle)
+        hasActiveBundleChanges = true
         hasChanges = true
     }
 
-    override fun setColorId(colorId: RemoteColorId) {
-        bundle.setColorId(colorId.id)
+    private fun drainActiveBundleInto(words: MutableIntList) {
+        if (!hasActiveBundleChanges) return
+        val wb = CoreWireBuffer(256)
+        activeBundle.writeBundle(wb)
+        wb.index = 0
+        val count = wb.readInt()
+        for (i in 0 until count) {
+            words.add(wb.readInt())
+        }
+        activeBundle = PaintBundle()
+        hasActiveBundleChanges = false
+    }
+
+    override fun setColor(color: Int) = record { it.setColor(color) }
+
+    override fun setAlpha(alpha: MaybeVariableFloat) = record { it.setAlpha(alpha.floatValue) }
+
+    override fun setColorId(colorId: RemoteColorId) = record { it.setColorId(colorId.id) }
+
+    override fun setStrokeWidth(width: MaybeVariableFloat) = record {
+        it.setStrokeWidth(width.floatValue)
+    }
+
+    override fun setStrokeCap(cap: Int) = record { it.setStrokeCap(cap) }
+
+    override fun setStrokeJoin(join: Int) = record { it.setStrokeJoin(join) }
+
+    override fun setStrokeMiter(miter: MaybeVariableFloat) = record {
+        it.setStrokeMiter(miter.floatValue)
+    }
+
+    override fun setStyle(style: Int) = record { it.setStyle(style) }
+
+    override fun setAntiAlias(antiAlias: Boolean) = record { it.setAntiAlias(antiAlias) }
+
+    override fun setFilterBitmap(filter: Boolean) = record { it.setFilterBitmap(filter) }
+
+    override fun setImageFilterQuality(quality: Int) {
+        val words = rawWords ?: MutableIntList().also { rawWords = it }
+        drainActiveBundleInto(words)
+        words.add(PaintBundle.IMAGE_FILTER_QUALITY or ((quality and 0xFFFF) shl 16))
         hasChanges = true
     }
 
-    override fun setStrokeWidth(width: MaybeVariableFloat) {
-        bundle.setStrokeWidth(width.floatValue)
-        hasChanges = true
+    override fun setBlendMode(blendMode: Int) = record { it.setBlendMode(blendMode) }
+
+    override fun setTextSize(size: MaybeVariableFloat) = record { it.setTextSize(size.floatValue) }
+
+    override fun setTextStyle(
+        typefaceId: Int,
+        weight: Int,
+        isItalic: Boolean,
+        isFontData: Boolean,
+    ) = record { it.setTextStyle(typefaceId, weight, isItalic, isFontData) }
+
+    override fun setFallbackTypeFace(typefaceId: Int, weight: Int, isItalic: Boolean) = record {
+        it.setFallbackTypeFace(typefaceId, weight, isItalic)
     }
 
-    override fun setStrokeCap(cap: Int) {
-        bundle.setStrokeCap(cap)
-        hasChanges = true
+    override fun setTextAxis(axisTagIds: IntArray, axisValues: List<MaybeVariableFloat>) = record {
+        val values = FloatArray(axisValues.size) { i -> axisValues[i].floatValue }
+        it.setTextAxis(axisTagIds, values)
     }
 
-    override fun setStrokeJoin(join: Int) {
-        bundle.setStrokeJoin(join)
-        hasChanges = true
+    override fun setPathEffect(pathEffect: FloatArray?) = record { it.setPathEffect(pathEffect) }
+
+    override fun setColorFilter(color: Int, blendMode: Int) = record {
+        it.setColorFilter(color, blendMode)
     }
 
-    override fun setStrokeMiter(miter: MaybeVariableFloat) {
-        bundle.setStrokeMiter(miter.floatValue)
-        hasChanges = true
+    override fun setColorFilterId(colorId: RemoteColorId, blendMode: Int) = record {
+        it.setColorFilterId(colorId.id, blendMode)
     }
 
-    override fun setStyle(style: Int) {
-        bundle.setStyle(style)
-        hasChanges = true
-    }
+    override fun clearColorFilter() = record { it.clearColorFilter() }
 
-    override fun setAntiAlias(antiAlias: Boolean) {
-        bundle.setAntiAlias(antiAlias)
-        hasChanges = true
-    }
+    override fun setShader(shaderId: Int) = record { it.setShader(shaderId) }
 
-    override fun setFilterBitmap(filter: Boolean) {
-        bundle.setFilterBitmap(filter)
-        hasChanges = true
-    }
-
-    override fun setBlendMode(blendMode: Int) {
-        bundle.setBlendMode(blendMode)
-        hasChanges = true
-    }
-
-    override fun setTextSize(size: MaybeVariableFloat) {
-        bundle.setTextSize(size.floatValue)
-        hasChanges = true
-    }
-
-    override fun setTextStyle(typefaceId: Int, weight: Int, isItalic: Boolean) {
-        bundle.setTextStyle(typefaceId, weight, isItalic)
-        hasChanges = true
-    }
-
-    override fun setTextAxis(axisTagIds: IntArray, axisValues: List<MaybeVariableFloat>) {
-        val values = FloatArray(axisValues.size) { axisValues[it].floatValue }
-        bundle.setTextAxis(axisTagIds, values)
-        hasChanges = true
-    }
-
-    override fun setColorFilter(color: Int, blendMode: Int) {
-        bundle.setColorFilter(color, blendMode)
-        hasChanges = true
-    }
-
-    override fun setColorFilterId(colorId: RemoteColorId, blendMode: Int) {
-        bundle.setColorFilterId(colorId.id, blendMode)
-        hasChanges = true
-    }
-
-    override fun clearColorFilter() {
-        bundle.clearColorFilter()
-        hasChanges = true
-    }
-
-    override fun setShader(shaderId: Int) {
-        bundle.setShader(shaderId)
-        hasChanges = true
-    }
-
-    override fun setShaderMatrix(matrixId: MaybeVariableFloat) {
-        bundle.setShaderMatrix(matrixId.floatValue)
-        hasChanges = true
+    override fun setShaderMatrix(matrixId: MaybeVariableFloat) = record {
+        it.setShaderMatrix(matrixId.floatValue)
     }
 
     override fun setLinearGradient(
@@ -1391,9 +1407,9 @@ internal class PaintBundleWriter(private val bundle: PaintBundle) : RemotePaintW
         endX: MaybeVariableFloat,
         endY: MaybeVariableFloat,
         tileMode: Int,
-    ) {
-        val stopsArray = stops?.let { s -> FloatArray(s.size) { s[it].floatValue } }
-        bundle.setLinearGradient(
+    ) = record {
+        val stopsArray = stops?.let { s -> FloatArray(s.size) { i -> s[i].floatValue } }
+        it.setLinearGradient(
             colors,
             colorIdMask,
             stopsArray,
@@ -1403,7 +1419,6 @@ internal class PaintBundleWriter(private val bundle: PaintBundle) : RemotePaintW
             endY.floatValue,
             tileMode,
         )
-        hasChanges = true
     }
 
     override fun setRadialGradient(
@@ -1414,9 +1429,9 @@ internal class PaintBundleWriter(private val bundle: PaintBundle) : RemotePaintW
         centerY: MaybeVariableFloat,
         radius: MaybeVariableFloat,
         tileMode: Int,
-    ) {
-        val stopsArray = stops?.let { s -> FloatArray(s.size) { s[it].floatValue } }
-        bundle.setRadialGradient(
+    ) = record {
+        val stopsArray = stops?.let { s -> FloatArray(s.size) { i -> s[i].floatValue } }
+        it.setRadialGradient(
             colors,
             colorIdMask,
             stopsArray,
@@ -1425,7 +1440,33 @@ internal class PaintBundleWriter(private val bundle: PaintBundle) : RemotePaintW
             radius.floatValue,
             tileMode,
         )
-        hasChanges = true
+    }
+
+    override fun setTwoPointConicalGradient(
+        colors: IntArray,
+        colorIdMask: Int,
+        @Suppress("PrimitiveInCollection") stops: List<MaybeVariableFloat>?,
+        startX: MaybeVariableFloat,
+        startY: MaybeVariableFloat,
+        startRadius: MaybeVariableFloat,
+        endX: MaybeVariableFloat,
+        endY: MaybeVariableFloat,
+        endRadius: MaybeVariableFloat,
+        tileMode: Int,
+    ) = record {
+        val stopsArray = stops?.let { s -> FloatArray(s.size) { i -> s[i].floatValue } }
+        it.setRadialGradient(
+            colors,
+            colorIdMask,
+            stopsArray,
+            startX.floatValue,
+            startY.floatValue,
+            startRadius.floatValue,
+            endX.floatValue,
+            endY.floatValue,
+            endRadius.floatValue,
+            tileMode,
+        )
     }
 
     override fun setSweepGradient(
@@ -1434,16 +1475,15 @@ internal class PaintBundleWriter(private val bundle: PaintBundle) : RemotePaintW
         @Suppress("PrimitiveInCollection") stops: List<MaybeVariableFloat>?,
         centerX: MaybeVariableFloat,
         centerY: MaybeVariableFloat,
-    ) {
-        val stopsArray = stops?.let { s -> FloatArray(s.size) { s[it].floatValue } }
-        bundle.setSweepGradient(
+    ) = record {
+        val stopsArray = stops?.let { s -> FloatArray(s.size) { i -> s[i].floatValue } }
+        it.setSweepGradient(
             colors,
             colorIdMask,
             stopsArray,
             centerX.floatValue,
             centerY.floatValue,
         )
-        hasChanges = true
     }
 
     override fun setTextureShader(
@@ -1452,14 +1492,13 @@ internal class PaintBundleWriter(private val bundle: PaintBundle) : RemotePaintW
         tileModeY: Int,
         filterMode: Int,
         maxAnisotropy: Int,
-    ) {
-        bundle.setTextureShader(
+    ) = record {
+        it.setTextureShader(
             bitmapId.id,
             tileModeX.toShort(),
             tileModeY.toShort(),
             filterMode.toShort(),
             maxAnisotropy.toShort(),
         )
-        hasChanges = true
     }
 }

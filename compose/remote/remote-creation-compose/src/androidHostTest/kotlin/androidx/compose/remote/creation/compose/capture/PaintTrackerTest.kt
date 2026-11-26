@@ -25,9 +25,12 @@ import androidx.collection.intSetOf
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.PaintContext
+import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.WireBuffer as CoreWireBuffer
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
+import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
@@ -51,11 +54,13 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.cr
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.remote.document.RemotePaintWriter
 import androidx.compose.remote.document.RemoteStringId
+import androidx.compose.remote.document.mvf
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.io.ByteArrayInputStream
 import kotlin.test.assertFailsWith
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -1053,6 +1058,116 @@ class PaintTrackerTest {
         override fun getStrokeJoin(): AndroidPaint.Join? = null
     }
 
+    @Test
+    fun testPaintBundleWriterExtendedMethods() {
+        val dash = PaintPathEffects.dash(1f, 6f, 3f)
+        val doc = creationState.document
+        doc.writePaint { paint ->
+            paint.setColor(0xFF112233.toInt())
+            paint.setImageFilterQuality(2)
+            paint.setAlpha(0.75f.mvf)
+            paint.setTextStyle(typefaceId = 42, weight = 600, isItalic = false, isFontData = true)
+            paint.setFallbackTypeFace(
+                typefaceId = PaintBundle.FONT_TYPE_MONOSPACE,
+                weight = 700,
+                isItalic = true,
+            )
+            paint.setPathEffect(dash)
+            paint.setTwoPointConicalGradient(
+                colors = intArrayOf(0xFFFF0000.toInt(), 0xFF0000FF.toInt()),
+                colorIdMask = 0,
+                stops = listOf(0f.mvf, 1f.mvf),
+                startX = 1f.mvf,
+                startY = 2f.mvf,
+                startRadius = 3f.mvf,
+                endX = 20f.mvf,
+                endY = 25f.mvf,
+                endRadius = 10f.mvf,
+                tileMode = 0,
+            )
+        }
+        val coreBuf = RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(doc.toByteArray()))
+        val ops = ArrayList<Operation>()
+        coreBuf.buffer.index = 0
+        coreBuf.inflateFromBuffer(ops)
+        val paintOp = ops.filterIsInstance<PaintData>().single()
+
+        val expectedTail = PaintBundle()
+        expectedTail.setAlpha(0.75f)
+        expectedTail.setTextStyle(42, 600, false, true)
+        expectedTail.setFallbackTypeFace(PaintBundle.FONT_TYPE_MONOSPACE, 700, true)
+        expectedTail.setPathEffect(dash)
+        expectedTail.setRadialGradient(
+            intArrayOf(0xFFFF0000.toInt(), 0xFF0000FF.toInt()),
+            0,
+            floatArrayOf(0f, 1f),
+            1f,
+            2f,
+            3f,
+            20f,
+            25f,
+            10f,
+            0,
+        )
+        val tailWb = CoreWireBuffer()
+        expectedTail.writeBundle(tailWb)
+        tailWb.index = 0
+        val tailCount = tailWb.readInt()
+        val expectedWords =
+            IntArray(3 + tailCount).apply {
+                this[0] = PaintBundle.COLOR
+                this[1] = 0xFF112233.toInt()
+                this[2] = PaintBundle.IMAGE_FILTER_QUALITY or (2 shl 16)
+                for (i in 0 until tailCount) {
+                    this[3 + i] = tailWb.readInt()
+                }
+            }
+
+        val actualWb = CoreWireBuffer()
+        paintOp.mPaintData.writeBundle(actualWb)
+        actualWb.index = 0
+        val actualCount = actualWb.readInt()
+        val actualWords = IntArray(actualCount) { actualWb.readInt() }
+        assertThat(actualWords).isEqualTo(expectedWords)
+
+        val changes = TestPaintChanges()
+        paintOp.mPaintData.applyPaintChange(paintContext, changes)
+        assertThat(changes.mColor).isEqualTo(0xFF112233.toInt())
+        assertThat(changes.mImageFilterQuality).isEqualTo(2)
+        assertThat(changes.mAlpha).isEqualTo(0.75f)
+        assertThat(changes.mFontType).isEqualTo(42)
+        assertThat(changes.mWeight).isEqualTo(600)
+        assertThat(changes.mFallbackFontType).isEqualTo(PaintBundle.FONT_TYPE_MONOSPACE)
+        assertThat(changes.mFallbackWeight).isEqualTo(700)
+        assertThat(changes.mFallbackItalic).isTrue()
+        assertThat(changes.mPathEffect).isEqualTo(dash)
+        assertThat(changes.twoPointConicalGradientSet).isTrue()
+    }
+
+    @Test
+    fun testPaintBundleWriterLargePathEffectRoundTrip() {
+        val intervals = FloatArray(128) { idx -> (idx + 1).toFloat() }
+        val largeDash = PaintPathEffects.dash(2.5f, *intervals)
+        val bundle = PaintBundle()
+        val writer = PaintBundleWriter(bundle)
+        writer.setColor(0xFF445566.toInt())
+        writer.setImageFilterQuality(3)
+        writer.setPathEffect(largeDash)
+        writer.flush()
+
+        val wireBuffer = CoreWireBuffer()
+        bundle.writeBundle(wireBuffer)
+        wireBuffer.index = 0
+        val roundTripped = PaintBundle()
+        roundTripped.readBundle(wireBuffer)
+
+        val changes = TestPaintChanges()
+        roundTripped.applyPaintChange(paintContext, changes)
+        assertThat(changes.mColor).isEqualTo(0xFF445566.toInt())
+        assertThat(changes.mImageFilterQuality).isEqualTo(3)
+        assertThat(changes.mPathEffect).isEqualTo(largeDash)
+    }
+
     private fun PaintTracker.updateWithPaint(
         paint: RemotePaint,
         bundle: PaintBundle,
@@ -1139,11 +1254,24 @@ class PaintTrackerTest {
             this.mItalic = italic
         }
 
-        override fun setFallbackTypeFace(fontType: Int, weight: Int, italic: Boolean) {}
+        var mFallbackFontType: Int = -1
+        var mFallbackWeight: Int = -1
+        var mFallbackItalic: Boolean = false
+        var mImageFilterQuality: Int = -1
+        var mPathEffect: FloatArray? = null
+        var twoPointConicalGradientSet: Boolean = false
+
+        override fun setFallbackTypeFace(fontType: Int, weight: Int, italic: Boolean) {
+            this.mFallbackFontType = fontType
+            this.mFallbackWeight = weight
+            this.mFallbackItalic = italic
+        }
 
         override fun setShader(shader: Int) {}
 
-        override fun setImageFilterQuality(quality: Int) {}
+        override fun setImageFilterQuality(quality: Int) {
+            this.mImageFilterQuality = quality
+        }
 
         var mBlendMode: Int = -1
 
@@ -1210,7 +1338,9 @@ class PaintTrackerTest {
             endY: Float,
             endRadius: Float,
             tileMode: Int,
-        ) {}
+        ) {
+            this.twoPointConicalGradientSet = true
+        }
 
         override fun setSweepGradient(
             colorsArray: IntArray,
@@ -1233,7 +1363,9 @@ class PaintTrackerTest {
             maxAnisotropy: Short,
         ) {}
 
-        override fun setPathEffect(pathEffect: FloatArray?) {}
+        override fun setPathEffect(pathEffect: FloatArray?) {
+            this.mPathEffect = pathEffect
+        }
     }
 }
 

@@ -83,6 +83,18 @@ internal sealed interface CoreShaderSpec {
         val tileMode: Int,
     ) : CoreShaderSpec
 
+    class TwoPointConicalGradient(
+        val colors: IntArray,
+        val stops: FloatArray?,
+        val startX: Float,
+        val startY: Float,
+        val startRadius: Float,
+        val endX: Float,
+        val endY: Float,
+        val endRadius: Float,
+        val tileMode: Int,
+    ) : CoreShaderSpec
+
     class SweepGradient(
         val colors: IntArray,
         val stops: FloatArray?,
@@ -288,6 +300,20 @@ public class ComposeLocalPaint {
                             spec.centerX,
                             spec.centerY,
                             spec.radius,
+                            spec.tileMode.takeIf { it in 0..2 } ?: 0,
+                        )
+                        true
+                    }
+                    is CoreShaderSpec.TwoPointConicalGradient -> {
+                        p.setRadialGradient(
+                            spec.colors,
+                            spec.stops,
+                            spec.startX,
+                            spec.startY,
+                            spec.startRadius,
+                            spec.endX,
+                            spec.endY,
+                            spec.endRadius,
                             spec.tileMode.takeIf { it in 0..2 } ?: 0,
                         )
                         true
