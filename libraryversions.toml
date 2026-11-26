@@ -297,7 +297,7 @@ TEST_ACCESSIBILITY = "1.0.0-alpha01"
 
 TEST_UIAUTOMATOR = "2.5.0-alpha01"
 
-TEST_BACKUP = "1.0.0-alpha04"
+TEST_BACKUP = "1.0.0-alpha05"
 
 TEXT = "1.0.0-rc01"
 
