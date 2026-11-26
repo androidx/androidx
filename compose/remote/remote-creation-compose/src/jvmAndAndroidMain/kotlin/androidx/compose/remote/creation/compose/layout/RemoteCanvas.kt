@@ -1919,7 +1919,11 @@ public class RemoteCanvas(
         currentStateId: Int,
     ) {
         val writeModifiers = creationState.prepareModifiers(modifier)
-        recordRenderingOp { document.startStateLayout(currentStateId) { writeModifiers(document) } }
+        recordRenderingOp {
+            document.startStateLayout(currentStateId, componentId = writeModifiers.componentId) {
+                writeModifiers(document)
+            }
+        }
     }
 
     /** Ends a state layout. */

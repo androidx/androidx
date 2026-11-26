@@ -45,7 +45,10 @@ internal class RemoteAllStatesLayoutNode : RemoteComposeNode() {
         val writeModifiers = scope.prepareModifiers(modifier)
         val currentStateId = creationState.getId(currentState)
 
-        creationState.document.startStateLayout(currentStateId) {
+        creationState.document.startStateLayout(
+            currentStateId,
+            componentId = writeModifiers.componentId,
+        ) {
             writeModifiers(creationState.document)
         }
 

@@ -30,6 +30,7 @@ internal class RemoteFitBoxNode : RemoteLayoutNode() {
         creationState.document.startFitBox(
             contentAlignment.horizontal.toRemote(layoutDirection),
             contentAlignment.vertical.toRemote(),
+            componentId = writeModifiers.componentId,
         ) {
             writeModifiers(creationState.document)
         }

@@ -39,6 +39,7 @@ internal class RemoteFlowRowNode : RemoteLayoutNode() {
             maxItemsInEachRow,
             maxLines,
             spacedBy,
+            componentId = writeModifiers.componentId,
         ) {
             writeModifiers(creationState.document)
         }

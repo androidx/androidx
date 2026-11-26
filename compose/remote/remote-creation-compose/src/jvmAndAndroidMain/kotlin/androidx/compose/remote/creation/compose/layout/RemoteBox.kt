@@ -37,6 +37,7 @@ internal class RemoteBoxNode : RemoteLayoutNode() {
         creationState.document.startBox(
             horizontalAlignment.toRemote(layoutDirection),
             verticalAlignment.toRemote(),
+            componentId = writeModifiers.componentId,
         ) {
             writeModifiers(creationState.document)
         }
