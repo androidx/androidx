@@ -19,6 +19,7 @@ package androidx.camera.video
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.os.Build
+import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraInfo
@@ -31,6 +32,7 @@ import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -134,7 +136,7 @@ class VideoCaptureDeviceTest(
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
         cameraInfo = cameraUseCaseAdapter.cameraInfo as CameraInfoInternal
-        videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+        videoCapabilities = createCameraVideoCapabilities(cameraInfo)
     }
 
     @After
@@ -501,6 +503,42 @@ class VideoCaptureDeviceTest(
         return MediaSpec.builder()
             .configureVideo { config -> config.setQualitySelector(qualitySelector) }
             .build()
+    }
+
+    /**
+     * Creates [VideoCapabilities] from what the camera supports, so the tests only depend on
+     * [VideoCapture] and the camera, not on the capabilities of a specific [VideoOutput] such as
+     * [Recorder].
+     *
+     * All dynamic ranges supported by the camera are supported, each with the [FHD], [HD] and [SD]
+     * qualities whose typical size is supported by the camera.
+     */
+    private fun createCameraVideoCapabilities(cameraInfo: CameraInfoInternal): VideoCapabilities {
+        val cameraSupportedSizes =
+            cameraInfo.getSupportedResolutions(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE).toSet()
+        val qualityToSize: Map<Quality, Size> =
+            listOf(FHD, HD, SD)
+                .mapNotNull { quality ->
+                    (quality as Quality.ConstantQuality)
+                        .typicalSizes
+                        .firstOrNull { it in cameraSupportedSizes }
+                        ?.let { quality to it }
+                }
+                .toMap()
+        val supportedDynamicRanges = cameraInfo.supportedDynamicRanges
+        return object : VideoCapabilities {
+            override fun getSupportedDynamicRanges(): Set<DynamicRange> = supportedDynamicRanges
+
+            override fun getSupportedQualities(dynamicRange: DynamicRange): List<Quality> =
+                if (dynamicRange in supportedDynamicRanges) qualityToSize.keys.toList()
+                else emptyList()
+
+            override fun isQualitySupported(quality: Quality, dynamicRange: DynamicRange): Boolean =
+                quality in getSupportedQualities(dynamicRange)
+
+            override fun getResolution(quality: Quality, dynamicRange: DynamicRange): Size? =
+                if (isQualitySupported(quality, dynamicRange)) qualityToSize[quality] else null
+        }
     }
 
     private class TestVideoOutput(
