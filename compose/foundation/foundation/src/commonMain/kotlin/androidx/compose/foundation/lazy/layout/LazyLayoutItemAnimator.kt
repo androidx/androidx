@@ -18,16 +18,20 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CoroutineScope
@@ -165,7 +169,13 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                             isVertical,
                         )
                         if (shouldAnimateAppearance) {
-                            newItemInfo.animations.forEach { it?.animateEnterTransition() }
+                            val expands = item.hasAnimatedSize
+                            newItemInfo.animations.forEach {
+                                it?.animateEnterTransition(expands)
+                                if (expands && it is StateBasedLazyLayoutItemAnimation) {
+                                    it.observeAnimatedSize()
+                                }
+                            }
                         }
                     }
                 } else {
@@ -198,11 +208,14 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                                         disappearingItems.remove(it)
                                         displayingNode?.invalidateDraw()
                                     }
-                                    it.animateEnterTransition()
+                                    it.animateEnterTransition(item.hasAnimatedSize)
                                 }
                             }
                         }
-                        startPlacementAnimationsIfNeeded(item, layoutSizeOffset = layoutSizeOffset)
+                        startPlacementAnimationsIfNeeded(
+                            item,
+                            layoutSizeOffset = layoutSizeOffset,
+                        )
                     }
                 }
             } else {
@@ -390,6 +403,42 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         movingAwayToStartBound.clear()
         movingAwayToEndBound.clear()
         movingAwayKeys.clear()
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    fun animatedBoundsSize(
+        key: Any,
+        placeableIndex: Int,
+        placeable: Placeable,
+        constraints: Constraints,
+        canExpandWhenAppearing: Boolean,
+    ): IntSize {
+        if (!ComposeFoundationFlags.isLazyLayoutItemAnimationEnterExitTransitionsEnabled) {
+            return UnspecifiedSize
+        }
+        val itemInfo = keyToItemInfoMap[key]
+        val animatedSize =
+            if (itemInfo != null) {
+                val animation =
+                    itemInfo.animations.getOrNull(placeableIndex)
+                        as? StateBasedLazyLayoutItemAnimation
+                animation?.animatedSize ?: UnspecifiedSize
+            } else if (canExpandWhenAppearing && keyIndexMap?.getIndex(key) == -1) {
+                val measuredSize = IntSize(placeable.width, placeable.height)
+                placeable.parentData.specs
+                    ?.enterTransition
+                    ?.config
+                    ?.changeSize
+                    ?.size
+                    ?.invoke(measuredSize) ?: UnspecifiedSize
+            } else {
+                UnspecifiedSize
+            }
+        return if (animatedSize == UnspecifiedSize) {
+            UnspecifiedSize
+        } else {
+            constraints.constrain(animatedSize)
+        }
     }
 
     private fun removeInfoForKey(key: Any) {

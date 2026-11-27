@@ -405,10 +405,12 @@ class LazyLayoutSlideAnimationParityTest : BaseLazyLayoutAnimationParityTest(Def
     override fun LazyLayoutUnderTest(
         visible: Boolean,
         contentPadding: PaddingValues,
+        trailingItemContent: (@Composable () -> Unit)?,
         itemContent: @Composable () -> Unit,
     ) {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = contentPadding) {
             if (visible) item(key = ItemKey) { itemContent() }
+            if (trailingItemContent != null) item(key = TrailingItemKey) { trailingItemContent() }
         }
     }
 

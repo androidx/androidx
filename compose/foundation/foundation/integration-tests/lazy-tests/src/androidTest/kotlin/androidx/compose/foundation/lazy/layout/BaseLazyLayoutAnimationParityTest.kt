@@ -39,12 +39,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.animateItemWithTransitions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
@@ -75,6 +77,8 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
 
     protected var visible by mutableStateOf(false)
 
+    protected var resizedItemSize: IntSize? by mutableStateOf(null)
+
     @OptIn(ExperimentalFoundationApi::class)
     @Before
     fun setUpParityTest() {
@@ -89,6 +93,7 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         frames: Int = TotalFrames,
         maxChannelDifference: Int = 0,
+        withTrailingItem: Boolean = false,
     ) {
         setParityContent(
             initiallyVisible = false,
@@ -96,6 +101,7 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
             exit = ExitTransition.None,
             itemSize = itemSize,
             layoutDirection = layoutDirection,
+            withTrailingItem = withTrailingItem,
         )
 
         toggleAndAssertParity(frames, maxChannelDifference)
@@ -127,6 +133,7 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
         exit: ExitTransition,
         itemSize: IntSize = defaultItemSize,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        withTrailingItem: Boolean = false,
     ) {
         visible = initiallyVisible
         rule.setContent {
@@ -145,6 +152,12 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
                             visible = isVisible,
                             contentPadding =
                                 PaddingValues(horizontal = itemWidth, vertical = itemHeight),
+                            trailingItemContent =
+                                if (withTrailingItem) {
+                                    { TrailingItem(itemSize) }
+                                } else {
+                                    null
+                                },
                         ) {
                             ParityItem(
                                 itemSize = itemSize,
@@ -163,6 +176,7 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
                         itemSize = itemSize,
                         enter = enter,
                         exit = exit,
+                        withTrailingItem = withTrailingItem,
                     )
                 }
             }
@@ -175,6 +189,7 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
     protected abstract fun LazyLayoutUnderTest(
         visible: Boolean,
         contentPadding: PaddingValues,
+        trailingItemContent: (@Composable () -> Unit)?,
         itemContent: @Composable () -> Unit,
     )
 
@@ -253,6 +268,7 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
         itemSize: IntSize,
         enter: EnterTransition,
         exit: ExitTransition,
+        withTrailingItem: Boolean,
     ) {
         val density = rule.density
         Box(modifier) {
@@ -263,20 +279,42 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
                         vertical = with(density) { itemSize.height.toDp() },
                     )
             ) {
-                AnimatedVisibility(visible = visible, enter = enter, exit = exit) {
-                    ParityItem(itemSize = itemSize)
+                if (withTrailingItem) {
+                    Column(Modifier.wrapContentSize(Alignment.TopStart, unbounded = true)) {
+                        AnimatedVisibility(visible = visible, enter = enter, exit = exit) {
+                            ParityItem(itemSize = itemSize)
+                        }
+                        TrailingItem(itemSize)
+                    }
+                } else {
+                    AnimatedVisibility(visible = visible, enter = enter, exit = exit) {
+                        ParityItem(itemSize = itemSize)
+                    }
                 }
             }
         }
     }
 
     @Composable
+    private fun TrailingItem(itemSize: IntSize) {
+        val density = rule.density
+        Box(
+            Modifier.requiredSize(
+                    with(density) { itemSize.width.toDp() },
+                    with(density) { itemSize.height.toDp() },
+                )
+                .aliasedBackground(TrailingItemColor)
+        )
+    }
+
+    @Composable
     private fun ParityItem(itemSize: IntSize, modifier: Modifier = Modifier) {
         val density = rule.density
+        val size = resizedItemSize ?: itemSize
         Column(
             modifier.requiredSize(
-                with(density) { itemSize.width.toDp() },
-                with(density) { itemSize.height.toDp() },
+                with(density) { size.width.toDp() },
+                with(density) { size.height.toDp() },
             )
         ) {
             Row(Modifier.weight(1f).fillMaxWidth()) {
@@ -338,6 +376,8 @@ abstract class BaseLazyLayoutAnimationParityTest(private val defaultItemSize: In
         const val SpringFrames = 60
         const val ContainerScale = 3
         const val ItemKey = 0
+        const val TrailingItemKey = 1
+        val TrailingItemColor = Color.Magenta
         const val LazyTag = "lazy"
         const val AnimatedVisibilityTag = "animatedVisibility"
 

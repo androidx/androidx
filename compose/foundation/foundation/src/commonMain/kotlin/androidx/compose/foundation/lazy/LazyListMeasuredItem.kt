@@ -18,9 +18,12 @@ package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.internal.requirePreconditionNotNull
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion.NotInitialized
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
+import androidx.compose.foundation.lazy.layout.StateBasedLazyLayoutItemAnimation
+import androidx.compose.foundation.lazy.layout.UnspecifiedSize
 import androidx.compose.foundation.lazy.layout.mirroredForRtl
 import androidx.compose.foundation.lazy.layout.placeablesCount
 import androidx.compose.ui.Alignment
@@ -28,8 +31,8 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 
 /**
@@ -61,6 +64,7 @@ constructor(
     override val contentType: Any?,
     private val animator: LazyLayoutItemAnimator<LazyListMeasuredItem>,
     override val constraints: Constraints,
+    canExpandWhenAppearing: Boolean,
 ) : LazyListItemInfo, LazyLayoutMeasuredItem {
     override var offset: Int = 0
         private set
@@ -92,19 +96,53 @@ constructor(
     private var maxMainAxisOffset: Int = 0
 
     // optimized for storing x and y offsets for each placeable one by one.
-    // array's size == placeables.size * 2, first we store x, then y.
+    // the first placeables.size * 2 elements are the offsets, first we store x, then y.
+    // when a placeable has an animated size they are followed by the width and height of the
+    // bounds of each placeable, so the array's size == placeables.size * 4.
     private val placeableOffsets: IntArray
+
+    override val hasAnimatedSize: Boolean
+        get() = placeableOffsets.size > placeables.size * 2
 
     init {
         var mainAxisSize = 0
         var maxCrossAxis = 0
-        placeables.fastForEach {
-            mainAxisSize += if (isVertical) it.height else it.width
-            maxCrossAxis = maxOf(maxCrossAxis, if (!isVertical) it.height else it.width)
+        var offsetsAndBounds: IntArray? = null
+        placeables.fastForEachIndexed { placeableIndex, placeable ->
+            var width = placeable.width
+            var height = placeable.height
+            val specs = placeable.parentData as? LazyLayoutAnimationSpecsNode
+            if (specs?.enterTransition?.config?.changeSize != null) {
+                val boundsSize =
+                    animator.animatedBoundsSize(
+                        key,
+                        placeableIndex,
+                        placeable,
+                        constraints,
+                        canExpandWhenAppearing,
+                    )
+                if (boundsSize != UnspecifiedSize) {
+                    val array =
+                        offsetsAndBounds
+                            ?: offsetsWithMeasuredSizes().also { offsetsAndBounds = it }
+                    if (isVertical) {
+                        width = boundsSize.width
+                        height = maxOf(boundsSize.height, minOf(-spacing, height))
+                    } else {
+                        width = maxOf(boundsSize.width, minOf(-spacing, width))
+                        height = boundsSize.height
+                    }
+                    val boundsIndex = (placeables.size + placeableIndex) * 2
+                    array[boundsIndex] = width
+                    array[boundsIndex + 1] = height
+                }
+            }
+            mainAxisSize += if (isVertical) height else width
+            maxCrossAxis = maxOf(maxCrossAxis, if (!isVertical) height else width)
         }
+        placeableOffsets = offsetsAndBounds ?: IntArray(placeables.size * 2)
         size = mainAxisSize
         crossAxisSize = maxCrossAxis
-        placeableOffsets = IntArray(placeables.size * 2)
         if (isVertical) {
             verticalAxisSpacing = spacing
             verticalAxisSize = size
@@ -152,24 +190,27 @@ constructor(
         this.offset = mainAxisOffset
         mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
         @Suppress("NAME_SHADOWING") var mainAxisOffset = mainAxisOffset
+        val hasBounds = hasAnimatedSize
         placeables.fastForEachIndexed { index, placeable ->
             val indexInArray = index * 2
+            val width = if (hasBounds) boundsWidth(index) else placeable.width
+            val height = if (hasBounds) boundsHeight(index) else placeable.height
             if (isVertical) {
                 placeableOffsets[indexInArray] =
                     requirePreconditionNotNull(horizontalAlignment) {
                             "null horizontalAlignment when isVertical == true"
                         }
-                        .align(placeable.width, layoutWidth, layoutDirection)
+                        .align(width, layoutWidth, layoutDirection)
                 placeableOffsets[indexInArray + 1] = mainAxisOffset
-                mainAxisOffset += placeable.height
+                mainAxisOffset += height
             } else {
                 placeableOffsets[indexInArray] = mainAxisOffset
                 placeableOffsets[indexInArray + 1] =
                     requirePreconditionNotNull(verticalAlignment) {
                             "null verticalAlignment when isVertical == false"
                         }
-                        .align(placeable.height, layoutHeight)
-                mainAxisOffset += placeable.width
+                        .align(height, layoutHeight)
+                mainAxisOffset += width
             }
         }
         minMainAxisOffset = -beforeContentPadding
@@ -200,7 +241,7 @@ constructor(
             return
         }
         offset += delta
-        repeat(placeableOffsets.size) { index ->
+        repeat(placeables.size * 2) { index ->
             // placeableOffsets consist of x and y pairs for each placeable.
             // if isVertical is true then the main axis offsets are located at indexes 1, 3, 5 etc.
             // 1 when odd, 0 when even
@@ -223,6 +264,7 @@ constructor(
     fun place(scope: Placeable.PlacementScope, isLookingAhead: Boolean) =
         with(scope) {
             requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
+            val hasBounds = hasAnimatedSize
             repeat(placeablesCount) { index ->
                 val placeable = placeables[index]
                 val minOffset = minMainAxisOffset - placeable.mainAxisSize
@@ -258,12 +300,29 @@ constructor(
                 } else {
                     layer = null
                 }
+                val boundsMainAxisSize =
+                    if (hasBounds) {
+                        if (isVertical) boundsHeight(index) else boundsWidth(index)
+                    } else {
+                        placeable.mainAxisSize
+                    }
                 if (reverseLayout) {
                     offset = offset.copy { mainAxisOffset ->
-                        mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
+                        mainAxisLayoutSize - mainAxisOffset - boundsMainAxisSize
                     }
                 }
                 offset += visualOffset
+                var zIndex = 0f
+                if (hasBounds && animation is StateBasedLazyLayoutItemAnimation) {
+                    offset +=
+                        animation.placeWithinBounds(
+                            placeable,
+                            IntSize(boundsWidth(index), boundsHeight(index)),
+                        )
+                    if (animation.isClippedToBounds && !nonScrollableItem) {
+                        zIndex = ClippedItemZIndex
+                    }
+                }
                 if (!isLookingAhead) {
                     animation?.placementOffset =
                         if (!isVertical && layoutDirection == LayoutDirection.Rtl) {
@@ -278,19 +337,46 @@ constructor(
                 }
                 if (isVertical) {
                     if (layer != null) {
-                        placeable.placeWithLayer(offset, layer)
+                        placeable.placeWithLayer(offset, layer, zIndex)
                     } else {
                         placeable.placeWithLayer(offset)
                     }
                 } else {
                     if (layer != null) {
-                        placeable.placeRelativeWithLayer(offset, layer)
+                        placeable.placeRelativeWithLayer(offset, layer, zIndex)
                     } else {
                         placeable.placeRelativeWithLayer(offset)
                     }
                 }
             }
         }
+
+    private fun StateBasedLazyLayoutItemAnimation.placeWithinBounds(
+        placeable: Placeable,
+        boundsSize: IntSize,
+    ): IntOffset {
+        val contentOffset = contentOffsetIn(boundsSize)
+        onPlaced(boundsSize, contentOffset)
+        return if (!isVertical && layoutDirection == LayoutDirection.Rtl) {
+            IntOffset(boundsSize.width - placeable.width - contentOffset.x, contentOffset.y)
+        } else {
+            contentOffset
+        }
+    }
+
+    private fun offsetsWithMeasuredSizes(): IntArray {
+        val array = IntArray(placeables.size * 4)
+        placeables.fastForEachIndexed { index, placeable ->
+            val boundsIndex = (placeables.size + index) * 2
+            array[boundsIndex] = placeable.width
+            array[boundsIndex + 1] = placeable.height
+        }
+        return array
+    }
+
+    private fun boundsWidth(index: Int) = placeableOffsets[(placeables.size + index) * 2]
+
+    private fun boundsHeight(index: Int) = placeableOffsets[(placeables.size + index) * 2 + 1]
 
     private val IntOffset.mainAxis
         get() = if (isVertical) y else x
@@ -303,3 +389,5 @@ constructor(
 }
 
 private const val Unset = Int.MIN_VALUE
+
+private const val ClippedItemZIndex = -1f

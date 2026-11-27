@@ -21,6 +21,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -33,12 +35,14 @@ import androidx.compose.foundation.lazy.animateItemWithTransitions
 import androidx.compose.foundation.lazy.list.BaseLazyListTestWithOrientation
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertPixels
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import kotlin.math.roundToInt
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -51,10 +55,12 @@ open class BaseLazyLayoutItemAnimationTest(orientation: Orientation) :
         enter: EnterTransition? = null,
         exit: ExitTransition? = null,
         placementSpec: FiniteAnimationSpec<IntOffset>? = null,
+        modifier: Modifier = Modifier,
     ) {
         val density = rule.density
         Box(
-            Modifier.animateItemWithTransitions(
+            modifier
+                .animateItemWithTransitions(
                     enterTransition = enter,
                     exitTransition = exit,
                     placementSpec = placementSpec,
@@ -83,6 +89,28 @@ open class BaseLazyLayoutItemAnimationTest(orientation: Orientation) :
             slideInHorizontally(animationSpec, initialOffset)
         } else {
             slideInVertically(animationSpec, initialOffset)
+        }
+
+    protected fun expandMainAxis(
+        animationSpec: FiniteAnimationSpec<IntSize>,
+        fromEnd: Boolean = true,
+        clip: Boolean = true,
+        initialSize: (fullSize: Int) -> Int = { 0 },
+    ): EnterTransition =
+        if (vertical) {
+            expandVertically(
+                animationSpec,
+                expandFrom = if (fromEnd) Alignment.Bottom else Alignment.Top,
+                clip = clip,
+                initialHeight = initialSize,
+            )
+        } else {
+            expandHorizontally(
+                animationSpec,
+                expandFrom = if (fromEnd) Alignment.End else Alignment.Start,
+                clip = clip,
+                initialWidth = initialSize,
+            )
         }
 
     protected fun slideOutCrossAxis(
