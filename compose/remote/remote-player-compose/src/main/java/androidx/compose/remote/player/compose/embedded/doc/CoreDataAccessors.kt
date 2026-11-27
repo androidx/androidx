@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.ComponentData
 import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.FontData
+import androidx.compose.remote.core.operations.MapRcDocVariables
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.SoundData
 import androidx.compose.remote.core.operations.SoundExpression
@@ -37,6 +38,7 @@ import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LoopOperation
+import androidx.compose.remote.core.operations.layout.managers.RcDocLayout
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import java.util.ArrayList
 
@@ -94,6 +96,21 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
             op.markNotDirty()
             context.incrementOpCount()
             registerImpulseResources(context, op)
+            continue
+        }
+        if (op is RcDocLayout) {
+            // RcPlayerRcDoc loads and manages the child document itself via a nested RcPlayer;
+            // calling RcDocLayout.updateVariables here would eagerly parse a second copy.
+            op.markNotDirty()
+            context.incrementOpCount()
+            applyOperationsWithoutBitmaps(context, op.list)
+            continue
+        }
+        if (op is MapRcDocVariables) {
+            // RcPlayerRcDoc collects mappings via preprocessing; applying them here would populate
+            // RcDocLayout.mMappings and allow core updateVariables passes to overwrite host state.
+            op.markNotDirty()
+            context.incrementOpCount()
             continue
         }
         if (op is VariableSupport) {
@@ -254,6 +271,32 @@ internal fun RemoteContext.findVariableId(name: String): Int {
         context.getVariableId(name)
     } catch (e: NoSuchElementException) {
         -1
+    }
+}
+
+internal fun CoreDocument.updateVariablesWithoutRcDoc(
+    context: RemoteContext,
+    operations: List<Operation>,
+) {
+    for (i in operations.indices) {
+        val op = operations[i]
+        if (op is RcDocLayout) {
+            op.markNotDirty()
+            updateVariablesWithoutRcDoc(context, op.list)
+            continue
+        }
+        if (op is MapRcDocVariables) {
+            op.markNotDirty()
+            continue
+        }
+        if (op.isDirty && op is VariableSupport) {
+            op.markNotDirty()
+            op.updateVariables(context)
+            op.apply(context)
+        }
+        if (op is Container) {
+            updateVariablesWithoutRcDoc(context, op.list)
+        }
     }
 }
 

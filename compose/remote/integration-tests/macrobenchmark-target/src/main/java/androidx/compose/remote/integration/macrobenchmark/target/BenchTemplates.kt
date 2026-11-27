@@ -17,6 +17,7 @@
 package androidx.compose.remote.integration.macrobenchmark.target
 
 import android.content.Context
+import android.graphics.Color as AndroidColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -40,6 +41,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RcResolver
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
+import androidx.compose.remote.core.operations.layout.managers.CoreText
+import androidx.compose.remote.core.operations.layout.managers.RowLayout
+import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteAllStatesLayout
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -70,6 +80,10 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.creation.modifiers.RoundedRectShape
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.compose.embedded.RcDocumentResolver
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -89,6 +103,123 @@ enum class BenchTemplate(val key: String) {
     Poll("poll"),
     Live("live"),
     Stateful("stateful"),
+    EmbeddedDoc("embeddedDoc"),
+}
+
+private const val EMBEDDED_BADGE_URL = "bench://badge"
+
+internal fun createFeedRcResolver(): RcResolver {
+    val badgeBytes = buildEmbeddedFeedBadgeBytes()
+    return RcResolver { url -> if (url == EMBEDDED_BADGE_URL) badgeBytes else null }
+}
+
+internal fun createFeedDocumentResolver(): RcDocumentResolver {
+    val badgeBytes = buildEmbeddedFeedBadgeBytes()
+    return RcDocumentResolver { url -> if (url == EMBEDDED_BADGE_URL) badgeBytes else null }
+}
+
+private fun buildEmbeddedFeedBadgeBytes(): ByteArray {
+    val writer =
+        RemoteComposeWriterAndroid(
+            180,
+            72,
+            "BenchEmbeddedBadge",
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            AndroidxRcPlatformServices(),
+        )
+    val labelId = writer.addNamedString("label", "EMBED")
+    writer.root {
+        writer.box(
+            RecordingModifier()
+                .fillMaxSize()
+                .clip(RoundedRectShape(16f, 16f, 16f, 16f))
+                .background(0xFF1D4ED8.toInt())
+                .padding(8),
+            BoxLayout.CENTER,
+            BoxLayout.CENTER,
+        ) {
+            writer.textComponent(
+                RecordingModifier(),
+                labelId,
+                AndroidColor.WHITE,
+                26f,
+                0,
+                600f,
+                null,
+                CoreText.TEXT_ALIGN_CENTER,
+                CoreText.OVERFLOW_CLIP,
+                1,
+            ) {}
+        }
+    }
+    return writer.encodeToByteArray()
+}
+
+private fun buildEmbeddedFeedCardBytes(): ByteArray {
+    val writer =
+        RemoteComposeWriterAndroid(
+            1000,
+            280,
+            "BenchEmbeddedCard",
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            AndroidxRcPlatformServices(),
+        )
+    val titleId = writer.addText("Embedded Doc Card")
+    val subtitleId = writer.addText("Feed item with nested rcDoc badge")
+    val badgeTextId = writer.addNamedString("badgeLabel", "NESTED")
+    writer.root {
+        writer.row(
+            RecordingModifier()
+                .fillMaxSize()
+                .padding(24, 12, 24, 12)
+                .clip(RoundedRectShape(24f, 24f, 24f, 24f))
+                .background(0xFFF3F4F6.toInt())
+                .padding(24),
+            RowLayout.START,
+            RowLayout.CENTER,
+        ) {
+            writer.column(
+                RecordingModifier().horizontalWeight(1f),
+                ColumnLayout.START,
+                ColumnLayout.CENTER,
+            ) {
+                writer.textComponent(
+                    RecordingModifier(),
+                    titleId,
+                    0xFF111827.toInt(),
+                    34f,
+                    0,
+                    600f,
+                    null,
+                    CoreText.TEXT_ALIGN_LEFT,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                ) {}
+                writer.textComponent(
+                    RecordingModifier().padding(0, 8, 0, 0),
+                    subtitleId,
+                    0xFF4B5563.toInt(),
+                    26f,
+                    0,
+                    400f,
+                    null,
+                    CoreText.TEXT_ALIGN_LEFT,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                ) {}
+            }
+            val docId = writer.rcDoc(EMBEDDED_BADGE_URL, RecordingModifier().size(180, 72))
+            writer.mapRcDocVariables(
+                docId,
+                RemoteComposeWriter.MAP_FORWARD,
+                badgeTextId,
+                "label",
+            )
+        }
+    }
+    return writer.encodeToByteArray()
 }
 
 internal val FEED_CARD_HEIGHT = 112.dp
@@ -102,12 +233,16 @@ internal suspend fun loadFeedTemplates(
     val result = LinkedHashMap<BenchTemplate, ByteArray>()
     for (template in templates.distinct()) {
         result[template] =
-            BenchDocuments.getOrCapture(
-                context = context,
-                name = "feed_${template.key}",
-                globalScope = globalScope,
-            ) {
-                RemoteTemplateContent(template, globalScope = globalScope)
+            if (template == BenchTemplate.EmbeddedDoc) {
+                buildEmbeddedFeedCardBytes()
+            } else {
+                BenchDocuments.getOrCapture(
+                    context = context,
+                    name = "feed_${template.key}",
+                    globalScope = globalScope,
+                ) {
+                    RemoteTemplateContent(template, globalScope = globalScope)
+                }
             }
     }
     return result
@@ -117,7 +252,8 @@ internal suspend fun loadFeedTemplates(
 @Composable
 private fun RemoteTemplateContent(template: BenchTemplate, globalScope: Boolean) {
     when (template) {
-        BenchTemplate.AppCard -> RemoteAppCard()
+        BenchTemplate.AppCard,
+        BenchTemplate.EmbeddedDoc -> RemoteAppCard()
         BenchTemplate.Headline -> RemoteHeadlineCard()
         BenchTemplate.Poll -> RemotePollCard(liveBadge = false, globalScope = globalScope)
         BenchTemplate.Live -> RemotePollCard(liveBadge = true, globalScope = globalScope)
@@ -353,7 +489,8 @@ internal fun ComposeTwinCard(
     stateIndex: Int,
 ) {
     when (template) {
-        BenchTemplate.AppCard -> {
+        BenchTemplate.AppCard,
+        BenchTemplate.EmbeddedDoc -> {
             Row(
                 modifier =
                     Modifier.fillMaxWidth()

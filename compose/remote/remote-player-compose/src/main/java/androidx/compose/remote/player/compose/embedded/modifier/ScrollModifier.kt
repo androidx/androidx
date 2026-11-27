@@ -53,6 +53,9 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 /**
  * The even-notch count of a scroll, or 0 for free scrolling. The scroll's `TouchExpression` (a
@@ -120,9 +123,46 @@ internal fun Modifier.scroll(op: ScrollModifierOperation): Modifier {
             if (raw.isReference) raw.id else -1
         }
     if (positionId > 0) {
-        LaunchedEffect(scrollState, positionId) {
+        val lastPublishedPx =
+            remember(scrollState, positionId, remoteContext) { intArrayOf(scrollState.value) }
+        LaunchedEffect(scrollState, positionId, remoteContext) {
             snapshotFlow { scrollState.value }
-                .collect { px -> remoteContext.overrideFloat(positionId, px.toFloat()) }
+                .collect { px ->
+                    lastPublishedPx[0] = px
+                    remoteContext.overrideFloat(positionId, px.toFloat())
+                }
+        }
+        // Apply programmatic scroll overrides (ValueFloatChange, ValueFloatExpressionChange,
+        // host float overrides, or rcDoc variable mappings) to Compose's ScrollState.
+        LaunchedEffect(scrollState, positionId, remoteContext) {
+            snapshotFlow { remoteContext.getFloat(positionId) }
+                .collect { raw ->
+                    if (!raw.isFinite()) return@collect
+                    val clampedPx = raw.roundToInt().coerceIn(0, scrollState.maxValue)
+                    val isEcho =
+                        raw == lastPublishedPx[0].toFloat() &&
+                            lastPublishedPx[0] == scrollState.value
+                    if (isEcho) return@collect
+
+                    var interruptedByHigherPriority = false
+                    if (clampedPx != scrollState.value) {
+                        try {
+                            scrollState.scrollTo(clampedPx)
+                        } catch (e: CancellationException) {
+                            // Rethrow if this LaunchedEffect was cancelled; swallow only
+                            // MutatorMutex priority cancellations (e.g. an active user drag/fling).
+                            currentCoroutineContext().ensureActive()
+                            interruptedByHigherPriority = true
+                        }
+                    }
+                    if (!interruptedByHigherPriority) {
+                        val actualPx = scrollState.value
+                        lastPublishedPx[0] = actualPx
+                        if (raw != actualPx.toFloat()) {
+                            remoteContext.overrideFloat(positionId, actualPx.toFloat())
+                        }
+                    }
+                }
         }
     }
 

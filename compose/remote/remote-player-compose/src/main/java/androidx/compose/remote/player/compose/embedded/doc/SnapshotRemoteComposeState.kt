@@ -22,7 +22,10 @@ import android.graphics.Bitmap
 import androidx.collection.IntSet
 import androidx.collection.emptyIntSet
 import androidx.compose.remote.core.RemoteComposeState
+import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.core.operations.MapRcDocVariables
+import androidx.compose.remote.core.operations.layout.managers.RcDocLayout
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.player.compose.embedded.resources.setDimensions
 import androidx.compose.runtime.getValue
@@ -69,6 +72,16 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
      * the map, including that same draw, on every frame.
      */
     internal var streamFloatIds: IntSet = emptyIntSet()
+
+    override fun listenToVar(id: Int, variableSupport: VariableSupport) {
+        // RcPlayerRcDoc manages child documents and variable mappings reactively in Compose;
+        // skipping core listener registration prevents CoreDocument.updateVariables from parsing a
+        // phantom child copy or overwriting mapped variables with stale defaults.
+        if (variableSupport is RcDocLayout || variableSupport is MapRcDocVariables) {
+            return
+        }
+        super.listenToVar(id, variableSupport)
+    }
 
     // --- Float ---
     override fun getFloat(id: Int): Float {

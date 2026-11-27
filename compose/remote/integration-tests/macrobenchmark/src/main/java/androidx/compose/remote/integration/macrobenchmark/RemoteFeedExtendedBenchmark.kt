@@ -62,6 +62,20 @@ class RemoteFeedExtendedBenchmark {
     fun f1_mixed_empty() = runFeed("empty", defaultCompilation) { putExtra("templates", "mixed") }
 
     @Test
+    fun f1_embeddedDoc_embedded() =
+        runFeed("embedded", defaultCompilation) {
+            putExtra("templates", "embeddedDoc")
+            putExtra("count", 200)
+        }
+
+    @Test
+    fun f1_embeddedDoc_view() =
+        runFeed("view", defaultCompilation) {
+            putExtra("templates", "embeddedDoc")
+            putExtra("count", 200)
+        }
+
+    @Test
     fun f1_mixed_embedded_none() =
         runFeed("embedded", CompilationMode.None()) { putExtra("templates", "mixed") }
 
