@@ -128,7 +128,9 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
         schema.idEncoding?.let { enc ->
             w.block("namespace IdEncoding", close = "} // namespace IdEncoding") {
                 line("inline constexpr int32_t NAN_PREFIX = ${enc.nanPrefix};")
+                line("inline constexpr int32_t NAN_EXPONENT = ${enc.nanExponent};")
                 line("inline constexpr int32_t PAYLOAD_MASK = ${enc.payloadMask};")
+                line("inline constexpr int32_t NO_ID = ${enc.noId};")
                 line("inline constexpr int32_t START_ID = ${enc.startId};")
                 line("inline constexpr int32_t REGION_MASK = ${enc.regionMask};")
                 line("inline constexpr int32_t REGION_SUB_ID_MASK = ${enc.regionSubIdMask};")
@@ -143,10 +145,10 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 line("inline constexpr int32_t MACRO_LOCAL_START_ID = ${enc.macroLocalStartId};")
                 line("inline constexpr int32_t MACRO_LOCAL_END_ID = ${enc.macroLocalEndId};")
                 line(
-                    "inline bool isNanBits(int32_t bits) { return (bits & NAN_PREFIX) == NAN_PREFIX && (bits & PAYLOAD_MASK) != 0; }"
+                    "inline bool isNanBits(int32_t bits) { return (bits & NAN_EXPONENT) == NAN_EXPONENT && (bits & PAYLOAD_MASK) != 0; }"
                 )
                 line(
-                    "inline int32_t idFromNanBits(int32_t bits) { return isNanBits(bits) ? (bits & PAYLOAD_MASK) : -1; }"
+                    "inline int32_t idFromNanBits(int32_t bits) { return isNanBits(bits) ? (bits & PAYLOAD_MASK) : NO_ID; }"
                 )
                 line(
                     "inline int32_t asNanBits(int32_t id) { return (id & PAYLOAD_MASK) | NAN_PREFIX; }"
@@ -590,7 +592,9 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
         schema.idEncoding?.let { enc ->
             w.block("pub mod id_encoding") {
                 line("pub const NAN_PREFIX: i32 = ${enc.nanPrefix};")
+                line("pub const NAN_EXPONENT: i32 = ${enc.nanExponent};")
                 line("pub const PAYLOAD_MASK: i32 = ${enc.payloadMask};")
+                line("pub const NO_ID: i32 = ${enc.noId};")
                 line("pub const START_ID: i32 = ${enc.startId};")
                 line("pub const REGION_MASK: i32 = ${enc.regionMask};")
                 line("pub const REGION_SUB_ID_MASK: i32 = ${enc.regionSubIdMask};")
@@ -605,10 +609,10 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 line("pub const MACRO_LOCAL_START_ID: i32 = ${enc.macroLocalStartId};")
                 line("pub const MACRO_LOCAL_END_ID: i32 = ${enc.macroLocalEndId};")
                 line(
-                    "pub fn is_nan_bits(bits: i32) -> bool { (bits & NAN_PREFIX) == NAN_PREFIX && (bits & PAYLOAD_MASK) != 0 }"
+                    "pub fn is_nan_bits(bits: i32) -> bool { (bits & NAN_EXPONENT) == NAN_EXPONENT && (bits & PAYLOAD_MASK) != 0 }"
                 )
                 line(
-                    "pub fn id_from_nan_bits(bits: i32) -> i32 { if is_nan_bits(bits) { bits & PAYLOAD_MASK } else { -1 } }"
+                    "pub fn id_from_nan_bits(bits: i32) -> i32 { if is_nan_bits(bits) { bits & PAYLOAD_MASK } else { NO_ID } }"
                 )
                 line("pub fn as_nan_bits(id: i32) -> i32 { (id & PAYLOAD_MASK) | NAN_PREFIX }")
                 line("pub fn is_dereferenced(raw: i32) -> bool { (raw & PTR_DEREFERENCE) != 0 }")
@@ -972,7 +976,9 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
             w.line("class IdEncoding:")
             w.indent {
                 w.line("NAN_PREFIX = ${enc.nanPrefix}")
+                w.line("NAN_EXPONENT = ${enc.nanExponent}")
                 w.line("PAYLOAD_MASK = ${enc.payloadMask}")
+                w.line("NO_ID = ${enc.noId}")
                 w.line("START_ID = ${enc.startId}")
                 w.line("REGION_MASK = ${enc.regionMask}")
                 w.line("REGION_SUB_ID_MASK = ${enc.regionSubIdMask}")
@@ -990,14 +996,14 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 w.line("def is_nan_bits(bits: int) -> bool:")
                 w.indent {
                     w.line(
-                        "return ((bits & 0xFFFFFFFF) & (IdEncoding.NAN_PREFIX & 0xFFFFFFFF)) == (IdEncoding.NAN_PREFIX & 0xFFFFFFFF) and (bits & IdEncoding.PAYLOAD_MASK) != 0"
+                        "return ((bits & 0xFFFFFFFF) & IdEncoding.NAN_EXPONENT) == IdEncoding.NAN_EXPONENT and (bits & IdEncoding.PAYLOAD_MASK) != 0"
                     )
                 }
                 w.line("@staticmethod")
                 w.line("def id_from_nan_bits(bits: int) -> int:")
                 w.indent {
                     w.line(
-                        "return (bits & IdEncoding.PAYLOAD_MASK) if IdEncoding.is_nan_bits(bits) else -1"
+                        "return (bits & IdEncoding.PAYLOAD_MASK) if IdEncoding.is_nan_bits(bits) else IdEncoding.NO_ID"
                     )
                 }
                 w.line("@staticmethod")
@@ -1494,7 +1500,9 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
         schema.idEncoding?.let { enc ->
             w.block("public enum IdEncoding") {
                 line("public static let NAN_PREFIX: Int32 = ${enc.nanPrefix}")
+                line("public static let NAN_EXPONENT: Int32 = ${enc.nanExponent}")
                 line("public static let PAYLOAD_MASK: Int32 = ${enc.payloadMask}")
+                line("public static let NO_ID: Int32 = ${enc.noId}")
                 line("public static let START_ID: Int32 = ${enc.startId}")
                 line("public static let REGION_MASK: Int32 = ${enc.regionMask}")
                 line("public static let REGION_SUB_ID_MASK: Int32 = ${enc.regionSubIdMask}")
@@ -1509,10 +1517,10 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 line("public static let MACRO_LOCAL_START_ID: Int32 = ${enc.macroLocalStartId}")
                 line("public static let MACRO_LOCAL_END_ID: Int32 = ${enc.macroLocalEndId}")
                 line(
-                    "public static func isNanBits(_ bits: Int32) -> Bool { (bits & NAN_PREFIX) == NAN_PREFIX && (bits & PAYLOAD_MASK) != 0 }"
+                    "public static func isNanBits(_ bits: Int32) -> Bool { (bits & NAN_EXPONENT) == NAN_EXPONENT && (bits & PAYLOAD_MASK) != 0 }"
                 )
                 line(
-                    "public static func idFromNanBits(_ bits: Int32) -> Int32 { isNanBits(bits) ? (bits & PAYLOAD_MASK) : -1 }"
+                    "public static func idFromNanBits(_ bits: Int32) -> Int32 { isNanBits(bits) ? (bits & PAYLOAD_MASK) : NO_ID }"
                 )
                 line(
                     "public static func asNanBits(_ id: Int32) -> Int32 { (id & PAYLOAD_MASK) | NAN_PREFIX }"
@@ -1907,7 +1915,9 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
         schema.idEncoding?.let { enc ->
             w.block("export const IdEncoding =", close = "} as const;") {
                 line("NAN_PREFIX: ${enc.nanPrefix},")
+                line("NAN_EXPONENT: ${enc.nanExponent},")
                 line("PAYLOAD_MASK: ${enc.payloadMask},")
+                line("NO_ID: ${enc.noId},")
                 line("START_ID: ${enc.startId},")
                 line("REGION_MASK: ${enc.regionMask},")
                 line("REGION_SUB_ID_MASK: ${enc.regionSubIdMask},")
@@ -1922,10 +1932,10 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 line("MACRO_LOCAL_START_ID: ${enc.macroLocalStartId},")
                 line("MACRO_LOCAL_END_ID: ${enc.macroLocalEndId},")
                 line(
-                    "isNanBits(bits: number): boolean { return ((bits & ${enc.nanPrefix}) | 0) === ${enc.nanPrefix} && (bits & ${enc.payloadMask}) !== 0; },"
+                    "isNanBits(bits: number): boolean { return ((bits & ${enc.nanExponent}) | 0) === ${enc.nanExponent} && (bits & ${enc.payloadMask}) !== 0; },"
                 )
                 line(
-                    "idFromNanBits(bits: number): number { return IdEncoding.isNanBits(bits) ? (bits & ${enc.payloadMask}) : -1; },"
+                    "idFromNanBits(bits: number): number { return IdEncoding.isNanBits(bits) ? (bits & ${enc.payloadMask}) : ${enc.noId}; },"
                 )
                 line(
                     "asNanBits(id: number): number { return ((id & ${enc.payloadMask}) | ${enc.nanPrefix}) | 0; },"

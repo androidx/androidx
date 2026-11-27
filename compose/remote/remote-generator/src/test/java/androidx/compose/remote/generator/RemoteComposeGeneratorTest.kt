@@ -5132,10 +5132,15 @@ class RemoteComposeGeneratorTest {
                             int32_t nanBits = IdEncoding::asNanBits(42);
                             assert(IdEncoding::isNanBits(nanBits));
                             assert(IdEncoding::idFromNanBits(nanBits) == 42);
+                            assert(IdEncoding::isNanBits(0x7F800005));
+                            assert(IdEncoding::idFromNanBits(0x7F800005) == 5);
+                            assert(!IdEncoding::isNanBits(0x7F800000));
+                            assert(!IdEncoding::isNanBits(0x7FC00000));
+                            assert(IdEncoding::idFromNanBits(0x7FC00000) == IdEncoding::NO_ID);
                             assert(!IdEncoding::isNanBits(static_cast<int32_t>(0xFF800000u)));
-                            assert(IdEncoding::idFromNanBits(static_cast<int32_t>(0xFF800000u)) == -1);
+                            assert(IdEncoding::idFromNanBits(static_cast<int32_t>(0xFF800000u)) == IdEncoding::NO_ID);
                             assert(!IdEncoding::isNanBits(static_cast<int32_t>(0xFFC00000u)));
-                            assert(IdEncoding::idFromNanBits(static_cast<int32_t>(0xFFC00000u)) == -1);
+                            assert(IdEncoding::idFromNanBits(static_cast<int32_t>(0xFFC00000u)) == IdEncoding::NO_ID);
                             assert(!IdEncoding::isDereferenced(42));
                             assert(IdEncoding::directId(42) == 42);
                             assert(IdEncoding::pointerId(IdEncoding::PTR_DEREFERENCE | 7) == 7);
@@ -5260,10 +5265,15 @@ class RemoteComposeGeneratorTest {
                         let nan_bits = id_encoding::as_nan_bits(42);
                         assert!(id_encoding::is_nan_bits(nan_bits));
                         assert_eq!(id_encoding::id_from_nan_bits(nan_bits), 42);
+                        assert!(id_encoding::is_nan_bits(0x7F800005));
+                        assert_eq!(id_encoding::id_from_nan_bits(0x7F800005), 5);
+                        assert!(!id_encoding::is_nan_bits(0x7F800000));
+                        assert!(!id_encoding::is_nan_bits(0x7FC00000));
+                        assert_eq!(id_encoding::id_from_nan_bits(0x7FC00000), id_encoding::NO_ID);
                         assert!(!id_encoding::is_nan_bits(0xFF800000u32 as i32));
-                        assert_eq!(id_encoding::id_from_nan_bits(0xFF800000u32 as i32), -1);
+                        assert_eq!(id_encoding::id_from_nan_bits(0xFF800000u32 as i32), id_encoding::NO_ID);
                         assert!(!id_encoding::is_nan_bits(0xFFC00000u32 as i32));
-                        assert_eq!(id_encoding::id_from_nan_bits(0xFFC00000u32 as i32), -1);
+                        assert_eq!(id_encoding::id_from_nan_bits(0xFFC00000u32 as i32), id_encoding::NO_ID);
                         assert_eq!(id_encoding::direct_id(42), Some(42));
                         assert_eq!(id_encoding::pointer_id(id_encoding::PTR_DEREFERENCE | 7), Some(7));
                         assert!(remote_context_ids::is_time(remote_context_ids::ID_CONTINUOUS_SEC));
@@ -5374,10 +5384,15 @@ class RemoteComposeGeneratorTest {
                     nan_bits = IdEncoding.as_nan_bits(42)
                     assert IdEncoding.is_nan_bits(nan_bits)
                     assert IdEncoding.id_from_nan_bits(nan_bits) == 42
+                    assert IdEncoding.is_nan_bits(0x7F800005)
+                    assert IdEncoding.id_from_nan_bits(0x7F800005) == 5
+                    assert not IdEncoding.is_nan_bits(0x7F800000)
+                    assert not IdEncoding.is_nan_bits(0x7FC00000)
+                    assert IdEncoding.id_from_nan_bits(0x7FC00000) == IdEncoding.NO_ID
                     assert not IdEncoding.is_nan_bits(-0x800000)
-                    assert IdEncoding.id_from_nan_bits(-0x800000) == -1
+                    assert IdEncoding.id_from_nan_bits(-0x800000) == IdEncoding.NO_ID
                     assert not IdEncoding.is_nan_bits(-0x400000)
-                    assert IdEncoding.id_from_nan_bits(-0x400000) == -1
+                    assert IdEncoding.id_from_nan_bits(-0x400000) == IdEncoding.NO_ID
                     assert IdEncoding.direct_id(42) == 42
                     assert IdEncoding.pointer_id(IdEncoding.PTR_DEREFERENCE | 7) == 7
                     assert RemoteContextIds.is_time(RemoteContextIds.ID_CONTINUOUS_SEC)
@@ -5483,10 +5498,15 @@ class RemoteComposeGeneratorTest {
                         const nanBits = IdEncoding.asNanBits(42);
                         assert.equal(IdEncoding.isNanBits(nanBits), true);
                         assert.equal(IdEncoding.idFromNanBits(nanBits), 42);
+                        assert.equal(IdEncoding.isNanBits(0x7F800005), true);
+                        assert.equal(IdEncoding.idFromNanBits(0x7F800005), 5);
+                        assert.equal(IdEncoding.isNanBits(0x7F800000), false);
+                        assert.equal(IdEncoding.isNanBits(0x7FC00000), false);
+                        assert.equal(IdEncoding.idFromNanBits(0x7FC00000), IdEncoding.NO_ID);
                         assert.equal(IdEncoding.isNanBits(0xFF800000 | 0), false);
-                        assert.equal(IdEncoding.idFromNanBits(0xFF800000 | 0), -1);
+                        assert.equal(IdEncoding.idFromNanBits(0xFF800000 | 0), IdEncoding.NO_ID);
                         assert.equal(IdEncoding.isNanBits(0xFFC00000 | 0), false);
-                        assert.equal(IdEncoding.idFromNanBits(0xFFC00000 | 0), -1);
+                        assert.equal(IdEncoding.idFromNanBits(0xFFC00000 | 0), IdEncoding.NO_ID);
                         assert.equal(IdEncoding.directId(42), 42);
                         assert.equal(IdEncoding.pointerId(IdEncoding.PTR_DEREFERENCE | 7), 7);
                         assert.equal(RemoteContextIds.isTime(RemoteContextIds.ID_CONTINUOUS_SEC), true);

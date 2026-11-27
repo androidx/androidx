@@ -241,6 +241,19 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
                         .build()
                 )
                 .addProperty(
+                    PropertySpec.builder("NAN_EXPONENT", INT, KModifier.PRIVATE, KModifier.CONST)
+                        .initializer(
+                            "%L",
+                            "0x${(schema.idEncoding?.nanExponent ?: 0x7F800000).toUInt().toString(16).uppercase()}",
+                        )
+                        .build()
+                )
+                .addProperty(
+                    PropertySpec.builder("NO_ID", INT, KModifier.PRIVATE, KModifier.CONST)
+                        .initializer("%L", schema.idEncoding?.noId ?: -1)
+                        .build()
+                )
+                .addProperty(
                     PropertySpec.builder("PAYLOAD_MASK", INT, KModifier.PRIVATE, KModifier.CONST)
                         .initializer("%L", "0x3FFFFF")
                         .build()
@@ -316,7 +329,7 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
                 .addParameter("token", FLOAT)
                 .returns(BOOLEAN)
                 .addStatement("val bits = token.toRawBits()")
-                .addStatement("if ((bits and NAN_PREFIX) != NAN_PREFIX) return false")
+                .addStatement("if ((bits and NAN_EXPONENT) != NAN_EXPONENT) return false")
                 .addStatement("val id = (bits and PAYLOAD_MASK) - OFFSET")
                 .addStatement("return id in 1..MAX_ID && id != 68 && id != 69")
                 .build()
@@ -331,7 +344,7 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
                 .addModifiers(KModifier.PUBLIC)
                 .addParameter("token", FLOAT)
                 .returns(INT)
-                .addStatement("if (!isOperator(token)) return -1")
+                .addStatement("if (!isOperator(token)) return NO_ID")
                 .addStatement("return (token.toRawBits() and PAYLOAD_MASK) - OFFSET")
                 .build()
         )
@@ -347,7 +360,7 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
                 .addParameter("apiLevel", INT)
                 .returns(BOOLEAN)
                 .addStatement("val id = operatorId(token)")
-                .addStatement("if (id == -1) return true")
+                .addStatement("if (id == NO_ID) return true")
                 .addStatement(
                     "return if (apiLevel <= 6) id <= API_LEVEL_6_MAX_ID else id <= MAX_ID"
                 )

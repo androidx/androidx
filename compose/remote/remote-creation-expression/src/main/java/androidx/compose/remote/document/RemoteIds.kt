@@ -108,11 +108,19 @@ public value class RemoteArrayId(public val id: Int) {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object NanEncoding {
-    /** Negative NaN prefix (`0xFF800000`) used for all NaN-boxed IDs and RPN tokens. */
+    /** Negative NaN prefix (`0xFF800000`) used when encoding NaN-boxed IDs and RPN tokens. */
     public const val NAN_PREFIX: Int = IdEncoding.NAN_PREFIX
+
+    /**
+     * IEEE-754 exponent mask (`0x7F800000`) used when decoding NaN-boxed IDs regardless of sign.
+     */
+    public const val NAN_EXPONENT: Int = IdEncoding.NAN_EXPONENT
 
     /** 22-bit payload mask (`0x003FFFFF`) matching `Utils.idFromNan`. */
     public const val ID_MASK: Int = IdEncoding.PAYLOAD_MASK
+
+    /** Sentinel integer (`-1`) representing the absence of an ID. */
+    public const val NO_ID: Int = IdEncoding.NO_ID
 
     /** 20-bit sub-ID mask (`0x000FFFFF`) within a `NanMap` region. */
     public const val REGION_SUB_ID_MASK: Int = IdEncoding.REGION_SUB_ID_MASK
@@ -144,18 +152,18 @@ public object NanEncoding {
     }
 
     internal fun isNanBits(rawBits: Int): Boolean =
-        (rawBits and NAN_PREFIX) == NAN_PREFIX && (rawBits and ID_MASK) != 0
+        (rawBits and NAN_EXPONENT) == NAN_EXPONENT && (rawBits and ID_MASK) != 0
 
     internal fun idFromNanBits(rawBits: Int): Int =
-        if (isNanBits(rawBits)) rawBits and ID_MASK else -1
+        if (isNanBits(rawBits)) rawBits and ID_MASK else NO_ID
 
     /** Encodes a 22-bit [id] (`1..0x3FFFFF`) into a NaN-boxed [Float]. */
     @JvmStatic public fun asNan(id: Int): Float = Float.fromBits(asNanBits(id))
 
     /**
-     * Returns true if [value] carries the RemoteCompose NaN-boxed ID prefix (`0xFF800000`) and a
-     * non-zero 22-bit ID payload (excluding negative infinity `0xFF800000` and negative quiet NaN
-     * `0xFFC00000`).
+     * Returns true if [value] is an IEEE-754 NaN (either sign bit) with a non-zero 22-bit ID
+     * payload (excluding infinities `0x7F800000` / `0xFF800000` and zero-payload quiet NaNs
+     * `0x7FC00000` / `0xFFC00000`).
      */
     @JvmStatic public fun isNan(value: Float): Boolean = isNanBits(value.toRawBits())
 
@@ -166,7 +174,7 @@ public object NanEncoding {
     @JvmStatic
     public fun isArrayNan(value: Float): Boolean {
         val id = idFromNan(value)
-        return id != -1 && (id and 0x300000) == REGION_ARRAY
+        return id != NO_ID && (id and 0x300000) == REGION_ARRAY
     }
 
     /** Encodes a 32-bit integer variable [id] into a `Long` (`id + 0x100000000L`). */

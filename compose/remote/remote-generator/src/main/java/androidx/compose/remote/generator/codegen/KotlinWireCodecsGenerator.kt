@@ -210,7 +210,9 @@ internal class KotlinWireCodecsGenerator(private val schema: OperationSchema) {
         val intConsts =
             listOf(
                 "NAN_PREFIX" to enc.nanPrefix,
+                "NAN_EXPONENT" to enc.nanExponent,
                 "PAYLOAD_MASK" to enc.payloadMask,
+                "NO_ID" to enc.noId,
                 "START_ID" to enc.startId,
                 "REGION_MASK" to enc.regionMask,
                 "REGION_SUB_ID_MASK" to enc.regionSubIdMask,
