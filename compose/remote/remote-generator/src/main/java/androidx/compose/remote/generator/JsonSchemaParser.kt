@@ -181,6 +181,14 @@ public object JsonSchemaParser {
             }
         }
 
+        val visibilityConstants = linkedMapOf<String, Int>()
+        if (root.has("visibilityConstants")) {
+            val vcObj = root.getJSONObject("visibilityConstants")
+            for (constKey in vcObj.keys()) {
+                visibilityConstants[constKey] = vcObj.getInt(constKey)
+            }
+        }
+
         val idEncoding =
             if (root.has("idEncoding")) {
                 val obj = root.getJSONObject("idEncoding")
@@ -199,6 +207,8 @@ public object JsonSchemaParser {
                     valueMask = obj.getInt("valueMask"),
                     macroLocalStartId = obj.getInt("macroLocalStartId"),
                     macroLocalEndId = obj.getInt("macroLocalEndId"),
+                    nanExponent = obj.optInt("nanExponent", 0x7F800000),
+                    noId = obj.optInt("noId", -1),
                 )
             } else null
 
@@ -327,6 +337,8 @@ public object JsonSchemaParser {
 
                 val opCodeName =
                     if (opObj.has("opCodeName")) opObj.getString("opCodeName") else null
+                val javaClassName =
+                    if (opObj.has("javaClass")) opObj.getString("javaClass") else null
 
                 val restrictToLibraryGroup = opObj.optBoolean("restrictToLibraryGroup", true)
                 val encoding = if (opObj.has("encoding")) opObj.getString("encoding") else null
@@ -406,6 +418,29 @@ public object JsonSchemaParser {
                         sparseParameters = sparseParameters,
                         allowedChildren = allowedChildren,
                         conditionalSkip = conditionalSkip,
+                        javaClassName = javaClassName,
+                    )
+                )
+            }
+        }
+
+        val reservedOpcodes = mutableListOf<SchemaReservedOpcode>()
+        if (root.has("reservedOpcodes")) {
+            val resArray = root.getJSONArray("reservedOpcodes")
+            for (i in 0 until resArray.length()) {
+                val rObj = resArray.getJSONObject(i)
+                val rProfiles =
+                    if (rObj.has("profiles")) {
+                        val pArr = rObj.getJSONArray("profiles")
+                        (0 until pArr.length()).map { pArr.getString(it) }
+                    } else emptyList()
+                reservedOpcodes.add(
+                    SchemaReservedOpcode(
+                        id = rObj.getInt("id"),
+                        name = rObj.getString("name"),
+                        opCodeName = rObj.getString("opCodeName"),
+                        profiles = rProfiles,
+                        description = rObj.optString("description", ""),
                     )
                 )
             }
@@ -424,9 +459,11 @@ public object JsonSchemaParser {
             pathCommands = pathCommands,
             systemVariables = systemVariables,
             headerConstants = headerConstants,
+            visibilityConstants = visibilityConstants,
             idEncoding = idEncoding,
             animationSpec = animationSpec,
             pathEffects = pathEffects,
+            reservedOpcodes = reservedOpcodes,
         )
     }
 
@@ -476,12 +513,18 @@ public object JsonSchemaParser {
                 val structObj = structsObj.getJSONObject(structName)
                 if (structObj.has("fields")) {
                     val sfArray = structObj.getJSONArray("fields")
+                    val fieldIndexByName =
+                        (0 until sfArray.length()).associate {
+                            sfArray.getJSONObject(it).getString("name") to it
+                        }
                     for (j in 0 until sfArray.length()) {
                         validateField(
                             owner = "Struct $structName",
                             f = sfArray.getJSONObject(j),
                             declaredTypes = declaredTypes,
                             errors = errors,
+                            fieldIndex = j,
+                            fieldIndexByName = fieldIndexByName,
                         )
                     }
                 }
@@ -492,12 +535,19 @@ public object JsonSchemaParser {
         val opsArray = root.getJSONArray("operations")
         val seenIds = mutableSetOf<Int>()
         val seenNames = mutableSetOf<String>()
+        val seenOpCodeNames = mutableSetOf<String>()
         var prevId = -1
 
         for (i in 0 until opsArray.length()) {
             val op = opsArray.getJSONObject(i)
             val id = op.getInt("id")
             val name = op.getString("name")
+            val opCodeName =
+                if (op.has("opCodeName")) op.getString("opCodeName")
+                else
+                    SchemaOperation.ID_TO_OPCODE_NAME[id]
+                        ?: SchemaOperation.toScreamingSnakeCase(name)
+            seenOpCodeNames.add(opCodeName)
 
             if (id !in 0..255) {
                 errors.add("Operation $name has invalid ID $id (must be 0..255)")
@@ -513,15 +563,27 @@ public object JsonSchemaParser {
             if (!seenNames.add(name)) {
                 errors.add("Duplicate operation name: $name")
             }
+            if (op.has("javaClass")) {
+                val jc = op.opt("javaClass") as? String
+                if (jc.isNullOrBlank()) {
+                    errors.add("Operation $name has blank or non-string javaClass")
+                }
+            }
 
             if (op.has("fields")) {
                 val fArray = op.getJSONArray("fields")
+                val fieldIndexByName =
+                    (0 until fArray.length()).associate {
+                        fArray.getJSONObject(it).getString("name") to it
+                    }
                 for (j in 0 until fArray.length()) {
                     validateField(
                         owner = "Operation $name",
                         f = fArray.getJSONObject(j),
                         declaredTypes = declaredTypes,
                         errors = errors,
+                        fieldIndex = j,
+                        fieldIndexByName = fieldIndexByName,
                     )
                 }
             }
@@ -733,10 +795,80 @@ public object JsonSchemaParser {
             }
         }
 
+        // 10. Reserved opcodes validation
+        if (root.has("reservedOpcodes")) {
+            val resArr = root.getJSONArray("reservedOpcodes")
+            val resIds = mutableSetOf<Int>()
+            val resNames = mutableSetOf<String>()
+            val resOpCodeNames = mutableSetOf<String>()
+            var prevResId = -1
+            for (i in 0 until resArr.length()) {
+                val rObj = resArr.getJSONObject(i)
+                val rId = (rObj.opt("id") as? Number)?.toInt()
+                val rName = rObj.opt("name") as? String
+                if (rId == null) {
+                    errors.add("Reserved opcode at index $i must specify an integer id")
+                    continue
+                }
+                if (rName.isNullOrBlank()) {
+                    errors.add("Reserved opcode ($rId) at index $i must specify a non-blank name")
+                    continue
+                }
+                if (rId !in 0..255) {
+                    errors.add("Reserved opcode $rName has invalid ID $rId (must be 0..255)")
+                }
+                if (rId <= prevResId) {
+                    errors.add(
+                        "reservedOpcodes not sorted: $rName ($rId) <= previous ID $prevResId at index $i"
+                    )
+                }
+                prevResId = rId
+                if (!resIds.add(rId)) {
+                    errors.add("Duplicate reserved opcode ID: $rId ($rName)")
+                }
+                if (rId in seenIds) {
+                    errors.add("Reserved opcode $rName ($rId) overlaps declared operation ID $rId")
+                }
+                if (!resNames.add(rName) || rName in seenNames) {
+                    errors.add("Duplicate reserved opcode name: $rName")
+                }
+                val rOpCodeName = rObj.opt("opCodeName") as? String
+                if (rOpCodeName.isNullOrBlank()) {
+                    errors.add("Reserved opcode $rName ($rId) must specify a non-blank opCodeName")
+                } else {
+                    if (!resOpCodeNames.add(rOpCodeName)) {
+                        errors.add("Duplicate reserved opcode opCodeName: $rOpCodeName")
+                    }
+                    if (rOpCodeName in seenOpCodeNames) {
+                        errors.add(
+                            "Reserved opcode $rName opCodeName '$rOpCodeName' collides with declared operation"
+                        )
+                    }
+                }
+                if (rObj.has("profiles")) {
+                    val pArr = rObj.optJSONArray("profiles")
+                    if (pArr == null) {
+                        errors.add("Reserved opcode $rName ($rId) profiles must be an array")
+                    } else {
+                        for (pIdx in 0 until pArr.length()) {
+                            val profile = pArr.opt(pIdx) as? String
+                            if (profile == null || profile !in VALID_PROFILES) {
+                                errors.add(
+                                    "Reserved opcode $rName ($rId) has unknown profile '$profile'"
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return errors
     }
 
     private val VALID_LENGTH_TYPES = setOf("ubyte", "byte", "ushort", "short", "int")
+    private val VALID_PROFILES =
+        setOf("baseline", "androidx", "widgets", "oem", "experimental", "deprecated", "reserved")
 
     private fun isDeclaredSchemaType(type: String, declaredTypes: Set<String>): Boolean {
         val elemType = type.removeSuffix("[]")
@@ -757,6 +889,8 @@ public object JsonSchemaParser {
         f: JSONObject,
         declaredTypes: Set<String>,
         errors: MutableList<String>,
+        fieldIndex: Int = -1,
+        fieldIndexByName: Map<String, Int> = emptyMap(),
     ) {
         val fName = f.getString("name")
         val fType = f.getString("type")
@@ -816,6 +950,19 @@ public object JsonSchemaParser {
             }
             if (fType != "bytes") {
                 errors.add("$owner field $fName sets payloadKind on non-bytes type '$fType'")
+            }
+        }
+        if (f.has("resolvedAfter")) {
+            val targetField = f.getString("resolvedAfter")
+            val targetIdx = fieldIndexByName[targetField]
+            if (targetIdx == null) {
+                errors.add(
+                    "$owner field $fName resolvedAfter references missing field '$targetField'"
+                )
+            } else if (fieldIndex >= 0 && targetIdx <= fieldIndex) {
+                errors.add(
+                    "$owner field $fName resolvedAfter '$targetField' must reference a later field"
+                )
             }
         }
         if (f.has("conditionalTypes")) {
@@ -975,6 +1122,9 @@ public object JsonSchemaParser {
                 }
             } else emptyList()
 
+        val resolvedAfter =
+            if (fieldObj.has("resolvedAfter")) fieldObj.getString("resolvedAfter") else null
+
         return SchemaField(
             name = fieldName,
             type = fieldType,
@@ -1003,6 +1153,7 @@ public object JsonSchemaParser {
             mustBeZeroBits = mustBeZeroBits,
             conditionalTypes = conditionalTypes,
             conditionalRoles = conditionalRoles,
+            resolvedAfter = resolvedAfter,
         )
     }
 }

@@ -34,9 +34,11 @@ public class OperationSchema(
     public val pathCommands: Map<Int, SchemaPathCommand> = emptyMap(),
     public val systemVariables: List<SchemaSystemVariable> = emptyList(),
     public val headerConstants: Map<String, Map<String, Int>> = emptyMap(),
+    public val visibilityConstants: Map<String, Int> = emptyMap(),
     public val idEncoding: SchemaIdEncoding? = null,
     public val animationSpec: SchemaAnimationSpec? = null,
     public val pathEffects: SchemaPathEffects? = null,
+    public val reservedOpcodes: List<SchemaReservedOpcode> = emptyList(),
 ) {
     public val operationsById: Map<Int, SchemaOperation> = operations.associateBy { it.id }
     public val operationsByName: Map<String, SchemaOperation> = operations.associateBy { it.name }
@@ -77,6 +79,15 @@ public class SchemaPathCommand(
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SchemaReservedOpcode(
+    public val id: Int,
+    public val name: String,
+    public val opCodeName: String,
+    public val profiles: List<String> = emptyList(),
+    public val description: String = "",
+)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SchemaIdEncoding(
     public val nanPrefix: Int,
     public val payloadMask: Int,
@@ -92,6 +103,8 @@ public class SchemaIdEncoding(
     public val valueMask: Int,
     public val macroLocalStartId: Int,
     public val macroLocalEndId: Int,
+    public val nanExponent: Int = 0x7F800000,
+    public val noId: Int = -1,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -190,9 +203,13 @@ public class SchemaOperation(
     public val sparseParameters: List<SchemaSparseParam>? = null,
     public val allowedChildren: List<String>? = null,
     public val conditionalSkip: SchemaConditionalSkip? = null,
+    public val javaClassName: String? = null,
 ) {
     public val resolvedOpCodeName: String
         get() = opCodeName ?: ID_TO_OPCODE_NAME[id] ?: toScreamingSnakeCase(name)
+
+    public val resolvedJavaClassName: String
+        get() = javaClassName ?: name
 
     public val astProperties: List<AstProperty>
         get() = buildAstProperties(fields, sparseParameters)
@@ -257,6 +274,7 @@ public class SchemaField(
     public val mustBeZeroBits: String? = null,
     public val conditionalTypes: List<SchemaConditionalType> = emptyList(),
     public val conditionalRoles: List<SchemaConditionalRole> = emptyList(),
+    public val resolvedAfter: String? = null,
 ) {
     public val effectiveLengthType: String
         get() = lengthType ?: "short"

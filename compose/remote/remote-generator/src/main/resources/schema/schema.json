@@ -153,6 +153,24 @@
         "additionalProperties": { "type": "integer" }
       }
     },
+    "visibilityConstants": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" }
+    },
+    "reservedOpcodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "opCodeName"],
+        "properties": {
+          "id": { "type": "integer", "minimum": 0, "maximum": 255 },
+          "name": { "type": "string" },
+          "opCodeName": { "type": "string" },
+          "profiles": { "type": "array", "items": { "type": "string" } },
+          "description": { "type": "string" }
+        }
+      }
+    },
     "idEncoding": {
       "type": "object",
       "required": [
@@ -173,7 +191,9 @@
       ],
       "properties": {
         "nanPrefix": { "type": "integer" },
+        "nanExponent": { "type": "integer" },
         "payloadMask": { "type": "integer" },
+        "noId": { "type": "integer" },
         "startId": { "type": "integer" },
         "regionMask": { "type": "integer" },
         "regionSubIdMask": { "type": "integer" },
@@ -315,6 +335,7 @@
             "items": { "type": "string" }
           },
           "opCodeName": { "type": "string" },
+          "javaClass": { "type": "string" },
           "restrictToLibraryGroup": { "type": "boolean" },
           "encoding": { "type": "string" },
           "conditionalSkip": {
@@ -430,6 +451,7 @@
         "omitIf": {},
         "role": { "type": "string" },
         "idKind": { "type": "string" },
+        "resolvedAfter": { "type": "string" },
         "conditionalTypes": {
           "type": "array",
           "items": {

@@ -267,13 +267,6 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
                     .build()
             )
         }
-        if ("STORE_RO" in rpn.operatorsByName && "STORE_R0" !in rpn.operatorsByName) {
-            builder.addProperty(
-                PropertySpec.builder("ID_STORE_R0", INT, KModifier.PUBLIC, KModifier.CONST)
-                    .initializer("ID_STORE_RO")
-                    .build()
-            )
-        }
 
         for (op in rpn.operators) {
             builder.addProperty(
@@ -293,13 +286,6 @@ internal class KotlinProtocolAndSinkGenerator(private val schema: OperationSchem
             builder.addProperty(
                 PropertySpec.builder("RAD", FLOAT, KModifier.PUBLIC)
                     .initializer("RAD_TO_DEG")
-                    .build()
-            )
-        }
-        if ("STORE_RO" in rpn.operatorsByName && "STORE_R0" !in rpn.operatorsByName) {
-            builder.addProperty(
-                PropertySpec.builder("STORE_R0", FLOAT, KModifier.PUBLIC)
-                    .initializer("STORE_RO")
                     .build()
             )
         }

@@ -1200,7 +1200,10 @@
         {
           "name": "flags",
           "type": "int",
-          "description": "Modifier flags (bit 1 = COLOR_REF)"
+          "description": "Modifier flags (bit 1 = COLOR_REF)",
+          "enum": {
+            "COLOR_REF": 2
+          }
         },
         {
           "name": "colorId",
@@ -1401,7 +1404,8 @@
       "profiles": [
         "baseline"
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "javaClass": "ClickModifierOperation"
     },
     {
       "id": 60,
@@ -2432,7 +2436,10 @@
         {
           "name": "flags",
           "type": "int",
-          "description": "Behavior flags"
+          "description": "Behavior flags",
+          "enum": {
+            "COLOR_REF": 2
+          }
         },
         {
           "name": "colorId",
@@ -2442,7 +2449,11 @@
         {
           "name": "reserve1",
           "type": "int",
-          "description": "0 for legacy behavior, 1 to support dynamic radius"
+          "description": "0 for legacy behavior, 1 to support dynamic radius",
+          "enum": {
+            "LEGACY": 0,
+            "VERSION_1": 1
+          }
         },
         {
           "name": "reserve2",
@@ -2482,7 +2493,12 @@
         {
           "name": "shapeType",
           "type": "int",
-          "description": "The shape type (0=RECTANGLE, 1=CIRCLE)"
+          "description": "The shape type (0=RECTANGLE, 1=CIRCLE, 2=ROUNDED_RECTANGLE)",
+          "enum": {
+            "RECTANGLE": 0,
+            "CIRCLE": 1,
+            "ROUNDED_RECTANGLE": 2
+          }
         }
       ],
       "profiles": [
@@ -3379,7 +3395,8 @@
       "profiles": [
         "baseline"
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "javaClass": "DataListIds"
     },
     {
       "id": 147,
@@ -3407,7 +3424,8 @@
       "profiles": [
         "baseline"
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "javaClass": "DataListFloat"
     },
     {
       "id": 148,
@@ -5322,7 +5340,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "RootLayoutComponent"
     },
     {
       "id": 201,
@@ -5342,7 +5361,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "LayoutComponentContent"
     },
     {
       "id": 202,
@@ -5645,7 +5665,8 @@
               "role": "idRef",
               "idKind": "color"
             }
-          ]
+          ],
+          "resolvedAfter": "textAlign"
         },
         {
           "name": "fontSize",
@@ -5655,7 +5676,11 @@
         {
           "name": "fontStyle",
           "type": "int",
-          "description": "The font style (0=normal, 1=italic)"
+          "description": "The font style (0=normal, 1=italic)",
+          "enum": {
+            "FONT_STYLE_NORMAL": 0,
+            "FONT_STYLE_ITALIC": 1
+          }
         },
         {
           "name": "fontWeight",
@@ -5741,7 +5766,8 @@
       "profiles": [
         "baseline"
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "javaClass": "HostActionOperation"
     },
     {
       "id": 210,
@@ -5778,7 +5804,8 @@
       "profiles": [
         "baseline"
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "javaClass": "HostNamedActionOperation"
     },
     {
       "id": 211,
@@ -5889,7 +5916,8 @@
       "profiles": [
         "baseline"
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "javaClass": "LoopOperation"
     },
     {
       "id": 216,
@@ -5912,7 +5940,8 @@
       "profiles": [
         "baseline"
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "javaClass": "HostActionMetadataOperation"
     },
     {
       "id": 217,
@@ -5998,7 +6027,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "TouchDownModifierOperation"
     },
     {
       "id": 220,
@@ -6011,7 +6041,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "TouchUpModifierOperation"
     },
     {
       "id": 221,
@@ -6108,7 +6139,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "TouchCancelModifierOperation"
     },
     {
       "id": 226,
@@ -6220,7 +6252,8 @@
       "profiles": [
         "baseline"
       ],
-      "restrictToLibraryGroup": true
+      "restrictToLibraryGroup": true,
+      "javaClass": "RippleModifierOperation"
     },
     {
       "id": 230,
@@ -6273,7 +6306,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "CollapsibleRowLayout"
     },
     {
       "id": 231,
@@ -6372,7 +6406,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "CollapsibleColumnLayout"
     },
     {
       "id": 234,
@@ -6476,7 +6511,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "RunActionOperation"
     },
     {
       "id": 237,
@@ -6532,7 +6568,8 @@
       ],
       "restrictToLibraryGroup": true,
       "isContainer": true,
-      "closedBy": "ContainerEnd"
+      "closedBy": "ContainerEnd",
+      "javaClass": "LayoutComputeOperation"
     },
     {
       "id": 239,
@@ -7701,7 +7738,13 @@
               "name": "dataType",
               "range": "10..15",
               "signed": true,
-              "description": "0=int, 1=float, 2=long, 3=string; any other value reads 0 bytes"
+              "description": "0=int, 1=float, 2=long, 3=string; any other value reads 0 bytes",
+              "enum": {
+                "DATA_TYPE_INT": 0,
+                "DATA_TYPE_FLOAT": 1,
+                "DATA_TYPE_LONG": 2,
+                "DATA_TYPE_STRING": 3
+              }
             }
           ],
           "unpackBits": false
@@ -8534,7 +8577,7 @@
       },
       {
         "id": 56,
-        "name": "STORE_RO",
+        "name": "STORE_R0",
         "symbol": "store_r0",
         "arity": 1,
         "addedVersion": 7,
@@ -9303,6 +9346,20 @@
     "compression": {
       "COMPRESSION_NONE": 0,
       "COMPRESSION_DEFLATE": 1
+    },
+    "dataTypes": {
+      "DATA_TYPE_INT": 0,
+      "DATA_TYPE_FLOAT": 1,
+      "DATA_TYPE_LONG": 2,
+      "DATA_TYPE_STRING": 3
+    },
+    "version": {
+      "MAGIC_NUMBER": 76283904,
+      "DEFAULT_MAJOR_VERSION": 1,
+      "DEFAULT_MINOR_VERSION": 1,
+      "DEFAULT_PATCH_VERSION": 0,
+      "DEFAULT_DIMENSION": 256,
+      "COMPRESSED_STREAM_MARKER": 119
     }
   },
   "idEncoding": {
@@ -9319,7 +9376,9 @@
     "ptrDereference": 1073741824,
     "valueMask": 65535,
     "macroLocalStartId": 16384,
-    "macroLocalEndId": 20479
+    "macroLocalEndId": 20479,
+    "nanExponent": 2139095040,
+    "noId": -1
   },
   "animationSpec": {
     "easings": [
@@ -9527,5 +9586,200 @@
         ]
       }
     ]
-  }
+  },
+  "visibilityConstants": {
+    "GONE": 0,
+    "VISIBLE": 1,
+    "INVISIBLE": 2,
+    "OVERRIDE_GONE": 16,
+    "OVERRIDE_VISIBLE": 32,
+    "OVERRIDE_INVISIBLE": 64,
+    "CLEAR_OVERRIDE": 128
+  },
+  "reservedOpcodes": [
+    {
+      "id": 95,
+      "name": "PropertyBundleModifierOperation",
+      "opCodeName": "MODIFIER_PROPERTY_BUNDLE",
+      "profiles": [
+        "androidx",
+        "experimental"
+      ],
+      "description": "Property bundle modifier (experimental AndroidX profile)"
+    },
+    {
+      "id": 96,
+      "name": "PropertyBundleLookupOperation",
+      "opCodeName": "PROPERTY_BUNDLE_LOOKUP",
+      "profiles": [
+        "androidx",
+        "experimental"
+      ],
+      "description": "Property bundle lookup operation (experimental AndroidX profile)"
+    },
+    {
+      "id": 110,
+      "name": "DefineMesh3D",
+      "opCodeName": "DEFINE_MESH_3D",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "3D mesh definition (experimental 3D profile)"
+    },
+    {
+      "id": 111,
+      "name": "SetCamera3D",
+      "opCodeName": "SET_CAMERA_3D",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "3D camera state (experimental 3D profile)"
+    },
+    {
+      "id": 112,
+      "name": "Matrix3DOp",
+      "opCodeName": "MATRIX_3D_OP",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "3D matrix transform operation (experimental 3D profile)"
+    },
+    {
+      "id": 113,
+      "name": "DrawMesh3D",
+      "opCodeName": "DRAW_MESH_3D",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "Draw 3D mesh (experimental 3D profile)"
+    },
+    {
+      "id": 114,
+      "name": "Paint3DState",
+      "opCodeName": "PAINT_3D_STATE",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "3D paint state (clear-depth / material / depth-bias)"
+    },
+    {
+      "id": 115,
+      "name": "SetLights3D",
+      "opCodeName": "SET_LIGHTS_3D",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "3D light set configuration (experimental 3D profile)"
+    },
+    {
+      "id": 116,
+      "name": "VectorExpression",
+      "opCodeName": "VECTOR_EXPRESSION",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "vec2/3/4-valued expression scattering to IDs"
+    },
+    {
+      "id": 117,
+      "name": "MeshExpression3D",
+      "opCodeName": "MESH_EXPRESSION_3D",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "3D mesh expression (experimental 3D profile)"
+    },
+    {
+      "id": 118,
+      "name": "SetTexture3D",
+      "opCodeName": "SET_TEXTURE_3D",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "3D texture binding (experimental 3D profile)"
+    },
+    {
+      "id": 119,
+      "name": "CompressedStreamMarker",
+      "opCodeName": "COMPRESSED_STREAM_MARKER",
+      "profiles": [
+        "reserved"
+      ],
+      "description": "Reserved marker byte (0x77) starting a compressed document's operations (Header.COMPRESSED_STREAM_MARKER)"
+    },
+    {
+      "id": 120,
+      "name": "MeshPrimitive3D",
+      "opCodeName": "MESH_PRIMITIVE_3D",
+      "profiles": [
+        "androidx",
+        "widgets",
+        "experimental"
+      ],
+      "description": "3D mesh primitive (experimental 3D profile)"
+    },
+    {
+      "id": 251,
+      "name": "ExtensionRangeReserved4",
+      "opCodeName": "EXTENSION_RANGE_RESERVED_4",
+      "profiles": [
+        "reserved"
+      ],
+      "description": "Reserved for extended opcode range"
+    },
+    {
+      "id": 252,
+      "name": "ExtensionRangeReserved3",
+      "opCodeName": "EXTENSION_RANGE_RESERVED_3",
+      "profiles": [
+        "reserved"
+      ],
+      "description": "Reserved for extended opcode range"
+    },
+    {
+      "id": 253,
+      "name": "ExtensionRangeReserved2",
+      "opCodeName": "EXTENSION_RANGE_RESERVED_2",
+      "profiles": [
+        "reserved"
+      ],
+      "description": "Reserved for extended opcode range"
+    },
+    {
+      "id": 254,
+      "name": "ExtensionRangeReserved1",
+      "opCodeName": "EXTENSION_RANGE_RESERVED_1",
+      "profiles": [
+        "reserved"
+      ],
+      "description": "Reserved for extended opcode range"
+    },
+    {
+      "id": 255,
+      "name": "ExtendedOpcode",
+      "opCodeName": "EXTENDED_OPCODE",
+      "profiles": [
+        "reserved"
+      ],
+      "description": "Escape opcode for extended opcodes"
+    }
+  ]
 }
