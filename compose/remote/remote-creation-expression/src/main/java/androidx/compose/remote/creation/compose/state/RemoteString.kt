@@ -202,7 +202,7 @@ public sealed interface RemoteString : RemoteValue<String> {
     }
 }
 
-private enum class StringOperationKey(override val precedence: Int = 100) : RemoteOperation {
+internal enum class StringOperationKey(override val precedence: Int = 100) : RemoteOperation {
     Concat(3),
     Substring,
     Uppercase,

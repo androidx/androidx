@@ -557,6 +557,23 @@ class RemoteColorTest {
         assertThat(tweened.constantValueOrNull).isEqualTo(COLOR_RED)
     }
 
+    @Test
+    fun hsv_constantNonOpaqueAlpha_preservesAlphaAndDistinctCacheKey() {
+        val dynH = createNamedRemoteFloat("h", 0f)
+        val halfAlpha =
+            RemoteColor.hsv(hue = dynH, saturation = 1f.rf, value = 1f.rf, alpha = 0.5f.rf)
+        val opaque = RemoteColor.hsv(hue = dynH, saturation = 1f.rf, value = 1f.rf, alpha = 1f.rf)
+
+        assertThat(halfAlpha.cacheKey).isNotEqualTo(opaque.cacheKey)
+        assertThat(halfAlpha).isNotEqualTo(opaque)
+        val halfId = creationState.getId(halfAlpha)
+        val opaqueId = creationState.getId(opaque)
+        assertThat(halfId).isNotEqualTo(opaqueId)
+        makeAndPaintCoreDocument()
+        assertThat((context.getColor(halfId) ushr 24) and 0xFF).isEqualTo(128)
+        assertThat((context.getColor(opaqueId) ushr 24) and 0xFF).isEqualTo(255)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

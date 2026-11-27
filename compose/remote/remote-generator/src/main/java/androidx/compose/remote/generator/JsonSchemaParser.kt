@@ -543,11 +543,20 @@ public object JsonSchemaParser {
             val id = op.getInt("id")
             val name = op.getString("name")
             val opCodeName =
-                if (op.has("opCodeName")) op.getString("opCodeName")
-                else
-                    SchemaOperation.ID_TO_OPCODE_NAME[id]
-                        ?: SchemaOperation.toScreamingSnakeCase(name)
-            seenOpCodeNames.add(opCodeName)
+                if (op.has("opCodeName")) {
+                    val explicit = op.opt("opCodeName") as? String
+                    if (explicit.isNullOrBlank()) {
+                        errors.add("Operation $name has blank or non-string opCodeName")
+                        null
+                    } else {
+                        explicit
+                    }
+                } else {
+                    SchemaOperation.toScreamingSnakeCase(name)
+                }
+            if (opCodeName != null && !seenOpCodeNames.add(opCodeName)) {
+                errors.add("Duplicate operation opCodeName: $opCodeName ($name)")
+            }
 
             if (id !in 0..255) {
                 errors.add("Operation $name has invalid ID $id (must be 0..255)")
@@ -804,7 +813,14 @@ public object JsonSchemaParser {
             var prevResId = -1
             for (i in 0 until resArr.length()) {
                 val rObj = resArr.getJSONObject(i)
-                val rId = (rObj.opt("id") as? Number)?.toInt()
+                val rawId = rObj.opt("id")
+                val rId: Int? =
+                    when (rawId) {
+                        is Int -> rawId
+                        is Long ->
+                            if (rawId in Int.MIN_VALUE..Int.MAX_VALUE) rawId.toInt() else null
+                        else -> null
+                    }
                 val rName = rObj.opt("name") as? String
                 if (rId == null) {
                     errors.add("Reserved opcode at index $i must specify an integer id")
@@ -816,13 +832,14 @@ public object JsonSchemaParser {
                 }
                 if (rId !in 0..255) {
                     errors.add("Reserved opcode $rName has invalid ID $rId (must be 0..255)")
+                } else {
+                    if (rId <= prevResId) {
+                        errors.add(
+                            "reservedOpcodes not sorted: $rName ($rId) <= previous ID $prevResId at index $i"
+                        )
+                    }
+                    prevResId = rId
                 }
-                if (rId <= prevResId) {
-                    errors.add(
-                        "reservedOpcodes not sorted: $rName ($rId) <= previous ID $prevResId at index $i"
-                    )
-                }
-                prevResId = rId
                 if (!resIds.add(rId)) {
                     errors.add("Duplicate reserved opcode ID: $rId ($rName)")
                 }
@@ -953,16 +970,20 @@ public object JsonSchemaParser {
             }
         }
         if (f.has("resolvedAfter")) {
-            val targetField = f.getString("resolvedAfter")
-            val targetIdx = fieldIndexByName[targetField]
-            if (targetIdx == null) {
-                errors.add(
-                    "$owner field $fName resolvedAfter references missing field '$targetField'"
-                )
-            } else if (fieldIndex >= 0 && targetIdx <= fieldIndex) {
-                errors.add(
-                    "$owner field $fName resolvedAfter '$targetField' must reference a later field"
-                )
+            val targetField = f.opt("resolvedAfter") as? String
+            if (targetField.isNullOrBlank()) {
+                errors.add("$owner field $fName has blank or non-string resolvedAfter")
+            } else {
+                val targetIdx = fieldIndexByName[targetField]
+                if (targetIdx == null) {
+                    errors.add(
+                        "$owner field $fName resolvedAfter references missing field '$targetField'"
+                    )
+                } else if (fieldIndex >= 0 && targetIdx <= fieldIndex) {
+                    errors.add(
+                        "$owner field $fName resolvedAfter '$targetField' must reference a later field"
+                    )
+                }
             }
         }
         if (f.has("conditionalTypes")) {

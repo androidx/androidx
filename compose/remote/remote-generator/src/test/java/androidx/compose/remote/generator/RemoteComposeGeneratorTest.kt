@@ -5773,8 +5773,23 @@ class RemoteComposeGeneratorTest {
             assertEquals(listOf("reserved"), reservedById.getValue(id).profiles)
         }
 
-        // 9. JsonSchemaParser.validate rejects bad resolvedAfter, blank javaClass, & invalid
-        // reservedOpcodes
+        // 8b. Every operation's schema-only opCodeName (without Operations.java reflection)
+        // matches Operations.java so validate() and generators never diverge by classpath
+        for (op in schema.operations) {
+            val expectedJavaOp = SchemaOperation.ID_TO_OPCODE_NAME[op.id]
+            if (expectedJavaOp != null) {
+                val schemaOnlyOpCodeName =
+                    op.opCodeName ?: SchemaOperation.toScreamingSnakeCase(op.name)
+                assertEquals(
+                    "Operation ${op.name} (${op.id}) must match Operations.$expectedJavaOp without reflection",
+                    expectedJavaOp,
+                    schemaOnlyOpCodeName,
+                )
+            }
+        }
+
+        // 9. JsonSchemaParser.validate rejects bad resolvedAfter, blank javaClass, duplicate
+        // opCodeName, & invalid reservedOpcodes
         val badJson =
             JSONObject(
                 """
@@ -5792,16 +5807,28 @@ class RemoteComposeGeneratorTest {
                       "category": "Test",
                       "description": "Sample",
                       "fields": [
-                        { "name": "a", "type": "int" },
-                        { "name": "b", "type": "int", "resolvedAfter": "a" }
+                        { "name": "a", "type": "int", "resolvedAfter": null },
+                        { "name": "b", "type": "int", "resolvedAfter": "a" },
+                        { "name": "c", "type": "int", "resolvedAfter": 123 }
                       ]
+                    },
+                    {
+                      "id": 2,
+                      "name": "SampleDupOpCode",
+                      "opCodeName": "SAMPLE_OP",
+                      "category": "Test",
+                      "description": "Dup opCodeName",
+                      "fields": []
                     }
                   ],
                   "reservedOpcodes": [
                     { "id": 1, "name": "Overlap", "opCodeName": "OVERLAP", "profiles": ["reserved"] },
-                    { "id": 2, "name": "MissingOpCode", "profiles": ["reserved"] },
-                    { "id": 3, "name": "DupOpCode", "opCodeName": "OVERLAP", "profiles": ["reserved"] },
-                    { "id": 4, "name": "CollideOpCode", "opCodeName": "SAMPLE_OP", "profiles": ["bogus_profile"] },
+                    { "id": 3, "name": "MissingOpCode", "profiles": ["reserved"] },
+                    { "id": 4, "name": "DupOpCode", "opCodeName": "OVERLAP", "profiles": ["reserved"] },
+                    { "id": 5, "name": "CollideOpCode", "opCodeName": "SAMPLE_OP", "profiles": ["bogus_profile"] },
+                    { "id": 95.5, "name": "FractionalId", "opCodeName": "FRAC_ID", "profiles": ["reserved"] },
+                    { "id": 300, "name": "OutOfRangeId", "opCodeName": "OOR_ID", "profiles": ["reserved"] },
+                    { "id": 251, "name": "ValidAfterOor", "opCodeName": "VALID_AFTER_OOR", "profiles": ["reserved"] },
                     { "name": "MissingId", "opCodeName": "MISSING_ID" }
                   ]
                 }
@@ -5814,8 +5841,20 @@ class RemoteComposeGeneratorTest {
             errors.any { it.contains("blank or non-string javaClass") },
         )
         assertTrue(
-            "Expected resolvedAfter error, got: $errors",
-            errors.any { it.contains("resolvedAfter") },
+            "Expected duplicate operation opCodeName error, got: $errors",
+            errors.any { it.contains("Duplicate operation opCodeName: SAMPLE_OP") },
+        )
+        assertTrue(
+            "Expected blank/non-string resolvedAfter error, got: $errors",
+            errors.any { it.contains("field a has blank or non-string resolvedAfter") },
+        )
+        assertTrue(
+            "Expected non-string resolvedAfter error, got: $errors",
+            errors.any { it.contains("field c has blank or non-string resolvedAfter") },
+        )
+        assertTrue(
+            "Expected resolvedAfter ordering error, got: $errors",
+            errors.any { it.contains("resolvedAfter 'a' must reference a later field") },
         )
         assertTrue(
             "Expected reservedOpcodes overlap error, got: $errors",
@@ -5838,8 +5877,20 @@ class RemoteComposeGeneratorTest {
             errors.any { it.contains("unknown profile 'bogus_profile'") },
         )
         assertTrue(
+            "Expected fractional id error, got: $errors",
+            errors.any { it.contains("index 4 must specify an integer id") },
+        )
+        assertTrue(
+            "Expected out-of-range id error, got: $errors",
+            errors.any { it.contains("OutOfRangeId has invalid ID 300") },
+        )
+        assertFalse(
+            "Out-of-range ID 300 must not cause spurious sort error on ValidAfterOor (251), got: $errors",
+            errors.any { it.contains("ValidAfterOor") && it.contains("not sorted") },
+        )
+        assertTrue(
             "Expected missing id error, got: $errors",
-            errors.any { it.contains("must specify an integer id") },
+            errors.any { it.contains("index 7 must specify an integer id") },
         )
     }
 

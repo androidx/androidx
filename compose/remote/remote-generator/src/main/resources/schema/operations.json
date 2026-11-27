@@ -472,6 +472,7 @@
     {
       "id": 16,
       "name": "WidthModifierOperation",
+      "opCodeName": "MODIFIER_WIDTH",
       "category": "Modifier Operations",
       "description": "Fixed width modifier",
       "addedVersion": 6,
@@ -583,6 +584,7 @@
     {
       "id": 40,
       "name": "PaintData",
+      "opCodeName": "PAINT_VALUES",
       "category": "Paint & Styles Operations",
       "description": "Encode a Paint object with various properties",
       "addedVersion": 6,
@@ -680,6 +682,7 @@
     {
       "id": 43,
       "name": "DrawText",
+      "opCodeName": "DRAW_TEXT_RUN",
       "category": "Text Operations",
       "description": "Draw a run of text, all in a single direction",
       "addedVersion": 6,
@@ -776,6 +779,7 @@
     {
       "id": 45,
       "name": "ShaderData",
+      "opCodeName": "DATA_SHADER",
       "category": "Paint & Styles Operations",
       "description": "Defines a runtime shader program with uniforms and texture bindings for paint effects",
       "addedVersion": 6,
@@ -904,6 +908,7 @@
     {
       "id": 48,
       "name": "DrawBitmapFontText",
+      "opCodeName": "DRAW_BITMAP_FONT_TEXT_RUN",
       "category": "Text Operations",
       "description": "Draw text using a bitmap font",
       "addedVersion": 6,
@@ -969,6 +974,7 @@
     {
       "id": 49,
       "name": "DrawBitmapFontTextOnPath",
+      "opCodeName": "DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH",
       "category": "Text Operations",
       "description": "Draw text using a bitmap font along a path",
       "addedVersion": 7,
@@ -1160,6 +1166,7 @@
     {
       "id": 54,
       "name": "RoundedClipRectModifierOperation",
+      "opCodeName": "MODIFIER_ROUNDED_CLIP_RECT",
       "category": "Modifier Operations",
       "description": "Clip the component's content to its rounded rectangular bounds",
       "addedVersion": 6,
@@ -1193,6 +1200,7 @@
     {
       "id": 55,
       "name": "BackgroundModifierOperation",
+      "opCodeName": "MODIFIER_BACKGROUND",
       "category": "Modifier Operations",
       "description": "Background color modifier",
       "addedVersion": 6,
@@ -1355,6 +1363,7 @@
     {
       "id": 58,
       "name": "PaddingModifierOperation",
+      "opCodeName": "MODIFIER_PADDING",
       "category": "Modifier Operations",
       "description": "Applies padding offsets around a layout component",
       "addedVersion": 6,
@@ -1388,6 +1397,7 @@
     {
       "id": 59,
       "name": "ClickModifier",
+      "opCodeName": "MODIFIER_CLICK",
       "category": "Modifier Operations",
       "description": "Click modifier. This operation contains a list of action operations executed on click",
       "addedVersion": 6,
@@ -1708,6 +1718,7 @@
     {
       "id": 67,
       "name": "HeightModifierOperation",
+      "opCodeName": "MODIFIER_HEIGHT",
       "category": "Modifier Operations",
       "description": "Fixed height modifier",
       "addedVersion": 6,
@@ -1743,6 +1754,7 @@
     {
       "id": 80,
       "name": "FloatConstant",
+      "opCodeName": "DATA_FLOAT",
       "category": "Data Operations",
       "description": "Define a constant float variable",
       "addedVersion": 6,
@@ -1768,6 +1780,7 @@
     {
       "id": 81,
       "name": "FloatExpression",
+      "opCodeName": "ANIMATED_FLOAT",
       "category": "Logic & Expressions Operations",
       "description": "Defines a float variable computed via Reverse Polish Notation (RPN) expression evaluation",
       "addedVersion": 6,
@@ -1822,6 +1835,7 @@
     {
       "id": 83,
       "name": "MultiClickModifier",
+      "opCodeName": "MODIFIER_MULTI_CLICK",
       "category": "Modifier Operations",
       "description": "MultiClick modifier. This operation contains a list of action operations executed on click",
       "addedVersion": 7,
@@ -1844,6 +1858,7 @@
     {
       "id": 93,
       "name": "Custom",
+      "opCodeName": "LAYOUT_CUSTOM",
       "category": "Layout Managers",
       "description": "Hosts and configures platform-specific native custom components",
       "addedVersion": 7,
@@ -1951,6 +1966,7 @@
     {
       "id": 101,
       "name": "BitmapData",
+      "opCodeName": "DATA_BITMAP",
       "category": "Data Operations",
       "description": "Embed or reference bitmap image data",
       "addedVersion": 6,
@@ -2028,6 +2044,7 @@
     {
       "id": 102,
       "name": "TextData",
+      "opCodeName": "DATA_TEXT",
       "category": "Text Operations",
       "description": "Define a static string and associate it with an ID",
       "addedVersion": 6,
@@ -2071,6 +2088,7 @@
     {
       "id": 104,
       "name": "AddMesh2D",
+      "opCodeName": "ADD_MESH_2D",
       "category": "Canvas Operations",
       "description": "Defines a 2D vertex mesh for canvas deformation, independent of the 3D subsystem",
       "addedVersion": 7,
@@ -2354,6 +2372,7 @@
     {
       "id": 105,
       "name": "DrawMesh2D",
+      "opCodeName": "DRAW_MESH_2D",
       "category": "Canvas Operations",
       "description": "Draw a 2D vertex mesh defined by AddMesh2D",
       "addedVersion": 7,
@@ -2388,6 +2407,7 @@
     {
       "id": 106,
       "name": "MatrixFromMesh2D",
+      "opCodeName": "MATRIX_FROM_MESH_2D",
       "category": "Matrix Operations",
       "description": "Multiply the local frame of a 2D mesh at (u, v) into the current canvas matrix, so ordinary drawing can be placed onto a deformed surface",
       "addedVersion": 7,
@@ -2429,6 +2449,7 @@
     {
       "id": 107,
       "name": "BorderModifierOperation",
+      "opCodeName": "MODIFIER_BORDER",
       "category": "Modifier Operations",
       "description": "Define a border for a component",
       "addedVersion": 6,
@@ -2509,6 +2530,7 @@
     {
       "id": 108,
       "name": "ClipRectModifierOperation",
+      "opCodeName": "MODIFIER_CLIP_RECT",
       "category": "Modifier Operations",
       "description": "Clip the component's content to its rectangular bounds",
       "addedVersion": 6,
@@ -2621,6 +2643,7 @@
     {
       "id": 123,
       "name": "PathData",
+      "opCodeName": "DATA_PATH",
       "category": "Canvas Operations",
       "description": "Defines a complete static path data buffer with commands and coordinates",
       "addedVersion": 6,
@@ -2856,6 +2879,7 @@
     {
       "id": 133,
       "name": "DrawTextAnchored",
+      "opCodeName": "DRAW_TEXT_ANCHOR",
       "category": "Text Operations",
       "description": "Draw text centered about an anchor point",
       "addedVersion": 6,
@@ -2905,6 +2929,7 @@
     {
       "id": 134,
       "name": "ColorExpression",
+      "opCodeName": "COLOR_EXPRESSIONS",
       "category": "Paint & Styles Operations",
       "description": "Defines a color via dynamic expression (interpolation, HSV, or ARGB)",
       "addedVersion": 6,
@@ -3221,6 +3246,7 @@
     {
       "id": 140,
       "name": "IntegerConstant",
+      "opCodeName": "DATA_INT",
       "category": "Data Operations",
       "description": "Define a constant integer variable",
       "addedVersion": 6,
@@ -3286,6 +3312,7 @@
     {
       "id": 143,
       "name": "BooleanConstant",
+      "opCodeName": "DATA_BOOLEAN",
       "category": "Data Operations",
       "description": "Define a constant boolean variable",
       "addedVersion": 6,
@@ -3344,6 +3371,7 @@
     {
       "id": 145,
       "name": "DataMapIds",
+      "opCodeName": "ID_MAP",
       "category": "Data Operations",
       "description": "Encode a collection of named variable IDs",
       "addedVersion": 6,
@@ -3372,6 +3400,7 @@
     {
       "id": 146,
       "name": "IdListData",
+      "opCodeName": "ID_LIST",
       "category": "Data Operations",
       "description": "Defines an indexed list of integer resource or variable identifiers",
       "addedVersion": 6,
@@ -3401,6 +3430,7 @@
     {
       "id": 147,
       "name": "FloatListData",
+      "opCodeName": "FLOAT_LIST",
       "category": "Data Operations",
       "description": "Defines an indexed list of float values for variables or geometry",
       "addedVersion": 6,
@@ -3430,6 +3460,7 @@
     {
       "id": 148,
       "name": "LongConstant",
+      "opCodeName": "DATA_LONG",
       "category": "Data Operations",
       "description": "A long and its associated id",
       "addedVersion": 6,
@@ -3971,6 +4002,7 @@
     {
       "id": 160,
       "name": "PathAppend",
+      "opCodeName": "PATH_ADD",
       "category": "Canvas Operations",
       "description": "Append segments to an existing dynamic path",
       "addedVersion": 6,
@@ -4000,6 +4032,7 @@
     {
       "id": 161,
       "name": "ParticlesCreate",
+      "opCodeName": "PARTICLE_DEFINE",
       "category": "Animation & Particles Operations",
       "description": "Creates a particle system with count, particle state variables, and emitter configuration",
       "addedVersion": 6,
@@ -4033,6 +4066,7 @@
     {
       "id": 163,
       "name": "ParticlesLoop",
+      "opCodeName": "PARTICLE_LOOP",
       "category": "Animation & Particles Operations",
       "description": "Evolves and updates particle positions and velocities across iterations",
       "addedVersion": 6,
@@ -4072,6 +4106,7 @@
     {
       "id": 164,
       "name": "ImpulseOperation",
+      "opCodeName": "IMPULSE_START",
       "category": "Animation & Particles Operations",
       "description": "Execute a list of actions once, and a process block for a fixed duration",
       "addedVersion": 6,
@@ -4110,6 +4145,7 @@
     {
       "id": 166,
       "name": "FloatFunctionCall",
+      "opCodeName": "FUNCTION_CALL",
       "category": "Data Operations",
       "description": "Invokes a defined float function with evaluated float argument expressions",
       "addedVersion": 6,
@@ -4138,6 +4174,7 @@
     {
       "id": 167,
       "name": "BitmapFontData",
+      "opCodeName": "DATA_BITMAP_FONT",
       "category": "Text Operations",
       "description": "Embeds font glyph layout, character metrics, and glyph page mappings for bitmap font rendering",
       "addedVersion": 6,
@@ -4189,6 +4226,7 @@
     {
       "id": 168,
       "name": "FloatFunctionDefine",
+      "opCodeName": "FUNCTION_DEFINE",
       "category": "Data Operations",
       "description": "Defines a parameterized float function expression",
       "addedVersion": 6,
@@ -4219,6 +4257,7 @@
     {
       "id": 169,
       "name": "SoundData",
+      "opCodeName": "DATA_SOUND",
       "category": "Data Operations",
       "description": "Embeds inline raw PCM sound data in SC format",
       "addedVersion": 7,
@@ -4246,6 +4285,7 @@
     {
       "id": 170,
       "name": "TextAttribute",
+      "opCodeName": "ATTRIBUTE_TEXT",
       "category": "Text Operations",
       "description": "Extract text-related properties (width, length, etc.)",
       "addedVersion": 6,
@@ -4311,6 +4351,7 @@
     {
       "id": 171,
       "name": "ImageAttribute",
+      "opCodeName": "ATTRIBUTE_IMAGE",
       "category": "Logic & Expressions Operations",
       "description": "Extract image-related properties (width, height)",
       "addedVersion": 6,
@@ -4345,6 +4386,7 @@
     {
       "id": 172,
       "name": "TimeAttribute",
+      "opCodeName": "ATTRIBUTE_TIME",
       "category": "Logic & Expressions Operations",
       "description": "Extract time-related information (seconds, hours, etc.)",
       "addedVersion": 6,
@@ -4394,6 +4436,7 @@
     {
       "id": 174,
       "name": "DrawContentOperation",
+      "opCodeName": "MODIFIER_DRAW_CONTENT",
       "category": "Modifier Operations",
       "description": "A modifier that triggers drawing of the component's content",
       "addedVersion": 6,
@@ -4445,6 +4488,7 @@
     {
       "id": 176,
       "name": "FitBoxLayout",
+      "opCodeName": "LAYOUT_FIT_BOX",
       "category": "Layout Managers",
       "description": "FitBox layout implementation.  Only displays the first child component that fits in the available space.",
       "addedVersion": 6,
@@ -4575,6 +4619,7 @@
     {
       "id": 180,
       "name": "ColorAttribute",
+      "opCodeName": "ATTRIBUTE_COLOR",
       "category": "Paint & Styles Operations",
       "description": "Extract components (Hue, RGB, Alpha) from a color",
       "addedVersion": 6,
@@ -4948,6 +4993,7 @@
     {
       "id": 189,
       "name": "FontData",
+      "opCodeName": "DATA_FONT",
       "category": "Data Operations",
       "description": "Embed raw font data in the document",
       "addedVersion": 7,
@@ -5116,6 +5162,7 @@
     {
       "id": 194,
       "name": "ParticlesCompare",
+      "opCodeName": "PARTICLE_COMPARE",
       "category": "Animation & Particles Operations",
       "description": "Compares particle variables to evaluate conditional state transitions or recycling",
       "addedVersion": 7,
@@ -5222,6 +5269,7 @@
     {
       "id": 197,
       "name": "DataDynamicListFloat",
+      "opCodeName": "DYNAMIC_FLOAT_LIST",
       "category": "Data Operations",
       "description": "A dynamic list of floats",
       "addedVersion": 7,
@@ -5325,6 +5373,7 @@
     {
       "id": 200,
       "name": "RootLayout",
+      "opCodeName": "LAYOUT_ROOT",
       "category": "Layout Operations",
       "description": "Root element for a document. Other components / layout managers are children in the component tree starting from this Root component.",
       "addedVersion": 6,
@@ -5367,6 +5416,7 @@
     {
       "id": 202,
       "name": "BoxLayout",
+      "opCodeName": "LAYOUT_BOX",
       "category": "Layout Operations",
       "description": "Box container layout component",
       "addedVersion": 6,
@@ -5417,6 +5467,7 @@
     {
       "id": 203,
       "name": "RowLayout",
+      "opCodeName": "LAYOUT_ROW",
       "category": "Layout Operations",
       "description": "Row container layout component",
       "addedVersion": 6,
@@ -5475,6 +5526,7 @@
     {
       "id": 204,
       "name": "ColumnLayout",
+      "opCodeName": "LAYOUT_COLUMN",
       "category": "Layout Operations",
       "description": "Column container layout component",
       "addedVersion": 6,
@@ -5533,6 +5585,7 @@
     {
       "id": 205,
       "name": "CanvasLayout",
+      "opCodeName": "LAYOUT_CANVAS",
       "category": "Layout Managers",
       "description": "Canvas implementation. Encapsulates drawing operations.",
       "addedVersion": 6,
@@ -5601,6 +5654,7 @@
     {
       "id": 207,
       "name": "CanvasContent",
+      "opCodeName": "LAYOUT_CANVAS_CONTENT",
       "category": "Layout Operations",
       "description": "Container for canvas drawing commands inside a CanvasLayout component",
       "addedVersion": 6,
@@ -5626,6 +5680,7 @@
     {
       "id": 208,
       "name": "TextLayout",
+      "opCodeName": "LAYOUT_TEXT",
       "category": "Text Operations",
       "description": "Text layout implementation",
       "addedVersion": 6,
@@ -5810,6 +5865,7 @@
     {
       "id": 211,
       "name": "ComponentVisibilityOperation",
+      "opCodeName": "MODIFIER_VISIBILITY",
       "category": "Modifier Operations",
       "description": "Set component visibility from a provided integer variable",
       "addedVersion": 6,
@@ -5828,6 +5884,7 @@
     {
       "id": 212,
       "name": "ValueIntegerChangeActionOperation",
+      "opCodeName": "VALUE_INTEGER_CHANGE_ACTION",
       "category": "Actions & Events Operations",
       "description": "Action that sets a new value for an integer variable",
       "addedVersion": 6,
@@ -5851,6 +5908,7 @@
     {
       "id": 213,
       "name": "ValueStringChangeActionOperation",
+      "opCodeName": "VALUE_STRING_CHANGE_ACTION",
       "category": "Actions & Events Operations",
       "description": "Action that sets a new value for a string variable",
       "addedVersion": 6,
@@ -5886,6 +5944,7 @@
     {
       "id": 215,
       "name": "Loop",
+      "opCodeName": "LOOP_START",
       "category": "Logic & Expressions Operations",
       "description": "Execute a list of operations in a loop",
       "addedVersion": 6,
@@ -5922,6 +5981,7 @@
     {
       "id": 216,
       "name": "HostActionMetadata",
+      "opCodeName": "HOST_METADATA_ACTION",
       "category": "Layout Operations",
       "description": "Host action + metadata. This operation represents a host action that can also provides some metadata",
       "addedVersion": 6,
@@ -5946,6 +6006,7 @@
     {
       "id": 217,
       "name": "StateLayout",
+      "opCodeName": "LAYOUT_STATE",
       "category": "Layout Operations",
       "description": "A layout that switches between child layouts based on an index",
       "addedVersion": 6,
@@ -5986,6 +6047,7 @@
     {
       "id": 218,
       "name": "ValueIntegerExpressionChangeActionOperation",
+      "opCodeName": "VALUE_INTEGER_EXPRESSION_CHANGE_ACTION",
       "category": "Actions & Events Operations",
       "description": "Action that updates an integer variable via a dynamic expression",
       "addedVersion": 6,
@@ -6019,6 +6081,7 @@
     {
       "id": 219,
       "name": "TouchModifier",
+      "opCodeName": "MODIFIER_TOUCH_DOWN",
       "category": "Modifier Operations",
       "description": "Touch down modifier. This operation contains a list of action operations executed on touch down",
       "addedVersion": 6,
@@ -6033,6 +6096,7 @@
     {
       "id": 220,
       "name": "TouchUpModifier",
+      "opCodeName": "MODIFIER_TOUCH_UP",
       "category": "Modifier Operations",
       "description": "Touch up modifier. This operation contains a list of action operations executed on touch up",
       "addedVersion": 6,
@@ -6047,6 +6111,7 @@
     {
       "id": 221,
       "name": "OffsetModifierOperation",
+      "opCodeName": "MODIFIER_OFFSET",
       "category": "Modifier Operations",
       "description": "Shift the component's position",
       "addedVersion": 6,
@@ -6070,6 +6135,7 @@
     {
       "id": 222,
       "name": "ValueFloatChangeActionOperation",
+      "opCodeName": "VALUE_FLOAT_CHANGE_ACTION",
       "category": "Actions & Events Operations",
       "description": "Action that sets a new value for a float variable",
       "addedVersion": 6,
@@ -6093,6 +6159,7 @@
     {
       "id": 223,
       "name": "ZIndexModifierOperation",
+      "opCodeName": "MODIFIER_ZINDEX",
       "category": "Modifier Operations",
       "description": "Define the Z-Index of a component",
       "addedVersion": 6,
@@ -6111,6 +6178,7 @@
     {
       "id": 224,
       "name": "GraphicsLayerModifierOperation",
+      "opCodeName": "MODIFIER_GRAPHICS_LAYER",
       "category": "Modifier Operations",
       "description": "Define transformations (scale, rotation, alpha) for a component",
       "addedVersion": 6,
@@ -6131,6 +6199,7 @@
     {
       "id": 225,
       "name": "TouchCancelModifier",
+      "opCodeName": "MODIFIER_TOUCH_CANCEL",
       "category": "Modifier Operations",
       "description": "Touch cancel modifier. This operation contains a list of action operations executed on touch cancel",
       "addedVersion": 6,
@@ -6145,6 +6214,7 @@
     {
       "id": 226,
       "name": "ScrollModifierOperation",
+      "opCodeName": "MODIFIER_SCROLL",
       "category": "Modifier Operations",
       "description": "Define a scrolling behavior for a component",
       "addedVersion": 6,
@@ -6180,6 +6250,7 @@
     {
       "id": 227,
       "name": "ValueFloatExpressionChangeActionOperation",
+      "opCodeName": "VALUE_FLOAT_EXPRESSION_CHANGE_ACTION",
       "category": "Actions & Events Operations",
       "description": "Action that updates a float variable via a dynamic expression",
       "addedVersion": 6,
@@ -6203,6 +6274,7 @@
     {
       "id": 228,
       "name": "MarqueeModifierOperation",
+      "opCodeName": "MODIFIER_MARQUEE",
       "category": "Modifier Operations",
       "description": "Define a scrolling marquee effect for a component",
       "addedVersion": 6,
@@ -6246,6 +6318,7 @@
     {
       "id": 229,
       "name": "RippleModifier",
+      "opCodeName": "MODIFIER_RIPPLE",
       "category": "Modifier Operations",
       "description": "Ripple modifier. This modifier will do a ripple animation on touch down",
       "addedVersion": 6,
@@ -6258,6 +6331,7 @@
     {
       "id": 230,
       "name": "CollapsibleRow",
+      "opCodeName": "LAYOUT_COLLAPSIBLE_ROW",
       "category": "Layout Managers",
       "description": "A row layout that can hide children if space is insufficient",
       "addedVersion": 6,
@@ -6312,6 +6386,7 @@
     {
       "id": 231,
       "name": "WidthInModifierOperation",
+      "opCodeName": "MODIFIER_WIDTH_IN",
       "category": "Modifier Operations",
       "description": "Add additional constraints to the width",
       "addedVersion": 6,
@@ -6335,6 +6410,7 @@
     {
       "id": 232,
       "name": "HeightInModifierOperation",
+      "opCodeName": "MODIFIER_HEIGHT_IN",
       "category": "Modifier Operations",
       "description": "Add additional constraints to the height",
       "addedVersion": 6,
@@ -6358,6 +6434,7 @@
     {
       "id": 233,
       "name": "CollapsibleColumn",
+      "opCodeName": "LAYOUT_COLLAPSIBLE_COLUMN",
       "category": "Layout Managers",
       "description": "A column layout that can hide children if space is insufficient",
       "addedVersion": 6,
@@ -6412,6 +6489,7 @@
     {
       "id": 234,
       "name": "ImageLayout",
+      "opCodeName": "LAYOUT_IMAGE",
       "category": "Layout Managers",
       "description": "Image layout implementation",
       "addedVersion": 6,
@@ -6480,6 +6558,7 @@
     {
       "id": 235,
       "name": "CollapsiblePriorityModifierOperation",
+      "opCodeName": "MODIFIER_COLLAPSIBLE_PRIORITY",
       "category": "Modifier Operations",
       "description": "Add additional priority to children of collapsible layouts",
       "addedVersion": 6,
@@ -6517,6 +6596,7 @@
     {
       "id": 237,
       "name": "AlignByModifierOperation",
+      "opCodeName": "MODIFIER_ALIGN_BY",
       "category": "Modifier Operations",
       "description": "Align a component based on a specific baseline or anchor",
       "addedVersion": 7,
@@ -6758,6 +6838,7 @@
     {
       "id": 240,
       "name": "FlowLayout",
+      "opCodeName": "LAYOUT_FLOW",
       "category": "Layout Managers",
       "description": "Flow layout implementation. Positions components one after the other horizontally and wraps to the next line if space is exhausted.",
       "addedVersion": 7,
@@ -7109,6 +7190,7 @@
     {
       "id": 243,
       "name": "DimensionConstraintsModifierOperation",
+      "opCodeName": "MODIFIER_DIMENSION_CONSTRAINTS",
       "category": "Modifier Operations",
       "description": "Add additional constraints to the dimensions",
       "addedVersion": 7,
@@ -7145,6 +7227,7 @@
     {
       "id": 244,
       "name": "PatternForEach",
+      "opCodeName": "MACRO_FOR_EACH",
       "category": "Layout Operations",
       "description": "Iterates over a collection parameter and expands child templates for each item",
       "addedVersion": 7,
@@ -7192,6 +7275,7 @@
     {
       "id": 246,
       "name": "PatternDefine",
+      "opCodeName": "MACRO_DEFINE",
       "category": "Layout Operations",
       "description": "Defines a reusable template pattern with parameter IDs",
       "addedVersion": 7,
@@ -7228,6 +7312,7 @@
     {
       "id": 247,
       "name": "PatternInflation",
+      "opCodeName": "MACRO_CALL",
       "category": "Layout Operations",
       "description": "Inflates and materializes a pattern template by ID with argument IDs",
       "addedVersion": 7,
@@ -7261,6 +7346,7 @@
     {
       "id": 248,
       "name": "PatternArgument",
+      "opCodeName": "MACRO_ARGUMENT",
       "category": "Layout Operations",
       "description": "Placeholder for an operation block argument in a pattern definition",
       "addedVersion": 7,
@@ -7281,6 +7367,7 @@
     {
       "id": 249,
       "name": "PatternBlock",
+      "opCodeName": "MACRO_BLOCK",
       "category": "Layout Operations",
       "description": "Encapsulates an operation block argument for pattern inflation",
       "addedVersion": 7,
@@ -7303,6 +7390,7 @@
     {
       "id": 250,
       "name": "CoreSemantics",
+      "opCodeName": "ACCESSIBILITY_SEMANTICS",
       "category": "Accessibility Operations",
       "description": "Define accessibility semantics for a component",
       "addedVersion": 6,
