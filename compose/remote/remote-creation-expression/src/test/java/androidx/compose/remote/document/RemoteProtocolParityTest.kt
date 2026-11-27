@@ -976,4 +976,55 @@ class RemoteProtocolParityTest {
             )
         }
     }
+
+    @Test
+    fun testProfileOperationRegistry() {
+        val registry = ProfileOperationRegistry()
+        val otherRegistry = ProfileOperationRegistry()
+        val maskA = 1 shl 28
+        val maskB = 1 shl 29
+        val maskBoth = maskA or maskB
+        val opcodeA = 254
+        val opcodeB = 255
+        val opcodeOverride = 253
+
+        // register(0) rejected; unregister on absent mask is a no-op
+        assertFailsWith<IllegalArgumentException> { registry.register(0) { emptySet() } }
+        registry.unregister(maskA)
+
+        // Built-in RcProfiles delegation (HEADER opcode 0 is supported in API 6)
+        assertTrue(registry.isOpcodeSupported(0, apiLevel = 6, profileFlags = 0))
+
+        assertFalse(registry.isOpcodeSupported(opcodeA, 7, maskA))
+        registry.register(maskA) { setOf(opcodeA) }
+        assertEquals(setOf(opcodeA), registry.resolveOperationIds(maskA))
+        assertTrue(registry.isOpcodeSupported(opcodeA, 7, maskA))
+        assertFalse(registry.isOpcodeSupported(opcodeA, 7, 0))
+
+        // Separate instances remain isolated from each other
+        assertFalse(otherRegistry.isOpcodeSupported(opcodeA, 7, maskA))
+        assertTrue(otherRegistry.resolveOperationIds(maskA).isEmpty())
+
+        // apiLevel <= 6 ignores custom profile providers
+        assertFalse(registry.isOpcodeSupported(opcodeA, 6, maskA))
+
+        // Multi-provider additive union & partial-bit non-match
+        registry.register(maskBoth) { setOf(opcodeB) }
+        assertEquals(setOf(opcodeA), registry.resolveOperationIds(maskA))
+        assertFalse(registry.isOpcodeSupported(opcodeB, 7, maskA))
+        assertFalse(registry.isOpcodeSupported(opcodeB, 7, maskB))
+        assertEquals(setOf(opcodeA, opcodeB), registry.resolveOperationIds(maskBoth))
+        assertTrue(registry.isOpcodeSupported(opcodeA, 7, maskBoth))
+        assertTrue(registry.isOpcodeSupported(opcodeB, 7, maskBoth))
+
+        // Re-registering same mask overwrites previous provider
+        registry.register(maskA) { setOf(opcodeOverride) }
+        assertEquals(setOf(opcodeOverride), registry.resolveOperationIds(maskA))
+        assertFalse(registry.isOpcodeSupported(opcodeA, 7, maskA))
+        assertTrue(registry.isOpcodeSupported(opcodeOverride, 7, maskA))
+
+        registry.unregister(maskA)
+        registry.unregister(maskBoth)
+        assertTrue(registry.resolveOperationIds(maskBoth).isEmpty())
+    }
 }
