@@ -301,7 +301,7 @@ internal fun Modifier.touchActions(
     }
 }
 
-private fun applyClickAction(
+internal fun applyClickAction(
     action: Operation,
     coreDocument: CoreDocument,
     remoteContext: RemoteContext,

@@ -128,6 +128,7 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
                 Operations.BINARY_DATA,
                 Operations.MODIFIER_MULTI_CLICK,
                 Operations.MODIFIER_DIMENSION_CONSTRAINTS,
+                Operations.MODIFIER_EVENT_HANDLER,
             )
 
         /**
