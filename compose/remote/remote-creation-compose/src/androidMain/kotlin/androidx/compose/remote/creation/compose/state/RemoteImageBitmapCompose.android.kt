@@ -35,6 +35,8 @@ public fun RemoteImageBitmap(value: ImageBitmap): RemoteImageBitmap =
     MutableRemoteImageBitmap(
         constantValueOrNull = value,
         cacheKey = RemoteConstantCacheKey(value),
+        declaredWidth = value.width,
+        declaredHeight = value.height,
         idProvider = { creationState -> creationState.document.addBitmap(value.asAndroidBitmap()) },
     )
 
@@ -57,6 +59,8 @@ public fun RemoteImageBitmap.Companion.createNamedRemoteImageBitmap(
     MutableRemoteImageBitmap(
         constantValueOrNull = null,
         cacheKey = RemoteNamedCacheKey(domain, name),
+        declaredWidth = defaultValue.width,
+        declaredHeight = defaultValue.height,
     ) { creationState ->
         creationState.document.addNamedBitmap(domain.prefixed(name), defaultValue.asAndroidBitmap())
     }
@@ -72,6 +76,8 @@ public fun MutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteIma
     MutableRemoteImageBitmap(
         constantValueOrNull = initialValue,
         cacheKey = RemoteStateInstanceKey(),
+        declaredWidth = initialValue.width,
+        declaredHeight = initialValue.height,
         idProvider = { creationState ->
             creationState.document.addBitmap(initialValue.asAndroidBitmap())
         },
