@@ -37,4 +37,4 @@ internal fun isLinearizationStatusAvailable(): Boolean = isRequiredSdkExtensionA
 
 internal fun isSignatureFeatureAvailable(): Boolean = isRequiredSdkExtensionAvailable(18)
 
-internal fun isRgb565RenderingAvailable(): Boolean = isRequiredSdkExtensionAvailable(24)
+internal fun isRgb565RenderingAvailable(): Boolean = isRequiredSdkExtensionAvailable(25)
