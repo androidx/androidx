@@ -60,6 +60,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -96,6 +97,7 @@ import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.material3.onehandedgesture.DeviceInteractivity
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
 import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEnabled
 import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureManager
@@ -124,6 +126,8 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.startsWith
@@ -1223,6 +1227,415 @@ class OneHandedGestureTest {
         priority = OneHandedGesturePriority.Scrollable
         rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis + 100)
         rule.runOnIdle { assertEquals(2, indicatorShownCount) }
+    }
+
+    /**
+     * Verifies that if the device enters ambient mode before the indicator delay elapses, the
+     * indicator is neither queried nor shown.
+     */
+    @Test
+    fun ambient_mode_during_delay_skips_indicator() {
+        var gestureAvailableCount = 0
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val deviceInteractivity = FakeDeviceInteractivity()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(
+                sdkGestureInputManager,
+                deviceInteractivity = deviceInteractivity,
+            ) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                Box(
+                    Modifier.size(50.dp).oneHandedGesture(
+                        gestureConfiguration = gestureConfig,
+                        onGestureLabel = "click",
+                        onGestureAvailable = { gestureAvailableCount++ },
+                    ) {}
+                )
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis / 2)
+
+        rule.runOnUiThread { deviceInteractivity.setInteractive(false) }
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+
+        rule.runOnIdle {
+            assertEquals(0, gestureAvailableCount)
+            assertEquals(0, sdkGestureInputManager.shouldShowIndicatorCount)
+        }
+
+        rule.runOnUiThread { deviceInteractivity.setInteractive(true) }
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+
+        rule.runOnIdle {
+            assertEquals(0, gestureAvailableCount)
+            assertEquals(0, sdkGestureInputManager.shouldShowIndicatorCount)
+        }
+    }
+
+    /**
+     * Verifies that with several gestures with different indicator delays, only the indicators
+     * whose delay elapses in ambient mode are skipped, and later ones are still shown once the
+     * device exits ambient mode.
+     */
+    @Test
+    fun ambient_mode_during_delay_only_skips_gestures_whose_delay_elapsed() {
+        var primaryGestureAvailableCount = 0
+        var dismissGestureAvailableCount = 0
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val deviceInteractivity = FakeDeviceInteractivity()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(
+                sdkGestureInputManager,
+                deviceInteractivity = deviceInteractivity,
+            ) {
+                val primaryGestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                val dismissGestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Dismiss)
+                Column {
+                    Box(
+                        Modifier.size(50.dp).oneHandedGesture(
+                            gestureConfiguration = primaryGestureConfig,
+                            onGestureLabel = "click",
+                            showIndicatorDelayMillis = 1000L,
+                            onGestureAvailable = { primaryGestureAvailableCount++ },
+                        ) {}
+                    )
+                    Box(
+                        Modifier.size(50.dp).oneHandedGesture(
+                            gestureConfiguration = dismissGestureConfig,
+                            onGestureLabel = "dismiss",
+                            showIndicatorDelayMillis = 2000L,
+                            onGestureAvailable = { dismissGestureAvailableCount++ },
+                        ) {}
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(500L)
+
+        // Enter ambient mode while the first (primary) delay elapses at 1000ms...
+        rule.runOnUiThread { deviceInteractivity.setInteractive(false) }
+        rule.mainClock.advanceTimeBy(1000L)
+        rule.runOnIdle { assertEquals(0, primaryGestureAvailableCount) }
+
+        // ...and exit it before the second (dismiss) delay elapses at 2000ms.
+        rule.runOnUiThread { deviceInteractivity.setInteractive(true) }
+        rule.mainClock.advanceTimeBy(600L)
+
+        rule.runOnIdle {
+            assertEquals(0, primaryGestureAvailableCount)
+            assertEquals(1, dismissGestureAvailableCount)
+        }
+    }
+
+    /**
+     * Verifies that if the device enters ambient mode while a click indicator is animating, the
+     * animation is cancelled, the content is restored, and the indicator is not reported as shown.
+     */
+    @Test
+    fun ambient_mode_mid_animation_cancels_click_indicator() {
+        var gestureAvailableCount = 0
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val deviceInteractivity = FakeDeviceInteractivity()
+        val indicatorState = OneHandedGestureClickIndicatorState()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            val coroutineScope = rememberCoroutineScope()
+            MockSdkGestureInputManager(
+                sdkGestureInputManager,
+                deviceInteractivity = deviceInteractivity,
+            ) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                Box(
+                    Modifier.size(50.dp).oneHandedGesture(
+                        gestureConfiguration = gestureConfig,
+                        onGestureLabel = "click",
+                        onGestureAvailable = {
+                            gestureAvailableCount++
+                            coroutineScope.launch { indicatorState.showIndicator() }
+                        },
+                    ) {}
+                ) {
+                    OneHandedGestureClickIndicator(gestureConfig, indicatorState) { Text("Label") }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(
+            OneHandedGestureDefaults.ShowIndicatorDelayMillis +
+                INDICATOR_ANIMATION_START_DELAY_MILLIS +
+                100
+        )
+        rule.runOnIdle { assertEquals(true, indicatorState.active) }
+
+        rule.runOnUiThread { deviceInteractivity.setInteractive(false) }
+
+        rule.runOnIdle {
+            assertEquals(false, indicatorState.active)
+            assertEquals(1f, indicatorState.contentAlpha.value)
+            assertEquals(0f, indicatorState.scaleAnimatable.value)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+        }
+
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+
+        rule.runOnIdle {
+            assertEquals(false, indicatorState.active)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+            assertEquals(1, gestureAvailableCount)
+        }
+
+        rule.runOnUiThread { deviceInteractivity.setInteractive(true) }
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+
+        rule.runOnIdle {
+            assertEquals(1, gestureAvailableCount)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+        }
+    }
+
+    /**
+     * Verifies that if the device enters ambient mode while a scroll indicator is animating, the
+     * animation is cancelled, the indicator is reset, and it is not reported as shown.
+     */
+    @Test
+    fun ambient_mode_mid_animation_cancels_scroll_indicator() {
+        var gestureAvailableCount = 0
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val deviceInteractivity = FakeDeviceInteractivity()
+        lateinit var scrollIndicatorState: OneHandedGestureScrollIndicatorState
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            val coroutineScope = rememberCoroutineScope()
+            MockSdkGestureInputManager(
+                sdkGestureInputManager,
+                deviceInteractivity = deviceInteractivity,
+            ) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(
+                        action = OneHandedGestureAction.Primary,
+                        priority = OneHandedGesturePriority.Scrollable,
+                    )
+                scrollIndicatorState =
+                    remember(gestureConfig) { OneHandedGestureScrollIndicatorState() }
+                val scrollState = rememberTransformingLazyColumnState()
+                Box(
+                    Modifier.fillMaxSize().oneHandedGesture(
+                        gestureConfiguration = gestureConfig,
+                        onGestureLabel = "scroll",
+                        onGestureAvailable = {
+                            gestureAvailableCount++
+                            coroutineScope.launch { scrollIndicatorState.showIndicator() }
+                        },
+                    ) {}
+                ) {
+                    TransformingLazyColumn(state = scrollState) {
+                        items(20) { Text("Item $it") }
+                    }
+                    OneHandedGestureScrollIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = scrollIndicatorState,
+                        scrollState = scrollState,
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(
+            OneHandedGestureDefaults.ShowIndicatorDelayMillis +
+                INDICATOR_ANIMATION_START_DELAY_MILLIS +
+                100
+        )
+        rule.runOnIdle { assertEquals(true, scrollIndicatorState.active) }
+
+        rule.runOnUiThread { deviceInteractivity.setInteractive(false) }
+
+        rule.runOnIdle {
+            assertEquals(false, scrollIndicatorState.active)
+            assertEquals(0f, scrollIndicatorState.scaleAnimatable.value)
+            assertEquals(0f, scrollIndicatorState.colorProgress.value)
+            assertEquals(0f, scrollIndicatorState.jiggleFractionAnimatable.value)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+        }
+
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+
+        rule.runOnIdle {
+            assertEquals(false, scrollIndicatorState.active)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+            assertEquals(1, gestureAvailableCount)
+        }
+
+        rule.runOnUiThread { deviceInteractivity.setInteractive(true) }
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+
+        rule.runOnIdle {
+            assertEquals(1, gestureAvailableCount)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+        }
+    }
+
+    /**
+     * Verifies that if the device enters ambient mode while a page indicator is animating, the
+     * animation is cancelled, the indicator is reset, and it is not reported as shown.
+     */
+    @Test
+    fun ambient_mode_mid_animation_cancels_page_indicator() {
+        var gestureAvailableCount = 0
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val deviceInteractivity = FakeDeviceInteractivity()
+        val pageIndicatorState = OneHandedGesturePageIndicatorState()
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            val coroutineScope = rememberCoroutineScope()
+            MockSdkGestureInputManager(
+                sdkGestureInputManager,
+                deviceInteractivity = deviceInteractivity,
+            ) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                val pagerState = rememberPagerState(pageCount = { 3 })
+                HorizontalPagerScaffold(
+                    pagerState = pagerState,
+                    pageIndicator = {
+                        OneHandedGestureHorizontalPageIndicator(
+                            gestureConfiguration = gestureConfig,
+                            indicatorState = pageIndicatorState,
+                            pagerState = pagerState,
+                        )
+                    },
+                ) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier =
+                            Modifier.oneHandedGesture(
+                                gestureConfiguration = gestureConfig,
+                                onGestureLabel = "Page",
+                                onGestureAvailable = {
+                                    gestureAvailableCount++
+                                    coroutineScope.launch { pageIndicatorState.showIndicator() }
+                                },
+                                onGesture = {},
+                            ),
+                    ) { page ->
+                        Text(text = "Page $page")
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(
+            OneHandedGestureDefaults.ShowIndicatorDelayMillis +
+                INDICATOR_ANIMATION_START_DELAY_MILLIS +
+                100
+        )
+        rule.runOnIdle { assertEquals(true, pageIndicatorState.active) }
+
+        rule.runOnUiThread { deviceInteractivity.setInteractive(false) }
+
+        rule.runOnIdle {
+            assertEquals(false, pageIndicatorState.active)
+            assertEquals(0f, pageIndicatorState.scaleAnimatable.value)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+        }
+
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+
+        rule.runOnIdle {
+            assertEquals(false, pageIndicatorState.active)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+            assertEquals(1, gestureAvailableCount)
+        }
+
+        rule.runOnUiThread { deviceInteractivity.setInteractive(true) }
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+
+        rule.runOnIdle {
+            assertEquals(1, gestureAvailableCount)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+        }
+    }
+
+    /**
+     * Verifies that showIndicator doesn't animate the indicator while the device is in ambient
+     * mode.
+     */
+    @Test
+    fun show_indicator_in_ambient_mode_does_nothing() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val deviceInteractivity = FakeDeviceInteractivity(initiallyInteractive = false)
+        val indicatorState = OneHandedGestureClickIndicatorState()
+        lateinit var coroutineScope: CoroutineScope
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            coroutineScope = rememberCoroutineScope()
+            MockSdkGestureInputManager(
+                sdkGestureInputManager,
+                deviceInteractivity = deviceInteractivity,
+            ) {
+                val gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+                OneHandedGestureClickIndicator(gestureConfig, indicatorState) { Text("Label") }
+            }
+        }
+        rule.waitForIdle()
+
+        var showIndicatorReturned = false
+        rule.runOnIdle {
+            coroutineScope.launch {
+                indicatorState.showIndicator()
+                showIndicatorReturned = true
+            }
+        }
+        rule.mainClock.advanceTimeBy(INDICATOR_ANIMATION_START_DELAY_MILLIS + 100)
+
+        rule.runOnIdle {
+            assertEquals(true, showIndicatorReturned)
+            assertEquals(false, indicatorState.active)
+            assertEquals(1f, indicatorState.contentAlpha.value)
+            assertEquals(0f, indicatorState.scaleAnimatable.value)
+            assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount)
+        }
+    }
+
+    /**
+     * Verifies that an indicator that finishes while the device is in ambient mode is not reported
+     * as shown, e.g. if it finishes before the screen-off broadcast cancels it.
+     */
+    @Test
+    fun notify_indicator_shown_in_ambient_mode_is_not_reported() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        val deviceInteractivity = FakeDeviceInteractivity(initiallyInteractive = false)
+        lateinit var gestureManager: OneHandedGestureManager
+        lateinit var gestureConfig: OneHandedGestureConfiguration
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(
+                sdkGestureInputManager,
+                deviceInteractivity = deviceInteractivity,
+            ) {
+                gestureManager = LocalOneHandedGestureManager.current
+                gestureConfig =
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+            }
+        }
+
+        rule.runOnIdle { gestureManager.notifyIndicatorShown(gestureConfig) }
+
+        rule.runOnIdle { assertEquals(0, sdkGestureInputManager.notifyIndicatorShownCount) }
     }
 
     @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -3345,12 +3758,21 @@ class OneHandedGestureTest {
     private fun MockSdkGestureInputManager(
         sdkGestureInputManager: SdkGestureInputManager,
         results: MutableMap<HapticFeedbackType, Int> = mutableMapOf(),
+        deviceInteractivity: DeviceInteractivity = FakeDeviceInteractivity(),
         content: @Composable () -> Unit,
     ) {
         val scope: CoroutineScope = rememberCoroutineScope()
         val haptic = hapticFeedback(collectResultsFromHapticFeedback(results))
+        val applicationContext = LocalContext.current.applicationContext
         val gestureManager =
-            remember(scope) { OneHandedGestureManagerImpl(scope, sdkGestureInputManager) }
+            remember(scope) {
+                OneHandedGestureManagerImpl(
+                    applicationContext = applicationContext,
+                    scope = scope,
+                    gestureInputManager = sdkGestureInputManager,
+                    deviceInteractivity = deviceInteractivity,
+                )
+            }
 
         CompositionLocalProvider(
             LocalOneHandedGestureManager provides gestureManager,
@@ -3403,12 +3825,18 @@ class OneHandedGestureTest {
             gestureId: String,
             sdkGestureAction: Int,
             isOverlay: Boolean,
-        ): Boolean = showIndicator
+        ): Boolean {
+            shouldShowIndicatorCount++
+            return showIndicator
+        }
 
+        var shouldShowIndicatorCount = 0
+        var notifyIndicatorShownCount = 0
         var lastNotifiedGestureId: String? = null
         var lastNotifiedSdkGestureAction: Int? = null
 
         override fun notifyIndicatorShown(gestureId: String, sdkGestureAction: Int) {
+            notifyIndicatorShownCount++
             lastNotifiedGestureId = gestureId
             lastNotifiedSdkGestureAction = sdkGestureAction
         }
@@ -3424,6 +3852,22 @@ class OneHandedGestureTest {
             gestureNames[sdkGesture]
 
         private val gestureConsumers = mutableMapOf<Int, (Int) -> Unit>()
+    }
+
+    /** [DeviceInteractivity] whose interactivity is controlled by the test. */
+    private class FakeDeviceInteractivity(initiallyInteractive: Boolean = true) :
+        DeviceInteractivity {
+        private val interactive = MutableStateFlow(initiallyInteractive)
+
+        override fun isInteractive(context: Context): Boolean = interactive.value
+
+        override suspend fun awaitScreenOff(context: Context) {
+            interactive.first { !it }
+        }
+
+        fun setInteractive(isInteractive: Boolean) {
+            interactive.value = isInteractive
+        }
     }
 
     private fun verifyShowIndicatorDelay(

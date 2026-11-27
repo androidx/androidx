@@ -34,7 +34,6 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -157,7 +156,9 @@ public class OneHandedGestureClickIndicatorState @RememberInComposition construc
             // animation
             val gestureIndicator =
                 gestureManager.getRegisteredGestureIndicator(gestureConfiguration)
-            gestureIndicator?.let { coroutineScope { performAnimation(it) } }
+            gestureIndicator?.let { indicator ->
+                gestureManager.runIndicator { performAnimation(indicator) }
+            }
         }
     }
 
