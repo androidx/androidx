@@ -91,7 +91,16 @@ internal class HeadlessViewHolder(
             if (value != null) {
                 addView(value)
                 updateSize(width, height)
+                bridgeInsets?.let(value::dispatchApplyWindowInsets)
             }
+        }
+
+    /** The window insets for [view], which WebSurface works out from Compose's insets. */
+    var bridgeInsets: WindowInsets? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            value?.let { view?.dispatchApplyWindowInsets(it) }
         }
 
     // Chromium positions anchor views for in-page popups (e.g. <datalist>, tablet <select>) via
@@ -178,9 +187,13 @@ internal class HeadlessViewHolder(
     // at index 0 of AndroidComposeView from intercepting View drag events before Compose sees them.
     override fun dispatchDragEvent(event: DragEvent): Boolean = false
 
-    // Window insets belong to the Compose hierarchy; prevent listeners on the bridge from
-    // receiving or consuming insets ahead of sibling AndroidViews.
-    override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets = insets
+    // Window insets belong to the Compose hierarchy, so don't let the bridge, or listeners on it,
+    // receive or consume the View tree's insets ahead of sibling AndroidViews. It gets bridgeInsets
+    // instead, including when Chromium asks for insets again.
+    override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
+        bridgeInsets?.let { view?.dispatchApplyWindowInsets(it) }
+        return insets
+    }
 
     // Rendering is handled directly by WebSurfaceNode via Chromium's draw functor.
     override fun dispatchDraw(canvas: Canvas) {}

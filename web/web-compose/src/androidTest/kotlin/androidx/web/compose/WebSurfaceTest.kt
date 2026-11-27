@@ -40,7 +40,14 @@ import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets as ComposeWindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -106,6 +113,10 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -117,6 +128,7 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -1839,7 +1851,7 @@ class WebSurfaceTest {
     }
 
     @Test
-    fun testWindowInsetsNotDispatchedToBridgeAndPreservedForSiblingAndroidView() {
+    fun testWindowInsetsDispatchedToBridgeAndPreservedForSiblingAndroidView() {
         lateinit var hostView: View
         var bridgeSawInsets = false
         var siblingSawInsets = false
@@ -1878,8 +1890,93 @@ class WebSurfaceTest {
             val rootInsets = checkNotNull(hostView.rootWindowInsets)
             hostView.dispatchApplyWindowInsets(WindowInsets(rootInsets))
 
-            assertFalse(bridgeSawInsets)
+            assertTrue(bridgeSawInsets)
             assertTrue(siblingSawInsets)
+        }
+    }
+
+    @Test
+    fun testPageSafeAreaExcludesConsumedInsets() {
+        lateinit var bridge: WebViewBridge
+        var consumeInsets by mutableStateOf(false)
+        val window = composeTestRule.activity.window
+        composeTestRule.runOnUiThread { WindowCompat.setDecorFitsSystemWindows(window, false) }
+
+        composeTestRule.setContent {
+            WebSurface(
+                content = webContent,
+                modifier =
+                    Modifier.then(
+                            if (consumeInsets) {
+                                Modifier.consumeWindowInsets(ComposeWindowInsets.safeDrawing)
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .size(100.dp),
+                bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+            )
+        }
+        val hasStatusBar = composeTestRule.runOnIdle {
+            ViewCompat.getRootWindowInsets(window.decorView)
+                ?.isVisible(WindowInsetsCompat.Type.statusBars()) == true
+        }
+        assumeTrue(hasStatusBar)
+        bridge.loadHtml(
+            composeTestRule,
+            "<meta name='viewport' content='width=device-width, viewport-fit=cover'>" +
+                "<body style='padding-top: env(safe-area-inset-top)'></body>",
+        )
+        fun awaitPageSafeAreaTop(condition: (Float) -> Boolean) =
+            composeTestRule.waitUntil(TIMEOUT_MS) {
+                val top =
+                    bridge.evaluateJs("parseFloat(getComputedStyle(document.body).paddingTop)")
+                condition(top.toFloatOrNull() ?: 0f)
+            }
+
+        // Like other composables, the page gets the insets that nothing around it consumed.
+        awaitPageSafeAreaTop { it > 0f }
+        composeTestRule.runOnIdle { consumeInsets = true }
+        awaitPageSafeAreaTop { it == 0f }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun testPageKeyboardInsetAccountsForSurfacePosition() {
+        lateinit var hostView: View
+        lateinit var bridge: WebViewBridge
+        val window = composeTestRule.activity.window
+        composeTestRule.runOnUiThread { WindowCompat.setDecorFitsSystemWindows(window, false) }
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Column(Modifier.fillMaxSize()) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+                Spacer(Modifier.height(100.dp))
+            }
+        }
+        bridge.loadHtml(
+            composeTestRule,
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>",
+        )
+        // A 150dp keyboard covers the 100dp below the surface and the bottom 50dp of the page.
+        composeTestRule.runOnIdle {
+            val keyboard = (150 * hostView.resources.displayMetrics.density).roundToInt()
+            val insets =
+                WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, keyboard))
+                    .setVisible(WindowInsetsCompat.Type.ime(), true)
+                    .build()
+            hostView.dispatchApplyWindowInsets(checkNotNull(insets.toWindowInsets()))
+        }
+        // Like a WebView in a View hierarchy, the page's visual viewport shrinks by what's covered.
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            val covered = bridge.evaluateJs("innerHeight - visualViewport.height").toFloatOrNull()
+            covered != null && abs(covered - 50f) <= 1f
         }
     }
 
