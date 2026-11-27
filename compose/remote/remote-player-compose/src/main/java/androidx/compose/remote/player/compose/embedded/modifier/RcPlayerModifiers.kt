@@ -33,6 +33,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifie
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation
+import androidx.compose.remote.core.operations.layout.modifiers.EventHandlerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
@@ -247,6 +248,9 @@ internal fun ComponentModifiers.toModifier(
                 is CollapsiblePriorityModifierOperation -> modifier
                 is LayoutComputeOperation -> modifier
                 is AnimationSpec -> modifier
+                // EventHandlerModifierOperation handlers for key and pointer events are attached
+                // in RcPlayerComponents via keyEventActions / pointerEventActions.
+                is EventHandlerModifierOperation -> modifier
                 else -> {
                     println("Warning: Unsupported modifier $op")
                     modifier

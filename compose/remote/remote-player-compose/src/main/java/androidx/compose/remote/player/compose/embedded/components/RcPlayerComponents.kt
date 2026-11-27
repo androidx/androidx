@@ -62,6 +62,8 @@ import androidx.compose.remote.player.compose.embedded.layout.RcPlayerRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerStateLayout
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerTextInputLayout
 import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
+import androidx.compose.remote.player.compose.embedded.modifier.keyEventActions
+import androidx.compose.remote.player.compose.embedded.modifier.pointerEventActions
 import androidx.compose.remote.player.compose.embedded.modifier.toModifier
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -231,6 +233,13 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         // modifiers and outside the component's own modifiers.
         val contentModifier =
             Modifier.rcComponentOuterInspector(component)
+                // Outside the component's modifiers, so key events from a focus target they add
+                // (e.g. a clickable) bubble up to the handlers.
+                .keyEventActions(component)
+                // Outside the component's modifiers (incl. PaddingModifierOperation), so hit
+                // testing covers the component's outer bounds and local coordinates match
+                // PointerInputRouter's component-local origin.
+                .pointerEventActions(component)
                 .then(
                     component.componentModifiers.toModifier(
                         component.drawContentOperations?.list,
