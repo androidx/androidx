@@ -24,7 +24,6 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation
@@ -46,6 +45,7 @@ import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteNamedActionHandler
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
+import androidx.compose.remote.player.compose.embedded.doc.updateVariablesWithoutRcDoc
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -111,9 +111,8 @@ internal fun rememberClickActionHandlers(ops: List<Operation>): ClickActionHandl
                     onNamedAction = onNamedAction,
                 )
             }
-            coreDocument.updateVariables(
+            coreDocument.updateVariablesWithoutRcDoc(
                 remoteContext,
-                Theme.SYSTEM,
                 coreDocument.getOperationsList(),
             )
         }
@@ -177,9 +176,8 @@ internal fun Modifier.combinedClick(
                     )
                 }
             }
-            coreDocument.updateVariables(
+            coreDocument.updateVariablesWithoutRcDoc(
                 remoteContext,
-                Theme.SYSTEM,
                 coreDocument.getOperationsList(),
             )
         }
@@ -249,9 +247,8 @@ internal fun Modifier.touchActions(
                     )
                 }
             }
-            coreDocument.updateVariables(
+            coreDocument.updateVariablesWithoutRcDoc(
                 remoteContext,
-                Theme.SYSTEM,
                 coreDocument.getOperationsList(),
             )
         }

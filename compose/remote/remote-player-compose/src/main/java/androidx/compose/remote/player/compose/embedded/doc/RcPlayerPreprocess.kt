@@ -36,6 +36,7 @@ import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableProvider
 import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.operations.BinaryData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorTheme
@@ -48,6 +49,7 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.IdLookup
 import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.IntegerExpression
+import androidx.compose.remote.core.operations.MapRcDocVariables
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.ParticlesCompare
@@ -129,6 +131,8 @@ internal class DocumentPreprocessResult(
      * it from inputs that have since moved on.
      */
     val streamFloatIds: IntSet = emptyIntSet(),
+    /** [MapRcDocVariables] mappings grouped by their target `RcDocLayout` component ID. */
+    val rcDocMappingsMap: Map<Int, List<MapRcDocVariables>> = emptyMap(),
 )
 
 /**
@@ -151,6 +155,7 @@ internal fun buildComputedOpIndex(operations: Collection<Operation>): IntObjectM
             } else if (
                 op is VariableSupport &&
                     op is VariableProvider &&
+                    op !is BinaryData &&
                     op !is MatrixExpression &&
                     op !is MatrixConstant
             ) {
@@ -198,6 +203,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
     var currentTextPaintSpec = TextMeasurePaintSpec.Empty
     val touchExpressionIds = mutableIntSetOf()
     val rawComponentValues = ArrayList<ComponentValue>()
+    val rcDocMappingsMap = HashMap<Int, MutableList<MapRcDocVariables>>()
     val componentsById = mutableIntObjectMapOf<Component>()
     var hasParticles = false
     var hasWakeIn = false
@@ -386,6 +392,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
             } else if (
                 op is VariableSupport &&
                     op is VariableProvider &&
+                    op !is BinaryData &&
                     op !is PathData &&
                     op !is PathCreate &&
                     op !is PathCombine &&
@@ -447,6 +454,13 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
             }
             if (op is ComponentValue) {
                 rawComponentValues.add(op)
+            }
+
+            if (op is MapRcDocVariables) {
+                val list = rcDocMappingsMap.getOrPut(op.docId) { ArrayList() }
+                if (!list.contains(op)) {
+                    list.add(op)
+                }
             }
 
             if (op is Component) {
@@ -562,6 +576,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
         discreteTimeMask = discreteTimeMask,
         readsTouchPosition = readsTouchPosition,
         streamFloatIds = streamFloatIds,
+        rcDocMappingsMap = rcDocMappingsMap,
     )
 }
 

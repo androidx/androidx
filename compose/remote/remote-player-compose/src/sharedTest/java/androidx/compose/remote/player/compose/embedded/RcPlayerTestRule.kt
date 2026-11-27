@@ -85,6 +85,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
     fun setRemoteContent(
         customPlugins: CustomPluginRegistry? = null,
         typefaceResolver: RcTypefaceResolver? = null,
+        documentResolver: RcDocumentResolver? = null,
         profile: Profile = RcPlatformProfiles.ANDROIDX,
         onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit =
             { _, _, _ ->
@@ -139,6 +140,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                                     ?: RcPlayerFeatures.forProfiles(coreDocument.profileMask),
                             customPlugins = customPlugins,
                             typefaceResolver = typefaceResolver,
+                            documentResolver = documentResolver,
                             onNamedAction = onNamedAction,
                             onAction = onAction,
                         )

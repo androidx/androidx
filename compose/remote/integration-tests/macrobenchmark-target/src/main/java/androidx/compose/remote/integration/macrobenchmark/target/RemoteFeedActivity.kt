@@ -38,10 +38,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcResolver
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.player.compose.embedded.RcDocumentResolver
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.embedded.rememberRcPlayerState
 import androidx.compose.remote.player.core.RemoteDocument
@@ -151,6 +153,7 @@ private data class FeedConfig(
                     "poll" ->
                         listOf(BenchTemplate.AppCard, BenchTemplate.AppCard, BenchTemplate.Poll)
                     "stateful" -> listOf(BenchTemplate.Stateful)
+                    "embeddedDoc" -> listOf(BenchTemplate.EmbeddedDoc)
                     else -> listOf(BenchTemplate.AppCard)
                 }
             val parse =
@@ -179,6 +182,8 @@ private data class FeedConfig(
 @Composable
 private fun FeedScreen(config: FeedConfig) {
     val context = LocalContext.current
+    val rcResolver = remember { createFeedRcResolver() }
+    val documentResolver = remember { createFeedDocumentResolver() }
     var templateBytes by remember { mutableStateOf<Map<BenchTemplate, ByteArray>?>(null) }
 
     LaunchedEffect(config.templates, config.player) {
@@ -356,6 +361,7 @@ private fun FeedScreen(config: FeedConfig) {
                                 index = index,
                                 tick = tick,
                                 eased = config.eased,
+                                documentResolver = documentResolver,
                             )
                         }
                     }
@@ -370,6 +376,7 @@ private fun FeedScreen(config: FeedConfig) {
                                 template = template,
                                 index = index,
                                 tick = tick,
+                                rcResolver = rcResolver,
                             )
                         }
                     }
@@ -379,7 +386,11 @@ private fun FeedScreen(config: FeedConfig) {
                         if (bytes == null) {
                             PlaceholderCard(index)
                         } else {
-                            DocumentPlayerFeedCard(bytes = bytes, index = index)
+                            DocumentPlayerFeedCard(
+                                bytes = bytes,
+                                index = index,
+                                rcResolver = rcResolver,
+                            )
                         }
                     }
                 }
@@ -395,6 +406,7 @@ private fun EmbeddedFeedCard(
     index: Int,
     tick: Int,
     eased: Boolean,
+    documentResolver: RcDocumentResolver,
 ) {
     val state = rememberRcPlayerState(doc)
     if ((template == BenchTemplate.Poll || template == BenchTemplate.Live) && tick > 0) {
@@ -426,7 +438,11 @@ private fun EmbeddedFeedCard(
             trace("RemoteBench:hostUpdate") { state.intState("state").value = (tick + index) % 3 }
         }
     }
-    RcPlayer(state = state, modifier = Modifier.fillMaxWidth().height(FEED_CARD_HEIGHT))
+    RcPlayer(
+        state = state,
+        modifier = Modifier.fillMaxWidth().height(FEED_CARD_HEIGHT),
+        documentResolver = documentResolver,
+    )
 }
 
 @Composable
@@ -436,6 +452,7 @@ private fun ViewFeedCard(
     template: BenchTemplate,
     index: Int,
     tick: Int,
+    rcResolver: RcResolver,
 ) {
     val remoteDoc =
         remember(index, bytes, prepared) {
@@ -445,6 +462,7 @@ private fun ViewFeedCard(
         modifier = Modifier.fillMaxWidth().height(FEED_CARD_HEIGHT),
         factory = { context ->
             RemoteComposePlayer(context).apply {
+                setRcResolver(rcResolver)
                 layoutParams =
                     ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -454,6 +472,7 @@ private fun ViewFeedCard(
         },
         update = { player ->
             player.setTheme(Theme.LIGHT)
+            player.setRcResolver(rcResolver)
             if (prepared != null) {
                 player.setPreparedDocument(prepared)
             } else {
@@ -478,7 +497,7 @@ private fun ViewFeedCard(
 
 @OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
-private fun DocumentPlayerFeedCard(bytes: ByteArray, index: Int) {
+private fun DocumentPlayerFeedCard(bytes: ByteArray, index: Int, rcResolver: RcResolver) {
     val windowInfo = LocalWindowInfo.current
     val remoteDoc =
         remember(index, bytes) {
@@ -489,6 +508,7 @@ private fun DocumentPlayerFeedCard(bytes: ByteArray, index: Int) {
         documentWidth = windowInfo.containerSize.width,
         documentHeight = windowInfo.containerSize.height,
         modifier = Modifier.fillMaxWidth().height(FEED_CARD_HEIGHT),
+        rcResolver = rcResolver,
     )
 }
 

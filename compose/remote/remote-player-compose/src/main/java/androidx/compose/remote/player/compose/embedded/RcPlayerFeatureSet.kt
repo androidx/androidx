@@ -123,6 +123,9 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
                 Operations.LAYOUT_FLOW,
                 Operations.LAYOUT_CUSTOM,
                 Operations.LAYOUT_TEXT_INPUT,
+                Operations.LAYOUT_RC_DOC,
+                Operations.MAP_RC_DOC_VARIABLES,
+                Operations.BINARY_DATA,
                 Operations.MODIFIER_MULTI_CLICK,
                 Operations.MODIFIER_DIMENSION_CONSTRAINTS,
             )

@@ -116,12 +116,14 @@ public fun RcPlayer(
     pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
     typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
+    documentResolver: RcDocumentResolver? = LocalRcDocumentResolver.current,
 ) {
     val features =
         remember(state.document) { RcPlayerFeatures.forProfiles(state.document.profileMask) }
     RcPlayerImpl(
         state = state,
         features = features,
+        featureResolver = RcPlayerFeatures::forProfiles,
         modifier = modifier,
         imageLoader = imageLoader,
         trustedContent = trustedContent,
@@ -132,6 +134,7 @@ public fun RcPlayer(
         pendingIntents = pendingIntents,
         typefaceResolver = typefaceResolver,
         theme = theme,
+        documentResolver = documentResolver,
     )
 }
 
@@ -161,6 +164,7 @@ public fun RcPlayer(
     pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
     typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
+    documentResolver: RcDocumentResolver? = LocalRcDocumentResolver.current,
 ) {
     RcPlayerImpl(
         state = state,
@@ -175,6 +179,7 @@ public fun RcPlayer(
         pendingIntents = pendingIntents,
         typefaceResolver = typefaceResolver,
         theme = theme,
+        documentResolver = documentResolver,
     )
 }
 
@@ -194,6 +199,8 @@ internal fun RcPlayerImpl(
     pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
     typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
+    documentResolver: RcDocumentResolver? = LocalRcDocumentResolver.current,
+    featureResolver: ((Int) -> RcPlayerFeatureSet)? = null,
 ) {
     check(RemoteComposePlayerFlags.isEmbeddedPlayerEnabled) {
         "Embedded player is disabled. Set RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true to enable."
@@ -540,8 +547,15 @@ internal fun RcPlayerImpl(
                         onNamedAction(name, value, stateUpdater)
                     }
                 },
+            LocalHostRemoteActionHandler provides onAction,
+            LocalHostRemoteNamedActionHandler provides onNamedAction,
             LocalRcCustomPlugins provides customPlugins,
             LocalRcTypefaceResolver provides typefaceResolver,
+            LocalRcDocumentResolver provides documentResolver,
+            LocalRcDocMappingsMap provides preprocessed.rcDocMappingsMap,
+            LocalRcPlayerFeatures provides features,
+            LocalRcPlayerFeatureResolver provides featureResolver,
+            LocalRcPlayerTheme provides theme,
         ) {
             val animatedExpressionIds =
                 remember(document) {
@@ -604,6 +618,7 @@ public fun RcPlayer(
     pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
     typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
+    documentResolver: RcDocumentResolver? = LocalRcDocumentResolver.current,
 ) {
     val state = rememberRcPlayerState(document)
     RcPlayer(
@@ -618,6 +633,7 @@ public fun RcPlayer(
         pendingIntents = pendingIntents,
         typefaceResolver = typefaceResolver,
         theme = theme,
+        documentResolver = documentResolver,
     )
 }
 
@@ -642,6 +658,7 @@ public fun RcPlayer(
     pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
     typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
+    documentResolver: RcDocumentResolver? = LocalRcDocumentResolver.current,
 ) {
     val state = rememberRcPlayerState(document)
     RcPlayerImpl(
@@ -657,6 +674,7 @@ public fun RcPlayer(
         pendingIntents = pendingIntents,
         typefaceResolver = typefaceResolver,
         theme = theme,
+        documentResolver = documentResolver,
     )
 }
 
@@ -680,6 +698,7 @@ public fun RcPlayer(
     customPlugins: CustomPluginRegistry? = null,
     typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
+    documentResolver: RcDocumentResolver? = LocalRcDocumentResolver.current,
 ) {
     val state = rememberRcPlayerState(capturedDocument)
     RcPlayer(
@@ -694,5 +713,6 @@ public fun RcPlayer(
         pendingIntents = capturedDocument.pendingIntents,
         typefaceResolver = typefaceResolver,
         theme = theme,
+        documentResolver = documentResolver,
     )
 }

@@ -45,6 +45,7 @@ public fun ExperimentalRemoteDocumentPlayer(
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     theme: Int = Theme.SYSTEM,
     customPlugins: CustomPluginRegistry? = null,
+    documentResolver: RcDocumentResolver? = LocalRcDocumentResolver.current,
 ) {
     RcPlayer(
         document = document.document,
@@ -55,5 +56,6 @@ public fun ExperimentalRemoteDocumentPlayer(
         onNamedAction = onNamedAction,
         theme = theme,
         customPlugins = customPlugins,
+        documentResolver = documentResolver,
     )
 }
