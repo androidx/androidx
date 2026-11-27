@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStringArray
 import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.abs
 import androidx.compose.remote.creation.compose.state.acos
+import androidx.compose.remote.creation.compose.state.animatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.asin
 import androidx.compose.remote.creation.compose.state.atan
 import androidx.compose.remote.creation.compose.state.atan2
@@ -41,6 +42,7 @@ import androidx.compose.remote.creation.compose.state.ceil
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.copySign
 import androidx.compose.remote.creation.compose.state.cos
+import androidx.compose.remote.creation.compose.state.cubicEasing
 import androidx.compose.remote.creation.compose.state.exp
 import androidx.compose.remote.creation.compose.state.floor
 import androidx.compose.remote.creation.compose.state.joinToDebugString
@@ -62,12 +64,14 @@ import androidx.compose.remote.creation.compose.state.selectIfLt
 import androidx.compose.remote.creation.compose.state.sign
 import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.remote.creation.compose.state.sqrt
+import androidx.compose.remote.document.AnimationEasing
 import androidx.compose.remote.document.TextFromFloatFlags
 import androidx.compose.remote.document.intervals.ColorInterval
 import androidx.compose.remote.document.intervals.FloatInterval
 import androidx.compose.remote.document.intervals.IntInterval
 import androidx.compose.remote.document.intervals.StringSummary
 import androidx.compose.remote.document.intervals.TriState
+import androidx.compose.remote.document.packAnimationSpec
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.PI
 import kotlin.math.sqrt as mathSqrt
@@ -92,6 +96,13 @@ class RemoteValueIntervalEvaluatorTest {
         assertThat(eval.evalFloat(sin(x))).isEqualTo(FloatInterval(-1f, 1f))
         assertThat(eval.evalFloat(rand()))
             .isEqualTo(FloatInterval(0f, 1f, minInclusive = true, maxInclusive = false))
+
+        // Animated float bounds & cubic easing
+        val spec = packAnimationSpec(duration = 0.5f, type = AnimationEasing.CUBIC_STANDARD)
+        assertThat(eval.evalFloat(animatedRemoteFloat(x, spec))).isEqualTo(FloatInterval(10f, 20f))
+
+        val eased = cubicEasing(0.4f.rf, 0f.rf, 0.2f.rf, 1f.rf, (x - 10f.rf) / 10f.rf)
+        assertThat(eval.evalFloat(eased)).isEqualTo(FloatInterval.UNIT)
 
         // Built-in system time global
         assertThat(eval.evalInt(RemoteTimeVariables.hourOfDay)).isEqualTo(IntInterval(0, 23))
