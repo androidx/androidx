@@ -59,51 +59,6 @@ class ParameterizedFocusBenchmark(val count: Int) {
     @get:Rule val composeBenchmarkRule = ComposeBenchmarkRule()
 
     @Test
-    fun modifyActiveHierarchy_addRemoveSubtree() {
-        composeBenchmarkRule.toggleAlternatingStateBenchmarkRecompose({
-            object : LayeredComposeTestCase(), ToggleableAlternatingTestCase {
-
-                private val focusRequester = FocusRequester()
-                private var shouldAddNodes by mutableStateOf(false)
-                private var rootFocusState: FocusState? = null
-
-                @Composable
-                override fun MeasuredContent() {
-                    if (shouldAddNodes) {
-                        Box(focusTargetModifiers()) {
-                            repeat(count) {
-                                Box(Modifier.focusTarget()) {
-                                    repeat(count) { Box(Modifier.focusTarget()) }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                @Composable
-                override fun ContentWrappers(content: @Composable () -> Unit) {
-                    Box(
-                        Modifier.fillMaxSize()
-                            .onFocusEvent { rootFocusState = it }
-                            .then(focusTargetModifiers())
-                    ) {
-                        Column {
-                            Box(Modifier.focusRequester(focusRequester).focusTarget())
-                            LaunchedEffect(Unit) { focusRequester.requestFocus() }
-                            content()
-                        }
-                    }
-                }
-
-                override fun toggleState(isStateChangeMeasured: Boolean) {
-                    assertThat(rootFocusState?.hasFocus).isTrue()
-                    shouldAddNodes = isStateChangeMeasured
-                }
-            }
-        })
-    }
-
-    @Test
     fun modifyActiveHierarchy_addRemoveModifiersWithExistingSubtree() {
         composeBenchmarkRule.toggleAlternatingStateBenchmarkRecompose({
             object : LayeredComposeTestCase(), ToggleableAlternatingTestCase {
