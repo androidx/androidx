@@ -834,20 +834,25 @@ class RemoteComposeGeneratorTest {
         val generator = SwiftGenerator(schema)
         val code = generator.generate()
 
-        assertTrue(code.contains("public enum OpCode: UInt8, CaseIterable {"))
+        assertTrue(
+            code.contains(
+                "public enum OpCode: UInt8, CaseIterable, Equatable, Hashable, Sendable {"
+            )
+        )
         assertTrue(code.contains("case drawCircle = 46"))
         assertTrue(code.contains("case boxLayout = 202"))
-        assertTrue(code.contains("public struct DrawCircle: RemoteOperation, Equatable {"))
-        assertTrue(code.contains("public struct WireBuffer {"))
-        assertTrue(code.contains("public struct RemoteDocument {"))
+        assertTrue(code.contains("public struct DrawCircle: Equatable, Hashable, Sendable {"))
+        assertTrue(code.contains("public enum WireOperation: Equatable, Hashable, Sendable {"))
+        assertTrue(code.contains("public struct WireBuffer: Equatable, Hashable, Sendable {"))
+        assertTrue(code.contains("public struct WireDocument: Equatable, Hashable, Sendable {"))
         assertTrue(code.contains("buffer.writeFloat(radius)"))
         assertTrue(code.contains("try buffer.readFloat()"))
-        assertTrue(code.contains("guard numProps >= 0 && numProps <= MAX_HEADER_PROPERTIES else {"))
-        assertTrue(code.contains("let key = tag & 0x3F"))
+        assertTrue(code.contains("guard numProps >= 0 && numProps <= maxHeaderProperties else {"))
+        assertTrue(code.contains("let key = Int32(rawTag) & 0x3F"))
         assertTrue(code.contains("guard _argsCount >= 0 else {"))
-        assertTrue(code.contains("public mutating func readShort() throws -> Int16"))
+        assertTrue(code.contains("public mutating func readShort() throws(WireError) -> Int16"))
         assertTrue(code.contains("public mutating func writeShort(_ value: Int16)"))
-        assertTrue(code.contains("Unknown opcode:"))
+        assertTrue(code.contains("throw WireError.unknownOpCode(opByte)"))
     }
 
     @Test
@@ -2695,17 +2700,31 @@ class RemoteComposeGeneratorTest {
             "Swift must not use overflowing index + len <= data.count",
             swiftCode.contains("index + len <= data.count"),
         )
-        assertTrue(swiftCode.contains("data.startIndex == 0 ? data : Data(data)"))
+        assertFalse("Swift must not import Foundation", swiftCode.contains("import Foundation"))
+        assertFalse("Swift must not throw NSError", swiftCode.contains("NSError"))
+        assertFalse(
+            "Swift must not emit unqualified min() or max() that fields can shadow",
+            Regex("""(?<!Swift\.)\b(?:min|max)\(""").containsMatchIn(swiftCode),
+        )
+        assertTrue(swiftCode.contains("public private(set) var data: [UInt8]"))
         assertTrue(swiftCode.contains("public private(set) var index: Int = 0"))
-        assertTrue(swiftCode.contains("MAX_HEADER_PROPERTIES"))
-        assertTrue(swiftCode.contains("MAX_OPERATION_COUNT"))
-        assertTrue(swiftCode.contains("Unexpected Header opcode inside document body"))
-        assertTrue(swiftCode.contains("Compressed RemoteCompose documents are not supported"))
-        assertTrue(swiftCode.contains("Invalid header magic number"))
+        assertTrue(swiftCode.contains("maxHeaderProperties"))
+        assertTrue(swiftCode.contains("maxOperationCount"))
+        assertTrue(swiftCode.contains("throw WireError.unexpectedHeaderInBody"))
+        assertTrue(swiftCode.contains("throw WireError.compressedDocumentUnsupported"))
+        assertTrue(swiftCode.contains("throw WireError.invalidHeaderMagic(rawMajor)"))
         assertTrue(swiftCode.contains("guard _glyphsCount <= buffer.remaining / 20 else"))
         assertTrue(swiftCode.contains("guard sparseCount <= buffer.remaining / 2 else"))
-        assertTrue(swiftCode.contains("Invalid enum value for mode"))
-        assertTrue(swiftCode.contains("Invalid enum value for attributeType"))
+        assertTrue(
+            swiftCode.contains(
+                "throw WireError.invalidFieldValue(owner: \"ColorExpression\", field: \"mode\""
+            )
+        )
+        assertTrue(
+            swiftCode.contains(
+                "throw WireError.invalidFieldValue(owner: \"GraphicsLayerAttribute\", field: \"attributeType\""
+            )
+        )
         assertTrue(swiftCode.contains("buffer.readUTF8(maxLength: 4000)"))
         assertTrue(swiftCode.contains("buffer.readBuffer(maxLength: 800000)"))
         assertTrue(swiftCode.contains("(raw_versionAndNumGlyphs >> 16)"))
@@ -3618,18 +3637,18 @@ class RemoteComposeGeneratorTest {
         // Verify SwiftGenerator
         val swiftCode = SwiftGenerator(synSchema).generate()
         assertTrue(
-            "Swift protocol write must throw",
-            swiftCode.contains("func write(to buffer: inout WireBuffer) throws"),
+            "Swift WireOperation write must use typed throws(WireError)",
+            swiftCode.contains("public func write(to buffer: inout WireBuffer) throws(WireError)"),
         )
         assertTrue(
-            "Swift save must throw and forward try op.write",
-            swiftCode.contains("public func save() throws -> Data") &&
+            "Swift WireDocument.save must return [UInt8] with typed throws and forward try op.write",
+            swiftCode.contains("public func save() throws(WireError) -> [UInt8]") &&
                 swiftCode.contains("try op.write(to: &buffer)"),
         )
         assertTrue(
-            "Swift must throw NSError instead of preconditionFailure on missing required field",
+            "Swift must throw WireError.missingRequiredField instead of preconditionFailure",
             swiftCode.contains(
-                "throw NSError(domain: \"SyntheticTestOp\", code: 3, userInfo: [NSLocalizedDescriptionKey: \"Missing required field optPacked\"])"
+                "throw WireError.missingRequiredField(owner: \"SyntheticTestOp\", field: \"optPacked\")"
             ) && !swiftCode.contains("preconditionFailure"),
         )
         assertTrue(
@@ -4006,12 +4025,14 @@ class RemoteComposeGeneratorTest {
         val swiftSrc = SwiftGenerator(schema).generate()
         assertTrue(
             swiftSrc.contains(
-                "throw NSError(domain: \"HeaderProperty\", code: 3, userInfo: [NSLocalizedDescriptionKey: \"Missing required field intValue\"])"
+                "throw WireError.missingRequiredField(owner: \"HeaderProperty\", field: \"intValue\")"
             )
         )
         assertTrue(
             "Swift modern Header must default omitted width/height to 256",
-            swiftSrc.contains("doc.width = 256") && swiftSrc.contains("doc.height = 256"),
+            swiftSrc.contains("public static let defaultDimension: Int32 = 256") &&
+                swiftSrc.contains("doc.width = defaultDimension") &&
+                swiftSrc.contains("doc.height = defaultDimension"),
         )
         val pySrc = PythonGenerator(schema).generate()
         assertTrue(pySrc.contains("raise ValueError(\"Missing required field intValue\")"))
@@ -5029,31 +5050,65 @@ class RemoteComposeGeneratorTest {
         val swiftCode = SwiftGenerator(schema).generate()
         for (marker in
             listOf(
+                "public enum OpCode: UInt8, CaseIterable, Equatable, Hashable, Sendable",
+                "public enum WireError: Error, Equatable, Hashable, Sendable",
+                "public struct WireBuffer: Equatable, Hashable, Sendable",
+                "public enum WireOperation: Equatable, Hashable, Sendable",
+                "public struct WireDocument: Equatable, Hashable, Sendable",
+                "public enum HeaderPropertyValue: Equatable, Hashable, Sendable",
+                "public struct WireHeaderProperty: Equatable, Hashable, Sendable",
+                "private func wireFloatEquals(_ lhs: Float, _ rhs: Float) -> Bool",
+                "public static func == (lhs: HeaderPropertyValue, rhs: HeaderPropertyValue) -> Bool",
+                "public static func == (lhs: FloatExpression, rhs: FloatExpression) -> Bool",
+                "let itemLen = Int(UInt16(bitPattern: try buffer.readShort()))",
+                "let dataType = Int32(rawTag) >> 10",
+                "case unknown(dataType: Int32, payload: [UInt8])",
+                "let payload = try buffer.readBytes(count: itemLen)",
+                "buffer.writeBytes(payload)",
+                "outProps.lastIndex(where:",
+                "guard majorVersion >= 0 && majorVersion <= 0xFFFF else",
+                "if capabilities >= 0 && capabilities <= Int64(UInt32.max)",
                 "public enum IdEncoding",
+                "public static let nanExponent: Int32 = 2139095040",
+                "public static let noId: Int32 = -1",
                 "public enum HeaderConstants",
                 "public enum PaintCommandTags",
                 "public enum PaintConstants",
                 "public enum PathCommandTags",
                 "public enum RemoteContextIds",
                 "public enum AnimationEasing",
-                "public struct FloatAnimationSpec: Equatable",
+                "public struct FloatAnimationSpec: Equatable, Hashable, Sendable",
                 "public static func == (lhs: FloatAnimationSpec, rhs: FloatAnimationSpec) -> Bool",
-                "public indirect enum PathEffect: Equatable",
-                "public enum PathCommand: Equatable",
+                "public func hash(into hasher: inout Hasher)",
+                "public indirect enum PathEffect: Equatable, Hashable, Sendable",
+                "public static func == (lhs: PathEffect, rhs: PathEffect) -> Bool",
+                "public enum PathCommand: Equatable, Hashable, Sendable",
+                "public static func == (lhs: PathCommand, rhs: PathCommand) -> Bool",
                 "public var isSpringAnimation: Bool",
-                "public func unpackAnimationSpec() throws -> FloatAnimationSpec",
-                "public func encode() throws -> [Float]",
+                "public func unpackAnimationSpec() throws(WireError) -> FloatAnimationSpec",
+                "public func encode() throws(WireError) -> [Float]",
                 "public var uncompressedByteSize: Int64",
                 "multipliedReportingOverflow",
                 "public func decodePathCommands() -> [PathCommand]",
                 "public var alphaPayload: Int32",
+                "reserveCapacity(Swift.min(",
+                "public static let roundedRectangle: Int32 = 2",
             )) {
             assertTrue("Swift output missing: $marker", swiftCode.contains(marker))
         }
         assertFalse(
-            "Swift output must not reference undefined WireError",
-            swiftCode.contains("WireError"),
+            "Swift output must not define RemoteOperation protocol",
+            swiftCode.contains("protocol RemoteOperation"),
         )
+        assertFalse(
+            "Swift output must not define RemoteDocument",
+            swiftCode.contains("struct RemoteDocument"),
+        )
+        assertFalse(
+            "Swift output must not import Foundation",
+            swiftCode.contains("import Foundation"),
+        )
+        assertFalse("Swift output must not throw NSError", swiftCode.contains("NSError"))
 
         // Standalone Rust generateStruct output must not reference module-level protocol helpers
         val standaloneFloatExpr =

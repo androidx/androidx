@@ -1488,51 +1488,70 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
     // Swift
     // =========================================================================================
 
+    private fun toSwiftLowerCamel(name: String): String {
+        val raw =
+            if ('_' in name || name.all { !it.isLowerCase() }) {
+                val parts = name.split('_').filter { it.isNotEmpty() }
+                if (parts.isEmpty()) {
+                    name.lowercase()
+                } else {
+                    parts[0].lowercase() +
+                        parts.drop(1).joinToString("") { p ->
+                            p[0].uppercaseChar() + p.substring(1).lowercase()
+                        }
+                }
+            } else {
+                name.replaceFirstChar { it.lowercaseChar() }
+            }
+        val safe = if (raw.isNotEmpty() && raw[0].isDigit()) "_$raw" else raw
+        return if (safe in SWIFT_KEYWORDS) "`$safe`" else safe
+    }
+
     fun emitSwiftOpEnumConstants(w: CodeWriter, fields: List<SchemaField>) {
         val consts = collectEnumConstants(fields)
         if (consts.isEmpty()) return
         for ((k, v) in consts) {
-            w.line("public static let $k: Int32 = $v")
+            w.line("public static let ${toSwiftLowerCamel(k)}: Int32 = $v")
         }
     }
 
     fun emitSwiftProtocol(w: CodeWriter) {
         schema.idEncoding?.let { enc ->
             w.block("public enum IdEncoding") {
-                line("public static let NAN_PREFIX: Int32 = ${enc.nanPrefix}")
-                line("public static let NAN_EXPONENT: Int32 = ${enc.nanExponent}")
-                line("public static let PAYLOAD_MASK: Int32 = ${enc.payloadMask}")
-                line("public static let NO_ID: Int32 = ${enc.noId}")
-                line("public static let START_ID: Int32 = ${enc.startId}")
-                line("public static let REGION_MASK: Int32 = ${enc.regionMask}")
-                line("public static let REGION_SUB_ID_MASK: Int32 = ${enc.regionSubIdMask}")
-                line("public static let REGION_SYSTEM: Int32 = ${enc.regionSystem}")
-                line("public static let REGION_VARIABLE: Int32 = ${enc.regionVariable}")
-                line("public static let REGION_ARRAY: Int32 = ${enc.regionArray}")
-                line("public static let REGION_OPERATION: Int32 = ${enc.regionOperation}")
-                line("public static let START_ARRAY_ID: Int32 = ${enc.regionArray + enc.startId}")
-                line("public static let LONG_ID_OFFSET: Int64 = ${enc.longIdOffset}")
-                line("public static let PTR_DEREFERENCE: Int32 = ${enc.ptrDereference}")
-                line("public static let VALUE_MASK: Int32 = ${enc.valueMask}")
-                line("public static let MACRO_LOCAL_START_ID: Int32 = ${enc.macroLocalStartId}")
-                line("public static let MACRO_LOCAL_END_ID: Int32 = ${enc.macroLocalEndId}")
+                line("public static let nanPrefix: Int32 = ${enc.nanPrefix}")
+                line("public static let nanExponent: Int32 = ${enc.nanExponent}")
+                line("public static let payloadMask: Int32 = ${enc.payloadMask}")
+                line("public static let noId: Int32 = ${enc.noId}")
+                line("public static let startId: Int32 = ${enc.startId}")
+                line("public static let regionMask: Int32 = ${enc.regionMask}")
+                line("public static let regionSubIdMask: Int32 = ${enc.regionSubIdMask}")
+                line("public static let regionSystem: Int32 = ${enc.regionSystem}")
+                line("public static let regionVariable: Int32 = ${enc.regionVariable}")
+                line("public static let regionArray: Int32 = ${enc.regionArray}")
+                line("public static let regionOperation: Int32 = ${enc.regionOperation}")
+                line("public static let startArrayId: Int32 = ${enc.regionArray + enc.startId}")
+                line("public static let longIdOffset: Int64 = ${enc.longIdOffset}")
+                line("public static let ptrDereference: Int32 = ${enc.ptrDereference}")
+                line("public static let valueMask: Int32 = ${enc.valueMask}")
+                line("public static let macroLocalStartId: Int32 = ${enc.macroLocalStartId}")
+                line("public static let macroLocalEndId: Int32 = ${enc.macroLocalEndId}")
                 line(
-                    "public static func isNanBits(_ bits: Int32) -> Bool { (bits & NAN_EXPONENT) == NAN_EXPONENT && (bits & PAYLOAD_MASK) != 0 }"
+                    "public static func isNanBits(_ bits: Int32) -> Bool { (bits & nanExponent) == nanExponent && (bits & payloadMask) != 0 }"
                 )
                 line(
-                    "public static func idFromNanBits(_ bits: Int32) -> Int32 { isNanBits(bits) ? (bits & PAYLOAD_MASK) : NO_ID }"
+                    "public static func idFromNanBits(_ bits: Int32) -> Int32 { isNanBits(bits) ? (bits & payloadMask) : noId }"
                 )
                 line(
-                    "public static func asNanBits(_ id: Int32) -> Int32 { (id & PAYLOAD_MASK) | NAN_PREFIX }"
+                    "public static func asNanBits(_ id: Int32) -> Int32 { (id & payloadMask) | nanPrefix }"
                 )
                 line(
-                    "public static func isDereferenced(_ raw: Int32) -> Bool { (raw & PTR_DEREFERENCE) != 0 }"
+                    "public static func isDereferenced(_ raw: Int32) -> Bool { (raw & ptrDereference) != 0 }"
                 )
                 line(
-                    "public static func directId(_ raw: Int32) -> Int32? { isDereferenced(raw) ? nil : (raw & VALUE_MASK) }"
+                    "public static func directId(_ raw: Int32) -> Int32? { isDereferenced(raw) ? nil : (raw & valueMask) }"
                 )
                 line(
-                    "public static func pointerId(_ raw: Int32) -> Int32? { isDereferenced(raw) ? (raw & VALUE_MASK) : nil }"
+                    "public static func pointerId(_ raw: Int32) -> Int32? { isDereferenced(raw) ? (raw & valueMask) : nil }"
                 )
             }
             w.line()
@@ -1542,7 +1561,7 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
             w.block("public enum HeaderConstants") {
                 for ((_, group) in schema.headerConstants) {
                     for ((k, v) in group.entries.sortedBy { it.value }) {
-                        line("public static let $k: Int32 = $v")
+                        line("public static let ${toSwiftLowerCamel(k)}: Int32 = $v")
                     }
                 }
             }
@@ -1553,14 +1572,14 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
             w.block("public enum PaintCommandTags") {
                 for ((id, cmd) in schema.paintCommands.entries.sortedBy { it.key }) {
                     line(
-                        "public static let ${SchemaOperation.toScreamingSnakeCase(cmd.name)}: Int32 = $id"
+                        "public static let ${toSwiftLowerCamel(SchemaOperation.toScreamingSnakeCase(cmd.name))}: Int32 = $id"
                     )
                 }
             }
             w.line()
             w.block("public enum PaintConstants") {
                 for ((k, v) in collectPaintConstants()) {
-                    line("public static let $k: Int32 = $v")
+                    line("public static let ${toSwiftLowerCamel(k)}: Int32 = $v")
                 }
             }
             w.line()
@@ -1570,7 +1589,7 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
             w.block("public enum PathCommandTags") {
                 for ((id, cmd) in schema.pathCommands.entries.sortedBy { it.key }) {
                     line(
-                        "public static let ${SchemaOperation.toScreamingSnakeCase(cmd.name)}: Int32 = $id"
+                        "public static let ${toSwiftLowerCamel(SchemaOperation.toScreamingSnakeCase(cmd.name))}: Int32 = $id"
                     )
                 }
             }
@@ -1581,7 +1600,9 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
             val timeIds = schema.systemVariables.filter { it.isTime }.map { it.id }.sorted()
             w.block("public enum RemoteContextIds") {
                 for (sv in schema.systemVariables) {
-                    line("public static let ID_${sv.name}: Int32 = ${sv.id}")
+                    line(
+                        "public static let ${toSwiftLowerCamel("ID_${sv.name}")}: Int32 = ${sv.id}"
+                    )
                 }
                 val expr =
                     if (timeIds.isEmpty()) "false"
@@ -1596,9 +1617,9 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
         schema.animationSpec?.let { anim ->
             w.block("public enum AnimationEasing") {
                 for (e in anim.easings.sortedBy { it.id }) {
-                    line("public static let ${e.name}: Int32 = ${e.id}")
+                    line("public static let ${toSwiftLowerCamel(e.name)}: Int32 = ${e.id}")
                     for (a in e.aliases) {
-                        line("public static let $a: Int32 = ${e.id}")
+                        line("public static let ${toSwiftLowerCamel(a)}: Int32 = ${e.id}")
                     }
                 }
                 block("public static func cubicControlPoints(_ type: Int32) -> [Float]?") {
@@ -1606,7 +1627,7 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                         for (e in anim.easings.sortedBy { it.id }) {
                             val pts = e.cubicControlPoints ?: continue
                             line(
-                                "case ${e.name}: return [${pts[0]}, ${pts[1]}, ${pts[2]}, ${pts[3]}]"
+                                "case ${toSwiftLowerCamel(e.name)}: return [${pts[0]}, ${pts[1]}, ${pts[2]}, ${pts[3]}]"
                             )
                         }
                         line("default: return nil")
@@ -1614,7 +1635,7 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 }
             }
             w.line()
-            w.block("public struct FloatAnimationSpec: Equatable") {
+            w.block("public struct FloatAnimationSpec: Equatable, Hashable, Sendable") {
                 line("public var duration: Float")
                 line("public var type: Int32")
                 line("public var params: [Float]")
@@ -1623,7 +1644,7 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 line("public var directionalSnap: Int32")
                 line("public var isPropagate: Bool")
                 block(
-                    "public init(duration: Float = 1.0, type: Int32 = AnimationEasing.CUBIC_STANDARD, params: [Float] = [], initialValue: Float = .nan, wrap: Float = .nan, directionalSnap: Int32 = 0, isPropagate: Bool = false)"
+                    "public init(duration: Float = 1.0, type: Int32 = AnimationEasing.cubicStandard, params: [Float] = [], initialValue: Float = .nan, wrap: Float = .nan, directionalSnap: Int32 = 0, isPropagate: Bool = false)"
                 ) {
                     line("self.duration = duration")
                     line("self.type = type")
@@ -1648,12 +1669,27 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                     line("    && lhs.directionalSnap == rhs.directionalSnap")
                     line("    && lhs.isPropagate == rhs.isPropagate")
                 }
+                block("public func hash(into hasher: inout Hasher)") {
+                    line(
+                        "let norm: (Float) -> UInt32 = { \$0.isNaN ? 0x7FC0_0000 : (\$0 == 0 ? 0 : \$0.bitPattern) }"
+                    )
+                    line("hasher.combine(norm(duration))")
+                    line("hasher.combine(type)")
+                    line("hasher.combine(params.count)")
+                    line("for p in params { hasher.combine(norm(p)) }")
+                    line("hasher.combine(norm(initialValue))")
+                    line("hasher.combine(norm(wrap))")
+                    line("hasher.combine(directionalSnap)")
+                    line("hasher.combine(isPropagate)")
+                }
                 line(
                     "public static func isSpring(_ data: [Float]) -> Bool { data.count > 4 && data[0] == 0.0 }"
                 )
-                block("public static func unpack(_ data: [Float]) throws -> FloatAnimationSpec") {
+                block(
+                    "public static func unpack(_ data: [Float]) throws(WireError) -> FloatAnimationSpec"
+                ) {
                     line(
-                        "if isSpring(data) { throw NSError(domain: \"FloatAnimationSpec\", code: 2, userInfo: [NSLocalizedDescriptionKey: \"Spring animation specs cannot be unpacked with unpackAnimationSpec\"]) }"
+                        "if isSpring(data) { throw WireError.invalidAnimationSpec(\"Spring animation specs cannot be unpacked with unpackAnimationSpec\") }"
                     )
                     line("var out = FloatAnimationSpec()")
                     line("if data.isEmpty { return out }")
@@ -1667,20 +1703,20 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                     line("out.isPropagate = ((bits >> 12) & 1) != 0")
                     line("let paramLen = Int((bits >> 16) & 0xFFFF)")
                     line(
-                        "if 2 + paramLen > data.count { throw NSError(domain: \"FloatAnimationSpec\", code: 2, userInfo: [NSLocalizedDescriptionKey: \"Truncated animation spec params\"]) }"
+                        "if 2 + paramLen > data.count { throw WireError.invalidAnimationSpec(\"Truncated animation spec params\") }"
                     )
                     line("out.params = Array(data[2..<(2 + paramLen)])")
                     line("var off = 2 + paramLen")
                     line(
-                        "if hasInit { if off >= data.count { throw NSError(domain: \"FloatAnimationSpec\", code: 2, userInfo: [NSLocalizedDescriptionKey: \"Truncated animation spec initialValue\"]) }; out.initialValue = data[off]; off += 1 }"
+                        "if hasInit { if off >= data.count { throw WireError.invalidAnimationSpec(\"Truncated animation spec initialValue\") }; out.initialValue = data[off]; off += 1 }"
                     )
                     line(
-                        "if hasWrap { if off >= data.count { throw NSError(domain: \"FloatAnimationSpec\", code: 2, userInfo: [NSLocalizedDescriptionKey: \"Truncated animation spec wrap\"]) }; out.wrap = data[off] }"
+                        "if hasWrap { if off >= data.count { throw WireError.invalidAnimationSpec(\"Truncated animation spec wrap\") }; out.wrap = data[off] }"
                     )
                     line("return out")
                 }
                 block(
-                    "public static func pack(duration: Float = 1.0, type: Int32 = AnimationEasing.CUBIC_STANDARD, spec: [Float]? = nil, initialValue: Float = .nan, wrap: Float = .nan) -> [Float]"
+                    "public static func pack(duration: Float = 1.0, type: Int32 = AnimationEasing.cubicStandard, spec: [Float]? = nil, initialValue: Float = .nan, wrap: Float = .nan) -> [Float]"
                 ) {
                     line("var count = 0")
                     line("let hasInit = !initialValue.isNaN")
@@ -1688,7 +1724,7 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                     line("if hasInit { count += 1 }")
                     line("if spec != nil { count += 1 }")
                     line(
-                        "if spec != nil || type != AnimationEasing.CUBIC_STANDARD { count += 1 + (spec?.count ?? 0) }"
+                        "if spec != nil || type != AnimationEasing.cubicStandard { count += 1 + (spec?.count ?? 0) }"
                     )
                     line("if hasInit { count += 1 }")
                     line("if hasWrap { count += 1 }")
@@ -1719,42 +1755,42 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 "public func isSpringAnimationSpec(_ data: [Float]) -> Bool { FloatAnimationSpec.isSpring(data) }"
             )
             w.line(
-                "public func unpackAnimationSpec(_ data: [Float]) throws -> FloatAnimationSpec { try FloatAnimationSpec.unpack(data) }"
+                "public func unpackAnimationSpec(_ data: [Float]) throws(WireError) -> FloatAnimationSpec { try FloatAnimationSpec.unpack(data) }"
             )
             w.line(
-                "public func packAnimationSpec(duration: Float = 1.0, type: Int32 = AnimationEasing.CUBIC_STANDARD, spec: [Float]? = nil, initialValue: Float = .nan, wrap: Float = .nan) -> [Float] { FloatAnimationSpec.pack(duration: duration, type: type, spec: spec, initialValue: initialValue, wrap: wrap) }"
+                "public func packAnimationSpec(duration: Float = 1.0, type: Int32 = AnimationEasing.cubicStandard, spec: [Float]? = nil, initialValue: Float = .nan, wrap: Float = .nan) -> [Float] { FloatAnimationSpec.pack(duration: duration, type: type, spec: spec, initialValue: initialValue, wrap: wrap) }"
             )
             w.line()
         }
 
         schema.pathEffects?.let { pe ->
-            w.block("public indirect enum PathEffect: Equatable") {
+            w.block("public indirect enum PathEffect: Equatable, Hashable, Sendable") {
                 line("case dash(phase: Float, intervals: [Float])")
                 line("case discrete(segmentLength: Float, deviation: Float)")
                 line("case pathDash(shapeId: Int32, advance: Float, phase: Float, style: Int32)")
                 line("case sum(PathEffect, PathEffect)")
                 line("case compose(PathEffect, PathEffect)")
                 for (t in pe.types.sortedBy { it.id }) {
-                    line("public static let ${t.constName}: Int32 = ${t.id}")
+                    line("public static let ${toSwiftLowerCamel(t.constName)}: Int32 = ${t.id}")
                 }
-                line("public static let MAX_DASH_INTERVALS: Int = ${pe.maxDashIntervals}")
-                line("public static let MAX_NESTING_DEPTH: Int = ${pe.maxNestingDepth}")
-                block("public func encode() throws -> [Float]") {
+                line("public static let maxDashIntervals: Int = ${pe.maxDashIntervals}")
+                line("public static let maxNestingDepth: Int = ${pe.maxNestingDepth}")
+                block("public func encode() throws(WireError) -> [Float]") {
                     block("switch self") {
                         line(
-                            "case let .dash(phase, intervals): if intervals.count > Self.MAX_DASH_INTERVALS { throw NSError(domain: \"PathEffect\", code: 1, userInfo: [NSLocalizedDescriptionKey: \"Dash interval count (\\(intervals.count)) exceeds MAX_DASH_INTERVALS (\\(Self.MAX_DASH_INTERVALS))\"]) }; return [Float(bitPattern: UInt32(bitPattern: Self.TYPE_DASH)), phase, Float(bitPattern: UInt32(intervals.count))] + intervals"
+                            "case let .dash(phase, intervals): if intervals.count > Self.maxDashIntervals { throw WireError.invalidPathEffect(\"Dash interval count (\\(intervals.count)) exceeds maxDashIntervals (\\(Self.maxDashIntervals))\") }; return [Float(bitPattern: UInt32(bitPattern: Self.typeDash)), phase, Float(bitPattern: UInt32(intervals.count))] + intervals"
                         )
                         line(
-                            "case let .discrete(segmentLength, deviation): return [Float(bitPattern: UInt32(bitPattern: Self.TYPE_DISCRETE)), segmentLength, deviation]"
+                            "case let .discrete(segmentLength, deviation): return [Float(bitPattern: UInt32(bitPattern: Self.typeDiscrete)), segmentLength, deviation]"
                         )
                         line(
-                            "case let .pathDash(shapeId, advance, phase, style): return [Float(bitPattern: UInt32(bitPattern: Self.TYPE_PATH_DASH)), Float(bitPattern: UInt32(bitPattern: shapeId)), advance, phase, Float(bitPattern: UInt32(bitPattern: style))]"
+                            "case let .pathDash(shapeId, advance, phase, style): return [Float(bitPattern: UInt32(bitPattern: Self.typePathDash)), Float(bitPattern: UInt32(bitPattern: shapeId)), advance, phase, Float(bitPattern: UInt32(bitPattern: style))]"
                         )
                         line(
-                            "case let .sum(a, b): return [Float(bitPattern: UInt32(bitPattern: Self.TYPE_SUM))] + (try a.encode()) + (try b.encode())"
+                            "case let .sum(a, b): return [Float(bitPattern: UInt32(bitPattern: Self.typeSum))] + (try a.encode()) + (try b.encode())"
                         )
                         line(
-                            "case let .compose(a, b): return [Float(bitPattern: UInt32(bitPattern: Self.TYPE_COMPOSE))] + (try a.encode()) + (try b.encode())"
+                            "case let .compose(a, b): return [Float(bitPattern: UInt32(bitPattern: Self.typeCompose))] + (try a.encode()) + (try b.encode())"
                         )
                     }
                 }
@@ -1769,26 +1805,82 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 block(
                     "private static func parseOne(_ data: [Float], _ cursor: inout Int, _ depth: Int) -> PathEffect?"
                 ) {
-                    line("if depth > MAX_NESTING_DEPTH || cursor >= data.count { return nil }")
+                    line("if depth > maxNestingDepth || cursor >= data.count { return nil }")
                     line("let idx = cursor")
                     line("let tag = Int32(bitPattern: data[idx].bitPattern)")
                     block("switch tag") {
                         line(
-                            "case TYPE_DASH: if idx + 3 > data.count { return nil }; let count = Int(Int32(bitPattern: data[idx + 2].bitPattern)); if count < 0 || count > MAX_DASH_INTERVALS || count > data.count - (idx + 3) { return nil }; cursor = idx + 3 + count; return .dash(phase: data[idx + 1], intervals: Array(data[(idx + 3)..<(idx + 3 + count)]))"
+                            "case typeDash: if idx + 3 > data.count { return nil }; let count = Int(Int32(bitPattern: data[idx + 2].bitPattern)); if count < 0 || count > maxDashIntervals || count > data.count - (idx + 3) { return nil }; cursor = idx + 3 + count; return .dash(phase: data[idx + 1], intervals: Array(data[(idx + 3)..<(idx + 3 + count)]))"
                         )
                         line(
-                            "case TYPE_DISCRETE: if idx + 3 > data.count { return nil }; cursor = idx + 3; return .discrete(segmentLength: data[idx + 1], deviation: data[idx + 2])"
+                            "case typeDiscrete: if idx + 3 > data.count { return nil }; cursor = idx + 3; return .discrete(segmentLength: data[idx + 1], deviation: data[idx + 2])"
                         )
                         line(
-                            "case TYPE_PATH_DASH: if idx + 5 > data.count { return nil }; cursor = idx + 5; return .pathDash(shapeId: Int32(bitPattern: data[idx + 1].bitPattern), advance: data[idx + 2], phase: data[idx + 3], style: Int32(bitPattern: data[idx + 4].bitPattern))"
+                            "case typePathDash: if idx + 5 > data.count { return nil }; cursor = idx + 5; return .pathDash(shapeId: Int32(bitPattern: data[idx + 1].bitPattern), advance: data[idx + 2], phase: data[idx + 3], style: Int32(bitPattern: data[idx + 4].bitPattern))"
                         )
                         line(
-                            "case TYPE_SUM: cursor = idx + 1; guard let a = parseOne(data, &cursor, depth + 1), let b = parseOne(data, &cursor, depth + 1) else { return nil }; return .sum(a, b)"
+                            "case typeSum: cursor = idx + 1; guard let a = parseOne(data, &cursor, depth + 1), let b = parseOne(data, &cursor, depth + 1) else { return nil }; return .sum(a, b)"
                         )
                         line(
-                            "case TYPE_COMPOSE: cursor = idx + 1; guard let a = parseOne(data, &cursor, depth + 1), let b = parseOne(data, &cursor, depth + 1) else { return nil }; return .compose(a, b)"
+                            "case typeCompose: cursor = idx + 1; guard let a = parseOne(data, &cursor, depth + 1), let b = parseOne(data, &cursor, depth + 1) else { return nil }; return .compose(a, b)"
                         )
                         line("default: return nil")
+                    }
+                }
+                block("public static func == (lhs: PathEffect, rhs: PathEffect) -> Bool") {
+                    block("switch (lhs, rhs)") {
+                        line(
+                            "case (.dash(let lp, let li), .dash(let rp, let ri)): return wireFloatEquals(lp, rp) && wireFloatEquals(li, ri)"
+                        )
+                        line(
+                            "case (.discrete(let ls, let ld), .discrete(let rs, let rd)): return wireFloatEquals(ls, rs) && wireFloatEquals(ld, rd)"
+                        )
+                        line(
+                            "case (.pathDash(let lShape, let lAdv, let lPhase, let lStyle), .pathDash(let rShape, let rAdv, let rPhase, let rStyle)): return lShape == rShape && wireFloatEquals(lAdv, rAdv) && wireFloatEquals(lPhase, rPhase) && lStyle == rStyle"
+                        )
+                        line(
+                            "case (.sum(let la, let lb), .sum(let ra, let rb)): return la == ra && lb == rb"
+                        )
+                        line(
+                            "case (.compose(let la, let lb), .compose(let ra, let rb)): return la == ra && lb == rb"
+                        )
+                        line("default: return false")
+                    }
+                }
+                block("public func hash(into hasher: inout Hasher)") {
+                    block("switch self") {
+                        line("case .dash(let phase, let intervals):")
+                        indent {
+                            line("hasher.combine(0)")
+                            line("wireFloatHash(phase, into: &hasher)")
+                            line("wireFloatHash(intervals, into: &hasher)")
+                        }
+                        line("case .discrete(let segmentLength, let deviation):")
+                        indent {
+                            line("hasher.combine(1)")
+                            line("wireFloatHash(segmentLength, into: &hasher)")
+                            line("wireFloatHash(deviation, into: &hasher)")
+                        }
+                        line("case .pathDash(let shapeId, let advance, let phase, let style):")
+                        indent {
+                            line("hasher.combine(2)")
+                            line("hasher.combine(shapeId)")
+                            line("wireFloatHash(advance, into: &hasher)")
+                            line("wireFloatHash(phase, into: &hasher)")
+                            line("hasher.combine(style)")
+                        }
+                        line("case .sum(let a, let b):")
+                        indent {
+                            line("hasher.combine(3)")
+                            line("hasher.combine(a)")
+                            line("hasher.combine(b)")
+                        }
+                        line("case .compose(let a, let b):")
+                        indent {
+                            line("hasher.combine(4)")
+                            line("hasher.combine(a)")
+                            line("hasher.combine(b)")
+                        }
                     }
                 }
             }
@@ -1796,8 +1888,9 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
         }
 
         if (schema.pathCommands.isNotEmpty() && schema.idEncoding != null) {
-            w.block("public enum PathCommand: Equatable") {
-                for ((_, cmd) in schema.pathCommands.entries.sortedBy { it.key }) {
+            val sortedPathCommands = schema.pathCommands.entries.sortedBy { it.key }
+            w.block("public enum PathCommand: Equatable, Hashable, Sendable") {
+                for ((_, cmd) in sortedPathCommands) {
                     val vName = pathCmdVariantName(cmd).replaceFirstChar { it.lowercaseChar() }
                     if (cmd.fields.isEmpty()) {
                         line("case $vName")
@@ -1807,6 +1900,55 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                     }
                 }
                 line("case unknown(verb: Int32)")
+                block("public static func == (lhs: PathCommand, rhs: PathCommand) -> Bool") {
+                    block("switch (lhs, rhs)") {
+                        for ((_, cmd) in sortedPathCommands) {
+                            val vName =
+                                pathCmdVariantName(cmd).replaceFirstChar { it.lowercaseChar() }
+                            if (cmd.fields.isEmpty()) {
+                                line("case (.$vName, .$vName): return true")
+                            } else {
+                                val lhsBinds = cmd.fields.indices.joinToString(", ") { "let l$it" }
+                                val rhsBinds = cmd.fields.indices.joinToString(", ") { "let r$it" }
+                                val checks =
+                                    cmd.fields.indices.joinToString(" && ") {
+                                        "wireFloatEquals(l$it, r$it)"
+                                    }
+                                line(
+                                    "case (.$vName($lhsBinds), .$vName($rhsBinds)): return $checks"
+                                )
+                            }
+                        }
+                        line("case (.unknown(let l), .unknown(let r)): return l == r")
+                        line("default: return false")
+                    }
+                }
+                block("public func hash(into hasher: inout Hasher)") {
+                    block("switch self") {
+                        for ((idx, entry) in sortedPathCommands.withIndex()) {
+                            val cmd = entry.value
+                            val vName =
+                                pathCmdVariantName(cmd).replaceFirstChar { it.lowercaseChar() }
+                            if (cmd.fields.isEmpty()) {
+                                line("case .$vName: hasher.combine($idx)")
+                            } else {
+                                val binds = cmd.fields.indices.joinToString(", ") { "let v$it" }
+                                line("case .$vName($binds):")
+                                indent {
+                                    line("hasher.combine($idx)")
+                                    for (fIdx in cmd.fields.indices) {
+                                        line("wireFloatHash(v$fIdx, into: &hasher)")
+                                    }
+                                }
+                            }
+                        }
+                        line("case .unknown(let verb):")
+                        indent {
+                            line("hasher.combine(${sortedPathCommands.size})")
+                            line("hasher.combine(verb)")
+                        }
+                    }
+                }
                 block("public static func decode(_ pathData: [Float]) -> [PathCommand]") {
                     line("var result: [PathCommand] = []")
                     line("var i = 0")
@@ -1816,8 +1958,11 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                             "let tag = IdEncoding.idFromNanBits(Int32(bitPattern: pathData[i].bitPattern))"
                         )
                         block("switch tag") {
-                            for ((_, cmd) in schema.pathCommands.entries.sortedBy { it.key }) {
-                                val tagConst = SchemaOperation.toScreamingSnakeCase(cmd.name)
+                            for ((_, cmd) in sortedPathCommands) {
+                                val tagConst =
+                                    toSwiftLowerCamel(
+                                        SchemaOperation.toScreamingSnakeCase(cmd.name)
+                                    )
                                 val vName =
                                     pathCmdVariantName(cmd).replaceFirstChar { it.lowercaseChar() }
                                 val total = 1 + cmd.leadingPaddingFloats + cmd.fields.size
@@ -1856,12 +2001,12 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
                 "public var isSpringAnimation: Bool { FloatAnimationSpec.isSpring(animationSpec) }"
             )
             w.line(
-                "public func unpackAnimationSpec() throws -> FloatAnimationSpec { try FloatAnimationSpec.unpack(animationSpec) }"
+                "public func unpackAnimationSpec() throws(WireError) -> FloatAnimationSpec { try FloatAnimationSpec.unpack(animationSpec) }"
             )
         }
         if (isBitmapDataReady(op)) {
             w.line(
-                "public var uncompressedByteSize: Int64 { let w = Int64(width); let h = Int64(height); if w <= 0 || h <= 0 { return 0 }; let bpp: Int64 = imageType == BitmapData.TYPE_PNG_ALPHA_8 ? 1 : 4; let (wh, o1) = w.multipliedReportingOverflow(by: h); if o1 { return Int64.max }; let (total, o2) = wh.multipliedReportingOverflow(by: bpp); return o2 ? Int64.max : total }"
+                "public var uncompressedByteSize: Int64 { let w = Int64(width); let h = Int64(height); if w <= 0 || h <= 0 { return 0 }; let bpp: Int64 = imageType == BitmapData.typePngAlpha8 ? 1 : 4; let (wh, o1) = w.multipliedReportingOverflow(by: h); if o1 { return Int64.max }; let (total, o2) = wh.multipliedReportingOverflow(by: bpp); return o2 ? Int64.max : total }"
             )
         }
         if (
@@ -2272,5 +2417,66 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
         if (op.name == "ColorExpression" && op.fields.any { it.name == "flagsAndMode" }) {
             w.line("getAlphaPayload(): number { return (this.flagsAndMode >>> 16) & 0xFF; }")
         }
+    }
+
+    private companion object {
+        val SWIFT_KEYWORDS =
+            setOf(
+                "associatedtype",
+                "class",
+                "deinit",
+                "enum",
+                "extension",
+                "fileprivate",
+                "func",
+                "import",
+                "init",
+                "inout",
+                "internal",
+                "let",
+                "open",
+                "operator",
+                "private",
+                "precedencegroup",
+                "protocol",
+                "public",
+                "rethrows",
+                "static",
+                "struct",
+                "subscript",
+                "typealias",
+                "var",
+                "break",
+                "case",
+                "catch",
+                "continue",
+                "default",
+                "defer",
+                "do",
+                "else",
+                "fallthrough",
+                "for",
+                "guard",
+                "if",
+                "in",
+                "repeat",
+                "return",
+                "throw",
+                "switch",
+                "where",
+                "while",
+                "as",
+                "false",
+                "is",
+                "nil",
+                "self",
+                "Self",
+                "super",
+                "throws",
+                "true",
+                "try",
+                "Any",
+                "Type",
+            )
     }
 }
