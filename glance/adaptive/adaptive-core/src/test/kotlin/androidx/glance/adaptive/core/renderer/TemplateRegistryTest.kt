@@ -230,6 +230,16 @@ class TemplateRegistryTest {
     }
 
     @Test
+    fun registerOverride_blankWidgetName_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            registry.registerOverride("", TestTemplate::class.java, renderer("custom"), home)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            registry.registerOverride("   ", TestTemplate::class.java, renderer("custom"), home)
+        }
+    }
+
+    @Test
     fun removeOverride_restoresDefaultOnlyForTargetWidgetAndSurface() {
         registry.registerDefault(TestTemplate::class.java, renderer("default"))
         registry.registerOverride("custom", TestTemplate::class.java, renderer("custom-lock"), lock)

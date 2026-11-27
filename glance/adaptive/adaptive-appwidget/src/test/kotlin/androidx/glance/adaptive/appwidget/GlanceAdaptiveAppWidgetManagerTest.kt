@@ -336,6 +336,26 @@ class GlanceAdaptiveAppWidgetManagerTest {
     }
 
     @Test
+    fun registerRenderer_withBlankWidgetName_throwsIllegalArgumentException() {
+        val manager = GlanceAdaptiveWidgetManager(FakeAppWidgetDelegate())
+
+        assertThrows(IllegalArgumentException::class.java) {
+            manager.registerRenderer(
+                widgetName = "",
+                surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+                renderer = TemplateRenderer { _: TestTemplate, _ -> error("Never rendered") },
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            manager.registerRenderer(
+                widgetName = "   ",
+                surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
+                renderer = TemplateRenderer { _: TestTemplate, _ -> error("Never rendered") },
+            )
+        }
+    }
+
+    @Test
     fun unregisterRenderer_restoresDefaultOnlyForTargetWidgetAndSurface() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val defaultViews = RemoteViews(context.packageName, android.R.layout.simple_list_item_1)

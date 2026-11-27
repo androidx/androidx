@@ -166,11 +166,12 @@ public class TemplateRegistry<S : GlanceSurface, R>(
      * [templateClass] on [surface], or on every surface when [surface] is `null`.
      *
      * @param T The template type implementing [GlanceAdaptiveTemplate].
-     * @param widgetName Developer widget identifier the override applies to.
+     * @param widgetName Developer widget identifier the override applies to. Must not be blank.
      * @param templateClass The concrete runtime class of the [GlanceAdaptiveTemplate] data payload.
      * @param renderer Draws [templateClass] for [widgetName].
      * @param surface Optional surface to target, or `null` for all surfaces.
-     * @throws IllegalArgumentException if [templateClass] is an abstract class.
+     * @throws IllegalArgumentException if [widgetName] is blank or if [templateClass] is an
+     *   abstract class.
      */
     public fun <T : GlanceAdaptiveTemplate> registerOverride(
         widgetName: String,
@@ -178,6 +179,7 @@ public class TemplateRegistry<S : GlanceSurface, R>(
         renderer: TemplateRenderer<T, S, R>,
         surface: S? = null,
     ) {
+        require(widgetName.isNotBlank()) { "widgetName must not be blank" }
         requireConcreteTemplateClass(templateClass)
         val untyped = renderer.asUntyped()
         synchronized(lock) {

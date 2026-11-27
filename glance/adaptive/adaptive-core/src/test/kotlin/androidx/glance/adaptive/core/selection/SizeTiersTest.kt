@@ -17,6 +17,7 @@
 package androidx.glance.adaptive.core.selection
 
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class SizeTiersTest {
@@ -77,6 +78,20 @@ class SizeTiersTest {
         assertThat(dim1.hashCode()).isEqualTo(dim2.hashCode())
         assertThat(dim1).isNotEqualTo(dimDiff)
         assertThat(dim1.toString()).isEqualTo("Dimensions(widthDp=100, heightDp=200)")
+    }
+
+    @Test
+    fun dimensions_zeroValues_areAllowed() {
+        val zero = Dimensions(0, 0)
+
+        assertThat(zero.widthDp).isEqualTo(0)
+        assertThat(zero.heightDp).isEqualTo(0)
+    }
+
+    @Test
+    fun dimensions_negativeWidthOrHeight_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException::class.java) { Dimensions(-1, 100) }
+        assertThrows(IllegalArgumentException::class.java) { Dimensions(100, -1) }
     }
 
     @Test
