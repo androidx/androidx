@@ -1568,18 +1568,115 @@ internal class MultiLangProtocolGenerator(private val schema: OperationSchema) {
             w.line()
         }
 
+        if (schema.visibilityConstants.isNotEmpty()) {
+            w.block("public enum ComponentVisibility") {
+                for ((k, v) in schema.visibilityConstants.entries.sortedBy { it.value }) {
+                    line("public static let ${toSwiftLowerCamel(k)}: Int32 = $v")
+                }
+            }
+            w.line()
+        }
+
         if (schema.paintCommands.isNotEmpty()) {
             w.block("public enum PaintCommandTags") {
+                line("public static let tagMask: Int32 = 0xFFFF")
+                line("public static let inlineValueShift: Int32 = 16")
                 for ((id, cmd) in schema.paintCommands.entries.sortedBy { it.key }) {
                     line(
                         "public static let ${toSwiftLowerCamel(SchemaOperation.toScreamingSnakeCase(cmd.name))}: Int32 = $id"
                     )
                 }
+                line(
+                    "public static func packInline(tag: Int32, value: Int32) -> Int32 { (tag & tagMask) | (value << inlineValueShift) }"
+                )
             }
             w.line()
             w.block("public enum PaintConstants") {
                 for ((k, v) in collectPaintConstants()) {
                     line("public static let ${toSwiftLowerCamel(k)}: Int32 = $v")
+                }
+            }
+            w.line()
+        }
+
+        if (schema.rpnOperators != null && schema.idEncoding != null) {
+            val rpn = schema.rpnOperators
+            val maxV6 = rpn.operators.filter { it.addedVersion <= 6 }.maxOfOrNull { it.id } ?: 38
+            val maxId = rpn.operators.maxOfOrNull { it.id } ?: 79
+            val validIds = rpn.operators.map { it.id }.toSet()
+            val gapChecks =
+                (1..maxId).filter { it !in validIds }.joinToString("") { " && id != $it" }
+            val rpnOffsetLiteral =
+                if (rpn.offset >= 0) "0x${rpn.offset.toString(16).uppercase()}" else "${rpn.offset}"
+            w.block("public enum FloatExpressionOperator") {
+                line("public static let offset: Int32 = $rpnOffsetLiteral")
+                line("public static let apiLevel6MaxId: Int32 = $maxV6")
+                line("public static let maxId: Int32 = $maxId")
+                for (op in rpn.operators) {
+                    line(
+                        "public static let ${toSwiftLowerCamel("ID_${op.name}")}: Int32 = ${op.id}"
+                    )
+                }
+                if ("DEG_TO_RAD" in rpn.operatorsByName && "DEG" !in rpn.operatorsByName) {
+                    line("public static let idDeg: Int32 = idDegToRad")
+                }
+                if ("RAD_TO_DEG" in rpn.operatorsByName && "RAD" !in rpn.operatorsByName) {
+                    line("public static let idRad: Int32 = idRadToDeg")
+                }
+                for (op in rpn.operators) {
+                    line(
+                        "public static let ${toSwiftLowerCamel(op.name)}: Float = Float(bitPattern: UInt32(bitPattern: IdEncoding.asNanBits(offset + ${op.id})))"
+                    )
+                }
+                if ("DEG_TO_RAD" in rpn.operatorsByName && "DEG" !in rpn.operatorsByName) {
+                    line("public static let deg: Float = degToRad")
+                }
+                if ("RAD_TO_DEG" in rpn.operatorsByName && "RAD" !in rpn.operatorsByName) {
+                    line("public static let rad: Float = radToDeg")
+                }
+                block("public static func token(fromId id: Int32) -> Float?") {
+                    line("guard id >= 1 && id <= maxId$gapChecks else { return nil }")
+                    line(
+                        "return Float(bitPattern: UInt32(bitPattern: IdEncoding.asNanBits(offset + id)))"
+                    )
+                }
+                block("public static func isOperator(_ token: Float) -> Bool") {
+                    line("let bits = Int32(bitPattern: token.bitPattern)")
+                    line("guard IdEncoding.isNanBits(bits) else { return false }")
+                    line("let id = (bits & IdEncoding.payloadMask) - offset")
+                    line("return id >= 1 && id <= maxId$gapChecks")
+                }
+                block("public static func operatorId(_ token: Float) -> Int32") {
+                    line("guard isOperator(token) else { return IdEncoding.noId }")
+                    line(
+                        "return (Int32(bitPattern: token.bitPattern) & IdEncoding.payloadMask) - offset"
+                    )
+                }
+            }
+            w.line()
+        }
+
+        schema.intRpnOperators?.let { intRpn ->
+            val maxId = intRpn.operators.maxOfOrNull { it.id } ?: 25
+            val validIds = intRpn.operators.map { it.id }.toSet()
+            val gapChecks =
+                (1..maxId).filter { it !in validIds }.joinToString("") { " && id != $it" }
+            val offsetLiteral =
+                if (intRpn.offset >= 0) "0x${intRpn.offset.toString(16).uppercase()}"
+                else "${intRpn.offset}"
+            w.block("public enum IntegerExpressionOperator") {
+                line("public static let offset: Int32 = $offsetLiteral")
+                line("public static let maxId: Int32 = $maxId")
+                line("public static let maxTokens: Int = 32")
+                for (op in intRpn.operators) {
+                    line(
+                        "public static let ${toSwiftLowerCamel(op.name)}: Int32 = offset + ${op.id}"
+                    )
+                }
+                block("public static func isOperatorCode(_ value: Int32) -> Bool") {
+                    line("let (id, overflow) = value.subtractingReportingOverflow(offset)")
+                    line("guard !overflow else { return false }")
+                    line("return id >= 1 && id <= maxId$gapChecks")
                 }
             }
             w.line()

@@ -4552,7 +4552,7 @@ class RemoteComposeGeneratorTest {
             swiftCode
                 .substringAfter("public struct ImageAttribute:")
                 .substringBefore("public struct TimeAttribute:")
-        assertFalse(swiftImageSection.contains("<= 32"))
+        assertFalse(swiftImageSection.contains("<= 32 else"))
 
         // Skip conditional framing & player load in Kotlin, TS, Swift
         assertTrue(ktAst.contains("internal fun shouldSkip("))
@@ -5841,6 +5841,250 @@ class RemoteComposeGeneratorTest {
             "Expected missing id error, got: $errors",
             errors.any { it.contains("must specify an integer id") },
         )
+    }
+
+    @Test
+    fun testSwiftWriterTablesMaxLengthAndHygieneInvariants() {
+        val schema = loadSchema()
+        val swiftCode = SwiftGenerator(schema).generate()
+
+        // 1. Writer tables & constants
+        for (marker in
+            listOf(
+                "public enum ReservedOpCode: UInt8, CaseIterable, Equatable, Hashable, Sendable",
+                "case propertyBundleModifierOperation = 95",
+                "case defineMesh3D = 110",
+                "case compressedStreamMarker = 119",
+                "case extendedOpcode = 255",
+                "public enum ComponentVisibility",
+                "public static let gone: Int32 = 0",
+                "public static let visible: Int32 = 1",
+                "public static let invisible: Int32 = 2",
+                "public static let overrideGone: Int32 = 16",
+                "public static let overrideVisible: Int32 = 32",
+                "public static let overrideInvisible: Int32 = 64",
+                "public static let clearOverride: Int32 = 128",
+                "public static let tagMask: Int32 = 0xFFFF",
+                "public static let inlineValueShift: Int32 = 16",
+                "public static func packInline(tag: Int32, value: Int32) -> Int32",
+                "public enum FloatExpressionOperator",
+                "public static let idStoreR0: Int32 = 56",
+                "public static let storeR0: Float =",
+                "public static func token(fromId id: Int32) -> Float?",
+                "public static func isOperator(_ token: Float) -> Bool",
+                "public static func operatorId(_ token: Float) -> Int32",
+                "public enum IntegerExpressionOperator",
+                "public static let iAdd: Int32 = offset + 1",
+                "public static func isOperatorCode(_ value: Int32) -> Bool",
+                "public static let magicNumber: Int32 = 76283904",
+                "public static let dataTypeInt: Int32 = 0",
+                "public static let colorRef: Int32 = 2",
+                "public static let fontStyleItalic: Int32 = 1",
+            )) {
+            assertTrue("Swift output missing writer marker: $marker", swiftCode.contains(marker))
+        }
+
+        // 2. Symmetric maxLength checks, implicit prefix/bitfield bounds, and atomic write rollback
+        for (marker in
+            listOf(
+                "public mutating func truncate(to count: Int)",
+                "buffer.truncate(to: _startCount)",
+                "public mutating func writeUTF8(_ value: String, maxLength: Int? = nil) throws(WireError)",
+                "public mutating func writeBuffer(_ value: [UInt8], maxLength: Int? = nil) throws(WireError)",
+                "try buffer.writeUTF8(text, maxLength: 4000)",
+                "try buffer.writeBuffer(data, maxLength: 100000)",
+                "try buffer.writeBuffer(fontData, maxLength: 800000)",
+                "guard words.count <= 1024 else",
+                "guard expression.count <= 32 else",
+                "guard args.count <= 32767 else",
+                "guard kerningTable.count <= 65535 else",
+                "guard floatUniforms.count <= 255 else",
+                "guard animationSpec.count <= 65535 else",
+                "try buffer.writeUTF8(val, maxLength: Self.maxHeaderStringLength)",
+            )) {
+            assertTrue(
+                "Swift output missing maxLength write guard: $marker",
+                swiftCode.contains(marker),
+            )
+        }
+
+        // 3. Static Swift hygiene invariants across the full generated file
+        assertFalse("Swift must not import Foundation", swiftCode.contains("import Foundation"))
+        assertFalse("Swift must not reference NSError", swiftCode.contains("NSError"))
+        assertFalse(
+            "Swift must not emit SCREAMING_SNAKE static let constants",
+            Regex("""public static let [A-Z][A-Z0-9_]+\s*:""").containsMatchIn(swiftCode),
+        )
+        assertFalse(
+            "Swift must not call throwing writeUTF8 without try",
+            Regex("""(?<!try )(?<!func )buffer\.writeUTF8\(""").containsMatchIn(swiftCode),
+        )
+        assertFalse(
+            "Swift must not call throwing writeBuffer without try",
+            Regex("""(?<!try )(?<!func )buffer\.writeBuffer\(""").containsMatchIn(swiftCode),
+        )
+        assertFalse(
+            "Swift must not emit unqualified min() or max()",
+            Regex("""(?<!Swift\.)\b(?:min|max)\(""").containsMatchIn(swiftCode),
+        )
+        assertEquals(
+            "Swift braces must be balanced",
+            swiftCode.count { it == '{' },
+            swiftCode.count { it == '}' },
+        )
+        assertTrue(
+            "Swift IntegerExpressionOperator.isOperatorCode must use overflow-safe subtraction",
+            swiftCode.contains("value.subtractingReportingOverflow(offset)"),
+        )
+
+        // 4. Optional swiftc compile + runtime round-trip check when Swift 6 toolchain is present
+        val swiftc =
+            (listOfNotNull(findExecutableOnPath("swiftc")) +
+                    listOf("/usr/bin/swiftc", "/usr/local/bin/swiftc", "/opt/homebrew/bin/swiftc")
+                        .map { File(it) })
+                .firstOrNull { it.exists() && it.canExecute() && canCompileSwift6(it) }
+        if (swiftc != null) {
+            val tmpDir = Files.createTempDirectory("rc_swift_test").toFile()
+            try {
+                File(tmpDir, "RemoteComposeWire.swift").writeText(swiftCode)
+                File(tmpDir, "main.swift")
+                    .writeText(
+                        """
+                        // Verify TouchExpression/PathExpression/ParticlesCompare compile,
+                        // modern header round-trip, NaN ID equality & decoding, atomic rollback,
+                        // and write maxLength/prefix-bound enforcement.
+                        assert(IdEncoding.isNanBits(0x7F80_0005))
+                        assert(IdEncoding.idFromNanBits(0x7F80_0005) == 5)
+                        assert(!IdEncoding.isNanBits(0x7FC0_0000))
+                        assert(IdEncoding.idFromNanBits(0x7FC0_0000) == IdEncoding.noId)
+                        assert(FloatExpressionOperator.isOperator(FloatExpressionOperator.storeR0))
+                        assert(FloatExpressionOperator.operatorId(FloatExpressionOperator.storeR0) == FloatExpressionOperator.idStoreR0)
+                        assert(IntegerExpressionOperator.isOperatorCode(IntegerExpressionOperator.iAdd))
+                        assert(!IntegerExpressionOperator.isOperatorCode(Int32.min))
+                        assert(PaintCommandTags.packInline(tag: PaintCommandTags.style, value: PaintConstants.styleStroke) == (PaintCommandTags.style | (PaintConstants.styleStroke << PaintCommandTags.inlineValueShift)))
+
+                        let nanVar = Float(bitPattern: UInt32(bitPattern: IdEncoding.asNanBits(42)))
+                        let doc = WireDocument(
+                            majorVersion: 1,
+                            minorVersion: 1,
+                            patchVersion: 0,
+                            width: 400,
+                            height: 300,
+                            isModernHeader: true,
+                            properties: [
+                                WireHeaderProperty(key: HeaderProperty.docWidth, value: .int(400)),
+                                WireHeaderProperty(key: HeaderProperty.docHeight, value: .int(300)),
+                                WireHeaderProperty(key: HeaderProperty.docDensityAtGeneration, value: .float(2.0)),
+                                WireHeaderProperty(key: HeaderProperty.docContentDescription, value: .string("test")),
+                            ],
+                            operations: [
+                                .textData(TextData(textId: 42, text: "hello")),
+                                .borderModifierOperation(BorderModifierOperation(shapeType: BorderModifierOperation.roundedRectangle)),
+                                .floatExpression(FloatExpression(id: 7, expression: [nanVar, 2.0, FloatExpressionOperator.add])),
+                            ]
+                        )
+                        let bytes = try doc.save()
+                        let decoded = try WireDocument.load(from: bytes)
+                        assert(decoded == doc)
+                        assert(try decoded.save() == bytes)
+
+                        // Verify PathEffect/PathCommand bit-exact equality & hashing with NaN IDs
+                        let pe1 = PathEffect.dash(phase: nanVar, intervals: [4.0, nanVar])
+                        let pe2 = PathEffect.dash(phase: nanVar, intervals: [4.0, nanVar])
+                        assert(pe1 == pe2)
+                        assert(Set([pe1]).contains(pe2))
+                        let pc1 = PathCommand.moveTo(x: nanVar, y: 1.0)
+                        let pc2 = PathCommand.moveTo(x: nanVar, y: 1.0)
+                        assert(pc1 == pc2)
+                        assert(Set([pc1]).contains(pc2))
+
+                        // Verify unknown header payload round-trip & dimension/capabilities reconciliation
+                        var mutDoc = decoded
+                        mutDoc.width = 800
+                        mutDoc.capabilities = 0x1_0000_0001
+                        mutDoc.properties.append(
+                            WireHeaderProperty(key: 60, value: .unknown(dataType: 7, payload: [1, 2, 3, 4]))
+                        )
+                        let mutBytes = try mutDoc.save()
+                        let mutDecoded = try WireDocument.load(from: mutBytes)
+                        assert(mutDecoded.width == 800)
+                        assert(mutDecoded.height == 300)
+                        assert(mutDecoded.capabilities == 0x1_0000_0001)
+                        assert(mutDecoded.properties.contains(WireHeaderProperty(key: 60, value: .unknown(dataType: 7, payload: [1, 2, 3, 4]))))
+                        assert(mutDecoded.operations == doc.operations)
+                        let mixedInitDoc = WireDocument(
+                            width: 640,
+                            height: 480,
+                            properties: [WireHeaderProperty(key: HeaderProperty.docDensityAtGeneration, value: .float(3.0))]
+                        )
+                        let mixedDecoded = try WireDocument.load(from: try mixedInitDoc.save())
+                        assert(mixedDecoded.width == 640)
+                        assert(mixedDecoded.height == 480)
+
+                        // Verify atomic WireBuffer rollback on throwing write
+                        var partialBuf = WireBuffer(data: [0xDE, 0xAD])
+                        var threwOnTooLong = false
+                        do {
+                            let bigOp = TextData(textId: 1, text: String(repeating: "a", count: 4001))
+                            try bigOp.write(to: &partialBuf)
+                        } catch WireError.lengthOutOfRange {
+                            threwOnTooLong = true
+                        }
+                        assert(threwOnTooLong)
+                        assert(partialBuf.data == [0xDE, 0xAD])
+                        print("Swift codecs OK")
+                        """
+                            .trimIndent()
+                    )
+                val outBin = File(tmpDir, "rc_swift_test")
+                runCheckedProcess(
+                    "Swift compile",
+                    listOf(
+                        swiftc.absolutePath,
+                        "-swift-version",
+                        "6",
+                        File(tmpDir, "RemoteComposeWire.swift").absolutePath,
+                        File(tmpDir, "main.swift").absolutePath,
+                        "-o",
+                        outBin.absolutePath,
+                    ),
+                    tmpDir,
+                )
+                runCheckedProcess("Swift run", listOf(outBin.absolutePath), tmpDir)
+            } finally {
+                tmpDir.deleteRecursively()
+            }
+        }
+    }
+
+    private fun canCompileSwift6(swiftc: File): Boolean {
+        val tmpDir = Files.createTempDirectory("rc_swift6_probe").toFile()
+        return try {
+            val probe = File(tmpDir, "probe.swift")
+            probe.writeText("enum E: Error, Sendable { case a }\nfunc f() throws(E) {}\n")
+            val proc =
+                ProcessBuilder(
+                        swiftc.absolutePath,
+                        "-swift-version",
+                        "6",
+                        "-typecheck",
+                        probe.absolutePath,
+                    )
+                    .redirectErrorStream(true)
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .start()
+            val finished = proc.waitFor(15, TimeUnit.SECONDS)
+            if (!finished) {
+                proc.destroyForcibly()
+                false
+            } else {
+                proc.exitValue() == 0
+            }
+        } catch (_: Exception) {
+            false
+        } finally {
+            tmpDir.deleteRecursively()
+        }
     }
 
     private fun runCheckedProcess(

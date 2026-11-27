@@ -53,6 +53,22 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                 line("case $swiftCase = ${op.id}")
             }
         }
+        if (schema.reservedOpcodes.isNotEmpty()) {
+            line()
+            line("/// Reserved and experimental operation wire identifiers without wire codecs.")
+            block(
+                "public enum ReservedOpCode: UInt8, CaseIterable, Equatable, Hashable, Sendable"
+            ) {
+                for (rop in schema.reservedOpcodes) {
+                    val swiftCase = toCamelCase(rop.name)
+                    val desc = rop.description.replace("\n", " ").trim()
+                    if (desc.isNotEmpty()) {
+                        line("/// $desc")
+                    }
+                    line("case $swiftCase = ${rop.id}")
+                }
+            }
+        }
         line()
         emitWireError(this)
         line()
@@ -126,6 +142,13 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                     line("throw WireError.underflow(needed: count, remaining: remaining)")
                 }
                 line("index += count")
+            }
+            line()
+            block("public mutating func truncate(to count: Int)") {
+                block("if count >= 0 && count < data.count") {
+                    line("data.removeLast(data.count - count)")
+                    block("if index > count") { line("index = count") }
+                }
             }
             line()
             block("public mutating func writeByte(_ value: UInt8)") { line("data.append(value)") }
@@ -210,10 +233,20 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                 line("return (try readByte()) != 0")
             }
             line()
-            block("public mutating func writeUTF8(_ value: String)") {
-                line("let utf8Bytes = Array(value.utf8)")
-                line("writeInt(Int32(utf8Bytes.count))")
-                line("data.append(contentsOf: utf8Bytes)")
+            block(
+                "public mutating func writeUTF8(_ value: String, maxLength: Int? = nil) throws(WireError)"
+            ) {
+                line("let utf8Count = value.utf8.count")
+                line(
+                    "let limit = maxLength.map { Swift.min(\$0, Int(Int32.max)) } ?? Int(Int32.max)"
+                )
+                block("guard utf8Count <= limit else") {
+                    line(
+                        "throw WireError.lengthOutOfRange(field: \"utf8\", length: utf8Count, min: nil, max: limit)"
+                    )
+                }
+                line("writeInt(Int32(utf8Count))")
+                line("data.append(contentsOf: value.utf8)")
             }
             line()
             block(
@@ -251,7 +284,17 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                 }
             }
             line()
-            block("public mutating func writeBuffer(_ value: [UInt8])") {
+            block(
+                "public mutating func writeBuffer(_ value: [UInt8], maxLength: Int? = nil) throws(WireError)"
+            ) {
+                line(
+                    "let limit = maxLength.map { Swift.min(\$0, Int(Int32.max)) } ?? Int(Int32.max)"
+                )
+                block("guard value.count <= limit else") {
+                    line(
+                        "throw WireError.lengthOutOfRange(field: \"buffer\", length: value.count, min: nil, max: limit)"
+                    )
+                }
                 line("writeInt(Int32(value.count))")
                 line("data.append(contentsOf: value)")
             }
@@ -830,7 +873,9 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                                     "buffer.writeShort(Int16(truncatingIfNeeded: (prop.key & 0x3F) | (3 << 10)))"
                                 )
                                 line("buffer.writeShort(Int16(truncatingIfNeeded: utf8Count + 4))")
-                                line("buffer.writeUTF8(val)")
+                                line(
+                                    "try buffer.writeUTF8(val, maxLength: Self.maxHeaderStringLength)"
+                                )
                             }
                             swiftCase("case .unknown(let dt, let payload)") {
                                 block("guard dt >= -32 && dt <= 31 && (dt < 0 || dt > 3) else") {
@@ -928,7 +973,9 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             line()
 
             block("public func write(to buffer: inout WireBuffer) throws(WireError)") {
-                emitSwiftWriteBody(this, structDef.name, structDef.fields, null, props)
+                emitSwiftAtomicWriteBody(this) {
+                    emitSwiftWriteBody(this, structDef.name, structDef.fields, null, props)
+                }
             }
             emitStructBitExactEquality(this, structDef.name, props)
         }
@@ -1058,17 +1105,21 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
 
             line("/// Serializes this operation to the wire buffer.")
             block("public func write(to buffer: inout WireBuffer) throws(WireError)") {
-                line("buffer.writeByte(Self.opCode.rawValue)")
-                emitSwiftWriteBody(
+                emitSwiftAtomicWriteBody(
                     this,
-                    op.name,
-                    op.fields,
-                    op.sparseParameters,
-                    props,
-                    op.sparseCountType,
-                    op.sparseKeyType,
-                    op.conditionalSkip,
-                )
+                    prefixLine = "buffer.writeByte(Self.opCode.rawValue)",
+                ) {
+                    emitSwiftWriteBody(
+                        this,
+                        op.name,
+                        op.fields,
+                        op.sparseParameters,
+                        props,
+                        op.sparseCountType,
+                        op.sparseKeyType,
+                        op.conditionalSkip,
+                    )
+                }
             }
             emitStructBitExactEquality(this, op.name, props)
         }
@@ -1197,10 +1248,12 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                         emitSwiftArrayRead(this, ownerName, f, "${f.name}Tmp")
                         line("${f.name} = ${f.name}Tmp")
                     } else if (hasSwiftScalarValidations(f)) {
+                        emitSwiftCountedBytesGuards(this, f)
                         line("let parsed = try ${mapToSwiftFieldReadExpr(f)}")
                         emitSwiftScalarValidations(this, ownerName, f, "parsed")
                         line("${f.name} = parsed")
                     } else {
+                        emitSwiftCountedBytesGuards(this, f)
                         line("${f.name} = try ${mapToSwiftFieldReadExpr(f)}")
                     }
                 }
@@ -1210,6 +1263,7 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             } else if (f.type.endsWith("[]")) {
                 emitSwiftArrayRead(w, ownerName, f, f.name)
             } else {
+                emitSwiftCountedBytesGuards(w, f)
                 w.line("let ${f.name} = try ${mapToSwiftFieldReadExpr(f)}")
                 emitSwiftScalarValidations(w, ownerName, f, f.name)
             }
@@ -1383,6 +1437,64 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
         }
     }
 
+    private fun swiftLengthTypeMax(lengthType: String): Int =
+        when (lengthType) {
+            "byte" -> 127
+            "ubyte" -> 255
+            "short" -> 32767
+            "ushort" -> 65535
+            else -> Int.MAX_VALUE
+        }
+
+    private fun emitSwiftAtomicWriteBody(
+        w: CodeWriter,
+        prefixLine: String? = null,
+        emitBody: CodeWriter.() -> Unit,
+    ) {
+        val body = buildCode {
+            if (prefixLine != null) {
+                line(prefixLine)
+            }
+            emitBody()
+        }
+        val bodyLines = body.trimEnd('\n').split('\n').filter { it.isNotEmpty() }
+        val canThrow = body.contains("throw ") || body.contains("try ")
+        if (canThrow) {
+            w.line("let _startCount = buffer.data.count")
+            w.line("var _committed = false")
+            w.block("defer") {
+                block("if !_committed") { line("buffer.truncate(to: _startCount)") }
+            }
+            for (l in bodyLines) {
+                w.line(l)
+            }
+            w.line("_committed = true")
+        } else {
+            for (l in bodyLines) {
+                w.line(l)
+            }
+        }
+    }
+
+    private fun emitSwiftCountedBytesGuards(w: CodeWriter, f: SchemaField) {
+        if (f.type != "bytes" || f.countFrom == null) return
+        val countExpr = "Int(${f.countFrom})"
+        if (f.minLength != null && f.minLength > 0) {
+            w.block("guard $countExpr >= ${f.minLength} else") {
+                line(
+                    "throw WireError.lengthOutOfRange(field: \"${f.name}\", length: $countExpr, min: ${f.minLength}, max: ${f.maxLength?.toString() ?: "nil"})"
+                )
+            }
+        }
+        if (f.maxLength != null) {
+            w.block("guard $countExpr <= ${f.maxLength} else") {
+                line(
+                    "throw WireError.lengthOutOfRange(field: \"${f.name}\", length: $countExpr, min: ${f.minLength?.toString() ?: "nil"}, max: ${f.maxLength})"
+                )
+            }
+        }
+    }
+
     private fun emitSwiftWriteBody(
         w: CodeWriter,
         ownerName: String,
@@ -1402,7 +1514,20 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                 val terms = mutableListOf<Pair<String, SchemaBitField>>()
                 for (b in bits) {
                     if (b.derivedFrom != null) {
-                        val expr = derivedExprToSwift(DerivedExpr.parse(b.derivedFrom))
+                        val parsed = DerivedExpr.parse(b.derivedFrom)
+                        if (parsed is DerivedExpr.LengthOf) {
+                            val rawMax =
+                                if (b.signed) (1L shl (b.bitWidth - 1)) - 1L
+                                else (1L shl b.bitWidth) - 1L
+                            val bitMax = rawMax.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+                            val target = parsed.targetName
+                            w.block("guard $target.count <= $bitMax else") {
+                                line(
+                                    "throw WireError.lengthOutOfRange(field: \"$target\", length: $target.count, min: nil, max: $bitMax)"
+                                )
+                            }
+                        }
+                        val expr = derivedExprToSwift(parsed)
                         w.line("let ${b.name}: Int32 = $expr")
                         localVars.add(b.name)
                         terms.add(b.name to b)
@@ -1416,12 +1541,33 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             }
 
             if (f.derivedFrom != null) {
-                val expr = derivedExprToSwift(DerivedExpr.parse(f.derivedFrom))
+                val parsed = DerivedExpr.parse(f.derivedFrom)
+                val expr = derivedExprToSwift(parsed)
+                val maxLimit =
+                    if (parsed is DerivedExpr.LengthOf) swiftLengthTypeMax(f.type) else null
                 if (f.presentIf != null) {
                     val cond =
                         CodegenExprUtils.translateCondition(f.presentIf, ExprLang.SWIFT) { it }
-                    w.block("if $cond") { line(mapToSwiftDerivedWrite(f.type, expr)) }
+                    w.block("if $cond") {
+                        if (maxLimit != null) {
+                            val target = parsed.targetName
+                            block("guard $target.count <= $maxLimit else") {
+                                line(
+                                    "throw WireError.lengthOutOfRange(field: \"$target\", length: $target.count, min: nil, max: $maxLimit)"
+                                )
+                            }
+                        }
+                        line(mapToSwiftDerivedWrite(f.type, expr))
+                    }
                 } else {
+                    if (maxLimit != null) {
+                        val target = parsed.targetName
+                        w.block("guard $target.count <= $maxLimit else") {
+                            line(
+                                "throw WireError.lengthOutOfRange(field: \"$target\", length: $target.count, min: nil, max: $maxLimit)"
+                            )
+                        }
+                    }
                     w.line("let ${f.name}: Int32 = $expr")
                     localVars.add(f.name)
                     w.line(mapToSwiftDerivedWrite(f.type, f.name))
@@ -1431,13 +1577,35 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
 
             val isNullable = propByName[f.name]?.isNullable == true
             if (conditionalSkip != null && f.name == conditionalSkip.lengthField) {
-                w.line(
-                    "buffer.writeInt(${conditionalSkip.payloadField} != nil ? Int32(${conditionalSkip.payloadField}!.count) : ${f.name})"
-                )
+                w.block("if let _payload = ${conditionalSkip.payloadField}", close = null) {
+                    block("guard _payload.count <= Int(Int32.max) else") {
+                        line(
+                            "throw WireError.lengthOutOfRange(field: \"${conditionalSkip.payloadField}\", length: _payload.count, min: nil, max: Int(Int32.max))"
+                        )
+                    }
+                    line("buffer.writeInt(Int32(_payload.count))")
+                }
+                w.block("} else") { line("buffer.writeInt(${f.name})") }
                 continue
             }
             if (conditionalSkip != null && f.name == conditionalSkip.payloadField) {
-                w.block("if let val = ${f.name}") { line("buffer.writeBytes(val)") }
+                w.block("if let val = ${f.name}") {
+                    if (f.minLength != null && f.minLength > 0) {
+                        block("guard val.count >= ${f.minLength} else") {
+                            line(
+                                "throw WireError.lengthOutOfRange(field: \"${f.name}\", length: val.count, min: ${f.minLength}, max: ${f.maxLength?.toString() ?: "nil"})"
+                            )
+                        }
+                    }
+                    if (f.maxLength != null) {
+                        block("guard val.count <= ${f.maxLength} else") {
+                            line(
+                                "throw WireError.lengthOutOfRange(field: \"${f.name}\", length: val.count, min: ${f.minLength?.toString() ?: "nil"}, max: ${f.maxLength})"
+                            )
+                        }
+                    }
+                    line("buffer.writeBytes(val)")
+                }
                 continue
             }
             if (f.presentIf != null) {
@@ -1495,6 +1663,27 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
 
     private fun emitSwiftFieldWrite(w: CodeWriter, f: SchemaField, varExpr: String) {
         if (f.type.endsWith("[]")) {
+            val effectiveMax =
+                if (f.countFrom == null) {
+                    val prefixMax = swiftLengthTypeMax(f.effectiveLengthType)
+                    if (f.maxLength != null) minOf(f.maxLength, prefixMax) else prefixMax
+                } else {
+                    f.maxLength
+                }
+            if (f.minLength != null && f.minLength > 0) {
+                w.block("guard $varExpr.count >= ${f.minLength} else") {
+                    line(
+                        "throw WireError.lengthOutOfRange(field: \"${f.name}\", length: $varExpr.count, min: ${f.minLength}, max: ${effectiveMax?.toString() ?: "nil"})"
+                    )
+                }
+            }
+            if (effectiveMax != null) {
+                w.block("guard $varExpr.count <= $effectiveMax else") {
+                    line(
+                        "throw WireError.lengthOutOfRange(field: \"${f.name}\", length: $varExpr.count, min: ${f.minLength?.toString() ?: "nil"}, max: $effectiveMax)"
+                    )
+                }
+            }
             if (f.countFrom == null) {
                 when (f.effectiveLengthType) {
                     "int" -> w.line("buffer.writeInt(Int32($varExpr.count))")
@@ -1506,9 +1695,23 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             val elemType = f.type.removeSuffix("[]")
             w.block("for item in $varExpr") { line(mapToSwiftWriteExpr(elemType, "item")) }
         } else if (f.type == "bytes" && f.countFrom != null) {
+            if (f.minLength != null && f.minLength > 0) {
+                w.block("guard $varExpr.count >= ${f.minLength} else") {
+                    line(
+                        "throw WireError.lengthOutOfRange(field: \"${f.name}\", length: $varExpr.count, min: ${f.minLength}, max: ${f.maxLength?.toString() ?: "nil"})"
+                    )
+                }
+            }
+            if (f.maxLength != null) {
+                w.block("guard $varExpr.count <= ${f.maxLength} else") {
+                    line(
+                        "throw WireError.lengthOutOfRange(field: \"${f.name}\", length: $varExpr.count, min: ${f.minLength?.toString() ?: "nil"}, max: ${f.maxLength})"
+                    )
+                }
+            }
             w.line("buffer.writeBytes($varExpr)")
         } else {
-            w.line(mapToSwiftWriteExpr(f.type, varExpr))
+            w.line(mapToSwiftWriteExpr(f.type, varExpr, f.maxLength))
         }
     }
 
@@ -1622,7 +1825,11 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
                 else "buffer.readInt()"
         }
 
-    private fun mapToSwiftWriteExpr(type: String, varName: String): String =
+    private fun mapToSwiftWriteExpr(
+        type: String,
+        varName: String,
+        maxLength: Int? = null,
+    ): String =
         when (type) {
             "int",
             "int_id",
@@ -1633,8 +1840,12 @@ internal class SwiftGenerator(private val schema: OperationSchema) {
             "float",
             "float_or_id" -> "buffer.writeFloat($varName)"
             "boolean" -> "buffer.writeBoolean($varName)"
-            "string" -> "buffer.writeUTF8($varName)"
-            "bytes" -> "buffer.writeBuffer($varName)"
+            "string" ->
+                if (maxLength != null) "try buffer.writeUTF8($varName, maxLength: $maxLength)"
+                else "try buffer.writeUTF8($varName)"
+            "bytes" ->
+                if (maxLength != null) "try buffer.writeBuffer($varName, maxLength: $maxLength)"
+                else "try buffer.writeBuffer($varName)"
             else ->
                 if (schema.structs.containsKey(type)) "try $varName.write(to: &buffer)"
                 else "buffer.writeInt($varName)"
