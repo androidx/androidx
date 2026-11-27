@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
@@ -39,6 +40,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState.Companion.OffsetToTriggerInitialPin
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
@@ -399,8 +401,7 @@ class TransformingLazyColumnStateTest {
             assertThat(tallItem.offset).isEqualTo(expectedTopPx)
             assertThat(tallItem.transformedHeight).isEqualTo(tallItemHeightPx)
         }
-        // Remeasure to exercise restoring the anchor from its top offset and last transformed
-        // height.
+        // Remeasure to exercise restoring the anchor from its top offset and last measured height.
         rule.runOnIdle { checkNotNull(state.remeasurement).forceRemeasure() }
 
         rule.runOnIdle {
@@ -413,6 +414,73 @@ class TransformingLazyColumnStateTest {
         rule
             .onNodeWithTag("item_$tallItemIndex")
             .assertTopPositionInRootIsEqualTo(with(rule.density) { expectedTopPx.toDp() })
+    }
+
+    @Test
+    fun stateRestoration_withTransformedHeightInTransitionArea_restoresExactLayout() {
+        val restorationTester = StateRestorationTester(rule)
+        val containerHeightPx = 300
+        val itemHeightPx = 160
+        val targetIndex = 8
+        val targetScrollOffset = 30
+        lateinit var state: TransformingLazyColumnState
+        lateinit var scope: CoroutineScope
+
+        restorationTester.setContent {
+            state = rememberTransformingLazyColumnState()
+            scope = rememberCoroutineScope()
+            with(rule.density) {
+                TransformingLazyColumn(
+                    modifier = Modifier.requiredHeight(containerHeightPx.toDp()),
+                    state = state,
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
+                ) {
+                    items(itemsCount) {
+                        Spacer(
+                            modifier =
+                                Modifier.requiredHeight(itemHeightPx.toDp()).transformedHeight {
+                                    height,
+                                    progress ->
+                                    val centerFraction =
+                                        (progress.topOffsetFraction +
+                                            progress.bottomOffsetFraction) / 2f
+                                    val edgeDist =
+                                        (abs(centerFraction - 0.5f) - 0.05f).coerceAtLeast(0f)
+                                    val scale = (1f - edgeDist * 2f).coerceIn(0.5f, 1f)
+                                    (height * scale).roundToInt().coerceAtLeast(1)
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { scope.launch { state.scrollToItem(targetIndex, targetScrollOffset) } }
+
+        var savedAnchorIndex = -1
+        var savedAnchorScrollOffset = Int.MIN_VALUE
+        var savedItemOffset = Int.MIN_VALUE
+        var savedTransformedHeight = Int.MIN_VALUE
+        rule.runOnIdle {
+            val item = state.layoutInfo.visibleItems.first { it.index == targetIndex }
+            assertThat(state.anchorItemIndex).isEqualTo(targetIndex)
+            assertThat(state.anchorItemScrollOffset).isEqualTo(targetScrollOffset)
+            assertThat(item.transformedHeight).isLessThan(itemHeightPx)
+            savedAnchorIndex = state.anchorItemIndex
+            savedAnchorScrollOffset = state.anchorItemScrollOffset
+            savedItemOffset = item.offset
+            savedTransformedHeight = item.transformedHeight
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.runOnIdle {
+            val restoredItem = state.layoutInfo.visibleItems.first { it.index == targetIndex }
+            assertThat(state.anchorItemIndex).isEqualTo(savedAnchorIndex)
+            assertThat(state.anchorItemScrollOffset).isEqualTo(savedAnchorScrollOffset)
+            assertThat(restoredItem.offset).isEqualTo(savedItemOffset)
+            assertThat(restoredItem.transformedHeight).isEqualTo(savedTransformedHeight)
+        }
     }
 
     private fun setupLazyColumn(itemsCount: Int, itemsPerPage: Int): TransformingLazyColumnState {
