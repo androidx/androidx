@@ -24,11 +24,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresFeature
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.RetainObserver
 import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusState
@@ -68,12 +78,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.NoOpUpdate
+import androidx.core.graphics.Insets
+import androidx.core.view.WindowInsetsCompat
 import androidx.web.WebContent
 import androidx.web.WebFeature
 import androidx.web.WebSurfaceChromium
@@ -203,6 +217,9 @@ public fun <T : WebViewBridge> WebSurface(
                 bridgeRelease = bridgeRelease,
             )
         }
+    // The page gets window insets like a composable, see pageInsets.
+    val safeArea = WindowInsets.systemBars.union(WindowInsets.displayCutout)
+    val ime = WindowInsets.ime
     Layout(
         modifier =
             Modifier.onKeyEvent { state.node?.dispatchKeyEvent(it.nativeKeyEvent) == true }
@@ -212,6 +229,7 @@ public fun <T : WebViewBridge> WebSurface(
                 }
                 .focusTarget()
                 .then(modifier)
+                .onConsumedWindowInsetsChanged { state.pageSafeArea = safeArea.exclude(it) }
                 .clipToBounds()
                 .then(
                     WebSurfaceElement(
@@ -222,7 +240,9 @@ public fun <T : WebViewBridge> WebSurface(
                     )
                 )
     ) { _, constraints ->
-        layout(constraints.minWidth, constraints.minHeight) {}
+        layout(constraints.minWidth, constraints.minHeight) {
+            state.node?.bridgeInsets = pageInsets(state.pageSafeArea, ime, layoutDirection)
+        }
     }
 }
 
@@ -237,6 +257,9 @@ internal class WebSurfaceState<T : WebViewBridge>(
         private set
 
     var node: WebSurfaceNode<T>? = null
+
+    /** The safe area insets that nothing around the surface consumed, like Scaffold's. */
+    var pageSafeArea by mutableStateOf(WindowInsets())
 
     override fun onRemembered() {
         // Takes over from a WebSurface that hasn't left composition yet, e.g. one animating out or
@@ -320,6 +343,14 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     private var webSurface: WebSurfaceChromium? = null
     private var size = IntSize.Zero
     private var holder: HeadlessViewHolder? = null
+
+    /** The window insets for the page, see [pageInsets]. */
+    var bridgeInsets: WindowInsetsCompat? = null
+        set(value) {
+            field = value
+            holder?.bridgeInsets = value?.toWindowInsets()
+        }
+
     private var pinnedHandle: PinnableContainer.PinnedHandle? = null
     private var attachedViewTreeObserver: ViewTreeObserver? = null
     private var isPlaced: Boolean = false
@@ -569,7 +600,11 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         (hostView as? ViewGroup)?.let { host ->
             installHostAccessibilityDelegate(host)
             // Add ahead of AndroidViewsHandler so FOCUS_AFTER_DESCENDANTS checks holders first.
-            holder = HeadlessViewHolder(host.context, this).also { host.addView(it, 0) }
+            holder =
+                HeadlessViewHolder(host.context, this).also {
+                    host.addView(it, 0)
+                    it.bridgeInsets = bridgeInsets?.toWindowInsets()
+                }
         }
         // In-place LayoutNode reuse (e.g. ReusableContent) detaches and re-attaches without
         // unplacing or re-dispatching onGloballyPositioned, so size and position the new holder.
@@ -857,6 +892,32 @@ private val MotionEvent.isTouchAction: Boolean
 
 private val MotionEvent.isTouchEnd: Boolean
     get() = actionMasked == MotionEvent.ACTION_UP || actionMasked == MotionEvent.ACTION_CANCEL
+
+/**
+ * The window insets for the page. Like other composables, the page gets the [safeArea] that nothing
+ * around it consumed, as with `Modifier.windowInsetsPadding`. The [ime] stays as the window has it,
+ * because Chromium works out how much of the page it covers.
+ */
+private fun Density.pageInsets(
+    safeArea: WindowInsets,
+    ime: WindowInsets,
+    layoutDirection: LayoutDirection,
+): WindowInsetsCompat {
+    val keyboard = ime.getBottom(this)
+    return WindowInsetsCompat.Builder()
+        .setInsets(
+            WindowInsetsCompat.Type.systemBars(),
+            Insets.of(
+                safeArea.getLeft(this, layoutDirection),
+                safeArea.getTop(this),
+                safeArea.getRight(this, layoutDirection),
+                safeArea.getBottom(this),
+            ),
+        )
+        .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, keyboard))
+        .setVisible(WindowInsetsCompat.Type.ime(), keyboard > 0)
+        .build()
+}
 
 private inline fun MotionEvent.withOffset(
     dx: Float,
