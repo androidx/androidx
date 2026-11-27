@@ -18,6 +18,7 @@ package androidx.compose.ui.contentcapture
 
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.LongSparseArray
 import android.view.ViewStructure
 import android.view.translation.TranslationRequestValue
@@ -65,6 +66,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -101,7 +105,6 @@ class ContentCaptureTest {
     private lateinit var androidComposeView: AndroidComposeView
     private lateinit var contentCaptureSessionWrapper: ContentCaptureSessionWrapper
     private lateinit var viewStructure: ViewStructure
-    private val contentCaptureEventLoopIntervalMs = 100L
 
     @Test
     @SdkSuppress(minSdkVersion = 29)
@@ -170,12 +173,8 @@ class ContentCaptureTest {
 
         // Act.
         rule.runOnIdle { appeared = true }
-        // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for two
-        //  invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         rule.runOnIdle {
@@ -214,13 +213,8 @@ class ContentCaptureTest {
 
         // Act.
         rule.runOnIdle { disappeared = true }
-
-        // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for two
-        //  invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         rule.runOnIdle {
@@ -254,15 +248,12 @@ class ContentCaptureTest {
         //  The mocks also limit us to write this test since we can't mock AutofillIDs since
         //  AutofillId is a final class, and these tests just use the autofill id of the parent
         //  view.
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
         rule.runOnIdle { appeared = false }
 
-        // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for
-        //  two invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         rule.runOnIdle {
@@ -287,13 +278,8 @@ class ContentCaptureTest {
         }
 
         rule.runOnIdle { appeared = true }
-
-        // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for two
-        //  invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         rule.runOnIdle {
             verify(contentCaptureSessionWrapper, times(1)).newAutofillId(any())
@@ -306,13 +292,8 @@ class ContentCaptureTest {
 
         // Act.
         rule.runOnIdle { appeared = false }
-
-        // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for two
-        //  invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         rule.runOnIdle {
@@ -331,11 +312,8 @@ class ContentCaptureTest {
         }
 
         // Act.
+        rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
 
         // Assert
         rule.runOnIdle {
@@ -371,10 +349,8 @@ class ContentCaptureTest {
                 // Perform scroll down action: text_4 appeared, text_0 disappeared
                 scope?.launch { listState?.scrollToItem(index = 1) }
             }
-            repeat(2) {
-                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-                rule.waitForIdle()
-            }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
 
             // Assert.
             rule.runOnIdle {
@@ -409,11 +385,8 @@ class ContentCaptureTest {
                 // text_[4,5] appeared, text_[0,1] disappeared
                 scope?.launch { listState?.scrollToItem(index = 2) }
             }
-
-            repeat(2) {
-                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-                rule.waitForIdle()
-            }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
 
             // Assert
             rule.runOnIdle {
@@ -450,10 +423,8 @@ class ContentCaptureTest {
                 // Perform scroll down action: text_2 appeared, text_6 disappeared
                 scope?.launch { listState?.scrollToItem(index = 2) }
             }
-            repeat(2) {
-                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-                rule.waitForIdle()
-            }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
 
             // Assert.
             rule.runOnIdle {
@@ -488,11 +459,8 @@ class ContentCaptureTest {
                 // text_[1,2] appeared, text_[5,6] disappeared
                 scope?.launch { listState?.scrollToItem(index = 1) }
             }
-
-            repeat(2) {
-                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-                rule.waitForIdle()
-            }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
 
             // Assert
             rule.runOnIdle {
@@ -536,7 +504,8 @@ class ContentCaptureTest {
 
         // Act.
         rule.runOnIdle { appeared = true }
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         rule.runOnIdle { assertThat(result).isFalse() }
@@ -570,7 +539,8 @@ class ContentCaptureTest {
 
         // Act.
         rule.runOnIdle { appeared = true }
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         // Assert.
         rule.runOnIdle { assertThat(result).isTrue() }
@@ -798,6 +768,8 @@ class ContentCaptureTest {
         //  `LocalContentCaptureManager.current`
         setContent {
             androidComposeView = LocalView.current as AndroidComposeView
+            androidComposeView.contentCaptureManager
+                .SendRecurringContentCaptureEventsIntervalMillis = 0L
             androidComposeView.contentCaptureManager.onContentCaptureSession = {
                 contentCaptureSessionWrapper
             }
@@ -811,7 +783,8 @@ class ContentCaptureTest {
 
         // Advance the clock past the first accessibility event loop, and clear the initial
         // as we are want the assertions to check the events that were generated later.
-        runOnIdle { mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs) }
+        mainClock.advanceTimeByFrame()
+        waitForIdle()
 
         runOnIdle {
             if (!retainInteractionsDuringInitialization) {
@@ -877,22 +850,14 @@ class ContentCaptureTest {
             // Trigger semantics change which posts the checker
             manager.onSemanticsChange()
 
-            // Retrieve the private contentCaptureChangeChecker runnable via reflection
-            val checkerField =
-                AndroidContentCaptureManager::class
-                    .java
-                    .getDeclaredField("contentCaptureChangeChecker")
-            checkerField.isAccessible = true
-            val contentCaptureChangeChecker = checkerField.get(manager) as Runnable
-
             // Simulate detachment by stubbing isAttachedToWindow to false
             doReturn(false).whenever(view).isAttachedToWindow
 
             // Reset spy view invocations
             clearInvocations(view)
 
-            // Run the checker (simulating looper execution)
-            contentCaptureChangeChecker.run()
+            // Run the manager runnable (simulating looper execution)
+            manager.run()
 
             // Verify that view.measureAndLayout() was never called (exited early)
             verify(view, never()).measureAndLayout()
@@ -900,15 +865,8 @@ class ContentCaptureTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun AndroidContentCaptureManager.hasPendingChangeChecker(): Boolean {
-        val checker =
-            AndroidContentCaptureManager::class
-                .java
-                .getDeclaredField("contentCaptureChangeChecker")
-                .apply { isAccessible = true }
-                .get(this) as Runnable
-        return checkNotNull(handler).hasCallbacks(checker)
-    }
+    private fun AndroidContentCaptureManager.hasPendingChangeChecker(): Boolean =
+        checkNotNull(handler).hasCallbacks(this)
 
     @Test
     @SdkSuppress(minSdkVersion = 29)
@@ -918,18 +876,14 @@ class ContentCaptureTest {
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
         }
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
 
         val manager = androidComposeView.contentCaptureManager
         rule.runOnUiThread {
             manager.onSemanticsChange()
-            rule.mainClock.advanceTimeByFrame()
             assertThat(manager.hasPendingChangeChecker()).isTrue()
             manager.onStop(mock())
         }
+        rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
 
         rule.runOnIdle {
@@ -937,10 +891,8 @@ class ContentCaptureTest {
             clearInvocations(contentCaptureSessionWrapper)
             textValue = "updated"
         }
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         rule.runOnIdle {
             verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("updated"))
@@ -955,18 +907,14 @@ class ContentCaptureTest {
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
         }
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
 
         val manager = androidComposeView.contentCaptureManager
         rule.runOnUiThread {
             manager.onSemanticsChange()
-            rule.mainClock.advanceTimeByFrame()
             assertThat(manager.hasPendingChangeChecker()).isTrue()
             manager.onViewDetachedFromWindow(androidComposeView)
         }
+        rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
 
         rule.runOnIdle {
@@ -975,10 +923,8 @@ class ContentCaptureTest {
             clearInvocations(contentCaptureSessionWrapper)
             textValue = "updated"
         }
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         rule.runOnIdle {
             verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("updated"))
@@ -993,19 +939,28 @@ class ContentCaptureTest {
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
         }
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-        rule.waitForIdle()
-        rule.runOnIdle { clearInvocations(contentCaptureSessionWrapper, viewStructure) }
 
-        for (i in 1..4) {
+        val dispatchedTexts = CopyOnWriteArrayList<String>()
+        whenever(contentCaptureSessionWrapper.notifyViewTextChanged(any(), any())).thenAnswer {
+            dispatchedTexts.add(it.getArgument<CharSequence>(1).toString())
+            Unit
+        }
+
+        rule.runOnUiThread { textValue = "t1" }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            androidComposeView.contentCaptureManager
+                .SendRecurringContentCaptureEventsIntervalMillis = 500L
+        }
+
+        for (i in 2..4) {
             rule.runOnUiThread { textValue = "t$i" }
             rule.mainClock.advanceTimeByFrame()
             rule.waitForIdle()
         }
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.waitUntil(timeoutMillis = 2_000) { "t4" in dispatchedTexts }
 
         rule.runOnIdle {
             verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("t1"))
@@ -1027,9 +982,11 @@ class ContentCaptureTest {
             rule.setContentWithContentCaptureEnabled {
                 Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
             }
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-            rule.runOnIdle { clearInvocations(contentCaptureSessionWrapper, viewStructure) }
+            rule.runOnIdle {
+                androidComposeView.contentCaptureManager
+                    .SendRecurringContentCaptureEventsIntervalMillis = 500L
+                clearInvocations(contentCaptureSessionWrapper, viewStructure)
+            }
 
             for (i in 1..4) {
                 rule.runOnUiThread { textValue = "t$i" }
@@ -1062,11 +1019,25 @@ class ContentCaptureTest {
         whenever(viewStructure.extras).thenAnswer { Bundle() }
 
         rule.runOnIdle { scope?.launch { listState?.scrollToItem(index = 1) } }
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            androidComposeView.contentCaptureManager
+                .SendRecurringContentCaptureEventsIntervalMillis = 300L
+            clearInvocations(contentCaptureSessionWrapper, viewStructure)
         }
-        rule.runOnIdle { clearInvocations(contentCaptureSessionWrapper, viewStructure) }
+
+        val appearedCount = AtomicInteger(0)
+        val disappearedCount = AtomicInteger(0)
+        whenever(contentCaptureSessionWrapper.notifyViewAppeared(any())).thenAnswer {
+            appearedCount.incrementAndGet()
+            Unit
+        }
+        whenever(contentCaptureSessionWrapper.notifyViewDisappeared(any())).thenAnswer {
+            disappearedCount.incrementAndGet()
+            Unit
+        }
 
         rule.runOnIdle { scope?.launch { listState?.scrollToItem(index = 2) } }
         rule.mainClock.advanceTimeBy(32)
@@ -1076,9 +1047,8 @@ class ContentCaptureTest {
             verify(contentCaptureSessionWrapper, never()).newVirtualViewStructure(any(), any())
         }
 
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
+        rule.waitUntil(timeoutMillis = 3_000) {
+            appearedCount.get() >= 1 && disappearedCount.get() >= 1
         }
 
         rule.runOnIdle {
@@ -1095,9 +1065,6 @@ class ContentCaptureTest {
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(20.dp).semantics { text = AnnotatedString(textValue) })
         }
-        // Advance past the initial startup cooldown and start a fresh 100ms batch window.
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-        rule.waitForIdle()
 
         val manager = androidComposeView.contentCaptureManager
         rule.runOnIdle { manager.onLayoutChange() }
@@ -1105,7 +1072,7 @@ class ContentCaptureTest {
         rule.runOnUiThread {
             manager.onLayoutChange()
             manager.onStop(mock())
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+            manager.onLayoutChange()
             assertThat(manager.hasPendingChangeChecker()).isFalse()
         }
         rule.waitForIdle()
@@ -1115,13 +1082,66 @@ class ContentCaptureTest {
             clearInvocations(contentCaptureSessionWrapper)
             textValue = "afterRestart"
         }
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
-        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
 
         rule.runOnIdle {
             verify(contentCaptureSessionWrapper).notifyViewTextChanged(any(), eq("afterRestart"))
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testSendContentCaptureEvents_respectsBatchIntervalDelay() {
+        // Arrange.
+        var appeared by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithContentCaptureEnabled {
+            Box(Modifier.size(10.dp).semantics {}) {
+                if (appeared) {
+                    Box(Modifier.size(10.dp).semantics { text = AnnotatedString("foo") })
+                }
+            }
+        }
+
+        val batchIntervalMs = 200L
+        rule.runOnIdle {
+            androidComposeView.contentCaptureManager
+                .SendRecurringContentCaptureEventsIntervalMillis = batchIntervalMs
+        }
+
+        val appearedCount = AtomicInteger(0)
+        val disappearedCount = AtomicInteger(0)
+        val appearedTime = AtomicLong(0L)
+        val disappearedTime = AtomicLong(0L)
+        whenever(contentCaptureSessionWrapper.notifyViewAppeared(any())).thenAnswer {
+            appearedCount.incrementAndGet()
+            appearedTime.set(SystemClock.uptimeMillis())
+            Unit
+        }
+        whenever(contentCaptureSessionWrapper.notifyViewDisappeared(any())).thenAnswer {
+            disappearedCount.incrementAndGet()
+            disappearedTime.set(SystemClock.uptimeMillis())
+            Unit
+        }
+
+        // Act - trigger appearance and wait for it to be dispatched.
+        rule.runOnIdle { appeared = true }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitUntil(timeoutMillis = 2_000) { appearedCount.get() > 0 }
+
+        // Trigger disappearance immediately after appearance is dispatched.
+        rule.runOnIdle { appeared = false }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Assert - follow-up ContentCapture pass was deferred by postDelayed, not dispatched
+        // immediately.
+        assertThat(disappearedCount.get()).isEqualTo(0)
+
+        // Wait for the delayed pass to dispatch the disappearance.
+        rule.waitUntil(timeoutMillis = 2_000) { disappearedCount.get() > 0 }
+        assertThat(disappearedCount.get()).isEqualTo(1)
+        assertThat(disappearedTime.get() - appearedTime.get()).isAtLeast(100L)
     }
 }

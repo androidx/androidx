@@ -146,8 +146,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 
 private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean): LayoutNode? {
     var currentParent = this.parent
@@ -168,7 +166,7 @@ private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean):
     ExperimentalComposeUiHostApi::class,
 )
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
-    AccessibilityDelegateCompat(), OnAttachStateChangeListener {
+    AccessibilityDelegateCompat(), OnAttachStateChangeListener, Runnable {
     @Suppress("ConstPropertyName")
     companion object {
         /** Virtual node identifier value for invalid nodes. */
@@ -349,7 +347,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // traversal with granularity switches to the next node
     private var previousTraversedNode: Int? = null
     private val subtreeChangedLayoutNodes = ArraySet<LayoutNode>()
-    private val boundsUpdateChannel = Channel<Unit>(1)
+    // When false, the bounds update notification can be scheduled. When true, it has already been
+    // scheduled.
+    private var boundsUpdateNotified = false
+    // The time (SystemClock.uptimeMillis()) that the bounds was last updated for accessibility.
+    // Used to regulate when the next one should be targeted as it should arrive no less than 100ms
+    // after the last one.
+    private var lastBoundsUpdateNotification = 0L
     private var currentSemanticsNodesInvalidated = true
 
     private class PendingTextTraversedEvent(
@@ -412,6 +416,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // parent) of the corresponding layout nodes.
     @VisibleForTesting internal val drawingOrder = MutableIntIntMap(0)
 
+    // Used in Runnable and cached in the class instance so it doesn't have to be allocated on
+    // every call.
+    private val subtreeChangedSemanticsNodesIds = MutableIntSet()
+
     init {
         // Remove callbacks that rely on view being attached to a window when we become
         // detached.
@@ -423,11 +431,19 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     override fun onViewDetachedFromWindow(view: View) {
         // TODO: b/498432814 - Handler shouldn't be null on detach; investigate re-entrant
         //  detachment to see if handler? can be removed.
+        view.removeCallbacks(this)
+        handler?.removeCallbacks(this)
         handler?.removeCallbacks(semanticsChangeChecker)
+        boundsUpdateNotified = false
+        checkingForSemanticsChanges = false
         isHoveringInteropView = false
         actionIdToLabel.clear()
         labelToActionId.clear()
         drawingOrder.clear()
+        subtreeChangedLayoutNodes.clear()
+        pendingHorizontalScrollEvents.clear()
+        pendingVerticalScrollEvents.clear()
+        scrollObservationScopes.fastForEach { it.pixelScrollDelta = Offset.Zero }
     }
 
     /**
@@ -2480,62 +2496,58 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // later, we can refresh currentSemanticsNodes if currentSemanticsNodes is stale.
         currentSemanticsNodesInvalidated = true
 
-        val localHandler = handler
-        if (isEnabled && !checkingForSemanticsChanges && localHandler != null) {
+        val handler = handler ?: return
+        if (isEnabled && !checkingForSemanticsChanges) {
             checkingForSemanticsChanges = true
-            localHandler.post(semanticsChangeChecker)
+            handler.post(semanticsChangeChecker)
         }
     }
 
     /**
-     * This suspend function loops for the entire lifetime of the Compose instance: it consumes
-     * recent layout changes and sends events to the accessibility and content capture framework in
-     * batches separated by a 100ms delay.
+     * This runnable is scheduled whenever the bounds has changed and the accessibility tree must be
+     * updated. It consumes recent layout changes and sends events to the accessibility and content
+     * capture framework in batches separated by a 100ms delay.
      */
-    internal suspend fun boundsUpdatesEventLoop() {
-        try {
-            val subtreeChangedSemanticsNodesIds = MutableIntSet()
-            for (notification in boundsUpdateChannel) {
-                if (isEnabled) {
-                    trace("Compose:semantics:boundUpdates") {
-                        updateBounds(subtreeChangedSemanticsNodesIds)
-                        subtreeChangedSemanticsNodesIds.clear()
-                    }
-                    // When the bounds of layout nodes change, we will not always get semantics
-                    // change notifications because bounds is not part of semantics. And bounds
-                    // change from a layout node without semantics will affect the global bounds
-                    // of it children which has semantics. Bounds change will affect which nodes
-                    // are covered and which nodes are not, so the currentSemanticsNodes is not
-                    // up to date anymore.
-                    // After the subtree events are sent, accessibility services will get the
-                    // current visible/invisible state. We also try to do semantics tree diffing
-                    // to send out the proper accessibility events and update our copy here so
-                    // that
-                    // our incremental changes (represented by accessibility events) are
-                    // consistent
-                    // with accessibility services. That is: change - notify - new change -
-                    // notify, if we don't do the tree diffing and update our copy here, we will
-                    // combine old change and new change, which is missing finer-grained
-                    // notification.
-                    val localHandler = handler
-                    if (!checkingForSemanticsChanges && localHandler != null) {
-                        checkingForSemanticsChanges = true
-                        localHandler.post(semanticsChangeChecker)
-                    }
-                } else {
-                    // The pending scroll events are dropped below, so drop their deltas too.
-                    scrollObservationScopes.fastForEach { it.pixelScrollDelta = Offset.Zero }
+    override fun run() {
+        boundsUpdateNotified = false
+        lastBoundsUpdateNotification = SystemClock.uptimeMillis()
+        if (isEnabled) {
+            try {
+                trace("Compose:semantics:boundUpdates") {
+                    updateBounds(subtreeChangedSemanticsNodesIds)
+                    subtreeChangedSemanticsNodesIds.clear()
                 }
+            } finally {
                 subtreeChangedLayoutNodes.clear()
                 pendingHorizontalScrollEvents.clear()
                 pendingVerticalScrollEvents.clear()
-                delay(SendRecurringAccessibilityEventsIntervalMillis)
             }
-        } finally {
+            // When the bounds of layout nodes change, we will not always get semantics
+            // change notifications because bounds is not part of semantics. And bounds
+            // change from a layout node without semantics will affect the global bounds
+            // of it children which has semantics. Bounds change will affect which nodes
+            // are covered and which nodes are not, so the currentSemanticsNodes is not
+            // up to date anymore.
+            // After the subtree events are sent, accessibility services will get the
+            // current visible/invisible state. We also try to do semantics tree diffing
+            // to send out the proper accessibility events and update our copy here so
+            // that
+            // our incremental changes (represented by accessibility events) are
+            // consistent
+            // with accessibility services. That is: change - notify - new change -
+            // notify, if we don't do the tree diffing and update our copy here, we will
+            // combine old change and new change, which is missing finer-grained
+            // notification.
+            if (!checkingForSemanticsChanges) {
+                checkingForSemanticsChanges = true
+                semanticsChangeChecker.run()
+            }
+        } else {
+            // The pending scroll events are dropped below, so drop their deltas too.
+            scrollObservationScopes.fastForEach { it.pixelScrollDelta = Offset.Zero }
             subtreeChangedLayoutNodes.clear()
             pendingHorizontalScrollEvents.clear()
             pendingVerticalScrollEvents.clear()
-            scrollObservationScopes.fastForEach { it.pixelScrollDelta = Offset.Zero }
         }
     }
 
@@ -2569,7 +2581,17 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun notifySubtreeAccessibilityStateChangedIfNeeded(layoutNode: LayoutNode) {
         if (subtreeChangedLayoutNodes.add(layoutNode)) {
-            boundsUpdateChannel.trySend(Unit)
+            if (isEnabled && !boundsUpdateNotified) {
+                boundsUpdateNotified = true
+                val nextShouldLandAt =
+                    lastBoundsUpdateNotification + SendRecurringAccessibilityEventsIntervalMillis
+                val delay = nextShouldLandAt - SystemClock.uptimeMillis()
+                if (delay <= 0) {
+                    view.post(this)
+                } else {
+                    view.postDelayed(this, delay)
+                }
+            }
         }
     }
 
