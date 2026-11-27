@@ -517,6 +517,31 @@ class RemoteProtocolParityTest {
     }
 
     @Test
+    fun testNanEncodingIgnoresSignBit() {
+        assertEquals(0x7F800000, NanEncoding.NAN_EXPONENT)
+        assertEquals(-1, NanEncoding.NO_ID)
+        assertTrue(NanEncoding.isNan(NanEncoding.asNan(42)))
+        assertEquals(42, NanEncoding.idFromNan(NanEncoding.asNan(42)))
+        assertTrue(NanEncoding.isNan(Float.fromBits(0x7F800005)))
+        assertEquals(5, NanEncoding.idFromNan(Float.fromBits(0x7F800005)))
+        assertTrue(NanEncoding.isNan(Float.fromBits(0x7FC00001)))
+        assertEquals(1, NanEncoding.idFromNan(Float.fromBits(0x7FC00001)))
+        assertFalse(NanEncoding.isNan(Float.NaN))
+        assertEquals(NanEncoding.NO_ID, NanEncoding.idFromNan(Float.NaN))
+        assertFalse(NanEncoding.isNan(Float.fromBits(0xFFC00000.toInt())))
+        assertEquals(NanEncoding.NO_ID, NanEncoding.idFromNan(Float.fromBits(0xFFC00000.toInt())))
+        assertFalse(NanEncoding.isNan(Float.POSITIVE_INFINITY))
+        assertFalse(NanEncoding.isNan(Float.NEGATIVE_INFINITY))
+
+        val posAddToken =
+            Float.fromBits((FloatRpn.OFFSET + FloatRpn.ID_ADD) or NanEncoding.NAN_EXPONENT)
+        assertTrue(FloatRpn.isOperator(posAddToken))
+        assertEquals(FloatRpn.ID_ADD, FloatRpn.operatorId(posAddToken))
+        assertFalse(FloatRpn.isOperator(Float.NaN))
+        assertEquals(NanEncoding.NO_ID, FloatRpn.operatorId(Float.NaN))
+    }
+
+    @Test
     fun testUnpackAnimationSpecAndCubicControlPointsParity() {
         val packed =
             packAnimationSpec(
