@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.UNSET_COMPONENT_ID
 import androidx.compose.remote.creation.compose.modifier.prepareModifiers
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -40,7 +41,14 @@ internal class RemoteCustomComponentNode : RemoteComposeNode() {
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(remoteCanvas)
         val writeModifiers = scope.prepareModifiers(modifier)
-        val componentId = creationState.document.allocateId()
+        val componentId =
+            if (writeModifiers.componentId != UNSET_COMPONENT_ID) {
+                writeModifiers.componentId
+            } else {
+                // TODO(b/590744731): allocateId() returns positive IDs that can collide with an
+                // explicit componentId set on another component.
+                creationState.document.allocateId()
+            }
         val coreProperties = RemoteCustomPropertiesScope(creationState).apply(properties).properties
         creationState.document.startCustom(name, coreProperties, componentId) {
             writeModifiers(creationState.document)
@@ -63,6 +71,7 @@ internal class RemoteCustomComponentNode : RemoteComposeNode() {
  * @param content The remote children of the custom component.
  * @param properties Custom property definitions to pass to the custom component.
  */
+// TODO(b/590744731): Address componentId collision with allocateId() before making this public.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable

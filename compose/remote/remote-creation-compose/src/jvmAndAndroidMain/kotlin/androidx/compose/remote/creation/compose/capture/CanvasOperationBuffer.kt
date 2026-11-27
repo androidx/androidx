@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.capture
 import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.creation.compose.layout.CustomPropertyEntry
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.UNSET_COMPONENT_ID
 import androidx.compose.remote.creation.compose.modifier.prepareModifiers
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -524,7 +525,14 @@ internal sealed class CanvasOp {
                 corePropList.add(properties[i].toCustomProperty(creationState))
             }
             val writeModifiers = creationState.prepareModifiers(modifier)
-            val componentId = writer.allocateId()
+            val componentId =
+                if (writeModifiers.componentId != UNSET_COMPONENT_ID) {
+                    writeModifiers.componentId
+                } else {
+                    // TODO(b/590744731): allocateId() returns positive IDs that can collide with an
+                    // explicit componentId set on another component.
+                    writer.allocateId()
+                }
             writer.startCustom(config, corePropList, componentId) { writeModifiers(writer) }
             childSpan?.record(writer, creationState)
             writer.endCustom()

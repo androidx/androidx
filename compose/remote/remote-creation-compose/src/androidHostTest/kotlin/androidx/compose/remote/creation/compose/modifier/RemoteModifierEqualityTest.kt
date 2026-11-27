@@ -209,6 +209,8 @@ class RemoteModifierEqualityTest {
             RemoteModifier.horizontalScroll(scrollState),
             RemoteModifier.horizontalScroll(scrollState),
         )
+        assertStructurallyEqual(RemoteModifier.componentId(42), RemoteModifier.componentId(42))
+        assertThat(RemoteModifier.componentId(42)).isNotEqualTo(RemoteModifier.componentId(43))
     }
 
     @Test

@@ -306,6 +306,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
             fontAxisValues,
             false, // autosize
             0, // flags
+            componentId = writeModifiers.componentId,
         ) {
             writeModifiers(creationState.document)
         }

@@ -59,6 +59,7 @@ internal class RemoteColumnNode : RemoteLayoutNode() {
             horizontalAlignment.toRemote(layoutDirection),
             verticalArrangement.toRemote(),
             spacedBy,
+            componentId = writeModifiers.componentId,
         ) {
             writeModifiers(creationState.document)
         }

@@ -29,7 +29,9 @@ internal class RemoteCanvasNode : RemoteComposeNode() {
         val scope = overriddenScope(remoteCanvas)
         val writeModifiers = scope.prepareModifiers(modifier)
         val canvasComponentId =
-            creationState.document.startCanvas { writeModifiers(creationState.document) }
+            creationState.document.startCanvas(componentId = writeModifiers.componentId) {
+                writeModifiers(creationState.document)
+            }
 
         val previousNode = creationState.currentRenderingNode
         creationState.currentRenderingNode = this

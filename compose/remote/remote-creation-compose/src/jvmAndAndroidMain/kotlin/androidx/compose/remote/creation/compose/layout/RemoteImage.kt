@@ -46,6 +46,7 @@ internal class RemoteImageNode : RemoteComposeNode() {
             RemoteBitmapId(bitmapId),
             contentScale.value,
             alphaValue,
+            componentId = writeModifiers.componentId,
         ) {
             writeModifiers(creationState.document)
         }

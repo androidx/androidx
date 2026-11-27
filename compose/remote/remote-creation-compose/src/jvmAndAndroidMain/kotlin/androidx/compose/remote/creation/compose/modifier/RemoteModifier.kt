@@ -165,15 +165,16 @@ public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): Recor
 }
 
 /**
- * Evaluates [modifier] in this [RemoteStateScope] eagerly (preserving expression emission order
- * prior to container start) and returns a callback that emits the modifier elements into a
- * [RemoteDocumentWriter].
+ * Prepared modifiers resulting from eagerly evaluating a [RemoteModifier] in a [RemoteStateScope],
+ * carrying the resolved [componentId] (or `-1` if unset) alongside a callback to emit modifier
+ * elements into a [RemoteDocumentWriter].
  */
-internal fun RemoteStateScope.prepareModifiers(
-    modifier: RemoteModifier
-): (RemoteDocumentWriter) -> Unit {
-    val recordingModifier = toRecordingModifier(modifier)
-    return { writer ->
+@JvmInline
+internal value class PreparedModifiers(private val recordingModifier: RecordingModifier) {
+    val componentId: Int
+        get() = recordingModifier.componentId
+
+    operator fun invoke(writer: RemoteDocumentWriter) {
         val adapter =
             writer as? RemoteComposeWriterAdapter
                 ?: throw UnsupportedOperationException(
@@ -182,6 +183,14 @@ internal fun RemoteStateScope.prepareModifiers(
         adapter.writeRecordingModifier(recordingModifier)
     }
 }
+
+/**
+ * Evaluates [modifier] in this [RemoteStateScope] eagerly (preserving expression emission order
+ * prior to container start) and returns a [PreparedModifiers] carrying the component ID and a
+ * callback that emits the modifier elements into a [RemoteDocumentWriter].
+ */
+internal fun RemoteStateScope.prepareModifiers(modifier: RemoteModifier): PreparedModifiers =
+    PreparedModifiers(toRecordingModifier(modifier))
 
 // Workaround for b/563261712: Modifier element types that do not support multiple instances
 // on the same component. When chained, the outer (first) modifier takes precedence and
@@ -231,6 +240,17 @@ internal class CombinedRemoteModifier(
                 } else {
                     seenDrawWithContent = true
                     acc.then(with(element) { scope.toRecordingModifierElement() })
+                }
+            } else if (element is ComponentIdModifier) {
+                if (acc.componentId == UNSET_COMPONENT_ID) {
+                    acc.componentId(element.id)
+                } else {
+                    scope.creationState.platform.log(
+                        LogCategory.WARN,
+                        "Ignoring duplicate ComponentIdModifier ($element); " +
+                            "only the first instance is applied",
+                    )
+                    acc
                 }
             } else {
                 acc.then(with(element) { scope.toRecordingModifierElement() })
