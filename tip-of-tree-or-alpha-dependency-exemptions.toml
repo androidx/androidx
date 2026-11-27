@@ -494,19 +494,19 @@ reason = "b/572886215 - Uses unreleased UpdateCheckResult per-component check ti
 library = "androidx.wear.compose.remote:remote-material3"
 dependsOn = "androidx.compose.remote.foundation:foundation"
 validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+reason = "b/567564599 - Remote Compose Foundation has no beta release yet and remote-material3 is developed and released alongside its evolving alpha APIs."
 
 [[exemption]]
 library = "androidx.wear.compose.remote:remote-material3"
 dependsOn = "androidx.compose.remote:remote-creation"
 validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+reason = "b/567564599 - Remote Compose has no beta release yet and remote-material3 is developed and released alongside its evolving alpha APIs."
 
 [[exemption]]
 library = "androidx.wear.compose.remote:remote-material3"
 dependsOn = "androidx.compose.remote:remote-creation-compose"
 validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
+reason = "b/567564599 - Remote Compose has no beta release yet and remote-material3 is developed and released alongside its evolving alpha APIs."
 
 [[exemption]]
 library = "androidx.wear.tiles:tiles"
