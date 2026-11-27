@@ -42,6 +42,7 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -102,6 +103,10 @@ class WidgetTelemetryHandlerTest {
             .isTrue()
         assertThat(options.getBoolean("android.appwidget.option.ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS"))
             .isFalse()
+        assertThat(options.containsKey("android.appwidget.option.ADAPTIVE_WIDGET_CUSTOM_RENDERER"))
+            .isTrue()
+        assertThat(options.getBoolean("android.appwidget.option.ADAPTIVE_WIDGET_CUSTOM_RENDERER"))
+            .isFalse()
     }
 
     @Test
@@ -130,6 +135,7 @@ class WidgetTelemetryHandlerTest {
                 WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE,
                 WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE,
                 WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS,
+                WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER,
             )
         val options = appWidgetManager.getAppWidgetOptions(702)
         assertThat(options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID))
@@ -153,12 +159,42 @@ class WidgetTelemetryHandlerTest {
                     WidgetTelemetryHandler.XFF_SDK_VERSION_CODE,
                 )
                 putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false)
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER, false)
             },
         )
 
         handler.ensureTelemetryOptions(mapOf(HOME_SCREEN_TARGET to listOf(703)), TestTemplate())
 
         verify(appWidgetManager, never()).updateAppWidgetOptions(eq(703), any())
+    }
+
+    @Test
+    fun ensureTelemetryOptions_whenCustomRendererKeyIsMissing_updatesOptions() {
+        // Placements written by an older library version carry the other keys but not this one.
+        bindWidget(
+            705,
+            Bundle().apply {
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_ENABLED, true)
+                putInt(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE, 1)
+                putInt(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE,
+                    WidgetTelemetryHandler.XFF_SDK_VERSION_CODE,
+                )
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false)
+            },
+        )
+
+        handler.ensureTelemetryOptions(mapOf(HOME_SCREEN_TARGET to listOf(705)), TestTemplate())
+
+        val options = appWidgetManager.getAppWidgetOptions(705)
+        assertThat(
+                options.containsKey(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER)
+            )
+            .isTrue()
+        assertThat(
+                options.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER)
+            )
+            .isFalse()
     }
 
     @Test
@@ -173,6 +209,7 @@ class WidgetTelemetryHandlerTest {
                     WidgetTelemetryHandler.XFF_SDK_VERSION_CODE,
                 )
                 putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false)
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER, false)
             },
         )
 
@@ -237,6 +274,7 @@ class WidgetTelemetryHandlerTest {
                     WidgetTelemetryHandler.XFF_SDK_VERSION_CODE,
                 )
                 putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false)
+                putBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER, false)
             },
         )
         val compactTarget = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88))
@@ -312,6 +350,130 @@ class WidgetTelemetryHandlerTest {
                     .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
             )
             .isTrue()
+        assertThat(
+                customOptions.getBoolean(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER
+                )
+            )
+            .isTrue()
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(714)
+                    .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER)
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun ensureTelemetryOptions_customRendererOnLockScreenOnly_reportsItPerSurface() {
+        bindWidget(715)
+        bindWidget(716)
+        val lockTarget = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(168, 28))
+        val homeTarget = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88))
+        registerCustomTrackRenderer(AppWidgetSurface.MOBILE_LOCK_SCREEN)
+
+        handler.ensureTelemetryOptions(
+            mapOf(lockTarget to listOf(715), homeTarget to listOf(716)),
+            droppingTrackTemplate(),
+            widgetName = CUSTOM_WIDGET,
+        )
+
+        val lockOptions = appWidgetManager.getAppWidgetOptions(715)
+        assertThat(
+                lockOptions.getBoolean(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER
+                )
+            )
+            .isTrue()
+        assertThat(
+                lockOptions.getBoolean(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS
+                )
+            )
+            .isFalse()
+        val homeOptions = appWidgetManager.getAppWidgetOptions(716)
+        assertThat(
+                homeOptions.getBoolean(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER
+                )
+            )
+            .isFalse()
+        assertThat(
+                homeOptions.getBoolean(
+                    WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun ensureTelemetryOptions_afterUnregisteringCustomRenderer_reportsBuiltInLayoutAgain() {
+        bindWidget(717)
+        val lockTarget = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(168, 28))
+        registerCustomTrackRenderer(AppWidgetSurface.MOBILE_LOCK_SCREEN)
+        handler.ensureTelemetryOptions(
+            mapOf(lockTarget to listOf(717)),
+            droppingTrackTemplate(),
+            widgetName = CUSTOM_WIDGET,
+        )
+
+        AppWidgetTemplateRegistry.unregister(
+            widgetName = CUSTOM_WIDGET,
+            templateClass = TrackTemplate::class.java,
+            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
+        )
+        handler.ensureTelemetryOptions(
+            mapOf(lockTarget to listOf(717)),
+            droppingTrackTemplate(),
+            widgetName = CUSTOM_WIDGET,
+        )
+
+        val options = appWidgetManager.getAppWidgetOptions(717)
+        assertThat(
+                options.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER)
+            )
+            .isFalse()
+        assertThat(
+                options.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isTrue()
+        verify(appWidgetManager, times(2)).updateAppWidgetOptions(eq(717), any())
+    }
+
+    @Test
+    fun ensureTelemetryOptions_whenOnlyCustomRendererChanges_updatesOptions() {
+        bindWidget(718)
+        // At this size the built-in layout drops no slots, so only the custom renderer key changes.
+        val fullTarget = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 264))
+        handler.ensureTelemetryOptions(
+            mapOf(fullTarget to listOf(718)),
+            droppingTrackTemplate(),
+            widgetName = CUSTOM_WIDGET,
+        )
+        assertThat(
+                appWidgetManager
+                    .getAppWidgetOptions(718)
+                    .getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isFalse()
+
+        registerCustomTrackRenderer(AppWidgetSurface.MOBILE_HOME_SCREEN)
+        handler.ensureTelemetryOptions(
+            mapOf(fullTarget to listOf(718)),
+            droppingTrackTemplate(),
+            widgetName = CUSTOM_WIDGET,
+        )
+
+        val options = appWidgetManager.getAppWidgetOptions(718)
+        assertThat(
+                options.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER)
+            )
+            .isTrue()
+        assertThat(
+                options.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
+            )
+            .isFalse()
+        verify(appWidgetManager, times(2)).updateAppWidgetOptions(eq(718), any())
     }
 
     @Test
@@ -384,6 +546,29 @@ class WidgetTelemetryHandlerTest {
         assertThat(onUpdateCalled).isFalse()
     }
 
+    /** A [TrackTemplate] whose built-in layout drops slots at the compact test targets. */
+    private fun droppingTrackTemplate() =
+        TrackTemplate(
+            leading = Ring(0.8f),
+            primary = TemplateText("7,922"),
+            secondary = TemplateText("steps"),
+            supporting = listOf(TemplateText("Goal: 10,000")),
+        )
+
+    private fun registerCustomTrackRenderer(surface: AppWidgetSurface) {
+        AppWidgetTemplateRegistry.register(
+            widgetName = CUSTOM_WIDGET,
+            templateClass = TrackTemplate::class.java,
+            renderer =
+                TemplateRenderer { _, _ ->
+                    RemoteViewsRenderOutput(
+                        RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
+                    )
+                },
+            surface = surface,
+        )
+    }
+
     /** Binds [appWidgetId] with [options] already stored, as a host would have left them. */
     private fun bindWidget(appWidgetId: Int, options: Bundle = Bundle()) {
         val realManager = AppWidgetManager.getInstance(context)
@@ -403,5 +588,6 @@ class WidgetTelemetryHandlerTest {
 
         val HOME_SCREEN_TARGET = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(0, 0))
         val LOCK_SCREEN_TARGET = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(0, 0))
+        const val CUSTOM_WIDGET = "custom_widget"
     }
 }
