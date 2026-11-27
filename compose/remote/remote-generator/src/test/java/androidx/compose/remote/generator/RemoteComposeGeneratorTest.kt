@@ -5574,6 +5574,200 @@ class RemoteComposeGeneratorTest {
         }
     }
 
+    @Test
+    fun testSchemaEnrichmentsAndMetadataValidation() {
+        val schema = loadSchema()
+
+        // 1. STORE_R0 renamed cleanly from STORE_RO
+        val rpnOps = checkNotNull(schema.rpnOperators)
+        assertEquals("STORE_R0", rpnOps.operatorsById[56]?.name)
+        assertNull(rpnOps.operatorsByName["STORE_RO"])
+
+        // 2. idEncoding includes nanExponent and noId
+        val enc = checkNotNull(schema.idEncoding)
+        assertEquals(0x7F800000, enc.nanExponent)
+        assertEquals(-1, enc.noId)
+
+        // 3. headerConstants includes dataTypes and version groups
+        assertEquals(0, schema.headerConstants["dataTypes"]?.get("DATA_TYPE_INT"))
+        assertEquals(1, schema.headerConstants["dataTypes"]?.get("DATA_TYPE_FLOAT"))
+        assertEquals(2, schema.headerConstants["dataTypes"]?.get("DATA_TYPE_LONG"))
+        assertEquals(3, schema.headerConstants["dataTypes"]?.get("DATA_TYPE_STRING"))
+        assertEquals(0x048C0000, schema.headerConstants["version"]?.get("MAGIC_NUMBER"))
+        assertEquals(256, schema.headerConstants["version"]?.get("DEFAULT_DIMENSION"))
+        assertEquals(0x77, schema.headerConstants["version"]?.get("COMPRESSED_STREAM_MARKER"))
+
+        // 4. HeaderProperty.tag.bits[dataType] enum
+        val hpTag = schema.structs["HeaderProperty"]!!.fields.first { it.name == "tag" }
+        val dtBit = hpTag.bits!!.first { it.name == "dataType" }
+        assertEquals(
+            mapOf(
+                "DATA_TYPE_INT" to 0,
+                "DATA_TYPE_FLOAT" to 1,
+                "DATA_TYPE_LONG" to 2,
+                "DATA_TYPE_STRING" to 3,
+            ),
+            dtBit.enumValues,
+        )
+
+        // 5. visibilityConstants match Component.Visibility
+        assertEquals(
+            mapOf(
+                "GONE" to 0,
+                "VISIBLE" to 1,
+                "INVISIBLE" to 2,
+                "OVERRIDE_GONE" to 16,
+                "OVERRIDE_VISIBLE" to 32,
+                "OVERRIDE_INVISIBLE" to 64,
+                "CLEAR_OVERRIDE" to 128,
+            ),
+            schema.visibilityConstants,
+        )
+
+        // 6. Border/Background/TextLayout enums and TextLayout.color.resolvedAfter
+        val border = schema.operationsByName.getValue("BorderModifierOperation")
+        assertEquals(
+            mapOf("RECTANGLE" to 0, "CIRCLE" to 1, "ROUNDED_RECTANGLE" to 2),
+            border.fields.first { it.name == "shapeType" }.enumValues,
+        )
+        assertEquals(
+            mapOf("COLOR_REF" to 2),
+            border.fields.first { it.name == "flags" }.enumValues,
+        )
+        assertEquals(
+            mapOf("LEGACY" to 0, "VERSION_1" to 1),
+            border.fields.first { it.name == "reserve1" }.enumValues,
+        )
+        val bg = schema.operationsByName.getValue("BackgroundModifierOperation")
+        assertEquals(mapOf("COLOR_REF" to 2), bg.fields.first { it.name == "flags" }.enumValues)
+
+        val textLayout = schema.operationsByName.getValue("TextLayout")
+        assertEquals("textAlign", textLayout.fields.first { it.name == "color" }.resolvedAfter)
+        assertEquals(
+            mapOf("FONT_STYLE_NORMAL" to 0, "FONT_STYLE_ITALIC" to 1),
+            textLayout.fields.first { it.name == "fontStyle" }.enumValues,
+        )
+
+        // 7. javaClass overrides on the 17 ops whose schema name differs from remote-core
+        val customJavaClasses = schema.operations.filter { it.javaClassName != null }
+        assertEquals(17, customJavaClasses.size)
+        assertEquals(
+            "TouchDownModifierOperation",
+            schema.operationsByName.getValue("TouchModifier").resolvedJavaClassName,
+        )
+        assertEquals(
+            "ClickModifierOperation",
+            schema.operationsByName.getValue("ClickModifier").resolvedJavaClassName,
+        )
+        assertEquals(
+            "TouchUpModifierOperation",
+            schema.operationsByName.getValue("TouchUpModifier").resolvedJavaClassName,
+        )
+        assertEquals(
+            "RippleModifierOperation",
+            schema.operationsByName.getValue("RippleModifier").resolvedJavaClassName,
+        )
+        assertEquals(
+            "LoopOperation",
+            schema.operationsByName.getValue("Loop").resolvedJavaClassName,
+        )
+        assertEquals(
+            "DrawRect",
+            schema.operationsByName.getValue("DrawRect").resolvedJavaClassName,
+        )
+
+        // 8. reservedOpcodes cover experimental PropertyBundle (95, 96), 3D (110..118, 120),
+        // compressed stream marker (119), and extension range (251..255)
+        val reservedById = schema.reservedOpcodes.associateBy { it.id }
+        for (id in listOf(95, 96)) {
+            assertTrue("Missing experimental PropertyBundle opcode $id", id in reservedById)
+            assertEquals(listOf("androidx", "experimental"), reservedById.getValue(id).profiles)
+        }
+        for (id in listOf(110, 111, 112, 113, 114, 115, 116, 117, 118, 120)) {
+            assertTrue("Missing 3D opcode $id", id in reservedById)
+            assertEquals(
+                listOf("androidx", "widgets", "experimental"),
+                reservedById.getValue(id).profiles,
+            )
+        }
+        assertTrue("Missing compressed stream marker opcode 119", 119 in reservedById)
+        assertEquals("COMPRESSED_STREAM_MARKER", reservedById.getValue(119).opCodeName)
+        assertEquals(listOf("reserved"), reservedById.getValue(119).profiles)
+        for (id in 251..255) {
+            assertTrue("Missing reserved opcode $id", id in reservedById)
+            assertEquals(listOf("reserved"), reservedById.getValue(id).profiles)
+        }
+
+        // 9. JsonSchemaParser.validate rejects bad resolvedAfter, blank javaClass, & invalid
+        // reservedOpcodes
+        val badJson =
+            JSONObject(
+                """
+                {
+                  "schemaVersion": "1.0.0",
+                  "targetApiLevel": 8,
+                  "types": { "int": { "wire": "INT32", "description": "int" } },
+                  "categories": [{ "name": "Test", "description": "Test" }],
+                  "operations": [
+                    {
+                      "id": 1,
+                      "name": "Sample",
+                      "opCodeName": "SAMPLE_OP",
+                      "javaClass": "  ",
+                      "category": "Test",
+                      "description": "Sample",
+                      "fields": [
+                        { "name": "a", "type": "int" },
+                        { "name": "b", "type": "int", "resolvedAfter": "a" }
+                      ]
+                    }
+                  ],
+                  "reservedOpcodes": [
+                    { "id": 1, "name": "Overlap", "opCodeName": "OVERLAP", "profiles": ["reserved"] },
+                    { "id": 2, "name": "MissingOpCode", "profiles": ["reserved"] },
+                    { "id": 3, "name": "DupOpCode", "opCodeName": "OVERLAP", "profiles": ["reserved"] },
+                    { "id": 4, "name": "CollideOpCode", "opCodeName": "SAMPLE_OP", "profiles": ["bogus_profile"] },
+                    { "name": "MissingId", "opCodeName": "MISSING_ID" }
+                  ]
+                }
+                """
+                    .trimIndent()
+            )
+        val errors = JsonSchemaParser.validate(badJson)
+        assertTrue(
+            "Expected blank javaClass error, got: $errors",
+            errors.any { it.contains("blank or non-string javaClass") },
+        )
+        assertTrue(
+            "Expected resolvedAfter error, got: $errors",
+            errors.any { it.contains("resolvedAfter") },
+        )
+        assertTrue(
+            "Expected reservedOpcodes overlap error, got: $errors",
+            errors.any { it.contains("overlaps declared operation ID") },
+        )
+        assertTrue(
+            "Expected missing opCodeName error, got: $errors",
+            errors.any { it.contains("must specify a non-blank opCodeName") },
+        )
+        assertTrue(
+            "Expected duplicate reserved opCodeName error, got: $errors",
+            errors.any { it.contains("Duplicate reserved opcode opCodeName: OVERLAP") },
+        )
+        assertTrue(
+            "Expected colliding reserved opCodeName error, got: $errors",
+            errors.any { it.contains("opCodeName 'SAMPLE_OP' collides with declared operation") },
+        )
+        assertTrue(
+            "Expected unknown profile error, got: $errors",
+            errors.any { it.contains("unknown profile 'bogus_profile'") },
+        )
+        assertTrue(
+            "Expected missing id error, got: $errors",
+            errors.any { it.contains("must specify an integer id") },
+        )
+    }
+
     private fun runCheckedProcess(
         label: String,
         command: List<String>,
