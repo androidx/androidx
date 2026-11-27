@@ -641,5 +641,9 @@ class BaseWidgetDelegatePushUpdateTest {
                 options.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS)
             )
             .isFalse()
+        assertThat(
+                options.getBoolean(WidgetTelemetryHandler.OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER)
+            )
+            .isTrue()
     }
 }

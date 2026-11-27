@@ -26,7 +26,7 @@ import kotlinx.coroutines.CancellationException
  * Writes xFF telemetry extras into the [AppWidgetManager] options bundle of placed widgets. The
  * platform (`AppWidgetServiceImpl`) reads allowlisted keys during StatsD pulls
  * (`AppWidgetStatusPulled`) to attribute each placement to a template type, library version code,
- * and responsive compaction state.
+ * responsive compaction state, and whether a custom renderer draws it.
  *
  * Each write is one blocking `updateAppWidgetOptions` Binder call to `system_server`, after which
  * the system broadcasts `ACTION_APPWIDGET_OPTIONS_CHANGED` back to the provider. Writes are skipped
@@ -44,8 +44,8 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
      * @param targetToInstances appWidgetIds as grouped by
      *   [GlanceRemoteViewsComposer.groupInstancesByRenderTarget].
      * @param data Template payload being pushed.
-     * @param widgetName Optional widget identifier; skips built-in dropped-slot telemetry when a
-     *   custom override is active.
+     * @param widgetName Optional widget identifier, used to detect a custom renderer override. When
+     *   one is active, dropped slots are not reported.
      */
     fun ensureTelemetryOptions(
         targetToInstances: Map<RenderTarget, List<Int>>,
@@ -54,11 +54,22 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
     ) {
         val templateId = data.templateId
         for ((target, appWidgetIds) in targetToInstances) {
-            val hasDroppedSlots = hasDroppedSlots(data, target, widgetName)
+            val surface = target.surface.withDimensions(target.dimensions)
+            val usesCustomRenderer =
+                widgetName != null &&
+                    AppWidgetTemplateRegistry.hasOverride(widgetName, data.javaClass, surface)
+            // The built-in layout's dropped slots don't apply when a custom renderer draws it.
+            val hasDroppedSlots =
+                !usesCustomRenderer && AppWidgetTemplateRegistry.hasDroppedSlots(data, surface)
             for (i in appWidgetIds.indices) {
                 val appWidgetId = appWidgetIds[i]
                 try {
-                    ensureTelemetryOptionsForWidget(appWidgetId, templateId, hasDroppedSlots)
+                    ensureTelemetryOptionsForWidget(
+                        appWidgetId,
+                        templateId,
+                        hasDroppedSlots,
+                        usesCustomRenderer,
+                    )
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -75,9 +86,10 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
         appWidgetId: Int,
         templateId: Int,
         hasDroppedSlots: Boolean,
+        usesCustomRenderer: Boolean,
     ) {
         val options = appWidgetManager.getAppWidgetOptions(appWidgetId) ?: return
-        if (!needsTelemetryUpdate(options, templateId, hasDroppedSlots)) return
+        if (!needsTelemetryUpdate(options, templateId, hasDroppedSlots, usesCustomRenderer)) return
 
         // Pre-populate the receiver's options cache before calling updateAppWidgetOptions so that
         // the system's resulting ACTION_APPWIDGET_OPTIONS_CHANGED broadcast does not mistake a
@@ -99,6 +111,7 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
                 putInt(OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE, templateId)
                 putInt(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE, XFF_SDK_VERSION_CODE)
                 putBoolean(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, hasDroppedSlots)
+                putBoolean(OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER, usesCustomRenderer)
             }
         try {
             appWidgetManager.updateAppWidgetOptions(appWidgetId, telemetryOptions)
@@ -122,6 +135,7 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
         options: Bundle,
         templateId: Int,
         hasDroppedSlots: Boolean,
+        usesCustomRenderer: Boolean,
     ): Boolean =
         !options.getBoolean(OPTION_ADAPTIVE_WIDGET_ENABLED, false) ||
             !options.containsKey(OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE) ||
@@ -132,22 +146,10 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
             !options.containsKey(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE) ||
             options.getInt(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE, 0) != XFF_SDK_VERSION_CODE ||
             !options.containsKey(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS) ||
-            options.getBoolean(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false) != hasDroppedSlots
-
-    /**
-     * Returns `true` when [target]'s container size causes at least one non-blank optional slot in
-     * [data] to be omitted from the rendered layout.
-     */
-    private fun hasDroppedSlots(
-        data: GlanceAdaptiveTemplate,
-        target: RenderTarget,
-        widgetName: String?,
-    ): Boolean =
-        AppWidgetTemplateRegistry.hasDroppedSlots(
-            data,
-            target.surface.withDimensions(target.dimensions),
-            widgetName,
-        )
+            options.getBoolean(OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS, false) !=
+                hasDroppedSlots ||
+            !options.containsKey(OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER) ||
+            options.getBoolean(OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER, false) != usesCustomRenderer
 
     companion object {
         private const val TAG = "WidgetTelemetryHandler"
@@ -175,10 +177,18 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
 
         /**
          * Bundle option boolean flag indicating if secondary optional template slots were omitted
-         * due to responsive compaction.
+         * due to responsive compaction. Always `false` when
+         * [OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER] is `true`, meaning not reported.
          */
         const val OPTION_ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS: String =
             "android.appwidget.option.ADAPTIVE_WIDGET_HAS_DROPPED_SLOTS"
+
+        /**
+         * Bundle option boolean flag indicating that an app-registered custom renderer draws this
+         * widget on its surface instead of the built-in template layout.
+         */
+        const val OPTION_ADAPTIVE_WIDGET_CUSTOM_RENDERER: String =
+            "android.appwidget.option.ADAPTIVE_WIDGET_CUSTOM_RENDERER"
 
         /**
          * Default fallback SDK version code (`1.0.0` -> `10000`) used in host JVM unit tests where

@@ -405,16 +405,7 @@ class AppWidgetTemplateRegistryTest {
     }
 
     @Test
-    fun hasDroppedSlots_returnsFalseWhenCustomRendererOverrideIsActive() {
-        val track =
-            TrackTemplate(
-                leading = Ring(0.55f),
-                primary = TemplateText("7,922"),
-                secondary = TemplateText("steps"),
-                supporting = listOf(TemplateText("Goal: 10,000")),
-            )
-        val compactLock = AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(168, 28))
-        val compactHome = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(88, 88))
+    fun hasOverride_matchesWidgetTemplateAndSurface() {
         AppWidgetTemplateRegistry.register(
             widgetName = "custom_widget",
             templateClass = TrackTemplate::class.java,
@@ -424,21 +415,31 @@ class AppWidgetTemplateRegistryTest {
                 },
             surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
         )
+        val placedLock = AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(168, 28))
 
-        assertThat(AppWidgetTemplateRegistry.hasDroppedSlots(track, compactLock, "custom_widget"))
+        assertThat(
+                AppWidgetTemplateRegistry.hasOverride(
+                    "custom_widget",
+                    TrackTemplate::class.java,
+                    placedLock,
+                )
+            )
+            .isTrue()
+        assertThat(
+                AppWidgetTemplateRegistry.hasOverride(
+                    "other_widget",
+                    TrackTemplate::class.java,
+                    placedLock,
+                )
+            )
             .isFalse()
-        assertThat(AppWidgetTemplateRegistry.hasDroppedSlots(track, compactLock, "other_widget"))
-            .isTrue()
-        assertThat(AppWidgetTemplateRegistry.hasDroppedSlots(track, compactHome, "custom_widget"))
-            .isTrue()
-
-        AppWidgetTemplateRegistry.unregister(
-            widgetName = "custom_widget",
-            templateClass = TrackTemplate::class.java,
-            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
-        )
-
-        assertThat(AppWidgetTemplateRegistry.hasDroppedSlots(track, compactLock, "custom_widget"))
-            .isTrue()
+        assertThat(
+                AppWidgetTemplateRegistry.hasOverride(
+                    "custom_widget",
+                    TrackTemplate::class.java,
+                    AppWidgetSurface.MOBILE_HOME_SCREEN,
+                )
+            )
+            .isFalse()
     }
 }

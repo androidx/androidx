@@ -109,22 +109,24 @@ internal object AppWidgetTemplateRegistry {
     ): AppWidgetRenderOutput = registry.render(data, surface, widgetName)
 
     /**
-     * Returns `true` if the built-in template omits a non-blank optional slot of [data] on
-     * [surface], or `false` if no built-in selector exists for [data]. When a custom renderer
-     * override is active for [widgetName], `false` means dropped slots are not reported.
+     * Returns `true` if a custom renderer override is registered for [widgetName], [templateClass],
+     * and [surface].
      */
-    fun hasDroppedSlots(
-        data: GlanceAdaptiveTemplate,
+    fun hasOverride(
+        widgetName: String,
+        templateClass: Class<out GlanceAdaptiveTemplate>,
         surface: AppWidgetSurface,
-        widgetName: String? = null,
-    ): Boolean {
-        if (widgetName != null && registry.hasOverride(widgetName, data.javaClass, surface)) {
-            return false
-        }
-        return try {
+    ): Boolean = registry.hasOverride(widgetName, templateClass, surface)
+
+    /**
+     * Returns `true` if the built-in template omits a non-blank optional slot of [data] on
+     * [surface], or `false` if no built-in selector exists for [data]. It ignores custom renderer
+     * overrides; check [hasOverride] first, as their dropped slots are not reported.
+     */
+    fun hasDroppedSlots(data: GlanceAdaptiveTemplate, surface: AppWidgetSurface): Boolean =
+        try {
             selectorRegistry.render(data, surface).hasDroppedSlots
         } catch (_: IllegalStateException) {
             false
         }
-    }
 }
