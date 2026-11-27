@@ -19,20 +19,28 @@ package androidx.camera.testing.impl
 import android.annotation.SuppressLint
 import android.app.Instrumentation
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.hardware.display.DisplayManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.RemoteException
 import android.util.Log
+import android.view.Display
+import android.view.Surface
 import androidx.camera.core.Logger
 import androidx.camera.testing.impl.activity.ForegroundTestActivity
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleCallback
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitor
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
 import java.io.IOException
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.RejectedExecutionException
@@ -52,13 +60,27 @@ import org.junit.runners.model.Statement
  *
  * This rule automates the "clean room" setup required for Activity and Fragment tests:
  * 1. **Device Preparation**: Wakes the screen, dismisses the keyguard, and enables "stay on."
- * 2. **Orientation Lock**: Freezes the device in natural orientation to prevent unexpected
- *    recreations.
+ * 2. **Orientation Lock**: Freezes the default display in natural orientation
+ *    (`Surface.ROTATION_0`) and awaits display-rotation settlement while [ForegroundTestActivity]
+ *    holds foreground focus to prevent delayed mid-test Activity recreations.
  * 3. **Foreground Verification**: Verifies that the app can actually obtain window focus before the
  *    test starts, and monitors mid-test activity lifecycle transitions for unsolicited foreign
  *    packages stealing window focus. If a system dialog, notification shade, or third-party/OEM app
  *    blocks or steals the foreground, the rule throws a [ForegroundOccupiedError] in lab
  *    environments (or skips the test via [AssumptionViolatedException] outside the lab).
+ *
+ * ### Rule Ordering Guidance (`@get:Rule(order = ...)`)
+ * When combining [RequireForegroundRule] with Activity/Compose launch rules
+ * (`ActivityScenarioRule`, `CameraTestActivityScenarioRule`, `createComposeRule`,
+ * `createAndroidComposeRule`), specify explicit `order` values so [RequireForegroundRule] runs
+ * **before** (lower `order` than) the Activity/Compose launch rule, while keeping fast skip gates
+ * (`LabTestRule`, `Ignore*ProblematicDeviceRule`, screenshot rules) and
+ * `PostTestCameraAvailability` (when `cameraProvider.shutdownAsync()` runs in [deferCleanup]) outer
+ * to [RequireForegroundRule].
+ *
+ * Note: Activities launched under test should not declare `android:screenOrientation="sensor"` or
+ * `"fullSensor"` unless explicitly testing sensor-driven rotation, because sensor orientation modes
+ * ignore the user-rotation lock.
  *
  * ### Why use this instead of @Before/@After?
  * Standard `@After` blocks execute while the test Activity might still be visible or active. If you
@@ -66,23 +88,27 @@ import org.junit.runners.model.Statement
  * crash while trying to access that provider during its own destruction.
  *
  * This rule provides [withCleanup] and [deferCleanup] to ensure that teardown happens **only
- * after** the device has successfully returned to the Home screen and the Activity is gone.
+ * after** the device has returned to the Home screen, target Activities have stopped, and rotation
+ * has been unfrozen.
  *
  * ### Call Sequence Diagram
  * 1. **Rule Setup**: [preTestCheck] runs (Kotlin suspend or Java Runnable).
- * 2. **Device Prep**: Screen wakes -> Orientation locked -> Navigates to Home.
- * 3. **Focus Check**: Launches a hidden activity to verify foreground focus is obtainable.
+ * 2. **Device Prep**: Screen wakes -> Keyguard dismissed -> Navigates Home.
+ * 3. **Focus & Orientation Lock**: Launches [ForegroundTestActivity] to verify foreground focus is
+ *    obtainable, locks natural orientation (`Surface.ROTATION_0`), and awaits rotation settlement
+ *    before finishing it (avoiding fixed-orientation Home launcher stalls).
  * 4. **Test Body**: Your actual test code (and any `@Before` methods) executes while monitoring for
  *    mid-test foreground loss to foreign packages.
  * 5. **Rule Reset**: Any foreign foreground occupier is force-stopped (in lab environments), the
- *    device returns Home, and rotation is unfrozen.
+ *    device returns Home, target/test Activities await `STOPPED`/`DESTROYED`, and rotation is
+ *    unfrozen.
  * 6. **Cleanup Tasks**: All tasks registered via [withCleanup] are executed in **LIFO** (Last-In,
  *    First-Out) order.
  *
  * ### Example: Kotlin (Suspend + Chaining)
  *
  * ```kotlin
- * @get:Rule
+ * @get:Rule(order = 0)
  * val foregroundRule = RequireForegroundRule {
  *     // Runs before UI prep. Good for initialization/assumptions.
  *     cameraProvider = ProcessCameraProvider.getInstance(context).await()
@@ -95,7 +121,7 @@ import org.junit.runners.model.Statement
  * ### Example: Java (Runnable)
  *
  * ```java
- * @Rule
+ * @Rule(order = 0)
  * public RequireForegroundRule foregroundRule = new RequireForegroundRule(() -> {
  *     // Standard setup logic
  * }).withCleanup(() -> {
@@ -164,6 +190,7 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
         object : Statement() {
             override fun evaluate() {
                 var testError: Throwable? = null
+                var lockedDevice: UiDevice? = null
 
                 try {
                     // Run early assumptions BEFORE heavy UI operations.
@@ -172,9 +199,42 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                     val instrumentation = InstrumentationRegistry.getInstrumentation()
                     val device = runBlocking { getUiDevice(instrumentation) }
 
-                    device.setOrientationNatural()
-                    device.waitForIdle(INITIAL_IDLE_TIMEOUT_MS)
-                    prepareDeviceUI(instrumentation)
+                    clearDeviceUI(instrumentation)
+                    prepareForegroundActivity(instrumentation) {
+                        // Lock and settle while ForegroundTestActivity holds focus so
+                        // fixed-orientation / NOSENSOR Home launchers do not stall rotation.
+                        lockedDevice = device
+                        val displayManager =
+                            instrumentation.targetContext.getSystemService(Context.DISPLAY_SERVICE)
+                                as? DisplayManager
+                        val settled =
+                            lockAndSettleNaturalOrientation(
+                                lockDisplayScoped =
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                        { device.setOrientationNatural(Display.DEFAULT_DISPLAY) }
+                                    } else {
+                                        null
+                                    },
+                                lockUiAutomation = { device.setOrientationNatural() },
+                                awaitSettled = {
+                                    displayManager == null ||
+                                        awaitDefaultDisplayRotation(displayManager)
+                                },
+                            )
+                        if (displayManager != null) {
+                            if (settled) {
+                                instrumentation.waitForIdleSync()
+                            } else {
+                                Logger.w(
+                                    TAG,
+                                    "Display rotation did not settle to ROTATION_0 within " +
+                                        "${ROTATION_SETTLE_TIMEOUT_MS}ms (current=" +
+                                        "${getDefaultDisplayRotation(displayManager)}, " +
+                                        "interrupted=${Thread.currentThread().isInterrupted})",
+                                )
+                            }
+                        }
+                    }
 
                     val testPackage = instrumentation.context.packageName
                     val targetPackage = instrumentation.targetContext.packageName
@@ -259,8 +319,7 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                         foregroundCheckExecutor.shutdownNow()
                         try {
                             backToHome(instrumentation)
-                            device.unfreezeRotation()
-                            device.waitForIdle(UI_STABILIZATION_TIMEOUT_MS)
+                            awaitTargetActivitiesStopped(monitor = lifecycleMonitor)
                         } catch (t: Throwable) {
                             Log.w(TAG, "Failed to gracefully clean up device state", t)
                         }
@@ -269,6 +328,15 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                     // Capture failures from preTestCheck or prepareDeviceUI if test hasn't run
                     if (testError == null) testError = t
                 } finally {
+                    lockedDevice?.let {
+                        try {
+                            unfreezeRotation(it)
+                            it.waitForIdle(UI_STABILIZATION_TIMEOUT_MS)
+                        } catch (t: Throwable) {
+                            Logger.w(TAG, "Failed to unfreeze rotation", t)
+                        }
+                    }
+
                     // Deferred Cleanup Tasks
                     val cleanupErrors = mutableListOf<Throwable>()
                     cleanupTasks.reversed().forEach { task ->
@@ -299,11 +367,14 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
     public companion object {
         private const val TAG = "RequireForegroundRule"
         private const val MH_TAG = "MH"
-        private const val INITIAL_IDLE_TIMEOUT_MS: Long = 2000
         private const val UI_STABILIZATION_TIMEOUT_MS: Long = 3000
         private const val FOREGROUND_ACTIVITY_DESTROY_TIMEOUT_MS: Long = 5000
+        private const val ROTATION_SETTLE_TIMEOUT_MS: Long = 10000
+        private const val TEARDOWN_STOP_TIMEOUT_MS: Long = 3000
         private const val FOREGROUND_CHECK_DELAY_MS: Long = 200
         private const val DISMISS_LOCK_SCREEN_CODE = 82
+        private val VISIBLE_ACTIVITY_STAGES: Set<Stage> =
+            setOf(Stage.STARTED, Stage.RESUMED, Stage.PAUSED, Stage.RESTARTED)
         private const val ADB_SHELL_DISMISS_KEYGUARD_API23_AND_ABOVE = "wm dismiss-keyguard"
         private const val ADB_SHELL_SCREEN_ALWAYS_ON = "svc power stayon true"
         private const val ADB_SHELL_DISABLE_CAMERA_SENSOR_PRIVACY_API31_AND_ABOVE =
@@ -359,40 +430,123 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
         @Throws(ForegroundOccupiedError::class)
         public fun prepareDeviceUI(instrumentation: Instrumentation) {
             clearDeviceUI(instrumentation)
+            prepareForegroundActivity(instrumentation)
+        }
 
-            var activityRef: ForegroundTestActivity? = null
-            try {
-                val context = InstrumentationRegistry.getInstrumentation().targetContext
-                val startIntent =
-                    Intent(Intent.ACTION_MAIN).apply {
-                        setClassName(context.packageName, ForegroundTestActivity::class.java.name)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-
-                var retryCount = 0
-                while (retryCount < 3) {
-                    try {
-                        activityRef =
-                            instrumentation.startActivitySync(startIntent) as ForegroundTestActivity
-                        break
-                    } catch (e: RuntimeException) {
-                        Logger.w(
-                            TAG,
-                            "Failed to launch ForegroundTestActivity on attempt $retryCount",
-                            e,
-                        )
-                        retryCount++
-                        if (retryCount >= 3) throw e
-                        clearDeviceUI(instrumentation)
-                    }
+        /**
+         * Locks the default display in its natural orientation (`Surface.ROTATION_0`) and awaits
+         * settlement.
+         *
+         * On API 30+, attempts the `Display.DEFAULT_DISPLAY` overload (`cmd window user-rotation`,
+         * per b/559546730) and falls back to `UiAutomation` rotation freeze if the display-scoped
+         * call throws or silently fails to settle; on older APIs, uses `UiAutomation` directly.
+         */
+        internal fun lockAndSettleNaturalOrientation(
+            lockDisplayScoped: (() -> Unit)?,
+            lockUiAutomation: () -> Unit,
+            awaitSettled: () -> Boolean,
+            isInterrupted: () -> Boolean = { Thread.currentThread().isInterrupted },
+        ): Boolean {
+            var usedDisplayScoped = false
+            if (lockDisplayScoped != null) {
+                try {
+                    lockDisplayScoped()
+                    usedDisplayScoped = true
+                } catch (e: RuntimeException) {
+                    Logger.w(
+                        TAG,
+                        "Display-scoped setOrientationNatural failed; falling back to UiAutomation",
+                        e,
+                    )
+                    lockUiAutomation()
                 }
-                instrumentation.waitForIdleSync()
+            } else {
+                lockUiAutomation()
+            }
+            var settled = awaitSettled()
+            if (!settled && usedDisplayScoped && !isInterrupted()) {
+                Logger.w(
+                    TAG,
+                    "Display-scoped rotation lock did not settle to ROTATION_0; " +
+                        "falling back to UiAutomation",
+                )
+                lockUiAutomation()
+                settled = awaitSettled()
+            }
+            return settled
+        }
 
-                IdlingRegistry.getInstance().register(activityRef!!.viewReadyIdlingResource)
-                Espresso.onIdle()
-                return
-            } catch (e: Exception) {
-                Logger.d(TAG, "Fail to get foreground", e)
+        /**
+         * Unfreezes display rotation on the default display, clearing both the API 30+ per-display
+         * `user-rotation` lock (b/559546730) and the `UiAutomation` rotation freeze.
+         */
+        @Throws(RemoteException::class)
+        internal fun unfreezeRotation(device: UiDevice) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                try {
+                    device.unfreezeRotation(Display.DEFAULT_DISPLAY)
+                } catch (e: RuntimeException) {
+                    Logger.w(
+                        TAG,
+                        "Display-scoped unfreezeRotation failed; continuing with default unfreeze",
+                        e,
+                    )
+                }
+            }
+            device.unfreezeRotation()
+        }
+
+        @Throws(ForegroundOccupiedError::class)
+        private fun prepareForegroundActivity(
+            instrumentation: Instrumentation,
+            onForegroundReady: (() -> Unit)? = null,
+        ) {
+            var activityRef: ForegroundTestActivity? = null
+            var foregroundVerified = false
+            val context = instrumentation.targetContext
+            try {
+                try {
+                    val startIntent =
+                        Intent(Intent.ACTION_MAIN).apply {
+                            setClassName(
+                                context.packageName,
+                                ForegroundTestActivity::class.java.name,
+                            )
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+
+                    var retryCount = 0
+                    while (retryCount < 3) {
+                        try {
+                            activityRef =
+                                instrumentation.startActivitySync(startIntent)
+                                    as ForegroundTestActivity
+                            break
+                        } catch (e: RuntimeException) {
+                            Logger.w(
+                                TAG,
+                                "Failed to launch ForegroundTestActivity on attempt $retryCount",
+                                e,
+                            )
+                            retryCount++
+                            if (retryCount >= 3) throw e
+                            clearDeviceUI(instrumentation)
+                        }
+                    }
+                    instrumentation.waitForIdleSync()
+
+                    val foregroundActivity = checkNotNull(activityRef)
+                    IdlingRegistry.getInstance()
+                        .register(foregroundActivity.viewReadyIdlingResource)
+                    Espresso.onIdle()
+                    foregroundVerified = true
+                } catch (e: Exception) {
+                    Logger.d(TAG, "Fail to get foreground", e)
+                }
+
+                if (foregroundVerified) {
+                    onForegroundReady?.invoke()
+                }
             } finally {
                 activityRef?.let { activity ->
                     IdlingRegistry.getInstance().unregister(activity.viewReadyIdlingResource)
@@ -413,10 +567,113 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                 }
             }
 
+            if (foregroundVerified) {
+                return
+            }
+
             // Throw AssumptionViolatedException to skip the test if not in the CameraX lab
             // environment. The loggable tag will be set when running the CameraX daily testing.
             assumeTrue(Log.isLoggable(MH_TAG, Log.DEBUG))
             throw ForegroundOccupiedError("CameraX_fail_to_start_foreground, model: ${Build.MODEL}")
+        }
+
+        internal fun getDefaultDisplayRotation(displayManager: DisplayManager): Int? =
+            displayManager.getDisplay(Display.DEFAULT_DISPLAY)?.rotation
+
+        internal fun awaitDefaultDisplayRotation(
+            displayManager: DisplayManager,
+            expectedRotation: Int = Surface.ROTATION_0,
+            timeoutMs: Long = ROTATION_SETTLE_TIMEOUT_MS,
+        ): Boolean {
+            val initialRotation = getDefaultDisplayRotation(displayManager) ?: return false
+            if (initialRotation == expectedRotation) {
+                return true
+            }
+            check(Looper.myLooper() != Looper.getMainLooper()) {
+                "awaitDefaultDisplayRotation must not block the main thread"
+            }
+            val settledLatch = CountDownLatch(1)
+            val listener =
+                object : DisplayManager.DisplayListener {
+                    override fun onDisplayAdded(displayId: Int) {}
+
+                    override fun onDisplayRemoved(displayId: Int) {}
+
+                    override fun onDisplayChanged(displayId: Int) {
+                        if (
+                            displayId == Display.DEFAULT_DISPLAY &&
+                                getDefaultDisplayRotation(displayManager) == expectedRotation
+                        ) {
+                            settledLatch.countDown()
+                        }
+                    }
+                }
+            displayManager.registerDisplayListener(listener, Handler(Looper.getMainLooper()))
+            try {
+                if (getDefaultDisplayRotation(displayManager) == expectedRotation) {
+                    return true
+                }
+                val awaited =
+                    try {
+                        settledLatch.await(timeoutMs, TimeUnit.MILLISECONDS)
+                    } catch (_: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                        return false
+                    }
+                return awaited || getDefaultDisplayRotation(displayManager) == expectedRotation
+            } finally {
+                displayManager.unregisterDisplayListener(listener)
+            }
+        }
+
+        internal fun hasVisibleActivity(monitor: ActivityLifecycleMonitor): Boolean =
+            VISIBLE_ACTIVITY_STAGES.any { stage ->
+                monitor.getActivitiesInStage(stage).isNotEmpty()
+            }
+
+        internal fun awaitTargetActivitiesStopped(
+            timeoutMs: Long = TEARDOWN_STOP_TIMEOUT_MS,
+            monitor: ActivityLifecycleMonitor = ActivityLifecycleMonitorRegistry.getInstance(),
+        ): Boolean {
+            check(Looper.myLooper() != Looper.getMainLooper()) {
+                "awaitTargetActivitiesStopped must not block the main thread"
+            }
+            val stoppedLatch = CountDownLatch(1)
+            val callback = ActivityLifecycleCallback { _, _ ->
+                if (!hasVisibleActivity(monitor)) {
+                    stoppedLatch.countDown()
+                }
+            }
+            monitor.addLifecycleCallback(callback)
+            try {
+                if (
+                    !Handler(Looper.getMainLooper()).post {
+                        if (!hasVisibleActivity(monitor)) {
+                            stoppedLatch.countDown()
+                        }
+                    }
+                ) {
+                    return false
+                }
+                val stopped =
+                    try {
+                        stoppedLatch.await(timeoutMs, TimeUnit.MILLISECONDS)
+                    } catch (_: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                        false
+                    }
+                if (!stopped) {
+                    Logger.w(
+                        TAG,
+                        "Target/test Activities did not stop within ${timeoutMs}ms before " +
+                            "unfreezing rotation " +
+                            "(interrupted=${Thread.currentThread().isInterrupted})",
+                    )
+                }
+                return stopped
+            } finally {
+                monitor.removeLifecycleCallback(callback)
+            }
         }
 
         @JvmStatic

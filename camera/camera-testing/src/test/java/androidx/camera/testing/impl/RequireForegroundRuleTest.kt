@@ -16,13 +16,25 @@
 
 package androidx.camera.testing.impl
 
+import android.app.Activity
+import android.content.Context
+import android.hardware.display.DisplayManager
+import android.os.Looper
+import android.view.Display
+import android.view.Surface
 import androidx.camera.testing.impl.RequireForegroundRule.Companion.ForegroundOccupiedError
 import androidx.camera.testing.impl.activity.ForegroundTestActivity
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.runner.lifecycle.ActivityLifecycleCallback
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitor
 import androidx.test.runner.lifecycle.Stage
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import org.junit.Assert.assertThrows
@@ -31,8 +43,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowDisplayManager
 
 /** Unit tests for [RequireForegroundRule]. */
 @RunWith(RobolectricTestRunner::class)
@@ -508,5 +522,333 @@ class RequireForegroundRuleTest {
             Thread.interrupted()
             controller.pause().stop().destroy()
         }
+    }
+
+    @Test
+    fun lockAndSettleNaturalOrientation_fallsBackToUiAutomationOnApi30FailureOrTimeout() {
+        // API 30+ happy path: display-scoped lock settles without calling UiAutomation fallback.
+        var displayCalls = 0
+        var uiAutomationCalls = 0
+        var awaitCalls = 0
+        assertThat(
+                RequireForegroundRule.lockAndSettleNaturalOrientation(
+                    lockDisplayScoped = { displayCalls++ },
+                    lockUiAutomation = { uiAutomationCalls++ },
+                    awaitSettled = {
+                        awaitCalls++
+                        true
+                    },
+                )
+            )
+            .isTrue()
+        assertThat(displayCalls).isEqualTo(1)
+        assertThat(uiAutomationCalls).isEqualTo(0)
+        assertThat(awaitCalls).isEqualTo(1)
+
+        // API 30+ exception path: falls back once and does not re-invoke UiAutomation on timeout.
+        uiAutomationCalls = 0
+        awaitCalls = 0
+        assertThat(
+                RequireForegroundRule.lockAndSettleNaturalOrientation(
+                    lockDisplayScoped = { throw RuntimeException("shell failed") },
+                    lockUiAutomation = { uiAutomationCalls++ },
+                    awaitSettled = {
+                        awaitCalls++
+                        false
+                    },
+                    isInterrupted = { false },
+                )
+            )
+            .isFalse()
+        assertThat(uiAutomationCalls).isEqualTo(1)
+        assertThat(awaitCalls).isEqualTo(1)
+
+        // API 30+ silent-ignore path: falls back lazily when display-scoped lock fails to settle.
+        displayCalls = 0
+        uiAutomationCalls = 0
+        awaitCalls = 0
+        assertThat(
+                RequireForegroundRule.lockAndSettleNaturalOrientation(
+                    lockDisplayScoped = { displayCalls++ },
+                    lockUiAutomation = { uiAutomationCalls++ },
+                    awaitSettled = { ++awaitCalls >= 2 },
+                    isInterrupted = { false },
+                )
+            )
+            .isTrue()
+        assertThat(displayCalls).isEqualTo(1)
+        assertThat(uiAutomationCalls).isEqualTo(1)
+        assertThat(awaitCalls).isEqualTo(2)
+
+        // Interrupted caller skips fallback so interruption returns promptly.
+        uiAutomationCalls = 0
+        awaitCalls = 0
+        assertThat(
+                RequireForegroundRule.lockAndSettleNaturalOrientation(
+                    lockDisplayScoped = {},
+                    lockUiAutomation = { uiAutomationCalls++ },
+                    awaitSettled = {
+                        awaitCalls++
+                        false
+                    },
+                    isInterrupted = { true },
+                )
+            )
+            .isFalse()
+        assertThat(uiAutomationCalls).isEqualTo(0)
+        assertThat(awaitCalls).isEqualTo(1)
+
+        // Pre-API 30 path: invokes UiAutomation directly without double fallback.
+        uiAutomationCalls = 0
+        awaitCalls = 0
+        assertThat(
+                RequireForegroundRule.lockAndSettleNaturalOrientation(
+                    lockDisplayScoped = null,
+                    lockUiAutomation = { uiAutomationCalls++ },
+                    awaitSettled = {
+                        awaitCalls++
+                        false
+                    },
+                    isInterrupted = { false },
+                )
+            )
+            .isFalse()
+        assertThat(uiAutomationCalls).isEqualTo(1)
+        assertThat(awaitCalls).isEqualTo(1)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun awaitDefaultDisplayRotation_handlesFastPathTransitionTimeoutAndInterrupt() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val defaultDisplay = requireNotNull(displayManager.getDisplay(Display.DEFAULT_DISPLAY))
+
+        // Fast-path: already at ROTATION_0, returns true immediately even on the main thread.
+        shadowOf(defaultDisplay).setRotation(Surface.ROTATION_0)
+        assertThat(
+                RequireForegroundRule.awaitDefaultDisplayRotation(
+                    displayManager = displayManager,
+                    expectedRotation = Surface.ROTATION_0,
+                    timeoutMs = 50L,
+                )
+            )
+            .isTrue()
+
+        // Guard: when rotation has not settled, blocking the main thread is rejected.
+        shadowOf(defaultDisplay).setRotation(Surface.ROTATION_90)
+        assertThrows(IllegalStateException::class.java) {
+            RequireForegroundRule.awaitDefaultDisplayRotation(
+                displayManager = displayManager,
+                expectedRotation = Surface.ROTATION_0,
+                timeoutMs = 50L,
+            )
+        }
+
+        val executor = Executors.newSingleThreadExecutor()
+        try {
+            // Timeout path: stays at ROTATION_90 -> returns false cleanly.
+            val timeoutFuture =
+                executor.submit<Boolean> {
+                    RequireForegroundRule.awaitDefaultDisplayRotation(
+                        displayManager = displayManager,
+                        expectedRotation = Surface.ROTATION_0,
+                        timeoutMs = 25L,
+                    )
+                }
+            pumpMainLooperUntilDone(timeoutFuture)
+            assertThat(timeoutFuture.get(2, TimeUnit.SECONDS)).isFalse()
+
+            // Pre-interrupted caller thread: returns false and preserves interrupt flag.
+            val interruptedPreservedFuture =
+                executor.submit<Boolean> {
+                    Thread.currentThread().interrupt()
+                    try {
+                        val settled =
+                            RequireForegroundRule.awaitDefaultDisplayRotation(
+                                displayManager = displayManager,
+                                expectedRotation = Surface.ROTATION_0,
+                                timeoutMs = 5000L,
+                            )
+                        assertThat(settled).isFalse()
+                        Thread.currentThread().isInterrupted
+                    } finally {
+                        Thread.interrupted()
+                    }
+                }
+            pumpMainLooperUntilDone(interruptedPreservedFuture)
+            assertThat(interruptedPreservedFuture.get(2, TimeUnit.SECONDS)).isTrue()
+
+            // Event-driven transition path: wait until the worker is blocked in settledLatch.await
+            // (after registering DisplayListener) before triggering ROTATION_0. Use a 60s timeout
+            // well above the 5s looper-pump window so removing DisplayListener fails by timeout.
+            val workerThreadRef = AtomicReference<Thread?>(null)
+            val settleFuture =
+                executor.submit<Boolean> {
+                    workerThreadRef.set(Thread.currentThread())
+                    RequireForegroundRule.awaitDefaultDisplayRotation(
+                        displayManager = displayManager,
+                        expectedRotation = Surface.ROTATION_0,
+                        timeoutMs = 60_000L,
+                    )
+                }
+            val awaitBlockedDeadlineNs = System.nanoTime() + TimeUnit.SECONDS.toNanos(2)
+            while (
+                workerThreadRef.get()?.state != Thread.State.TIMED_WAITING &&
+                    System.nanoTime() < awaitBlockedDeadlineNs
+            ) {
+                Thread.yield()
+            }
+            assertThat(workerThreadRef.get()?.state).isEqualTo(Thread.State.TIMED_WAITING)
+            assertThat(settleFuture.isDone).isFalse()
+
+            shadowOf(defaultDisplay).setRotation(Surface.ROTATION_0)
+            ShadowDisplayManager.changeDisplay(Display.DEFAULT_DISPLAY, "")
+            pumpMainLooperUntilDone(settleFuture)
+            assertThat(settleFuture.get(2, TimeUnit.SECONDS)).isTrue()
+        } finally {
+            shadowOf(defaultDisplay).setRotation(Surface.ROTATION_0)
+            executor.shutdownNow()
+        }
+    }
+
+    @Test
+    fun hasVisibleActivity_treatsPausedAsVisibleAndStoppedAsNotVisible() {
+        val controller = Robolectric.buildActivity(ForegroundTestActivity::class.java).setup()
+        val activity = controller.get()
+        val monitor = FakeActivityLifecycleMonitor()
+        try {
+            for (visibleStage in
+                listOf(Stage.STARTED, Stage.RESUMED, Stage.PAUSED, Stage.RESTARTED)) {
+                monitor.setActivityStage(activity, visibleStage)
+                assertThat(RequireForegroundRule.hasVisibleActivity(monitor)).isTrue()
+            }
+
+            for (nonVisibleStage in
+                listOf(Stage.PRE_ON_CREATE, Stage.CREATED, Stage.STOPPED, Stage.DESTROYED)) {
+                monitor.setActivityStage(activity, nonVisibleStage)
+                assertThat(RequireForegroundRule.hasVisibleActivity(monitor)).isFalse()
+            }
+        } finally {
+            controller.pause().stop().destroy()
+        }
+    }
+
+    @Test
+    fun awaitTargetActivitiesStopped_waitsUntilPausedActivityReachesStopped() {
+        val controller = Robolectric.buildActivity(ForegroundTestActivity::class.java).setup()
+        val activity = controller.get()
+        val monitor = FakeActivityLifecycleMonitor()
+
+        val executor = Executors.newSingleThreadExecutor()
+        try {
+            // Guard: blocking the main thread is rejected.
+            monitor.setActivityStage(activity, Stage.PAUSED)
+            assertThrows(IllegalStateException::class.java) {
+                RequireForegroundRule.awaitTargetActivitiesStopped(
+                    timeoutMs = 50L,
+                    monitor = monitor,
+                )
+            }
+            monitor.setActivityStage(activity, Stage.STOPPED)
+
+            // Fast-path when already STOPPED on background thread.
+            val fastFuture =
+                executor.submit<Boolean> {
+                    RequireForegroundRule.awaitTargetActivitiesStopped(
+                        timeoutMs = 500L,
+                        monitor = monitor,
+                    )
+                }
+            pumpMainLooperUntilDone(fastFuture)
+            assertThat(fastFuture.get(2, TimeUnit.SECONDS)).isTrue()
+            assertThat(monitor.callbacks).isEmpty()
+
+            // Slow-path when PAUSED during Home transition: blocks until STOPPED arrives.
+            val slowCallbackLatch = monitor.resetCallbackAddedLatch()
+            monitor.setActivityStage(activity, Stage.PAUSED)
+            val awaitFuture =
+                executor.submit<Boolean> {
+                    RequireForegroundRule.awaitTargetActivitiesStopped(
+                        timeoutMs = 5000L,
+                        monitor = monitor,
+                    )
+                }
+            assertThat(slowCallbackLatch.await(2, TimeUnit.SECONDS)).isTrue()
+            shadowOf(Looper.getMainLooper()).idle()
+            assertThat(awaitFuture.isDone).isFalse()
+
+            monitor.dispatchStage(activity, Stage.STOPPED)
+            pumpMainLooperUntilDone(awaitFuture)
+            assertThat(awaitFuture.get(2, TimeUnit.SECONDS)).isTrue()
+            assertThat(monitor.callbacks).isEmpty()
+
+            // Pre-interrupted caller thread: returns false, preserves interrupt, removes callback.
+            monitor.setActivityStage(activity, Stage.PAUSED)
+            val interruptPreservedFuture =
+                executor.submit<Boolean> {
+                    Thread.currentThread().interrupt()
+                    try {
+                        val stopped =
+                            RequireForegroundRule.awaitTargetActivitiesStopped(
+                                timeoutMs = 5000L,
+                                monitor = monitor,
+                            )
+                        assertThat(stopped).isFalse()
+                        Thread.currentThread().isInterrupted
+                    } finally {
+                        Thread.interrupted()
+                    }
+                }
+            pumpMainLooperUntilDone(interruptPreservedFuture)
+            assertThat(interruptPreservedFuture.get(2, TimeUnit.SECONDS)).isTrue()
+            assertThat(monitor.callbacks).isEmpty()
+        } finally {
+            executor.shutdownNow()
+            controller.pause().stop().destroy()
+        }
+    }
+
+    private fun pumpMainLooperUntilDone(future: Future<*>) {
+        val deadlineNs = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
+        while (!future.isDone && System.nanoTime() < deadlineNs) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.yield()
+        }
+    }
+
+    private class FakeActivityLifecycleMonitor : ActivityLifecycleMonitor {
+        val callbacks = CopyOnWriteArrayList<ActivityLifecycleCallback>()
+        private val callbackAddedLatchRef = AtomicReference(CountDownLatch(1))
+        private val stages = mutableMapOf<Activity, Stage>()
+
+        fun resetCallbackAddedLatch(): CountDownLatch =
+            CountDownLatch(1).also { callbackAddedLatchRef.set(it) }
+
+        fun setActivityStage(activity: Activity, stage: Stage) {
+            stages[activity] = stage
+        }
+
+        fun dispatchStage(activity: Activity, stage: Stage) {
+            stages[activity] = stage
+            for (callback in callbacks) {
+                callback.onActivityLifecycleChanged(activity, stage)
+            }
+        }
+
+        override fun addLifecycleCallback(callback: ActivityLifecycleCallback) {
+            callbacks.add(callback)
+            callbackAddedLatchRef.get().countDown()
+        }
+
+        override fun removeLifecycleCallback(callback: ActivityLifecycleCallback) {
+            callbacks.remove(callback)
+        }
+
+        override fun getLifecycleStageOf(activity: Activity): Stage =
+            stages[activity] ?: Stage.PRE_ON_CREATE
+
+        override fun getActivitiesInStage(stage: Stage): Collection<Activity> =
+            stages.filterValues { it == stage }.keys
     }
 }

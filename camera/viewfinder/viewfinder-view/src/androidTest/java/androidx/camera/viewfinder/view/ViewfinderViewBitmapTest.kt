@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.RectF
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.ScaleType
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
@@ -63,7 +64,10 @@ class ViewfinderViewBitmapTest(
             }
     }
 
-    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_VIEW)
+    @get:Rule(order = 0)
+    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_VIEW)
+
+    @get:Rule(order = 1) val requireForegroundRule = RequireForegroundRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
