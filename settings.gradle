@@ -1285,6 +1285,7 @@ includeProject(":wear:watchface:watchface-complications-data-source-samples", [B
 includeProject(":wear:watchfacepush:watchfacepush", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":web:web", [BuildType.MAIN])
 includeProject(":web:web-compose", [BuildType.COMPOSE])
+includeProject(":web:web-compose:web-compose-samples", "web/web-compose/samples", [BuildType.COMPOSE])
 includeProject(":web:integration-tests:testapp", [BuildType.COMPOSE])
 includeProject(":web:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":webgpu:webgpu", [BuildType.MAIN])
