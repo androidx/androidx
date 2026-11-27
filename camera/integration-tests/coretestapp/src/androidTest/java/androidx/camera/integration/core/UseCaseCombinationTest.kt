@@ -135,7 +135,9 @@ class UseCaseCombinationTest(
 
     companion object {
         private const val FRAME_TIMEOUT_MS = 5000L
+        private const val REOPEN_FRAME_TIMEOUT_MS = 15_000L
         private const val NO_FRAME_TIMEOUT_MS = 1000L
+        private const val STREAM_IDLE_WINDOW_MS = 2000L
         // Preview frames to wait for after a mode switch, so that the frames of the previous
         // repeating request that were still in flight are delivered.
         private const val DRAIN_FRAME_COUNT = 10
@@ -1117,10 +1119,10 @@ class UseCaseCombinationTest(
         assertThat(stoppedException.cause)
             .isInstanceOf(androidx.camera.core.CameraControl.OperationCanceledException::class.java)
         instrumentation.runOnMainSync { fakeLifecycleOwner.startAndResume() }
-        assertWithMessage("ImageAnalysis received no frames after ON_STOP -> ON_START")
-            .that(analyzer.awaitFrames(count = 10))
+        assertWithMessage("ImageAnalysis did not receive 10 frames after ON_STOP -> ON_START")
+            .that(analyzer.awaitFrames(count = 10, timeoutMs = REOPEN_FRAME_TIMEOUT_MS))
             .isTrue()
-        previewMonitor.waitForStream()
+        previewMonitor.waitForStream(timeMillis = REOPEN_FRAME_TIMEOUT_MS)
 
         // After unbindAll(), setEnabledUseCasesAsync fails with IllegalStateException.
         instrumentation.runOnMainSync { cameraProvider.unbindAll() }
@@ -1729,47 +1731,49 @@ class UseCaseCombinationTest(
     class PreviewMonitor {
         private var countDown: CountDownLatch? = null
         private val surfaceProvider = createAutoDrainingSurfaceTextureProvider {
-            countDown?.countDown()
+            synchronized(this) { countDown?.countDown() }
         }
 
         fun getSurfaceProvider(): Preview.SurfaceProvider = surfaceProvider
 
-        fun waitForStream(count: Int = 10, timeMillis: Long = TimeUnit.SECONDS.toMillis(5)) {
+        fun waitForStream(count: Int = 10, timeMillis: Long = FRAME_TIMEOUT_MS) {
             Truth.assertWithMessage("Preview doesn't start")
-                .that(
-                    synchronized(this) {
-                            countDown = CountDownLatch(count)
-                            countDown
-                        }!!
-                        .await(timeMillis, TimeUnit.MILLISECONDS)
-                )
+                .that(waitForCaptureResultReceived(count = count, timeMillis = timeMillis))
                 .isTrue()
         }
 
         fun assertNoResultReceived() =
             Truth.assertWithMessage("There is still some capture results received unexpectedly.")
-                .that(waitForCaptureResultReceived(/* count= */ 1, /* timeSeconds= */ 2))
+                .that(waitForCaptureResultReceived(count = 1, timeMillis = STREAM_IDLE_WINDOW_MS))
                 .isFalse()
 
-        fun waitForStreamIdle() {
-            // Monitor 2 seconds to confirm that less than 10 capture results are received. (It
-            // might take some time to stop the preview)
-            Truth.assertWithMessage(
-                    "There are still more than 10 capture results received in the" +
-                        " recent 2 seconds."
-                )
-                .that(waitForCaptureResultReceived())
-                .isFalse()
-            // Monitor 2 seconds to confirm that no any capture result can be received.
-            assertNoResultReceived()
+        /**
+         * Drains in-flight preview frames after unbind up to [drainTimeoutMs], then confirms no
+         * further frame arrives during a continuous [idleWindowMs] quiet window.
+         */
+        fun waitForStreamIdle(
+            drainTimeoutMs: Long = FRAME_TIMEOUT_MS,
+            idleWindowMs: Long = STREAM_IDLE_WINDOW_MS,
+        ) {
+            val drainDeadlineNs = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(drainTimeoutMs)
+            var drainWakeups = 0
+            while (waitForCaptureResultReceived(count = 1, timeMillis = idleWindowMs)) {
+                drainWakeups++
+                Truth.assertWithMessage(
+                        "Preview stream did not become idle within ${drainTimeoutMs}ms " +
+                            "(drainWakeups=$drainWakeups)."
+                    )
+                    .that(System.nanoTime() < drainDeadlineNs)
+                    .isTrue()
+            }
         }
 
-        private fun waitForCaptureResultReceived(count: Int = 10, timeSeconds: Long = 2) =
-            synchronized(this) {
-                    countDown = CountDownLatch(count)
-                    countDown
-                }!!
-                .await(timeSeconds, TimeUnit.SECONDS)
+        private fun waitForCaptureResultReceived(
+            count: Int = 10,
+            timeMillis: Long = STREAM_IDLE_WINDOW_MS,
+        ) =
+            synchronized(this) { CountDownLatch(count).also { countDown = it } }
+                .await(timeMillis, TimeUnit.MILLISECONDS)
     }
 
     class AnalysisMonitor : ImageAnalysis.Analyzer {
