@@ -5855,6 +5855,15 @@ public struct WireBuffer: Equatable, Hashable, Sendable {
         index += count
     }
 
+    public mutating func truncate(to count: Int) {
+        if count >= 0 && count < data.count {
+            data.removeLast(data.count - count)
+            if index > count {
+                index = count
+            }
+        }
+    }
+
     public mutating func writeByte(_ value: UInt8) {
         data.append(value)
     }
@@ -5939,10 +5948,14 @@ public struct WireBuffer: Equatable, Hashable, Sendable {
         return (try readByte()) != 0
     }
 
-    public mutating func writeUTF8(_ value: String) {
-        let utf8Bytes = Array(value.utf8)
-        writeInt(Int32(utf8Bytes.count))
-        data.append(contentsOf: utf8Bytes)
+    public mutating func writeUTF8(_ value: String, maxLength: Int? = nil) throws(WireError) {
+        let utf8Count = value.utf8.count
+        let limit = maxLength.map { Swift.min($0, Int(Int32.max)) } ?? Int(Int32.max)
+        guard utf8Count <= limit else {
+            throw WireError.lengthOutOfRange(field: "utf8", length: utf8Count, min: nil, max: limit)
+        }
+        writeInt(Int32(utf8Count))
+        data.append(contentsOf: value.utf8)
     }
 
     public mutating func readUTF8(maxLength: Int? = nil) throws(WireError) -> String {
@@ -5973,7 +5986,11 @@ public struct WireBuffer: Equatable, Hashable, Sendable {
         }
     }
 
-    public mutating func writeBuffer(_ value: [UInt8]) {
+    public mutating func writeBuffer(_ value: [UInt8], maxLength: Int? = nil) throws(WireError) {
+        let limit = maxLength.map { Swift.min($0, Int(Int32.max)) } ?? Int(Int32.max)
+        guard value.count <= limit else {
+            throw WireError.lengthOutOfRange(field: "buffer", length: value.count, min: nil, max: limit)
+        }
         writeInt(Int32(value.count))
         data.append(contentsOf: value)
     }
@@ -6113,7 +6130,14 @@ public struct Glyph: Equatable, Hashable, Sendable {
     }
 
     public func write(to buffer: inout WireBuffer) throws(WireError) {
-        buffer.writeUTF8(character)
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
+        try buffer.writeUTF8(character)
         buffer.writeInt(bitmapId)
         buffer.writeShort(marginLeft)
         buffer.writeShort(marginTop)
@@ -6121,6 +6145,7 @@ public struct Glyph: Equatable, Hashable, Sendable {
         buffer.writeShort(marginBottom)
         buffer.writeShort(width)
         buffer.writeShort(height)
+        _committed = true
     }
 }
 
@@ -6143,8 +6168,16 @@ public struct KerningPair: Equatable, Hashable, Sendable {
     }
 
     public func write(to buffer: inout WireBuffer) throws(WireError) {
-        buffer.writeUTF8(glyphPair)
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
+        try buffer.writeUTF8(glyphPair)
         buffer.writeShort(adjustment)
+        _committed = true
     }
 }
 
@@ -6321,17 +6354,34 @@ public struct FloatExpression: Equatable, Hashable, Sendable {
 
     /// Serializes this operation to the wire buffer.
     public func write(to buffer: inout WireBuffer) throws(WireError) {
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
         buffer.writeByte(Self.opCode.rawValue)
         buffer.writeInt(id)
+        guard expression.count <= 65535 else {
+            throw WireError.lengthOutOfRange(field: "expression", length: expression.count, min: nil, max: 65535)
+        }
         let expressionLength: Int32 = Int32(expression.count)
+        guard animationSpec.count <= 65535 else {
+            throw WireError.lengthOutOfRange(field: "animationSpec", length: animationSpec.count, min: nil, max: 65535)
+        }
         let animationLength: Int32 = Int32(animationSpec.count)
         buffer.writeInt(Int32(bitPattern: (UInt32(bitPattern: Int32(expressionLength)) & 0xFFFF) | ((UInt32(bitPattern: Int32(animationLength)) & 0xFFFF) << 16)))
+        guard expression.count <= 32 else {
+            throw WireError.lengthOutOfRange(field: "expression", length: expression.count, min: nil, max: 32)
+        }
         for item in expression {
             buffer.writeFloat(item)
         }
         for item in animationSpec {
             buffer.writeFloat(item)
         }
+        _committed = true
     }
 
     public static func == (lhs: FloatExpression, rhs: FloatExpression) -> Bool {
@@ -6397,11 +6447,19 @@ public struct BitmapData: Equatable, Hashable, Sendable {
 
     /// Serializes this operation to the wire buffer.
     public func write(to buffer: inout WireBuffer) throws(WireError) {
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
         buffer.writeByte(Self.opCode.rawValue)
         buffer.writeInt(imageId)
         buffer.writeInt(widthAndType)
         buffer.writeInt(heightAndEncoding)
-        buffer.writeBuffer(bitmap)
+        try buffer.writeBuffer(bitmap)
+        _committed = true
     }
 }
 
@@ -6433,9 +6491,17 @@ public struct TextData: Equatable, Hashable, Sendable {
 
     /// Serializes this operation to the wire buffer.
     public func write(to buffer: inout WireBuffer) throws(WireError) {
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
         buffer.writeByte(Self.opCode.rawValue)
         buffer.writeInt(textId)
-        buffer.writeUTF8(text)
+        try buffer.writeUTF8(text, maxLength: 4000)
+        _committed = true
     }
 }
 
@@ -6505,8 +6571,18 @@ public struct BitmapFontData: Equatable, Hashable, Sendable {
 
     /// Serializes this operation to the wire buffer.
     public func write(to buffer: inout WireBuffer) throws(WireError) {
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
         buffer.writeByte(Self.opCode.rawValue)
         buffer.writeInt(id)
+        guard glyphs.count <= 65535 else {
+            throw WireError.lengthOutOfRange(field: "glyphs", length: glyphs.count, min: nil, max: 65535)
+        }
         let numGlyphs: Int32 = Int32(glyphs.count)
         let version: Int32 = (!kerningTable.isEmpty ? 1 : 0)
         buffer.writeInt(Int32(bitPattern: (UInt32(bitPattern: Int32(numGlyphs)) & 0xFFFF) | ((UInt32(bitPattern: Int32(version)) & 0xFFFF) << 16)))
@@ -6514,11 +6590,15 @@ public struct BitmapFontData: Equatable, Hashable, Sendable {
             try item.write(to: &buffer)
         }
         if version >= 1 {
+            guard kerningTable.count <= 65535 else {
+                throw WireError.lengthOutOfRange(field: "kerningTable", length: kerningTable.count, min: nil, max: 65535)
+            }
             buffer.writeShort(Int16(truncatingIfNeeded: kerningTable.count))
             for item in kerningTable {
                 try item.write(to: &buffer)
             }
         }
+        _committed = true
     }
 }
 
@@ -6575,14 +6655,25 @@ public struct TimeAttribute: Equatable, Hashable, Sendable {
 
     /// Serializes this operation to the wire buffer.
     public func write(to buffer: inout WireBuffer) throws(WireError) {
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
         buffer.writeByte(Self.opCode.rawValue)
         buffer.writeInt(id)
         buffer.writeInt(timeId)
         buffer.writeShort(type)
+        guard args.count <= 32 else {
+            throw WireError.lengthOutOfRange(field: "args", length: args.count, min: nil, max: 32)
+        }
         buffer.writeShort(Int16(truncatingIfNeeded: args.count))
         for item in args {
             buffer.writeInt(item)
         }
+        _committed = true
     }
 }
 
@@ -6701,6 +6792,13 @@ public struct BitmapTextMeasure: Equatable, Hashable, Sendable {
 
     /// Serializes this operation to the wire buffer.
     public func write(to buffer: inout WireBuffer) throws(WireError) {
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
         buffer.writeByte(Self.opCode.rawValue)
         let hasGlyphSpacing: Int32 = (glyphSpacing != nil ? 1 : 0)
         buffer.writeInt(Int32(bitPattern: (UInt32(bitPattern: Int32(id)) & 0x7FFFFFFF) | ((UInt32(bitPattern: Int32(hasGlyphSpacing)) & 0x1) << 31)))
@@ -6713,6 +6811,7 @@ public struct BitmapTextMeasure: Equatable, Hashable, Sendable {
         buffer.writeInt(textId)
         buffer.writeInt(bitmapFontId)
         buffer.writeInt(type)
+        _committed = true
     }
 
     public static func == (lhs: BitmapTextMeasure, rhs: BitmapTextMeasure) -> Bool {
@@ -6814,6 +6913,13 @@ public struct TextStyle: Equatable, Hashable, Sendable {
 
     /// Serializes this operation to the wire buffer.
     public func write(to buffer: inout WireBuffer) throws(WireError) {
+        let _startCount = buffer.data.count
+        var _committed = false
+        defer {
+            if !_committed {
+                buffer.truncate(to: _startCount)
+            }
+        }
         buffer.writeByte(Self.opCode.rawValue)
         var sparseCount: Int32 = 0
         if id != nil { sparseCount += 1 }
@@ -6830,11 +6936,15 @@ public struct TextStyle: Equatable, Hashable, Sendable {
         }
         if let val = fontAxis {
             buffer.writeByte(UInt8(truncatingIfNeeded: 20))
+            guard val.count <= 65535 else {
+                throw WireError.lengthOutOfRange(field: "fontAxis", length: val.count, min: nil, max: 65535)
+            }
             buffer.writeShort(Int16(truncatingIfNeeded: val.count))
             for item in val {
                 buffer.writeInt(item)
             }
         }
+        _committed = true
     }
 
     public static func == (lhs: TextStyle, rhs: TextStyle) -> Bool {
@@ -7216,7 +7326,7 @@ public struct WireDocument: Equatable, Hashable, Sendable {
                     }
                     buffer.writeShort(Int16(truncatingIfNeeded: (prop.key & 0x3F) | (3 << 10)))
                     buffer.writeShort(Int16(truncatingIfNeeded: utf8Count + 4))
-                    buffer.writeUTF8(val)
+                    try buffer.writeUTF8(val, maxLength: Self.maxHeaderStringLength)
                 case .unknown(let dt, let payload):
                     guard dt >= -32 && dt <= 31 && (dt < 0 || dt > 3) else {
                         throw WireError.invalidFieldValue(owner: "WireDocument", field: "headerPropertyDataType", detail: "Unknown dataType \(dt) out of range")
