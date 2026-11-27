@@ -18,13 +18,24 @@ package androidx.compose.remote.creation.compose.intervals
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.BooleanOperationKey
+import androidx.compose.remote.creation.compose.state.ColorOperationKey
+import androidx.compose.remote.creation.compose.state.EnumOperationKey
+import androidx.compose.remote.creation.compose.state.FloatArrayOperationKey
+import androidx.compose.remote.creation.compose.state.IntArrayOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteFloatOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteIntOperationKey
 import androidx.compose.remote.creation.compose.state.RemoteOperation
+import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteValueKind
+import androidx.compose.remote.creation.compose.state.StringArrayOperationKey
 import androidx.compose.remote.creation.compose.state.StringOperationKey
+import androidx.compose.remote.document.intervals.ColorInterval
+import androidx.compose.remote.document.intervals.FloatInterval
+import androidx.compose.remote.document.intervals.IntInterval
 import androidx.compose.remote.document.intervals.IntervalComparison
+import androidx.compose.remote.document.intervals.StringSummary
+import androidx.compose.remote.document.intervals.TriState
 
 /**
  * Optional extension of [RemoteOperation] for custom external operations that participate in
@@ -69,6 +80,52 @@ public interface RemoteIntervalOperation : RemoteOperation {
     /** Reports whether this operation is a 3-arg boolean-condition `select(ifTrue, ifFalse)`. */
     public val isBooleanSelect: Boolean
         get() = false
+
+    /**
+     * Evaluates a conservative [FloatInterval] for an invocation of this operation ([key]) under
+     * [evaluator]. Defaults to [FloatInterval.UNBOUNDED].
+     */
+    public fun evaluateFloatInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): FloatInterval = FloatInterval.UNBOUNDED
+
+    /**
+     * Evaluates a conservative [IntInterval] for an invocation of this operation ([key]) under
+     * [evaluator]. Defaults to [IntInterval.UNBOUNDED].
+     */
+    public fun evaluateIntInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntInterval = IntInterval.UNBOUNDED
+
+    /**
+     * Evaluates a conservative [TriState] truth value for an invocation of this operation ([key])
+     * under [evaluator], or `null` to fall back to integer truthiness (`0` → [TriState.FALSE],
+     * strictly `> 0` → [TriState.TRUE], otherwise [TriState.UNKNOWN]).
+     */
+    public fun evaluateBooleanInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): TriState? = null
+
+    /**
+     * Evaluates a conservative [StringSummary] for an invocation of this operation ([key]) under
+     * [evaluator]. Defaults to [StringSummary.UNKNOWN].
+     */
+    public fun evaluateStringSummary(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): StringSummary = StringSummary.UNKNOWN
+
+    /**
+     * Evaluates a conservative [ColorInterval] for an invocation of this operation ([key]) under
+     * [evaluator]. Defaults to [ColorInterval.UNKNOWN].
+     */
+    public fun evaluateColorInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): ColorInterval = ColorInterval.UNKNOWN
 }
 
 /**
@@ -86,6 +143,31 @@ internal interface RemoteOperationIntervalSemantics {
         RemoteValueKind.OTHER
 
     fun isBooleanSelect(op: Any): Boolean = false
+
+    fun evaluateFloatInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): FloatInterval = FloatInterval.UNBOUNDED
+
+    fun evaluateIntInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntInterval = IntInterval.UNBOUNDED
+
+    fun evaluateBooleanInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): TriState? = null
+
+    fun evaluateStringSummary(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): StringSummary = StringSummary.UNKNOWN
+
+    fun evaluateColorInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): ColorInterval = ColorInterval.UNKNOWN
 }
 
 internal fun intervalSemanticsFor(op: Any): RemoteOperationIntervalSemantics? =
@@ -94,6 +176,11 @@ internal fun intervalSemanticsFor(op: Any): RemoteOperationIntervalSemantics? =
         is RemoteIntOperationKey -> RemoteIntIntervalSemantics
         is BooleanOperationKey -> RemoteBooleanIntervalSemantics
         is StringOperationKey -> RemoteStringIntervalSemantics
+        is ColorOperationKey -> RemoteColorIntervalSemantics
+        is EnumOperationKey -> RemoteEnumIntervalSemantics
+        is FloatArrayOperationKey -> RemoteFloatArrayIntervalSemantics
+        is IntArrayOperationKey -> RemoteIntArrayIntervalSemantics
+        is StringArrayOperationKey -> RemoteStringArrayIntervalSemantics
         is RemoteIntervalOperation -> CustomRemoteIntervalOperationSemantics
         else -> null
     }
@@ -112,4 +199,29 @@ private object CustomRemoteIntervalOperationSemantics : RemoteOperationIntervalS
         (op as RemoteIntervalOperation).selectComparisonKind(args)
 
     override fun isBooleanSelect(op: Any): Boolean = (op as RemoteIntervalOperation).isBooleanSelect
+
+    override fun evaluateFloatInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): FloatInterval = (key.op as RemoteIntervalOperation).evaluateFloatInterval(key, evaluator)
+
+    override fun evaluateIntInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntInterval = (key.op as RemoteIntervalOperation).evaluateIntInterval(key, evaluator)
+
+    override fun evaluateBooleanInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): TriState? = (key.op as RemoteIntervalOperation).evaluateBooleanInterval(key, evaluator)
+
+    override fun evaluateStringSummary(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): StringSummary = (key.op as RemoteIntervalOperation).evaluateStringSummary(key, evaluator)
+
+    override fun evaluateColorInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): ColorInterval = (key.op as RemoteIntervalOperation).evaluateColorInterval(key, evaluator)
 }

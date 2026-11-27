@@ -40,7 +40,7 @@ public sealed interface RemoteStringArray : RemoteValue<List<RemoteString>> {
     }
 }
 
-private enum class StringArrayOperationKey : RemoteOperation {
+internal enum class StringArrayOperationKey : RemoteOperation {
     Create {
         override val resultKind: RemoteValueKind
             get() = RemoteValueKind.STRING_ARRAY

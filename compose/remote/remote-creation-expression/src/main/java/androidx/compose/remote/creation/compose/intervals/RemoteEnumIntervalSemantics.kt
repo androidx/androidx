@@ -1,0 +1,67 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.remote.creation.compose.intervals
+
+import androidx.compose.remote.creation.compose.state.EnumOperationKey
+import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
+import androidx.compose.remote.creation.compose.state.StringArrayOperationKey
+import androidx.compose.remote.document.intervals.FloatInterval
+import androidx.compose.remote.document.intervals.IntInterval
+import androidx.compose.remote.document.intervals.StringSummary
+
+/** External interval semantics for [EnumOperationKey]. */
+internal object RemoteEnumIntervalSemantics : RemoteOperationIntervalSemantics {
+    override fun evaluateFloatInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): FloatInterval =
+        when (key.op as EnumOperationKey) {
+            EnumOperationKey.Ordinal,
+            EnumOperationKey.RemoteEnum -> evaluator.evalIntKey(key).toFloatInterval()
+            EnumOperationKey.ToString -> FloatInterval.UNBOUNDED
+        }
+
+    override fun evaluateIntInterval(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): IntInterval =
+        when (key.op as EnumOperationKey) {
+            EnumOperationKey.Ordinal,
+            EnumOperationKey.RemoteEnum ->
+                if (key.args.isNotEmpty()) {
+                    evaluator.evalIntKey(key.args[0])
+                } else {
+                    IntInterval.UNBOUNDED
+                }
+            EnumOperationKey.ToString -> IntInterval.UNBOUNDED
+        }
+
+    override fun evaluateStringSummary(
+        key: RemoteOperationCacheKey,
+        evaluator: RemoteValueIntervalEvaluator,
+    ): StringSummary {
+        if (key.op != EnumOperationKey.ToString || key.args.size < 2) {
+            return StringSummary.UNKNOWN
+        }
+        val idxInterval = evaluator.evalIntKey(key.args[0])
+        val arrayKey = key.args[1]
+        if (arrayKey is RemoteOperationCacheKey && arrayKey.op == StringArrayOperationKey.Create) {
+            return evaluator.unionStringArrayElements(arrayKey.args, idxInterval)
+        }
+        return StringSummary.UNKNOWN
+    }
+}

@@ -106,7 +106,7 @@ private fun RemoteFloatArray.arrayForCreationState(
     }
 }
 
-private enum class FloatArrayOperationKey : RemoteOperation {
+internal enum class FloatArrayOperationKey : RemoteOperation {
     Create {
         override val resultKind: RemoteValueKind
             get() = RemoteValueKind.FLOAT_ARRAY

@@ -280,6 +280,9 @@ public sealed interface RemoteColor : RemoteValue<Int> {
 
             // ColorExpression requires alpha to be constant in the range [0..255]
             val fixedAlpha = floatComponentToByte(alpha.constantValueOrNull ?: 1f)
+            if (alpha.hasConstantValue && fixedAlpha != 255) {
+                return fromAHSV(fixedAlpha, hue, saturation, value)
+            }
 
             val colorWithConstantAlpha =
                 RemoteColorImpl(
@@ -592,7 +595,7 @@ private class RemoteColorImpl(
                 ?: colorComponent(ColorAttribute.COLOR_BRIGHTNESS)
 }
 
-private enum class ColorOperationKey : RemoteOperation {
+internal enum class ColorOperationKey : RemoteOperation {
     FromHSV,
     FromAHSV,
     FromArgb,

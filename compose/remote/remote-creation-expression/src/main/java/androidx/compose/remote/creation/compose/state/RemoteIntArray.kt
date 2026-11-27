@@ -48,7 +48,7 @@ public sealed interface RemoteIntArray : RemoteValue<List<RemoteInt>> {
     }
 }
 
-private enum class IntArrayOperationKey : RemoteOperation {
+internal enum class IntArrayOperationKey : RemoteOperation {
     Create {
         override val resultKind: RemoteValueKind
             get() = RemoteValueKind.INT_ARRAY
