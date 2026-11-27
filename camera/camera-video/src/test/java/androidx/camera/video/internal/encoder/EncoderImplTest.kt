@@ -16,28 +16,45 @@
 
 package androidx.camera.video.internal.encoder
 
+import android.graphics.SurfaceTexture
+import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
+import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
+import android.os.Bundle
 import android.os.Looper.getMainLooper
+import android.util.Size
+import android.view.Surface
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.video.internal.BufferProvider
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.util.concurrent.ListenableFuture
+import java.nio.ByteBuffer
+import java.util.concurrent.CancellationException
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.Implementation
+import org.robolectric.annotation.Implements
+import org.robolectric.annotation.RealObject
+import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.MediaCodecInfoBuilder
 import org.robolectric.shadows.ShadowLog
 import org.robolectric.shadows.ShadowMediaCodec
 import org.robolectric.shadows.ShadowMediaCodecList
+import org.robolectric.util.ReflectionHelpers.ClassParameter
 
 private const val SAMPLE_RATE = 44100
 private const val CHANNEL_COUNT = 1
@@ -46,8 +63,8 @@ private const val BUFFER_SIZE = 1024
 /**
  * Tests the state machine of [EncoderImpl] with a fake codec.
  *
- * The tests use an audio encoder, since a video encoder requires a persistent input surface that is
- * not available on the JVM. The state machine is shared by both.
+ * Most tests use an audio encoder, while surface-specific paths use
+ * [FaultInjectingShadowMediaCodec] to stub persistent input surface APIs on the JVM.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.ALL_SDKS])
@@ -108,6 +125,7 @@ class EncoderImplTest {
 
     @After
     fun tearDown() {
+        FaultInjectingShadowMediaCodec.resetFlags()
         if (::encoder.isInitialized) {
             encoderCallback.heldData.forEach { it.close() }
             encoder.release()
@@ -513,6 +531,1030 @@ class EncoderImplTest {
         // Assert: the stop is notified before the codec is released.
         assertThat(encoderCallback.stopCount).isEqualTo(1)
         assertThat(encoderCallback.errors).isEmpty()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun outputBufferIllegalStateException_notifiesEncodeErrorAndCanRestart() {
+        encoder.start()
+        FaultInjectingShadowMediaCodec.throwOnGetOutputBuffer = true
+
+        feedInput(1)
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+        assertThat(encoderCallback.errors.single().cause)
+            .isInstanceOf(IllegalStateException::class.java)
+
+        FaultInjectingShadowMediaCodec.throwOnGetOutputBuffer = false
+        encoder.start()
+        feedInput(5)
+        assertThat(encoderCallback.encodedData).hasSize(5)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun droppedOutputBufferIllegalStateException_notifiesEncodeError() {
+        // Start in the future so output frames are dropped via releaseOutputBuffer(index, false).
+        encoder.start(Long.MAX_VALUE / 2)
+        FaultInjectingShadowMediaCodec.throwOnReleaseOutputBuffer = true
+
+        feedInput(1)
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun encodedDataCloseIllegalStateException_notifiesEncodeError() {
+        val heldData = startAndHoldEncodedData()
+        FaultInjectingShadowMediaCodec.throwOnReleaseOutputBuffer = true
+
+        heldData.close()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun inputBufferIllegalStateException_completesAcquisitionAndNotifiesSingleError() {
+        encoder.start()
+        idle()
+        val input = encoder.input as Encoder.ByteBufferInput
+        val (heldInputs, pendingAcquire) = drainAvailableInputBuffers(input)
+        FaultInjectingShadowMediaCodec.throwOnGetInputBuffer = true
+
+        submitAndCancelRemaining(heldInputs)
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(pendingAcquire.isDone).isTrue()
+        val thrown = assertThrows(ExecutionException::class.java) { pendingAcquire.get() }
+        assertThat(thrown.cause).isInstanceOf(IllegalStateException::class.java)
+        assertThat(thrown.cause).isNotInstanceOf(CancellationException::class.java)
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun endOfStreamAcquisitionIllegalStateException_notifiesSingleError() {
+        encoder.start()
+        idle()
+        val input = encoder.input as Encoder.ByteBufferInput
+        val (heldInputs, pendingAcquire) = drainAvailableInputBuffers(input)
+        pendingAcquire.cancel(true)
+        encoder.stop()
+        idle(1_000L)
+        FaultInjectingShadowMediaCodec.throwOnGetInputBuffer = true
+
+        submitAndCancelRemaining(heldInputs)
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun syncEndOfStreamAcquisitionIllegalStateException_notifiesSingleError() {
+        encoder.start()
+        idle()
+        encoder.stop()
+        FaultInjectingShadowMediaCodec.throwOnGetInputBuffer = true
+
+        // Stop timeout invokes signalCodecStop() -> signalEndOfInputStream() while a free input
+        // buffer index is already queued and no EncodedData is outstanding.
+        idle(1_000L)
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun queueInputBufferAndStartIllegalStateException_notifyEncodeErrorAndDeactivateInput() {
+        encoder.start()
+        val input = encoder.input as Encoder.ByteBufferInput
+        val inputBuffer = input.acquireBuffer().apply { idle() }.get(0, TimeUnit.MILLISECONDS)
+        FaultInjectingShadowMediaCodec.throwOnQueueInputBuffer = true
+
+        inputBuffer.byteBuffer.put(ByteArray(BUFFER_SIZE / 2)).flip()
+        inputBuffer.submit()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+        assertThat(input.fetchData().get(0, TimeUnit.MILLISECONDS))
+            .isEqualTo(BufferProvider.State.INACTIVE)
+
+        FaultInjectingShadowMediaCodec.throwOnQueueInputBuffer = false
+        FaultInjectingShadowMediaCodec.throwOnStart = true
+        encoder.start()
+        idle()
+
+        assertThat(encoderCallback.errors).hasSize(2)
+        assertThat(encoderCallback.errors.last().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun resumeAndRequestKeyFrameSetParametersIllegalStateException_notifyEncodeError() {
+        encoder.start()
+        feedInput(5)
+        encoder.pause()
+        feedInputUntil { encoderCallback.pauseCount > 0 }
+        FaultInjectingShadowMediaCodec.throwOnSetParameters = true
+
+        encoder.start()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+        assertThat(
+                (encoder.input as Encoder.ByteBufferInput).fetchData().get(0, TimeUnit.MILLISECONDS)
+            )
+            .isEqualTo(BufferProvider.State.INACTIVE)
+
+        FaultInjectingShadowMediaCodec.throwOnSetParameters = false
+        encoder.start()
+        FaultInjectingShadowMediaCodec.throwOnSetParameters = true
+        encoder.requestKeyFrame()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(2)
+        assertThat(encoderCallback.errors.last().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun pauseSetParametersIllegalStateExceptionInCheckBufferInfo_skipsReleaseOutputBuffer() {
+        encoder.start()
+        feedInput(1)
+        encoder.pause()
+        FaultInjectingShadowMediaCodec.throwOnSetParameters = true
+        FaultInjectingShadowMediaCodec.throwOnReleaseOutputBuffer = true
+
+        feedInput(1)
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+        assertThat(
+                ShadowLog.getLogsForTag("AudioEncoder").none {
+                    it.msg.contains("Get more than one error")
+                }
+            )
+            .isTrue()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun stopMediaCodecIllegalStateExceptionInHandleStopped_notifiesStopAndResets() {
+        encoder.start()
+        feedInput(5)
+        encoder.stop()
+        FaultInjectingShadowMediaCodec.throwOnStop = true
+
+        feedInputUntil { encoderCallback.stopCount > 0 }
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoderCallback.errors).isEmpty()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+        FaultInjectingShadowMediaCodec.throwOnStop = false
+        encoderCallback.encodedData.clear()
+        encoder.start()
+        feedInput(5)
+        assertThat(encoderCallback.encodedData).isNotEmpty()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun flushedVideoEncoderStopAndFlushIllegalStateException_recoverAndCompleteRelease() =
+        withVideoEncoder { videoEncoder, videoCallback ->
+            // Flush failure during handleStopped() still notifies stop and resets to CONFIGURED.
+            videoEncoder.start()
+            FaultInjectingShadowMediaCodec.throwOnFlush = true
+            videoEncoder.stop()
+            idle(1_000L)
+
+            assertNoExceptionOnEncoderExecutor()
+            assertThat(videoCallback.stopCount).isEqualTo(1)
+            assertThat(videoCallback.errors).isEmpty()
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+            // Successful stop leaves SurfaceInput codec flushed; stop() ISE on
+            // signalSourceStopped() still runs reset(), and stop() ISE on release() still
+            // completes releasedFuture.
+            FaultInjectingShadowMediaCodec.throwOnFlush = false
+            videoEncoder.start()
+            videoEncoder.stop()
+            idle(1_000L)
+            assertThat(videoCallback.stopCount).isEqualTo(2)
+
+            FaultInjectingShadowMediaCodec.throwOnStop = true
+            videoEncoder.signalSourceStopped()
+            idle()
+            assertNoExceptionOnEncoderExecutor()
+
+            FaultInjectingShadowMediaCodec.throwOnStop = false
+            videoEncoder.start()
+            videoEncoder.stop()
+            idle(1_000L)
+            assertThat(videoCallback.stopCount).isEqualTo(3)
+
+            FaultInjectingShadowMediaCodec.throwOnStop = true
+            videoEncoder.release()
+            idle()
+
+            assertNoExceptionOnEncoderExecutor()
+            assertThat(videoEncoder.releasedFuture.isDone).isTrue()
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.RELEASED)
+        }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun videoNonKeyFrameRequestKeyFrameIllegalStateException_skipsReleaseOutputBuffer() =
+        withVideoEncoder { videoEncoder, videoCallback ->
+            videoEncoder.start()
+
+            FaultInjectingShadowMediaCodec.throwOnSetParameters = true
+            FaultInjectingShadowMediaCodec.throwOnReleaseOutputBuffer = true
+            val shadowCodec =
+                Shadow.extract<FaultInjectingShadowMediaCodec>(videoEncoder.mMediaCodec)
+            shadowCodec.emitOutputBuffer(
+                index = 1,
+                size = 16,
+                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()) + 1_000L,
+                flags = 0,
+            )
+            idle()
+
+            assertNoExceptionOnEncoderExecutor()
+            assertThat(videoCallback.errors).hasSize(1)
+            assertThat(videoCallback.errors.single().errorType)
+                .isEqualTo(EncodeException.ERROR_CODEC)
+            assertThat(
+                    ShadowLog.getLogsForTag("VideoEncoder").none {
+                        it.msg.contains("Get more than one error")
+                    }
+                )
+                .isTrue()
+        }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun videoStartResumeInputSurfaceSetParametersIllegalStateException_notifiesErrorAndResets() =
+        withVideoEncoder { videoEncoder, videoCallback ->
+            FaultInjectingShadowMediaCodec.throwOnSetParameters = true
+
+            videoEncoder.start()
+            idle()
+
+            assertNoExceptionOnEncoderExecutor()
+            assertThat(videoCallback.errors).hasSize(1)
+            assertThat(videoCallback.errors.single().errorType)
+                .isEqualTo(EncodeException.ERROR_CODEC)
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+            FaultInjectingShadowMediaCodec.throwOnSetParameters = false
+            videoEncoder.start()
+            idle()
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.STARTED)
+        }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun constructorResetIllegalStateException_throwsInvalidConfigExceptionAndReleasesResources() {
+        // 1. Fail in reset() before Surface allocation -> MediaCodec is still released.
+        FaultInjectingShadowMediaCodec.throwOnReset = true
+        assertThrows(InvalidConfigException::class.java) { createVideoEncoder() }
+        assertThat(FaultInjectingShadowMediaCodec.releaseCount).isEqualTo(1)
+
+        // 2. Fail in setInputSurface() after persistent Surface allocation -> both released, and
+        // any async onError arriving on the registered callback does not throw on null mState.
+        FaultInjectingShadowMediaCodec.resetFlags()
+        FaultInjectingShadowMediaCodec.throwOnSetInputSurface = true
+        assertThrows(InvalidConfigException::class.java) { createVideoEncoder() }
+        assertThat(FaultInjectingShadowMediaCodec.releaseCount).isEqualTo(1)
+        assertThat(FaultInjectingShadowMediaCodec.lastCreatedPersistentSurface?.isValid).isFalse()
+        val failedShadow = FaultInjectingShadowMediaCodec.lastCreatedShadow
+        assertThat(failedShadow).isNotNull()
+        failedShadow!!.emitErrorTo(failedShadow.capturedCallback)
+        idle()
+        assertNoExceptionOnEncoderExecutor()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun startAndResetIllegalStateException_staysConfiguredAndRecoversOnRetry() {
+        FaultInjectingShadowMediaCodec.throwOnStart = true
+        FaultInjectingShadowMediaCodec.throwOnReset = true
+        encoder.start()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+        // Next start() while still broken reports a fresh ERROR_CODEC (never hangs).
+        encoder.start()
+        idle()
+        assertThat(encoderCallback.errors).hasSize(2)
+
+        // Once transient fault clears, start() re-runs reset() and encodes normally.
+        FaultInjectingShadowMediaCodec.resetFlags()
+        encoderCallback.encodedData.clear()
+        encoder.start()
+        feedInput(5)
+        assertThat(encoderCallback.encodedData).isNotEmpty()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun errorAndResetIllegalStateException_skipsPreReleaseStartAndCompletesRelease() =
+        withVideoEncoder { videoEncoder, videoCallback ->
+            videoEncoder.start()
+            FaultInjectingShadowMediaCodec.throwOnSetParameters = true
+            FaultInjectingShadowMediaCodec.throwOnReset = true
+
+            videoEncoder.requestKeyFrame()
+            idle()
+
+            assertNoExceptionOnEncoderExecutor()
+            assertThat(videoCallback.errors).hasSize(1)
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+            videoEncoder.start()
+            idle()
+            assertThat(videoCallback.errors).hasSize(2)
+
+            val startCountBeforeRelease = FaultInjectingShadowMediaCodec.startCount
+            videoEncoder.release()
+            idle()
+            assertThat(videoEncoder.releasedFuture.isDone).isTrue()
+            assertThat(FaultInjectingShadowMediaCodec.startCount).isEqualTo(startCountBeforeRelease)
+        }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun resetIllegalStateExceptionAfterStop_recoversOnRestartAndDeactivatesInputOnRelease() {
+        encoder.start()
+        feedInput(5)
+        FaultInjectingShadowMediaCodec.throwOnReset = true
+        encoder.stop()
+        feedInputUntil { encoderCallback.stopCount == 1 }
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+        assertThat(
+                (encoder.input as Encoder.ByteBufferInput).fetchData().get(0, TimeUnit.MILLISECONDS)
+            )
+            .isEqualTo(BufferProvider.State.INACTIVE)
+
+        FaultInjectingShadowMediaCodec.throwOnReset = false
+        encoderCallback.encodedData.clear()
+        encoder.start()
+        feedInput(5)
+        assertThat(encoderCallback.encodedData).isNotEmpty()
+
+        // STOPPING -> release() (PENDING_RELEASE) -> spontaneous EOS -> ByteBufferInput becomes
+        // INACTIVE on RELEASED.
+        encoder.stop()
+        encoder.release()
+        val shadowCodec = Shadow.extract<FaultInjectingShadowMediaCodec>(encoder.mMediaCodec)
+        shadowCodec.emitOutputBuffer(
+            index = 1,
+            size = 0,
+            presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()) + 10_000L,
+            flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+        )
+        idle()
+        assertThat(encoder.releasedFuture.isDone).isTrue()
+        assertThat(
+                (encoder.input as Encoder.ByteBufferInput).fetchData().get(0, TimeUnit.MILLISECONDS)
+            )
+            .isEqualTo(BufferProvider.State.INACTIVE)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun pendingStartResetIllegalStateException_notifiesErrorAndRecoversOnRetry() {
+        encoder.start()
+        feedInput(5)
+        encoder.stop()
+        encoder.start() // Transitions STOPPING -> PENDING_START
+        FaultInjectingShadowMediaCodec.throwOnReset = true
+        feedInputUntil { encoderCallback.errors.isNotEmpty() }
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+        FaultInjectingShadowMediaCodec.throwOnReset = false
+        encoderCallback.encodedData.clear()
+        encoder.start()
+        feedInput(5)
+        assertThat(encoderCallback.encodedData).isNotEmpty()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun pendingStartStopIllegalStateException_notifiesStopAndStartsNextSession() {
+        encoder.start()
+        feedInput(5)
+        encoder.stop()
+        encoder.start() // Transitions STOPPING -> PENDING_START
+        FaultInjectingShadowMediaCodec.throwOnStop = true
+        feedInputUntil { encoderCallback.stopCount == 1 }
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoderCallback.errors).isEmpty()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.STARTED)
+
+        FaultInjectingShadowMediaCodec.throwOnStop = false
+        encoderCallback.encodedData.clear()
+        feedInput(5)
+        assertThat(encoderCallback.encodedData).isNotEmpty()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun unexpectedEndOfStream_stopsDispatchingBuffersImmediatelyAndWaitsForPreEosBuffer() {
+        encoder.start()
+        idle()
+        val input = encoder.input as Encoder.ByteBufferInput
+        val preEosInputBuffer = input.acquireBuffer().apply { idle() }.get(0, TimeUnit.MILLISECONDS)
+        val shadowCodec = Shadow.extract<FaultInjectingShadowMediaCodec>(encoder.mMediaCodec)
+
+        // Spontaneous EOS triggers reachEndData() -> stopMediaCodec(), which must immediately
+        // stop dispatching new buffers while still waiting on preEosInputBuffer.
+        shadowCodec.emitOutputBuffer(
+            index = 1,
+            size = 0,
+            presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()) + 10_000L,
+            flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+        )
+        idle()
+
+        assertThat(input.fetchData().get(0, TimeUnit.MILLISECONDS))
+            .isEqualTo(BufferProvider.State.INACTIVE)
+        val postEosAcquire = input.acquireBuffer().apply { idle() }
+        val thrown = assertThrows(ExecutionException::class.java) { postEosAcquire.get() }
+        assertThat(thrown.cause).isInstanceOf(IllegalStateException::class.java)
+        assertThat(encoderCallback.stopCount).isEqualTo(0)
+
+        FaultInjectingShadowMediaCodec.throwOnQueueInputBuffer = true
+        preEosInputBuffer.cancel()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.stopCount).isEqualTo(0)
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.errors.single().errorType).isEqualTo(EncodeException.ERROR_CODEC)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+        FaultInjectingShadowMediaCodec.throwOnQueueInputBuffer = false
+        encoderCallback.encodedData.clear()
+        encoder.start()
+        feedInput(5)
+        assertThat(encoderCallback.encodedData).isNotEmpty()
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun unexpectedEndOfStreamDuringVideoStop_cancelsStopTimeoutAndIgnoresLateOnError() =
+        withVideoEncoder { videoEncoder, videoCallback ->
+            videoEncoder.start()
+            videoEncoder.stop()
+            val shadowCodec =
+                Shadow.extract<FaultInjectingShadowMediaCodec>(videoEncoder.mMediaCodec)
+            val oldCallback = shadowCodec.capturedCallback
+
+            shadowCodec.emitOutputBuffer(
+                index = 1,
+                size = 0,
+                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()) + 10_000L,
+                flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+            )
+            idle()
+
+            assertThat(videoCallback.stopCount).isEqualTo(1)
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+            // Advancing past STOP_TIMEOUT_MS must not fire signalCodecStop() on the flushed codec.
+            idle(1_000L)
+            assertThat(videoCallback.errors).isEmpty()
+
+            // A late onError from the previous MediaCodecCallback must be ignored after restart.
+            videoEncoder.start()
+            idle()
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.STARTED)
+            shadowCodec.emitErrorTo(oldCallback)
+            idle()
+            assertThat(videoCallback.errors).isEmpty()
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.STARTED)
+        }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun resumeWhileStoppingAfterUnexpectedEos_stopsWithoutRestarting() {
+        encoder.start()
+        idle()
+        val input = encoder.input as Encoder.ByteBufferInput
+        val held = input.acquireBuffer().apply { idle() }.get(0, TimeUnit.MILLISECONDS)
+        encoder.pause()
+        idle()
+
+        Shadow.extract<FaultInjectingShadowMediaCodec>(encoder.mMediaCodec)
+            .emitOutputBuffer(
+                index = 1,
+                size = 0,
+                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()) + 10_000L,
+                flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+            )
+        idle()
+
+        // Resuming during an unexpected-EOS stop must not restart on the old callback.
+        encoder.start()
+        idle()
+        held.cancel()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoderCallback.errors).isEmpty()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun stopWhileStoppingAfterUnexpectedEos_cancelsTimeoutAndStopsOnce() {
+        encoder.start()
+        idle()
+        val input = encoder.input as Encoder.ByteBufferInput
+        val held = input.acquireBuffer().apply { idle() }.get(0, TimeUnit.MILLISECONDS)
+
+        Shadow.extract<FaultInjectingShadowMediaCodec>(encoder.mMediaCodec)
+            .emitOutputBuffer(
+                index = 1,
+                size = 0,
+                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()) + 10_000L,
+                flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+            )
+        idle()
+
+        // Calling stop() during an unexpected-EOS stop must not arm a new stop timeout.
+        encoder.stop()
+        idle(1_000L)
+        held.cancel()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoderCallback.errors).isEmpty()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun pauseWhileStoppingAfterUnexpectedEos_doesNotLeaveStalePauseRange() {
+        encoder.start()
+        idle()
+        val input = encoder.input as Encoder.ByteBufferInput
+        val held = input.acquireBuffer().apply { idle() }.get(0, TimeUnit.MILLISECONDS)
+
+        Shadow.extract<FaultInjectingShadowMediaCodec>(encoder.mMediaCodec)
+            .emitOutputBuffer(
+                index = 1,
+                size = 0,
+                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()) + 10_000L,
+                flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+            )
+        idle()
+
+        // Pausing during an unexpected-EOS stop must be a no-op rather than adding a pause range.
+        encoder.pause()
+        idle()
+        assertThat(encoder.mActivePauseResumeTimeRanges).isEmpty()
+
+        held.cancel()
+        idle()
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun requestKeyFrameWhileStoppingAfterUnexpectedEos_isIgnoredAndStopsOnce() {
+        encoder.start()
+        idle()
+        val input = encoder.input as Encoder.ByteBufferInput
+        val held = input.acquireBuffer().apply { idle() }.get(0, TimeUnit.MILLISECONDS)
+
+        Shadow.extract<FaultInjectingShadowMediaCodec>(encoder.mMediaCodec)
+            .emitOutputBuffer(
+                index = 1,
+                size = 0,
+                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()) + 10_000L,
+                flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+            )
+        idle()
+
+        // Requesting a key frame during an unexpected-EOS stop must be a no-op rather than
+        // calling setParameters() on a stopping codec and turning stop into an error.
+        FaultInjectingShadowMediaCodec.throwOnSetParameters = true
+        encoder.requestKeyFrame()
+        idle()
+        held.cancel()
+        idle()
+
+        assertNoExceptionOnEncoderExecutor()
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoderCallback.errors).isEmpty()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+    }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun videoSignalEndOfInputStreamAndReleaseExceptions_notifyErrorAndCompleteRelease() =
+        withVideoEncoder { videoEncoder, videoCallback ->
+            videoEncoder.start()
+            videoEncoder.stop()
+            FaultInjectingShadowMediaCodec.throwOnSignalEndOfInputStream = true
+            idle(1_000L)
+
+            assertNoExceptionOnEncoderExecutor()
+            assertThat(videoCallback.errors).hasSize(1)
+            assertThat(videoCallback.errors.single().errorType)
+                .isEqualTo(EncodeException.ERROR_CODEC)
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+            FaultInjectingShadowMediaCodec.throwOnSignalEndOfInputStream = false
+            FaultInjectingShadowMediaCodec.throwOnRelease = true
+            videoEncoder.release()
+            idle()
+
+            assertNoExceptionOnEncoderExecutor()
+            assertThat(FaultInjectingShadowMediaCodec.lastCreatedPersistentSurface?.isValid)
+                .isFalse()
+            assertThat(videoEncoder.mState).isEqualTo(EncoderImpl.InternalState.RELEASED)
+            assertThat(videoEncoder.releasedFuture.isDone).isTrue()
+        }
+
+    @Test
+    @Config(sdk = [Config.TARGET_SDK], shadows = [FaultInjectingShadowMediaCodec::class])
+    fun cancelledAcquisitionCancelIllegalStateException_notifiesEncodeErrorDuringStopping() {
+        val tasks = ArrayDeque<Runnable>()
+        val queuedExecutor = Executor { tasks.addLast(it) }
+        fun drainTasks() {
+            while (tasks.isNotEmpty()) {
+                tasks.removeFirst().run()
+            }
+        }
+        val queuedCallback = FakeEncoderCallback()
+        val queuedEncoder =
+            EncoderImpl(
+                queuedExecutor,
+                AudioEncoderConfig.builder()
+                    .setMimeType(MIMETYPE_AUDIO_AAC)
+                    .setProfile(MediaCodecInfo.CodecProfileLevel.AACObjectLC)
+                    .setInputTimebase(Timebase.UPTIME)
+                    .setBitrate(64000)
+                    .setCaptureSampleRate(SAMPLE_RATE)
+                    .setEncodeSampleRate(SAMPLE_RATE)
+                    .setChannelCount(CHANNEL_COUNT)
+                    .build(),
+            )
+        try {
+            queuedEncoder.setEncoderCallback(queuedCallback, CameraXExecutors.directExecutor())
+            queuedEncoder.start()
+            drainTasks()
+            idle()
+            drainTasks()
+
+            val input = queuedEncoder.input as Encoder.ByteBufferInput
+            val heldInputs = mutableListOf<InputBuffer>()
+            lateinit var pendingAcquire: ListenableFuture<InputBuffer>
+            while (true) {
+                val future = input.acquireBuffer()
+                drainTasks()
+                idle()
+                drainTasks()
+                if (future.isDone) {
+                    heldInputs.add(future.get(0, TimeUnit.MILLISECONDS))
+                } else {
+                    pendingAcquire = future
+                    break
+                }
+            }
+
+            queuedEncoder.stop()
+            drainTasks()
+
+            // Submitting one buffer schedules onOutputBufferAvailable; running that task releases
+            // the output buffer so the next idle() queues onInputBufferAvailable before
+            // pendingAcquire.cancel(true) queues mAcquisitionQueue.remove(completer).
+            heldInputs.first().apply {
+                byteBuffer.put(ByteArray(BUFFER_SIZE / 2)).flip()
+                setPresentationTimeUs(TimeUnit.NANOSECONDS.toMicros(System.nanoTime()))
+                submit()
+            }
+            idle()
+            tasks.removeFirst().run()
+            idle()
+            pendingAcquire.cancel(true)
+            FaultInjectingShadowMediaCodec.throwOnQueueInputBuffer = true
+            drainTasks()
+            heldInputs.drop(1).forEach { it.cancel() }
+            drainTasks()
+
+            assertNoExceptionOnEncoderExecutor()
+            assertThat(queuedCallback.errors).hasSize(1)
+            assertThat(queuedCallback.errors.single().errorType)
+                .isEqualTo(EncodeException.ERROR_CODEC)
+            assertThat(queuedEncoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+        } finally {
+            FaultInjectingShadowMediaCodec.resetFlags()
+            queuedEncoder.release()
+            drainTasks()
+        }
+    }
+
+    private fun drainAvailableInputBuffers(
+        input: Encoder.ByteBufferInput
+    ): Pair<List<InputBuffer>, ListenableFuture<InputBuffer>> {
+        val heldInputs = mutableListOf<InputBuffer>()
+        while (true) {
+            val future = input.acquireBuffer()
+            idle()
+            if (future.isDone) {
+                heldInputs.add(future.get(0, TimeUnit.MILLISECONDS))
+            } else {
+                return heldInputs to future
+            }
+        }
+    }
+
+    private fun submitAndCancelRemaining(heldInputs: List<InputBuffer>) {
+        heldInputs.first().apply {
+            byteBuffer.put(ByteArray(BUFFER_SIZE / 2)).flip()
+            setPresentationTimeUs(TimeUnit.NANOSECONDS.toMicros(System.nanoTime()))
+            submit()
+        }
+        heldInputs.drop(1).forEach { it.cancel() }
+        idle()
+    }
+
+    private fun withVideoEncoder(block: (EncoderImpl, FakeEncoderCallback) -> Unit) {
+        val videoEncoder = createVideoEncoder()
+        try {
+            val videoCallback = FakeEncoderCallback()
+            videoEncoder.setEncoderCallback(videoCallback, CameraXExecutors.directExecutor())
+            block(videoEncoder, videoCallback)
+        } finally {
+            FaultInjectingShadowMediaCodec.resetFlags()
+            videoEncoder.release()
+            idle()
+        }
+    }
+
+    private fun createVideoEncoder(): EncoderImpl {
+        ShadowMediaCodecList.reset()
+        ShadowMediaCodecList.addCodec(
+            MediaCodecInfoBuilder.newBuilder()
+                .setName("fake.avc.encoder")
+                .setIsEncoder(true)
+                .setCapabilities(
+                    MediaCodecInfoBuilder.CodecCapabilitiesBuilder.newBuilder()
+                        .setMediaFormat(MediaFormat.createVideoFormat(MIMETYPE_VIDEO_AVC, 640, 480))
+                        .setIsEncoder(true)
+                        .setColorFormats(
+                            intArrayOf(MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+                        )
+                        .build()
+                )
+                .build()
+        )
+        return EncoderImpl(
+            CameraXExecutors.directExecutor(),
+            VideoEncoderConfig.builder()
+                .setMimeType(MIMETYPE_VIDEO_AVC)
+                .setInputTimebase(Timebase.UPTIME)
+                .setResolution(Size(640, 480))
+                .setColorFormat(MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+                .setDataSpace(VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED)
+                .setCaptureFrameRate(30)
+                .setEncodeFrameRate(30)
+                .setIFrameInterval(1)
+                .setBitrate(1_000_000)
+                .build(),
+        )
+    }
+
+    @Implements(MediaCodec::class)
+    class FaultInjectingShadowMediaCodec : ShadowMediaCodec() {
+        @RealObject private lateinit var realMediaCodec: MediaCodec
+        var capturedCallback: MediaCodec.Callback? = null
+
+        companion object {
+            var throwOnGetInputBuffer = false
+            var throwOnGetOutputBuffer = false
+            var throwOnReleaseOutputBuffer = false
+            var throwOnQueueInputBuffer = false
+            var throwOnStart = false
+            var throwOnStop = false
+            var throwOnFlush = false
+            var throwOnSetParameters = false
+            var throwOnReset = false
+            var throwOnSetInputSurface = false
+            var throwOnSignalEndOfInputStream = false
+            var throwOnRelease = false
+            var startCount = 0
+            var releaseCount = 0
+            var lastCreatedShadow: FaultInjectingShadowMediaCodec? = null
+            var lastCreatedPersistentSurface: Surface? = null
+            private var lastCreatedSurfaceTexture: SurfaceTexture? = null
+
+            fun resetFlags() {
+                throwOnGetInputBuffer = false
+                throwOnGetOutputBuffer = false
+                throwOnReleaseOutputBuffer = false
+                throwOnQueueInputBuffer = false
+                throwOnStart = false
+                throwOnStop = false
+                throwOnFlush = false
+                throwOnSetParameters = false
+                throwOnReset = false
+                throwOnSetInputSurface = false
+                throwOnSignalEndOfInputStream = false
+                throwOnRelease = false
+                startCount = 0
+                releaseCount = 0
+                lastCreatedShadow = null
+                lastCreatedPersistentSurface = null
+                lastCreatedSurfaceTexture?.release()
+                lastCreatedSurfaceTexture = null
+            }
+
+            @Implementation
+            @JvmStatic
+            fun createPersistentInputSurface(): Surface =
+                Surface(SurfaceTexture(0).also { lastCreatedSurfaceTexture = it }).also {
+                    lastCreatedPersistentSurface = it
+                }
+        }
+
+        @Implementation
+        public override fun native_setCallback(callback: MediaCodec.Callback?) {
+            this.capturedCallback = callback
+            lastCreatedShadow = this
+            super.native_setCallback(callback)
+        }
+
+        @Implementation
+        public fun setInputSurface(surface: Surface) {
+            if (throwOnSetInputSurface) {
+                throw IllegalStateException("Simulated setInputSurface IllegalStateException")
+            }
+        }
+
+        @Implementation
+        public fun release() {
+            releaseCount++
+            if (throwOnRelease) {
+                throw IllegalStateException("Simulated release IllegalStateException")
+            }
+            Shadow.directlyOn<Any?, MediaCodec>(realMediaCodec, MediaCodec::class.java, "release")
+        }
+
+        @Implementation
+        public fun signalEndOfInputStream() {
+            if (throwOnSignalEndOfInputStream) {
+                throw IllegalStateException(
+                    "Simulated signalEndOfInputStream IllegalStateException"
+                )
+            }
+            emitOutputBuffer(
+                // Buffer index 0 is already queued by ShadowMediaCodec.native_start(), so use 1
+                // to avoid ShadowMediaCodec.releaseOutputBuffer throwing on double-queue.
+                index = 1,
+                size = 0,
+                presentationTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime()),
+                flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM,
+            )
+        }
+
+        fun emitOutputBuffer(index: Int, size: Int, presentationTimeUs: Long, flags: Int) {
+            capturedCallback?.onOutputBufferAvailable(
+                realMediaCodec,
+                index,
+                MediaCodec.BufferInfo().apply { set(0, size, presentationTimeUs, flags) },
+            )
+        }
+
+        fun emitErrorTo(targetCallback: MediaCodec.Callback?) {
+            targetCallback?.onError(
+                realMediaCodec,
+                Shadow.newInstanceOf(MediaCodec.CodecException::class.java),
+            )
+        }
+
+        @Implementation
+        public override fun getBuffer(input: Boolean, index: Int): ByteBuffer? {
+            if ((input && throwOnGetInputBuffer) || (!input && throwOnGetOutputBuffer)) {
+                throw IllegalStateException("Simulated MediaCodec.getBuffer IllegalStateException")
+            }
+            return super.getBuffer(input, index)
+        }
+
+        @Implementation
+        public override fun releaseOutputBuffer(index: Int, render: Boolean) {
+            if (throwOnReleaseOutputBuffer) {
+                throw IllegalStateException("Simulated releaseOutputBuffer IllegalStateException")
+            }
+            super.releaseOutputBuffer(index, render)
+        }
+
+        @Implementation
+        public override fun native_queueInputBuffer(
+            index: Int,
+            offset: Int,
+            size: Int,
+            presentationTimeUs: Long,
+            flags: Int,
+        ) {
+            if (throwOnQueueInputBuffer) {
+                throw IllegalStateException("Simulated queueInputBuffer IllegalStateException")
+            }
+            super.native_queueInputBuffer(index, offset, size, presentationTimeUs, flags)
+        }
+
+        @Implementation
+        public override fun native_start() {
+            startCount++
+            if (throwOnStart) {
+                throw IllegalStateException("Simulated start IllegalStateException")
+            }
+            super.native_start()
+        }
+
+        @Implementation
+        public fun stop() {
+            if (throwOnStop) {
+                throw IllegalStateException("Simulated stop IllegalStateException")
+            }
+            Shadow.directlyOn<Any?, MediaCodec>(realMediaCodec, MediaCodec::class.java, "stop")
+        }
+
+        @Implementation
+        public override fun native_flush() {
+            if (throwOnFlush) {
+                throw IllegalStateException("Simulated flush IllegalStateException")
+            }
+            super.native_flush()
+        }
+
+        @Implementation
+        public fun reset() {
+            if (throwOnReset) {
+                throw IllegalStateException("Simulated reset IllegalStateException")
+            }
+            Shadow.directlyOn<Any?, MediaCodec>(realMediaCodec, MediaCodec::class.java, "reset")
+        }
+
+        @Implementation
+        public fun setParameters(params: Bundle?) {
+            if (throwOnSetParameters) {
+                throw IllegalStateException("Simulated setParameters IllegalStateException")
+            }
+            Shadow.directlyOn<Any?, MediaCodec>(
+                realMediaCodec,
+                MediaCodec::class.java,
+                "setParameters",
+                ClassParameter.from(Bundle::class.java, params),
+            )
+        }
     }
 
     /**

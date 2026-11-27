@@ -42,7 +42,7 @@ public class EncodedDataImpl implements EncodedData {
     private final AtomicBoolean mClosed = new AtomicBoolean(false);
 
     EncodedDataImpl(@NonNull MediaCodec mediaCodec, int bufferIndex,
-            MediaCodec.@NonNull BufferInfo bufferInfo) throws MediaCodec.CodecException {
+            MediaCodec.@NonNull BufferInfo bufferInfo) throws IllegalStateException {
         mMediaCodec = Preconditions.checkNotNull(mediaCodec);
         mBufferIndex = bufferIndex;
         mByteBuffer = mediaCodec.getOutputBuffer(bufferIndex);

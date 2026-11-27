@@ -43,7 +43,7 @@ class InputBufferImpl implements InputBuffer {
     private boolean mIsEndOfStream = false;
 
     InputBufferImpl(@NonNull MediaCodec mediaCodec, @IntRange(from = 0) int bufferIndex)
-            throws MediaCodec.CodecException {
+            throws IllegalStateException {
         mMediaCodec = Preconditions.checkNotNull(mediaCodec);
         mBufferIndex = Preconditions.checkArgumentNonnegative(bufferIndex);
         mByteBuffer = mediaCodec.getInputBuffer(bufferIndex);
