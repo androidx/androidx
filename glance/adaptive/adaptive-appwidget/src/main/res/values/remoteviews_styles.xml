@@ -42,6 +42,11 @@
         <item name="android:textDirection">locale</item>
     </style>
 
+    <!-- List item text disables extra font padding to match RemoteCompose vertical metrics. -->
+    <style name="GlanceAdaptiveAppwidgetRemoteviews.ListText" parent="GlanceAdaptiveAppwidgetRemoteviews.Text">
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <!--
       Glance applies FontWeight through a TextAppearanceSpan of these styles. Below API 29 there is
       no font weight attribute, so Glance falls back to bold for both.
