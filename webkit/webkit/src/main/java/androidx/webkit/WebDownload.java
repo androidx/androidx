@@ -104,6 +104,39 @@ public final class WebDownload {
     }
 
     /**
+     * Returns whether the server or the page asked for the download, for example with the
+     * {@code Content-Disposition: attachment} response header or with {@code <a download>}. If
+     * not, WebView downloads the response only because it can't display it, for example a PDF.
+     *
+     * @return {@code true} if the server or the page asked for the download.
+     */
+    @AnyThread
+    public boolean isExplicitDownload() {
+        return mBoundaryInterface.isExplicitDownload();
+    }
+
+    /**
+     * Returns whether the main frame of the {@link WebView} started the download, either by
+     * navigating to it or by asking for it, for example with {@code <a download>}.
+     *
+     * @return {@code true} if the main frame started the download.
+     */
+    @AnyThread
+    public boolean isForMainFrame() {
+        return mBoundaryInterface.isForMainFrame();
+    }
+
+    /**
+     * Returns whether a user gesture, such as a tap, started the download.
+     *
+     * @return {@code true} if a user gesture started the download.
+     */
+    @AnyThread
+    public boolean hasGesture() {
+        return mBoundaryInterface.hasGesture();
+    }
+
+    /**
      * Saves the download to {@code destination}.
      *
      * <p>The following destinations are supported:
