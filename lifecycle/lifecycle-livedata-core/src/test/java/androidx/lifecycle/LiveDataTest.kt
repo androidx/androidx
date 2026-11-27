@@ -26,6 +26,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -823,6 +824,32 @@ class LiveDataTest {
         liveData.observe(owner, observer)
         assertThat(owner.currentState, `is`(Lifecycle.State.CREATED))
         assertThat<List<Boolean>>(activeCalls, `is`(mutableListOf(true, false)))
+    }
+
+    // b/588854028: an exception thrown from onChanged() must not leave
+    // dispatchingValue()'s mDispatchingValue flag set to true.
+    @Test
+    fun testDispatchResumesAfterObserverException() {
+        val liveData = MutableLiveData<String>()
+        val received = mutableListOf<String>()
+        liveData.observeForever { value ->
+            received.add(value)
+            if (value == "boom") {
+                throw IllegalStateException("observer failed while handling a new value")
+            }
+        }
+
+        assertThrows(IllegalStateException::class.java) { liveData.value = "boom" }
+
+        liveData.value = "after"
+        assertThat(received, `is`(listOf("boom", "after")))
+        assertThat(liveData.value, `is`("after"))
+
+        // A newly added observer is dispatched via activeStateChanged() rather
+        // than setValue(), so it must receive the current value as well.
+        val lateObserverValues = mutableListOf<String>()
+        liveData.observeForever { value -> lateObserverValues.add(value) }
+        assertThat(lateObserverValues, `is`(listOf("after")))
     }
 
     private fun getLiveDataInternalObserver(lifecycle: Lifecycle?): LifecycleEventObserver {

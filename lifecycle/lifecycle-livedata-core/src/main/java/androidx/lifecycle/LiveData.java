@@ -141,22 +141,25 @@ public abstract class LiveData<T> {
             return;
         }
         mDispatchingValue = true;
-        do {
-            mDispatchInvalidated = false;
-            if (initiator != null) {
-                considerNotify(initiator);
-                initiator = null;
-            } else {
-                for (Iterator<Map.Entry<Observer<? super T>, ObserverWrapper>> iterator =
-                        mObservers.iteratorWithAdditions(); iterator.hasNext(); ) {
-                    considerNotify(iterator.next().getValue());
-                    if (mDispatchInvalidated) {
-                        break;
+        try {
+            do {
+                mDispatchInvalidated = false;
+                if (initiator != null) {
+                    considerNotify(initiator);
+                    initiator = null;
+                } else {
+                    for (Iterator<Map.Entry<Observer<? super T>, ObserverWrapper>> iterator =
+                            mObservers.iteratorWithAdditions(); iterator.hasNext(); ) {
+                        considerNotify(iterator.next().getValue());
+                        if (mDispatchInvalidated) {
+                            break;
+                        }
                     }
                 }
-            }
-        } while (mDispatchInvalidated);
-        mDispatchingValue = false;
+            } while (mDispatchInvalidated);
+        } finally {
+            mDispatchingValue = false;
+        }
     }
 
     /**
